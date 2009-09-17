@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
 import edu.internet2.middleware.grouper.exception.RoleSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -16,7 +17,7 @@ import edu.internet2.middleware.grouper.permissions.RoleSet;
 /**
  * Data Access Object for role set
  * @author  mchyzer
- * @version $Id: Hib3RoleSetDAO.java,v 1.2 2009-09-17 17:51:50 mchyzer Exp $
+ * @version $Id: Hib3RoleSetDAO.java,v 1.3 2009-09-17 22:40:07 mchyzer Exp $
  */
 public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
   
@@ -135,6 +136,18 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#rolesInheritPermissionsFromThis(java.lang.String)
+   */
+  public Set<Role> rolesInheritPermissionsFromThis(String id) {
+    Set<Group> roles = HibernateSession.byHqlStatic().createQuery(
+      "select distinct r from RoleSet as rs, Group as r " +
+      "where rs.ifHasRoleId = :theId and r.id = rs.thenHasRoleId " +
+      "and r.id != :theId order by r.nameDb")
+      .setString("theId", id).listSet(Group.class);
+    return (Set<Role>)(Object)roles;
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#deleteByIfHasRole(edu.internet2.middleware.grouper.permissions.Role)
    */
   public void deleteByIfHasRole(final Role role) {
@@ -157,6 +170,42 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
           }
         });
     
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#rolesInheritPermissionsFromThisImmediate(java.lang.String)
+   */
+  public Set<Role> rolesInheritPermissionsFromThisImmediate(String id) {
+    Set<Group> roles = HibernateSession.byHqlStatic().createQuery(
+        "select distinct r from RoleSet as rs, Group as r " +
+        "where rs.ifHasRoleId = :theId and r.id = rs.thenHasRoleId " +
+        "and r.id != :theId and rs.typeDb = 'immediate' order by r.nameDb")
+        .setString("theId", id).listSet(Group.class);
+      return (Set<Role>)(Object)roles;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#rolesInheritPermissionsToThis(java.lang.String)
+   */
+  public Set<Role> rolesInheritPermissionsToThis(String id) {
+    Set<Group> roles = HibernateSession.byHqlStatic().createQuery(
+        "select distinct r from RoleSet as rs, Group as r " +
+        "where rs.thenHasRoleId = :theId and r.id = rs.ifHasRoleId " +
+        "and r.id != :theId order by r.nameDb")
+        .setString("theId", id).listSet(Group.class);
+      return (Set<Role>)(Object)roles;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#rolesInheritPermissionsToThisImmediate(java.lang.String)
+   */
+  public Set<Role> rolesInheritPermissionsToThisImmediate(String id) {
+    Set<Group> roles = HibernateSession.byHqlStatic().createQuery(
+        "select distinct r from RoleSet as rs, Group as r " +
+        "where rs.thenHasRoleId = :theId and r.id = rs.ifHasRoleId " +
+        "and r.id != :theId and rs.typeDb = 'immediate' order by r.nameDb")
+        .setString("theId", id).listSet(Group.class);
+      return (Set<Role>)(Object)roles;
   }
 
 } 

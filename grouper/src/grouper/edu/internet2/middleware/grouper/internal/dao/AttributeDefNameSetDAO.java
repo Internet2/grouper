@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeDefNameSetDAO.java,v 1.6 2009-09-17 17:51:50 mchyzer Exp $
+ * $Id: AttributeDefNameSetDAO.java,v 1.7 2009-09-17 22:40:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -9,6 +9,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
+import edu.internet2.middleware.grouper.permissions.Role;
 
 /**
  * attribute def name set, links up attributes with other attributes (probably for privs)
@@ -84,5 +85,37 @@ public interface AttributeDefNameSetDAO extends GrouperDAO {
    */
   public void deleteByIfHasAttributeDefName(AttributeDefName attributeDefName);
   
+  /**
+   * get all the IF rows from attributeDefNameSet about this id.  The ones returned imply that
+   * this is also assigned.  Those are the parents, this is the child.
+   * @param attributeDefNameId
+   * @return the AttributeDefName
+   */
+  public Set<AttributeDefName> attributeDefNamesThatImplyThis(String attributeDefNameId);
+
+  /**
+   * get all the IF rows from attributeDefNameSet about this id (immediate only).  The ones returned imply that
+   * this is also assigned.  Those are the parents, this is the child.
+   * @param attributeDefNameId
+   * @return the AttributeDefName
+   */
+  public Set<AttributeDefName> attributeDefNamesThatImplyThisImmediate(String attributeDefNameId);
+
+  /**
+   * get all the THEN rows from attributeDefNameSet about this id.  The ones returned
+   * are implied if this one is assigned.  Those are the children, this is the parent
+   * @param attributeDefNameId
+   * @return the AttributeDefName
+   */
+  public Set<AttributeDefName> attributeDefNamesImpliedByThis(String attributeDefNameId);
+
+  /**
+   * get all the THEN rows from attributeDefNameSet about this id (immediate).  The ones returned
+   * are implied if this one is assigned.  Those are the children, this is the parent
+   * @param attributeDefNameId
+   * @return the AttributeDefName
+   */
+  public Set<AttributeDefName> attributeDefNamesImpliedByThisImmediate(String attributeDefNameId);
+
 
 }

@@ -149,7 +149,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
 
     assertEquals(initialAttrDefNameSetViewCount + 2, attrDefNameSetViewCount);
 
-    org1.addToAttributeDefNameSet(org2);
+    org1.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(org2);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -172,7 +172,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
 
     assertEquals(initialAttrDefNameSetViewCount + 5, attrDefNameSetViewCount);
 
-    org3.addToAttributeDefNameSet(org4);
+    org3.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(org4);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -180,7 +180,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 6, attrDefNameSetViewCount);
 
     //connect the branches
-    org2.addToAttributeDefNameSet(org3);
+    org2.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(org3);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -289,7 +289,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgA", true);
     AttributeDefName orgB = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgB", true);
-    orgA.removeFromAttributeDefNameSet(orgB);
+    orgA.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgB);
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -1152,8 +1152,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 2, attrDefNameSetViewCount);
 
     // A -> B
-    assertTrue(orgA.addToAttributeDefNameSet(orgB));
-    assertFalse(orgA.addToAttributeDefNameSet(orgB));
+    assertTrue(orgA.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgB));
+    assertFalse(orgA.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgB));
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1169,7 +1169,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
 
     assertEquals(initialAttrDefNameSetViewCount + 4, attrDefNameSetViewCount);
 
-    orgA.addToAttributeDefNameSet(orgH);
+    orgA.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgH);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1185,7 +1185,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
 
     assertEquals(initialAttrDefNameSetViewCount + 6, attrDefNameSetViewCount);
 
-    orgA.addToAttributeDefNameSet(orgI);
+    orgA.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgI);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1202,7 +1202,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 8, attrDefNameSetViewCount);
 
     // B -> C
-    orgB.addToAttributeDefNameSet(orgC);
+    orgB.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgC);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1219,7 +1219,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 11, attrDefNameSetViewCount);
 
     // B -> D
-    orgB.addToAttributeDefNameSet(orgD);
+    orgB.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgD);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1236,7 +1236,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 14, attrDefNameSetViewCount);
 
     // C -> E
-    orgC.addToAttributeDefNameSet(orgE);
+    orgC.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgE);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1253,7 +1253,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 18, attrDefNameSetViewCount);
 
     // C -> G
-    orgC.addToAttributeDefNameSet(orgG);
+    orgC.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgG);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1262,7 +1262,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 21, attrDefNameSetViewCount);
 
     // D -> E
-    orgD.addToAttributeDefNameSet(orgE);
+    orgD.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgE);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1279,7 +1279,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 25, attrDefNameSetViewCount);
 
     // E -> F
-    orgE.addToAttributeDefNameSet(orgF);
+    orgE.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgF);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1296,7 +1296,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 33, attrDefNameSetViewCount);
 
     // E -> L
-    orgE.addToAttributeDefNameSet(orgL);
+    orgE.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgL);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1305,7 +1305,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 40, attrDefNameSetViewCount);
 
     // G -> F
-    orgG.addToAttributeDefNameSet(orgF);
+    orgG.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgF);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1314,7 +1314,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 44, attrDefNameSetViewCount);
 
     // H -> I
-    orgH.addToAttributeDefNameSet(orgI);
+    orgH.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgI);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1331,7 +1331,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 47, attrDefNameSetViewCount);
 
     // I -> J
-    orgI.addToAttributeDefNameSet(orgJ);
+    orgI.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgJ);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1340,7 +1340,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 51, attrDefNameSetViewCount);
 
     // J -> F
-    orgJ.addToAttributeDefNameSet(orgF);
+    orgJ.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgF);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1349,7 +1349,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 56, attrDefNameSetViewCount);
 
     // J -> H
-    orgJ.addToAttributeDefNameSet(orgH);
+    orgJ.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgH);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1366,7 +1366,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 61, attrDefNameSetViewCount);
 
     // K -> C
-    orgK.addToAttributeDefNameSet(orgC);
+    orgK.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgC);
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -2202,7 +2202,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgA", true);
     AttributeDefName orgH = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgH", true);
-    orgA.removeFromAttributeDefNameSet(orgH);
+    orgA.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgH);
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -3020,7 +3020,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgA", true);
     AttributeDefName orgI = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgI", true);
-    orgA.removeFromAttributeDefNameSet(orgI);
+    orgA.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgI);
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -3838,8 +3838,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgB", true);
     AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgC", true);
-    assertFalse(orgC.removeFromAttributeDefNameSet(orgB));
-    assertTrue(orgB.removeFromAttributeDefNameSet(orgC));
+    assertFalse(orgC.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgB));
+    assertTrue(orgB.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgC));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -4669,8 +4669,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgB", true);
     AttributeDefName orgD = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgD", true);
-    assertFalse(orgD.removeFromAttributeDefNameSet(orgB));
-    assertTrue(orgB.removeFromAttributeDefNameSet(orgD));
+    assertFalse(orgD.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgB));
+    assertTrue(orgB.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgD));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -5500,7 +5500,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgC", true);
     AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgE", true);
-    assertTrue(orgC.removeFromAttributeDefNameSet(orgE));
+    assertTrue(orgC.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgE));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -6330,7 +6330,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgC", true);
     AttributeDefName orgG = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgG", true);
-    assertTrue(orgC.removeFromAttributeDefNameSet(orgG));
+    assertTrue(orgC.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgG));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -7160,7 +7160,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgD", true);
     AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgE", true);
-    assertTrue(orgD.removeFromAttributeDefNameSet(orgE));
+    assertTrue(orgD.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgE));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -7990,7 +7990,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgE", true);
     AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgF", true);
-    assertTrue(orgE.removeFromAttributeDefNameSet(orgF));
+    assertTrue(orgE.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgF));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -8820,7 +8820,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgE", true);
     AttributeDefName orgL = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgL", true);
-    assertTrue(orgE.removeFromAttributeDefNameSet(orgL));
+    assertTrue(orgE.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgL));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -9650,7 +9650,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgG", true);
     AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgF", true);
-    assertTrue(orgG.removeFromAttributeDefNameSet(orgF));
+    assertTrue(orgG.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgF));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -10480,7 +10480,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgH", true);
     AttributeDefName orgI = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgI", true);
-    assertTrue(orgH.removeFromAttributeDefNameSet(orgI));
+    assertTrue(orgH.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgI));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -11310,7 +11310,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgI", true);
     AttributeDefName orgJ = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgJ", true);
-    assertTrue(orgI.removeFromAttributeDefNameSet(orgJ));
+    assertTrue(orgI.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgJ));
 
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
@@ -12140,7 +12140,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgJ", true);
     AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgF", true);
-    assertTrue(orgJ.removeFromAttributeDefNameSet(orgF));
+    assertTrue(orgJ.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgF));
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()
@@ -12969,7 +12969,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgJ", true);
     AttributeDefName orgH = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgH", true);
-    assertTrue(orgJ.removeFromAttributeDefNameSet(orgH));
+    assertTrue(orgJ.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgH));
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()
@@ -13798,7 +13798,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .findByName("top:orgK", true);
     AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
         .findByName("top:orgC", true);
-    assertTrue(orgK.removeFromAttributeDefNameSet(orgC));
+    assertTrue(orgK.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(orgC));
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()

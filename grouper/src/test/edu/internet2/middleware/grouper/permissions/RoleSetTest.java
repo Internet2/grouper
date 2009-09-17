@@ -28,7 +28,7 @@ public class RoleSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RoleSetTest("testHibernate"));
+    TestRunner.run(new RoleSetTest("testRolesHierarchy"));
   }
 
   /**
@@ -168,8 +168,8 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 2, roleSetViewCount);
   
     // A -> B
-    assertTrue(orgA.addToRoleSet(orgB));
-    assertFalse(orgA.addToRoleSet(orgB));
+    assertTrue(orgA.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgB));
+    assertFalse(orgA.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgB));
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -185,7 +185,7 @@ public class RoleSetTest extends GrouperTest {
   
     assertEquals(initialRoleSetViewCount + 4, roleSetViewCount);
   
-    orgA.addToRoleSet(orgH);
+    orgA.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgH);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -201,7 +201,7 @@ public class RoleSetTest extends GrouperTest {
   
     assertEquals(initialRoleSetViewCount + 6, roleSetViewCount);
   
-    orgA.addToRoleSet(orgI);
+    orgA.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgI);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -218,7 +218,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 8, roleSetViewCount);
   
     // B -> C
-    orgB.addToRoleSet(orgC);
+    orgB.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgC);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -235,7 +235,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 11, roleSetViewCount);
   
     // B -> D
-    orgB.addToRoleSet(orgD);
+    orgB.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgD);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -252,7 +252,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 14, roleSetViewCount);
   
     // C -> E
-    orgC.addToRoleSet(orgE);
+    orgC.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgE);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -269,7 +269,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 18, roleSetViewCount);
   
     // C -> G
-    orgC.addToRoleSet(orgG);
+    orgC.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgG);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -278,7 +278,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 21, roleSetViewCount);
   
     // D -> E
-    orgD.addToRoleSet(orgE);
+    orgD.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgE);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -295,7 +295,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 25, roleSetViewCount);
   
     // E -> F
-    orgE.addToRoleSet(orgF);
+    orgE.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgF);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -312,7 +312,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 33, roleSetViewCount);
   
     // E -> L
-    orgE.addToRoleSet(orgL);
+    orgE.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgL);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -321,7 +321,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 40, roleSetViewCount);
   
     // G -> F
-    orgG.addToRoleSet(orgF);
+    orgG.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgF);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -330,7 +330,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 44, roleSetViewCount);
   
     // H -> I
-    orgH.addToRoleSet(orgI);
+    orgH.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgI);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -347,7 +347,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 47, roleSetViewCount);
   
     // I -> J
-    orgI.addToRoleSet(orgJ);
+    orgI.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgJ);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -356,7 +356,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 51, roleSetViewCount);
   
     // J -> F
-    orgJ.addToRoleSet(orgF);
+    orgJ.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgF);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -365,7 +365,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 56, roleSetViewCount);
   
     // J -> H
-    orgJ.addToRoleSet(orgH);
+    orgJ.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgH);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -382,7 +382,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 61, roleSetViewCount);
   
     // K -> C
-    orgK.addToRoleSet(orgC);
+    orgK.getRoleInheritanceDelegate().addRoleToInheritFromThis(orgC);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -1218,7 +1218,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgA", true);
     Role orgB = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgB", true);
-    orgA.removeFromRoleSet(orgB);
+    orgA.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgB);
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -2015,8 +2015,8 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgB", true);
     Role orgC = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgC", true);
-    assertFalse(orgC.removeFromRoleSet(orgB));
-    assertTrue(orgB.removeFromRoleSet(orgC));
+    assertFalse(orgC.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgB));
+    assertTrue(orgB.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgC));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -2846,7 +2846,7 @@ public class RoleSetTest extends GrouperTest {
           .findByName("top:orgK", true);
       Role orgC = GrouperDAOFactory.getFactory().getRole()
           .findByName("top:orgC", true);
-      assertTrue(orgK.removeFromRoleSet(orgC));
+      assertTrue(orgK.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgC));
       //lets look at them all
       List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
           GrouperDAOFactory.getFactory()
@@ -3675,8 +3675,8 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgB", true);
     Role orgD = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgD", true);
-    assertFalse(orgD.removeFromRoleSet(orgB));
-    assertTrue(orgB.removeFromRoleSet(orgD));
+    assertFalse(orgD.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgB));
+    assertTrue(orgB.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgD));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -4498,15 +4498,133 @@ public class RoleSetTest extends GrouperTest {
   }
 
   /**
-       * 
-       */
+   * make sure the getRole
+   */
+  public void testRolesHierarchy() {
+    setupStructure();
+    Role orgC = GrouperDAOFactory.getFactory().getRole()
+        .findByName("top:orgC", true);
+    Role orgE = GrouperDAOFactory.getFactory().getRole()
+        .findByName("top:orgE", true);
+    Role orgL = GrouperDAOFactory.getFactory().getRole()
+        .findByName("top:orgL", true);
+    
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsFromThisE = new ArrayList<Role>(orgE.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThis());
+      assertEquals(2, rolesInheritPermissionsFromThisE.size());
+      assertEquals("top:orgF", rolesInheritPermissionsFromThisE.get(0).getName());
+      assertEquals("top:orgL", rolesInheritPermissionsFromThisE.get(1).getName());
+    
+    }
+    
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsFromThisC = new ArrayList<Role>(orgC.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThis());
+      assertEquals(4, rolesInheritPermissionsFromThisC.size());
+      assertEquals("top:orgE", rolesInheritPermissionsFromThisC.get(0).getName());
+      assertEquals("top:orgF", rolesInheritPermissionsFromThisC.get(1).getName());
+      assertEquals("top:orgG", rolesInheritPermissionsFromThisC.get(2).getName());
+      assertEquals("top:orgL", rolesInheritPermissionsFromThisC.get(3).getName());
+    
+    }
+    
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsFromThisImmediateC = 
+        new ArrayList<Role>(orgC.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThisImmediate());
+      assertEquals(2, rolesInheritPermissionsFromThisImmediateC.size());
+      assertEquals("top:orgE", rolesInheritPermissionsFromThisImmediateC.get(0).getName());
+      assertEquals("top:orgG", rolesInheritPermissionsFromThisImmediateC.get(1).getName());
+    
+    }
+
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsToThisL = 
+        new ArrayList<Role>(orgL.getRoleInheritanceDelegate().getRolesInheritPermissionsToThis());
+      assertEquals(6, rolesInheritPermissionsToThisL.size());
+      assertEquals("top:orgA", rolesInheritPermissionsToThisL.get(0).getName());
+      assertEquals("top:orgB", rolesInheritPermissionsToThisL.get(1).getName());
+      assertEquals("top:orgC", rolesInheritPermissionsToThisL.get(2).getName());
+      assertEquals("top:orgD", rolesInheritPermissionsToThisL.get(3).getName());
+      assertEquals("top:orgE", rolesInheritPermissionsToThisL.get(4).getName());
+      assertEquals("top:orgK", rolesInheritPermissionsToThisL.get(5).getName());
+    
+    }
+
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsToThisImmediateL = 
+        new ArrayList<Role>(orgL.getRoleInheritanceDelegate().getRolesInheritPermissionsToThisImmediate());
+      assertEquals(1, rolesInheritPermissionsToThisImmediateL.size());
+      assertEquals("top:orgE", rolesInheritPermissionsToThisImmediateL.get(0).getName());
+    
+    }
+
+    assertTrue(orgC.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgE));
+    
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsFromThisE = new ArrayList<Role>(orgE.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThis());
+      assertEquals(2, rolesInheritPermissionsFromThisE.size());
+      assertEquals("top:orgF", rolesInheritPermissionsFromThisE.get(0).getName());
+      assertEquals("top:orgL", rolesInheritPermissionsFromThisE.get(1).getName());
+    
+    }
+    
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsFromThisC = new ArrayList<Role>(orgC.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThis());
+      assertEquals(2, rolesInheritPermissionsFromThisC.size());
+      assertEquals("top:orgF", rolesInheritPermissionsFromThisC.get(0).getName());
+      assertEquals("top:orgG", rolesInheritPermissionsFromThisC.get(1).getName());
+    
+    }
+    
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsFromThisImmediateC = 
+        new ArrayList<Role>(orgC.getRoleInheritanceDelegate().getRolesInheritPermissionsFromThisImmediate());
+      assertEquals(1, rolesInheritPermissionsFromThisImmediateC.size());
+      assertEquals("top:orgG", rolesInheritPermissionsFromThisImmediateC.get(0).getName());
+    
+    }
+
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsToThisL = 
+        new ArrayList<Role>(orgL.getRoleInheritanceDelegate().getRolesInheritPermissionsToThis());
+      assertEquals(4, rolesInheritPermissionsToThisL.size());
+      assertEquals("top:orgA", rolesInheritPermissionsToThisL.get(0).getName());
+      assertEquals("top:orgB", rolesInheritPermissionsToThisL.get(1).getName());
+      assertEquals("top:orgD", rolesInheritPermissionsToThisL.get(2).getName());
+      assertEquals("top:orgE", rolesInheritPermissionsToThisL.get(3).getName());
+    
+    }
+
+    {
+      //check which imply this, and are implied by this
+      List<Role> rolesInheritPermissionsToThisImmediateL = 
+        new ArrayList<Role>(orgL.getRoleInheritanceDelegate().getRolesInheritPermissionsToThisImmediate());
+      assertEquals(1, rolesInheritPermissionsToThisImmediateL.size());
+      assertEquals("top:orgE", rolesInheritPermissionsToThisImmediateL.get(0).getName());
+    
+    }
+
+  }
+  
+  /**
+   * 
+   */
   public void testComplexRemoveEfromC() {
     setupStructure();
     Role orgC = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgC", true);
     Role orgE = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgE", true);
-    assertTrue(orgC.removeFromRoleSet(orgE));
+    
+    assertTrue(orgC.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgE));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -5336,7 +5454,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgD", true);
     Role orgE = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgE", true);
-    assertTrue(orgD.removeFromRoleSet(orgE));
+    assertTrue(orgD.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgE));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -6166,7 +6284,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgE", true);
     Role orgF = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgF", true);
-    assertTrue(orgE.removeFromRoleSet(orgF));
+    assertTrue(orgE.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgF));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -6996,7 +7114,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgG", true);
     Role orgF = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgF", true);
-    assertTrue(orgG.removeFromRoleSet(orgF));
+    assertTrue(orgG.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgF));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -7826,7 +7944,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgJ", true);
     Role orgF = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgF", true);
-    assertTrue(orgJ.removeFromRoleSet(orgF));
+    assertTrue(orgJ.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgF));
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
         GrouperDAOFactory.getFactory()
@@ -8655,7 +8773,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgC", true);
     Role orgG = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgG", true);
-    assertTrue(orgC.removeFromRoleSet(orgG));
+    assertTrue(orgC.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgG));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -9485,7 +9603,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgA", true);
     Role orgH = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgH", true);
-    orgA.removeFromRoleSet(orgH);
+    orgA.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgH);
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -10303,7 +10421,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgJ", true);
     Role orgH = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgH", true);
-    assertTrue(orgJ.removeFromRoleSet(orgH));
+    assertTrue(orgJ.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgH));
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
         GrouperDAOFactory.getFactory()
@@ -11132,7 +11250,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgA", true);
     Role orgI = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgI", true);
-    orgA.removeFromRoleSet(orgI);
+    orgA.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgI);
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -11950,7 +12068,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgH", true);
     Role orgI = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgI", true);
-    assertTrue(orgH.removeFromRoleSet(orgI));
+    assertTrue(orgH.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgI));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -12780,7 +12898,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgI", true);
     Role orgJ = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgJ", true);
-    assertTrue(orgI.removeFromRoleSet(orgJ));
+    assertTrue(orgI.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgJ));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -13610,7 +13728,7 @@ public class RoleSetTest extends GrouperTest {
         .findByName("top:orgE", true);
     Role orgL = GrouperDAOFactory.getFactory().getRole()
         .findByName("top:orgL", true);
-    assertTrue(orgE.removeFromRoleSet(orgL));
+    assertTrue(orgE.getRoleInheritanceDelegate().removeRoleFromInheritFromThis(orgL));
   
     //lets look at them all
     List<RoleSetView> roleSetViews = new ArrayList<RoleSetView>(
@@ -14480,7 +14598,7 @@ public class RoleSetTest extends GrouperTest {
   
     assertEquals(initialRoleSetViewCount + 2, roleSetViewCount);
   
-    org1.addToRoleSet(org2);
+    org1.getRoleInheritanceDelegate().addRoleToInheritFromThis(org2);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -14503,7 +14621,7 @@ public class RoleSetTest extends GrouperTest {
   
     assertEquals(initialRoleSetViewCount + 5, roleSetViewCount);
   
-    org3.addToRoleSet(org4);
+    org3.getRoleInheritanceDelegate().addRoleToInheritFromThis(org4);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");
@@ -14511,7 +14629,7 @@ public class RoleSetTest extends GrouperTest {
     assertEquals(initialRoleSetViewCount + 6, roleSetViewCount);
   
     //connect the branches
-    org2.addToRoleSet(org3);
+    org2.getRoleInheritanceDelegate().addRoleToInheritFromThis(org3);
   
     roleSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_role_set_v");

@@ -72,7 +72,6 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
-import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
@@ -101,6 +100,7 @@ import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.Role;
+import edu.internet2.middleware.grouper.permissions.RoleInheritanceDelegate;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -128,7 +128,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.258 2009-09-17 04:19:15 mchyzer Exp $
+ * @version $Id: Group.java,v 1.259 2009-09-17 22:40:07 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -5328,35 +5328,19 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
 
   /**
-   * assert that this is a role
-   * @param object 
+   * cache this for performance.  delegate calls to this class for role hierarchy stuff
    */
-  private static void assertIsRole(Object object) {
-    if (!(object instanceof Group)) {
-      throw new RuntimeException("Expecting Group object, was: " + GrouperUtil.className(object));
-    }
-    Group group = (Group)object;
-    if (!TypeOfGroup.role.equals(group.typeOfGroup)) {
-      throw new RuntimeException("Requires this group to be of type 'role', but" +
-      		" instead is of type: " + group.typeOfGroup + ": " + group.getName());
-    }
-  }
+  private RoleInheritanceDelegate roleInheritanceDelegate = null;
   
   /**
-   * @see edu.internet2.middleware.grouper.permissions.Role#addToRoleSet(edu.internet2.middleware.grouper.permissions.Role)
+   * delegate calls to this class for role hierarchy stuff
+   * @return the role inheritance hierarchy
    */
-  public boolean addToRoleSet(Role roleToAdd) {
-    assertIsRole(this);
-    assertIsRole(roleToAdd);
-    return GrouperSetEnum.ROLE_SET.addToGrouperSet(this, roleToAdd);
+  public RoleInheritanceDelegate getRoleInheritanceDelegate() {
+    if (this.roleInheritanceDelegate == null) {
+      this.roleInheritanceDelegate = new RoleInheritanceDelegate(this);
+    }
+    return this.roleInheritanceDelegate;
   }
-
-  /**
-   * @see edu.internet2.middleware.grouper.permissions.Role#removeFromRoleSet(edu.internet2.middleware.grouper.permissions.Role)
-   */
-  public boolean removeFromRoleSet(Role roleToRemove) {
-    assertIsRole(this);
-    assertIsRole(roleToRemove);
-    return GrouperSetEnum.ROLE_SET.removeFromGrouperSet(this, roleToRemove);
-  } 
+  
 }

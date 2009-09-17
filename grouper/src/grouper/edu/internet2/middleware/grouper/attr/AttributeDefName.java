@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
-import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -453,24 +452,6 @@ public class AttributeDefName extends GrouperAPI
   private static final Log LOG = GrouperUtil.getLog(AttributeDefName.class);
 
   /**
-   * 
-   * @param newAttributeDefName
-   * @return true if added, false if already there
-   */
-  public boolean addToAttributeDefNameSet(AttributeDefName newAttributeDefName) {
-    return GrouperSetEnum.ATTRIBUTE_SET.addToGrouperSet(this, newAttributeDefName);
-  }
-
-  /**
-   * 
-   * @param attributeDefNameToRemove
-   * @return true if removed, false if already removed
-   */
-  public boolean removeFromAttributeDefNameSet(AttributeDefName attributeDefNameToRemove) {
-    return GrouperSetEnum.ATTRIBUTE_SET.removeFromGrouperSet(this, attributeDefNameToRemove);
-  }
-
-  /**
    * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetElement#__getId()
    */
   public String __getId() {
@@ -491,5 +472,19 @@ public class AttributeDefName extends GrouperAPI
     GrouperDAOFactory.getFactory().getAttributeDefName().delete(this);
   }
 
+  /**
+   * delegate logic about attribute def name sets to this object
+   */
+  private AttributeDefNameSetDelegate attributeDefNameSetDelegate;
   
+  /**
+   * delegate logic about attribute def name sets to this object 
+   * @return the delegate
+   */
+  public AttributeDefNameSetDelegate getAttributeDefNameSetDelegate() {
+    if (this.attributeDefNameSetDelegate == null) {
+      this.attributeDefNameSetDelegate = new AttributeDefNameSetDelegate(this);
+    }
+    return this.attributeDefNameSetDelegate;
+  }
 }

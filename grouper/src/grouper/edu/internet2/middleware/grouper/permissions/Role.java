@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Role.java,v 1.2 2009-09-17 17:51:50 mchyzer Exp $
+ * $Id: Role.java,v 1.3 2009-09-17 22:40:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions;
 
@@ -17,21 +17,6 @@ public interface Role extends GrouperSetElement {
    * inheritance, you need to break that inheritance first
    */
   public void delete();
-  
-  /**
-   * if a user has this role, then he also inherits permissions from the roleToAdd
-   * @param roleToAdd
-   * @return true if added, false if already there
-   */
-  public boolean addToRoleSet(Role roleToAdd);
-  
-  /**
-   * if a user has this role, and he had inheriated permissions from roleToRemove directly, then 
-   * remove that relationship
-   * @param roleToRemove
-   * @return true if removed, false if already not there
-   */
-  public boolean removeFromRoleSet(Role roleToRemove);
   
   /**
    * uuid of role
@@ -119,4 +104,9 @@ public interface Role extends GrouperSetElement {
    */
   public void setStemId(String stemId1);
   
+  /**
+   * delegate calls to this class for role hierarchy stuff
+   * @return the delegate
+   */
+  public RoleInheritanceDelegate getRoleInheritanceDelegate();
 }
