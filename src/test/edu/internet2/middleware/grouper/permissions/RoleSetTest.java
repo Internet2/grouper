@@ -28,7 +28,7 @@ public class RoleSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RoleSetTest("testComplexRemoveBfromA"));
+    TestRunner.run(new RoleSetTest("testHibernate"));
   }
 
   /**
@@ -81,6 +81,18 @@ public class RoleSetTest extends GrouperTest {
     roleSet.setType(RoleHierarchyType.immediate);
     roleSet.saveOrUpdate();
 
+    try {
+      role2.delete();
+      fail("How can you delete this if in role inheritance?");
+    } catch (Exception e) {
+      //thats good
+    }
+    
+    roleSet.delete();
+    
+    role.delete();
+    role2.delete();
+    
   }
 
   /**

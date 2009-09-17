@@ -28,7 +28,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameSetTest("testComplexRemoveLfromE"));
+    TestRunner.run(new AttributeDefNameSetTest("testHibernate"));
   }
 
   /**
@@ -83,6 +83,18 @@ public class AttributeDefNameSetTest extends GrouperTest {
     attributeDefNameSet.setThenHasAttributeDefNameId(attributeDefName2.getId());
     attributeDefNameSet.setType(AttributeDefAssignmentType.immediate);
     attributeDefNameSet.saveOrUpdate();
+
+    try {
+      attributeDefName2.delete();
+      fail("How can you delete this if in role inheritance?");
+    } catch (Exception e) {
+      //thats good
+    }
+    
+    attributeDefNameSet.delete();
+    
+    attributeDefName.delete();
+    attributeDefName2.delete();
 
   }
 

@@ -1,18 +1,25 @@
 /*
  * @author mchyzer
- * $Id: RoleSetDAO.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
+ * $Id: RoleSetDAO.java,v 1.2 2009-09-17 17:51:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.exception.RoleSetNotFoundException;
+import edu.internet2.middleware.grouper.permissions.Role;
 import edu.internet2.middleware.grouper.permissions.RoleSet;
 
 /**
  * attribute def name set, links up attributes with other attributes (probably for privs)
  */
 public interface RoleSetDAO extends GrouperDAO {
+  
+  /**
+   * delete role sets by owner, so the role can be deleted
+   * @param role
+   */
+  public void deleteByIfHasRole(Role role);
   
   /** 
    * insert or update an attribute def name set

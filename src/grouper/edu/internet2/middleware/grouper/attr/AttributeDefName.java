@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -482,5 +483,13 @@ public class AttributeDefName extends GrouperAPI
   public String __getName() {
     return this.getName();
   }
+  
+  /**
+   * save or update this object
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getAttributeDefName().delete(this);
+  }
+
   
 }

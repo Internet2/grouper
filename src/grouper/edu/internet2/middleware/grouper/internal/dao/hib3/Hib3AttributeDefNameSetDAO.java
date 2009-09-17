@@ -1,15 +1,22 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.permissions.Role;
 
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.5 2009-09-17 04:19:15 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.6 2009-09-17 17:51:50 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -94,8 +101,22 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#delete(edu.internet2.middleware.grouper.attr.AttributeDefNameSet)
    */
-  public void delete(AttributeDefNameSet attributeDefNameSet) {
-    HibernateSession.byObjectStatic().delete(attributeDefNameSet);
+  public void delete(final AttributeDefNameSet attributeDefNameSet) {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            //set parent to null so mysql doest get mad
+            //http://bugs.mysql.com/bug.php?id=15746
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+                "update AttributeDefNameSet set parentAttrDefNameSetId = null where id = :id")
+                .setString("id", attributeDefNameSet.getId()).executeUpdate();
+            hibernateHandlerBean.getHibernateSession().byObject().delete(attributeDefNameSet);
+            return null;
+          }
+      
+    });
   }
 
   /**
@@ -114,6 +135,32 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
     }
     return attributeDefNameSet;
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#deleteByIfHasAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)
+   */
+  public void deleteByIfHasAttributeDefName(final AttributeDefName attributeDefName) {
+    
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler()  {
+          
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            //do this since mysql cant handle self-referential foreign keys
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+              "update AttributeDefNameSet set parentAttrDefNameSetId = null where ifHasAttributeDefNameId = :id")
+              .setString("id", attributeDefName.getId())
+              .executeUpdate();    
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+              "delete from AttributeDefNameSet where ifHasAttributeDefNameId = :id")
+              .setString("id", attributeDefName.getId())
+              .executeUpdate();    
+            return null;
+          }
+        });
+
+    
   }
 
 } 

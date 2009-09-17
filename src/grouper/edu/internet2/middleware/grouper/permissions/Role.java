@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Role.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
+ * $Id: Role.java,v 1.2 2009-09-17 17:51:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions;
 
@@ -12,6 +12,12 @@ import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
  */
 public interface Role extends GrouperSetElement {
 
+  /**
+   * delete this role.  Note if the role participates in role
+   * inheritance, you need to break that inheritance first
+   */
+  public void delete();
+  
   /**
    * if a user has this role, then he also inherits permissions from the roleToAdd
    * @param roleToAdd

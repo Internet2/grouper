@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.67 2009-09-17 04:19:15 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.68 2009-09-17 17:51:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1946,6 +1946,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
@@ -1955,6 +1956,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_group_field_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_groups_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_members_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_roles_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_stems_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
@@ -2947,6 +2949,7 @@ public enum GrouperDdl implements DdlVersionable {
             "DISPLAY_NAME", 
             "DESCRIPTION", 
             "PARENT_STEM_NAME", 
+            "TYPE_OF_GROUP", 
             "GROUP_ID", 
             "PARENT_STEM_ID", 
             "MODIFIER_SOURCE", 
@@ -2966,6 +2969,7 @@ public enum GrouperDdl implements DdlVersionable {
             "DISPLAY_NAME: name for display of the group without any path information, e.g. The group", 
             "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
             "PARENT_STEM_NAME: name of the stem this group is in, e.g. school:stem1", 
+            "TYPE_OF_GROUP: group if it is a group, role if it is a role", 
             "GROUP_ID: uuid unique id of the group", 
             "PARENT_STEM_ID: uuid unique id of the stem this group is in", 
             "MODIFIER_SOURCE: source name of the subject who last modified this group, e.g. schoolPersonSource", 
@@ -2987,6 +2991,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "gg.display_name as display_name, "
             + "gg.description as description, "
             + "gs.NAME as parent_stem_name, "
+            + "gg.type_of_group, "
             + "gg.id as group_id, "
             + "gs.ID as parent_stem_id, "
             + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
@@ -3001,6 +3006,71 @@ public enum GrouperDdl implements DdlVersionable {
             + "gg.MODIFY_TIME, "
             + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
             + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_roles_v", 
+        "Contains one record for each role, with friendly names for some attributes and some more information",
+        GrouperUtil.toSet("EXTENSION", 
+            "NAME", 
+            "DISPLAY_EXTENSION", 
+            "DISPLAY_NAME", 
+            "DESCRIPTION", 
+            "PARENT_STEM_NAME", 
+            "ROLE_ID", 
+            "PARENT_STEM_ID", 
+            "MODIFIER_SOURCE", 
+            "MODIFIER_SUBJECT_ID", 
+            "CREATOR_SOURCE", 
+            "CREATOR_SUBJECT_ID", 
+            "IS_COMPOSITE_OWNER", 
+            "IS_COMPOSITE_FACTOR", 
+            "CREATOR_ID", 
+            "CREATE_TIME", 
+            "MODIFIER_ID", 
+            "MODIFY_TIME", 
+            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
+        GrouperUtil.toSet("EXTENSION: part of role name not including path information, e.g. theRole", 
+            "NAME: name of the role, e.g. school:stem1:theRole", 
+            "DISPLAY_EXTENSION: name for display of the role, e.g. My school:The stem 1:The role", 
+            "DISPLAY_NAME: name for display of the role without any path information, e.g. The role", 
+            "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
+            "PARENT_STEM_NAME: name of the stem this role is in, e.g. school:stem1", 
+            "ROLE_ID: uuid unique id of the role", 
+            "PARENT_STEM_ID: uuid unique id of the stem this role is in", 
+            "MODIFIER_SOURCE: source name of the subject who last modified this role, e.g. schoolPersonSource", 
+            "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this role, e.g. 12345", 
+            "CREATOR_SOURCE: source name of the subject who created this role, e.g. schoolPersonSource", 
+            "CREATOR_SUBJECT_ID: subject id of the subject who created this role, e.g. 12345", 
+            "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
+            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
+            "CREATOR_ID: member id of the subject who created this role, foreign key to grouper_members", 
+            "CREATE_TIME: number of millis since 1970 since this role was created", 
+            "MODIFIER_ID: member id of the subject who last modified this role, foreign key to grouper_members", 
+            "MODIFY_TIME: number of millis since 1970 since this role was last changed", 
+            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update",
+            "Context id links together multiple operations into one high level action"),
+            "select  "
+            + "gg.extension as extension, "
+            + "gg.name as name, "
+            + "gg.display_extension as display_extension, "
+            + "gg.display_name as display_name, "
+            + "gg.description as description, "
+            + "gs.NAME as parent_stem_name, "
+            + "gg.id as role_id, "
+            + "gs.ID as parent_stem_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, "
+            + "(select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, "
+            + "(select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, "
+            + "gg.CREATOR_ID, "
+            + "gg.CREATE_TIME, "
+            + "gg.MODIFIER_ID, "
+            + "gg.MODIFY_TIME, "
+            + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
+            + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID and" +
+                " type_of_group = 'role' ");
+
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_all_v", 
         "Grouper_memberships_all_v holds one record for each immediate, composite and effective membership or privilege in the system for members to groups or stems (for privileges).",
         GrouperUtil.toSet("MEMBERSHIP_ID", 
@@ -3260,10 +3330,12 @@ public enum GrouperDdl implements DdlVersionable {
         + "where gms.FIELD_ID = gf.ID "
         + "and gg.id = gms.OWNER_group_ID "
         + "group by gg.name, gg.display_name, gf.type, gf.name ");
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_groups_v", 
         "GROUPER_RPT_GROUPS_V: report with a line for each group and some counts of immediate and effective members etc",
         GrouperUtil.toSet("GROUP_NAME", 
             "GROUP_DISPLAYNAME", 
+            "TYPE_OF_GROUP", 
             "IMMEDIATE_MEMBERSHIP_COUNT", 
             "MEMBERSHIP_COUNT", 
             "ATTRIBUTE_COUNT", 
@@ -3273,6 +3345,7 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_ID"),  
         GrouperUtil.toSet("GROUP_NAME: name of group which has the stats, e.g. school:stem1:theGroup", 
             "GROUP_DISPLAYNAME: display name of the group which has the stats, e.g. My school:The stem1:The group", 
+            "TYPE_OF_GROUP: group if it is a group, role if it is a role", 
             "IMMEDIATE_MEMBERSHIP_COUNT: number of unique immediate members, directly assigned to this group", 
             "MEMBERSHIP_COUNT: total number of unique members, immediate or effective", 
             "ATTRIBUTE_COUNT: number of attributes defined for this group", 
@@ -3283,6 +3356,7 @@ public enum GrouperDdl implements DdlVersionable {
         "select  "
         + "gg.name as group_name, "
         + "gg.display_name as group_displayname, "
+        + "gg.type_of_group, "
         + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_group_ID = gg.id and gms.MSHIP_TYPE = 'immediate') as immediate_membership_count, "
         + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_group_ID = gg.id) as membership_count, "
         + "(select count(*) from grouper_attributes ga where ga.GROUP_ID = gg.id) as attribute_count, "
@@ -3291,6 +3365,40 @@ public enum GrouperDdl implements DdlVersionable {
         + "(select count(distinct gms.OWNER_group_ID) from grouper_memberships gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
         + "gg.ID as group_id "
         + "from grouper_groups gg ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_roles_v", 
+        "GROUPER_RPT_ROLES_V: report with a line for each role and some counts of immediate and effective members etc",
+        GrouperUtil.toSet("ROLE_NAME", 
+            "ROLE_DISPLAYNAME", 
+            "IMMEDIATE_MEMBERSHIP_COUNT", 
+            "MEMBERSHIP_COUNT", 
+            "ATTRIBUTE_COUNT", 
+            "ROLES_TYPES_COUNT", 
+            "ISA_COMPOSITE_FACTOR_COUNT", 
+            "ISA_MEMBER_COUNT", 
+            "ROLE_ID"),  
+        GrouperUtil.toSet("ROLE_NAME: name of group which has the stats, e.g. school:stem1:theGroup", 
+            "ROLE_DISPLAYNAME: display name of the group which has the stats, e.g. My school:The stem1:The group", 
+            "IMMEDIATE_MEMBERSHIP_COUNT: number of unique immediate members, directly assigned to this group", 
+            "MEMBERSHIP_COUNT: total number of unique members, immediate or effective", 
+            "ATTRIBUTE_COUNT: number of attributes defined for this group", 
+            "ROLES_TYPES_COUNT: number of group types associated with this group", 
+            "ISA_COMPOSITE_FACTOR_COUNT: number of composites this group is a factor of", 
+            "ISA_MEMBER_COUNT: number of groups this group is an immediate or effective member of", 
+            "ROLE_ID: uuid unique id of this group"),  
+        "select  "
+        + "gg.name as role_name, "
+        + "gg.display_name as role_displayname, "
+        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_group_ID = gg.id and gms.MSHIP_TYPE = 'immediate') as immediate_membership_count, "
+        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_group_ID = gg.id) as membership_count, "
+        + "(select count(*) from grouper_attributes ga where ga.GROUP_ID = gg.id) as attribute_count, "
+        + "(select count(*) from grouper_groups_types ggt where ggt.GROUP_UUID = gg.id) as roles_types_count, "
+        + "(select count(*) from grouper_composites gc where gc.LEFT_FACTOR = gg.id or gc.RIGHT_FACTOR = gg.id) as isa_composite_factor_count, "
+        + "(select count(distinct gms.OWNER_group_ID) from grouper_memberships gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
+        + "gg.ID as role_id "
+        + "from grouper_groups gg  where gg.type_of_group = 'role' ");
+
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_members_v", 
         "GROUPER_RPT_MEMBERS_V: report for each member in grouper_members and some stats like how many groups they are in",
         GrouperUtil.toSet("SUBJECT_ID", 
@@ -3781,7 +3889,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean
    * @param database
    */
-  private static void addGroupNameColumns(DdlVersionBean ddlVersionBean, Database database) {
+  private static void addGroupNameColumns(@SuppressWarnings("unused") DdlVersionBean ddlVersionBean, Database database) {
     
     if (!addGroupNameColumns) {
       return;
