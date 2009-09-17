@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperSetEnum.java,v 1.2 2009-09-16 08:52:22 mchyzer Exp $
+ * $Id: GrouperSetEnum.java,v 1.3 2009-09-17 04:19:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperSet;
 
@@ -20,6 +20,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.RoleHierarchyType;
+import edu.internet2.middleware.grouper.permissions.RoleSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -59,10 +61,10 @@ public enum GrouperSetEnum {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByIfThenHasAttributeDefNameId(java.lang.String, java.lang.String)
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByIfThenHasElementId(java.lang.String, java.lang.String)
      */
     @Override
-    public Set<? extends GrouperSet> findByIfThenHasAttributeDefNameId(String idForThens, String idForIfs) {
+    public Set<? extends GrouperSet> findByIfThenHasElementId(String idForThens, String idForIfs) {
       Set<AttributeDefNameSet> candidateAttributeDefNameSetToRemove = 
         GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfThenHasAttributeDefNameId(
             idForThens, idForIfs);
@@ -95,7 +97,97 @@ public enum GrouperSetEnum {
           AttributeDefAssignmentType.immediate : AttributeDefAssignmentType.effective);
       return attributeDefNameSet;
     }
-  };
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findById(java.lang.String, boolean)
+     */
+    @Override
+    public GrouperSet findById(String id, boolean exceptionIfNull) {
+      return GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSet().findById(id, exceptionIfNull);
+    }
+  },
+  /** role set grouper set */
+  ROLE_SET {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByIfThenImmediate(java.lang.String, java.lang.String, boolean)
+     */
+    @Override
+    public GrouperSet findByIfThenImmediate(String idIf, String idThen,
+        boolean exceptionIfNotFound) {
+      
+      //lets see if this one already exists
+      RoleSet existingRoleSet = GrouperDAOFactory.getFactory()
+        .getRoleSet().findByIfThenImmediate(idIf, 
+          idThen, exceptionIfNotFound);
+      return existingRoleSet;
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByIfHasElementId(java.lang.String)
+     */
+    @Override
+    public Set<? extends GrouperSet> findByIfHasElementId(String idIf) {
+      Set<RoleSet> existingRoleSetList = 
+        GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(idIf);
+      return existingRoleSetList;
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByIfThenHasElementId(java.lang.String, java.lang.String)
+     */
+    @Override
+    public Set<? extends GrouperSet> findByIfThenHasElementId(String idForThens, String idForIfs) {
+      Set<RoleSet> candidateRoleSetToRemove = 
+        GrouperDAOFactory.getFactory().getRoleSet().findByIfThenHasRoleId(
+            idForThens, idForIfs);
+      return candidateRoleSetToRemove;
+    }
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByThenHasElementId(java.lang.String)
+     */
+    @Override
+    public Set<? extends GrouperSet> findByThenHasElementId(String idThen) {
+      Set<RoleSet> existingRoleSetList = 
+        GrouperDAOFactory.getFactory().getRoleSet().findByThenHasRoleId(idThen);
+      return existingRoleSetList;
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#newInstance(String, String, int)
+     */
+    @Override
+    public GrouperSet newInstance(String ifHasId, String thenHasId, int depth) {
+      RoleSet roleSet = new RoleSet();
+      roleSet.setId(GrouperUuid.getUuid());
+      roleSet.setDepth(depth);
+      roleSet.setIfHasRoleId(ifHasId);
+      roleSet.setThenHasRoleId(thenHasId);
+      roleSet.setType(depth == 1 ? 
+          RoleHierarchyType.immediate : RoleHierarchyType.effective);
+      return roleSet;
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findById(java.lang.String, boolean)
+     */
+    @Override
+    public GrouperSet findById(String id, boolean exceptionIfNull) {
+      return GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSet().findById(id, exceptionIfNull);
+    }
+  }
+  
+  ;
 
   /**
    * parent child set for calulcating
@@ -144,10 +236,10 @@ public enum GrouperSetEnum {
     String grouperElementIfName = "<unknown>";
     String grouperElementThenName = "<unknown>";
     try {
-      AttributeDefNameSet attributeDefNameSet = GrouperDAOFactory.getFactory()
+      GrouperSet grouperSet = GrouperDAOFactory.getFactory()
         .getAttributeDefNameSet().findById(id, true);
-      grouperElementIfName = attributeDefNameSet.getIfHasAttributeDefName().getName();
-      grouperElementThenName = attributeDefNameSet.getThenHasAttributeDefName().getName();
+      grouperElementIfName = grouperSet.__getIfHasElement().__getName();
+      grouperElementThenName = grouperSet.__getThenHasElement().__getName();
     } catch (Exception e) {
       grouperElementIfName = "<exception: " + e.getMessage() + ">";
       grouperElementThenName = "<exception: " + e.getMessage() + ">";
@@ -216,6 +308,14 @@ public enum GrouperSetEnum {
   public abstract Set<? extends GrouperSet> findByIfHasElementId(String idIf);
   
   /**
+   * find by id if has id
+   * @param id
+   * @param exceptionIfNull
+   * @return the grouper set
+   */
+  public abstract GrouperSet findById(String id, boolean exceptionIfNull);
+  
+  /**
    * new instance of the grouper set object
    * @param ifHasId 
    * @param thenHasId 
@@ -230,7 +330,7 @@ public enum GrouperSetEnum {
    * @param idForIfs
    * @return the canidate set to delete
    */
-  public abstract Set<? extends GrouperSet> findByIfThenHasAttributeDefNameId(String idForThens, String idForIfs);
+  public abstract Set<? extends GrouperSet> findByIfThenHasElementId(String idForThens, String idForIfs);
 
   
   /** logger */
@@ -251,10 +351,9 @@ public enum GrouperSetEnum {
     }
     
     //lets see if this one already exists
-    AttributeDefNameSet existingAttributeDefNameSet = GrouperDAOFactory.getFactory()
-      .getAttributeDefNameSet().findByIfThenImmediate(containerSetElement.__getId(), 
+    GrouperSet existingSet = this.findByIfThenImmediate(containerSetElement.__getId(), 
           newElement.__getId(), false);
-    if (existingAttributeDefNameSet != null) {
+    if (existingSet != null) {
       return false;
     }
     
@@ -498,7 +597,7 @@ public enum GrouperSetEnum {
       
       //lets see what implies having this existing def name
       Set<? extends GrouperSet> candidateGrouperSetToRemove = 
-        this.findByIfThenHasAttributeDefNameId(setToRemoveFrom.__getId(), elementToRemove.__getId());
+        this.findByIfThenHasElementId(setToRemoveFrom.__getId(), elementToRemove.__getId());
   
       Set<GrouperSet> grouperSetWillRemove = new HashSet<GrouperSet>();
       Set<String> attributeDefNameSetIdsWillRemove = new HashSet<String>();

@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -88,6 +89,9 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.Role;
+import edu.internet2.middleware.grouper.permissions.RoleHierarchyType;
+import edu.internet2.middleware.grouper.permissions.RoleSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -110,7 +114,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.200 2009-09-15 06:08:44 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.201 2009-09-17 04:19:15 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -338,6 +342,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   /**
    * Add a new attribute def to the registry.
    * @param   extension attributeDef's extension
+   * @param attributeDefType 
    * @return  The added {@link AttributeDef}
    * @throws  InsufficientPrivilegeException
    */
@@ -352,6 +357,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * Add a new attribute def to the registry.
    * @param attributeDef is the definition of this attribute
    * @param   extension attributeDef's extension
+   * @param displayExtension 
    * @return  The added {@link AttributeDef}
    * @throws  InsufficientPrivilegeException
    */
@@ -1783,12 +1789,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * 
    * @param session
    * @param extn
-   * @param dExtn
    * @param id
+   * @param attributeDefType 
    * @param description
-   * @param types
-   * @param attributes
-   * @param addDefaultGroupPrivileges
    * @return group
    * @throws AttributeDefAddException
    * @throws InsufficientPrivilegeException
@@ -3098,6 +3101,57 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    */
   public Timestamp getLastMembershipChange() {
     return this.lastMembershipChangeDb == null ? null : new Timestamp(this.lastMembershipChangeDb);
+  }
+
+  // PUBLIC INSTANCE METHODS //
+  
+  // PUBLIC INSTANCE METHODS //
+  
+  /**
+   * Add a new role to the registry.
+   * <pre class="eg">
+   * // Add a role with the extension "edu" beneath this stem.
+   * try {
+   *   Group edu = ns.addChildRole("edu", "edu domain");
+   * }
+   * catch (GroupAddException eGA) {
+   *   // Group not added
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add group
+   * }
+   * </pre>
+   * @param   extension         Role extension
+   * @param   displayExtension  Role displayExtension
+   * @return  The added {@link Role}
+   * @throws  GroupAddException 
+   * @throws  InsufficientPrivilegeException
+   */
+  public Role addChildRole(final String extension, final String displayExtension) 
+    throws  GroupAddException,
+            InsufficientPrivilegeException  {
+    
+    return (Group)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        //note, roles are modeled as groups
+        Group group = Stem.this.addChildGroup(extension, displayExtension);
+        group.setTypeOfGroup(TypeOfGroup.role);
+        group.store();
+        
+        RoleSet roleSet = new RoleSet();
+        roleSet.setId(GrouperUuid.getUuid());
+        roleSet.setDepth(0);
+        roleSet.setIfHasRoleId(group.getId());
+        roleSet.setThenHasRoleId(group.getId());
+        roleSet.setType(RoleHierarchyType.self);
+        roleSet.setParentRoleSetId(roleSet.getId());
+        roleSet.saveOrUpdate();
+        return group;
+      }
+      
+    });
+      
   }
 
   

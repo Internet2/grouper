@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.attr;
+package edu.internet2.middleware.grouper.permissions;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -12,36 +12,41 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-//select gg.name, gadn.name
-//from grouper_attribute_assign gaa, grouper_attribute_def_name_set gadns, grouper_groups gg, 
-//grouper_attribute_def_name gadn
-//where gaa.owner_group_id = gg.id and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id
-//and gadn.id = gadns.then_has_attribute_def_name_id
-
-
-//select gaa.id attribute_assign_id, gaa.owner_group_id, gaa.owner_membership_id, gadn.name, gadn.id attribute_def_name_id
-//from grouper_attribute_assign gaa, grouper_attribute_def_name_set gadns,
-//grouper_attribute_def_name gadn
-//where gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id
-//and gadn.id = gadns.then_has_attribute_def_name_id;
-
 /**
- * @author mchyzer $Id: AttributeDefNameSet.java,v 1.6 2009-09-17 04:19:15 mchyzer Exp $
+ * @author mchyzer $Id: RoleSet.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class AttributeDefNameSet extends GrouperAPI 
-    implements Hib3GrouperVersioned, GrouperSet {
+public class RoleSet extends GrouperAPI 
+    implements Hib3GrouperVersioned, GrouperSet, GrouperHasContext {
   
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    this.createdOnDb = System.currentTimeMillis();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    this.lastUpdatedDb = System.currentTimeMillis();
+  }
+
   /** logger */
   @SuppressWarnings("unused")
-  private static final Log LOG = GrouperUtil.getLog(AttributeDefNameSet.class);
+  private static final Log LOG = GrouperUtil.getLog(RoleSet.class);
 
-  /** name of the groups attribute def table in the db */
-  public static final String TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET = "grouper_attribute_def_name_set";
+  /** name of the groups role table in the db */
+  public static final String TABLE_GROUPER_ROLE_SET = "grouper_role_set";
 
   /** column */
   public static final String COLUMN_CONTEXT_ID = "context_id";
@@ -59,13 +64,13 @@ public class AttributeDefNameSet extends GrouperAPI
   public static final String COLUMN_DEPTH = "depth";
 
   /** column */
-  public static final String COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID = "if_has_attribute_def_name_id";
+  public static final String COLUMN_IF_HAS_ROLE_ID = "if_has_role_id";
 
   /** column */
-  public static final String COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID = "then_has_attribute_def_name_id";
+  public static final String COLUMN_THEN_HAS_ROLE_ID = "then_has_role_id";
 
   /** column */
-  public static final String COLUMN_PARENT_ATTR_DEF_NAME_SET_ID = "parent_attr_def_name_set_id";
+  public static final String COLUMN_PARENT_ROLE_SET_ID = "parent_role_set_id";
 
   /** column */
   public static final String COLUMN_TYPE = "type";
@@ -86,14 +91,14 @@ public class AttributeDefNameSet extends GrouperAPI
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
 
-  /** constant for field name for: ifHasAttributeDefNameId */
-  public static final String FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID = "ifHasAttributeDefNameId";
+  /** constant for field name for: ifHasRoleId */
+  public static final String FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID = "ifHasRoleId";
 
   /** constant for field name for: lastUpdatedDb */
   public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
 
-  /** constant for field name for: thenHasAttributeDefNameId */
-  public static final String FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID = "thenHasAttributeDefNameId";
+  /** constant for field name for: thenHasRoleId */
+  public static final String FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID = "thenHasRoleId";
 
   /** constant for field name for: type */
   public static final String FIELD_TYPE = "type";
@@ -124,20 +129,20 @@ public class AttributeDefNameSet extends GrouperAPI
   private String contextId;
   
   /** membership type -- immediate, or effective */
-  private AttributeDefAssignmentType type = AttributeDefAssignmentType.immediate;
+  private RoleHierarchyType type = RoleHierarchyType.immediate;
 
   /**
    * for self, or immediate, just use this id.
    * for effective, this is the first hop on the directed graph
    * to get to this membership. 
    */
-  private String parentAttrDefNameSetId;
+  private String parentRoleSetId;
 
-  /** attribute def name id of the parent */
-  private String thenHasAttributeDefNameId;
+  /** role id of the parent */
+  private String thenHasRoleId;
   
-  /** attribute def name id of the child */
-  private String ifHasAttributeDefNameId;
+  /** role id of the child */
+  private String ifHasRoleId;
 
   /**
    * depth - 0 for self records, 1 for immediate memberships, > 1 for effective 
@@ -145,38 +150,38 @@ public class AttributeDefNameSet extends GrouperAPI
   private int depth;
 
   /**
-   * time in millis when this attribute was created
+   * time in millis when this role set was created
    */
   private Long createdOnDb;
 
   /**
-   * time in millis when this attribute was last modified
+   * time in millis when this role set was last modified
    */
   private Long lastUpdatedDb;
 
   /**
-   * find an attribute def name set, better be here
-   * @param attributeDefNameSets 
+   * find role set, better be here
+   * @param roleSets 
    * @param ifHasId 
    * @param thenHasId 
    * @param depth is the depth expecting
    * @param exceptionIfNull 
    * @return the def name set
    */
-  public static AttributeDefNameSet findInCollection(
-      Collection<AttributeDefNameSet> attributeDefNameSets, String ifHasId, 
+  public static RoleSet findInCollection(
+      Collection<RoleSet> roleSets, String ifHasId, 
       String thenHasId, int depth, boolean exceptionIfNull) {
 
     //are we sure we are getting the right one here???
-    for (AttributeDefNameSet attributeDefNameSet : GrouperUtil.nonNull(attributeDefNameSets)) {
-      if (StringUtils.equals(ifHasId, attributeDefNameSet.getIfHasAttributeDefNameId())
-          && StringUtils.equals(thenHasId, attributeDefNameSet.getThenHasAttributeDefNameId())
-          && depth == attributeDefNameSet.getDepth()) {
-        return attributeDefNameSet;
+    for (RoleSet roleSet : GrouperUtil.nonNull(roleSets)) {
+      if (StringUtils.equals(ifHasId, roleSet.getIfHasRoleId())
+          && StringUtils.equals(thenHasId, roleSet.getThenHasRoleId())
+          && depth == roleSet.getDepth()) {
+        return roleSet;
       }
     }
     if (exceptionIfNull) {
-      throw new RuntimeException("Cant find attribute def name set with id: " + ifHasId + ", " + thenHasId + ", " + depth);
+      throw new RuntimeException("Cant find role set with id: " + ifHasId + ", " + thenHasId + ", " + depth);
     }
     return null;
   }
@@ -190,15 +195,15 @@ public class AttributeDefNameSet extends GrouperAPI
       return true;
     }
     
-    if (!(other instanceof AttributeDefNameSet)) {
+    if (!(other instanceof RoleSet)) {
       return false;
     }
     
-    AttributeDefNameSet that = (AttributeDefNameSet) other;
+    RoleSet that = (RoleSet) other;
     return new EqualsBuilder()
-      .append(this.parentAttrDefNameSetId, that.parentAttrDefNameSetId)
-      .append(this.thenHasAttributeDefNameId, that.thenHasAttributeDefNameId)
-      .append(this.ifHasAttributeDefNameId, that.ifHasAttributeDefNameId)
+      .append(this.parentRoleSetId, that.parentRoleSetId)
+      .append(this.thenHasRoleId, that.thenHasRoleId)
+      .append(this.ifHasRoleId, that.ifHasRoleId)
       .isEquals();
 
   }
@@ -209,9 +214,9 @@ public class AttributeDefNameSet extends GrouperAPI
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append(this.parentAttrDefNameSetId)
-      .append(this.thenHasAttributeDefNameId)
-      .append(this.ifHasAttributeDefNameId)
+      .append(this.parentRoleSetId)
+      .append(this.thenHasRoleId)
+      .append(this.ifHasRoleId)
       .toHashCode();
   }
   
@@ -226,34 +231,34 @@ public class AttributeDefNameSet extends GrouperAPI
   /**
    * @return the parent group set or null if none
    */
-  public AttributeDefNameSet getParentAttributeDefSet() {
+  public RoleSet getParentRoleSet() {
     if (this.depth == 0) {
       return this;
     }
     
-    AttributeDefNameSet parent = GrouperDAOFactory.getFactory().getAttributeDefNameSet()
-      .findById(this.getParentAttrDefNameSetId(), true) ;
+    RoleSet parent = GrouperDAOFactory.getFactory().getRoleSet()
+      .findById(this.getParentRoleSetId(), true) ;
     return parent;
   }
   
   /**
    * @return the parent group set or null if none
    */
-  public AttributeDefName getIfHasAttributeDefName() {
-    AttributeDefName ifHasAttributeDefName = 
-      GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findById(this.getIfHasAttributeDefNameId(), true) ;
-    return ifHasAttributeDefName;
+  public Role getIfHasRole() {
+    Role ifHasRole = 
+      GrouperDAOFactory.getFactory().getRole()
+        .findById(this.getIfHasRoleId(), true) ;
+    return ifHasRole;
   }
   
   /**
    * @return the parent group set or null if none
    */
-  public AttributeDefName getThenHasAttributeDefName() {
-    AttributeDefName thenHasAttributeDefName = 
-      GrouperDAOFactory.getFactory().getAttributeDefName()
-      .findById(this.getThenHasAttributeDefNameId(), true) ;
-    return thenHasAttributeDefName;
+  public Role getThenHasRole() {
+    Role thenHasRole = 
+      GrouperDAOFactory.getFactory().getRole()
+      .findById(this.getThenHasRoleId(), true) ;
+    return thenHasRole;
   }
   
   /**
@@ -287,8 +292,8 @@ public class AttributeDefNameSet extends GrouperAPI
    * to get to this membership. 
    * @return parent id
    */
-  public String getParentAttrDefNameSetId() {
-    return parentAttrDefNameSetId;
+  public String getParentRoleSetId() {
+    return parentRoleSetId;
   }
 
   
@@ -298,47 +303,47 @@ public class AttributeDefNameSet extends GrouperAPI
    * to get to this membership. 
    * @param parentId1
    */
-  public void setParentAttrDefNameSetId(String parentId1) {
-    this.parentAttrDefNameSetId = parentId1;
+  public void setParentRoleSetId(String parentId1) {
+    this.parentRoleSetId = parentId1;
   }
 
   
   /**
-   * @return attribute def id for the owner
+   * @return role id for then
    */
-  public String getThenHasAttributeDefNameId() {
-    return this.thenHasAttributeDefNameId;
+  public String getThenHasRoleId() {
+    return this.thenHasRoleId;
   }
 
   /**
-   * Set attribute def id for the owner
-   * @param ownerAttributeDefId
+   * Set role id for the then
+   * @param thenHasRoleId
    */
-  public void setThenHasAttributeDefNameId(String ownerAttributeDefId) {
-    this.thenHasAttributeDefNameId = ownerAttributeDefId;
+  public void setThenHasRoleId(String thenHasRoleId) {
+    this.thenHasRoleId = thenHasRoleId;
   }
 
   /**
-   * @return member attribute def name id for the child
+   * @return member role id for the child
    */
-  public String getIfHasAttributeDefNameId() {
-    return this.ifHasAttributeDefNameId;
+  public String getIfHasRoleId() {
+    return this.ifHasRoleId;
   }
 
   
   /**
-   * Set attribute def name id for the child
-   * @param memberAttributeDefNameId
+   * Set role id for the child
+   * @param memberRoleId
    */
-  public void setIfHasAttributeDefNameId(String memberAttributeDefNameId) {
-    this.ifHasAttributeDefNameId = memberAttributeDefNameId;
+  public void setIfHasRoleId(String memberRoleId) {
+    this.ifHasRoleId = memberRoleId;
   }
   
   
   /**
    * @return membership type (immediate, effective, or composite)
    */
-  public AttributeDefAssignmentType getType() {
+  public RoleHierarchyType getType() {
     return this.type;
   }
 
@@ -354,7 +359,7 @@ public class AttributeDefNameSet extends GrouperAPI
    * set group set assignment type
    * @param type1
    */
-  public void setType(AttributeDefAssignmentType type1) {
+  public void setType(RoleHierarchyType type1) {
     this.type = type1;
   }
 
@@ -363,7 +368,7 @@ public class AttributeDefNameSet extends GrouperAPI
    * @param type1
    */
   public void setTypeDb(String type1) {
-    this.type = AttributeDefAssignmentType.valueOfIgnoreCase(type1, false);
+    this.type = RoleHierarchyType.valueOfIgnoreCase(type1, false);
   }
 
   /**
@@ -425,14 +430,14 @@ public class AttributeDefNameSet extends GrouperAPI
    * save or update this object
    */
   public void saveOrUpdate() {
-    GrouperDAOFactory.getFactory().getAttributeDefNameSet().saveOrUpdate(this);
+    GrouperDAOFactory.getFactory().getRoleSet().saveOrUpdate(this);
   }
 
   /**
    * save or update this object
    */
   public void delete() {
-    GrouperDAOFactory.getFactory().getAttributeDefNameSet().delete(this);
+    GrouperDAOFactory.getFactory().getRoleSet().delete(this);
   }
 
   /**
@@ -478,14 +483,14 @@ public class AttributeDefNameSet extends GrouperAPI
    * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getIfHasElementId()
    */
   public String __getIfHasElementId() {
-    return this.getIfHasAttributeDefNameId();
+    return this.getIfHasRoleId();
   }
 
   /**
    * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getThenHasElementId()
    */
   public String __getThenHasElementId() {
-    return this.getThenHasAttributeDefNameId();
+    return this.getThenHasRoleId();
   }
 
   /**
@@ -499,35 +504,35 @@ public class AttributeDefNameSet extends GrouperAPI
    * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getIfHasElement()
    */
   public GrouperSetElement __getIfHasElement() {
-    return this.getIfHasAttributeDefName();
+    return this.getIfHasRole();
   }
 
   /**
    * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getThenHasElement()
    */
   public GrouperSetElement __getThenHasElement() {
-    return this.getThenHasAttributeDefName();
+    return this.getThenHasRole();
   }
 
   /**
    * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__setParentGrouperSetId(java.lang.String)
    */
   public void __setParentGrouperSetId(String grouperSetId) {
-    this.setParentAttrDefNameSetId(grouperSetId);
+    this.setParentRoleSetId(grouperSetId);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getParentGrouperSet()
    */
   public GrouperSet __getParentGrouperSet() {
-    return this.getParentAttributeDefSet();
+    return this.getParentRoleSet();
   }
 
   /**
    * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getParentGrouperSetId()
    */
   public String __getParentGrouperSetId() {
-    return this.getParentAttrDefNameSetId();
+    return this.getParentRoleSetId();
   }
 
 }

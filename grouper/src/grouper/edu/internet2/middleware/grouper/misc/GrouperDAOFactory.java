@@ -43,6 +43,9 @@ import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
+import edu.internet2.middleware.grouper.internal.dao.RoleDAO;
+import edu.internet2.middleware.grouper.internal.dao.RoleSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.RoleSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
 import edu.internet2.middleware.grouper.internal.util.Realize;
@@ -53,7 +56,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.12 2009-07-03 21:15:13 mchyzer Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.13 2009-09-17 04:19:15 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -142,6 +145,12 @@ public abstract class GrouperDAOFactory {
   public abstract AttributeDefNameDAO getAttributeDefName();
 
   /**
+   * 
+   * @return role dao
+   */
+  public abstract RoleDAO getRole();
+  
+  /**
    * @return composite
    * @since   1.2.0
    */
@@ -158,6 +167,18 @@ public abstract class GrouperDAOFactory {
    * @since   1.2.0
    */
   public abstract AuditTypeDAO getAuditType();
+
+  /**
+   * @return role set
+   * @since   1.2.0
+   */
+  public abstract RoleSetDAO getRoleSet();
+
+  /**
+   * @return role set
+   * @since   1.2.0
+   */
+  public abstract RoleSetViewDAO getRoleSetView();
 
   /**
    * @return change log dao

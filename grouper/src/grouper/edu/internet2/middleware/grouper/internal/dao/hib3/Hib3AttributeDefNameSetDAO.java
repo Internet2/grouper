@@ -9,7 +9,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.4 2009-09-16 05:50:52 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.5 2009-09-17 04:19:15 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -32,7 +32,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#findById(java.lang.String, boolean)
    */
-  public AttributeDefNameSet findById(String id, boolean exceptionIfNotFound) {
+  public AttributeDefNameSet findById(String id, boolean exceptionIfNotFound) throws AttributeDefNameSetNotFoundException {
     AttributeDefNameSet attributeDefNameSet = HibernateSession.byHqlStatic().createQuery(
         "from AttributeDefNameSet where id = :theId")
       .setString("theId", id).uniqueResult(AttributeDefNameSet.class);
@@ -102,14 +102,14 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#findByIfThenImmediate(java.lang.String, java.lang.String, boolean)
    */
   public AttributeDefNameSet findByIfThenImmediate(String attributeDefNameIdIf,
-      String attributeDefNameIdThen, boolean exceptionIfNotFound) {
+      String attributeDefNameIdThen, boolean exceptionIfNotFound) throws AttributeDefNameSetNotFoundException {
     AttributeDefNameSet attributeDefNameSet = HibernateSession.byHqlStatic().createQuery(
       "from AttributeDefNameSet where ifHasAttributeDefNameId = :ifId " +
       "and thenHasAttributeDefNameId = :thenId")
       .setString("ifId", attributeDefNameIdIf).setString("thenId", attributeDefNameIdThen)
       .uniqueResult(AttributeDefNameSet.class);
     if (attributeDefNameSet == null && exceptionIfNotFound) {
-      throw new RuntimeException("AttributeDefNameSet immediate if "
+      throw new AttributeDefNameSetNotFoundException("AttributeDefNameSet immediate if "
           + attributeDefNameIdIf + ", then: " + attributeDefNameIdThen);
     }
     return attributeDefNameSet;
