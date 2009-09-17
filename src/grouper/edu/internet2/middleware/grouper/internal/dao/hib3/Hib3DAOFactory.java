@@ -41,6 +41,9 @@ import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
+import edu.internet2.middleware.grouper.internal.dao.RoleDAO;
+import edu.internet2.middleware.grouper.internal.dao.RoleSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.RoleSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -48,7 +51,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.16 2009-07-03 21:15:13 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.17 2009-09-17 04:19:15 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -264,6 +267,30 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public AttributeDefNameSetViewDAO getAttributeDefNameSetView() {
     return new Hib3AttributeDefNameSetViewDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getRoleSet()
+   */
+  @Override
+  public RoleSetDAO getRoleSet() {
+    return new Hib3RoleSetDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getRole()
+   */
+  @Override
+  public RoleDAO getRole() {
+    return new Hib3RoleDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getRoleSetView()
+   */
+  @Override
+  public RoleSetViewDAO getRoleSetView() {
+    return new Hib3RoleSetViewDAO();
   }
 } 
 

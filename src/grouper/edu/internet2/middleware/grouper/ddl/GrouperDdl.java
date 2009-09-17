@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.66 2009-09-16 05:50:52 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.67 2009-09-17 04:19:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.permissions.RoleSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -1948,6 +1949,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_role_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_composites_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_group_field_v");
@@ -2647,6 +2649,16 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_attr_def_name_then", AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
         AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, AttributeDefName.COLUMN_ID);
     
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, RoleSet.TABLE_GROUPER_ROLE_SET, 
+        "fk_role_set_parent", RoleSet.TABLE_GROUPER_ROLE_SET, 
+        RoleSet.COLUMN_PARENT_ROLE_SET_ID, RoleSet.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, RoleSet.TABLE_GROUPER_ROLE_SET, 
+        "fk_role_if", Group.TABLE_GROUPER_GROUPS, 
+        RoleSet.COLUMN_IF_HAS_ROLE_ID, Group.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, RoleSet.TABLE_GROUPER_ROLE_SET, 
+        "fk_role_then", Group.TABLE_GROUPER_GROUPS, 
+        RoleSet.COLUMN_THEN_HAS_ROLE_ID, Group.COLUMN_ID);
+    
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Composite.TABLE_GROUPER_COMPOSITES, 
         "fk_composites_owner", Group.TABLE_GROUPER_GROUPS, "owner", groupIdCol);
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Composite.TABLE_GROUPER_COMPOSITES, 
@@ -3338,6 +3350,42 @@ public enum GrouperDdl implements DdlVersionable {
         + "gt.id as group_type_id "
         + "from grouper_types gt ");
 
+    
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_role_set_v", 
+        "grouper_role_set_v: shows all role set relationships",
+        GrouperUtil.toSet("if_has_role_name", 
+            "then_has_role_name", 
+            "depth", "type", 
+            "parent_if_has_name", "parent_then_has_name",
+            "id", "if_has_role_id", "then_has_role_id",
+            "parent_role_set_id"),
+        GrouperUtil.toSet("if_has_role_name: name of the set role", 
+            "then_has_role_name: name of the member role", 
+            "depth: number of hops in the directed graph",
+            "type: self, immediate, effective",
+            "parent_if_has_name: name of the role set record which is the parent ifHas on effective path (everything but last hop)",
+            "parent_then_has_name: name of the role set record which is the parent thenHas on effective path (everything but last hop)",
+            "id: id of the set record", "if_has_role_id: id of the set role",
+            "then_has_role_id: id of the member role", 
+            "parent_role_set_id: id of the role set record which is the parent on effective path (everything but last hop)"
+        ),
+        "select ifHas.name if_has_role_name, thenHas.name then_has_role_name,  grs.depth,   "
+        + "grs.type, grParentIfHas.name parent_if_has_name, grParentThenHas.name parent_then_has_name,   "
+        + "grs.id, ifHas.id if_has_role_id, thenHas.id then_has_role_id,   "
+        + "grs.parent_role_set_id  "
+        + "from grouper_role_set grs,   "
+        + "grouper_role_set grsParent,   "
+        + "grouper_groups grParentIfHas,   "
+        + "grouper_groups grParentThenHas,   "
+        + "grouper_groups ifHas, grouper_groups thenHas   "
+        + "where  thenHas.id = grs.then_has_role_id   "
+        + "and ifHas.id = grs.if_has_role_id   "
+        + "and grs.parent_role_set_id = grsParent.id   "
+        + "and grParentIfHas.id = grsParent.if_has_role_id   "
+        + "and grParentThenHas.id = grsParent.then_has_role_id   "
+        + "order by ifHas.name, thenHas.name, grs.depth, grParentIfHas.name, grParentThenHas.name ");
+
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_def_name_set_v", 
         "grouper_attr_def_name_set_v: shows all attribute def name set relationships",
         GrouperUtil.toSet("if_has_attr_def_name_name", 
@@ -4534,5 +4582,55 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID);
 
     }
+
+    {
+      Table roleSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, RoleSet.TABLE_GROUPER_ROLE_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable, 
+          RoleSet.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_ID, Types.VARCHAR, "128", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_DEPTH, Types.BIGINT, "10", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_IF_HAS_ROLE_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_THEN_HAS_ROLE_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_PARENT_ROLE_SET_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
+          RoleSet.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, roleSetTable.getName(), 
+          "role_set_ifhas_idx", false, 
+          RoleSet.COLUMN_IF_HAS_ROLE_ID);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, roleSetTable.getName(), 
+          "role_set_then_idx", false, 
+          RoleSet.COLUMN_THEN_HAS_ROLE_ID);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, roleSetTable.getName(), 
+          "role_set_unq_idx", true, 
+          RoleSet.COLUMN_PARENT_ROLE_SET_ID, 
+          RoleSet.COLUMN_IF_HAS_ROLE_ID, RoleSet.COLUMN_THEN_HAS_ROLE_ID);
+
+    }
+
   }
 }

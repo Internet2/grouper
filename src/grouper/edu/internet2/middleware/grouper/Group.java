@@ -72,6 +72,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
+import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
@@ -99,6 +100,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -126,10 +128,10 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.257 2009-09-15 06:08:44 mchyzer Exp $
+ * @version $Id: Group.java,v 1.258 2009-09-17 04:19:15 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
+public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -5281,5 +5283,80 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    */
   public void setTypeOfGroupDb(String typeOfGroup1) {
     this.typeOfGroup = TypeOfGroup.valueOfIgnoreCase(typeOfGroup1, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetElement#__getId()
+   */
+  public String __getId() {
+    return this.getUuid();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetElement#__getName()
+   */
+  public String __getName() {
+    return this.getName();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.permissions.Role#getId()
+   */
+  public String getId() {
+    return this.getUuid();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.permissions.Role#getStemId()
+   */
+  public String getStemId() {
+    return this.getParentUuid();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.permissions.Role#setId(java.lang.String)
+   */
+  public void setId(String id1) {
+    this.setUuid(id1);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.permissions.Role#setStemId(java.lang.String)
+   */
+  public void setStemId(String stemId1) {
+    this.setParentUuid(stemId1);
+  }
+
+  /**
+   * assert that this is a role
+   * @param object 
+   */
+  private static void assertIsRole(Object object) {
+    if (!(object instanceof Group)) {
+      throw new RuntimeException("Expecting Group object, was: " + GrouperUtil.className(object));
+    }
+    Group group = (Group)object;
+    if (!TypeOfGroup.role.equals(group.typeOfGroup)) {
+      throw new RuntimeException("Requires this group to be of type 'role', but" +
+      		" instead is of type: " + group.typeOfGroup + ": " + group.getName());
+    }
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.permissions.Role#addToRoleSet(edu.internet2.middleware.grouper.permissions.Role)
+   */
+  public boolean addToRoleSet(Role roleToAdd) {
+    assertIsRole(this);
+    assertIsRole(roleToAdd);
+    return GrouperSetEnum.ROLE_SET.addToGrouperSet(this, roleToAdd);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.permissions.Role#removeFromRoleSet(edu.internet2.middleware.grouper.permissions.Role)
+   */
+  public boolean removeFromRoleSet(Role roleToRemove) {
+    assertIsRole(this);
+    assertIsRole(roleToRemove);
+    return GrouperSetEnum.ROLE_SET.removeFromGrouperSet(this, roleToRemove);
   } 
 }
