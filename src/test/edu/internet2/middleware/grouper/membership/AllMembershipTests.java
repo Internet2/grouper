@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllMembershipTests.java,v 1.3 2009-08-18 23:11:39 shilen Exp $
+ * $Id: AllMembershipTests.java,v 1.4 2009-09-18 22:01:17 shilen Exp $
  */
 package edu.internet2.middleware.grouper.membership;
 
@@ -43,6 +43,7 @@ public class AllMembershipTests {
     suite.addTestSuite(TestMembershipDeletes0.class);
     suite.addTestSuite(TestMembershipDeletes3.class);
     suite.addTestSuite(Test_Unit_API_ImmediateMembershipValidator_validate.class);
+    suite.addTestSuite(AddMissingGroupSetsTest.class);
     //$JUnit-END$
     return suite;
   }
