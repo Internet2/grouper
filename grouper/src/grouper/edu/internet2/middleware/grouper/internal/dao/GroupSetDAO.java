@@ -1,6 +1,6 @@
 /**
  * @author shilen
- * $Id: GroupSetDAO.java,v 1.4 2009-09-17 15:33:05 shilen Exp $
+ * $Id: GroupSetDAO.java,v 1.5 2009-09-21 06:14:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -67,6 +67,12 @@ public interface GroupSetDAO extends GrouperDAO {
   public void deleteByOwnerStem(String stemId);
 
   /**
+   * delete a group set object
+   * @param attrDefId
+   */
+  public void deleteByOwnerAttrDef(String attrDefId);
+
+  /**
    * @param groupId
    * @param field
    * @return group set
@@ -120,6 +126,13 @@ public interface GroupSetDAO extends GrouperDAO {
   public GroupSet findSelfStem(String stemId, String fieldId);
 
   /**
+   * @param attrDefId
+   * @param fieldId
+   * @return group set
+   */
+  public GroupSet findSelfAttrDef(String attrDefId, String fieldId);
+
+  /**
    * @param group
    */
   public void deleteByOwnerGroup(Group group);
@@ -152,6 +165,16 @@ public interface GroupSetDAO extends GrouperDAO {
       String memberGroupId, Field field);
   
   /**
+   * Returns an immediate group set (having depth = 1 and mship_type = effective)
+   * @param ownerAttrDefId
+   * @param memberGroupId
+   * @param field
+   * @return group set
+   */
+  public GroupSet findImmediateByOwnerAttrDefAndMemberGroupAndField(String ownerAttrDefId,
+      String memberGroupId, Field field);
+  
+  /**
    * Returns all GroupSets with the given creator.
    * @param member
    * @return set
@@ -172,4 +195,12 @@ public interface GroupSetDAO extends GrouperDAO {
    * and the second element is the field.
    */
   public Set<Object[]> findMissingSelfGroupSetsForStems();
+
+  /**
+   * Find all missing self group sets for stems.
+   * @return set of array objects where the first element is the stem
+   * and the second element is the field.
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForAttrDefs();
+
 }

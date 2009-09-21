@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.33 2009-09-15 06:08:44 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.34 2009-09-21 06:14:26 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -74,6 +74,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param _stem 
    * @param _group 
    * @param _member 
+   * @param attributes 
    * @throws GrouperDAOException 
    * @since   
    */
@@ -133,7 +134,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @param _stem 
    * @param attributeDef 
-   * @param _member 
    * @throws GrouperDAOException 
    * @since   
    */
@@ -152,6 +152,28 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               
               byObject.save(attributeDef);
               
+              // add group sets to each security list field
+              Set<Field> fields = FieldFinder.findAll();
+              Iterator<Field> iter = fields.iterator();
+              
+              while (iter.hasNext()) {
+                Field field = iter.next();
+                if (field.isAttributeDefListField()) {
+                  GroupSet groupSet = new GroupSet();
+                  groupSet.setId(GrouperUuid.getUuid());
+                  groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+                  groupSet.setDepth(0);
+                  groupSet.setMemberAttrDefId(attributeDef.getId());
+                  groupSet.setOwnerAttrDefId(attributeDef.getId());
+                  groupSet.setParentId(groupSet.getId());
+                  groupSet.setFieldId(field.getUuid());
+                  GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+                }
+              }
+
+              
+
+              
               hibernateSession.misc().flush();
               return null;
             }
@@ -165,6 +187,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param _child 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void createChildStem(final Stem _child)
@@ -177,6 +201,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
 
   /**
+   * @param _root 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void createRootStem(Stem _root)
@@ -193,6 +219,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     createGroupSetsForStem(_root);
   } 
   
+  /**
+   * 
+   * @param stem
+   */
   private void createGroupSetsForStem(Stem stem) {
     
     // add group sets
@@ -216,6 +246,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
+   * @param _ns 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void delete(Stem _ns)
@@ -234,6 +266,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param uuid 
+   * @return if exists
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public boolean exists(String uuid) 
@@ -260,6 +295,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   private static final Log LOG = GrouperUtil.getLog(Hib3StemDAO.class);
 
   /**
+   * @param val 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateDisplayExtension(String val) 
@@ -279,6 +317,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param val 
+   * @param scope 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateDisplayExtension(String val, String scope)
@@ -299,6 +341,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param val 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateDisplayName(String val) 
@@ -318,6 +363,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param val 
+   * @param scope 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateDisplayName(String val, String scope)
@@ -339,6 +388,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
+   * @param val 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateExtension(String val) 
@@ -358,6 +410,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param val 
+   * @param scope 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateExtension(String val, String scope)
@@ -378,6 +434,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
+   * @param val 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateName(String val) 
@@ -397,6 +456,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param val 
+   * @param scope 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateName(String val, String scope)
@@ -417,6 +480,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
+   * @param name 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateNameAny(String name) 
@@ -441,6 +507,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param name 
+   * @param scope 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByApproximateNameAny(String name, String scope)
@@ -467,6 +537,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param d 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByCreatedAfter(Date d) 
@@ -486,6 +559,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param d 
+   * @param scope 
+   * @return  set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByCreatedAfter(Date d, String scope)
@@ -506,6 +583,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
+   * @param d 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByCreatedBefore(Date d) 
@@ -525,6 +605,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param d 
+   * @param scope 
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> findAllByCreatedBefore(Date d, String scope)
@@ -583,6 +667,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
   
   /**
+   * @param ns 
+   * @param scope 
+   * @param orderByName 
+   * @return set stem
+   * @throws GrouperDAOException 
    * @see     StemDAO#findAllChildStems(Stem, Stem.Scope)
    * @throws  IllegalStateException if unknown scope.
    * @since   @HEAD@
@@ -639,6 +728,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
   /**
    * @param name
+   * @return stem
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
    * @deprecated
    */
   @Deprecated
@@ -651,6 +743,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @param name
    * @param exceptionIfNull
+   * @return stem
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
    */
   public Stem findByName(String name, boolean exceptionIfNull) 
     throws  GrouperDAOException,
@@ -676,6 +771,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
   /**
    * @param uuid
+   * @return stem
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
    * @deprecated
    */
   @Deprecated
@@ -688,6 +786,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @param uuid
    * @param exceptionIfNull
+   * @return stem
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
    */
   public Stem findByUuid(String uuid, boolean exceptionIfNull)
     throws  GrouperDAOException,
@@ -713,6 +814,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
 
   /**
+   * @return set stems
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Stem> getAllStems()
@@ -732,6 +835,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
+   * @param _ns 
+   * @param children 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void renameStemAndChildren(final Stem _ns, final Set children)
@@ -1023,6 +1129,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
+   * @param _parent 
+   * @param attributeDefName 
+   * @throws GrouperDAOException 
    * 
    */
   public void createChildAttributeDefName(Stem _parent, final AttributeDefName attributeDefName)

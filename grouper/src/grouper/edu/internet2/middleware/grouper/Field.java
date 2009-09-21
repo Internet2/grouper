@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.46 2009-08-29 15:57:59 shilen Exp $    
+ * @version $Id: Field.java,v 1.47 2009-09-21 06:14:27 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -203,6 +203,14 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
    */
   public boolean isStemListField() {
     return StringUtils.equals("naming", this.type);
+  }
+  
+  /**
+   * see if this is a list of members field for attributeDefs
+   * @return true if attribute def list field
+   */
+  public boolean isAttributeDefListField() {
+    return StringUtils.equals("attributeDef", this.type);
   }
   
   /**

@@ -57,6 +57,15 @@
           overflowToDisk="false"
   />
 
+  <!--  attribute def resolving caching -->
+
+  <cache  name="edu.internet2.middleware.grouper.privs.CachingAttrDefResolver.HasPrivilege"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
 
 
   <!-- Subject resolving caching -->
@@ -90,6 +99,15 @@
   
     <!-- @see   WheelAccessResolver#isWheelMember(...) -->
   <cache  name="edu.internet2.middleware.grouper.privs.WheelAccessResolver.isWheelMember"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
+    <!-- @see   WheelAttrDefResolver.isWheelMember(...) -->
+  <cache  name="edu.internet2.middleware.grouper.privs.WheelAttrDefResolver.isWheelMember"
           maxElementsInMemory="1000"
           eternal="false"
           timeToIdleSeconds="30"

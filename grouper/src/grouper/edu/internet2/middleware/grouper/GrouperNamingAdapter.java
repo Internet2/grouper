@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.83 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.84 2009-09-21 06:14:27 mchyzer Exp $
  */
 public class GrouperNamingAdapter extends GrouperNonDbNamingAdapter {
 
@@ -69,7 +69,7 @@ public class GrouperNamingAdapter extends GrouperNonDbNamingAdapter {
     //TODO update this for 1.5 (stem owner)
     //if not, we need an in clause
     StringBuilder query = hql.append( ", MembershipEntry __namingMembership where " +
-        "__namingMembership.ownerGroupId = " + stemColumn
+        "__namingMembership.ownerStemId = " + stemColumn
         + " and __namingMembership.fieldId in (");
     query.append(accessInClause).append(") and __accessMembership.memberUuid in (");
     Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());

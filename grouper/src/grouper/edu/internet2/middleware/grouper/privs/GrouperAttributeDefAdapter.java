@@ -15,40 +15,41 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.privs;
 import java.util.Collection;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
-import edu.internet2.middleware.grouper.privs.GrouperNonDbAccessAdapter;
-import edu.internet2.middleware.grouper.privs.GrouperPrivilegeAdapter;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
  * <pre> 
- * Grouper Access Privilege interface.
+ * Grouper Attribute Definition Access Privilege interface.
  * <p>
  * Unless you are implementing a new implementation of this interface,
  * you should not need to directly use these methods as they are all
- * wrapped by methods in the {@link Group} class.
+ * wrapped by methods in the {@link AttributeDef} class.
  * </p>
  * This access adapter affects the HQL queries to give better performance
  * 
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.84 2009-09-21 06:14:27 mchyzer Exp $
+ * @version $Id: GrouperAttributeDefAdapter.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $
  */
-public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
+public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
 
   /**
-   * note, can use 
-   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   * 
+   * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#hqlFilterGroupsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
   public boolean hqlFilterGroupsWhereClause(GrouperSession grouperSession,
-      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attrDefColumn, Set<Privilege> privInSet) {
 
     //no privs no filter
     if (GrouperUtil.length(privInSet) == 0) {
@@ -58,16 +59,14 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
     Member member = MemberFinder.internal_findBySubject(subject, null, false);
     Member allMember = MemberFinder.internal_findAllMember();
 
-    //FieldFinder.findAllIdsByType(FieldType.ACCESS);
-    Collection<String> accessPrivs = GrouperPrivilegeAdapter.fieldIdSet(priv2list, privInSet); 
-    String accessInClause = HibUtils.convertToInClause(accessPrivs, hqlQuery);
-
-    //TODO update this for 1.5 (group owner)
+    Collection<String> attrDefPrivs = GrouperPrivilegeAdapter.fieldIdSet(priv2list, privInSet); 
+    String attrDefInClause = HibUtils.convertToInClause(attrDefPrivs, hqlQuery);
+    
     //if not, we need an in clause
     StringBuilder query = hql.append( ", MembershipEntry __accessMembership where " +
-    		"__accessMembership.ownerGroupId = " + groupColumn
+    		"__accessMembership.ownerGroupId = " + attrDefColumn
     		+ " and __accessMembership.fieldId in (");
-    query.append(accessInClause).append(") and __accessMembership.memberUuid in (");
+    query.append(attrDefInClause).append(") and __accessMembership.memberUuid in (");
     Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());
     if (member != null) {
       memberIds.add(member.getUuid());
@@ -80,15 +79,10 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
     return true;
   }
 
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#postHqlFilterGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
-   */
-  @Override
-  public Set<Group> postHqlFilterGroups(GrouperSession grouperSession,
-      Set<Group> inputGroups, Subject subject, Set<Privilege> privInSet) {
+  public Set<AttributeDef> postHqlFilterAttributeDefs(GrouperSession grouperSession,
+      Set<AttributeDef> inputAttrDefs, Subject subject, Set<Privilege> privInSet) {
     //assume the HQL filtered everything
-    return inputGroups;
+    return inputAttrDefs;
   }
-} // public class GrouperAccessAdapter 
+}
 

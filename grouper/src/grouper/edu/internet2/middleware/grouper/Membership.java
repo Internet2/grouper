@@ -35,11 +35,13 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -90,7 +92,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.129 2009-09-17 15:33:05 shilen Exp $
+ * @version $Id: Membership.java,v 1.130 2009-09-21 06:14:27 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -257,19 +259,17 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @return the name
    */
   public String getOwnerName() {
-    try {
-      if (!StringUtils.isBlank(this.ownerGroupId)) {
-        Group owner = this.getGroup();
-        return owner.getName();
-      }
-      if (!StringUtils.isBlank(this.ownerStemId)) {
-        Stem owner = this.getStem();
-        return owner.getName();
-      }
-    } catch (GroupNotFoundException gnfe) {
-      throw new RuntimeException(gnfe);
-    } catch (StemNotFoundException snfe) {
-      throw new RuntimeException(snfe);
+    if (!StringUtils.isBlank(this.ownerGroupId)) {
+      Group owner = this.getGroup();
+      return owner.getName();
+    }
+    if (!StringUtils.isBlank(this.ownerStemId)) {
+      Stem owner = this.getStem();
+      return owner.getName();
+    }
+    if (!StringUtils.isBlank(this.ownerAttrDefId)) {
+      AttributeDef owner = this.getAttributeDef();
+      return owner.getName();
     }
     return null;
   }
@@ -297,6 +297,9 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   
   /** */
   public  static final  String            CACHE_GET_GROUP = Membership.class.getName() + ".getGroup";
+  /** */
+  public  static final  String            CACHE_GET_ATTR_DEF = 
+    Membership.class.getName() + ".getAttributeDef";
   /** */
   private static        EhcacheController cc= new EhcacheController();
   /** */
@@ -608,12 +611,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /**
    * 
    */
-  public static final String COLUMN_OWNER_ATTRIBUTE_ID = "owner_attribute_id";
+  public static final String COLUMN_OWNER_ATTR_DEF_ID = "owner_attr_def_id";
   
   /**
    * 
    */
-  public static final String COLUMN_OWNER_ATTRIBUTE_ID_NULL = "owner_attribute_id_null";
+  public static final String COLUMN_OWNER_ATTR_DEF_ID_NULL = "owner_attr_def_id_null";
 
   /**
    * 
@@ -758,6 +761,31 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     putGroupInCache(g);
     return g;
   }
+
+  /**
+   * Get this membership's group.  To get the groups of a bunch of membership, might want to try
+   * retrieveGroups()
+   * <pre class="eg">
+   * Group g = ms.getAttributeDef();
+   * </pre>
+   * @return  A {@link AttributeDef}
+   * @throws AttributeDefNotFoundException if attrDef not found
+   */
+  public AttributeDef getAttributeDef() throws AttributeDefNotFoundException {
+    String uuid = this.getOwnerAttrDefId();
+    if (uuid == null) {
+      throw new AttributeDefNotFoundException("id is null");
+    }
+    AttributeDef attributeDef = getAttributeDefFromCache(uuid);
+    if (attributeDef != null) {
+      return attributeDef;
+    }
+    attributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
+      .findById(uuid, true);
+    putAttributeDefInCache(attributeDef);
+    return attributeDef;
+  }
+
   /**
    * retrieve a set of groups based on some memberships (and store in each membership, like getGroup
    * @param memberships
@@ -1313,6 +1341,19 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /**
    * 
    * @param uuid
+   * @return attribute def
+   */
+  private AttributeDef getAttributeDefFromCache(String uuid) {
+    Element el = cc.getCache(CACHE_GET_GROUP).get(uuid);
+      if (el != null) {
+        return (AttributeDef) el.getObjectValue();
+      }
+      return null;
+  } 
+
+  /**
+   * 
+   * @param uuid
    * @return stem
    */
   private Stem getStemFromCache(String uuid) {
@@ -1356,6 +1397,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       .append( this.fieldId,   that.fieldId   )
       .append( this.memberUUID, that.memberUUID )
       .append( this.ownerGroupId,  that.ownerGroupId  )
+      .append( this.ownerAttrDefId,  that.ownerAttrDefId  )
       .append( this.ownerStemId,  that.ownerStemId  )
       .append( this.viaGroupId,    that.viaGroupId    )
       .append( this.viaCompositeId,    that.viaCompositeId    )
@@ -1444,6 +1486,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       .append( this.fieldId   )
       .append( this.memberUUID )
       .append( this.ownerGroupId  )
+      .append( this.ownerAttrDefId  )
       .append( this.ownerStemId  )
       .append( this.viaGroupId    )
       .append( this.viaCompositeId    )
@@ -1478,10 +1521,16 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         ms = GrouperDAOFactory.getFactory().getMembership()
             .findByGroupOwnerAndMemberAndFieldAndType(this.getOwnerGroupId(),
                 this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false, false);
-      } else {
+      } else if (this.getOwnerStemId() != null) {
         ms = GrouperDAOFactory.getFactory().getMembership()
             .findByStemOwnerAndMemberAndFieldAndType(this.getOwnerStemId(),
                 this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false, false);
+      } else if (this.getOwnerAttrDefId() != null) {
+        ms = GrouperDAOFactory.getFactory().getMembership()
+            .findByAttrDefOwnerAndMemberAndFieldAndType(this.getOwnerAttrDefId(),
+                this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false, false);
+      } else {
+        throw new NullPointerException("Cant find owner: " + this);
       }
       
       // if the immediate membership already exists and it's active, throw MembershipAlreadyExistsException.
@@ -1677,6 +1726,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       .append( "listType",    this.getListType()    )
       .append( "memberUuid",  this.getMemberUuid()  )
       .append( "groupId",   this.getOwnerGroupId()   )
+      .append( "attributeDefId",   this.getOwnerAttrDefId()   )
       .append( "stemId",   this.getOwnerStemId()   )
       .append( "type",        this.getType()        )
       .append( "uuid",        this.getUuid()        )
@@ -1802,10 +1852,14 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
         immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
           .findImmediateByOwnerGroupAndMemberGroupAndField(this.getOwnerGroupId(), memberGroup.getUuid(), this.getField());
-      } else {
+      } else if (this.getOwnerStemId() != null){
         Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
         immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
           .findImmediateByOwnerStemAndMemberGroupAndField(this.getOwnerStemId(), memberGroup.getUuid(), this.getField());
+      } else if (this.getOwnerAttrDefId() != null){
+        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
+        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
+          .findImmediateByOwnerAttrDefAndMemberGroupAndField(this.getOwnerAttrDefId(), memberGroup.getUuid(), this.getField());
       }
       
       // delete it..  it may not exist if it was previously disabled.
@@ -2005,6 +2059,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     return groupIds;
   }
   
+  /**
+   * 
+   * @param groupId
+   * @param memberId
+   * @return uf has member
+   */
   private static boolean hasMember(String groupId, String memberId) {
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndMemberAndField(
         groupId, memberId, Group.getDefaultList(), true);
@@ -2236,6 +2296,14 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     return this.ownerGroupId;
   }
 
+  /**
+   * if attrDef membership, this is the attrDef id
+   * @return the attrdef id
+   */
+  public String getOwnerAttrDefId() {
+    return this.ownerAttrDefId;
+  }
+
 
   /**
    * if this is a group membership, this is the group id
@@ -2248,6 +2316,17 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     if (ownerGroupId == null) {
       setOwnerGroupIdNull(Membership.nullColumnValue);
     }
+  }
+
+  /**
+   * if this is an attrDef membership, this is the attrDef id
+   * @param attrDefId1
+   */
+  public void setOwnerAttrDefId(String attrDefId1) {
+    this.ownerAttrDefId = attrDefId1;
+    
+    setOwnerAttrDefIdNull(ownerAttrDefId == null ? 
+        Membership.nullColumnValue : ownerAttrDefId);
   }
 
 
@@ -2274,6 +2353,16 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
 
   /** context id of the transaction */
   private String contextId;
+
+  /** 
+   * if attribute security membership, this is the attrDef id 
+   */
+  private String ownerAttrDefId;
+
+  /** 
+   * if attribute security membership, this is the attrDef id. Otherwise, this is a constant string.
+   */
+  private String ownerAttrDefIdNull = Membership.nullColumnValue;
 
   /**
    * context id of the transaction
@@ -2314,7 +2403,16 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @return group id for the owner if this is a group membership
    */
   public String getOwnerGroupIdNull() {
-    return ownerGroupIdNull;
+    return this.ownerGroupIdNull;
+  }
+
+  /**
+   * This is for internal use only.  This is the same as getOwnerAttrDefId() except nulls are replaced with
+   * a constant string.
+   * @return attrDef id for the owner if this is a attrDef membership
+   */
+  public String getOwnerAttrDefIdNull() {
+    return this.ownerAttrDefIdNull;
   }
 
   
@@ -2324,6 +2422,14 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setOwnerGroupIdNull(String ownerGroupIdNull) {
     this.ownerGroupIdNull = ownerGroupIdNull;
+  }
+  
+  /**
+   * Set attrDef id for the owner if this is an attrDef membership.  This is for internal use only.
+   * @param ownerAttrDefIdNull
+   */
+  public void setOwnerAttrDefIdNull(String ownerAttrDefIdNull) {
+    this.ownerAttrDefIdNull = ownerAttrDefIdNull;
   }
   
   /**
@@ -2340,4 +2446,146 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   public String getImmediateMembershipId() {
     return this.immediateMembershipId;
   }
+
+  /**
+   * 
+   * @param attributeDef
+   */
+  private void putAttributeDefInCache(AttributeDef attributeDef) {
+    cc.getCache(CACHE_GET_ATTR_DEF).put( new Element( attributeDef.getId(),attributeDef) );
+  }
+
+  /**
+   * 
+   * @param s
+   * @param attributeDef
+   * @param subj
+   * @param f
+   * @return Membership
+   * @throws MemberAddException
+   */
+  public static Membership internal_addImmediateMembership(
+    GrouperSession s, AttributeDef attributeDef, Subject subj, Field f)
+    throws  MemberAddException  {
+    try {
+      GrouperSession.validate(s);
+      Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
+      
+      Membership ms = new Membership();
+      ms.setCreatorUuid(s.getMemberUuid());
+      ms.setFieldId(FieldFinder.findFieldId(f.getName(), f.getType().toString(), true));
+      ms.setMemberUuid(member.getUuid());
+      ms.setOwnerAttrDefId(attributeDef.getUuid());
+      ms.setMember(member);
+  
+      GrouperDAOFactory.getFactory().getMembership().save(ms);
+      
+      return ms;
+      
+    } catch (MembershipAlreadyExistsException eIS) {
+      throw new MemberAddAlreadyExistsException( eIS.getMessage(), eIS );
+    } catch (IllegalStateException eIS) {
+      throw new MemberAddException( eIS.getMessage(), eIS );
+    }    
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MemberAddException(eIP.getMessage(), eIP);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new MemberAddException( eMNF.getMessage(), eMNF );
+    }
+  }
+
+  /**
+   * @since   1.2.0
+   * @param s
+   * @param attributeDef
+   * @param f
+   * @throws MemberDeleteException
+   */
+  public static void internal_deleteAllField(final GrouperSession s, final AttributeDef attributeDef, final Field f)
+    throws  MemberDeleteException
+  {
+    GrouperSession.validate(s);
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        try {
+  
+          Membership    ms;
+          MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
+  
+          // Deal with stem's members
+          Iterator itHas = dao.findAllByAttrDefOwnerAndFieldAndType(attributeDef.getUuid(), f, IMMEDIATE, false).iterator();
+          while (itHas.hasNext()) {
+            ms = (Membership) itHas.next() ;
+            GrouperDAOFactory.getFactory().getMembership().delete(ms);
+          }
+          
+          return null;
+        }
+        catch (MemberNotFoundException eMNF) {
+          throw new GrouperSessionException(new MemberDeleteException( eMNF.getMessage(), eMNF ));
+        }
+        catch (MembershipNotFoundException eMSNF) {
+          throw new GrouperSessionException(new MemberDeleteException( eMSNF.getMessage(), eMSNF ));
+        }
+      }
+      
+    });
+  }
+
+  /**
+   * 
+   * @param s
+   * @param attributeDef
+   * @param type
+   * @throws MemberDeleteException
+   * @throws SchemaException
+   */
+  public static void internal_deleteAllFieldType(GrouperSession s, AttributeDef attributeDef, FieldType type) 
+    throws  MemberDeleteException,
+            SchemaException {
+    GrouperSession.validate(s);
+    Field     f;
+    Iterator  it      = FieldFinder.findAllByType(type).iterator();
+    while (it.hasNext()) {
+      f = (Field) it.next();
+      internal_deleteAllField(s, attributeDef, f);
+    }
+  }
+
+  /**
+   * 
+   * @param s
+   * @param attributeDef
+   * @param subj
+   * @param f
+   * @return the deleted membership
+   * @throws MemberDeleteException
+   */
+  public static Membership internal_delImmediateMembership(GrouperSession s, AttributeDef attributeDef, Subject subj, Field f)
+    throws  MemberDeleteException {
+    try {
+      GrouperSession.validate(s); 
+      // Who we're deleting
+      //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
+      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(attributeDef.getUuid(), m.getUuid(), f, IMMEDIATE , true, false);
+  
+      GrouperDAOFactory.getFactory().getMembership().delete(ms);
+      
+      return ms;
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MemberDeleteException(eIP.getMessage(), eIP);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new MemberDeleteException( eMNF.getMessage(), eMNF );
+    }
+    catch (MembershipNotFoundException eMSNF)   {
+      throw new MemberDeleteAlreadyDeletedException(eMSNF.getMessage(), eMSNF);
+    }
+  } // public static void internal_delImmediateMembership(s, ns, subj, f)
 }

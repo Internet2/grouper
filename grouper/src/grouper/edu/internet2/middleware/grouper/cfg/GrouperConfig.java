@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfi
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.7 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: GrouperConfig.java,v 1.8 2009-09-21 06:14:27 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -98,6 +98,32 @@ public class GrouperConfig {
   public static final String GCGAR         = "groups.create.grant.all.read";
   public static final String GCGAU         = "groups.create.grant.all.update";
   public static final String GCGAV         = "groups.create.grant.all.view";
+
+  /** */
+  public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_ADMIN 
+    = "attributeDefs.create.grant.all.attrAdmin";
+
+  /** */
+  public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_OPTIN 
+    = "attributeDefs.create.grant.all.attrOptin";
+
+  /** */
+  public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_OPTOUT 
+    = "attributeDefs.create.grant.all.attrOptou";
+
+  /** */
+  public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_READ 
+    = "attributeDefs.create.grant.all.attrRead";
+
+  /** */
+  public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_UPDATE 
+    = "attributeDefs.create.grant.all.attrUpdate";
+
+  /** */
+  public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_VIEW 
+    = "attributeDefs.create.grant.all.attrView";
+
+  
   public static final String IST           = "application";
   public static final String LIST          = "members";
   public static final String NL            = System.getProperty("line.separator");

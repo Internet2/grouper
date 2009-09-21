@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestMember.java,v 1.2 2009-09-21 06:14:27 mchyzer Exp $
  */
 public class TestMember extends GrouperTest {
 
@@ -476,7 +476,7 @@ public class TestMember extends GrouperTest {
       R       r   = R.populateRegistry(0, 0, 0);
       Member  m   = r.rs.getMember();
       try {
-        m.canRead(null);
+        m.canAttrRead(null);
         Assert.fail("FAIL: expected exception");
       }
       catch (IllegalArgumentException eIA) {
@@ -546,7 +546,7 @@ public class TestMember extends GrouperTest {
       R       r   = R.populateRegistry(0, 0, 0);
       Member  m   = r.rs.getMember();
       try {
-        m.canUpdate(null);
+        m.canAttrUpdate(null);
         Assert.fail("FAIL: expected exception");
       }
       catch (IllegalArgumentException eIA) {
@@ -583,7 +583,7 @@ public class TestMember extends GrouperTest {
       R       r   = R.populateRegistry(0, 0, 0);
       Member  m   = r.rs.getMember();
       try {
-        m.canView(null);
+        m.canAttrView(null);
         Assert.fail("FAIL: expected exception");
       }
       catch (IllegalArgumentException eIA) {

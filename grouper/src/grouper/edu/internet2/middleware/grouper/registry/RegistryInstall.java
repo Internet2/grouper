@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -39,7 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.11 2009-08-11 20:18:08 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.12 2009-09-21 06:14:27 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -134,6 +135,27 @@ public class RegistryInstall {
     changed = changed || changedArray[0];
     base.internal_addField( s, "viewers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  
         AccessPrivilege.ADMIN,  false, false, false, changedArray );
+    changed = changed || changedArray[0];
+
+    // reserve attributeDef privs
+    GroupType attributeDefType  = GroupType.internal_createType(s, "attributeDef", false, true, false, changedArray);
+    attributeDefType.internal_addField( s, "attrAdmins",   FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_ADMIN,  
+        AttributeDefPrivilege.ATTR_ADMIN,  false, false, false , changedArray);
+    changed = changed || changedArray[0];
+    attributeDefType.internal_addField( s, "attrOptouts",  FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_UPDATE,
+        AttributeDefPrivilege.ATTR_UPDATE, false, false, false , changedArray);
+    changed = changed || changedArray[0];
+    attributeDefType.internal_addField( s, "attrOptins",   FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_UPDATE, 
+        AttributeDefPrivilege.ATTR_UPDATE, false, false, false , changedArray);
+    changed = changed || changedArray[0];
+    attributeDefType.internal_addField( s, "attrReaders",  FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_ADMIN,  
+        AttributeDefPrivilege.ATTR_ADMIN,  false, false, false , changedArray);
+    changed = changed || changedArray[0];
+    attributeDefType.internal_addField( s, "attrUpdaters", FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_ADMIN,  
+        AttributeDefPrivilege.ATTR_ADMIN,  false, false, false, changedArray );
+    changed = changed || changedArray[0];
+    attributeDefType.internal_addField( s, "attrViewers",  FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_ADMIN,  
+        AttributeDefPrivilege.ATTR_ADMIN,  false, false, false, changedArray );
     changed = changed || changedArray[0];
 
     GroupType naming  = GroupType.internal_createType(s, "naming", false, true, false, changedArray);

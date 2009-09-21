@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -47,14 +48,17 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.10 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.11 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
 
 
   /**
-   * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param g 
+   * @param subj 
+   * @return admin
    * @since   1.2.1
    */
   public static boolean canAdmin(GrouperSession s, Group g, Subject subj) {
@@ -67,7 +71,77 @@ public class PrivilegeHelper {
   } 
 
   /**
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @return admin
+   */
+  public static boolean canAttrAdmin(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+    AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN);
+  } 
+
+  /**
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @return admin
+   */
+  public static boolean canAttrRead(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+    AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_READ);
+  } 
+
+  /**
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @return admin
+   */
+  public static boolean canAttrView(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+    AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_VIEW);
+  } 
+
+  /**
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @return admin
+   */
+  public static boolean canAttrUpdate(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+    AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_UPDATE);
+  } 
+
+  /**
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @return admin
+   */
+  public static boolean canAttrOptin(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+    AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTIN);
+  } 
+
+  /**
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @return admin
+   */
+  public static boolean canAttrOptout(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+    AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTOUT);
+  }
+
+  /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param ns 
+   * @param subj 
+   * @return can create
    * @since   1.2.1
    */
   public static boolean canCreate(GrouperSession s, Stem ns, Subject subj) {
@@ -78,6 +152,10 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param g 
+   * @param subj 
+   * @return can
    * @since   1.2.1
    */
   public static boolean canOptin(GrouperSession s, Group g, Subject subj) {
@@ -134,6 +212,10 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param g 
+   * @param subj 
+   * @return  can optout
    * @since   1.2.1
    */
   public static boolean canOptout(GrouperSession s, Group g, Subject subj) {
@@ -154,6 +236,10 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param g 
+   * @param subj 
+   * @return  can read
    * @since   1.2.1
    */
   public static boolean canRead(GrouperSession s, Group g, Subject subj) {
@@ -172,6 +258,9 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param ns 
+   * @param subj 
+   * @return can stem
    * @since   1.2.1
    */
   public static boolean canStem(Stem ns, Subject subj) {
@@ -182,6 +271,10 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param g 
+   * @param subj 
+   * @return can update
    * @since   1.2.1
    */
   public static boolean canUpdate(GrouperSession s, Group g, Subject subj) {
@@ -200,6 +293,10 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param g 
+   * @param subj 
+   * @return can view
    * @since   1.2.1
    */
   public static boolean canView(GrouperSession s, Group g, Subject subj) {
@@ -227,6 +324,9 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param candidates 
+   * @return can view
    * @since   1.2.1
    */
   public static Set canViewGroups(GrouperSession s, Set candidates) {
@@ -313,6 +413,12 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param g 
+   * @param subj 
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws SchemaException 
    * @SINCE   1.2.1
    */
   public static void dispatch(GrouperSession s, Group g, Subject subj, Privilege priv)
@@ -323,7 +429,7 @@ public class PrivilegeHelper {
     boolean rv  = false;
     String  msg = GrouperConfig.EMPTY_STRING; 
 
-    if ( Privilege.isNaming(priv) ) {
+    if ( !Privilege.isAccess(priv) ) {
       throw new SchemaException("access privileges only apply to groups");
     }
 
@@ -376,6 +482,12 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param ns 
+   * @param subj 
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws SchemaException 
    * @SINCE   1.2.1
    */
   public static void dispatch(GrouperSession s, Stem ns, Subject subj, Privilege priv)
@@ -386,7 +498,7 @@ public class PrivilegeHelper {
     boolean rv  = false;
     String  msg = GrouperConfig.EMPTY_STRING; 
 
-    if      ( Privilege.isAccess(priv) ) {
+    if      ( !Privilege.isNaming(priv) ) {
       throw new SchemaException("naming privileges only apply to stems");
     }
 
@@ -411,7 +523,65 @@ public class PrivilegeHelper {
   } 
 
   /**
+   * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param attributeDef 
+   * @param subj 
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws SchemaException 
+   */
+  public static void dispatch(GrouperSession s, AttributeDef attributeDef, Subject subj, Privilege priv)
+    throws  InsufficientPrivilegeException, SchemaException  {
+    // TODO 20070823 this is ugly
+    boolean rv  = false;
+    String  msg = GrouperConfig.EMPTY_STRING; 
+
+    if ( !Privilege.isAttributeDef(priv) ) {
+      throw new SchemaException("naming privileges only apply to stems");
+    }
+
+    if      (priv.equals(AttributeDefPrivilege.ATTR_ADMIN)) { 
+      rv = PrivilegeHelper.canAttrAdmin(s, attributeDef,  subj);
+      if (!rv) {
+        msg = E.CANNOT_ATTR_ADMIN;
+      }
+    } else if (priv.equals(AttributeDefPrivilege.ATTR_OPTIN))   {
+      rv = PrivilegeHelper.canAttrOptin(s, attributeDef, subj);
+      if (!rv) {
+        msg = E.CANNOT_ATTR_OPTIN;
+      }
+    } else if (priv.equals(AttributeDefPrivilege.ATTR_OPTOUT))   {
+      rv = PrivilegeHelper.canAttrOptout(s, attributeDef, subj);
+      if (!rv) {
+        msg = E.CANNOT_ATTR_OPTOUT;
+      }
+    } else if (priv.equals(AttributeDefPrivilege.ATTR_READ))   {
+      rv = PrivilegeHelper.canAttrRead(s, attributeDef, subj);
+      if (!rv) {
+        msg = E.CANNOT_ATTR_READ;
+      }
+    } else if (priv.equals(AttributeDefPrivilege.ATTR_UPDATE))   {
+      rv = PrivilegeHelper.canAttrUpdate(s, attributeDef, subj);
+      if (!rv) {
+        msg = E.CANNOT_ATTR_UPDATE;
+      }
+    } else if (priv.equals(AttributeDefPrivilege.ATTR_VIEW))   {
+      rv = PrivilegeHelper.canAttrView(s, attributeDef, subj);
+      if (!rv) {
+        msg = E.CANNOT_ATTR_VIEW;
+      }
+    } else {
+      throw new SchemaException(E.UNKNOWN_PRIVILEGE + priv);
+    }
+    if (!rv) {
+      throw new InsufficientPrivilegeException(msg);
+    }
+  } 
+
+  /**
    * TODO 20070824 add tests
+   * @param privileges 
    * @return  Given an array of privileges return an array of access privileges.
    * @since   1.2.1
    */
@@ -428,6 +598,24 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070824 add tests
+   * @param privileges 
+   * @return  Given an array of privileges return an array of access privileges.
+   * @since   1.2.1
+   */
+  public static Privilege[] getAttributeDefPrivileges(Privilege[] privileges) {
+    Set<Privilege> attributeDefPrivs = new LinkedHashSet();
+    for ( Privilege priv : privileges ) {
+      if ( Privilege.isAttributeDef(priv) ) {
+        attributeDefPrivs.add(priv);
+      }
+    } 
+    Privilege[] template = {};
+    return attributeDefPrivs.toArray(template);
+  }
+
+  /**
+   * TODO 20070824 add tests
+   * @param privileges 
    * @return  Given an array of privileges return an array of naming privileges.
    * @since   1.2.1
    */
@@ -444,6 +632,8 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @return is root
    * @SINCE   1.2.1
    */
   public static boolean isRoot(GrouperSession s) {
@@ -469,6 +659,8 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @return  is wheel
    * @SINCE   1.2.1
    */
   public static boolean isWheel(GrouperSession s) {
@@ -575,6 +767,59 @@ public class PrivilegeHelper {
       }
     }
     return true;
+  }
+
+  /**
+   * 
+   * @param s
+   * @param attributeDef
+   * @param subj
+   * @param privInSet
+   * @return if has privilege
+   */
+  public static boolean hasPrivilege(GrouperSession s, AttributeDef attributeDef, Subject subj, Set<Privilege> privInSet) {
+    
+    for (Privilege privilege : privInSet) {
+      if (s.getAttributeDefResolver().hasPrivilege(attributeDef, subj, privilege)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param inputAttributeDefs 
+   * @return filtered attributeDefs
+   * @SINCE   1.2.1
+   */
+  public static Set<AttributeDef> canViewAttributeDefs(GrouperSession s, Collection<AttributeDef> inputAttributeDefs) {
+    
+    if (inputAttributeDefs == null) {
+      return null;
+    }
+    
+    //note, no need for GrouperSession inverse of control
+    Set<AttributeDef>         attrDefs  = new LinkedHashSet<AttributeDef>();
+    AttributeDef  attributeDef;
+    Iterator<AttributeDef>    it      = inputAttributeDefs.iterator();
+    while ( it.hasNext() ) {
+      attributeDef = it.next() ;
+      try {
+    	//2007-10-17: Gary Brown
+    	//https://bugs.internet2.edu/jira/browse/GRP-38
+        //Ah! Memberships for stem privileges are passed through here also
+    	//The conditional makes sense - except it was wrong  -and didn't cope with stem privileges
+        dispatch( s, attributeDef, s.getSubject(), AttributeDefPrivilege.ATTR_VIEW );
+        attrDefs.add(attributeDef);
+        
+      }
+      catch (Exception e) {
+        LOG.error("canViewAttributeDef: " + e.getMessage(), e );
+      }
+    }
+    return attrDefs;
   }
 
 }

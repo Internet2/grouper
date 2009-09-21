@@ -9,12 +9,23 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -23,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 @SuppressWarnings("serial")
-public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, Owner {
 
   /** default action */
   public static final String ACTION_DEFAULT = "assign";
@@ -51,6 +62,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
 
   /** column */
   public static final String COLUMN_CREATED_ON = "created_on";
+
+  /** column */
+  public static final String COLUMN_CREATOR_ID = "creator_id";
 
   /** column */
   public static final String COLUMN_LAST_UPDATED = "last_updated";
@@ -182,6 +196,75 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   private Long createdOnDb;
 
   /**
+   * memberId of who created this
+   */
+  private String creatorId;
+  
+  
+  /**
+   * @return the creatorId
+   */
+  public String getCreatorId() {
+    return this.creatorId;
+  }
+
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    this.creatorId = GrouperSession.staticGrouperSession(true).getMemberUuid();
+  }
+
+  /**
+   * @param creatorId1 the creatorId to set
+   */
+  public void setCreatorId(String creatorId1) {
+    this.creatorId = creatorId1;
+  }
+
+  /**
+   * store this group (update) to database
+   */
+  public void store() {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            //make sure subject is allowed to do this
+            Subject subject = GrouperSession.staticGrouperSession().getSubject();
+            if (!AttributeDef.this.getPrivilegeDelegate().hasAttrAdmin(subject)) {
+              throw new InsufficientPrivilegeException(GrouperUtil
+                  .subjectToString(subject)
+                  + " is not attrAdmin on attributeDef: " + AttributeDef.this.getName());
+            }
+            
+            GrouperDAOFactory.getFactory().getAttributeDef().saveOrUpdate(AttributeDef.this);
+            return null;
+          }
+        });
+  }
+  
+  /** delegate privilege calls to another class to separate logic */
+  private AttributeDefPrivilegeDelegate attributeDefPrivilegeDelegate = null;
+
+  /**
+   * privilege delegate to handle security on this attribute def
+   * @return the delegate
+   */
+  public AttributeDefPrivilegeDelegate getPrivilegeDelegate() {
+    if (this.attributeDefPrivilegeDelegate == null) {
+      this.attributeDefPrivilegeDelegate = new AttributeDefPrivilegeDelegate(this);
+    }
+    return this.attributeDefPrivilegeDelegate;
+  }
+  
+  /**
    * description of attribute, friendly description, e.g. in sentence form, 
    * about what the attribute is about 
    */
@@ -241,10 +324,18 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
 
   /**
    * type of this attribute (e.g. attribute or privilege)
-   * @return
+   * @return attribute def type
    */
   public AttributeDefType getAttributeDefType() {
     return this.attributeDefType;
+  }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return this.name;
   }
 
   /**
@@ -257,7 +348,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
 
   /**
    * type of this attribute (e.g. attribute or privilege)
-   * @return
+   * @return the attribute def type
    */
   public String getAttributeDefTypeDb() {
     return this.attributeDefType == null ? null : this.attributeDefType.name();
@@ -446,7 +537,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /**
    * if more than one value (same type) can be assigned to the attribute assignment
    * convert to String for hibernate
-   * @return
+   * @return if multivalued
    */
   public String getMultiValuedDb() {
     return this.multiValued ? "T" : "F";
@@ -458,7 +549,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    * @param multiValuedDb
    */
   public void setMultiValuedDb(String multiValuedDb) {
-    this.multiValued = GrouperUtil.booleanValue(this.multiValued, false);
+    this.multiValued = GrouperUtil.booleanValue(multiValuedDb, false);
   }
   
   /**
@@ -684,6 +775,33 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   public void setName(String value) {
     throw new InsufficientPrivilegeException("group name is system maintained: " + this.name + ", " + value);
+  }
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof AttributeDef)) {
+      return false;
+    }
+    return StringUtils.equals(this.id, ((AttributeDef)obj).id);
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return StringUtils.defaultString(this.id).hashCode();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.Owner#getUuid()
+   */
+  public String getUuid() {
+    return this.getId();
   }
 
 }

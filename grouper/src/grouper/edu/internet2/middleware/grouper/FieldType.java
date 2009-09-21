@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
  * Field Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.14 2009-02-09 21:36:44 mchyzer Exp $    
+ * @version $Id: FieldType.java,v 1.15 2009-09-21 06:14:27 mchyzer Exp $    
  */
 public enum FieldType implements Serializable {
 
@@ -33,6 +33,9 @@ public enum FieldType implements Serializable {
   
   /** */
   ATTRIBUTE("attribute"),
+  
+  /** */
+  ATTRIBUTE_DEF("attributeDef"),
   
   /** */
   LIST("list"),

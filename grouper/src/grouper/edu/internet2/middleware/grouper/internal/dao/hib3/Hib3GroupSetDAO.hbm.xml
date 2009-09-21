@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupSetDAO.hbm.xml,v 1.1 2009-06-09 22:55:39 shilen Exp $ -->
+<!-- $Id: Hib3GroupSetDAO.hbm.xml,v 1.2 2009-09-21 06:14:26 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.group">
 
@@ -47,12 +47,18 @@
 
     <property name="viaGroupId" column="via_group_id"/>
 
+    <property name="ownerAttrDefId" column="owner_attr_def_id"/>
+    <property name="ownerAttrDefIdNull" column="owner_attr_def_id_null"/>
+
     <property name="ownerGroupId" column="owner_group_id"/>
     <property name="ownerGroupIdNull" column="owner_group_id_null"/>
 
     <property name="ownerStemId" column="owner_stem_id"/>
     <property name="ownerStemIdNull" column="owner_stem_id_null"/>
     
+    <property name="memberAttrDefId" column="member_attr_def_id"/>
+    <property name="memberAttrDefIdNull" column="member_attr_def_id_null"/>
+
     <property name="memberGroupId" column="member_group_id"/>
     <property name="memberGroupIdNull" column="member_group_id_null"/>
 

@@ -1,13 +1,19 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.List;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeAssignDAO.java,v 1.1 2009-06-28 19:02:17 mchyzer Exp $
+ * @version $Id: Hib3AttributeAssignDAO.java,v 1.2 2009-09-21 06:14:26 mchyzer Exp $
  */
 public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDAO {
   
@@ -46,5 +52,9 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssign);
   }
 
+
+
+  
 } 
+
 

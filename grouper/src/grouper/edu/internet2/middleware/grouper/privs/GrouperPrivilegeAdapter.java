@@ -36,7 +36,6 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.Owner;
-import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -46,7 +45,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.10 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.11 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -57,7 +56,7 @@ public class GrouperPrivilegeAdapter {
 	   * @param privileges
 	   * @return the set of fields
 	   */
-	  public static Set<Field> fieldSet(Map<Privilege, String> priv2list, Set<Privilege> privileges) {
+	  public static Set<Field> fieldSet(@SuppressWarnings("unused") Map<Privilege, String> priv2list, Set<Privilege> privileges) {
 	    if (privileges == null) {
 	      return null;
 	    }
@@ -180,10 +179,16 @@ public class GrouperPrivilegeAdapter {
                 new AccessPrivilege((Group)ownerGroupOrStem, subj, owner, localP, grouperSession.getAccessClass(), revoke, ms.getContextId())
               );
             }
-            else{
+            else if (Privilege.isNaming(localP)){
               privs.add(
                 new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, grouperSession.getNamingClass(), revoke, ms.getContextId() )
               );
+            } else if (Privilege.isAttributeDef(localP)){
+                privs.add(
+                  new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, grouperSession.getNamingClass(), revoke, ms.getContextId() )
+                );
+            } else {
+              throw new RuntimeException("Cant find type of privilege: " + localP);
             }
 
         }

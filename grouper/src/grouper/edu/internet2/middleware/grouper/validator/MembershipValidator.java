@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: MembershipValidator.java,v 1.4 2009-09-21 06:14:27 mchyzer Exp $
  * @since   1.0
  */
 public class MembershipValidator extends GrouperValidator {
@@ -47,7 +47,7 @@ public class MembershipValidator extends GrouperValidator {
     else if ( _ms.getCreatorUuid() == null ) {
       v.setErrorMessage("null creator");
     }
-    else if ( !v._doesOwnerExist( _ms.getOwnerGroupId(), _ms.getOwnerStemId() ) ) {
+    else if ( !v._doesOwnerExist( _ms.getOwnerGroupId(), _ms.getOwnerStemId(), _ms.getOwnerAttrDefId() ) ) {
       v.setErrorMessage("unable to find membership owner");
     }
     else if ( !GrouperDAOFactory.getFactory().getMember().exists( _ms.getMemberUuid() ) ) {
@@ -77,18 +77,21 @@ public class MembershipValidator extends GrouperValidator {
   }
 
   /**
-   * 
+   * @param ownerAttributeDefId
    * @param ownerGroupId 
    * @param ownerStemId 
    * @return if owner id exists
    */
-  private boolean _doesOwnerExist(String ownerGroupId, String ownerStemId) {
+  private boolean _doesOwnerExist(String ownerGroupId, String ownerStemId, String ownerAttributeDefId) {
     if ( !StringUtils.isBlank(ownerGroupId) 
         && GrouperDAOFactory.getFactory().getGroup().exists(ownerGroupId) ) {
       return true;
     }
-    return !StringUtils.isBlank(ownerStemId) 
-      && GrouperDAOFactory.getFactory().getStem().exists(ownerStemId);
+    if ( !StringUtils.isBlank(ownerStemId) 
+      && GrouperDAOFactory.getFactory().getStem().exists(ownerStemId)) {
+      return true;
+    }
+    return !StringUtils.isBlank(ownerAttributeDefId);
   } 
 
   /**
@@ -100,6 +103,7 @@ public class MembershipValidator extends GrouperValidator {
     if (
           FieldType.ACCESS.toString().equals(type)
       ||  FieldType.LIST.toString().equals(type)
+      ||  FieldType.ATTRIBUTE_DEF.toString().equals(type)
       ||  FieldType.NAMING.toString().equals(type)
     )
     {

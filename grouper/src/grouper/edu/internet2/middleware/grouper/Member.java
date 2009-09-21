@@ -34,6 +34,7 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -64,6 +65,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -85,7 +87,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.128 2009-08-29 15:57:59 shilen Exp $
+ * @version $Id: Member.java,v 1.129 2009-09-21 06:14:27 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -1965,6 +1967,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       mships = dao.findAllByGroupOwnerAndMemberAndField(ownerUUID, this.getUuid(), f, true);
     } else if (f.isStemListField()) {
       mships = dao.findAllByStemOwnerAndMemberAndField(ownerUUID, this.getUuid(), f, true);
+    } else if (f.isAttributeDefListField()) {
+      mships = dao.findAllByAttrDefOwnerAndMemberAndField(ownerUUID, this.getUuid(), f, true);
+    } else {
+      throw new RuntimeException("Cant find type of owner: " + ownerUUID + ", " + f);
     }
     if (mships.size() > 0) {
       rv = true;
@@ -1976,6 +1982,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
           mships = dao.findAllByGroupOwnerAndMemberAndField(ownerUUID, all.getUuid(), f, true);
         } else if (f.isStemListField()) {
           mships = dao.findAllByStemOwnerAndMemberAndField(ownerUUID, all.getUuid(), f, true);
+        } else if (f.isAttributeDefListField()) {
+          mships = dao.findAllByAttrDefOwnerAndMemberAndField(ownerUUID, all.getUuid(), f, true);
+        } else {
+          throw new RuntimeException("Cant find type of owner: " + ownerUUID + ", " + f);
         }
         if (mships.size() > 0) {
           rv = true;
@@ -1997,6 +2007,23 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     boolean rv = false;
     try {
       rv = GrouperSession.staticGrouperSession().getAccessResolver().hasPrivilege( g, this.getSubject(), priv );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return rv;
+  } 
+
+  /**
+   * if has privilege
+   * @param attributeDef
+   * @param priv
+   * @return if has priv
+   */
+  private boolean _hasPriv(AttributeDef attributeDef, Privilege priv) {
+    boolean rv = false;
+    try {
+      rv = GrouperSession.staticGrouperSession().getAttributeDefResolver().hasPrivilege( attributeDef, this.getSubject(), priv );
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -2275,6 +2302,383 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   public void setContextId(String contextId1) {
     this.contextId = contextId1;
   }
+
+  /**
+   * Can this {@link Member} <b>ATTR_ADMIN</b> on this {@link AttributeDef}.
+   * <pre class="eg">
+   * boolean rv = m.canAttrAdmin(attributeDef);
+   * </pre>
+   * @param   attributeDef   Check privileges on this {@link AttributeDef}.
+   * @return if admin
+   * @throws  IllegalArgumentException if null {@link AttributeDef}
+   * @since   1.0
+   */
+  public boolean canAttrAdmin(AttributeDef attributeDef) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(attributeDef);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canAttrAdmin( GrouperSession.staticGrouperSession(), attributeDef, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+
+  /**
+   * Can this {@link Member} <b>ATTR_OPTIN</b> on this {@link AttributeDef}.
+   * <pre class="eg">
+   * boolean rv = m.canAttrAdmin(attributeDef);
+   * </pre>
+   * @param   attributeDef   Check privileges on this {@link AttributeDef}.
+   * @return if can optin
+   * @throws  IllegalArgumentException if null {@link AttributeDef}
+   * @since   1.0
+   */
+  public boolean canAttrOptin(AttributeDef attributeDef) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(attributeDef);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canAttrOptin( GrouperSession.staticGrouperSession(), attributeDef, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false;
+    }
+  }
+
+  /**
+   * Can this {@link Member} <b>ATTR_OPTOUT</b> on this {@link AttributeDef}.
+   * <pre class="eg">
+   * boolean rv = m.canAttrOptout(attributeDef);
+   * </pre>
+   * @param   attributeDef   Check privileges on this {@link AttributeDef}.
+   * @return if can optout
+   * @throws  IllegalArgumentException if null {@link AttributeDef}
+   * @since   1.0
+   */
+  public boolean canAttrOptout(AttributeDef attributeDef) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(attributeDef);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canAttrOptout( GrouperSession.staticGrouperSession(), attributeDef, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false;
+    }
+  }
+
+  /**
+   * Can this {@link Member} <b>ATTR_READ</b> on this {@link AttributeDef}.
+   * <pre class="eg">
+   * boolean rv = m.canAttrRead(attributeDef);
+   * </pre>
+   * @param   attributeDef   Check privileges on this {@link AttributeDef}.
+   * @return if can read
+   * @throws  IllegalArgumentException if null {@link AttributeDef}
+   * @since   1.0
+   */
+  public boolean canAttrRead(AttributeDef attributeDef)
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(attributeDef);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canAttrRead( GrouperSession.staticGrouperSession(), attributeDef, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false;
+    }
+  }
+
+  /**
+   * Can this {@link Member} <b>ATTR_UPDATE</b> on this {@link AttributeDef}.
+   * <pre class="eg">
+   * boolean rv = m.canAttrUpdate(attributeDef);
+   * </pre>
+   * @param   attributeDef   Check privileges on this {@link AttributeDef}.
+   * @return if can update
+   * @throws  IllegalArgumentException if null {@link AttributeDef}
+   * @since   1.0
+   */
+  public boolean canAttrUpdate(AttributeDef attributeDef) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(attributeDef);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canAttrUpdate( GrouperSession.staticGrouperSession(), attributeDef, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false;
+    }
+  } // public boolean canUPDATE(g)
+
+  /**
+   * Can this {@link Member} <b>ATTR_VIEW</b> on this {@link AttributeDef}.
+   * <pre class="eg">
+   * boolean rv = m.canAttrView(attributeDef);
+   * </pre>
+   * @param   attributeDef   Check privileges on this {@link AttributeDef}.
+   * @return if can view
+   * @throws  IllegalArgumentException if null {@link AttributeDef}
+   * @since   1.0
+   */
+  public boolean canAttrView(AttributeDef attributeDef) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(attributeDef);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canAttrView( GrouperSession.staticGrouperSession(), attributeDef, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+
+  /**
+     * Get attributeDefs where this member has the ATTR_ADMIN privilege.
+     * <pre class="eg">
+     * Set<AttributeDef> admins = hasAttrAdmin();
+     * </pre>
+     * @return  Set of {@link AttributeDef} objects.
+     * @throws  GrouperException
+     */
+    public Set<AttributeDef> hasAttrAdmin() 
+      throws  GrouperException {
+      Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+      try {
+        attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
+                  this.getSubject(), AccessPrivilege.ADMIN
+                );
+      }
+      catch (SubjectNotFoundException eSNF) {
+        LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      }
+      return attributeDefs;
+    }
+
+  /**
+   * Report whether this member has ATTR_ADMIN on the specified attributeDef.
+   * <pre class="eg">
+   * // Check whether this member has ATTR_ADMIN on the specified attributeDef.
+   * if (m.hasAttrAdmin(attributeDef)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   attributeDef   Test for privilege on this {@link AttributeDef}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasAttrAdmin(AttributeDef attributeDef) {
+    return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_ADMIN);
+  } 
+
+  /**
+   * Get attribute defs where this member has the ATTR_OPTIN privilege.
+   * <pre class="eg">
+   * Set<AttributeDef> optin = m.hasAttrOptin();
+   * </pre>
+   * @return  Set of {@link AttributeDef} objects.
+   * @throws  GrouperException
+   */
+  public Set<AttributeDef> hasAttrOptin() 
+    throws  GrouperException
+  {
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+    try {
+      attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
+                this.getSubject(), AttributeDefPrivilege.ATTR_OPTIN
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return attributeDefs;
+  }
+
+  /**
+   * Report whether this member has ATTR_OPTIN on the specified AttributeDef.
+   * <pre class="eg">
+   * // Check whether this member has ATTR_OPTIN on the specified AttributeDef.
+   * if (m.hasOptin(attributeDef)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   attributeDef   Test for privilege on this {@link AttributeDef}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasAttrOptin(AttributeDef attributeDef) {
+    return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_OPTIN);
+  } 
+
+  /**
+     * Get groups where this member has the ATTR_OPTOUT privilege.
+     * <pre class="eg">
+     * Set<AttributeDef> optout = m.hasOptout();
+     * </pre>
+     * @return  Set of {@link AttributeDef} objects.
+     * @throws  GrouperException
+     */
+    public Set<AttributeDef> hasAttrOptout() 
+      throws  GrouperException
+    {
+      Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+      try {
+        attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
+                  this.getSubject(), AttributeDefPrivilege.ATTR_OPTOUT
+                );
+      }
+      catch (SubjectNotFoundException eSNF) {
+        LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      }
+      return attributeDefs;
+    }
+
+  /**
+   * Report whether this member has ATTR_OPTOUT on the specified AttributeDef.
+   * <pre class="eg">
+   * // Check whether this member has ATTR_OPTOUT on the specified AttributeDef.
+   * if (m.hasOptout(attributeDef)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   attributeDef   Test for privilege on this {@link AttributeDef}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasAttrOptout(AttributeDef attributeDef) {
+    return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_OPTOUT);
+  } 
+
+  /**
+   * Get groups where this member has the ATTR_READ privilege.
+   * <pre class="eg">
+   * Set<AttributeDef> read = m.hasRead();
+   * </pre>
+   * @return  Set of {@link AttributeDef} objects.
+   * @throws  GrouperException
+   */
+  public Set<AttributeDef> hasAttrRead() 
+    throws  GrouperException
+  {
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+    try {
+      attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
+                this.getSubject(), AttributeDefPrivilege.ATTR_READ
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return attributeDefs;
+  }
+
+  /**
+   * Report whether this member has ATTR_READ on the specified AttributeDef.
+   * <pre class="eg">
+   * // Check whether this member has ATTR_READ on the specified AttributeDef.
+   * if (m.hasRead(attributeDef)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   attributeDef   Test for privilege on this {@link Group}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasAttrRead(AttributeDef attributeDef) {
+    return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_READ);
+  } 
+
+  /**
+   * Get groups where this member has the ATTR_UPDATE privilege.
+   * <pre class="eg">
+   * Set<AttributeDef> update = m.hasUpdate();
+   * </pre>
+   * @return  Set of {@link AttributeDef} objects.
+   * @throws  GrouperException
+   */
+  public Set<AttributeDef> hasAttrUpdate() 
+    throws  GrouperException
+  {
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+    try {
+      attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
+                this.getSubject(), AttributeDefPrivilege.ATTR_UPDATE
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return attributeDefs;
+  }
+
+  /**
+   * Report whether this member has ATTR_UPDATE on the specified AttributeDef.
+   * <pre class="eg">
+   * // Check whether this member has ATTR_UPDATE on the specified AttributeDef.
+   * if (m.hasUpdate(attributeDef)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   attributeDef   Test for privilege on this {@link AttributeDef}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasAttrUpdate(AttributeDef attributeDef) {
+    return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_UPDATE);
+  } 
+
+  /**
+   * Get groups where this member has the ATTR_VIEW privilege.
+   * <pre class="eg">
+   * Set<AttributeDef> view = m.hasView();
+   * </pre>
+   * @return  Set of {@link AttributeDef} objects.
+   * @throws  GrouperException
+   */
+  public Set<AttributeDef> hasAttrView() 
+    throws  GrouperException
+  {
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+    try {
+      attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
+                this.getSubject(), AttributeDefPrivilege.ATTR_VIEW
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return attributeDefs;
+  }
+
+  /**
+   * Report whether this member has ATTR_VIEW on the specified AttributeDef.
+   * <pre class="eg">
+   * // Check whether this member has ATTR_VIEW on the specified AttributeDef.
+   * if (m.hasView(attributeDef)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   attributeDef   Test for privilege on this {@link AttributeDef}
+   * @return  Boolean true if the member has the privilege.
+   */
+  public boolean hasAttrView(AttributeDef attributeDef) {
+    return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_VIEW);
+  } 
 
 } 
 

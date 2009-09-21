@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.17 2009-08-18 23:11:38 shilen Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.18 2009-09-21 06:14:26 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
 
@@ -43,6 +43,7 @@
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="hibernateVersionNumber" type="long" column="hibernate_version_number" />
     
+    <property name="ownerAttrDefId" type="string" column="owner_attr_def_id" />
     <property name="ownerGroupId" type="string" column="owner_group_id" />
     <property name="ownerStemId" type="string" column="owner_stem_id" />
     <property name="memberUuid" type="string" column="member_id" />

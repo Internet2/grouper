@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
  */
 public class AddMissingGroupSets {
 
+  /** */
   private Set<String> compositeOwnerIds = new HashSet<String>();
   
   /** Whether or not to print out results of what's being done */
@@ -71,9 +73,13 @@ public class AddMissingGroupSets {
     
     addMissingSelfGroupSetsForStems();
     
+    addMissingSelfGroupSetsForAttrDefs();
+
     addMissingImmediateGroupSetsForGroupOwners();
     
     addMissingImmediateGroupSetsForStemOwners();
+
+    addMissingImmediateGroupSetsForAttrDefOwners();
   }
   
   /**
@@ -226,6 +232,61 @@ public class AddMissingGroupSets {
     while (compositesIter.hasNext()) {
       Composite c = compositesIter.next();
       compositeOwnerIds.add(c.getFactorOwnerUuid());
+    }
+  }
+
+  /**
+   * Add missing group sets for immediate memberships where the owner is a stem
+   */
+  public static void addMissingImmediateGroupSetsForAttrDefOwners() {
+    Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findMissingImmediateGroupSetsForAttrDefOwners();
+    Iterator<Membership> mshipsIter = mships.iterator();
+    
+    while (mshipsIter.hasNext()) {
+      Membership mship = mshipsIter.next();
+      Field field = FieldFinder.findById(mship.getFieldId(), true);
+      
+      GroupSet immediateGroupSet = new GroupSet();
+      immediateGroupSet.setId(GrouperUuid.getUuid());
+      immediateGroupSet.setCreatorId(mship.getCreatorUuid());
+      immediateGroupSet.setCreateTime(mship.getCreateTimeLong());
+      immediateGroupSet.setDepth(1);
+      immediateGroupSet.setFieldId(field.getUuid());
+      immediateGroupSet.setMemberGroupId(mship.getMemberSubjectId());
+      immediateGroupSet.setType(Membership.EFFECTIVE);
+      immediateGroupSet.setOwnerAttrDefId(mship.getOwnerAttrDefId());
+      immediateGroupSet.setParentId(GrouperDAOFactory.getFactory().getGroupSet()
+          .findSelfStem(mship.getOwnerAttrDefId(), mship.getFieldId()).getId());
+      GrouperDAOFactory.getFactory().getGroupSet().save(immediateGroupSet);
+      
+      System.out.println("Added groupSet for ownerAttrDefId = " + mship.getOwnerStemId() + 
+          ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
+    }
+  }
+
+  /**
+   * Add missing self group sets for stems
+   */
+  public static void addMissingSelfGroupSetsForAttrDefs() {
+    Set<Object[]> attrDefsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForAttrDefs();
+    Iterator<Object[]> attrDefsAndFieldsIter = attrDefsAndFields.iterator();
+    while (attrDefsAndFieldsIter.hasNext()) {
+      Object[] attrDefAndField = attrDefsAndFieldsIter.next();
+      AttributeDef attributeDef = (AttributeDef)attrDefAndField[0];
+      Field field = (Field)attrDefAndField[1];
+      
+      GroupSet groupSet = new GroupSet();
+      groupSet.setId(GrouperUuid.getUuid());
+      groupSet.setCreatorId(attributeDef.getCreatorId());
+      groupSet.setCreateTime(attributeDef.getCreatedOnDb());
+      groupSet.setDepth(0);
+      groupSet.setMemberAttrDefId(attributeDef.getId());
+      groupSet.setOwnerStemId(attributeDef.getId());
+      groupSet.setParentId(groupSet.getId());
+      groupSet.setFieldId(field.getUuid());
+      GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+      
+      System.out.println("Added self groupSet for " + attributeDef.getName() + " for field " + field.getTypeString() + " / " + field.getName());
     }
   }
 }
