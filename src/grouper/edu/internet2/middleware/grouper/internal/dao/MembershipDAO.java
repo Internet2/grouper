@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.28 2009-09-17 15:33:05 shilen Exp $
+ * @version $Id: MembershipDAO.java,v 1.29 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -237,7 +237,7 @@ TODO update for 1.5
    * @param enabledOnly 
    * @return  Members from memberships.
    * @throws  GrouperDAOException if any DAO errors occur.
-   * @see     MembershipDAO#findAllMembersByGroupOwnerAndField(String, Field)
+   * @see     MembershipDAO#findAllMembersByGroupOwnerAndField(String, Field, boolean)
    * @since   1.2.1
    */
   Set<Member> findAllMembersByGroupOwnerAndField(String ownerGroupId, Field f, boolean enabledOnly)
@@ -283,6 +283,23 @@ TODO update for 1.5
    * @throws MembershipNotFoundException 
    */
   Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId, String memberUUID, Field f, String type, boolean exceptionIfNull, boolean enabledOnly)
+    throws  GrouperDAOException,
+            MembershipNotFoundException
+            ;            
+
+  /**
+   * @param ownerAttrDefId 
+   * @param memberUUID 
+   * @param f 
+   * @param type 
+   * @param exceptionIfNull
+   * @param enabledOnly 
+   * @return membership
+   * @throws GrouperDAOException 
+   * @throws MembershipNotFoundException 
+   */
+  Membership findByAttrDefOwnerAndMemberAndFieldAndType(String ownerAttrDefId, String memberUUID, 
+      Field f, String type, boolean exceptionIfNull, boolean enabledOnly)
     throws  GrouperDAOException,
             MembershipNotFoundException
             ;            
@@ -511,5 +528,85 @@ TODO update for 1.5
    * @return set of memberships for which a groupSet is missing
    */
   public Set<Membership> findMissingImmediateGroupSetsForStemOwners();
+
+
+  /**
+   * Find all missing group sets for immediate memberships where the owner is an attr def.
+   * @return set of memberships for which a groupSet is missing
+   */
+  public Set<Membership> findMissingImmediateGroupSetsForAttrDefOwners();
+
+
+  /**
+   * @param ownerAttrDefId
+   * @param f
+   * @param type
+   * @param queryOptions 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Member> findAllMembersByAttrDefOwnerAndFieldAndType(String ownerAttrDefId,
+      Field f, String type, QueryOptions queryOptions, boolean enabledOnly) throws GrouperDAOException;
+
+
+  /**
+   * @param ownerAttrDefId 
+   * @param memberUUID 
+   * @param f 
+   * @param viaGroupId 
+   * @param depth 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   1.2.0
+   */
+  Set<Membership> findAllEffectiveByAttrDefOwner(String ownerAttrDefId, String memberUUID, Field f, String viaGroupId, int depth, boolean enabledOnly) 
+    throws  GrouperDAOException;
+  
+  /**
+   * @param ownerAttrDefId 
+   * @param f 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   1.2.0
+   */
+  Set<Membership> findAllByAttrDefOwnerAndField(String ownerAttrDefId, Field f, boolean enabledOnly) 
+    throws  GrouperDAOException;
+
+  /**
+   * @param ownerAttrDefId 
+   * @param f 
+   * @param type 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   1.2.0
+   */
+  Set<Membership> findAllByAttrDefOwnerAndFieldAndType(String ownerAttrDefId, Field f, String type, boolean enabledOnly) 
+    throws  GrouperDAOException;
+
+  /**
+   * @param ownerAttrDefId 
+   * @param memberUUID 
+   * @param f 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   1.2.0
+   */
+  Set<Membership> findAllByAttrDefOwnerAndMemberAndField(String ownerAttrDefId, String memberUUID, Field f, boolean enabledOnly) 
+    throws  GrouperDAOException;
+
+  /**
+   * @param attrDefId 
+   * @param enabledOnly 
+   * @return list
+   * @throws GrouperDAOException 
+   * @since   1.3.1
+   */
+  List<Membership> findAllByAttrDefOwnerAsList(String attrDefId, boolean enabledOnly)
+    throws  GrouperDAOException;
 } 
 

@@ -37,11 +37,10 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.16 2009-08-29 15:57:59 shilen Exp $
+ * @version $Id: NamingWrapper.java,v 1.17 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
-  // TODO 20070820 DRY w/ access resolution
 
   /**
    * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
@@ -50,15 +49,21 @@ public class NamingWrapper implements NamingResolver {
     return this.s;
   }
 
-
+  /** */
   private NamingAdapter   naming;
+  
+  /** */
   private ParameterHelper param;
+  
+  /** */
   private GrouperSession  s;
 
 
 
   /**
    * Facade around {@link NamingAdapter} that implements {@link NamingResolver}.
+   * @param session 
+   * @param naming 
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
@@ -85,7 +90,7 @@ public class NamingWrapper implements NamingResolver {
       return this.naming.getStemsWhereSubjectHasPriv(this.s, subject, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
 
@@ -112,7 +117,7 @@ public class NamingWrapper implements NamingResolver {
       return this.naming.getSubjectsWithPriv(this.s, stem, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
 
@@ -154,7 +159,7 @@ public class NamingWrapper implements NamingResolver {
       return this.naming.hasPriv(this.s, stem, subject, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
 
@@ -177,7 +182,7 @@ public class NamingWrapper implements NamingResolver {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
             
@@ -200,7 +205,7 @@ public class NamingWrapper implements NamingResolver {
     } catch (RevokePrivilegeException eRevoke) {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     } catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }     
   

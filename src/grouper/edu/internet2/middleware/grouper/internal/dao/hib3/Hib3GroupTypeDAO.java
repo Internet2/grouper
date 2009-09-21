@@ -42,11 +42,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.15 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.16 2009-09-21 06:14:26 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
   /** logger */
+  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(Hib3GroupTypeDAO.class);
 
   /** */
@@ -188,10 +189,11 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
     
     //delete from field where the type is not base or naming
     hibernateSession.byHql().createQuery("delete from Field field where not exists " +
-    		"(from GroupType groupType where groupType.uuid = field.groupTypeUuid and groupType.name in ('base', 'naming'))")
+    		"(from GroupType groupType where groupType.uuid = field.groupTypeUuid and groupType.name in ('base', 'naming', 'attributeDef'))")
     		.executeUpdate();
+
     //delete from type where it is not base or naming
-    hibernateSession.byHql().createQuery("delete from GroupType groupType where groupType.name not in ('base', 'naming')")
+    hibernateSession.byHql().createQuery("delete from GroupType groupType where groupType.name not in ('base', 'naming', 'attributeDef')")
         .executeUpdate();
     
   }

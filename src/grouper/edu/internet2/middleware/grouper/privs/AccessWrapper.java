@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.17 2009-08-29 15:57:59 shilen Exp $
+ * @version $Id: AccessWrapper.java,v 1.18 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
@@ -83,7 +83,7 @@ public class AccessWrapper implements AccessResolver {
       return this.access.getGroupsWhereSubjectHasPriv(this.s, subject, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
 
@@ -110,7 +110,7 @@ public class AccessWrapper implements AccessResolver {
       return this.access.getSubjectsWithPriv(this.s, group, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema);
     }
   }
 
@@ -136,7 +136,7 @@ public class AccessWrapper implements AccessResolver {
       throw new UnableToPerformException( ePrivs.getMessage(), ePrivs );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition", eSchema); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
 
@@ -152,7 +152,7 @@ public class AccessWrapper implements AccessResolver {
       return this.access.hasPriv(this.s, group, subject, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
 
@@ -175,7 +175,7 @@ public class AccessWrapper implements AccessResolver {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
             
@@ -200,7 +200,7 @@ public class AccessWrapper implements AccessResolver {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
 
@@ -227,7 +227,7 @@ public class AccessWrapper implements AccessResolver {
     } catch (GrantPrivilegeException e) {
       throw new UnableToPerformException(e.getMessage(), e);
     } catch (SchemaException e) {
-      throw new GrouperException("unexpected condition");
+      throw new GrouperException("unexpected condition", e);
     }
   }
   
@@ -246,7 +246,7 @@ public class AccessWrapper implements AccessResolver {
      } catch (GrantPrivilegeException e) {
        throw new UnableToPerformException(e.getMessage(), e);
      } catch (SchemaException e) {
-       throw new GrouperException("unexpected condition");
+       throw new GrouperException("unexpected condition", e);
      } 
    }
 

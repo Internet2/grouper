@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.21 2009-03-15 06:37:24 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.22 2009-09-21 06:14:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -50,6 +50,12 @@ public class ApiConfig implements Configuration {
    * @since   1.2.1
    */
   public static final String ACCESS_PRIVILEGE_INTERFACE = "privileges.access.interface";
+
+  /**
+   * Property name for <code>AttributeDefAdapter</code> implementation.
+   */
+  public static final String ATTRIBUTE_DEF_PRIVILEGE_INTERFACE = "privileges.attributeDef.interface";
+
   /**
    * Property name for <code>NamingAdapter</code> implementation.
    * @since   1.2.1

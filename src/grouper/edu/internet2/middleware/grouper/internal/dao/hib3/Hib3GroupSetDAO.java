@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: Hib3GroupSetDAO.java,v 1.7 2009-09-17 17:51:50 mchyzer Exp $
+ * @version $Id: Hib3GroupSetDAO.java,v 1.8 2009-09-21 06:14:26 mchyzer Exp $
  */
 public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
@@ -383,8 +383,6 @@ return groupSets;
       .uniqueResult(GroupSet.class);
   }
 
-
-
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findImmediateByOwnerStemAndMemberGroupAndField(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field)
    */
@@ -455,6 +453,86 @@ return groupSets;
         .listSet(Object[].class);
     
     return missing;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteByOwnerAttrDef(java.lang.String)
+   */
+  public void deleteByOwnerAttrDef(final String attrDefId) {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+          
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            
+            //update before delete since mysql cant handle self referential foreign keys
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+              "update GroupSet set parentId = null where ownerAttrDefId = :id")
+              .setString("id", attrDefId)
+              .executeUpdate();    
+            
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+              "delete from GroupSet where ownerAttrDefId = :id").setString("id", attrDefId)
+              .executeUpdate();
+
+            return null;
+          }
+        });
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findImmediateByOwnerAttrDefAndMemberGroupAndField(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field)
+   */
+  public GroupSet findImmediateByOwnerAttrDefAndMemberGroupAndField(
+      String ownerAttrDefId, String memberGroupId, Field field) {
+    return HibernateSession
+      .byHqlStatic()
+      .createQuery("select gs from GroupSet as gs where gs.ownerAttrDefId = :ownerAttrDefId " +
+      		"and gs.memberGroupId = :memberGroupId and fieldId = :field and type = 'effective' and depth = '1'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindImmediateByOwnerAttrDefAndMemberGroupAndField")
+      .setString("ownerAttrDefId", ownerAttrDefId)
+      .setString("memberGroupId", memberGroupId)
+      .setString("field", field.getUuid())
+      .uniqueResult(GroupSet.class);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findMissingSelfGroupSetsForAttrDefs()
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForAttrDefs() {
+    String sql = "select a, f from Field as f, AttributeDef as a " +
+        "where f.typeString = 'attributeDef' " +
+        "and not exists " +
+        "(select gs.ownerAttrDefId from GroupSet as gs where gs.ownerAttrDefId = a.id and gs.fieldId = f.uuid and gs.depth='0')";
+    
+    Set<Object[]> missing = HibernateSession
+      .byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForAttrDefs")
+      .listSet(Object[].class);
+    
+    return missing;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findSelfAttrDef(java.lang.String, java.lang.String)
+   */
+  public GroupSet findSelfAttrDef(String attrDefId, String fieldId) {
+    GroupSet groupSet = HibernateSession
+      .byHqlStatic()
+      .createQuery("select gs from GroupSet as gs where gs.ownerAttrDefId = :id " +
+      		"and memberAttrDefId = :id and fieldId = :field and depth='0'")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindSelfAttrDef")
+      .setString("id", attrDefId)
+      .setString("field", fieldId)
+      .uniqueResult(GroupSet.class);
+    
+    if (groupSet == null) {
+      throw new GroupSetNotFoundException("Didn't find groupSet of depth 0 with owner and member: " + attrDefId);
+    }
+    
+    return groupSet;
   }
 }
 

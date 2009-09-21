@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.permissions.Role;
 import edu.internet2.middleware.grouper.permissions.RoleHierarchyType;
 import edu.internet2.middleware.grouper.permissions.RoleSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -114,7 +115,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.201 2009-09-17 04:19:15 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.202 2009-09-21 06:14:27 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1679,7 +1680,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               //CH 20080220: this will start saving the stem
               GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m, attributes );
                 
-              if (addDefaultGroupPrivileges == true) {
+              if (addDefaultGroupPrivileges) {
                 _grantDefaultPrivsUponCreate(_g);
               }
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
@@ -1838,6 +1839,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               //CH 20080220: this will start saving the attributeDef
               GrouperDAOFactory.getFactory().getStem().createChildAttributeDef( Stem.this, attributeDef );
                 
+              //grant privs
+              _grantDefaultPrivsUponCreate(attributeDef);
+              
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_ADD, "id", 
                     attributeDef.getId(), "name", attributeDef.getName(), "parentStemId", Stem.this.getUuid(), 
@@ -2003,6 +2007,53 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       throw new GroupAddException( eUTP.getMessage(), eUTP );
     }
   } 
+  
+  /**
+   * Now grant ADMIN (as root) to the creator of the attributeDef.
+   *
+   * @param attributeDef stem
+   * @throws AttributeDefAddException if problem
+   */
+  private void _grantDefaultPrivsUponCreate(AttributeDef attributeDef) throws  AttributeDefAddException {
+    try {
+      //whoever created this is an admin
+      GrouperSession.staticGrouperSession().internal_getRootSession().getAttributeDefResolver().grantPrivilege(
+        attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+
+      // Now optionally grant other privs
+      this._grantOptionalPrivUponCreate(
+        attributeDef, AttributeDefPrivilege.ATTR_ADMIN, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_ADMIN
+      );
+      this._grantOptionalPrivUponCreate(
+          attributeDef, AttributeDefPrivilege.ATTR_OPTIN, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_OPTIN
+        );
+      this._grantOptionalPrivUponCreate(
+          attributeDef, AttributeDefPrivilege.ATTR_OPTOUT, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_OPTOUT
+        );
+      this._grantOptionalPrivUponCreate(
+          attributeDef, AttributeDefPrivilege.ATTR_READ, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_READ
+        );
+      this._grantOptionalPrivUponCreate(
+          attributeDef, AttributeDefPrivilege.ATTR_UPDATE, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_UPDATE
+        );
+      this._grantOptionalPrivUponCreate(
+          attributeDef, AttributeDefPrivilege.ATTR_VIEW, GrouperConfig.ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_VIEW
+        );
+    }
+    catch (GrantPrivilegeException eGP)         {
+      throw new AttributeDefAddException(eGP.getMessage(), eGP);
+    }
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new AttributeDefAddException(eIP.getMessage(), eIP);
+    }
+    catch (SchemaException eS)                  {
+      throw new AttributeDefAddException(eS.getMessage(), eS);
+    }
+    catch (UnableToPerformException eUTP) {
+      throw new AttributeDefAddException( eUTP.getMessage(), eUTP );
+    }
+  } 
+
   /**
    * Now grant STEM (as root) to the creator of the child stem.
    *
@@ -2079,6 +2130,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
         GrouperSession.staticGrouperSession().getNamingResolver().grantPrivilege(ns, all, p);
         sw.stop();
         EL.stemGrantPriv(GrouperSession.staticGrouperSession(), ns.getName(), all, p, sw);
+      }
+      else if (o instanceof AttributeDef) {
+        AttributeDef attributeDef = (AttributeDef) o;
+        GrouperSession.staticGrouperSession().getAttributeDefResolver().grantPrivilege(attributeDef, all, p);
+        sw.stop();
       }
       else {
         throw new IllegalStateException("unexpected condition: object is not group or stem: " + o);

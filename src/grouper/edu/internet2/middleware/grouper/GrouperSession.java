@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
-import edu.internet2.middleware.grouper.internal.util.Realize;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -46,6 +45,8 @@ import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.AccessResolverFactory;
+import edu.internet2.middleware.grouper.privs.AttributeDefResolver;
+import edu.internet2.middleware.grouper.privs.AttributeDefResolverFactory;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
@@ -59,8 +60,9 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.99 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.100 2009-09-21 06:14:27 mchyzer Exp $
  */
+@SuppressWarnings("serial")
 public class GrouperSession implements Serializable {
 
   /**
@@ -111,33 +113,47 @@ public class GrouperSession implements Serializable {
    */
   private static ThreadLocal<GrouperSession> staticGrouperSession = new ThreadLocal<GrouperSession>();
   
+  /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private transient AccessResolver  accessResolver;
 
+  /** */
+  @GrouperIgnoreDbVersion
+  @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
+  private transient AttributeDefResolver  attributeDefResolver;
+
+  /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private Member          cachedMember;
 
+  /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private transient NamingResolver  namingResolver;
 
+  /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private transient GrouperSession  rootSession;
 
+  /** */
   private String          memberUUID;
 
+  /** */
   private long            startTimeLong;
 
+  /** */
   @GrouperIgnoreDbVersion
   private Subject         subject;
 
+  /** */
   private String          uuid;
 
 
@@ -166,8 +182,6 @@ public class GrouperSession implements Serializable {
 
   }
   
-  // PUBLIC CLASS METHODS //
-
   /**
    * Start a session for interacting with the Grouper API.
    * This adds the session to the threadlocal.    This has 
@@ -272,6 +286,7 @@ public class GrouperSession implements Serializable {
   } 
 
   /**
+   * @param s 
    * @throws  IllegalStateException
    * @since   1.2.0
    */
@@ -293,10 +308,21 @@ public class GrouperSession implements Serializable {
    * <pre class="eg">
    * String klass = s.getAccessClass();
    * </pre>
-   * @since   ?
+   * @return access class
    */
   public String getAccessClass() {
     return GrouperConfig.getProperty(ApiConfig.ACCESS_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+  } 
+
+  /**
+   * Get name of class implenting {@link AccessAdapter} privilege interface.
+   * <pre class="eg">
+   * String klass = s.getAccessClass();
+   * </pre>
+   * @return access class
+   */
+  public String getAttributeDefClass() {
+    return GrouperConfig.getProperty(ApiConfig.ATTRIBUTE_DEF_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
 
   /**
@@ -347,14 +373,14 @@ public class GrouperSession implements Serializable {
    * <pre class="eg">
    * String klass = s.getNamingClass();
    * </pre>
-   * @since   ?
+   * @return naming class
    */
   public String getNamingClass() {
     return GrouperConfig.getProperty(ApiConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
 
   /**
-   * @return  <code>AccessResolver</code> used by this session.
+   * @return  <code>NamingResolver</code> used by this session.
    * @since   1.2.1
    */
   public NamingResolver getNamingResolver() {
@@ -434,6 +460,9 @@ public class GrouperSession implements Serializable {
     if (this.accessResolver != null) {
       this.accessResolver.stop();
     }
+    if (this.attributeDefResolver != null) {
+      this.attributeDefResolver.stop();
+    }
     if (this.namingResolver != null) {
       this.namingResolver.stop();
     }
@@ -448,6 +477,7 @@ public class GrouperSession implements Serializable {
     //set some fields to null
     this.subject = null;
     this.accessResolver = null;
+    this.attributeDefResolver = null;
     this.cachedMember = null;
     this.memberUUID = null;
     this.namingResolver = null;
@@ -456,6 +486,10 @@ public class GrouperSession implements Serializable {
     
   } 
 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append( "session_id",   this.getUuid()                                        )
@@ -481,10 +515,11 @@ public class GrouperSession implements Serializable {
     }
   } 
 
-
-  // public INSTANCE METHODS //
-
-  // @since   1.2.0
+  /**
+   * 
+   * @return the grouper session
+   * @throws GrouperException
+   */
   public GrouperSession internal_getRootSession() 
     throws  GrouperException
   {
@@ -502,6 +537,7 @@ public class GrouperSession implements Serializable {
 
 
   /**
+   * @return member uuid
    * @since   1.2.0
    */
   public String getMemberUuid() {
@@ -509,6 +545,7 @@ public class GrouperSession implements Serializable {
   }
 
   /**
+   * @return start time
    * @since   1.2.0
    */
   public long getStartTimeLong() {
@@ -516,6 +553,7 @@ public class GrouperSession implements Serializable {
   }
 
   /**
+   * @return uuid
    * @since   1.2.0
    */
   public String getUuid() {
@@ -523,34 +561,38 @@ public class GrouperSession implements Serializable {
   }
 
   /**
+   * @param memberUUID1 
    * @since   1.2.0
    */
-  public void setMemberUuid(String memberUUID) {
-    this.memberUUID = memberUUID;
+  public void setMemberUuid(String memberUUID1) {
+    this.memberUUID = memberUUID1;
   
   }
 
   /**
+   * @param startTime1 
    * @since   1.2.0
    */
-  public void setStartTimeLong(long startTime) {
-    this.startTimeLong = startTime;
+  public void setStartTimeLong(long startTime1) {
+    this.startTimeLong = startTime1;
   
   }
 
   /**
+   * @param subject1 
    * @since   1.2.0
    */
-  public void setSubject(Subject subject) {
-    this.subject = subject;
+  public void setSubject(Subject subject1) {
+    this.subject = subject1;
   
   }
 
   /**
+   * @param uuid1 
    * @since   1.2.0
    */
-  public void setUuid(String uuid) {
-    this.uuid = uuid;
+  public void setUuid(String uuid1) {
+    this.uuid = uuid1;
   
   }
 
@@ -564,6 +606,18 @@ public class GrouperSession implements Serializable {
       .append( "startTime",  this.getStartTime()   )
       .append( "uuid",       this.getUuid() )
       .toString();
+  }
+
+  /**
+   * @return  <code>AttributeDefResolver</code> used by this session.
+   * @since   1.2.1
+   */
+  public AttributeDefResolver getAttributeDefResolver() {
+    this.internal_ThrowIllegalStateIfStopped();
+    if (this.attributeDefResolver == null) {
+      this.attributeDefResolver = AttributeDefResolverFactory.getInstance(this);
+    }
+    return this.attributeDefResolver;
   }
 
   /**

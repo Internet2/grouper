@@ -20,11 +20,31 @@ package edu.internet2.middleware.grouper.misc;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.5 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: E.java,v 1.6 2009-09-21 06:14:27 mchyzer Exp $
  * @since   1.0
  */
 public class E {
 
+  /** */
+  public static final String CANNOT_ATTR_ADMIN              = "subject cannot ATTR_ADMIN";
+
+  /** */
+  public static final String CANNOT_ATTR_UPDATE              = "subject cannot ATTR_UPDATE";
+
+  /** */
+  public static final String CANNOT_ATTR_VIEW              = "subject cannot ATTR_VIEW";
+
+  /** */
+  public static final String CANNOT_ATTR_READ              = "subject cannot ATTR_READ";
+
+  /** */
+  public static final String CANNOT_ATTR_OPTIN              = "subject cannot ATTR_OPTIN";
+
+  /** */
+  public static final String CANNOT_ATTR_OPTOUT              = "subject cannot ATTR_OPTOUT";
+
+
+  
   public static final String CANNOT_ADMIN              = "subject cannot ADMIN";
   public static final String CANNOT_CREATE             = "subject cannot CREATE";
   public static final String CANNOT_CREATE_GROUP       = "cannot create child group: ";

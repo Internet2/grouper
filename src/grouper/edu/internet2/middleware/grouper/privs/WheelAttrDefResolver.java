@@ -25,8 +25,8 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -40,10 +40,10 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.26 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: WheelAttrDefResolver.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1
  */
-public class WheelAccessResolver extends AccessResolverDecorator {
+public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
 
   /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
@@ -62,7 +62,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   /** 2007-11-02 Gary Brown
    * Provide cache for wheel group members
    * Profiling showed lots of time rechecking memberships */
-  public static final String CACHE_IS_WHEEL_MEMBER = WheelAccessResolver.class.getName()
+  public static final String CACHE_IS_WHEEL_MEMBER = WheelAttrDefResolver.class.getName()
       + ".isWheelMember";
 
   /** cache controller */
@@ -72,7 +72,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   private GrouperSession wheelSession = null;
 
   /** logger */
-  private static final Log LOG = GrouperUtil.getLog(WheelAccessResolver.class);
+  private static final Log LOG = GrouperUtil.getLog(WheelAttrDefResolver.class);
 
   /** only log this once... */
   private static boolean loggedWheelGroupMissing = false;
@@ -81,7 +81,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
    * @param resolver resolver
    * @since   1.2.1
    */
-  public WheelAccessResolver(AccessResolver resolver) {
+  public WheelAttrDefResolver(AttributeDefResolver resolver) {
     super(resolver);
     this.cc = new EhcacheController();
     // TODO 20070816 this is ugly
@@ -117,24 +117,24 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   }
 
   /**
-   * @see     AccessResolver#getPrivileges(Group, Subject)
-   * @since   1.2.1
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#getPrivileges(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)
    */
-  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
+  public Set<AttributeDefPrivilege> getPrivileges(AttributeDef attributeDef, Subject subject)
       throws IllegalArgumentException {
     //Get any user privs
-    Set<AccessPrivilege> accessPrivs = super.getDecoratedResolver().getPrivileges(group,
+    Set<AttributeDefPrivilege> accessPrivs = super.getDecoratedResolver().getPrivileges(attributeDef,
         subject);
 
     //Add any due to Wheel.
     if (this.isAndUseWheel(subject)) {
       Set<Privilege> privs = Privilege.getAccessPrivs();
-      AccessPrivilege ap = null;
+      AttributeDefPrivilege ap = null;
       for (Privilege p : privs) {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
-        if (!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
-          ap = new AccessPrivilege(group, subject, SubjectFinder.findRootSubject(),
-              p, GrouperConfig.getProperty("privileges.access.interface"), false, null);
+        if (!p.equals(AttributeDefPrivilege.ATTR_OPTIN) && !p.equals(AttributeDefPrivilege.ATTR_OPTOUT)) {
+          ap = new AttributeDefPrivilege(attributeDef, subject, SubjectFinder.findRootSubject(),
+              p, GrouperConfig.getProperty("privileges.attributeDef.interface"), false, null);
           accessPrivs.add(ap);
         }
       }
@@ -159,24 +159,22 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   }
 
   /**
-   * @see     AccessResolver#hasPrivilege(Group, Subject, Privilege)
-   * @since   1.2.1
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#hasPrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
    */
-  public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
+  public boolean hasPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege)
       throws IllegalArgumentException {
     //Admin incorporates other privileges - except optin /optout
     //Which we don't want to assume
     if (this.isAndUseWheel(subject)) {
-      if (!AccessPrivilege.OPTOUT.equals(privilege)
-          && !AccessPrivilege.OPTIN.equals(privilege)) {
+      if (!AttributeDefPrivilege.ATTR_OPTOUT.equals(privilege)
+          && !AttributeDefPrivilege.ATTR_OPTIN.equals(privilege)) {
         return true;
 
       }
     }
-    AccessResolver decoratedResolver = super.getDecoratedResolver();
-    //System.out.println(decoratedResolver.getClass().getName());
-    //CachingAccessResolver
-    return decoratedResolver.hasPrivilege(group, subject, privilege);
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.hasPrivilege(attributeDef, subject, privilege);
   }
 
   /**
@@ -218,7 +216,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
             public Object callback(GrouperSession grouperSession)
                 throws GrouperSessionException {
-              return WheelAccessResolver.this.wheelGroup.hasMember(subj);
+              return WheelAttrDefResolver.this.wheelGroup.hasMember(subj);
             }
                     });
 
@@ -237,52 +235,47 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterAttrDefs(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject,
+  public Set<AttributeDef> postHqlFilterAttrDefs(Set<AttributeDef> attributeDefs, Subject subject,
       Set<Privilege> privInSet) {
     //Wheel can see all groups
     if (this.isAndUseWheel(subject)) {
-      return groups;
+      return attributeDefs;
     }
-    AccessResolver decoratedResolver = super.getDecoratedResolver();
-    //System.out.println(decoratedResolver.getClass().getName());
-    //CachingAccessResolver
-    return decoratedResolver.postHqlFilterGroups(groups, subject, privInSet);
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.postHqlFilterAttrDefs(attributeDefs, subject, privInSet);
 
   }
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
-  public boolean hqlFilterGroupsWhereClause(Subject subject, HqlQuery hqlQuery,
-      StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+  public boolean hqlFilterAttrDefsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String attributeDefColumn, Set<Privilege> privInSet) {
     //Wheel can see all groups
     if (this.isAndUseWheel(subject)) {
       return false;
     }
-    AccessResolver decoratedResolver = super.getDecoratedResolver();
-    //System.out.println(decoratedResolver.getClass().getName());
-    //CachingAccessResolver
-    return decoratedResolver.hqlFilterGroupsWhereClause(subject, hqlQuery, hql,
-        groupColumn, privInSet);
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.hqlFilterAttrDefsWhereClause(subject, hqlQuery, hql,
+        attributeDefColumn, privInSet);
   }
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterAttrDefs(edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<Membership> postHqlFilterMemberships(Subject subject,
-      Set<Membership> memberships) {
+  public Set<AttributeDef> postHqlFilterAttrDefs(Subject subject,
+      Set<AttributeDef> attributeDefs) {
+
     //Wheel can see all memberships
     if (this.isAndUseWheel(subject)) {
-      return memberships;
+      return attributeDefs;
     }
-    AccessResolver decoratedResolver = super.getDecoratedResolver();
-    //System.out.println(decoratedResolver.getClass().getName());
-    //CachingAccessResolver
-    return decoratedResolver.postHqlFilterMemberships(subject, memberships);
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.postHqlFilterAttrDefs(subject, attributeDefs);
   }
 
 }

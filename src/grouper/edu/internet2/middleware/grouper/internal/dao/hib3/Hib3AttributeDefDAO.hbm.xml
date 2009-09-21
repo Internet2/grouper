@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeDefDAO.hbm.xml,v 1.1 2009-06-24 06:22:24 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeDefDAO.hbm.xml,v 1.2 2009-09-21 06:14:26 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.attr">
 
@@ -45,6 +45,7 @@
     <property name="attributeDefTypeDb" column="attribute_def_type"/>
     <property name="contextId" column="context_id"/>
     <property name="createdOnDb" column="created_on"/>
+    <property name="creatorId" column="creator_id"/>
     <property name="description" column="description"/>
     <property name="extensionDb" column="extension"/>
     <property name="lastUpdatedDb" column="last_updated"/>

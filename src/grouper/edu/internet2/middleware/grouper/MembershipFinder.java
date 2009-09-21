@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -49,7 +50,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.104 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: MembershipFinder.java,v 1.105 2009-09-21 06:14:27 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -379,20 +380,22 @@ public class MembershipFinder {
   /**
    * 
    * @param s
-   * @param group
+   * @param attributeDef
    * @param f
    * @return set of subjects
    * @throws GrouperException
    */
-  public static Set<Subject> internal_findGroupSubjectsImmediateOnly(GrouperSession s,
-      Group group, Field f) throws GrouperException {
+  public static Set<Subject> internal_findAttributeDefSubjectsImmediateOnly(GrouperSession s,
+      AttributeDef attributeDef, Field f) throws GrouperException {
     GrouperSession.validate(s);
     Set<Subject> subjs = new LinkedHashSet();
     try {
-      PrivilegeHelper.dispatch(s, group, s.getSubject(), f.getReadPriv());
-      Iterator<Member> it = GrouperDAOFactory.getFactory().getMembership()
-          .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), f,
-              Membership.IMMEDIATE, null, true).iterator();
+      PrivilegeHelper.dispatch(s, attributeDef, s.getSubject(), f.getReadPriv());
+      Iterator<Member> it = null; 
+      //TODO 20090919 fix this
+//        GrouperDAOFactory.getFactory().getMembership()
+//          .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), f,
+//              Membership.IMMEDIATE, null, true).iterator();
 
       while (it.hasNext()) {
         try {
@@ -819,6 +822,106 @@ public class MembershipFinder {
     }
     return allChildren;
     }
+
+  /**
+   * 
+   * @param s
+   * @param attributeDef
+   * @param f
+   * @return set of subjects
+   * @throws GrouperException
+   */
+  public static Set<Subject> internal_findAttributeDefSubjects(GrouperSession s, AttributeDef attributeDef, Field f) 
+    throws  GrouperException {
+    GrouperSession.validate(s);
+    Set       subjs = new LinkedHashSet();
+    Iterator  it    = null;
+    //TODO 20090919 fix this
+//    PrivilegeHelper.canViewAttributeDefs(
+//      s, GrouperDAOFactory.getFactory().getMembership().findAllByAttrDefOwnerAndField(attributeDef.getId(), f, true)
+//    ).iterator();
+    try {
+      while (it.hasNext()) {
+    	//2007-12-18 Gary Brown
+        //Instantiating all the Subjects can be very slow. LazySubjects
+    	//only make expensive calls when necessary - so a client can page 
+        //results.
+    	//A partial alternative may have been to always instantiate the Member of
+    	//a Membership when the latter is created - assuming one query.
+    	try {
+    		subjs.add ( new LazySubject((Membership) it.next()) );
+    	}catch(GrouperException gre) {
+    		if(gre.getCause() instanceof MemberNotFoundException) {
+    			throw (MemberNotFoundException) gre.getCause();
+    		}
+    		if(gre.getCause() instanceof SubjectNotFoundException) {
+    			throw (SubjectNotFoundException) gre.getCause();
+    		}
+    	}
+      }
+    }
+    catch (MemberNotFoundException eMNF) {
+      String msg = "internal_findSubjects: " + eMNF.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperException(msg, eMNF);
+    }
+    catch (SubjectNotFoundException eSNF) {
+      String msg = "internal_findSubjects: " + eSNF.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperException(msg, eSNF);
+    }
+    return subjs;
+  } // public static Set internal_findSubjects(s, o, f)
+
+  /**
+   * 
+   * @param s
+   * @param group
+   * @param f
+   * @return set of subjects
+   * @throws GrouperException
+   */
+  public static Set<Subject> internal_findGroupSubjectsImmediateOnly(GrouperSession s,
+      Group group, Field f) throws GrouperException {
+    GrouperSession.validate(s);
+    Set<Subject> subjs = new LinkedHashSet();
+    try {
+      PrivilegeHelper.dispatch(s, group, s.getSubject(), f.getReadPriv());
+      Iterator<Member> it = GrouperDAOFactory.getFactory().getMembership()
+          .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), f,
+              Membership.IMMEDIATE, null, true).iterator();
+  
+      while (it.hasNext()) {
+        try {
+          subjs.add(new LazySubject(it.next()));
+        } catch (GrouperException gre) {
+          if (gre.getCause() instanceof MemberNotFoundException) {
+            throw (MemberNotFoundException) gre.getCause();
+          }
+          if (gre.getCause() instanceof SubjectNotFoundException) {
+            throw (SubjectNotFoundException) gre.getCause();
+          }
+        }
+      }
+    } catch (MemberNotFoundException eMNF) {
+      String msg = "internal_findGroupSubjectsImmediateOnly: " + eMNF.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperException(msg, eMNF);
+    } catch (SubjectNotFoundException eSNF) {
+      String msg = "internal_findGroupSubjectsImmediateOnly: " + eSNF.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperException(msg, eSNF);
+    } catch (InsufficientPrivilegeException e) {
+      String msg = "internal_findGroupSubjectsImmediateOnly: " + e.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperException(msg, e);
+    } catch (SchemaException e) {
+      String msg = "internal_findGroupSubjectsImmediateOnly: " + e.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperException(msg, e);
+    }
+    return subjs;
+  }
 
 } // public class MembershipFinder
 

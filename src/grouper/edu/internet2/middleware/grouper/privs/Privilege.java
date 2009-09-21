@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * and Stems from NamingPrivilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.8 2009-03-15 08:18:11 mchyzer Exp $
+ * @version $Id: Privilege.java,v 1.9 2009-09-21 06:14:26 mchyzer Exp $
  */
 public class Privilege implements Serializable {
 
@@ -77,21 +77,48 @@ public class Privilege implements Serializable {
   
   //get references to these from other classes, e.g. AccessPrivilege.READ, or NamingPrivilege
   // PRIVATE CLASS CONSTANTS //
+  /** */
+  private static final Set<Privilege>         ATTRIBUTE_DEF  = new LinkedHashSet<Privilege>();
+  /** */
   private static final Set<Privilege>         ACCESS  = new LinkedHashSet<Privilege>();
-  private static final Privilege              ADMIN   = new Privilege("admin" );
+  /** */
   private static final Privilege              CREATE  = new Privilege("create");
-  private static final Set<Privilege>         NAMING  = new LinkedHashSet<Privilege>();
-  private static final Privilege              OPTIN   = new Privilege("optin" );
-  private static final Privilege              OPTOUT  = new Privilege("optout");
-  private static final Map<String,Privilege>  PRIVS   = new HashMap<String,Privilege>();
-  private static final Privilege              READ    = new Privilege("read"  );
+  /** */
   private static final Privilege              STEM    = new Privilege("stem"  );
-  private static final Privilege              SYSTEM  = new Privilege("system");
+  /** */
+  private static final Set<Privilege>         NAMING  = new LinkedHashSet<Privilege>();
+  /** */
+  private static final Privilege              OPTIN   = new Privilege("optin" );
+  /** */
+  private static final Privilege              OPTOUT  = new Privilege("optout");
+  /** */
+  private static final Privilege              READ    = new Privilege("read"  );
+  /** */
+  private static final Privilege              ADMIN   = new Privilege("admin" );
+  /** */
   private static final Privilege              UPDATE  = new Privilege("update");
+  /** */
   private static final Privilege              VIEW    = new Privilege("view"  );
+  /** */
+  private static final Map<String,Privilege>  PRIVS   = new HashMap<String,Privilege>();
 
+  /** */
+  private static final Privilege              ATTR_OPTIN   = new Privilege("attrOptin" );
+  /** */
+  private static final Privilege              ATTR_OPTOUT  = new Privilege("attrOptout");
+  /** */
+  private static final Privilege              ATTR_READ    = new Privilege("attrRead"  );
+  /** */
+  private static final Privilege              ATTR_ADMIN   = new Privilege("attrAdmin" );
+  /** */
+  private static final Privilege              ATTR_UPDATE  = new Privilege("attrUpdate");
+  /** */
+  private static final Privilege              ATTR_VIEW    = new Privilege("attrView"  );
 
-  // PRIVATE INSTANCE VARIABLES //
+  /** */
+  private static final Privilege              SYSTEM  = new Privilege("system");
+
+  /** */
   private String name;
 
 
@@ -114,6 +141,21 @@ public class Privilege implements Serializable {
     ACCESS.add( UPDATE                      );
     PRIVS.put(  VIEW.toString()   , VIEW    );
     ACCESS.add( VIEW                        );
+
+    PRIVS.put(  ATTR_OPTIN.toString()   , ATTR_OPTIN    );
+    ATTRIBUTE_DEF.add( ATTR_OPTIN                        );
+    PRIVS.put(  ATTR_OPTOUT.toString()   , ATTR_OPTOUT    );
+    ATTRIBUTE_DEF.add( ATTR_OPTOUT                        );
+    PRIVS.put(  ATTR_READ.toString()   , ATTR_READ    );
+    ATTRIBUTE_DEF.add( ATTR_READ                        );
+    PRIVS.put(  ATTR_UPDATE.toString()   , ATTR_UPDATE    );
+    ATTRIBUTE_DEF.add( ATTR_UPDATE                        );
+    PRIVS.put(  ATTR_VIEW.toString()   , ATTR_VIEW    );
+    ATTRIBUTE_DEF.add( ATTR_VIEW                        );
+    PRIVS.put(  ATTR_ADMIN.toString()   , ATTR_ADMIN    );
+    ATTRIBUTE_DEF.add( ATTR_ADMIN                        );
+
+  
   } // static
 
 
@@ -128,12 +170,16 @@ public class Privilege implements Serializable {
     if (isNaming(this)) {
       return NamingPrivilege.privToList(this);
     }
+    if (isAttributeDef(this)) {
+      return AttributeDefPrivilege.privToList(this);
+    }
     throw new RuntimeException("Invalid list: " + this);
   }
   
   /**
    * return the list name
    * @return the list name
+   * @throws SchemaException 
    */
   public Field getField() throws SchemaException {
     String listName = this.getListName();
@@ -142,26 +188,54 @@ public class Privilege implements Serializable {
     }
     throw new SchemaException("invalid privilege: " + this);
   }
-  
-  // CONSTRUCTORS //
+
+  /**
+   * 
+   * @param name
+   */
   private Privilege(String name) {
     this.name = name;
   } // private Privilege(name)
 
 
-  // PUBLIC CLASS METHODS //
+  /**
+   * 
+   * @return access (group) privs
+   */
   public static Set getAccessPrivs() {
     return ACCESS;
   } // public static Set getAccessPrivs()
 
+  /**
+   * 
+   * @param name
+   * @return priv
+   */
   public static Privilege getInstance(String name) {
     return (Privilege) PRIVS.get(name);
   } // public static Privilege getInstance(name)
 
+  /**
+   * get stem (naming) privs
+   * @return set
+   */
   public static Set getNamingPrivs() {
     return NAMING;
   }
+  
+  /**
+   * get attribute def privs
+   * @return attr def privs
+   */
+  public static Set getAttributeDefPrivs() {
+    return ATTRIBUTE_DEF;
+  }
 
+  /**
+   * 
+   * @param p
+   * @return if access
+   */
   public static boolean isAccess(Privilege p) {
     if (ACCESS.contains(p)) {
       return true;
@@ -169,6 +243,11 @@ public class Privilege implements Serializable {
     return false;
   }
 
+  /**
+   * 
+   * @param p
+   * @return if naming (stem)
+   */
   public static boolean isNaming(Privilege p) {
     if (NAMING.contains(p)) {
       return true;
@@ -176,17 +255,38 @@ public class Privilege implements Serializable {
     return false;
   }
 
+  /**
+   * 
+   * @param p
+   * @return if attribute def
+   */
+  public static boolean isAttributeDef(Privilege p) {
+    return ATTRIBUTE_DEF.contains(p);
+  }
 
-  // PUBLIC INSTANCE METHODS //
+
+  /**
+   * 
+   * @return name
+   */
   public String getName() {
     return this.name;
   } // public String getName()
 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
   public String toString() {
     return this.getName();
   } // public String toString()
 
 
+  /**
+   * 
+   * @return object
+   */
   Object readResolve() {
     return getInstance(name);
   } // Object readResolve()

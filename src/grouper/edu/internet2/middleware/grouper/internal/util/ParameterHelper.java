@@ -18,30 +18,35 @@
 package edu.internet2.middleware.grouper.internal.util;
 import java.util.Set;
 
-import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
-import  edu.internet2.middleware.grouper.privs.AccessResolver;
+import edu.internet2.middleware.grouper.privs.AccessResolver;
+import edu.internet2.middleware.grouper.privs.AttributeDefAdapter;
+import edu.internet2.middleware.grouper.privs.AttributeDefResolver;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
-import  edu.internet2.middleware.grouper.privs.NamingResolver;
+import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import  edu.internet2.middleware.subject.Subject;
-import  edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /** 
  * Utility class for validating parameters.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ParameterHelper.java,v 1.6 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: ParameterHelper.java,v 1.7 2009-09-21 06:14:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class ParameterHelper {
 
 
   /**
+   * @param object 
+   * @param msg 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -59,6 +64,7 @@ public class ParameterHelper {
   }
 
   /** 
+   * @param accessAdapter 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -68,15 +74,35 @@ public class ParameterHelper {
   }
 
   /** 
+   * @param accessResolver 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
   public ParameterHelper notNullAccessResolver(AccessResolver accessResolver) {
-    return this.notNull(accessResolver, "null AccessAdapter");
+    return this.notNull(accessResolver, "null AccessResolver");
+  }
+
+  /** 
+   * @param attributeDefAdapter 
+   * @return  Self for chained calling.
+   * @throws  IllegalArgumentException if any parameter is null.
+   */
+  public ParameterHelper notNullAttrDefAdapter(AttributeDefAdapter attributeDefAdapter) {
+    return this.notNull(attributeDefAdapter, "null AttributeDefAdapter");
+  }
+
+  /** 
+   * @param attributeDefResolver 
+   * @return  Self for chained calling.
+   * @throws  IllegalArgumentException if any parameter is null.
+   */
+  public ParameterHelper notNullAttrDefResolver(AttributeDefResolver attributeDefResolver) {
+    return this.notNull(attributeDefResolver, "null AttributeDefResolver");
   }
 
   /**
+   * @param group 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -86,6 +112,7 @@ public class ParameterHelper {
   }
 
   /**
+   * @param session 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -95,6 +122,7 @@ public class ParameterHelper {
   }
 
   /** 
+   * @param namingAdapter 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -104,6 +132,7 @@ public class ParameterHelper {
   }
 
   /** 
+   * @param namingResolver 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -113,6 +142,7 @@ public class ParameterHelper {
   }
 
   /**
+   * @param privilege 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -131,6 +161,7 @@ public class ParameterHelper {
   }
 
   /**
+   * @param privilegeArray 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -140,6 +171,7 @@ public class ParameterHelper {
   }
 
   /**
+   * @param privilegeSet 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -150,6 +182,7 @@ public class ParameterHelper {
 
   /**
    * TODO 20070827 test
+   * @param sourceManager 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -158,6 +191,7 @@ public class ParameterHelper {
     return this.notNull(sourceManager, "null SourceManager");
   }
   /**
+   * @param stem 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -167,6 +201,7 @@ public class ParameterHelper {
   }
 
   /**
+   * @param string 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -177,6 +212,8 @@ public class ParameterHelper {
 
   /**
    * TODO 20070827 test
+   * @param string 
+   * @param msg 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -186,12 +223,23 @@ public class ParameterHelper {
   }
 
   /**
+   * @param subject 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
   public ParameterHelper notNullSubject(Subject subject) {
     return this.notNull(subject, "null Subject");
+  }
+
+  /**
+   * @param attributeDef 
+   * @return  Self for chained calling.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   1.2.1
+   */
+  public ParameterHelper notNullAttributeDef(AttributeDef attributeDef) {
+    return this.notNull(attributeDef, "null Group");
   }
 
 } 

@@ -16,20 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Decorator for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolverDecorator.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: AccessResolverDecorator.java,v 1.3 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1
  */
 public abstract class AccessResolverDecorator implements AccessResolver {
 
- 
+  /** */
   private AccessResolver  decorated;
+  
+  /** */
   private ParameterHelper param;
 
 
@@ -56,10 +66,150 @@ public abstract class AccessResolverDecorator implements AccessResolver {
   public AccessResolver getDecoratedResolver() 
     throws  IllegalStateException
   {
-    if (this.decorated == null) { // TODO 20070816 StateHelper
+    if (this.decorated == null) { 
       throw new IllegalStateException("null decorated AccessResolver");
     }
     return this.decorated;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   */
+  public void flushCache() {
+    this.getDecoratedResolver().flushCache();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    return this.getDecoratedResolver().getGrouperSession();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getGroupsWhereSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
+      throws IllegalArgumentException {
+    return this.getDecoratedResolver().getGroupsWhereSubjectHasPrivilege(subject, privilege);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getPrivileges(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)
+   */
+  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
+      throws IllegalArgumentException {
+    return this.getDecoratedResolver().getPrivileges(group, subject);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getSubjectsWithPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public Set<Subject> getSubjectsWithPrivilege(Group group, Privilege privilege)
+      throws IllegalArgumentException {
+    return this.getDecoratedResolver().getSubjectsWithPrivilege(group, privilege);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#grantPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void grantPrivilege(Group group, Subject subject, Privilege privilege)
+      throws IllegalArgumentException, UnableToPerformException {
+    this.getDecoratedResolver().grantPrivilege(group, subject, privilege);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hasPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
+      throws IllegalArgumentException {
+    return this.getDecoratedResolver().hasPrivilege(group, subject, privilege);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterGroupsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+    return this.getDecoratedResolver().hqlFilterGroupsWhereClause(subject, hqlQuery, hql, groupColumn, privInSet);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject,
+      Set<Privilege> privInSet) {
+    return this.getDecoratedResolver().postHqlFilterGroups(groups, subject, privInSet);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Membership> postHqlFilterMemberships(Subject subject,
+      Set<Membership> memberships) {
+    return this.getDecoratedResolver().postHqlFilterMemberships(subject, memberships);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#privilegeCopy(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Group g1, Group g2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    this.getDecoratedResolver().privilegeCopy(g1, g2, priv);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    this.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject) {
+    this.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#revokePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void revokePrivilege(Group group, Privilege privilege)
+      throws IllegalArgumentException, UnableToPerformException {
+    this.getDecoratedResolver().revokePrivilege(group, privilege);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#revokePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void revokePrivilege(Group group, Subject subject, Privilege privilege)
+      throws IllegalArgumentException, UnableToPerformException {
+    this.getDecoratedResolver().revokePrivilege(group, subject, privilege);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
+   */
+  public void stop() {
+    this.getDecoratedResolver().stop();
   }
 
 }

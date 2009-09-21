@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.5 2009-09-17 15:33:05 shilen Exp $
+ * @author shilen $Id: GroupSet.java,v 1.6 2009-09-21 06:14:26 mchyzer Exp $
  *
  */
 @SuppressWarnings("serial")
@@ -71,6 +71,12 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   /** same as owner_group_id except nulls are replaced with the string '<NULL>' */
   public static final String COLUMN_OWNER_GROUP_ID_NULL = "owner_group_id_null";
   
+  /** owner attribute def if applicable */
+  public static final String COLUMN_OWNER_ATTR_DEF_ID = "owner_attr_def_id";
+  
+  /** same as owner_attr_def_id except nulls are replaced with the string '<NULL>' */
+  public static final String COLUMN_OWNER_ATTR_DEF_ID_NULL = "owner_attr_def_id_null";
+  
   /** owner stem if applicable */
   public static final String COLUMN_OWNER_STEM_ID = "owner_stem_id";
   
@@ -82,6 +88,12 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   
   /** same as member_group_id except nulls are replaced with the string '<NULL>' */
   public static final String COLUMN_MEMBER_GROUP_ID_NULL = "member_group_id_null";
+  
+  /** member attr def if applicable */
+  public static final String COLUMN_MEMBER_ATTR_DEF_ID = "member_attr_def_id";
+  
+  /** same as member_attr_def_id except nulls are replaced with the string '<NULL>' */
+  public static final String COLUMN_MEMBER_ATTR_DEF_ID_NULL = "member_attr_def_id_null";
   
   /** member stem if applicable */
   public static final String COLUMN_MEMBER_STEM_ID = "member_stem_id";
@@ -224,6 +236,10 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    */
   public static final String nullColumnValue = "<NULL>";
 
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -239,27 +255,38 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       .append(this.type, that.type)
       .append(this.depth, that.depth)
       .append(this.parentId, that.parentId)
+      .append(this.ownerAttrDefId, that.ownerAttrDefId)
       .append(this.ownerGroupId, that.ownerGroupId)
       .append(this.ownerStemId, that.ownerStemId)
+      .append(this.memberAttrDefId, that.memberAttrDefId)
       .append(this.memberGroupId, that.memberGroupId)
       .append(this.memberStemId, that.memberStemId)
       .isEquals();
   } 
 
+  /**
+   * 
+   * @see java.lang.Object#hashCode()
+   */
   public int hashCode() {
     return new HashCodeBuilder()
       .append(this.fieldId)
       .append(this.type)
       .append(this.depth)
       .append(this.parentId)
+      .append(this.ownerAttrDefId)
       .append(this.ownerGroupId)
       .append(this.ownerStemId)
+      .append(this.memberAttrDefId)
       .append(this.memberGroupId)
       .append(this.memberStemId)
       .toHashCode();
   }
   
-
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
+   */
   @Override
   public GrouperAPI clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
@@ -267,6 +294,18 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
 
   /** we're using this to save effective memberships onPreSave and onPreDelete so they can be used onPostSave and onPostDelete */
   private Set<Membership> effectiveMembershipsForHooks;
+
+  /** attr def id for attr def memberships.  this is the member. */
+  private String memberAttrDefId;
+
+  /** memberAttrDefId except nulls are replaced with a string so we can use this in a unique constraint */
+  private String memberAttrDefIdNull = GroupSet.nullColumnValue;
+
+  /** attr def id for attr def memberships.  this is the owner. */
+  private String ownerAttrDefId;
+
+  /** ownerAttrDefId except nulls are replaced with a string so we can use this in a unique constraint */
+  private String ownerAttrDefIdNull = GroupSet.nullColumnValue;
 
   /**
    * 
@@ -441,11 +480,18 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   private void updateLastMembershipChange(GroupSet immediateGroupSet, Set<GroupSet> effectiveGroupSets) {
     Set<String> groupIds = new LinkedHashSet<String>();
     Set<String> stemIds = new LinkedHashSet<String>();
+    Set<String> attrDefIds = new LinkedHashSet<String>();
     
     if (immediateGroupSet.getOwnerGroupId() != null) {
       groupIds.add(immediateGroupSet.getOwnerGroupId());
-    } else {
+    } if (immediateGroupSet.getOwnerStemId() != null) {
+
       stemIds.add(immediateGroupSet.getOwnerStemId());
+    } if (immediateGroupSet.getOwnerAttrDefId() != null) {
+
+      attrDefIds.add(immediateGroupSet.getOwnerAttrDefId());
+    } else {
+      throw new RuntimeException("Cant find owner! " + immediateGroupSet);
     }
     
     Iterator<GroupSet> iter = effectiveGroupSets.iterator();
@@ -453,8 +499,12 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       GroupSet effectiveGroupSet = iter.next();
       if (effectiveGroupSet.getOwnerGroupId() != null) {
         groupIds.add(effectiveGroupSet.getOwnerGroupId());
-      } else {
+      } else if (effectiveGroupSet.getOwnerStemId() != null) {
         stemIds.add(effectiveGroupSet.getOwnerStemId());
+      } else if (effectiveGroupSet.getOwnerAttrDefId() != null) {
+        stemIds.add(effectiveGroupSet.getOwnerAttrDefId());
+      } else {
+        throw new RuntimeException("Cant find owner! " + effectiveGroupSet);
       }
     }
     
@@ -479,7 +529,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    * @param memberGroupId
    * @param groupSetIsMember
    * @param groupSetHasMembers
-   * @return
+   * @return group set
    * @throws IllegalStateException
    */
   private Set<GroupSet> addHasMembersToWhereGroupIsMember(String memberGroupId,
@@ -505,6 +555,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
 
       String ownerGroupId = isGS.getOwnerGroupId();
       String ownerStemId = isGS.getOwnerStemId();
+      String ownerAttrDefId = isGS.getOwnerAttrDefId();
       String fieldId = isGS.getFieldId();
       String id = isGS.getId();
       int depth = isGS.getDepth();
@@ -525,6 +576,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       groupSet.setFieldId(fieldId);
       groupSet.setMemberGroupId(memberGroupId);
       groupSet.setOwnerGroupId(ownerGroupId);
+      groupSet.setOwnerAttrDefId(ownerAttrDefId);
       groupSet.setOwnerStemId(ownerStemId);
       groupSet.setType(Membership.EFFECTIVE);
 
@@ -539,7 +591,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       while (itHM.hasNext()) {
         GroupSet hasGS = itHM.next();
         Set<GroupSet> newAdditions = addHasMembersRecursively(isGS, hasGS, groupSet,
-            parentToChildrenMap, ownerGroupId, ownerStemId, this.getCreatorId(), fieldId);
+            parentToChildrenMap, ownerAttrDefId, ownerGroupId, ownerStemId, this.getCreatorId(), fieldId);
         groupSets.addAll(newAdditions);
       }
     }
@@ -551,16 +603,17 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   /**
    * @param immediateGroupSet
    * @param hasMembers
-   * @return
+   * @return set
    * @throws IllegalStateException
    */
-  private Set addHasMembersToOwner(GroupSet immediateGroupSet, Set<GroupSet> hasMembers) 
+  private Set<GroupSet> addHasMembersToOwner(GroupSet immediateGroupSet, Set<GroupSet> hasMembers) 
     throws  IllegalStateException
   {
     Set<GroupSet> groupSets = new LinkedHashSet();
     Iterator<GroupSet> it = hasMembers.iterator();
 
     // cache values outside of iterator
+    String ownerAttrDefId = immediateGroupSet.getOwnerAttrDefId();
     String ownerGroupId = immediateGroupSet.getOwnerGroupId();
     String ownerStemId = immediateGroupSet.getOwnerStemId();
     String fieldId = immediateGroupSet.getFieldId();
@@ -571,7 +624,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       GroupSet gs = it.next();
       if (gs.getDepth() == 1) {
         Set<GroupSet> newAdditions = addHasMembersRecursively(immediateGroupSet, gs, 
-            immediateGroupSet, parentToChildrenMap, ownerGroupId, ownerStemId, this.getCreatorId(), fieldId);
+            immediateGroupSet, parentToChildrenMap, ownerAttrDefId, ownerGroupId, ownerStemId, this.getCreatorId(), fieldId);
         groupSets.addAll(newAdditions);
       }
     }
@@ -612,23 +665,26 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    * @param gs
    * @param parentGroupSet
    * @param parentToChildrenMap
-   * @param ownerGroupId
-   * @param ownerStemId
+   * @param ownerGroupId1
+   * @param ownerStemId1
+   * @param ownerAttrDefId1 
    * @param creatorUUID
-   * @param fieldId
-   * @return
+   * @param fieldId1
+   * @return set of group sets
    */
   private Set<GroupSet> addHasMembersRecursively(GroupSet startGroupSet, 
       GroupSet gs, GroupSet parentGroupSet, Map<String, Set<GroupSet>> parentToChildrenMap, 
-      String ownerGroupId, String ownerStemId, String creatorUUID, String fieldId) {
+      String ownerAttrDefId1,
+      String ownerGroupId1, String ownerStemId1, String creatorUUID, String fieldId1) {
 
       GroupSet newGroupSet = new GroupSet();
       newGroupSet.setId(GrouperUuid.getUuid());
       newGroupSet.setCreatorId(creatorUUID);
       newGroupSet.setCreateTime(this.getCreateTime());
-      newGroupSet.setFieldId(fieldId);
-      newGroupSet.setOwnerGroupId(ownerGroupId);
-      newGroupSet.setOwnerStemId(ownerStemId);
+      newGroupSet.setFieldId(fieldId1);
+      newGroupSet.setOwnerAttrDefId(ownerAttrDefId1);
+      newGroupSet.setOwnerGroupId(ownerGroupId1);
+      newGroupSet.setOwnerStemId(ownerStemId1);
       newGroupSet.setMemberGroupId(gs.getMemberGroupId());
       newGroupSet.setDepth(parentGroupSet.getDepth() + 1);
       newGroupSet.setParentId(parentGroupSet.getId());
@@ -648,7 +704,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
         while (it.hasNext()) {
           GroupSet nextGroupSet = it.next();
           Set<GroupSet> newAdditions = addHasMembersRecursively(startGroupSet, nextGroupSet, newGroupSet, 
-            parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
+            parentToChildrenMap, ownerAttrDefId1, ownerGroupId1, ownerStemId1, creatorUUID, fieldId1);
           newGroupSets.addAll(newAdditions);
         }
       }
@@ -790,7 +846,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    * Set via group id.  This is for internal use only.
    * @param viaGroupId
    */
-  public void setViaGroupId(String viaGroupId) {
+  public void setViaGroupId(@SuppressWarnings("unused") String viaGroupId) {
     // not used
   }
   
@@ -1027,6 +1083,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     effectiveMembership.setUuid(immediateOrCompositeMembership.getImmediateMembershipId() + ":" + this.getId());
     effectiveMembership.setGroupSetId(this.getId());
     effectiveMembership.setFieldId(this.getFieldId());
+    effectiveMembership.setOwnerAttrDefId(this.getOwnerAttrDefId());
     effectiveMembership.setOwnerGroupId(this.getOwnerGroupId());
     effectiveMembership.setOwnerStemId(this.getOwnerStemId());
     effectiveMembership.setViaGroupId(this.getViaGroupId());
@@ -1038,5 +1095,77 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     effectiveMembership.setGroupSetCreateTimeLong(this.getCreateTime());
     
     return effectiveMembership;
+  }
+
+  /**
+   * @return group id for the member if the member is a group
+   */
+  public String getMemberAttrDefId() {
+    return this.memberAttrDefId;
+  }
+
+  /**
+   * This is for internal use only.  This is the same as getMemberAttrDefId() except nulls are replaced with
+   * a constant string.
+   * @return attrdef id for the member if the member is a attrdef
+   */  
+  public String getMemberAttrDefIdNull() {
+    return this.memberAttrDefIdNull;
+  }
+
+  /**
+   * @return attrdef id for the owner if this is a attrdef membership
+   */
+  public String getOwnerAttrDefId() {
+    return this.ownerAttrDefId;
+  }
+
+  /**
+   * This is for internal use only.  This is the same as getOwnerAttrDefId() except nulls are replaced with
+   * a constant string.
+   * @return attr def id for the owner if this is a attrdef membership
+   */
+  public String getOwnerAttrDefIdNull() {
+    return this.ownerAttrDefIdNull;
+  }
+
+  /**
+   * Set attr def id for the member if the member is a attrdef
+   * @param memberAttrDefId1
+   */
+  public void setMemberAttrDefId(String memberAttrDefId1) {
+    this.memberAttrDefId = memberAttrDefId1;
+    setMemberAttrDefIdNull(memberAttrDefId1);
+    if (memberAttrDefId1 == null) {
+      setMemberAttrDefIdNull(GroupSet.nullColumnValue);
+    }
+  }
+
+  /**
+   * Set attrdef id for the member if the member is a attrdef.  This is for internal use only.
+   * @param memberAttrDefIdNull1
+   */  
+  public void setMemberAttrDefIdNull(String memberAttrDefIdNull1) {
+    this.memberAttrDefIdNull = memberAttrDefIdNull1;
+  }
+
+  /**
+   * Set attrdef id for the owner if this is a attrdef membership
+   * @param ownerAttrDefId1
+   */
+  public void setOwnerAttrDefId(String ownerAttrDefId1) {
+    this.ownerAttrDefId = ownerAttrDefId1;
+    this.setOwnerAttrDefIdNull(ownerAttrDefId1);
+    if (ownerAttrDefId1 == null) {
+      this.setOwnerAttrDefIdNull(GroupSet.nullColumnValue);
+    }
+  }
+
+  /**
+   * Set attrdef id for the owner if this is a attrdef membership.  This is for internal use only.
+   * @param ownerAttrDefIdNull1
+   */
+  public void setOwnerAttrDefIdNull(String ownerAttrDefIdNull1) {
+    this.ownerAttrDefIdNull = ownerAttrDefIdNull1;
   }
 }
