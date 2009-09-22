@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.6 2009-09-21 06:14:26 mchyzer Exp $
+ * @author shilen $Id: GroupSet.java,v 1.7 2009-09-22 12:51:10 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
@@ -484,11 +484,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     
     if (immediateGroupSet.getOwnerGroupId() != null) {
       groupIds.add(immediateGroupSet.getOwnerGroupId());
-    } if (immediateGroupSet.getOwnerStemId() != null) {
-
+    } else if (immediateGroupSet.getOwnerStemId() != null) {
       stemIds.add(immediateGroupSet.getOwnerStemId());
-    } if (immediateGroupSet.getOwnerAttrDefId() != null) {
-
+    } else if (immediateGroupSet.getOwnerAttrDefId() != null) {
       attrDefIds.add(immediateGroupSet.getOwnerAttrDefId());
     } else {
       throw new RuntimeException("Cant find owner! " + immediateGroupSet);
@@ -502,7 +500,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       } else if (effectiveGroupSet.getOwnerStemId() != null) {
         stemIds.add(effectiveGroupSet.getOwnerStemId());
       } else if (effectiveGroupSet.getOwnerAttrDefId() != null) {
-        stemIds.add(effectiveGroupSet.getOwnerAttrDefId());
+        attrDefIds.add(effectiveGroupSet.getOwnerAttrDefId());
       } else {
         throw new RuntimeException("Cant find owner! " + effectiveGroupSet);
       }
