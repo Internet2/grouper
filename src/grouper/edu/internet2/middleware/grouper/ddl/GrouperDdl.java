@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.70 2009-09-23 13:02:50 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.71 2009-09-24 14:51:55 tzeller Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2854,9 +2854,9 @@ public enum GrouperDdl implements DdlVersionable {
                + "(select gm.subject_source from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_source_id, "
                + "(select gm.subject_source from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_source_id, "
                + "gae.logged_in_member_id, gae.act_as_member_id, "
-               + "gat.id audit_type_id, "
+               + "gat.id as audit_type_id, "
                + "gae.user_ip_address, gae.server_host, "
-               + "gae.last_updated, gae.id audit_entry_id, gae.grouper_version, gae.env_name "
+               + "gae.last_updated, gae.id as audit_entry_id, gae.grouper_version, gae.env_name "
                + "from grouper_audit_type gat, grouper_audit_entry gae "
                + "where gat.id = gae.audit_type_id ");
     }
@@ -3201,7 +3201,7 @@ public enum GrouperDdl implements DdlVersionable {
             "LIST_TYPE: type of list e.g. access or list", 
             "GROUP_ID: uuid of the group"),
             "select distinct gm.SUBJECT_ID, gm.SUBJECT_SOURCE, gg.name as group_name, "
-            + "gfl.NAME as list_name, gfl.TYPE as list_type, gg.ID group_id "
+            + "gfl.NAME as list_name, gfl.TYPE as list_type, gg.ID as group_id "
             + "from grouper_memberships_all_v gms, grouper_members gm, " 
             + "grouper_groups gg, grouper_fields gfl "
             + "where gms.OWNER_GROUP_ID = gg.id " 
@@ -3526,9 +3526,9 @@ public enum GrouperDdl implements DdlVersionable {
             "then_has_role_id: id of the member role", 
             "parent_role_set_id: id of the role set record which is the parent on effective path (everything but last hop)"
         ),
-        "select ifHas.name if_has_role_name, thenHas.name then_has_role_name,  grs.depth,   "
-        + "grs.type, grParentIfHas.name parent_if_has_name, grParentThenHas.name parent_then_has_name,   "
-        + "grs.id, ifHas.id if_has_role_id, thenHas.id then_has_role_id,   "
+        "select ifHas.name as if_has_role_name, thenHas.name as then_has_role_name,  grs.depth,   "
+        + "grs.type, grParentIfHas.name as parent_if_has_name, grParentThenHas.name as parent_then_has_name,   "
+        + "grs.id, ifHas.id as if_has_role_id, thenHas.id as then_has_role_id,   "
         + "grs.parent_role_set_id  "
         + "from grouper_role_set grs,   "
         + "grouper_role_set grsParent,   "
@@ -3561,11 +3561,11 @@ public enum GrouperDdl implements DdlVersionable {
             "then_has_attr_def_name_id: id of the member attribute def name", 
             "parent_attr_def_name_set_id: id of the attribute def name set record which is the parent on effective path (everything but last hop)"
         ),
-        "select ifHas.name if_has_attr_def_name_name, thenHas.name then_has_attr_def_name_name,  "
+        "select ifHas.name as if_has_attr_def_name_name, thenHas.name as then_has_attr_def_name_name,  "
         + "gadns.depth,  "
-        + "gadns.type, gadnParentIfHas.name parent_if_has_name, gadnParentThenHas.name parent_then_has_name,  "
+        + "gadns.type, gadnParentIfHas.name as parent_if_has_name, gadnParentThenHas.name as parent_then_has_name,  "
         + "gadns.id,  "
-        + "ifHas.id if_has_attr_def_name_id, thenHas.id then_has_attr_def_name_id,  "
+        + "ifHas.id as if_has_attr_def_name_id, thenHas.id as then_has_attr_def_name_id,  "
         + "gadns.parent_attr_def_name_set_id "
         + "from grouper_attribute_def_name_set gadns,  "
         + "grouper_attribute_def_name_set gadnsParent,  "
