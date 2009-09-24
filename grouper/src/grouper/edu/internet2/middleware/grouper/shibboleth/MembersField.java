@@ -22,33 +22,61 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 
+/**
+ * A representation of an attribute consisting of Members.
+ */
 public class MembersField {
 
+  /** the attribute name */
   private String id;
 
+  /** the underlying field */
   private Field field;
 
-  private WsMemberFilter memberFilter;
+  /** the filter which retrieves members */
+  private FieldMemberFilter memberFilter;
 
-  public MembersField(String id, WsMemberFilter memberFilter, Field field) {
+  /**
+   * Constructor.
+   * 
+   * @param id
+   *          the name of the attribute
+   * @param memberFilter
+   *          the filter which defines memberships as immediate, effective, or composite
+   * @param field
+   *          the underlying field
+   */
+  public MembersField(String id, FieldMemberFilter memberFilter, Field field) {
     this.id = id;
     this.memberFilter = memberFilter;
     this.field = field;
   }
 
+  /**
+   * Get the resultant attribute whose values are the Members of the given Group.
+   * 
+   * @param group
+   *          the group
+   * @return the attribute consisting of Members or <tt>null</tt> if there are no members
+   */
   public BaseAttribute<Member> getAttribute(Group group) {
 
     Set<Member> members = memberFilter.getMembers(group, field);
 
     if (!members.isEmpty()) {
-      BasicAttribute<Member> list = new BasicAttribute<Member>(id);
-      list.setValues(members);
-      return list;
+      BasicAttribute<Member> attribute = new BasicAttribute<Member>(id);
+      attribute.setValues(members);
+      return attribute;
     }
 
     return null;
   }
 
+  /**
+   * Get the attribute id.
+   * 
+   * @return the name of the underlying attribute
+   */
   public String getId() {
     return id;
   }

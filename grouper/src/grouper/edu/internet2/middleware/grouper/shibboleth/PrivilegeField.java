@@ -25,20 +25,41 @@ import edu.internet2.middleware.subject.Subject;
 
 public class PrivilegeField {
 
+  /** the attribute name */
   private String id;
 
+  /** the access resolver */
   private AccessResolver accessResolver;
 
+  /** the underlying privilege */
   private Privilege privilege;
 
+  /**
+   * Constructor.
+   * 
+   * @param id
+   *          the attribute name
+   * @param accessResolver
+   *          the access resolver
+   * @param privilege
+   *          the privilege
+   */
   public PrivilegeField(String id, AccessResolver accessResolver, Privilege privilege) {
     this.id = id;
     this.accessResolver = accessResolver;
     this.privilege = privilege;
   }
 
+  /**
+   * Get the resultant attribute whose values are the Subjects with the privilege for the
+   * given Group.
+   * 
+   * @param group
+   *          the group
+   * @return the attribute consisting of Subjects or <tt>null</tt> if there are no
+   *         subjects with the privilege
+   */
   public BaseAttribute<Subject> getAttribute(Group group) {
-
     Set<Subject> subjects = accessResolver.getSubjectsWithPrivilege(group, privilege);
     if (!subjects.isEmpty()) {
       BasicAttribute<Subject> attribute = new BasicAttribute<Subject>(id);
@@ -49,8 +70,16 @@ public class PrivilegeField {
     return null;
   }
 
+  /**
+   * Get the resultant attribute whose values are the Groups to which the subject has the
+   * privilege.
+   * 
+   * @param subject
+   *          the subject
+   * @return the attribute consisting of Groups or <tt>null</tt> if there are no groups to
+   *         which the subject has the privilege
+   */
   public BaseAttribute<Group> getAttribute(Subject subject) {
-
     Set<Group> groups = accessResolver.getGroupsWhereSubjectHasPrivilege(subject, privilege);
     if (!groups.isEmpty()) {
       BasicAttribute<Group> attribute = new BasicAttribute<Group>(id);
@@ -61,6 +90,11 @@ public class PrivilegeField {
     return null;
   }
 
+  /**
+   * Get the attribute id.
+   * 
+   * @return the name of the underlying attribute
+   */
   public String getId() {
     return id;
   }
