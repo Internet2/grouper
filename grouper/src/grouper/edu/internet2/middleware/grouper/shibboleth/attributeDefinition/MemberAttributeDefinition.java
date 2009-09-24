@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.shibboleth.Attribute;
+import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
@@ -34,9 +34,9 @@ public class MemberAttributeDefinition extends BaseAttributeDefinition {
 
   private static Logger LOG = LoggerFactory.getLogger(MemberAttributeDefinition.class);
 
-  private List<Attribute> attributes;
+  private List<AttributeIdentifier> attributes;
 
-  public void setAttributes(List<Attribute> attributes) {
+  public void setAttributes(List<AttributeIdentifier> attributes) {
     this.attributes = attributes;
   }
 
@@ -69,7 +69,7 @@ public class MemberAttributeDefinition extends BaseAttributeDefinition {
       Member member = (Member) value;
       Subject subject = member.getSubject();
 
-      for (Attribute attr : attributes) {
+      for (AttributeIdentifier attr : attributes) {
         if (member.getSubjectSourceId().equals(attr.getSource())) {
           attribute.getValues().addAll(subject.getAttributeValues(attr.getId()));
         }

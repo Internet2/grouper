@@ -22,19 +22,24 @@ import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.shibboleth.Attribute;
+import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-public class AttributeBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+/** attribute identifier bean definition parser */
+public class AttributeIdentifierBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-  private static final Logger LOG = GrouperUtil.getLogger(AttributeBeanDefinitionParser.class);
+  /** logger */
+  private static final Logger LOG = GrouperUtil.getLogger(AttributeIdentifierBeanDefinitionParser.class);
 
+  /** schema type name. */
   public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "Attribute");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
-    return Attribute.class;
+    return AttributeIdentifier.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
     super.doParse(element, parserContext, builder);
 
@@ -47,6 +52,7 @@ public class AttributeBeanDefinitionParser extends AbstractSingleBeanDefinitionP
     builder.addPropertyValue("source", source);
   }
 
+  /** {@inheritDoc} */
   protected boolean shouldGenerateId() {
     return true;
   }

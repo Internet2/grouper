@@ -16,21 +16,21 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.shibboleth.Attribute;
+import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorFactoryBean;
 
 public abstract class BaseGrouperDataConnectorFactoryBean extends BaseDataConnectorFactoryBean {
 
-  private List<Attribute> fieldIdentifiers;
+  private List<AttributeIdentifier> fieldIdentifiers;
 
   private GroupQueryFilter groupQueryFilter;
 
-  public List<Attribute> getFieldIdentifiers() {
+  public List<AttributeIdentifier> getFieldIdentifiers() {
     return fieldIdentifiers;
   }
 
-  public void setFieldIdentifiers(List<Attribute> fieldIdentifiers) {
+  public void setFieldIdentifiers(List<AttributeIdentifier> fieldIdentifiers) {
     this.fieldIdentifiers = fieldIdentifiers;
   }
 
