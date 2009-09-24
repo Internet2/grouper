@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.34 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.35 2009-09-24 18:07:16 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -254,7 +254,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException {
     
     // delete the group set
-    GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerStem(_ns.getUuid());
+    GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerStem(_ns.getUuid());
     
     try {
       HibernateSession.byObjectStatic().delete(_ns);

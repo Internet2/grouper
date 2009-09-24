@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.11 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.12 2009-09-24 18:07:16 shilen Exp $
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
@@ -304,7 +304,7 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
     while (iter.hasNext()) {
       Field field = iter.next();
       if (field.isGroupListField()) {
-        GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerGroupAndField(this.getGroupUuid(), field.getUuid());
+        GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerGroupAndField(this.getGroupUuid(), field.getUuid());
       }
     }
     

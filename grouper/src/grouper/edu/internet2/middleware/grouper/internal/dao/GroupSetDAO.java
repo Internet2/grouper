@@ -1,6 +1,6 @@
 /**
  * @author shilen
- * $Id: GroupSetDAO.java,v 1.5 2009-09-21 06:14:26 mchyzer Exp $
+ * $Id: GroupSetDAO.java,v 1.6 2009-09-24 18:07:16 shilen Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -58,19 +58,19 @@ public interface GroupSetDAO extends GrouperDAO {
    * @param groupId
    * @param fieldId 
    */
-  public void deleteByOwnerGroupAndField(String groupId, String fieldId);
+  public void deleteSelfByOwnerGroupAndField(String groupId, String fieldId);
 
   /**
    * delete a group set object
    * @param stemId
    */
-  public void deleteByOwnerStem(String stemId);
+  public void deleteSelfByOwnerStem(String stemId);
 
   /**
    * delete a group set object
    * @param attrDefId
    */
-  public void deleteByOwnerAttrDef(String attrDefId);
+  public void deleteSelfByOwnerAttrDef(String attrDefId);
 
   /**
    * @param groupId
@@ -135,7 +135,7 @@ public interface GroupSetDAO extends GrouperDAO {
   /**
    * @param group
    */
-  public void deleteByOwnerGroup(Group group);
+  public void deleteSelfByOwnerGroup(Group group);
 
   /**
    * @param memberId

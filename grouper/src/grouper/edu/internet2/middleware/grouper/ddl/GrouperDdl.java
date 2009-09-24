@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.71 2009-09-24 14:51:55 tzeller Exp $
+ * $Id: GrouperDdl.java,v 1.72 2009-09-24 18:07:16 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3867,10 +3867,13 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "hibernate_version_number", 
         Types.INTEGER, null, false, false);
     
+    // field_id doesn't need to be in the unique index, but i'm adding it so that we can
+    // set parent_id to null before removing self groupSets without getting a constraint
+    // violiations.
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
         "group_set_uniq_idx", true, "owner_attr_def_id_null", "owner_group_id_null", 
         "owner_stem_id_null", "member_attr_def_id_null", "member_group_id_null",
-        "member_stem_id_null", "mship_type", "parent_id");
+        "member_stem_id_null", "mship_type", "field_id", "parent_id");
   }
 
   /**
