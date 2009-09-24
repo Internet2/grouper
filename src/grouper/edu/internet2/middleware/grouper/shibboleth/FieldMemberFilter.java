@@ -29,12 +29,13 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * member filter for retrieving members.
  * 
+ * Originally WsMemberFilter; modified slightly to suit the needs of ldappc - tz
+ * 
  * @author mchyzer
  * 
  */
 
-// TODO this is a kludge stolen from grouper-WS and modified somewhat for ldappc
-public enum WsMemberFilter {
+public enum FieldMemberFilter {
 
   /** retrieve all members (immediate, effective and composite) */
   all {
@@ -445,8 +446,8 @@ public enum WsMemberFilter {
    * @param string
    * @return the enum or null or exception if not found
    */
-  public static WsMemberFilter valueOfIgnoreCase(String string) {
-    return enumValueOfIgnoreCase(WsMemberFilter.class, string, false);
+  public static FieldMemberFilter valueOfIgnoreCase(String string) {
+    return enumValueOfIgnoreCase(FieldMemberFilter.class, string, false);
   }
 
   /**
