@@ -16,8 +16,8 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.config;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorFactoryBean;
 
 public abstract class BaseGrouperDataConnectorFactoryBean extends BaseDataConnectorFactoryBean {
