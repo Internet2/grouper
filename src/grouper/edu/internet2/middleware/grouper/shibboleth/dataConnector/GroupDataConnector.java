@@ -24,9 +24,9 @@ import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.shibboleth.GroupsField;
-import edu.internet2.middleware.grouper.shibboleth.MembersField;
-import edu.internet2.middleware.grouper.shibboleth.PrivilegeField;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -35,10 +35,16 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeRe
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
 import edu.internet2.middleware.subject.Subject;
 
+/**
+ * A data connector which returns Groups. The attributes of the returned groups may be
+ * limited in order to avoid unnecessary queries to the Grouper database.
+ */
 public class GroupDataConnector extends BaseGrouperDataConnector {
 
+  /** logger */
   private static final Logger LOG = GrouperUtil.getLogger(GroupDataConnector.class);
 
+  /** {@inheritDoc} */
   public Map<String, BaseAttribute> resolve(ShibbolethResolutionContext resolutionContext)
       throws AttributeResolutionException {
 
@@ -125,6 +131,7 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
     return attributes;
   }
 
+  /** {@inheritDoc} */
   public void validate() throws AttributeResolutionException {
 
   }

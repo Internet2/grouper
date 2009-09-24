@@ -12,7 +12,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.grouper.shibboleth;
+package edu.internet2.middleware.grouper.shibboleth.dataConnector.field;
 
 import java.util.Set;
 

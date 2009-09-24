@@ -14,6 +14,7 @@
 
 package edu.internet2.middleware.grouper.shibboleth.config;
 
+import edu.internet2.middleware.grouper.shibboleth.attribute.config.SimpleAttributeAuthorityBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.GroupAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.MemberAttributeDefinitionBeanDefinitionParser;
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouper.shibboleth.filter.provider.AndGroupQuery
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.ExactAttributeGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemNameGroupQueryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.shibboleth.common.config.BaseSpringNamespaceHandler;
 
 public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {

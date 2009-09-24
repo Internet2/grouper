@@ -12,7 +12,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.grouper.shibboleth.config;
+package edu.internet2.middleware.grouper.shibboleth.util;
 
 import javax.xml.namespace.QName;
 
@@ -22,7 +22,7 @@ import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
+import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** attribute identifier bean definition parser */

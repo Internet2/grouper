@@ -27,12 +27,12 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
-import edu.internet2.middleware.grouper.shibboleth.FieldMemberFilter;
-import edu.internet2.middleware.grouper.shibboleth.GroupsField;
-import edu.internet2.middleware.grouper.shibboleth.MembersField;
-import edu.internet2.middleware.grouper.shibboleth.PrivilegeField;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.FieldMemberFilter;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
+import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
 

@@ -16,8 +16,8 @@ package edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.MemberAttributeDefinition;
+import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionFactoryBean;
 
 public class MemberAttributeDefinitionFactoryBean extends BaseAttributeDefinitionFactoryBean {
