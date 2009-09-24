@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.shibboleth.Attribute;
 import edu.internet2.middleware.grouper.shibboleth.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.PrivilegeField;
-import edu.internet2.middleware.grouper.shibboleth.WsMemberFilter;
+import edu.internet2.middleware.grouper.shibboleth.FieldMemberFilter;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
@@ -82,12 +82,12 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
       if (ids.get(0).equals("groups")) {
 
         String fieldName = GrouperConfig.LIST;
-        WsMemberFilter mf = WsMemberFilter.all;
+        FieldMemberFilter mf = FieldMemberFilter.all;
 
         if (ids.size() == 2) {
-          WsMemberFilter.valueOf(ids.get(1));
+          FieldMemberFilter.valueOf(ids.get(1));
         } else if (ids.size() == 3) {
-          WsMemberFilter.valueOf(ids.get(1));
+          FieldMemberFilter.valueOf(ids.get(1));
           fieldName = ids.get(2);
         }
 
@@ -99,12 +99,12 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
       } else if (ids.get(0).equals("members")) {
 
         String fieldName = GrouperConfig.LIST;
-        WsMemberFilter mf = WsMemberFilter.all;
+        FieldMemberFilter mf = FieldMemberFilter.all;
 
         if (ids.size() == 2) {
-          WsMemberFilter.valueOf(ids.get(1));
+          FieldMemberFilter.valueOf(ids.get(1));
         } else if (ids.size() == 3) {
-          WsMemberFilter.valueOf(ids.get(1));
+          FieldMemberFilter.valueOf(ids.get(1));
           fieldName = ids.get(2);
         }
 
