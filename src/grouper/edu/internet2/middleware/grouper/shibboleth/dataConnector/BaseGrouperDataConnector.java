@@ -27,11 +27,11 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.shibboleth.Attribute;
+import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
+import edu.internet2.middleware.grouper.shibboleth.FieldMemberFilter;
 import edu.internet2.middleware.grouper.shibboleth.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.PrivilegeField;
-import edu.internet2.middleware.grouper.shibboleth.FieldMemberFilter;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
@@ -44,7 +44,7 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
 
   protected GrouperSession grouperSession;
 
-  private List<Attribute> fieldIdentifiers;
+  private List<AttributeIdentifier> fieldIdentifiers;
 
   protected ArrayList<PrivilegeField> privilegeFields = new ArrayList<PrivilegeField>();
 
@@ -59,16 +59,28 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
   }
 
   public void initialize() {
-    grouperSession = GrouperSession.startRootSession();
-    LOG.debug("started grouper session '{}'", grouperSession);
     initializeFields();
+  }
+
+  /**
+   * Get the grouper session. Starts a new root session if necessary. Re-uses the same
+   * session.
+   * 
+   * @return the grouper session
+   */
+  public GrouperSession getGrouperSession() {
+    if (grouperSession == null) {
+      grouperSession = GrouperSession.startRootSession();
+      LOG.debug("started grouper session '{}'", grouperSession);
+    }
+    return grouperSession;
   }
 
   private void initializeFields() {
 
     // TODO probably needs some work
 
-    for (Attribute fieldIdentifier : fieldIdentifiers) {
+    for (AttributeIdentifier fieldIdentifier : fieldIdentifiers) {
       LOG.debug("handling field '{}'", fieldIdentifier.getId());
 
       // admins
@@ -141,14 +153,26 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
     groupsFields.trimToSize();
   }
 
-  public void setFieldIdentifiers(List<Attribute> fieldIdentifiers) {
+  public void setFieldIdentifiers(List<AttributeIdentifier> fieldIdentifiers) {
     this.fieldIdentifiers = fieldIdentifiers;
   }
 
+  /**
+   * Get the filter which determines the groups which will be considered by this data
+   * connector.
+   * 
+   * @return the GroupQueryFilter or <tt>null</tt> if all groups should be considered
+   */
   public GroupQueryFilter getGroupQueryFilter() {
     return groupQueryFilter;
   }
 
+  /**
+   * Set the group query filter
+   * 
+   * @param groupQueryFilter
+   *          the GroupQueryFilter
+   */
   public void setGroupQueryFilter(GroupQueryFilter groupQueryFilter) {
     this.groupQueryFilter = groupQueryFilter;
   }

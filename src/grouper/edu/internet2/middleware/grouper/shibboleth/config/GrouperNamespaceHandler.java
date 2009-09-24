@@ -46,7 +46,8 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
     registerBeanDefinitionParser(SPMLDataConnectorBeanDefinitionParser.TYPE_NAME,
         new SPMLDataConnectorBeanDefinitionParser());
 
-    registerBeanDefinitionParser(AttributeBeanDefinitionParser.TYPE_NAME, new AttributeBeanDefinitionParser());
+    registerBeanDefinitionParser(AttributeIdentifierBeanDefinitionParser.TYPE_NAME,
+        new AttributeIdentifierBeanDefinitionParser());
 
     registerBeanDefinitionParser(MemberAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
         new MemberAttributeDefinitionBeanDefinitionParser());

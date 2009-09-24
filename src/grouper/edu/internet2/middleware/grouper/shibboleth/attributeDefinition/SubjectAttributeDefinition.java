@@ -20,7 +20,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.shibboleth.Attribute;
+import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
@@ -33,9 +33,9 @@ public class SubjectAttributeDefinition extends BaseAttributeDefinition {
 
   private static Logger LOG = LoggerFactory.getLogger(SubjectAttributeDefinition.class);
 
-  private List<Attribute> attributes;
+  private List<AttributeIdentifier> attributes;
 
-  public void setAttributes(List<Attribute> attributes) {
+  public void setAttributes(List<AttributeIdentifier> attributes) {
     this.attributes = attributes;
   }
 
@@ -69,7 +69,7 @@ public class SubjectAttributeDefinition extends BaseAttributeDefinition {
 
       String sourceId = subject.getSource().getId();
 
-      for (Attribute attr : attributes) {
+      for (AttributeIdentifier attr : attributes) {
         if (sourceId.equals(attr.getSource())) {
           attribute.getValues().addAll(subject.getAttributeValues(attr.getId()));
         }

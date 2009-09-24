@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.shibboleth.Attribute;
+import edu.internet2.middleware.grouper.shibboleth.AttributeIdentifier;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
@@ -33,9 +33,9 @@ public class GroupAttributeDefinition extends BaseAttributeDefinition {
 
   private static Logger LOG = LoggerFactory.getLogger(GroupAttributeDefinition.class);
 
-  private List<Attribute> attributes;
+  private List<AttributeIdentifier> attributes;
 
-  public void setAttributes(List<Attribute> attributes) {
+  public void setAttributes(List<AttributeIdentifier> attributes) {
     this.attributes = attributes;
   }
 
@@ -67,7 +67,7 @@ public class GroupAttributeDefinition extends BaseAttributeDefinition {
 
       Group group = (Group) value;
 
-      for (Attribute attr : attributes) {
+      for (AttributeIdentifier attr : attributes) {
         if (attr.getSource().equals("g:gsa")) {
           attribute.getValues().add(group.getAttributeOrFieldValue(attr.getId(), false, false));
         }

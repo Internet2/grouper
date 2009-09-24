@@ -23,7 +23,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.shibboleth.config.AttributeBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.config.AttributeIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionBeanDefinitionParser;
@@ -41,6 +41,6 @@ public class MemberAttributeDefinitionBeanDefinitionParser extends BaseAttribute
     super.doParse(pluginId, pluginConfig, pluginConfigChildren, pluginBuilder, parserContext);
 
     pluginBuilder.addPropertyValue("attributes", SpringConfigurationUtils.parseInnerCustomElements(pluginConfigChildren
-        .get(AttributeBeanDefinitionParser.TYPE_NAME), parserContext));
+        .get(AttributeIdentifierBeanDefinitionParser.TYPE_NAME), parserContext));
   }
 }

@@ -24,7 +24,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.shibboleth.config.AttributeBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.config.AttributeIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorBeanDefinitionParser;
@@ -35,7 +35,7 @@ public abstract class BaseGrouperDataConnectorBeanDefinitionParser extends BaseD
       BeanDefinitionBuilder pluginBuilder, ParserContext parserContext) {
 
     List<Element> fieldIdentifiers = XMLHelper.getChildElementsByTagNameNS(pluginConfig,
-        GrouperNamespaceHandler.NAMESPACE, AttributeBeanDefinitionParser.TYPE_NAME.getLocalPart());
+        GrouperNamespaceHandler.NAMESPACE, AttributeIdentifierBeanDefinitionParser.TYPE_NAME.getLocalPart());
     pluginBuilder.addPropertyValue("fieldIdentifiers", SpringConfigurationUtils.parseInnerCustomElements(
         fieldIdentifiers, parserContext));
 
