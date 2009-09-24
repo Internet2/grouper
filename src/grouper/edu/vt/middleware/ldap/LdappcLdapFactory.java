@@ -1,5 +1,7 @@
 package edu.vt.middleware.ldap;
 
+import java.io.InputStream;
+
 import javax.naming.NamingException;
 
 import edu.vt.middleware.ldap.pool.AbstractLdapFactory;
@@ -13,7 +15,7 @@ import edu.vt.middleware.ldap.pool.ConnectLdapValidator;
  * Uses {@link ConnectLdapValidator} by default.
  * 
  * @author Middleware Services
- * @version $Revision: 1.1 $ $Date: 2009-08-12 03:33:40 $
+ * @version $Revision: 1.2 $ $Date: 2009-09-24 20:35:12 $
  */
 public class LdappcLdapFactory extends AbstractLdapFactory<Ldap> {
 
@@ -34,14 +36,13 @@ public class LdappcLdapFactory extends AbstractLdapFactory<Ldap> {
   }
 
   /**
-   * This creates a new <code>DefaultLdapFactory</code> with the supplied properties file,
-   * which must be located in your classpath.
-   * 
-   * @param propertiesFile
-   *          <code>String</code>
+   * This creates a new <code>DefaultLdapFactory</code> with the supplied input
+   * stream.
+   *
+   * @param  is  <code>InputStream</code>
    */
-  public LdappcLdapFactory(final String propertiesFile) {
-    this.config = LdapConfig.createFromProperties(propertiesFile);
+  public LdappcLdapFactory(final InputStream is) {
+    this.config = LdapConfig.createFromProperties(is);
     this.config.makeImmutable();
     this.validator = new ConnectLdapValidator();
   }

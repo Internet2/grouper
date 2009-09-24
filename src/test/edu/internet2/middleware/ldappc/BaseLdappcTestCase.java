@@ -45,7 +45,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.ldap.LdapService;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
@@ -92,7 +92,7 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   private DirectoryService directoryService;
 
-  private LdapService ldapService;
+  private LdapServer ldapService;
 
   protected String className = getClass().getSimpleName();
 
@@ -163,8 +163,8 @@ public class BaseLdappcTestCase extends GrouperTest {
         .getString("testLdapWorkingDirectory")));
     directoryService.setShutdownHookEnabled(false);
     int port = AvailablePortFinder.getNextAvailable(1024);
-    ldapService = new LdapService();
-    ldapService.setTcpTransport(new TcpTransport(port));
+    ldapService = new LdapServer();
+    ldapService.setTransports(new TcpTransport(port));
     ldapService.setDirectoryService(directoryService);
 
     Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String, MechanismHandler>();
