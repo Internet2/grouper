@@ -23,14 +23,18 @@ import org.w3c.dom.Element;
 import edu.internet2.middleware.grouper.shibboleth.SimpleAttributeAuthority;
 import edu.internet2.middleware.shibboleth.common.config.service.AbstractServiceBeanDefinitionParser;
 
+/** Simple attribute authority bean definition parser. */
 public class SimpleAttributeAuthorityBeanDefinitionParser extends AbstractServiceBeanDefinitionParser {
 
+  /** schema type name. */
   public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "SimpleAttributeAuthority");
 
+  /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return SimpleAttributeAuthority.class;
   }
 
+  /** {@inheritDoc} */
   protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
     super.doParse(element, parserContext, builder);
 

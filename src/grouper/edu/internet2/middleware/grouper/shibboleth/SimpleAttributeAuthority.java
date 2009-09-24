@@ -30,27 +30,51 @@ import edu.internet2.middleware.shibboleth.common.config.BaseService;
 import edu.internet2.middleware.shibboleth.common.profile.provider.SAMLProfileRequestContext;
 import edu.internet2.middleware.shibboleth.common.service.ServiceException;
 
+/**
+ * A simple Attribute Authority which optionally filters attributes as they are returned
+ * from the underlying Shibboleth Attribute Resolver.
+ */
 public class SimpleAttributeAuthority extends BaseService implements AttributeAuthority<SAMLProfileRequestContext> {
 
   private static final Logger LOG = GrouperUtil.getLogger(SimpleAttributeAuthority.class);
 
+  /** the resolver */
   private ShibbolethAttributeResolver attributeResolver;
 
+  /** the filtering engine */
   private ShibbolethAttributeFilteringEngine filteringEngine;
 
+  /**
+   * Creates a Simple Attribute Authority.
+   * 
+   * @param resolver
+   *          the ShibbolethAttributeResolver
+   */
   public SimpleAttributeAuthority(ShibbolethAttributeResolver resolver) {
     super();
     attributeResolver = resolver;
   }
 
+  /**
+   * Returns the attribute filtering engine.
+   * 
+   * @return filtering engine
+   */
   public ShibbolethAttributeFilteringEngine getFilteringEngine() {
     return filteringEngine;
   }
 
+  /**
+   * Set the attribute filtering engine.
+   * 
+   * @param engine
+   *          the AttributeFilteringEngine
+   */
   public void setFilteringEngine(ShibbolethAttributeFilteringEngine engine) {
     filteringEngine = engine;
   }
 
+  /** {@inheritDoc} */
   public Map<String, BaseAttribute> getAttributes(SAMLProfileRequestContext requestContext)
       throws AttributeRequestException {
 
@@ -83,7 +107,7 @@ public class SimpleAttributeAuthority extends BaseService implements AttributeAu
     return attributes;
   }
 
-  
+  /** {@inheritDoc} */
   protected void onNewContextCreated(ApplicationContext newServiceContext) throws ServiceException {
 
   }
