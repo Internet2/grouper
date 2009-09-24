@@ -22,18 +22,33 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.filter.GroupsInStemFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+/**
+ * Selects groups in a stem with scope.
+ */
 public class StemNameGroupFilter extends BaseGroupQueryFilter {
 
+  /** stem name */
   private String name;
 
+  /** stem scope */
   private Scope scope;
 
+  /**
+   * Creates a GroupsInStemFilter which returns the groups which are under the given stem
+   * name and scope.
+   * 
+   * @param name
+   *          the stem name
+   * @param scope
+   *          the stem scope
+   */
   public StemNameGroupFilter(String name, String scope) {
     this.name = name;
     this.scope = Scope.valueOf(scope);
     this.setQueryFilter(new GroupsInStemFilter(name, this.scope, false));
   }
 
+  /** {@inheritDoc} */
   public boolean matchesGroup(Group group) {
     Stem stem = StemFinder.findByName(getGrouperSession(), name, false);
     if (stem == null) {

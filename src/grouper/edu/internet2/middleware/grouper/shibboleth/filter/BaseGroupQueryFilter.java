@@ -21,34 +21,49 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 
+/**
+ * Base class for GroupQueryFilters.
+ */
 public abstract class BaseGroupQueryFilter implements GroupQueryFilter {
 
-  // TODO really, anothe grouper session ?
+  /** the grouper session */
   private GrouperSession grouperSession;
 
+  /** the underlying query filter */
   private QueryFilter<Group> queryFilter;
 
+  /** {@inheritDoc} */
   public Set<Group> getResults(GrouperSession s) throws QueryException {
     return getQueryFilter().getResults(s);
   }
 
+  /**
+   * Get the grouper session. Re-uses the same session. A grouper session must have been
+   * started already in the jvm.
+   * 
+   * @return the grouper session
+   */
   public GrouperSession getGrouperSession() {
-
     if (grouperSession == null) {
-      grouperSession = GrouperSession.startRootSession();
+      grouperSession = GrouperSession.staticGrouperSession();
     }
-
     return grouperSession;
   }
 
-  public void setGrouperSession(GrouperSession grouperSession) {
-    this.grouperSession = grouperSession;
-  }
-
+  /**
+   * Get the query filter.
+   * 
+   * @return the QueryFilter
+   */
   public QueryFilter<Group> getQueryFilter() {
     return queryFilter;
   }
 
+  /**
+   * Set the query filter.
+   * 
+   * @param queryFilter
+   */
   public void setQueryFilter(QueryFilter<Group> queryFilter) {
     this.queryFilter = queryFilter;
   }

@@ -22,20 +22,45 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 
+/**
+ * A representation of an attribute consisting of Groups.
+ */
 public class GroupsField {
 
+  /** the attribute name */
   private String id;
 
+  /** the underlying field */
   private Field field;
 
-  private WsMemberFilter memberFilter;
+  /** the filter which retrieves groups */
+  private FieldMemberFilter memberFilter;
 
-  public GroupsField(String id, WsMemberFilter memberFilter, Field field) {
+  /**
+   * Constructor.
+   * 
+   * @param id
+   *          the name of the attribute
+   * @param memberFilter
+   *          the filter which defines memberships as immediate, effective, or composite
+   * @param field
+   *          the underlying field
+   */
+  public GroupsField(String id, FieldMemberFilter memberFilter, Field field) {
     this.id = id;
     this.memberFilter = memberFilter;
     this.field = field;
   }
 
+  /**
+   * Get the resultant attribute whose values are the Groups that the given Member belongs
+   * to.
+   * 
+   * @param member
+   *          the member
+   * @return the attribute consisting of Groups or <tt>null</tt> if the member does not
+   *         belong to any groups
+   */
   public BaseAttribute<Group> getAttribute(Member member) {
 
     Set<Group> groups = memberFilter.getGroups(member, field);
@@ -48,6 +73,11 @@ public class GroupsField {
     return null;
   }
 
+  /**
+   * Get the attribute id.
+   * 
+   * @return the name of the underlying attribute
+   */
   public String getId() {
     return id;
   }

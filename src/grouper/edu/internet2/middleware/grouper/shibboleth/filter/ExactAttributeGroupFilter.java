@@ -18,18 +18,33 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
 
+/**
+ * Selects groups possessing an attribute name and value.
+ */
 public class ExactAttributeGroupFilter extends BaseGroupQueryFilter {
 
+  /** attribute name */
   private String name;
 
+  /** attribute value */
   private String value;
 
+  /**
+   * Creates a GroupAttributeFilter which returns groups with the given attribute name and
+   * value. Groups are not restricted by stem.
+   * 
+   * @param name
+   *          the attribute name
+   * @param value
+   *          the attribute value
+   */
   public ExactAttributeGroupFilter(String name, String value) {
     this.name = name;
     this.value = value;
     this.setQueryFilter(new GroupAttributeFilter(name, value, StemFinder.findRootStem(getGrouperSession())));
   }
 
+  /** {@inheritDoc} */
   public boolean matchesGroup(Group group) {
     return value.equals(group.getAttributeOrFieldValue(name, true, false));
   }

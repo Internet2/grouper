@@ -17,8 +17,19 @@ package edu.internet2.middleware.grouper.shibboleth.filter;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 
+/**
+ * An extension to QueryFilter which provides the ability to determine if a Group matches
+ * (would be returned by) the filter.
+ */
 public interface GroupQueryFilter extends QueryFilter<Group> {
 
+  /**
+   * Returns true if the Group would be returned by the filter. False otherwise.
+   * 
+   * @param group
+   *          the Group
+   * @return if the group matches or not
+   */
   public boolean matchesGroup(Group group);
 
 }
