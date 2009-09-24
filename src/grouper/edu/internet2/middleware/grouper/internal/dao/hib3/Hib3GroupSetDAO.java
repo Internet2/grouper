@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: Hib3GroupSetDAO.java,v 1.8 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: Hib3GroupSetDAO.java,v 1.9 2009-09-24 18:07:16 shilen Exp $
  */
 public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
@@ -60,11 +60,19 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
+            /*
+            // Self groupSets should not be deleted using this method so i don't think
+            // this problem exists here.  Setting parent_id to null could cause a 
+            // constraint violation since it's part of the unique index.
+            
             //set parent to null so mysql doest get mad
             //http://bugs.mysql.com/bug.php?id=15746
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
                 "update GroupSet set parentId = null where id = :id")
                 .setString("id", groupSet.getId()).executeUpdate();
+            */
+            
+            
             hibernateHandlerBean.getHibernateSession().byObject().delete(groupSet);
             return null;
 
@@ -103,9 +111,9 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteByOwnerGroupAndField(java.lang.String, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteSelfByOwnerGroupAndField(java.lang.String, java.lang.String)
    */
-  public void deleteByOwnerGroupAndField(final String groupId, final String field) {
+  public void deleteSelfByOwnerGroupAndField(final String groupId, final String field) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
@@ -114,13 +122,13 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
             //update before delete since mysql cant handle self referential foreign keys
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "update GroupSet set parentId = null where ownerGroupId = :id and fieldId = :field")
+              "update GroupSet set parentId = null where ownerGroupId = :id and fieldId = :field and depth='0'")
               .setString("id", groupId)
               .setString("field", field)
               .executeUpdate();    
 
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "delete from GroupSet where ownerGroupId = :id and fieldId = :field")
+              "delete from GroupSet where ownerGroupId = :id and fieldId = :field and depth='0'")
               .setString("id", groupId)
               .setString("field", field)
               .executeUpdate();
@@ -133,9 +141,9 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteByOwnerStem(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteSelfByOwnerStem(java.lang.String)
    */
-  public void deleteByOwnerStem(final String stemId) {
+  public void deleteSelfByOwnerStem(final String stemId) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
           
@@ -144,12 +152,12 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
             
             //update before delete since mysql cant handle self referential foreign keys
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "update GroupSet set parentId = null where ownerStemId = :id")
+              "update GroupSet set parentId = null where ownerStemId = :id and depth='0'")
               .setString("id", stemId)
               .executeUpdate();    
             
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "delete from GroupSet where ownerStemId = :id").setString("id", stemId)
+              "delete from GroupSet where ownerStemId = :id and depth='0'").setString("id", stemId)
               .executeUpdate();
 
             return null;
@@ -163,14 +171,23 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
    * reset group set
    * @param hibernateSession
    */
-  static void reset(HibernateSession hibernateSession) {
+  public static void reset(HibernateSession hibernateSession) {
     Session hs = hibernateSession.getSession();
 
     // Find the root stem
     Stem rootStem = GrouperDAOFactory.getFactory().getStem().findByName(Stem.ROOT_INT, true);
     
-    // set parent_id to null first to avoid foreign key constraint violations
-    hs.createQuery("update GroupSet set parentId = null where ownerStemId not like :owner or ownerStemId is null or depth not like '0'")
+    // get the max depth
+    int maxDepth = HibernateSession.byHqlStatic().createQuery("select max(depth) from GroupSet").uniqueResult(Integer.class);
+    
+    // delete the rows that don't have self reference by the depth desc
+    for (int i = maxDepth; i > 0; i--) {
+      hs.createQuery("delete from GroupSet where depth = :depth").setInteger("depth", i).executeUpdate();
+    }
+    
+    // set parent_id to null due to mysql bug -- http://bugs.mysql.com/bug.php?id=15746
+    // also note that parent_id is part of a unique constraint, but now that we have only self groupSets, that doesn't matter.
+    hs.createQuery("update GroupSet set parentId = null where ownerStemId not like :owner or ownerStemId is null")
         .setString("owner", rootStem.getUuid())
         .executeUpdate();
     
@@ -342,9 +359,9 @@ return groupSets;
 
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteByOwnerGroup(edu.internet2.middleware.grouper.Group)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteSelfByOwnerGroup(edu.internet2.middleware.grouper.Group)
    */
-  public void deleteByOwnerGroup(final Group group) {
+  public void deleteSelfByOwnerGroup(final Group group) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
           
@@ -353,12 +370,12 @@ return groupSets;
             
             //update before delete since mysql cant handle self referential foreign keys
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "update GroupSet set parentId = null where ownerGroupId = :id")
+              "update GroupSet set parentId = null where ownerGroupId = :id and depth='0'")
               .setString("id", group.getUuid())
               .executeUpdate();    
             
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "delete from GroupSet where ownerGroupId = :id")
+              "delete from GroupSet where ownerGroupId = :id and depth='0'")
               .setString("id", group.getUuid())
               .executeUpdate();    
             return null;
@@ -456,9 +473,9 @@ return groupSets;
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteByOwnerAttrDef(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteSelfByOwnerAttrDef(java.lang.String)
    */
-  public void deleteByOwnerAttrDef(final String attrDefId) {
+  public void deleteSelfByOwnerAttrDef(final String attrDefId) {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
           
@@ -467,12 +484,12 @@ return groupSets;
             
             //update before delete since mysql cant handle self referential foreign keys
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "update GroupSet set parentId = null where ownerAttrDefId = :id")
+              "update GroupSet set parentId = null where ownerAttrDefId = :id and depth='0'")
               .setString("id", attrDefId)
               .executeUpdate();    
             
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "delete from GroupSet where ownerAttrDefId = :id").setString("id", attrDefId)
+              "delete from GroupSet where ownerAttrDefId = :id and depth='0'").setString("id", attrDefId)
               .executeUpdate();
 
             return null;

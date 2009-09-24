@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.46 2009-09-17 17:51:50 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.47 2009-09-24 18:07:16 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -171,7 +171,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             }
 
             // delete group sets
-            GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerGroup(_g);
+            GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerGroup(_g);
             
             // delete group
             byObject.delete( _g );

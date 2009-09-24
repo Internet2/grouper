@@ -38,7 +38,13 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupSetDAO;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -118,13 +124,14 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     Set<GroupSet> originalGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
     T.amount("Total groupSets", 137, originalGroupSets.size());
 
-    // delete all groupSets -- set parent_id to null first to avoid foreign key constraint violations
-    HibernateSession.byHqlStatic().createQuery("update GroupSet set parentId = null").executeUpdate();
-    HibernateSession.byHqlStatic().createQuery("delete from GroupSet").executeUpdate();
+    // delete all groupSets
+    reset();
+    Set<GroupSet> currentGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
+    T.amount("Total groupSets", 0, currentGroupSets.size());
     
     // add groupSets and verify them
     new AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
-    Set<GroupSet> currentGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
+    currentGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
     T.amount("Total groupSets", 137, currentGroupSets.size());
     Set<GroupSet> currentGroupSetsAfterMod = convertCurrentGroupSets(originalGroupSets, currentGroupSets);
     Set<GroupSet> checkGroupSets = new HashSet<GroupSet>(originalGroupSets);
@@ -132,10 +139,18 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     T.amount("Check groupSet difference between original and current", 0, checkGroupSets.size());
     
     // now let's remove some group sets
-    GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerGroupAndField(composite1Owner.getUuid(), Group.getDefaultList().getUuid());
-    GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerGroupAndField(customFieldTest.getUuid(), FieldFinder.find("testList", true).getUuid());
-    GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerStem(top.getUuid());
-    
+    GroupSet gs1 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(composite1Owner.getUuid(), Group.getDefaultList().getUuid());
+    GroupSet gs2 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(customFieldTest.getUuid(), FieldFinder.find("testList", true).getUuid());
+    GroupSet gs3 = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(top.getUuid(), FieldFinder.find("stemmers", true).getUuid());
+    GroupSet gs4 = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(top.getUuid(), FieldFinder.find("creators", true).getUuid());
+    GrouperDAOFactory.getFactory().getGroupSet().delete(GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(gs1));
+    GrouperDAOFactory.getFactory().getGroupSet().delete(GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(gs2));
+    GrouperDAOFactory.getFactory().getGroupSet().delete(GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(gs3));
+    GrouperDAOFactory.getFactory().getGroupSet().delete(GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(gs4));
+    GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerGroupAndField(composite1Owner.getUuid(), Group.getDefaultList().getUuid());
+    GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerGroupAndField(customFieldTest.getUuid(), FieldFinder.find("testList", true).getUuid());
+    GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerStem(top.getUuid());
+
     // now add them back and verify again
     new AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
     currentGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
@@ -183,5 +198,25 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     
     return currentGroupSetsAfterMod;
   }
+  
+  private void reset() {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean
+                .getHibernateSession();
+
+            Hib3GroupSetDAO.reset(hibernateSession);
+            HibernateSession.byHqlStatic().createQuery("delete from GroupSet").executeUpdate();
+            
+            return null;
+          }
+
+        });
+
+  } 
 }
 

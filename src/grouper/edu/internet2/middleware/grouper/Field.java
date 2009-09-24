@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.47 2009-09-21 06:14:27 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.48 2009-09-24 18:07:16 shilen Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -536,7 +536,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
       
       while (iter.hasNext()) {
         Group group = iter.next();
-        GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerGroupAndField(group.getUuid(), this.getUuid());  
+        GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerGroupAndField(group.getUuid(), this.getUuid());  
       }
     }
     
