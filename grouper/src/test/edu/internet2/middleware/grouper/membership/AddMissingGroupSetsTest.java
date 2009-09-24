@@ -209,7 +209,11 @@ public class AddMissingGroupSetsTest extends GrouperTest {
             HibernateSession hibernateSession = hibernateHandlerBean
                 .getHibernateSession();
 
+            // this will delete everything except the self group sets for the root stem
             Hib3GroupSetDAO.reset(hibernateSession);
+            
+            // set parent id to null first to avoid mysql bug -- http://bugs.mysql.com/bug.php?id=15746
+            HibernateSession.byHqlStatic().createQuery("update GroupSet set parentId = null").executeUpdate();
             HibernateSession.byHqlStatic().createQuery("delete from GroupSet").executeUpdate();
             
             return null;
