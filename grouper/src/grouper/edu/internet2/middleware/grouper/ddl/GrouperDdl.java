@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.72 2009-09-24 18:07:16 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.73 2009-09-25 13:52:43 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -277,14 +277,16 @@ public enum GrouperDdl implements DdlVersionable {
         boolean dropMembershipBackupColFromMshipUpgrade = GrouperConfig.getPropertyBoolean(
             "ddlutils.dropMembershipBackupColsFromOwnerViaUpgrade", false);
         
+        
+        // find or add columns and indexes whether or not upgrade is needed.
+        runMembershipAndGroupSetConversion(database, ddlVersionBean, false);
+        
+        
         if (needsUpgrade) {
-          
-          // add the new tables, views, columns, etc..
-          runMembershipAndGroupSetConversion(database, ddlVersionBean, false);
           
           Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
               Membership.TABLE_GROUPER_MEMBERSHIPS);
-  
+          
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ID_BAK, 
               Types.VARCHAR, "128", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_VIA_ID_BAK, 
@@ -293,7 +295,6 @@ public enum GrouperDdl implements DdlVersionable {
               Types.INTEGER, "11", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_PARENT_MEMBERSHIP_BAK, 
               Types.VARCHAR, "128", false, false);
-  
           
           //move data to the group cols
           ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
@@ -336,8 +337,8 @@ public enum GrouperDdl implements DdlVersionable {
           
         }
         
-        //whether or not needs an upgrade, see if we should delete the bak table
-        if (dropMembershipBackupColFromMshipUpgrade) {
+        // see if we should delete the bak columns
+        if (!needsUpgrade && dropMembershipBackupColFromMshipUpgrade) {
           GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_VIA_ID_BAK, ddlVersionBean);
           GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_ID_BAK, ddlVersionBean);
           GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_DEPTH_BAK, ddlVersionBean);
