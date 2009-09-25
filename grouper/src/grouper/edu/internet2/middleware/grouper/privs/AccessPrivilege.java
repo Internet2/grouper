@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.11 2009-08-12 00:25:13 tzeller Exp $
+ * @version $Id: AccessPrivilege.java,v 1.12 2009-09-25 16:13:45 tzeller Exp $
  */
 public class AccessPrivilege implements GrouperPrivilege, Comparable {
 
@@ -333,7 +333,14 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
     return this.contextId;
   }
   
-  
+  /**
+   * Get all privilege names.
+   * 
+   * @return the set of privilege names
+   */
+  public static Set<String> getAllPrivilegeNames() {
+    return list2priv.keySet();
+  }
 
 }
 
