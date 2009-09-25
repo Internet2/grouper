@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -170,6 +171,21 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public AttributeAssign(Stem ownerStem, String theAction, AttributeDefName attributeDefName) {
     
     this.setOwnerStemId(ownerStem.getUuid());
+    this.setAction(theAction);
+    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setId(GrouperUuid.getUuid());
+
+  }
+
+  /**
+   * create an attribute assign, including a uuid
+   * @param ownerGroup
+   * @param theAction
+   * @param attributeDefName
+   */
+  public AttributeAssign(Group ownerGroup, String theAction, AttributeDefName attributeDefName) {
+    
+    this.setOwnerGroupId(ownerGroup.getUuid());
     this.setAction(theAction);
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());

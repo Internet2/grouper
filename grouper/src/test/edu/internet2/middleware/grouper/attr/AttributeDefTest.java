@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.attr;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -29,7 +30,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateSecurity2"));
+    TestRunner.run(new AttributeDefTest("testHibernateGroup"));
   }
   
   /**
@@ -56,6 +57,9 @@ public class AttributeDefTest extends GrouperTest {
   /** top stem */
   private Stem top;
 
+  /** some group */
+  private Group group;
+  
   /**
    * 
    */
@@ -64,6 +68,7 @@ public class AttributeDefTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
     this.root = StemFinder.findRootStem(this.grouperSession);
     this.top = this.root.addChildStem("top", "top display name");
+    this.group = this.top.addChildGroup("group", "group");
   }
 
   /**
@@ -224,6 +229,28 @@ public class AttributeDefTest extends GrouperTest {
 
     attributeDef2 = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
     
+    
+  }
+
+  /**
+   * make sure security is there
+   */
+  public void testHibernateGroup() {
+    
+//    this.grouperSession.stop();
+//    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+    
+    AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+  
+    AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
+  
+    assertFalse(this.group.getAttributeDelegate().hasAttributeByName("top:testName"));
+    
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName));
+  
+    assertTrue(this.group.getAttributeDelegate().hasAttributeByName("top:testName"));
+
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName));
     
   }
 

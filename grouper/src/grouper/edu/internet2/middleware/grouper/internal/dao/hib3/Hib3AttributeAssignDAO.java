@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeAssignDAO.java,v 1.2 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: Hib3AttributeAssignDAO.java,v 1.3 2009-09-25 06:04:12 mchyzer Exp $
  */
 public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDAO {
   
@@ -33,6 +33,9 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
   /**
    * retrieve by id
+   * @param id 
+   * @param exceptionIfNotFound 
+   * @return  the attribute assign
    */
   public AttributeAssign findById(String id, boolean exceptionIfNotFound) {
     AttributeAssign attributeAssign = HibernateSession.byHqlStatic().createQuery(
@@ -47,9 +50,24 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
   /**
    * save or update
+   * @param attributeAssign 
    */
   public void saveOrUpdate(AttributeAssign attributeAssign) {
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssign);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findByGroupIdAndAttributeDefNameId(java.lang.String, java.lang.String)
+   */
+  public Set<AttributeAssign> findByGroupIdAndAttributeDefNameId(String groupId, String attributeDefNameId) {
+    
+    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerGroupId = :theOwnerGroupId")
+      .setString("theAttributeDefNameId", attributeDefNameId)
+      .setString("theOwnerGroupId", groupId)
+      .listSet(AttributeAssign.class);
+
+    return attributeAssigns;
   }
 
 
