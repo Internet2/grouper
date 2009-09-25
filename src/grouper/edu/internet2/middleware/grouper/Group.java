@@ -40,6 +40,7 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.AttributeAssignGroupDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -128,7 +129,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.259 2009-09-17 22:40:07 mchyzer Exp $
+ * @version $Id: Group.java,v 1.260 2009-09-25 06:04:12 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -396,9 +397,19 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** */
+  private AttributeAssignGroupDelegate attributeAssignGroupDelegate;
   
-  
-  // PUBLIC CLASS METHODS //
+  /**
+   * 
+   * @return the delegate
+   */
+  public AttributeAssignGroupDelegate getAttributeDelegate() {
+    if (this.attributeAssignGroupDelegate == null) {
+      this.attributeAssignGroupDelegate = new AttributeAssignGroupDelegate(this);
+    }
+    return this.attributeAssignGroupDelegate;
+  }
   
   /**
    * Retrieve default members {@link Field}.

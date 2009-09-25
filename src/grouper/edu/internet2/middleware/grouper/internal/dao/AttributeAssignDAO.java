@@ -1,8 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AttributeAssignDAO.java,v 1.2 2009-09-21 06:14:26 mchyzer Exp $
+ * $Id: AttributeAssignDAO.java,v 1.3 2009-09-25 06:04:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
+
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeAssign;
 
@@ -23,6 +25,13 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @return the attribute assign or null if not there
    */
   public AttributeAssign findById(String id, boolean exceptionIfNotFound);
+
+  /**
+   * @param groupId
+   * @param attributeDefNameId
+   * @return the attribute assigns or null if not there
+   */
+  public Set<AttributeAssign> findByGroupIdAndAttributeDefNameId(String groupId, String attributeDefNameId);
 
   
 }
