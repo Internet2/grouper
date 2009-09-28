@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author mchyzer
- * @version $Id: AddAttributeDefNameValidator.java,v 1.1 2009-06-24 06:22:25 mchyzer Exp $
+ * @version $Id: AddAttributeDefNameValidator.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class AddAttributeDefNameValidator extends GrouperValidator {
 
@@ -49,7 +49,7 @@ public class AddAttributeDefNameValidator extends GrouperValidator {
       return v;
     }
     String attributeName = U.constructName( parent.getName(), extn );
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByName( attributeName, false );
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure( attributeName, false );
     if (attributeDefName != null) {
       v.setErrorMessage(ATTRIBUTE_DEF_NAME_ALREADY_EXISTS_WITH_NAME_PREFIX + attributeName + "'");
       return v;

@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AttributeDefResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemAttrDefResolver.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: GrouperSystemAttrDefResolver.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator {
@@ -72,7 +72,8 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
 
       return attributeDefPrivs;
     }
-    return super.getDecoratedResolver().getPrivileges(attributeDef, subject);
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.getPrivileges(attributeDef, subject);
   }
 
   /**

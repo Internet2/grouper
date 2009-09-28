@@ -1,5 +1,10 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -14,7 +19,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /**
  * Data Access Object for attribute def name
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameDAO.java,v 1.3 2009-09-17 17:51:50 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameDAO.java,v 1.4 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefNameDAO {
   
@@ -34,16 +39,18 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findById(java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByIdSecure(java.lang.String, boolean)
    */
-  public AttributeDefName findById(String id, boolean exceptionIfNotFound) {
+  public AttributeDefName findByIdSecure(String id, boolean exceptionIfNotFound) {
     AttributeDefName attributeDefName = HibernateSession.byHqlStatic().createQuery(
         "from AttributeDefName where id = :theId")
       .setString("theId", id).uniqueResult(AttributeDefName.class);
+    
+    attributeDefName = filterSecurity(attributeDefName);
+    
     if (attributeDefName == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cant find attribute def name by id: " + id);
-   }
-
+      throw new AttributeDefNotFoundException("Cant find (or not allowed to find) attribute def name by id: " + id);
+    }
     return attributeDefName;
   }
 
@@ -54,12 +61,43 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   public void saveOrUpdate(AttributeDefName attributeDefName) {
     HibernateSession.byObjectStatic().saveOrUpdate(attributeDefName);
   }
+  /**
+   * make sure grouper session can view the attribute def Name
+   * @param attributeDefNames
+   * @return the set of attribute def Names
+   */
+  static Set<AttributeDefName> filterSecurity(Set<AttributeDefName> attributeDefNames) {
+    Set<AttributeDefName> result = new LinkedHashSet<AttributeDefName>();
+    if (attributeDefNames != null) {
+      for (AttributeDefName attributeDefName : attributeDefNames) {
+        attributeDefName = filterSecurity(attributeDefName);
+        if (attributeDefName != null) {
+          result.add(attributeDefName);
+        }
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * make sure grouper session can view the attribute def Name
+   * @param attributeDefName
+   * @return the attributeDefName or null
+   */
+  static AttributeDefName filterSecurity(AttributeDefName attributeDefName) {
+    if (attributeDefName == null) {
+      return null;
+    }
+    
+    AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefName.getAttributeDefId(), false);
+    return attributeDef == null ? null : attributeDefName;
+  }
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByName(java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByNameSecure(java.lang.String, boolean)
    */
-  public AttributeDefName findByName(String name, boolean exceptionIfNotFound)
+  public AttributeDefName findByNameSecure(String name, boolean exceptionIfNotFound)
       throws GrouperDAOException, AttributeDefNameNotFoundException {
     AttributeDefName attributeDefName = HibernateSession.byHqlStatic()
       .createQuery("select a from AttributeDefName as a where a.nameDb = :value")
@@ -67,9 +105,11 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       .setCacheRegion(KLASS + ".FindByName")
       .setString("value", name).uniqueResult(AttributeDefName.class);
 
+    attributeDefName = filterSecurity(attributeDefName);
+
     //handle exceptions out of data access method...
     if (attributeDefName == null && exceptionIfNotFound) {
-      throw new AttributeDefNotFoundException("Cannot find attribute def name with name: '" + name + "'");
+      throw new AttributeDefNotFoundException("Cannot find (or not allowed to find) attribute def name with name: '" + name + "'");
     }
     return attributeDefName;
   }

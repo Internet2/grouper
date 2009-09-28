@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.11 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.12 2009-09-28 05:06:46 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -117,7 +118,7 @@ public class GrouperPrivilegeAdapter {
    * Added Owner to signature so we don't need to compute it 
    * consequently all Memberships must be of the same Owner
    * @param s
-   * @param ownerGroupOrStem
+   * @param ownerGroupOrStemOrAttributeDef
    * @param subj
    * @param m
    * @param p
@@ -126,7 +127,8 @@ public class GrouperPrivilegeAdapter {
    * @throws SchemaException
    */
   public static Set<? extends GrouperPrivilege> internal_getPrivs(
-    GrouperSession s, final Owner ownerGroupOrStem,final Subject subj, final Member m, final Privilege p, final Iterator it
+    GrouperSession s, final Owner ownerGroupOrStemOrAttributeDef,final Subject subj, 
+    final Member m, final Privilege p, final Iterator it
   )
     throws  SchemaException  {
     return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
@@ -145,7 +147,11 @@ public class GrouperPrivilegeAdapter {
           if(p!=null) {
             localP=p;
           }else{
-            localP=AccessPrivilege.listToPriv(ms.getList().getName());
+            String listName = ms.getList().getName();
+            localP=AccessPrivilege.listToPriv(listName);
+            if (localP == null) {
+              localP = AttributeDefPrivilege.listToPriv(listName);
+            }
           }
           
           //Since we are getting everything, could get members or custom lists which do not correspond to privileges
@@ -176,16 +182,16 @@ public class GrouperPrivilegeAdapter {
           
             if (Privilege.isAccess(localP))  {
               privs.add(
-                new AccessPrivilege((Group)ownerGroupOrStem, subj, owner, localP, grouperSession.getAccessClass(), revoke, ms.getContextId())
+                new AccessPrivilege((Group)ownerGroupOrStemOrAttributeDef, subj, owner, localP, grouperSession.getAccessClass(), revoke, ms.getContextId())
               );
             }
             else if (Privilege.isNaming(localP)){
               privs.add(
-                new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, grouperSession.getNamingClass(), revoke, ms.getContextId() )
+                new NamingPrivilege( (Stem)ownerGroupOrStemOrAttributeDef, subj, owner, localP, grouperSession.getNamingClass(), revoke, ms.getContextId() )
               );
             } else if (Privilege.isAttributeDef(localP)){
                 privs.add(
-                  new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, grouperSession.getNamingClass(), revoke, ms.getContextId() )
+                  new AttributeDefPrivilege( (AttributeDef)ownerGroupOrStemOrAttributeDef, subj, owner, localP, grouperSession.getNamingClass(), revoke, ms.getContextId() )
                 );
             } else {
               throw new RuntimeException("Cant find type of privilege: " + localP);

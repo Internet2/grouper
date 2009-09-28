@@ -9,6 +9,10 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -127,6 +131,21 @@ public class AttributeDefName extends GrouperAPI
   /** id of this attribute def name */
   private String id;
 
+  /** cache the attributeDef */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private transient AttributeDef attributeDef;
+
+  /**
+   * get the attribute def
+   * @return the attribute def
+   */
+  public AttributeDef getAttributeDef() {
+    if (this.attributeDef == null) {
+      this.attributeDef = AttributeDefFinder.findById(this.attributeDefId, true);
+    }
+    return this.attributeDef;
+  }
+  
   /** id of this attribute def  */
   private String attributeDefId;
 
@@ -445,6 +464,7 @@ public class AttributeDefName extends GrouperAPI
    */
   public void setAttributeDefId(String attributeDefId) {
     this.attributeDefId = attributeDefId;
+    this.attributeDef = null;
   }
   
   /** logger */

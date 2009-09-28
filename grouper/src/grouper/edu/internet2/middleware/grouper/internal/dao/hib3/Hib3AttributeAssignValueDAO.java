@@ -1,5 +1,5 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import edu.internet2.middleware.grouper.attr.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
@@ -7,7 +7,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeAssignValueDAO.java,v 1.1 2009-06-28 19:02:17 mchyzer Exp $
+ * @version $Id: Hib3AttributeAssignValueDAO.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAssignValueDAO {
   

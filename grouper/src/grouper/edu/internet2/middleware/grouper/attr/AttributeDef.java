@@ -238,7 +238,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
 
             //make sure subject is allowed to do this
             Subject subject = GrouperSession.staticGrouperSession().getSubject();
-            if (!AttributeDef.this.getPrivilegeDelegate().hasAttrAdmin(subject)) {
+            if (!AttributeDef.this.getPrivilegeDelegate().canAttrAdmin(subject)) {
               throw new InsufficientPrivilegeException(GrouperUtil
                   .subjectToString(subject)
                   + " is not attrAdmin on attributeDef: " + AttributeDef.this.getName());
