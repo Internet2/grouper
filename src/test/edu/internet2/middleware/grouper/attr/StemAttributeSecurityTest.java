@@ -986,100 +986,59 @@ public class StemAttributeSecurityTest extends GrouperTest {
     this.grouperSession.stop();
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ5 );
 
-    //subj0 cant even update/admin the attribute, or admin the group
+    //assign these
     try {
-      this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1);
+      assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
       fail("Not allowed");
     } catch (InsufficientPrivilegeException ipe) {
       //good
     }
-    //subj0 cant even update/admin the attribute, or admin the group
     try {
       this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
+    try {
+      this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2);
+      fail("Not allowed");
+    } catch (AttributeDefNotFoundException adnfe) {
+      //good
+    }
+    
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    try {
+      this.stem.getAttributeDelegate().retrieveAttributes(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    try {
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDef2);
+      fail("Not allowed");
+    } catch (InsufficientPrivilegeException ipe) {
+      //good
+    }
 
-    //############################################
-    // Try to read an attribute
-    
-    
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
     try {
-      this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1);
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2);
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().hasAttribute(attributeDefName2_1);
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1);
       fail("Not allowed");
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
     try {
-      this.stem.getAttributeDelegate().hasAttribute(attributeDefName2_2);
-      fail("Not allowed");
-    } catch (AttributeDefNotFoundException adnfe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size();
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().retrieveAttributes(attributeDef2).size();
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size();
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().retrieveAssignments(attributeDef2).size();
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size();
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size();
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size();
-      fail("Not allowed");
-    } catch (AttributeDefNotFoundException adnfe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size();
+      this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_2);
       fail("Not allowed");
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
     
-    //##############################
-    // remove attributes
     try {
       this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1);
       fail("Not allowed");
@@ -1104,6 +1063,14 @@ public class StemAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
+  
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
+    
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
     
   }
 
