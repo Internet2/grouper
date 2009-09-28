@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignStemDelegate.java,v 1.2 2009-09-28 06:23:22 mchyzer Exp $
+ * $Id: AttributeAssignStemDelegate.java,v 1.3 2009-09-28 15:08:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -37,105 +37,6 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     this.stem = stem1;
   }
   
-  /**
-   * 
-   * @param attributeDefName
-   * @return if added or already there
-   */
-  @Override
-  public boolean assignAttribute(AttributeDefName attributeDefName) {
-
-    this.assertCanUpdateAttributeDefName(attributeDefName);
-
-    //see if it exists
-    if (this.hasAttributeHelper(attributeDefName, false)) {
-      return false;
-    }
-
-    AttributeAssign attributeAssign = new AttributeAssign(this.stem, AttributeDef.ACTION_DEFAULT, attributeDefName);
-    attributeAssign.saveOrUpdate();
-
-    return true;
-    
-  }
-
-  /**
-   * 
-   * @param attributeDefName
-   * @param checkSecurity 
-   * @return true if has attribute, false if not
-   */
-  @Override 
-  boolean hasAttributeHelper(AttributeDefName attributeDefName, boolean checkSecurity) {
-    if (checkSecurity) {
-      this.assertCanReadAttributeDefName(attributeDefName);
-    }
-    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByStemIdAndAttributeDefNameId(this.stem.getUuid(), attributeDefName.getId());
-    return GrouperUtil.length(attributeAssigns) > 0;
-  }
-
-  /**
-   * @param attributeDefName
-   * @return the assignments for a def name
-   */
-  @Override
-  public Set<AttributeAssign> retrieveAssignments(AttributeDefName attributeDefName) {
-    this.assertCanReadAttributeDefName(attributeDefName);
-
-    return GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByStemIdAndAttributeDefNameId(this.stem.getUuid(), attributeDefName.getId());
-  }
-
-  /**
-   * @param attributeDef
-   * @return the attributes for a def
-   */
-  @Override
-  public Set<AttributeDefName> retrieveAttributes(AttributeDef attributeDef) {
-    this.assertCanReadAttributeDef(attributeDef);
-    return GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findAttributeDefNamesByStemIdAndAttributeDefId(this.stem.getUuid(), attributeDef.getId());
-  }
-  
-  /**
-   * find the assignments of any name associated with a def
-   * @param attributeDef
-   * @return the set of assignments or the empty set
-   */
-  @Override
-  public Set<AttributeAssign> retrieveAssignments(AttributeDef attributeDef) {
-    this.assertCanReadAttributeDef(attributeDef);
-
-    return GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByStemIdAndAttributeDefId(this.stem.getUuid(), attributeDef.getId());
-
-  }
-
-  /**
-   * 
-   * @param attributeDefName
-   * @return if removed or already not assigned
-   */
-  @Override
-  public boolean removeAttribute(AttributeDefName attributeDefName) {
-    
-    this.assertCanUpdateAttributeDefName(attributeDefName);
-    
-    //see if it exists
-    if (!this.hasAttributeHelper(attributeDefName, false)) {
-      return false;
-    }
-    
-    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
-      .findByStemIdAndAttributeDefNameId(this.stem.getUuid(), attributeDefName.getId());
-    for (AttributeAssign attributeAssign : attributeAssigns) {
-      attributeAssign.delete();
-    }
-  
-    return true;
-    
-  }
 
   /**
    * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanReadAttributeDef(edu.internet2.middleware.grouper.attr.AttributeDef)
@@ -163,6 +64,15 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
           + " cannot read attributeDef " + attributeDef.getName());
     }
   
+  }
+
+  /**
+   * @param attributeDefName
+   * @return attribute assign
+   */
+  @Override
+  AttributeAssign newAttributeAssign(AttributeDefName attributeDefName) {
+    return new AttributeAssign(this.stem, AttributeDef.ACTION_DEFAULT, attributeDefName);
   }
 
   /**
@@ -199,6 +109,38 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
           + " cannot create in stem " + stem.getName());
     }
 
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeAssignsByOwnerAndAttributeDefNameId(java.lang.String)
+   */
+  @Override
+  Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefNameId(
+      String attributeDefNameId) {
+    return GrouperDAOFactory.getFactory().getAttributeAssign()
+      .findByStemIdAndAttributeDefNameId(this.stem.getUuid(), attributeDefNameId);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeAssignsByOwnerAndAttributeDefId(java.lang.String)
+   */
+  @Override
+  Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefId(
+      String attributeDefId) {
+    return GrouperDAOFactory.getFactory()
+    .getAttributeAssign().findByStemIdAndAttributeDefId(this.stem.getUuid(), attributeDefId);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeDefNamesByOwnerAndAttributeDefId(java.lang.String)
+   */
+  @Override
+  Set<AttributeDefName> retrieveAttributeDefNamesByOwnerAndAttributeDefId(
+      String attributeDefId) {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findAttributeDefNamesByStemIdAndAttributeDefId(this.stem.getUuid(), attributeDefId);
   }
 
 }
