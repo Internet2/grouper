@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -92,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.131 2009-09-28 05:06:46 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.132 2009-09-28 19:12:39 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -374,6 +375,21 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * Time to disable this membership.  Only applies to immediate memberships.
    */
   private Long disabledTimeDb;
+
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeAssignMembershipDelegate attributeAssignMembershipDelegate;
+  
+  /**
+   * 
+   * @return the delegate
+   */
+  public AttributeAssignMembershipDelegate getAttributeDelegate() {
+    if (this.attributeAssignMembershipDelegate == null) {
+      this.attributeAssignMembershipDelegate = new AttributeAssignMembershipDelegate(this);
+    }
+    return this.attributeAssignMembershipDelegate;
+  }
 
   /**
    * Is this membership enabled?  Only applies to immediate memberships.
