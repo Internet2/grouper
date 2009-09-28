@@ -22,6 +22,7 @@ public class AllAttributeTests {
     suite.addTestSuite(AttributeDefNameSetTest.class);
     suite.addTestSuite(AttributeDefNameTest.class);
     suite.addTestSuite(StemAttributeSecurityTest.class);
+    suite.addTestSuite(AttributeDefAttributeSecurityTest.class);
     suite.addTestSuite(AttributeAssignValueTest.class);
     suite.addTestSuite(AttributeDefScopeTest.class);
     suite.addTestSuite(AttributeAssignTest.class);

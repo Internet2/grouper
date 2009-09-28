@@ -129,7 +129,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.261 2009-09-28 05:06:46 mchyzer Exp $
+ * @version $Id: Group.java,v 1.262 2009-09-28 16:05:54 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -398,6 +398,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeAssignGroupDelegate attributeAssignGroupDelegate;
   
   /**

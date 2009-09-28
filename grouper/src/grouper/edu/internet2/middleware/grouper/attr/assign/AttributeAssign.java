@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -173,6 +174,21 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public AttributeAssign(Stem ownerStem, String theAction, AttributeDefName attributeDefName) {
     
     this.setOwnerStemId(ownerStem.getUuid());
+    this.setAction(theAction);
+    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setId(GrouperUuid.getUuid());
+
+  }
+
+  /**
+   * create an attribute assign, including a uuid
+   * @param ownerAttributeDef
+   * @param theAction
+   * @param attributeDefName
+   */
+  public AttributeAssign(AttributeDef ownerAttributeDef, String theAction, AttributeDefName attributeDefName) {
+    
+    this.setOwnerAttributeDefId(ownerAttributeDef.getId());
     this.setAction(theAction);
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());

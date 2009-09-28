@@ -9,9 +9,12 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttributeDefDelegate;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -166,6 +169,21 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   @Override
   public AttributeDef clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeAssignAttributeDefDelegate attributeAssignAttributeDefDelegate;
+  
+  /**
+   * 
+   * @return the delegate
+   */
+  public AttributeAssignAttributeDefDelegate getAttributeDelegate() {
+    if (this.attributeAssignAttributeDefDelegate == null) {
+      this.attributeAssignAttributeDefDelegate = new AttributeAssignAttributeDefDelegate(this);
+    }
+    return this.attributeAssignAttributeDefDelegate;
   }
 
 
