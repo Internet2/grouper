@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.attr.assign;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -13,8 +14,13 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -213,6 +219,28 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
   /**
    * create an attribute assign, including a uuid
+   * @param ownerAttributeAssign
+   * @param theAction
+   * @param attributeDefName
+   */
+  public AttributeAssign(AttributeAssign ownerAttributeAssign, String theAction, AttributeDefName attributeDefName) {
+    
+    //cant assign to an assignment of an assignment.
+    if (!StringUtils.isBlank(ownerAttributeAssign.getOwnerAttributeAssignId())) {
+      throw new RuntimeException("You cants assign an attribute to " +
+      		"an assignment of an assignment (only to an assignment of a non-assignment): " 
+          + theAction + ", " + attributeDefName.getName());
+    }
+    
+    this.setOwnerAttributeAssignId(ownerAttributeAssign.getId());
+    this.setAction(theAction);
+    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setId(GrouperUuid.getUuid());
+
+  }
+
+  /**
+   * create an attribute assign, including a uuid
    * @param ownerMembership
    * @param theAction
    * @param attributeDefName
@@ -348,6 +376,52 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     return this.action;
   }
 
+  /** cache the attribute def name */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeDefName attributeDefName;
+  
+  /**
+   * 
+   * @return attributeDefName
+   */
+  public AttributeDefName getAttributeDefName() {
+    if (this.attributeDefName == null ) {
+      this.attributeDefName = AttributeDefNameFinder.findById(this.attributeDefNameId, true);
+    }
+    return this.attributeDefName;
+  }
+  
+  /** cache the attribute def of this attribute def name */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeDef attributeDef;
+  
+  /**
+   * 
+   * @return attributeDef
+   */
+  public AttributeDef getAttributeDef() {
+    if (this.attributeDef == null ) {
+      this.attributeDef = AttributeDefFinder.findByAttributeDefNameId(this.attributeDefNameId, true);
+    }
+    return this.attributeDef;
+  }
+  
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeAssignAttrAssignDelegate attributeAssignAttrAssignDelegate;
+  
+  /**
+   * 
+   * @return the delegate
+   */
+  public AttributeAssignAttrAssignDelegate getAttributeDelegate() {
+    if (this.attributeAssignAttrAssignDelegate == null) {
+      this.attributeAssignAttrAssignDelegate = new AttributeAssignAttrAssignDelegate(this);
+    }
+    return this.attributeAssignAttrAssignDelegate;
+  }
+
+  
   /**
    * comma separated list of actions for this attribute.  at least there needs to be one.
    * default is "assign" actions must contain only alphanumeric or underscore, case sensitive
@@ -487,6 +561,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public void setAttributeDefNameId(String attributeNameId1) {
     this.attributeDefNameId = attributeNameId1;
+    //reset cached object
+    this.attributeDefName = null;
+    this.attributeDef = null;
   }
 
   

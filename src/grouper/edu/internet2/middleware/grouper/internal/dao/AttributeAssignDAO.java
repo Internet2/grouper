@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeAssignDAO.java,v 1.8 2009-09-28 19:12:39 mchyzer Exp $
+ * $Id: AttributeAssignDAO.java,v 1.9 2009-09-28 20:30:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -147,6 +147,33 @@ public interface AttributeAssignDAO extends GrouperDAO {
    */
   public Set<AttributeAssign> findByMembershipIdAndAttributeDefNameId(
       String membershipIdToAssignTo, String attributeDefNameIdToAssign);
+
+ 
+  /**
+   * find attribute def names (distinct) by attribute def id
+   * @param attrAssignIdToAssignTo
+   * @param attributeDefIdToAssign
+   * @return the attribute defs
+   */
+  public Set<AttributeDefName> findAttributeDefNamesByAttrAssignIdAndAttributeDefId(
+      String attrAssignIdToAssignTo, 
+      String attributeDefIdToAssign);
+
+  /**
+   * @param attrAssignIdToAssignTo
+   * @param attributeDefIdToAssign
+   * @return the attribute assigns or null if not there
+   */
+  public Set<AttributeAssign> findByAttrAssignIdAndAttributeDefId(
+      String attrAssignIdToAssignTo, String attributeDefIdToAssign);
+
+  /**
+   * @param attrAssignIdToAssignTo
+   * @param attributeDefNameIdToAssign
+   * @return the attribute assigns or null if not there
+   */
+  public Set<AttributeAssign> findByAttrAssignIdAndAttributeDefNameId(
+      String attrAssignIdToAssignTo, String attributeDefNameIdToAssign);
 
  
 }
