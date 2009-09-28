@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<AttributeResolver xmlns="urn:mace:shibboleth:2.0:resolver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:resolver="urn:mace:shibboleth:2.0:resolver" xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad" xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+  xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
+  xsi:schemaLocation="
+   urn:mace:shibboleth:2.0:resolver classpath:/schema/shibboleth-2.0-attribute-resolver.xsd
+   urn:mace:shibboleth:2.0:resolver:dc classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd
+   urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
+   http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
+
+  <resolver:DataConnector id="testAll" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="admins" />
+    <grouper:Attribute id="optins" />
+    <grouper:Attribute id="optouts" />
+    <grouper:Attribute id="readers" />
+    <grouper:Attribute id="updaters" />
+    <grouper:Attribute id="viewers" />
+    <grouper:Attribute id="members" />
+    <grouper:Attribute id="members:all" />
+    <grouper:Attribute id="members:immediate" />
+    <grouper:Attribute id="members:effective" />
+    <grouper:Attribute id="members:composite" />
+    <grouper:Attribute id="members:all:customList" />
+    <grouper:Attribute id="members:immediate:customList" />
+    <grouper:Attribute id="members:effective:customList" />
+    <grouper:Attribute id="members:composite:customList" />
+    <grouper:Attribute id="groups" />
+    <grouper:Attribute id="groups:all" />
+    <grouper:Attribute id="groups:immediate" />
+    <grouper:Attribute id="groups:effective" />
+    <grouper:Attribute id="groups:composite" />
+    <grouper:Attribute id="groups:all:customList" />
+    <grouper:Attribute id="groups:immediate:customList" />
+    <grouper:Attribute id="groups:effective:customList" />
+    <grouper:Attribute id="groups:composite:customList" />
+  </resolver:DataConnector>
+  
+  <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:GroupDataConnector" />
+
+  <resolver:DataConnector id="testAttributesAndMembers" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members" />
+  </resolver:DataConnector>
+  
+  <resolver:DataConnector id="testAttributesAndMembersCustomList" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members:all:customList" />
+  </resolver:DataConnector>
+  
+</AttributeResolver>

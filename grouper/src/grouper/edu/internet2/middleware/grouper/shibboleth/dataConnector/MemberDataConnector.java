@@ -69,7 +69,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
       return attributes;
     }
 
-    Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+    Member member = MemberFinder.findBySubject(getGrouperSession(), subject, false);
     if (member == null) {
       LOG.debug("resolve {} member not found", msg);
       return attributes;
@@ -77,7 +77,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
     LOG.debug("resolve {} found member '{}'", msg, member);
 
     // groups
-    for (GroupsField groupsField : groupsFields) {
+    for (GroupsField groupsField : getGroupsFields()) {
       BaseAttribute<Group> attr = groupsField.getAttribute(member);
       if (attr != null) {
         // TODO does group match
@@ -86,7 +86,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
     }
 
     // privs
-    for (PrivilegeField privilegeField : privilegeFields) {
+    for (PrivilegeField privilegeField : getPrivilegeFields()) {
       BaseAttribute<Group> attr = privilegeField.getAttribute(subject);
       if (attr != null) {
         attributes.put(privilegeField.getId(), attr);

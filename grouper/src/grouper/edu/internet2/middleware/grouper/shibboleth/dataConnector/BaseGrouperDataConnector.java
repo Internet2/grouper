@@ -15,19 +15,16 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
-import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.FieldMemberFilter;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
@@ -38,33 +35,83 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.da
 
 public abstract class BaseGrouperDataConnector extends BaseDataConnector {
 
+  /** logger */
   private static final Logger LOG = GrouperUtil.getLogger(BaseGrouperDataConnector.class);
 
+  /** the name of the attribute whose value is the name of the parent stem */
   public static final String PARENT_STEM_NAME_ATTR = "parentStemName";
 
-  protected GrouperSession grouperSession;
+  /** the grouper session, initialized for each grouper data connector */
+  private GrouperSession grouperSession;
 
+  /** the attributes which should be returned by this data connector */
   private List<AttributeIdentifier> fieldIdentifiers;
 
-  protected ArrayList<PrivilegeField> privilegeFields = new ArrayList<PrivilegeField>();
+  /** the groups to return as attributes */
+  private ArrayList<GroupsField> groupsFields = new ArrayList<GroupsField>();
 
-  protected ArrayList<MembersField> membersFields = new ArrayList<MembersField>();
+  /** the members to return as attributes */
+  private ArrayList<MembersField> membersFields = new ArrayList<MembersField>();
 
-  protected ArrayList<GroupsField> groupsFields = new ArrayList<GroupsField>();
+  /** the privileges to return as attributes */
+  private ArrayList<PrivilegeField> privilegeFields = new ArrayList<PrivilegeField>();
 
+  /** the query which filters the groups returned by this data connector */
   private GroupQueryFilter groupQueryFilter;
 
+  /** a set of valid names for the first element of an attribute identifier */
+  private static Set<String> validFirstIdElements = new HashSet<String>();
+  static {
+    validFirstIdElements.add(GroupsField.NAME);
+    validFirstIdElements.add(MembersField.NAME);
+    validFirstIdElements.addAll(AccessPrivilege.getAllPrivilegeNames());
+  }
+
+  /**
+   * Constructor.
+   */
   public BaseGrouperDataConnector() {
     super();
   }
 
-  public void initialize() {
-    initializeFields();
+  /**
+   * Make sure that the attributes to return as specified in the data connector configuration are valid, and initialize
+   * the necessary objects.
+   * 
+   * @throws GrouperException
+   */
+  // FUTURE probably should use spring for this configuration
+  public void initialize() throws GrouperException {
+
+    for (AttributeIdentifier fieldIdentifier : fieldIdentifiers) {
+
+      BaseField bf = new BaseField(fieldIdentifier.getId());
+
+      if (!validFirstIdElements.contains(bf.getFirstIdElement())) {
+        throw new GrouperException("Invalid identifer '" + fieldIdentifier.getId() + "', should start with one of "
+            + validFirstIdElements);
+      }
+
+      if (bf.getFirstIdElement().equals(GroupsField.NAME)) {
+
+        groupsFields.add(new GroupsField(fieldIdentifier.getId()));
+
+      } else if (bf.getFirstIdElement().equals(MembersField.NAME)) {
+
+        membersFields.add(new MembersField(fieldIdentifier.getId()));
+
+      } else {
+        privilegeFields.add(new PrivilegeField(fieldIdentifier.getId(), getGrouperSession().getAccessResolver()));
+      }
+    }
+
+    privilegeFields.trimToSize();
+    membersFields.trimToSize();
+    groupsFields.trimToSize();
   }
 
   /**
-   * Get the grouper session. Starts a new root session if necessary. Re-uses the same
-   * session.
+   * Get the grouper session. Starts a new root session if necessary. Re-uses the same session.
    * 
    * @return the grouper session
    */
@@ -76,90 +123,8 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
     return grouperSession;
   }
 
-  private void initializeFields() {
-
-    // TODO probably needs some work
-
-    for (AttributeIdentifier fieldIdentifier : fieldIdentifiers) {
-      LOG.debug("handling field '{}'", fieldIdentifier.getId());
-
-      // admins
-      // groups
-      // groups:all|eff|imm|comp
-      // members
-      // members:all|eff|imm|comp:field
-
-      List<String> ids = GrouperUtil.splitTrimToList(fieldIdentifier.getId(), ":");
-
-      if (ids.get(0).equals("groups")) {
-
-        String fieldName = GrouperConfig.LIST;
-        FieldMemberFilter mf = FieldMemberFilter.all;
-
-        if (ids.size() == 2) {
-          FieldMemberFilter.valueOf(ids.get(1));
-        } else if (ids.size() == 3) {
-          FieldMemberFilter.valueOf(ids.get(1));
-          fieldName = ids.get(2);
-        }
-
-        Field field = FieldFinder.find(fieldName, true);
-        // TODO null or exception ?
-
-        groupsFields.add(new GroupsField(fieldIdentifier.getId(), mf, field));
-
-      } else if (ids.get(0).equals("members")) {
-
-        String fieldName = GrouperConfig.LIST;
-        FieldMemberFilter mf = FieldMemberFilter.all;
-
-        if (ids.size() == 2) {
-          FieldMemberFilter.valueOf(ids.get(1));
-        } else if (ids.size() == 3) {
-          FieldMemberFilter.valueOf(ids.get(1));
-          fieldName = ids.get(2);
-        }
-
-        Field field = FieldFinder.find(fieldName, true);
-        // TODO null or exception ?
-
-        membersFields.add(new MembersField(fieldIdentifier.getId(), mf, field));
-
-      } else {
-
-        String fieldName = ids.get(0);
-
-        Field field = FieldFinder.find(fieldName, true);
-
-        if (field.getType().equals(FieldType.ACCESS)) {
-          Privilege privilege = AccessPrivilege.listToPriv(field.getName());
-          if (privilege == null) {
-            LOG.error("Unable to initialize privilege {}", fieldName);
-            throw new GrouperException("Unable to initialize privilege " + fieldName);
-          }
-
-          privilegeFields
-              .add(new PrivilegeField(fieldIdentifier.getId(), grouperSession.getAccessResolver(), privilege));
-
-        } else {
-          LOG.error("Unable to initialize privilege {} with type {}", fieldName, field.getType());
-          throw new GrouperException("Unable to initialize privilege " + fieldName + " of type " + field.getType());
-        }
-      }
-    }
-
-    privilegeFields.trimToSize();
-    membersFields.trimToSize();
-    groupsFields.trimToSize();
-  }
-
-  public void setFieldIdentifiers(List<AttributeIdentifier> fieldIdentifiers) {
-    this.fieldIdentifiers = fieldIdentifiers;
-  }
-
   /**
-   * Get the filter which determines the groups which will be considered by this data
-   * connector.
+   * Get the filter which determines the groups which will be considered by this data connector.
    * 
    * @return the GroupQueryFilter or <tt>null</tt> if all groups should be considered
    */
@@ -175,6 +140,42 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
    */
   public void setGroupQueryFilter(GroupQueryFilter groupQueryFilter) {
     this.groupQueryFilter = groupQueryFilter;
+  }
+
+  /**
+   * Set the identifiers of the attributes to return.
+   * 
+   * @param fieldIdentifiers
+   */
+  public void setFieldIdentifiers(List<AttributeIdentifier> fieldIdentifiers) {
+    this.fieldIdentifiers = fieldIdentifiers;
+  }
+
+  /**
+   * The representation of the attributes which return groups.
+   * 
+   * @return the groups fields
+   */
+  public List<GroupsField> getGroupsFields() {
+    return groupsFields;
+  }
+
+  /**
+   * The representation of the attributes which return members.
+   * 
+   * @return the members fields
+   */
+  public List<MembersField> getMembersFields() {
+    return membersFields;
+  }
+
+  /**
+   * The representation of the attributes which return privileges.
+   * 
+   * @return the privileges fields
+   */
+  public List<PrivilegeField> getPrivilegeFields() {
+    return privilegeFields;
   }
 
 }

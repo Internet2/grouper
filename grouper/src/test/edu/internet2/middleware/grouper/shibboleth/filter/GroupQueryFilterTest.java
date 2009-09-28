@@ -55,7 +55,7 @@ public class GroupQueryFilterTest extends GrouperTest {
     try {
       ArrayList<Resource> resources = new ArrayList<Resource>();
       resources.add(new ClasspathResource(
-          "/edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilterTest.xml"));
+          "/test/edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilterTest.xml"));
 
       gContext = new GenericApplicationContext();
       SpringConfigurationUtils.populateRegistry(gContext, resources);

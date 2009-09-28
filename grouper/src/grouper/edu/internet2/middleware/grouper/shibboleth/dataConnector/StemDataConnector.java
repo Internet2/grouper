@@ -48,7 +48,7 @@ public class StemDataConnector extends BaseGrouperDataConnector {
     Map<String, BaseAttribute> attributes = new HashMap<String, BaseAttribute>();
 
     // find stem
-    Stem stem = StemFinder.findByName(grouperSession, principalName, false);
+    Stem stem = StemFinder.findByName(getGrouperSession(), principalName, false);
     if (stem == null) {
       LOG.debug("resolve {} stem not found", msg);
       return attributes;

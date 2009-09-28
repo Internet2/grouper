@@ -16,17 +16,20 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.field;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 import edu.internet2.middleware.subject.Subject;
 
-public class PrivilegeField {
-
-  /** the attribute name */
-  private String id;
+public class PrivilegeField extends BaseField {
 
   /** the access resolver */
   private AccessResolver accessResolver;
@@ -35,34 +38,45 @@ public class PrivilegeField {
   private Privilege privilege;
 
   /**
-   * Constructor.
+   * Construct a representation of an {@link Privilege} attribute.
+   * 
+   * @see edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField#constructor(String id)
    * 
    * @param id
-   *          the attribute name
+   *          the identifier
    * @param accessResolver
    *          the access resolver
-   * @param privilege
-   *          the privilege
+   * @throws GrouperException
+   * 
    */
-  public PrivilegeField(String id, AccessResolver accessResolver, Privilege privilege) {
-    this.id = id;
+  public PrivilegeField(String id, AccessResolver accessResolver) throws GrouperException {
+    super(id);
     this.accessResolver = accessResolver;
-    this.privilege = privilege;
+    try {
+      Field field = FieldFinder.find(id, true);
+      if (!field.getType().equals(FieldType.ACCESS)) {
+        throw new GrouperException("Field '" + id + "' is not an access privilege");
+      }
+      privilege = AccessPrivilege.listToPriv(id);
+      if (privilege == null) {
+        throw new GrouperException("Unknown access privilege '" + id + "'");
+      }
+    } catch (SchemaException e) {
+      throw new GrouperException("Unknown field '" + id + "'", e);
+    }
   }
 
   /**
-   * Get the resultant attribute whose values are the Subjects with the privilege for the
-   * given Group.
+   * Get the resultant attribute whose values are the {@link Subject}s with the privilege for the given {@link Group}.
    * 
    * @param group
    *          the group
-   * @return the attribute consisting of Subjects or <tt>null</tt> if there are no
-   *         subjects with the privilege
+   * @return the attribute consisting of Subjects or <tt>null</tt> if there are no subjects with the privilege
    */
   public BaseAttribute<Subject> getAttribute(Group group) {
     Set<Subject> subjects = accessResolver.getSubjectsWithPrivilege(group, privilege);
     if (!subjects.isEmpty()) {
-      BasicAttribute<Subject> attribute = new BasicAttribute<Subject>(id);
+      BasicAttribute<Subject> attribute = new BasicAttribute<Subject>(this.getId());
       attribute.setValues(subjects);
       return attribute;
     }
@@ -71,18 +85,17 @@ public class PrivilegeField {
   }
 
   /**
-   * Get the resultant attribute whose values are the Groups to which the subject has the
-   * privilege.
+   * Get the resultant attribute whose values are the {@link Group}s to which the {@link Subject} has the privilege.
    * 
    * @param subject
    *          the subject
-   * @return the attribute consisting of Groups or <tt>null</tt> if there are no groups to
-   *         which the subject has the privilege
+   * @return the attribute consisting of Groups or <tt>null</tt> if there are no groups to which the subject has the
+   *         privilege
    */
   public BaseAttribute<Group> getAttribute(Subject subject) {
     Set<Group> groups = accessResolver.getGroupsWhereSubjectHasPrivilege(subject, privilege);
     if (!groups.isEmpty()) {
-      BasicAttribute<Group> attribute = new BasicAttribute<Group>(id);
+      BasicAttribute<Group> attribute = new BasicAttribute<Group>(this.getId());
       attribute.setValues(groups);
       return attribute;
     }
@@ -90,12 +103,4 @@ public class PrivilegeField {
     return null;
   }
 
-  /**
-   * Get the attribute id.
-   * 
-   * @return the name of the underlying attribute
-   */
-  public String getId() {
-    return id;
-  }
 }
