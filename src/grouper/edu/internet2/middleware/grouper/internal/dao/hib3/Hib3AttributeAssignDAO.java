@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeAssignDAO.java,v 1.6 2009-09-28 15:08:23 mchyzer Exp $
+ * @version $Id: Hib3AttributeAssignDAO.java,v 1.7 2009-09-28 16:05:54 mchyzer Exp $
  */
 public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDAO {
   
@@ -194,6 +194,52 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerMemberId = :theOwnerMemberId")
       .setString("theAttributeDefNameId", attributeDefNameId)
       .setString("theOwnerMemberId", memberId)
+      .listSet(AttributeAssign.class);
+
+    return attributeAssigns;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefNamesByAttributeDefIdAndAttributeDefId(java.lang.String, java.lang.String)
+   */
+  public Set<AttributeDefName> findAttributeDefNamesByAttributeDefIdAndAttributeDefId(
+      String attributeDefIdToAssignTo, String attributeDefIdToAssign) {
+    Set<AttributeDefName> attributeDefs = HibernateSession.byHqlStatic().createQuery(
+        "select distinct theAttributeDefName from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
+        "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
+        "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerAttributeDefId = :theOwnerAttributeDefId")
+        .setString("theAttributeDefId", attributeDefIdToAssign)
+        .setString("theOwnerAttributeDefId", attributeDefIdToAssignTo)
+        .listSet(AttributeDefName.class);
+
+      return attributeDefs;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findByAttributeDefIdAndAttributeDefId(java.lang.String, java.lang.String)
+   */
+  public Set<AttributeAssign> findByAttributeDefIdAndAttributeDefId(
+      String attributeDefIdToAssignTo, String attributeDefIdToAssign) {
+    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+        "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
+        "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
+        "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerAttributeDefId = :theOwnerAttributeDefId")
+        .setString("theAttributeDefId", attributeDefIdToAssign)
+        .setString("theOwnerAttributeDefId", attributeDefIdToAssignTo)
+        .listSet(AttributeAssign.class);
+
+      return attributeAssigns;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findByAttributeDefIdAndAttributeDefNameId(java.lang.String, java.lang.String)
+   */
+  public Set<AttributeAssign> findByAttributeDefIdAndAttributeDefNameId(
+      String attributeDefIdToAssignTo, String attributeDefNameIdToAssign) {
+    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+      "from AttributeAssign where attributeDefNameId = :theAttributeDefNameId and ownerAttributeDefId = :theOwnerAttributeDefId")
+      .setString("theAttributeDefNameId", attributeDefNameIdToAssign)
+      .setString("theOwnerAttributeDefId", attributeDefIdToAssignTo)
       .listSet(AttributeAssign.class);
 
     return attributeAssigns;

@@ -116,7 +116,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.203 2009-09-28 06:05:11 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.204 2009-09-28 16:05:54 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -294,6 +294,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   private String contextId;
 
   /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeAssignStemDelegate attributeAssignStemDelegate;
   
   /**

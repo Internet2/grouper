@@ -88,11 +88,12 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.130 2009-09-28 15:08:23 mchyzer Exp $
+ * @version $Id: Member.java,v 1.131 2009-09-28 16:05:54 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
   /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeAssignMemberDelegate attributeAssignMemberDelegate;
   
   /**
