@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignStemDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -115,7 +116,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.202 2009-09-21 06:14:27 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.203 2009-09-28 06:05:11 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -291,6 +292,21 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
   /** context id of the transaction */
   private String contextId;
+
+  /** */
+  private AttributeAssignStemDelegate attributeAssignStemDelegate;
+  
+  /**
+   * 
+   * @return the delegate
+   */
+  public AttributeAssignStemDelegate getAttributeDelegate() {
+    if (this.attributeAssignStemDelegate == null) {
+      this.attributeAssignStemDelegate = new AttributeAssignStemDelegate(this);
+    }
+    return this.attributeAssignStemDelegate;
+  }
+  
 
   /**
    * context id of the transaction

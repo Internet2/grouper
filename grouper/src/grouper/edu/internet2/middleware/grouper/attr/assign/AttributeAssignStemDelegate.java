@@ -1,13 +1,13 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignGroupDelegate.java,v 1.2 2009-09-28 06:05:11 mchyzer Exp $
+ * $Id: AttributeAssignStemDelegate.java,v 1.1 2009-09-28 06:05:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -22,19 +22,19 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * delegate privilege calls from attribute defs
  */
-public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
+public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
 
   /**
-   * reference to the group in question
+   * reference to the stem in question
    */
-  private Group group = null;
+  private Stem stem = null;
   
   /**
    * 
-   * @param group1
+   * @param stem1
    */
-  public AttributeAssignGroupDelegate(Group group1) {
-    this.group = group1;
+  public AttributeAssignStemDelegate(Stem stem1) {
+    this.stem = stem1;
   }
   
   /**
@@ -52,7 +52,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
       return false;
     }
 
-    AttributeAssign attributeAssign = new AttributeAssign(this.group, AttributeDef.ACTION_DEFAULT, attributeDefName);
+    AttributeAssign attributeAssign = new AttributeAssign(this.stem, AttributeDef.ACTION_DEFAULT, attributeDefName);
     attributeAssign.saveOrUpdate();
 
     return true;
@@ -71,7 +71,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
       this.assertCanReadAttributeDefName(attributeDefName);
     }
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByGroupIdAndAttributeDefNameId(this.group.getUuid(), attributeDefName.getId());
+      .getAttributeAssign().findByStemIdAndAttributeDefNameId(this.stem.getUuid(), attributeDefName.getId());
     return GrouperUtil.length(attributeAssigns) > 0;
   }
 
@@ -84,7 +84,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
     this.assertCanReadAttributeDefName(attributeDefName);
 
     return GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByGroupIdAndAttributeDefNameId(this.group.getUuid(), attributeDefName.getId());
+      .getAttributeAssign().findByStemIdAndAttributeDefNameId(this.stem.getUuid(), attributeDefName.getId());
   }
 
   /**
@@ -95,7 +95,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
   public Set<AttributeDefName> retrieveAttributes(AttributeDef attributeDef) {
     this.assertCanReadAttributeDef(attributeDef);
     return GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findAttributeDefNamesByGroupIdAndAttributeDefId(this.group.getUuid(), attributeDef.getId());
+      .getAttributeAssign().findAttributeDefNamesByStemIdAndAttributeDefId(this.stem.getUuid(), attributeDef.getId());
   }
   
   /**
@@ -108,7 +108,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
     this.assertCanReadAttributeDef(attributeDef);
 
     return GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByGroupIdAndAttributeDefId(this.group.getUuid(), attributeDef.getId());
+      .getAttributeAssign().findByStemIdAndAttributeDefId(this.stem.getUuid(), attributeDef.getId());
 
   }
 
@@ -128,7 +128,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
     }
     
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
-      .findByGroupIdAndAttributeDefNameId(this.group.getId(), attributeDefName.getId());
+      .findByStemIdAndAttributeDefNameId(this.stem.getUuid(), attributeDefName.getId());
     for (AttributeAssign attributeAssign : attributeAssigns) {
       attributeAssign.delete();
     }
@@ -145,7 +145,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canReadAttribute = new boolean[1];
-    final boolean[] canViewGroup = new boolean[1];
+    final boolean[] canCreateInStem = new boolean[1];
   
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -155,7 +155,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canReadAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrRead(subject);
-        canViewGroup[0] = PrivilegeHelper.canView(rootSession, AttributeAssignGroupDelegate.this.group, subject);
+        canCreateInStem[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
         return null;
       }
     });
@@ -165,9 +165,9 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
           + " cannot read attributeDef " + attributeDef.getName());
     }
   
-    if (!canViewGroup[0]) {
+    if (!canCreateInStem[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot view group " + group.getName());
+          + " cannot create in stem " + stem.getName());
     }
   }
 
@@ -180,9 +180,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canUpdateAttribute = new boolean[1];
-    //attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
-    final boolean[] canAdminGroup = new boolean[1];
-    //this.group.hasAdmin(subject);
+    final boolean[] canCreateInStem = new boolean[1];
  
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -192,7 +190,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canUpdateAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
-        canAdminGroup[0] = PrivilegeHelper.canAdmin(rootSession, AttributeAssignGroupDelegate.this.group, subject);
+        canCreateInStem[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
         return null;
       }
     });
@@ -202,9 +200,9 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
           + " cannot update attributeDef " + attributeDef.getName());
     }
 
-    if (!canAdminGroup[0]) {
+    if (!canCreateInStem[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot admin group " + group.getName());
+          + " cannot create in stem " + stem.getName());
     }
 
   }
