@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignStemDelegate.java,v 1.1 2009-09-28 06:05:11 mchyzer Exp $
+ * $Id: AttributeAssignStemDelegate.java,v 1.2 2009-09-28 06:23:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -145,7 +145,6 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
     final boolean[] canReadAttribute = new boolean[1];
-    final boolean[] canCreateInStem = new boolean[1];
   
     //these need to be looked up as root
     GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
@@ -155,7 +154,6 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canReadAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrRead(subject);
-        canCreateInStem[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
         return null;
       }
     });
@@ -165,10 +163,6 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
           + " cannot read attributeDef " + attributeDef.getName());
     }
   
-    if (!canCreateInStem[0]) {
-      throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot create in stem " + stem.getName());
-    }
   }
 
   /**
