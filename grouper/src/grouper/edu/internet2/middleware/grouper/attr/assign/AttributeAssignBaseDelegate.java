@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignBaseDelegate.java,v 1.1 2009-09-28 06:05:11 mchyzer Exp $
+ * $Id: AttributeAssignBaseDelegate.java,v 1.2 2009-09-28 15:08:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -25,6 +25,13 @@ public abstract class AttributeAssignBaseDelegate {
   }
   
   /**
+   * 
+   * @param attributeDefName
+   * @return attribute assign
+   */
+  abstract AttributeAssign newAttributeAssign(AttributeDefName attributeDefName);
+  
+  /**
    * make sure the user can read the attribute (including looking at object if necessary)
    * @param attributeDefName
    */
@@ -46,11 +53,25 @@ public abstract class AttributeAssignBaseDelegate {
   abstract void assertCanUpdateAttributeDefName(AttributeDefName attributeDefName);
 
   /**
-   * check security and assign attribute
+   * 
    * @param attributeDefName
    * @return if added or already there
    */
-  public abstract boolean assignAttribute(AttributeDefName attributeDefName);
+  public boolean assignAttribute(AttributeDefName attributeDefName) {
+
+    this.assertCanUpdateAttributeDefName(attributeDefName);
+
+    //see if it exists
+    if (this.hasAttributeHelper(attributeDefName, false)) {
+      return false;
+    }
+
+    AttributeAssign attributeAssign = newAttributeAssign(attributeDefName);
+    attributeAssign.saveOrUpdate();
+
+    return true;
+    
+  }
 
   /**
    * 
@@ -102,7 +123,14 @@ public abstract class AttributeAssignBaseDelegate {
    * @param checkSecurity 
    * @return true if has attribute, false if not
    */
-  abstract boolean hasAttributeHelper(AttributeDefName attributeDefName, boolean checkSecurity);
+  boolean hasAttributeHelper(AttributeDefName attributeDefName, boolean checkSecurity) {
+    if (checkSecurity) {
+      this.assertCanReadAttributeDefName(attributeDefName);
+    }
+    Set<AttributeAssign> attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
+    return GrouperUtil.length(attributeAssigns) > 0;
+  }
+
 
   /**
    * see if the group
@@ -117,12 +145,6 @@ public abstract class AttributeAssignBaseDelegate {
     Set<AttributeAssign> attributeAssigns = retrieveAssignments(attributeDefName);
     return GrouperUtil.length(attributeAssigns) > 0;
   }
-
-  /**
-   * @param attributeDefName
-   * @return the assignments for a def name
-   */
-  public abstract Set<AttributeAssign> retrieveAssignments(AttributeDefName attributeDefName);  
 
   /**
    * @param attributeDefId
@@ -155,12 +177,6 @@ public abstract class AttributeAssignBaseDelegate {
   }
   
   /**
-   * @param attributeDef
-   * @return the attributes for a def
-   */
-  public abstract Set<AttributeDefName> retrieveAttributes(AttributeDef attributeDef);
-  
-  /**
    * @param name is the name of the attribute def
    * @return the assignments for a def
    */
@@ -176,15 +192,70 @@ public abstract class AttributeAssignBaseDelegate {
    * @param attributeDef
    * @return the set of assignments or the empty set
    */
-  public abstract Set<AttributeAssign> retrieveAssignments(AttributeDef attributeDef);
+  public Set<AttributeAssign> retrieveAssignments(AttributeDef attributeDef) {
+    this.assertCanReadAttributeDef(attributeDef);
+
+    return retrieveAttributeAssignsByOwnerAndAttributeDefId(attributeDef.getId());
+
+  }
+
+  /**
+   * @param attributeDefName
+   * @return the assignments for a def name
+   */
+  public Set<AttributeAssign> retrieveAssignments(AttributeDefName attributeDefName) {
+    this.assertCanReadAttributeDefName(attributeDefName);
+
+    return retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
+  }
+
+  /**
+   * @param attributeDef
+   * @return the attributes for a def
+   */
+  public Set<AttributeDefName> retrieveAttributes(AttributeDef attributeDef) {
+    this.assertCanReadAttributeDef(attributeDef);
+    return retrieveAttributeDefNamesByOwnerAndAttributeDefId(attributeDef.getId());
+  }
+  
 
   /**
    * 
    * @param attributeDefName
    * @return if removed or already not assigned
    */
-  public abstract boolean removeAttribute(AttributeDefName attributeDefName);
+  public boolean removeAttribute(AttributeDefName attributeDefName) {
+    
+    this.assertCanUpdateAttributeDefName(attributeDefName);
+    
+    //see if it exists
+    if (!this.hasAttributeHelper(attributeDefName, false)) {
+      return false;
+    }
+    
+    Set<AttributeAssign> attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
+    for (AttributeAssign attributeAssign : attributeAssigns) {
+      attributeAssign.delete();
+    }
   
+    return true;
+    
+  }
+
+  /**
+   * get attribute assigns by owner and attribute def name id
+   * @param attributeDefNameId
+   * @return set of assigns or empty if none there
+   */
+  abstract Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefNameId(String attributeDefNameId);
+  
+  /**
+   * get attribute assigns by owner and attribute def id
+   * @param attributeDefId
+   * @return set of assigns or empty if none there
+   */
+  abstract Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefId(String attributeDefId);
+
   /**
    * 
    * @param attributeDefNameId
@@ -208,6 +279,13 @@ public abstract class AttributeAssignBaseDelegate {
     return removeAttribute(attributeDefName);
     
   }
+
+  /**
+   * get attribute def names by owner and attribute def id
+   * @param attributeDefId
+   * @return set of def names or empty if none there
+   */
+  abstract Set<AttributeDefName> retrieveAttributeDefNamesByOwnerAndAttributeDefId(String attributeDefId);
 
   
 }

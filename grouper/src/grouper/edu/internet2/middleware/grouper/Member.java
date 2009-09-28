@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMemberDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -87,9 +88,23 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.129 2009-09-21 06:14:27 mchyzer Exp $
+ * @version $Id: Member.java,v 1.130 2009-09-28 15:08:23 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+
+  /** */
+  private AttributeAssignMemberDelegate attributeAssignMemberDelegate;
+  
+  /**
+   * 
+   * @return the delegate
+   */
+  public AttributeAssignMemberDelegate getAttributeDelegate() {
+    if (this.attributeAssignMemberDelegate == null) {
+      this.attributeAssignMemberDelegate = new AttributeAssignMemberDelegate(this);
+    }
+    return this.attributeAssignMemberDelegate;
+  }
 
   /**
    * print out a collection of members
