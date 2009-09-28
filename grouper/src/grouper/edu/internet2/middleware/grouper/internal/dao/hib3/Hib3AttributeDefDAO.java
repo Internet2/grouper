@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefDAO.java,v 1.3 2009-09-28 05:06:46 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefDAO.java,v 1.4 2009-09-28 20:30:34 mchyzer Exp $
  */
 public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   
@@ -112,6 +112,28 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     if (attributeDef == null && exceptionIfNotFound) {
       throw new AttributeDefNotFoundException("Cannot find (or not allowed to find) attribute def with name: '" + name + "'");
     }
+    return attributeDef;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByAttributeDefNameIdSecure(java.lang.String, boolean)
+   */
+  public AttributeDef findByAttributeDefNameIdSecure(String attributeDefNameId,
+      boolean exceptionIfNotFound) {
+    AttributeDef attributeDef = HibernateSession.byHqlStatic().createQuery(
+        "select theAttributeDef from AttributeDef as theAttributeDef, " +
+        "AttributeDefName as theAttributeDefName where theAttributeDefName.id = :theAttributeDefNameId" +
+        " and theAttributeDef.id = theAttributeDefName.attributeDefId")
+      .setString("theAttributeDefNameId", attributeDefNameId).uniqueResult(AttributeDef.class);
+    
+    //make sure grouper session can view the attribute def
+    attributeDef = filterSecurity(attributeDef);
+    
+    if (attributeDef == null && exceptionIfNotFound) {
+      throw new AttributeDefNotFoundException("Cant find (or not allowed to find) AttributeDef " +
+      		"by attributeDefNameId: " + attributeDefNameId);
+    }
+    
     return attributeDef;
   }
 
