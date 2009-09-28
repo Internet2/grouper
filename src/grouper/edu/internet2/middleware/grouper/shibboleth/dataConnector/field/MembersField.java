@@ -16,7 +16,6 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.field;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -25,35 +24,20 @@ import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttrib
 /**
  * A representation of an attribute consisting of Members.
  */
-public class MembersField {
+public class MembersField extends BaseMembershipField {
 
-  /** the attribute name */
-  private String id;
-
-  /** the underlying field */
-  private Field field;
-
-  /** the filter which retrieves members */
-  private FieldMemberFilter memberFilter;
+  /** the first element of the identifier */
+  public static final String NAME = "members";
 
   /**
-   * Constructor.
-   * 
-   * @param id
-   *          the name of the attribute
-   * @param memberFilter
-   *          the filter which defines memberships as immediate, effective, or composite
-   * @param field
-   *          the underlying field
+   * @see edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField#constructor(String id)
    */
-  public MembersField(String id, FieldMemberFilter memberFilter, Field field) {
-    this.id = id;
-    this.memberFilter = memberFilter;
-    this.field = field;
+  public MembersField(String id) {
+    super(id);
   }
 
   /**
-   * Get the resultant attribute whose values are the Members of the given Group.
+   * Get the resultant attribute whose values are the {@link Member}s of the given {@link Group}.
    * 
    * @param group
    *          the group
@@ -61,10 +45,10 @@ public class MembersField {
    */
   public BaseAttribute<Member> getAttribute(Group group) {
 
-    Set<Member> members = memberFilter.getMembers(group, field);
+    Set<Member> members = this.getMemberFilter().getMembers(group, this.getField());
 
     if (!members.isEmpty()) {
-      BasicAttribute<Member> attribute = new BasicAttribute<Member>(id);
+      BasicAttribute<Member> attribute = new BasicAttribute<Member>(this.getId());
       attribute.setValues(members);
       return attribute;
     }
@@ -72,12 +56,4 @@ public class MembersField {
     return null;
   }
 
-  /**
-   * Get the attribute id.
-   * 
-   * @return the name of the underlying attribute
-   */
-  public String getId() {
-    return id;
-  }
 }

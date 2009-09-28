@@ -15,7 +15,7 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -33,11 +33,12 @@ import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeResolutionException;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * A data connector which returns Groups. The attributes of the returned groups may be
- * limited in order to avoid unnecessary queries to the Grouper database.
+ * A {@link DataConnector} which returns {@link Group}s. The attributes of the returned groups may be limited in order
+ * to avoid unnecessary queries to the Grouper database.
  */
 public class GroupDataConnector extends BaseGrouperDataConnector {
 
@@ -51,16 +52,20 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
     String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
     String msg = "'" + principalName + "' dc '" + this.getId() + "'";
     LOG.debug("resolve {}", msg);
-    if (LOG.isDebugEnabled()) {
-      for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
-        LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
+          .getRequestedAttributesIds());
+      if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
+        for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
+          LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
+        }
       }
     }
 
-    Map<String, BaseAttribute> attributes = new HashMap<String, BaseAttribute>();
+    Map<String, BaseAttribute> attributes = new LinkedHashMap<String, BaseAttribute>();
 
     // find group
-    Group group = GroupFinder.findByName(grouperSession, principalName, false);
+    Group group = GroupFinder.findByName(getGrouperSession(), principalName, false);
     if (group == null) {
       LOG.debug("resolve {} group not found", msg);
       return attributes;
@@ -91,7 +96,7 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
     }
 
     // members
-    for (MembersField membersField : membersFields) {
+    for (MembersField membersField : getMembersFields()) {
       BaseAttribute<Member> attr = membersField.getAttribute(group);
       if (attr != null) {
         attributes.put(membersField.getId(), attr);
@@ -99,7 +104,7 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
     }
 
     // groups
-    for (GroupsField groupsField : groupsFields) {
+    for (GroupsField groupsField : getGroupsFields()) {
       BaseAttribute<Group> attr = groupsField.getAttribute(group.toMember());
       if (attr != null) {
         attributes.put(groupsField.getId(), attr);
@@ -107,7 +112,7 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
     }
 
     // privs
-    for (PrivilegeField privilegeField : privilegeFields) {
+    for (PrivilegeField privilegeField : getPrivilegeFields()) {
       BaseAttribute<Subject> attr = privilegeField.getAttribute(group);
       if (attr != null) {
         attributes.put(privilegeField.getId(), attr);
