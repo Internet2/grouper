@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.11 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.12 2009-09-28 05:06:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -89,7 +89,8 @@ public class PrivilegeHelper {
    */
   public static boolean canAttrRead(GrouperSession s, AttributeDef attributeDef, Subject subj) {
     AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
-    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_READ);
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_READ)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN);
   } 
 
   /**
@@ -100,7 +101,12 @@ public class PrivilegeHelper {
    */
   public static boolean canAttrView(GrouperSession s, AttributeDef attributeDef, Subject subj) {
     AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
-    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_VIEW);
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_VIEW)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_READ)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_UPDATE)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTIN)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTOUT);
   } 
 
   /**
@@ -111,7 +117,8 @@ public class PrivilegeHelper {
    */
   public static boolean canAttrUpdate(GrouperSession s, AttributeDef attributeDef, Subject subj) {
     AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
-    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_UPDATE);
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_UPDATE)
+      || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN);
   } 
 
   /**

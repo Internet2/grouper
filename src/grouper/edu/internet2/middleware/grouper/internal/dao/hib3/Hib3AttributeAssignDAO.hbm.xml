@@ -20,9 +20,9 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeAssignDAO.hbm.xml,v 1.1 2009-06-28 19:02:17 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeAssignDAO.hbm.xml,v 1.2 2009-09-28 05:06:46 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.attr">
+<hibernate-mapping package="edu.internet2.middleware.grouper.attr.assign">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->

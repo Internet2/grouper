@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.130 2009-09-21 06:14:27 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.131 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -781,7 +781,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       return attributeDef;
     }
     attributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
-      .findById(uuid, true);
+      .findByIdSecure(uuid, true);
     putAttributeDefInCache(attributeDef);
     return attributeDef;
   }
@@ -2572,7 +2572,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       // Who we're deleting
       //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(attributeDef.getUuid(), m.getUuid(), f, IMMEDIATE , true, false);
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByAttrDefOwnerAndMemberAndFieldAndType(attributeDef.getUuid(), m.getUuid(), f, IMMEDIATE , true, false);
   
       GrouperDAOFactory.getFactory().getMembership().delete(ms);
       

@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.29 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: MembershipDAO.java,v 1.30 2009-09-28 05:06:46 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -574,6 +574,18 @@ TODO update for 1.5
    */
   Set<Membership> findAllByAttrDefOwnerAndField(String ownerAttrDefId, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
+
+  /**
+   * @param ownerAttrDefId 
+   * @param memberUUID 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Membership> findAllByAttrDefOwnerAndMember(String ownerAttrDefId, String memberUUID, boolean enabledOnly) 
+    throws  GrouperDAOException;
+
 
   /**
    * @param ownerAttrDefId 

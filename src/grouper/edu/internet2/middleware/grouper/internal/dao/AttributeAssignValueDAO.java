@@ -1,10 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AttributeAssignValueDAO.java,v 1.1 2009-06-28 19:02:17 mchyzer Exp $
+ * $Id: AttributeAssignValueDAO.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
-import edu.internet2.middleware.grouper.attr.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
 
 /**

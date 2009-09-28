@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AttributeDefResolver}.
  * <p/>
  * @author  mchyzer
- * @version $Id: GrouperAllAttrDefResolver.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: GrouperAllAttrDefResolver.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class GrouperAllAttrDefResolver extends AttributeDefResolverDecorator {
 
@@ -68,9 +68,10 @@ public class GrouperAllAttrDefResolver extends AttributeDefResolverDecorator {
     //I assume this is what blair intended - have removed
     //the All privileges from the GrouperAccessAdapter
 
-    Set<AttributeDefPrivilege> allPrivs = fixPrivs(super.getDecoratedResolver().getPrivileges(
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    Set<AttributeDefPrivilege> allPrivs = fixPrivs(decoratedResolver.getPrivileges(
         attributeDef, this.all), subject);
-    allPrivs.addAll(super.getDecoratedResolver().getPrivileges(attributeDef, subject));
+    allPrivs.addAll(decoratedResolver.getPrivileges(attributeDef, subject));
     return allPrivs;
   }
 

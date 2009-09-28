@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.60 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.61 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -43,6 +43,7 @@ public class GroupFinder {
   private static final String ERR_FINDBYATTRIBUTE = "could not find group by attribute: ";
 
   /** error for finding by type */
+  @SuppressWarnings("unused")
   private static final String ERR_FINDBYTYPE      = "could not find group by type: ";
   
   /**

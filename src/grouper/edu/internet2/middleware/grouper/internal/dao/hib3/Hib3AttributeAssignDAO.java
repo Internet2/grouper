@@ -1,19 +1,16 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.attr.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeAssignDAO.java,v 1.3 2009-09-25 06:04:12 mchyzer Exp $
+ * @version $Id: Hib3AttributeAssignDAO.java,v 1.4 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDAO {
   
@@ -43,7 +40,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .setString("theId", id).uniqueResult(AttributeAssign.class);
     if (attributeAssign == null && exceptionIfNotFound) {
       throw new AttributeAssignNotFoundException("Cant find attribute assign by id: " + id);
-   }
+    }
 
     return attributeAssign;
   }
@@ -68,6 +65,46 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       .listSet(AttributeAssign.class);
 
     return attributeAssigns;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findByGroupIdAndAttributeDefId(java.lang.String, java.lang.String)
+   */
+  public Set<AttributeAssign> findByGroupIdAndAttributeDefId(String groupId,
+      String attributeDefId) {
+    Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
+      "select theAttributeAssign from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
+      "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
+      "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerGroupId = :theOwnerGroupId")
+      .setString("theAttributeDefId", attributeDefId)
+      .setString("theOwnerGroupId", groupId)
+      .listSet(AttributeAssign.class);
+
+    return attributeAssigns;
+  }
+
+  /**
+   * delete
+   * @param attributeAssign 
+   */
+  public void delete(AttributeAssign attributeAssign) {
+    HibernateSession.byObjectStatic().delete(attributeAssign);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefNamesByGroupIdAndAttributeDefId(java.lang.String, java.lang.String)
+   */
+  public Set<AttributeDefName> findAttributeDefNamesByGroupIdAndAttributeDefId(
+      String groupId, String attributeDefId) {
+    Set<AttributeDefName> attributeDefs = HibernateSession.byHqlStatic().createQuery(
+        "select distinct theAttributeDefName from AttributeAssign theAttributeAssign, AttributeDefName theAttributeDefName " +
+        "where theAttributeDefName.attributeDefId = :theAttributeDefId " +
+        "and theAttributeDefName.id = theAttributeAssign.attributeDefNameId and theAttributeAssign.ownerGroupId = :theOwnerGroupId")
+        .setString("theAttributeDefId", attributeDefId)
+        .setString("theOwnerGroupId", groupId)
+        .listSet(AttributeDefName.class);
+
+      return attributeDefs;
   }
 
 

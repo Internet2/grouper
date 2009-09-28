@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.attr;
+package edu.internet2.middleware.grouper.attr.assign;
 
 import java.sql.Timestamp;
 import java.util.Set;
@@ -10,8 +10,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -137,6 +137,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /**
    * fields which are included in db version
    */
+  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ACTION, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, 
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_ID, 
@@ -197,6 +198,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public void saveOrUpdate() {
     GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(this);
+  }
+  
+  /**
+   * delete this object
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getAttributeAssign().delete(this);
   }
   
   /**

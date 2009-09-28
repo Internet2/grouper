@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.73 2009-09-25 13:52:43 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.74 2009-09-28 05:06:46 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -25,12 +25,12 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.attr.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -277,16 +277,16 @@ public enum GrouperDdl implements DdlVersionable {
         boolean dropMembershipBackupColFromMshipUpgrade = GrouperConfig.getPropertyBoolean(
             "ddlutils.dropMembershipBackupColsFromOwnerViaUpgrade", false);
         
-        
+          
         // find or add columns and indexes whether or not upgrade is needed.
-        runMembershipAndGroupSetConversion(database, ddlVersionBean, false);
-        
+          runMembershipAndGroupSetConversion(database, ddlVersionBean, false);
+          
         
         if (needsUpgrade) {
           
           Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
               Membership.TABLE_GROUPER_MEMBERSHIPS);
-          
+  
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ID_BAK, 
               Types.VARCHAR, "128", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_VIA_ID_BAK, 
@@ -295,6 +295,7 @@ public enum GrouperDdl implements DdlVersionable {
               Types.INTEGER, "11", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_PARENT_MEMBERSHIP_BAK, 
               Types.VARCHAR, "128", false, false);
+  
           
           //move data to the group cols
           ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
@@ -1972,6 +1973,7 @@ public enum GrouperDdl implements DdlVersionable {
   public void dropAllViews(DdlVersionBean ddlVersionBean) {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_name_set_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_priv_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
@@ -3579,6 +3581,49 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gadnParentIfHas.id = gadnsParent.if_has_attribute_def_name_id  "
         + "and gadnParentThenHas.id = gadnsParent.then_has_attribute_def_name_id  "
         + "order by ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_def_priv_v", 
+        "grouper_attr_def_priv_v: shows all privileges internal to grouper of attribute defs",
+        GrouperUtil.toSet("subject_id", 
+            "subject_source_id", 
+            "field_name", 
+            "attribute_def_name", 
+            "attribute_def_description",
+            "attribute_def_type", 
+            "attribute_def_stem_id", 
+            "attribute_def_id",
+            "member_id", "field_id", 
+            "immediate_membership_id", 
+            "membership_id"),
+        GrouperUtil.toSet("subject_id: of who has the priv", 
+            "subject_source_id: source id of the subject with the priv", 
+            "field_name: field name of priv, e.g. attrView, attrRead, attrAdmin, attrUpdate, attrOptin, attrOptout",
+            "attribute_def_name: name of attribute definition",
+            "attribute_def_description: description of the attribute def",
+            "attribute_def_type: type of attribute, e.g. attribute, privilege, domain", 
+            "attribute_def_stem_id: id of stem the attribute def is in",
+            "attribute_def_id: id of the attribute definition", 
+            "member_id: id of the subject in the members table",
+            "field_id: id of the field of membership",
+            "immediate_membership_id: id of the membership in the memberships table",
+            "membership_id: id of the membership in the membership all view"
+        ),
+        "select distinct gm.subject_id, " +
+        "gm.subject_source as subject_source_id,  "
+        + "gf.name as field_name, " +
+        		"gad.name as attribute_def_name, "
+        + "gad.description as attribute_def_description,  "
+        + "gad.attribute_def_type, "
+        + "gad.stem_id as attribute_def_stem_id, "
+        + "gad.id as attribute_def_id,  "
+        + "gm.id as member_id, "
+        + "gmav.field_id, " +
+        		"gmav.immediate_membership_id, " +
+        		"gmav.membership_id  "
+        + "from grouper_memberships_all_v gmav, grouper_attribute_def gad, grouper_fields gf, grouper_members gm "
+        + "where gmav.owner_attr_def_id = gad.id and gmav.field_id = gf.id "
+        + "and gmav.immediate_mship_enabled = 'T' and gmav.member_id = gm.id ");
+
   }
 
   /**
@@ -3714,7 +3759,8 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean 
    * @param requireNewMembershipColumns 
    */
-  private static void runMembershipAndGroupSetConversion(Database database, DdlVersionBean ddlVersionBean,
+  private static void runMembershipAndGroupSetConversion(Database database, 
+      @SuppressWarnings("unused") DdlVersionBean ddlVersionBean,
       boolean requireNewMembershipColumns) {
 
     Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 

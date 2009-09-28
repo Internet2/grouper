@@ -1,17 +1,12 @@
 /**
  * @author mchyzer
- * $Id: AttributeDefPrivilegeDelegate.java,v 1.1 2009-09-21 06:14:27 mchyzer Exp $
+ * $Id: AttributeDefPrivilegeDelegate.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr;
 
 import org.apache.commons.lang.time.StopWatch;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -29,6 +24,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -82,7 +78,7 @@ public class AttributeDefPrivilegeDelegate {
    * @param   subj  Check this subject.
    * @return  Boolean true if subject has ATTR_OPTIN.
    */
-  public boolean hasAttrOptn(Subject subj) {
+  public boolean hasAttrOptin(Subject subj) {
     AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
     return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_OPTIN);
   } 
@@ -277,9 +273,120 @@ public class AttributeDefPrivilegeDelegate {
         return wasntAlreadyRevoked;
       }
     });
+  }
+
+  /**
+   * Check whether the subject has ATTR_READ on this attributeDef, or something else
+   * that allows read (admin)
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().cabAttrRead(subj)) {
+   *   // Has ATTR_READ
+   * }
+   * else {
+   *   // Does not have ATTR_READ
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_READ.
+   */
+  public boolean canAttrRead(Subject subj) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    return PrivilegeHelper.canAttrRead(grouperSession, this.attributeDef, subj);
   } 
 
+  /**
+   * Check whether the subject has ATTR_VIEW on this attributeDef, or something else
+   * that allows view (admin, read, update, etc)
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().cabAttrRead(subj)) {
+   *   // Has ATTR_VIEW
+   * }
+   * else {
+   *   // Does not have ATTR_VIEW
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_VIEW.
+   */
+  public boolean canAttrView(Subject subj) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    return PrivilegeHelper.canAttrView(grouperSession, this.attributeDef, subj);
+  } 
 
+  /**
+   * Check whether the subject has ATTR_UPDATE on this attributeDef, or something else
+   * that allows update (admin)
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().cabAttrUpdate(subj)) {
+   *   // Has ATTR_UPDATE
+   * }
+   * else {
+   *   // Does not have ATTR_UPDATE
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_UPDATE.
+   */
+  public boolean canAttrUpdate(Subject subj) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    return PrivilegeHelper.canAttrUpdate(grouperSession, this.attributeDef, subj);
+  } 
   
-  
+  /**
+   * Check whether the subject has ATTR_ADMIN on this attributeDef, or something else
+   * that allows admin (well, actually, there isnt anything)
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().cabAttrAdmin(subj)) {
+   *   // Has ATTR_ADMIN
+   * }
+   * else {
+   *   // Does not have ATTR_ADMIN
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_ADMIN.
+   */
+  public boolean canAttrAdmin(Subject subj) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    return PrivilegeHelper.canAttrAdmin(grouperSession, this.attributeDef, subj);
+  } 
+
+  /**
+   * Check whether the subject has ATTR_OPTIN on this attributeDef, or something else
+   * that allows read (well, actually there isnt anything else right now)
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().cabAttrOptin(subj)) {
+   *   // Has ATTR_OPTIN
+   * }
+   * else {
+   *   // Does not have ATTR_OPTIN
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_OPTIN.
+   */
+  public boolean canAttrOptin(Subject subj) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    return PrivilegeHelper.canAttrOptin(grouperSession, this.attributeDef, subj);
+  } 
+
+  /**
+   * Check whether the subject has ATTR_OPTOUT on this attributeDef, or something else
+   * that allows optout (well, actually, there isnt anything else right now)
+   * <pre class="eg">
+   * if (attributeDef.getPrivilegeDelegate().cabAttrOptout(subj)) {
+   *   // Has ATTR_OPTOUT
+   * }
+   * else {
+   *   // Does not have ATTR_OPTOUT
+   * }
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject has ATTR_OPTOUT.
+   */
+  public boolean canAttrOptout(Subject subj) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    return PrivilegeHelper.canAttrOptout(grouperSession, this.attributeDef, subj);
+  } 
+
 }

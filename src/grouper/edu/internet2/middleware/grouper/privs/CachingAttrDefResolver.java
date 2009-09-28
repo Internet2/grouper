@@ -32,10 +32,10 @@ import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * Decorator that provides caching for {@link AccessResolver}.
+ * Decorator that provides caching for {@link AttributeDefResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAttrDefResolver.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: CachingAttrDefResolver.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
@@ -99,19 +99,19 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     Set<AttributeDefPrivilege> privs = super.getDecoratedResolver().getPrivileges(
         attributeDef, subject);
     Set<String> privsSet = new HashSet<String>();
-    AccessPrivilege ap = null;
+    AttributeDefPrivilege ap = null;
     Iterator it = privs.iterator();
     while (it.hasNext()) {
-      ap = (AccessPrivilege) it.next();
+      ap = (AttributeDefPrivilege) it.next();
       privsSet.add(ap.getName());
     }
-    Set<Privilege> attrDefPrivs = Privilege.getAccessPrivs();
-    Iterator<Privilege> accessPrivsIterator = attrDefPrivs.iterator();
+    Set<Privilege> attrDefPrivs = Privilege.getAttributeDefPrivs();
+    Iterator<Privilege> attributeDefPrivsIterator = attrDefPrivs.iterator();
     Privilege p = null;
-    while (accessPrivsIterator.hasNext()) {
-      p = accessPrivsIterator.next();
-      putInHasPrivilegeCache(attributeDef, subject, p, new Boolean(privsSet.contains(p
-          .getName())));
+    while (attributeDefPrivsIterator.hasNext()) {
+      p = attributeDefPrivsIterator.next();
+      putInHasPrivilegeCache(attributeDef, subject, p, 
+          new Boolean(privsSet.contains(p.getName())));
     }
     return privs;
   }
@@ -148,7 +148,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    grouperSession.getAccessResolver().flushCache();
+    grouperSession.getAttributeDefResolver().flushCache();
     this.putInHasPrivilegeCache(attributeDef, subject, privilege, Boolean.TRUE);
   }
 
@@ -213,7 +213,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    grouperSession.getAccessResolver().flushCache();
+    grouperSession.getAttributeDefResolver().flushCache();
   }
 
   /**
@@ -229,7 +229,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    grouperSession.getAccessResolver().flushCache();
+    grouperSession.getAttributeDefResolver().flushCache();
   }
 
   /**
@@ -241,7 +241,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     super.getDecoratedResolver().privilegeCopy(attributeDef1, attributeDef2, priv);
     this.cc.flushCache();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    grouperSession.getAccessResolver().flushCache();
+    grouperSession.getAttributeDefResolver().flushCache();
   }
 
   /**
@@ -253,11 +253,12 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
     this.cc.flushCache();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    grouperSession.getAccessResolver().flushCache();
+    grouperSession.getAttributeDefResolver().flushCache();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#flushCache()
    */
   public void flushCache() {
     this.cc.flushCache();
@@ -293,7 +294,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     //System.out.println(decoratedResolver.getClass().getName());
-    //CachingAccessResolver
+    //CachingAttributeDefResolver
     return decoratedResolver.hqlFilterAttrDefsWhereClause(subject, hqlQuery, hql,
         attrDefColumn, privInSet);
   }
@@ -317,7 +318,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
 
     //System.out.println(decoratedResolver.getClass().getName());
-    //CachingAccessResolver
+    //CachingAttributeDefResolver
     Set<AttributeDef> filteredAttributeDefs = decoratedResolver.postHqlFilterAttrDefs(
         subject, attributeDefs);
 
@@ -330,7 +331,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#stop()
    */
   public void stop() {
     if (this.cc != null) {
@@ -346,7 +347,7 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
     this.cc.flushCache();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    grouperSession.getAccessResolver().flushCache();
+    grouperSession.getAttributeDefResolver().flushCache();
   }
 
 }

@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
  * slower and more explicit than the GrouperAccessAdapter (subclass)
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNonDbAttrDefAdapter.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: GrouperNonDbAttrDefAdapter.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     AttributeDefAdapter {
@@ -137,12 +137,28 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
    * 
    * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#getPrivs(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)
    */
-  public Set<AttributeDefPrivilege> getPrivs(GrouperSession s, AttributeDef attributeDef, Subject subj) {
+  public Set<AttributeDefPrivilege> getPrivs(final GrouperSession grouperSession, final AttributeDef attributeDef, Subject subj) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("getPrivs() of attributeDef: " + attributeDef.getName() + " for subject " + subj.getId() + " in grouper session: " + grouperSession.getSubject().getId());
+    }
     //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
+    GrouperSession.validate(grouperSession);
+    
+    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+        if ( !attributeDef.getPrivilegeDelegate().canAttrAdmin( grouperSession.getSubject() ) ) {
+          throw new InsufficientPrivilegeException("Subject " 
+              + GrouperUtil.subjectToString(grouperSession.getSubject()) 
+              + " cannot attrAdmin attributeDef: " + attributeDef.getName());
+        }
+        return null;
+      }
+    });
+
     Set<AttributeDefPrivilege> privs = new LinkedHashSet<AttributeDefPrivilege>();
     try {
-      Member m = MemberFinder.findBySubject(s, subj, true);
+      Member m = MemberFinder.findBySubject(grouperSession, subj, true);
       //Member        all   = MemberFinder.internal_findAllMember();     
       MembershipDAO dao = GrouperDAOFactory.getFactory().getMembership();
       Iterator it;
@@ -151,8 +167,19 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
       //Avoid doing 6 queries - get everything at once
       //Also don't add GropuperAll privs - do that in 
       //GrouperAllAccessResolver
-      it = dao.findAllByGroupOwnerAndMember(attributeDef.getUuid(), m.getUuid(), true).iterator();
-      privs.addAll((Set<AttributeDefPrivilege>)(Object)GrouperPrivilegeAdapter.internal_getPrivs(s, attributeDef, subj, m, null, it));
+      Set<Membership> memberships = dao.findAllByAttrDefOwnerAndMember(attributeDef.getUuid(), m.getUuid(), true);
+      it = memberships.iterator();
+      Set<AttributeDefPrivilege> attributeDefPrivileges = (Set<AttributeDefPrivilege>)(Object)GrouperPrivilegeAdapter.internal_getPrivs(grouperSession, attributeDef, subj, m, null, it);
+      privs.addAll(attributeDefPrivileges);
+
+      if (LOG.isDebugEnabled()) {
+        StringBuilder result = new StringBuilder();
+        for (AttributeDefPrivilege attributeDefPrivilege : attributeDefPrivileges) {
+          result.append(attributeDefPrivilege.getName()).append(", ");
+        }
+        LOG.debug("getPrivs() of attributeDef: " + attributeDef.getName() + " for subject " + subj.getId() + " in grouper session: " + grouperSession.getSubject().getId() + ", returned: " + result);
+      }
+
       /*
        * Done through GrouperAllAccessAdapter
        * if (!m.equals(all)) {
@@ -183,6 +210,11 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
             Field f = priv.getField();
             if (!FieldType.ATTRIBUTE_DEF.equals(f.getType())) {
               throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
+            }
+            if ( !attributeDef.getPrivilegeDelegate().canAttrAdmin( grouperSession.getSubject() ) ) {
+              throw new InsufficientPrivilegeException("Subject " 
+                  + GrouperUtil.subjectToString(grouperSession.getSubject()) 
+                  + " cannot admin attributeDef: " + attributeDef.getName());
             }
             Membership.internal_addImmediateMembership(grouperSession, attributeDef, subj, f);
           } catch (MemberAddException eMA) {
@@ -217,12 +249,17 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
    * 
    * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#hasPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
    */
-  public boolean hasPriv(GrouperSession s, AttributeDef attributeDef, Subject subj, Privilege priv)
+  public boolean hasPriv(GrouperSession grouperSession, AttributeDef attributeDef, Subject subj, Privilege priv)
       throws SchemaException {
     //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
+    GrouperSession.validate(grouperSession);
     boolean rv = false;
-    Member m = MemberFinder.findBySubject(s, subj, true);
+    if ( !attributeDef.getPrivilegeDelegate().hasAttrRead( grouperSession.getSubject() ) ) {
+      throw new InsufficientPrivilegeException("Subject " 
+          + GrouperUtil.subjectToString(grouperSession.getSubject()) 
+          + " cannot admin attributeDef: " + attributeDef.getName());
+    }
+    Member m = MemberFinder.findBySubject(grouperSession, subj, true);
     rv = m.isMember(attributeDef.getId(), priv.getField());
     return rv;
   }
@@ -306,18 +343,23 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
    * 
    * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#revokePriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.grouper.privs.Privilege)
    */
-  public void revokePriv(GrouperSession s, AttributeDef attributeDef, Privilege priv)
+  public void revokePriv(GrouperSession grouperSession, AttributeDef attributeDef, Privilege priv)
       throws InsufficientPrivilegeException,
       RevokePrivilegeException,
       SchemaException {
     //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
+    GrouperSession.validate(grouperSession);
     Field f = priv.getField();
     if (!FieldType.ATTRIBUTE_DEF.equals(f.getType())) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }
+    if ( !attributeDef.getPrivilegeDelegate().canAttrAdmin( grouperSession.getSubject() ) ) {
+      throw new InsufficientPrivilegeException("Subject " 
+          + GrouperUtil.subjectToString(grouperSession.getSubject()) 
+          + " cannot admin attributeDef: " + attributeDef.getName());
+    }
     try {
-      Membership.internal_deleteAllField(s, attributeDef, f);
+      Membership.internal_deleteAllField(grouperSession, attributeDef, f);
     } catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException(eMD.getMessage(), eMD);
     }
@@ -328,18 +370,23 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
    * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#revokePriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
    */
   public void revokePriv(
-      GrouperSession s, AttributeDef attributeDef, Subject subj, Privilege priv)
+      GrouperSession grouperSession, AttributeDef attributeDef, Subject subj, Privilege priv)
       throws InsufficientPrivilegeException,
       RevokePrivilegeException,
       SchemaException {
     //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
+    GrouperSession.validate(grouperSession);
     Field f = priv.getField();
     if (!FieldType.ATTRIBUTE_DEF.equals(f.getType())) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }
+    if ( !attributeDef.getPrivilegeDelegate().canAttrAdmin( grouperSession.getSubject() ) ) {
+      throw new InsufficientPrivilegeException("Subject " 
+          + GrouperUtil.subjectToString(grouperSession.getSubject()) 
+          + " cannot admin attributeDef: " + attributeDef.getName());
+    }
     try {
-      Membership.internal_delImmediateMembership(s, attributeDef, subj, f);
+      Membership.internal_delImmediateMembership(grouperSession, attributeDef, subj, f);
     } catch (MemberDeleteAlreadyDeletedException eMD) {
       throw new RevokePrivilegeAlreadyRevokedException(eMD.getMessage(), eMD);
     } catch (MemberDeleteException eMD) {

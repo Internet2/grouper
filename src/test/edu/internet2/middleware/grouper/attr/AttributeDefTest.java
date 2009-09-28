@@ -11,13 +11,17 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefAddException;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /**
  * @author mchyzer
@@ -30,7 +34,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateGroup"));
+    TestRunner.run(new AttributeDefTest("testHibernateSecurityAdmin"));
   }
   
   /**
@@ -124,6 +128,119 @@ public class AttributeDefTest extends GrouperTest {
   }
   
   /**
+   * make sure security is there
+   */
+  public void testHibernateSecurityAdmin() {
+    
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrAdmin", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptin", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrOptout", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrUpdate", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
+
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+
+//    this.group.addMember(SubjectTestHelper.SUBJ3);
+//    this.group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
+//    this.grouperSession.stop();
+//    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+//    System.out.println(this.group.hasAdmin(SubjectTestHelper.SUBJ1));
+//    System.out.println(this.group.hasRead(SubjectTestHelper.SUBJ0));
+//    System.out.println(this.group.hasAdmin(SubjectTestHelper.SUBJ0));
+//    System.out.println(PrivilegeHelper.isWheelOrRoot(SubjectTestHelper.SUBJ0));
+//    System.out.println(this.group.getMembers());
+    
+    AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+    this.group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
+
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+    
+    System.out.println(this.group.hasAdmin(SubjectTestHelper.SUBJ1));
+    
+    try {
+      attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+
+    try {
+      attributeDef.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ1);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+
+    try {
+      attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (RevokePrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+
+    //####################################
+    //grant that subject update on that attributeDef, not enough
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.startRootSession();
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, true);
+    
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+    
+    try {
+    
+      attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+    
+    try {
+      attributeDef.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ1);
+      fail("This shouldnt be allowed");
+    } catch (GrantPrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+
+    try {
+      attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+      fail("This shouldnt be allowed");
+    } catch (RevokePrivilegeException e) {
+      //ok
+    } catch (InsufficientPrivilegeException e) {
+      //good
+    }
+
+    //####################################
+    //grant that subject update on that attributeDef, not enough
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.startRootSession();
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, true);
+    
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+    
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);
+    
+    attributeDef.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ1);
+
+    assertTrue(attributeDef.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true));
+  }
+  
+  /**
    * 
    */
   public void testHibernateSecurity2() {
@@ -210,12 +327,12 @@ public class AttributeDefTest extends GrouperTest {
     assertNotNull(attributeDef.getId());
 
     //lets retrieve by id
-    AttributeDef attributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findById(attributeDef.getId(), true);
+    AttributeDef attributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByIdSecure(attributeDef.getId(), true);
 
     assertEquals(attributeDef.getId(), attributeDef2.getId());
     
     //lets retrieve by name
-    attributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByName("top:test", true);
+    attributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure("top:test", true);
     
     assertEquals("top:test", attributeDef2.getName());
     assertEquals(attributeDef.getId(), attributeDef2.getId());
@@ -251,6 +368,49 @@ public class AttributeDefTest extends GrouperTest {
     assertTrue(this.group.getAttributeDelegate().hasAttributeByName("top:testName"));
 
     assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName));
+    
+  }
+
+  /**
+   * 
+   */
+  public void testHibernateSecurityWheel() {
+    
+    Stem etc          = this.root.addChildStem("etc", "etc");
+    Group wheel        = etc.addChildGroup("wheel","wheel");
+    
+    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+
+    AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+
+    //################################################
+    // make sure user can admin to same an attribute
+    
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+  
+    attributeDef.setDescription("whatever");
+    try {
+      attributeDef.store();
+      fail("Shouldnt succeed");
+    } catch (Exception e) {
+      //good
+    }
+    
+    //make the user an admin
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.startRootSession();
+    
+    wheel.addMember(SubjectTestHelper.SUBJ0);
+    
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
+  
+    attributeDef.setDescription("whatever");
+    //should succeed
+    attributeDef.store();
+    
     
   }
 
