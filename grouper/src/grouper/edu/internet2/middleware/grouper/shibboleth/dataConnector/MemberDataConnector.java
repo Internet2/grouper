@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
@@ -53,12 +54,6 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
 
   /** the name of the attribute representing a subject's id */
   public static final String ID_ATTRIBUTE_NAME = "id";
-
-  /** the name of the attribute representing a subject's name */
-  public static final String NAME_ATTRIBUTE_NAME = "name";
-
-  /** the name of the attribute representing a subject's description */
-  public static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
   /** the ids of sources for which members will be returned */
   private Set<SourceIdentifier> sourceIdentifiers;
@@ -111,7 +106,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
   public void initialize() {
     super.initialize();
 
-    if (this.getSourceIdentifiersAsStrings() != null) {      
+    if (this.getSourceIdentifiersAsStrings() != null) {
       for (String sourceId : this.getSourceIdentifiersAsStrings()) {
         try {
           if (SubjectFinder.getSource(sourceId) == null) {
@@ -186,18 +181,19 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
       LOG.debug("resolve {} member {} field {}", new Object[] { msg, member, attributeIdentifier });
       if (subject.getSourceId().equals(attributeIdentifier.getSource())) {
         // name
-        if (attributeIdentifier.getId().equals(NAME_ATTRIBUTE_NAME)) {
+        if (attributeIdentifier.getId().equals(GrouperConfig.ATTRIBUTE_NAME)) {
           String name = subject.getName();
           if (name != null) {
-            BasicAttribute<String> nameAttribute = new BasicAttribute<String>(NAME_ATTRIBUTE_NAME);
+            BasicAttribute<String> nameAttribute = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_NAME);
             nameAttribute.setValues(GrouperUtil.toList(name));
             attributes.put(nameAttribute.getId(), nameAttribute);
           }
           // description
-        } else if (attributeIdentifier.getId().equals(DESCRIPTION_ATTRIBUTE_NAME)) {
+        } else if (attributeIdentifier.getId().equals(GrouperConfig.ATTRIBUTE_DESCRIPTION)) {
           String description = subject.getDescription();
-          if (description != null) {
-            BasicAttribute<String> descriptionAttribute = new BasicAttribute<String>(DESCRIPTION_ATTRIBUTE_NAME);
+          if (description != null && !description.equals(GrouperConfig.EMPTY_STRING)) {
+            BasicAttribute<String> descriptionAttribute = new BasicAttribute<String>(
+                GrouperConfig.ATTRIBUTE_DESCRIPTION);
             descriptionAttribute.setValues(GrouperUtil.toList(description));
             attributes.put(descriptionAttribute.getId(), descriptionAttribute);
           }

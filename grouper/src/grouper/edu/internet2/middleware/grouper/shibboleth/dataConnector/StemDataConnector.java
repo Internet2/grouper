@@ -14,7 +14,6 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,26 +21,39 @@ import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeResolutionException;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 
+/**
+ * A {@link DataConnector} which returns {@link Stem}s.
+ */
 public class StemDataConnector extends BaseGrouperDataConnector {
 
+  /** logger */
   private static final Logger LOG = GrouperUtil.getLogger(StemDataConnector.class);
 
+  private Stem rootStem;
+
+  /** {@inheritDoc} */
   public Map<String, BaseAttribute> resolve(ShibbolethResolutionContext resolutionContext)
       throws AttributeResolutionException {
 
     String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
     String msg = "'" + principalName + "' dc '" + this.getId() + "'";
     LOG.debug("resolve {}", msg);
-    if (LOG.isDebugEnabled()) {
-      for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
-        LOG.debug("resolve {} requested attribute '{}'", msg, attrId);
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
+          .getRequestedAttributesIds());
+      if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
+        for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
+          LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
+        }
       }
     }
 
@@ -55,33 +67,51 @@ public class StemDataConnector extends BaseGrouperDataConnector {
     }
     LOG.debug("resolve {} found stem '{}'", msg, stem);
 
-    // TODO match filter ?
+    // root stem ?
+    if (stem.equals(this.getRootStem())) {
+      LOG.debug("resolve {} returning empty map for root stem", msg);
+      return attributes;
+    }
 
-    // internal attributes
-    BasicAttribute<String> extension = new BasicAttribute<String>("extension");
-    extension.setValues(Arrays.asList(new String[] { stem.getExtension() }));
+    // FUTURE match filter ?
+
+    // FUTURE return attributes, child groups, etc ?
+
+    // extension
+    BasicAttribute<String> extension = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_EXTENSION);
+    extension.setValues(GrouperUtil.toList(stem.getExtension()));
     attributes.put(extension.getId(), extension);
 
-    BasicAttribute<String> description = new BasicAttribute<String>("description");
-    description.setValues(Arrays.asList(new String[] { stem.getDescription() }));
-    attributes.put(description.getId(), description);
-
-    BasicAttribute<String> displayExtension = new BasicAttribute<String>("displayExtension");
-    displayExtension.setValues(Arrays.asList(new String[] { stem.getDisplayExtension() }));
+    // display extension
+    BasicAttribute<String> displayExtension = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
+    displayExtension.setValues(GrouperUtil.toList(stem.getDisplayExtension()));
     attributes.put(displayExtension.getId(), displayExtension);
 
-    BasicAttribute<String> displayName = new BasicAttribute<String>("displayName");
-    displayName.setValues(Arrays.asList(new String[] { stem.getDisplayName() }));
-    attributes.put(displayName.getId(), displayName);
-
-    BasicAttribute<String> name = new BasicAttribute<String>("name");
-    name.setValues(Arrays.asList(new String[] { stem.getName() }));
+    // name
+    BasicAttribute<String> name = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_NAME);
+    name.setValues(GrouperUtil.toList(stem.getName()));
     attributes.put(name.getId(), name);
 
+    // displayName    
+    BasicAttribute<String> displayName = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
+    displayName.setValues(GrouperUtil.toList(stem.getDisplayName()));
+    attributes.put(displayName.getId(), displayName);
+
+    // description
+    String description = stem.getDescription();
+    if (description != null && !description.equals(GrouperConfig.EMPTY_STRING)) {
+      BasicAttribute<String> descriptionAttr = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DESCRIPTION);
+      descriptionAttr.setValues(GrouperUtil.toList(description));
+      attributes.put(descriptionAttr.getId(), descriptionAttr);
+    }
+
     // parent stem
-    BasicAttribute<String> parentStemName = new BasicAttribute<String>(PARENT_STEM_NAME_ATTR);
-    parentStemName.setValues(Arrays.asList(new String[] { stem.getParentStem().getName() }));
-    attributes.put(parentStemName.getId(), parentStemName);
+    Stem parentStem = stem.getParentStem();
+    if (!parentStem.equals(this.getRootStem())) {
+      BasicAttribute<String> parentStemNameAttr = new BasicAttribute<String>(PARENT_STEM_NAME_ATTR);
+      parentStemNameAttr.setValues(GrouperUtil.toList(parentStem.getName()));
+      attributes.put(parentStemNameAttr.getId(), parentStemNameAttr);
+    }
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("resolve {} attributes {}", msg, attributes.size());
@@ -97,5 +127,18 @@ public class StemDataConnector extends BaseGrouperDataConnector {
 
   public void validate() throws AttributeResolutionException {
 
+  }
+
+  /**
+   * Get the root stem. Re-uses the stem object.
+   * 
+   * @return the root stem
+   */
+  private Stem getRootStem() {
+    if (rootStem == null) {
+      rootStem = StemFinder.findRootStem(this.getGrouperSession());
+    }
+
+    return rootStem;
   }
 }
