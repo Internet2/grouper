@@ -14,12 +14,14 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector.field;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -69,12 +71,15 @@ public class PrivilegeField extends BaseField {
   /**
    * Get the resultant attribute whose values are the {@link Subject}s with the privilege for the given {@link Group}.
    * 
+   * Does not include the GrouperAll or GrouperSystem subjects.
+   * 
    * @param group
    *          the group
    * @return the attribute consisting of Subjects or <tt>null</tt> if there are no subjects with the privilege
    */
   public BaseAttribute<Subject> getAttribute(Group group) {
     Set<Subject> subjects = accessResolver.getSubjectsWithPrivilege(group, privilege);
+    filterInternalSubjects(subjects);
     if (!subjects.isEmpty()) {
       BasicAttribute<Subject> attribute = new BasicAttribute<Subject>(this.getId());
       attribute.setValues(subjects);
@@ -101,6 +106,27 @@ public class PrivilegeField extends BaseField {
     }
 
     return null;
+  }
+
+  /**
+   * Remove GrouperAll and GrouperSystem from the returned subjects.
+   * 
+   * @param subjects
+   * @return the filtered set of subjects
+   */
+  public Set<Subject> filterInternalSubjects(Set<Subject> subjects) {
+
+    // filter GrouperSystem
+    if (subjects.contains(SubjectFinder.findRootSubject())) {
+      subjects.remove(SubjectFinder.findRootSubject());
+    }
+
+    // filter GrouperAll
+    if (subjects.contains(SubjectFinder.findAllSubject())) {
+      subjects.remove(SubjectFinder.findAllSubject());
+    }
+
+    return subjects;
   }
 
 }
