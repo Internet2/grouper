@@ -20,26 +20,38 @@
     <grouper:Attribute id="members:all" />
     <grouper:Attribute id="members:immediate" />
     <grouper:Attribute id="members:effective" />
-    <grouper:Attribute id="members:composite" />
+    <!--  <grouper:Attribute id="members:composite" /> -->
     <grouper:Attribute id="members:all:customList" />
     <grouper:Attribute id="members:immediate:customList" />
     <grouper:Attribute id="members:effective:customList" />
-    <grouper:Attribute id="members:composite:customList" />
+    <!--   <grouper:Attribute id="members:composite:customList" /> -->
     <grouper:Attribute id="groups" />
     <grouper:Attribute id="groups:all" />
     <grouper:Attribute id="groups:immediate" />
     <grouper:Attribute id="groups:effective" />
-    <grouper:Attribute id="groups:composite" />
+    <!--  <grouper:Attribute id="groups:composite" /> -->
     <grouper:Attribute id="groups:all:customList" />
     <grouper:Attribute id="groups:immediate:customList" />
     <grouper:Attribute id="groups:effective:customList" />
-    <grouper:Attribute id="groups:composite:customList" />
+    <!-- <grouper:Attribute id="groups:composite:customList" /> -->
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:GroupDataConnector" />
 
   <resolver:DataConnector id="testAttributesAndMembers" xsi:type="grouper:GroupDataConnector">
     <grouper:Attribute id="members" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesAndImmediateMembers" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members:immediate" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesAndEffectiveMembers" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members:effective" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAttributesAndAllMembers" xsi:type="grouper:GroupDataConnector">
+    <grouper:Attribute id="members:all" />
   </resolver:DataConnector>
 
   <resolver:DataConnector id="testAttributesAndMembersCustomList" xsi:type="grouper:GroupDataConnector">

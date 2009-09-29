@@ -27,35 +27,57 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
+import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeResolutionException;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 import edu.internet2.middleware.subject.Subject;
 
+/**
+ * A {@link DataConnector} which returns {@link Member}s. The attributes of the returned members may be limited in order
+ * to avoid unnecessary queries to the Grouper database.
+ */
 public class MemberDataConnector extends BaseGrouperDataConnector {
 
+  /** logger */
   private static final Logger LOG = GrouperUtil.getLogger(MemberDataConnector.class);
+
+  /** the name of the attribute representing a subject's id */
+  public static final String ID_ATTRIBUTE_NAME = "id";
+
+  /** the name of the attribute representing a subject's name */
+  public static final String NAME_ATTRIBUTE_NAME = "name";
+
+  /** the name of the attribute representing a subject's description */
+  public static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
   // TODO source identifiers
   private Set<String> sourceIdentifiers;
 
+  /** {@inheritDoc} */
   public Map<String, BaseAttribute> resolve(ShibbolethResolutionContext resolutionContext)
       throws AttributeResolutionException {
 
     String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
     String msg = "'" + principalName + "' dc '" + this.getId() + "'";
     LOG.debug("resolve {}", msg);
-    if (LOG.isDebugEnabled()) {
-      for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
-        LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
+          .getRequestedAttributesIds());
+      if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
+        for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
+          LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
+        }
       }
     }
 
     Map<String, BaseAttribute> attributes = new HashMap<String, BaseAttribute>();
 
+    // find subject
     Subject subject = SubjectFinder.findByIdOrIdentifier(principalName, false);
     if (subject == null) {
       LOG.debug("resolve {} subject not found", msg);
@@ -63,18 +85,57 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
     }
     LOG.debug("resolve {} found subject '{}'", msg, GrouperUtil.subjectToString(subject));
 
-    // TODO
-    if (subject.getSource().getId().equals("g:gsa")) {
-      LOG.debug("resolve {} returning empty map for g:gsa", msg);
+    // don't return group objects, that's the GroupDataConnector
+    if (subject.getSource().getId().equals(SubjectFinder.internal_getGSA().getId())) {
+      LOG.debug("resolve {} returning empty map for '{}' source", msg, SubjectFinder.internal_getGSA().getId());
       return attributes;
     }
 
+    // find member
     Member member = MemberFinder.findBySubject(getGrouperSession(), subject, false);
     if (member == null) {
       LOG.debug("resolve {} member not found", msg);
       return attributes;
     }
     LOG.debug("resolve {} found member '{}'", msg, member);
+
+    // id
+    BasicAttribute<String> id = new BasicAttribute<String>(ID_ATTRIBUTE_NAME);
+    id.setValues(Arrays.asList(new String[] { subject.getId() }));
+    attributes.put(id.getId(), id);
+
+    // defined subject attributes
+    LOG.debug("resolve {} subjectIDs {}", msg, this.getSubjectAttributeIdentifiers());
+    for (AttributeIdentifier attributeIdentifier : this.getSubjectAttributeIdentifiers()) {
+      LOG.debug("resolve {} member {} field {}", new Object[] { msg, member, attributeIdentifier });
+      if (subject.getSourceId().equals(attributeIdentifier.getSource())) {
+        // name
+        if (attributeIdentifier.getId().equals(NAME_ATTRIBUTE_NAME)) {
+          String name = subject.getName();
+          if (name != null) {
+            BasicAttribute<String> nameAttribute = new BasicAttribute<String>(NAME_ATTRIBUTE_NAME);
+            nameAttribute.setValues(GrouperUtil.toList(name));
+            attributes.put(nameAttribute.getId(), nameAttribute);
+          }
+          // description
+        } else if (attributeIdentifier.getId().equals(DESCRIPTION_ATTRIBUTE_NAME)) {
+          String description = subject.getDescription();
+          if (description != null) {
+            BasicAttribute<String> descriptionAttribute = new BasicAttribute<String>(DESCRIPTION_ATTRIBUTE_NAME);
+            descriptionAttribute.setValues(GrouperUtil.toList(description));
+            attributes.put(descriptionAttribute.getId(), descriptionAttribute);
+          }
+          // other attributes
+        } else {
+          Set<String> values = subject.getAttributeValues(attributeIdentifier.getId());
+          if (values != null && !values.isEmpty()) {
+            BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeIdentifier.getId());
+            basicAttribute.setValues(values);
+            attributes.put(basicAttribute.getId(), basicAttribute);
+          }
+        }
+      }
+    }
 
     // groups
     for (GroupsField groupsField : getGroupsFields()) {
@@ -91,27 +152,6 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
       if (attr != null) {
         attributes.put(privilegeField.getId(), attr);
       }
-    }
-
-    // internal attributes
-    BasicAttribute<String> id = new BasicAttribute<String>("id");
-    id.setValues(Arrays.asList(new String[] { subject.getId() }));
-    attributes.put(id.getId(), id);
-
-    BasicAttribute<String> name = new BasicAttribute<String>("name");
-    name.setValues(Arrays.asList(new String[] { subject.getName() }));
-    attributes.put(name.getId(), name);
-
-    BasicAttribute<String> description = new BasicAttribute<String>("description");
-    description.setValues(Arrays.asList(new String[] { subject.getDescription() }));
-    attributes.put(description.getId(), description);
-
-    // TODO expensive to get all subject attributes ? maybe use <attribute />
-    Map<String, Set<String>> subjectAttributes = subject.getAttributes();
-    for (String attributeName : subjectAttributes.keySet()) {
-      BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
-      basicAttribute.setValues(subjectAttributes.get(attributeName));
-      attributes.put(basicAttribute.getId(), basicAttribute);
     }
 
     if (LOG.isDebugEnabled()) {
