@@ -40,6 +40,7 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
@@ -577,10 +578,10 @@ public class ConfigManager implements LdappcConfig {
     }
 
     // 1.5 20090525 don't allow source-subject-identifier for source "g:gsa"; now built-in
-    if (getSourceSubjectNamingAttributes().containsKey("g:gsa")) {
-      throw new ConfigurationException(
-          "The source-subject-identifier for source 'g:gsa' should be removed. This functionality "
-              + "has been replaced by the provision-member-groups attribute of the <groups /> element.");
+    if (getSourceSubjectNamingAttributes().containsKey(SubjectFinder.internal_getGSA().getId())) {
+      throw new ConfigurationException("The source-subject-identifier for source '"
+          + SubjectFinder.internal_getGSA().getId() + "' should be removed. This functionality "
+          + "has been replaced by the provision-member-groups attribute of the <groups /> element.");
     }
   }
 
