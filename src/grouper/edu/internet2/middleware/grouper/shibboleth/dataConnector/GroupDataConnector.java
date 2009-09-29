@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
+import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -72,7 +73,14 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
     }
     LOG.debug("resolve {} found group '{}'", msg, group);
 
-    // TODO does group match
+    // does group match query filter
+    GroupQueryFilter groupQueryFilter = this.getGroupQueryFilter();
+    if (groupQueryFilter != null) {
+      if (!groupQueryFilter.matchesGroup(group)) {
+        LOG.debug("resolve {} group {} does not match filter", msg, group);
+        return attributes;
+      }
+    }
 
     // internal attributes
     for (String attributeName : Group.INTERNAL_FIELD_ATTRIBUTES) {
