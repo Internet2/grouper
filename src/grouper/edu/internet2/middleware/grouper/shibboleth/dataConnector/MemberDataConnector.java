@@ -16,6 +16,7 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,9 +26,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
+import edu.internet2.middleware.grouper.shibboleth.util.SourceIdentifier;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -35,6 +38,8 @@ import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttrib
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeResolutionException;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethResolutionContext;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -55,8 +60,71 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
   /** the name of the attribute representing a subject's description */
   public static final String DESCRIPTION_ATTRIBUTE_NAME = "description";
 
-  // TODO source identifiers
-  private Set<String> sourceIdentifiers;
+  /** the ids of sources for which members will be returned */
+  private Set<SourceIdentifier> sourceIdentifiers;
+
+  /** the String ids of sources for which members will be returned */
+  private Set<String> stringSourceIdentifiers;
+
+  /**
+   * Get the ids of {@link Source}s for which {@link Member}s will be returned.
+   * 
+   * @return the set of source ids or null
+   */
+  public Set<SourceIdentifier> getSourceIdentifiers() {
+    return sourceIdentifiers;
+  }
+
+  /**
+   * Set the {@link Source} ids for which {@link Member}s will be returned.
+   * 
+   * @param sourceIdentifiers
+   */
+  public void setSourceIdentifiers(Set<SourceIdentifier> sourceIdentifiers) {
+
+    this.sourceIdentifiers = sourceIdentifiers;
+  }
+
+  /**
+   * Get {@link SourceIdentifier} ids as strings.
+   * 
+   * @return the set of strings
+   */
+  // FUTURE probably a poor way to use Spring
+  private Set<String> getSourceIdentifiersAsStrings() {
+    LOG.debug("si {}", sourceIdentifiers);
+    if (stringSourceIdentifiers == null && sourceIdentifiers != null && !sourceIdentifiers.isEmpty()) {
+      stringSourceIdentifiers = new HashSet<String>();
+      for (SourceIdentifier sourceIdentifier : sourceIdentifiers) {
+        stringSourceIdentifiers.add(sourceIdentifier.getId());
+      }
+    }
+
+    return stringSourceIdentifiers;
+  }
+
+  /**
+   * If {@link SourceIdentifier}s are not null, verify that the {@link Source}s with the defined identifiers exist.
+   * 
+   * @see edu.internet2.middleware.grouper.shibboleth.dataConnector.BaseGrouperDataConnector#initialize()
+   */
+  public void initialize() {
+    super.initialize();
+
+    if (this.getSourceIdentifiersAsStrings() != null) {      
+      for (String sourceId : this.getSourceIdentifiersAsStrings()) {
+        try {
+          if (SubjectFinder.getSource(sourceId) == null) {
+            LOG.error("Unknown source '" + sourceId + "'");
+            throw new GrouperException("Unknown source '" + sourceId + "'");
+          }
+        } catch (SourceUnavailableException e) {
+          LOG.error("Source unavailable '" + sourceId + "'", e);
+          throw new GrouperException("Source unavailable '" + sourceId + "'", e);
+        }
+      }
+    }
+  }
 
   /** {@inheritDoc} */
   public Map<String, BaseAttribute> resolve(ShibbolethResolutionContext resolutionContext)
@@ -86,9 +154,17 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
     LOG.debug("resolve {} found subject '{}'", msg, GrouperUtil.subjectToString(subject));
 
     // don't return group objects, that's the GroupDataConnector
-    if (subject.getSource().getId().equals(SubjectFinder.internal_getGSA().getId())) {
+    if (subject.getSourceId().equals(SubjectFinder.internal_getGSA().getId())) {
       LOG.debug("resolve {} returning empty map for '{}' source", msg, SubjectFinder.internal_getGSA().getId());
       return attributes;
+    }
+
+    // only return subjects from configured sources
+    if (this.getSourceIdentifiersAsStrings() != null) {
+      if (!this.getSourceIdentifiersAsStrings().contains(subject.getSourceId())) {
+        LOG.debug("resolve {} returning empty map for unknown source '{}'", msg, subject.getSourceId());
+        return attributes;
+      }
     }
 
     // find member
@@ -139,9 +215,8 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
 
     // groups
     for (GroupsField groupsField : getGroupsFields()) {
-      BaseAttribute<Group> attr = groupsField.getAttribute(member);
+      BaseAttribute<Group> attr = groupsField.getAttribute(member, this.getGroupQueryFilter());
       if (attr != null) {
-        // TODO does group match
         attributes.put(groupsField.getId(), attr);
       }
     }
