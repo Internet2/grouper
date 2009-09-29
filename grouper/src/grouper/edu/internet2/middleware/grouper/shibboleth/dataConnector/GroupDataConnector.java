@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
  * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
- * file except in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
@@ -27,7 +27,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
-import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -74,9 +73,8 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
     LOG.debug("resolve {} found group '{}'", msg, group);
 
     // does group match query filter
-    GroupQueryFilter groupQueryFilter = this.getGroupQueryFilter();
-    if (groupQueryFilter != null) {
-      if (!groupQueryFilter.matchesGroup(group)) {
+    if (this.getGroupQueryFilter() != null) {
+      if (!this.getGroupQueryFilter().matchesGroup(group)) {
         LOG.debug("resolve {} group {} does not match filter", msg, group);
         return attributes;
       }

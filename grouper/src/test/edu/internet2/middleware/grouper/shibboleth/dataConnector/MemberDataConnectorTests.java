@@ -27,7 +27,7 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new MemberDataConnectorTests("testIdOnly"));
+    TestRunner.run(new MemberDataConnectorTests("testUnknownSourceIdentifier"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Subject subject, AttributeMap correctMap) {
@@ -48,6 +48,17 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
   public void testUnknownSource() {
     try {
       PSPUtil.createSpringContext(TEST_PATH + "MemberDataConnectorTests-unknownSource.xml");
+      fail("Should throw a BeanCreationException");
+    } catch (BeanCreationException e) {
+      // OK
+    } catch (ResourceException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
+  public void testUnknownSourceIdentifier() {
+    try {
+      PSPUtil.createSpringContext(TEST_PATH + "MemberDataConnectorTests-unknownSourceIdentifier.xml");
       fail("Should throw a BeanCreationException");
     } catch (BeanCreationException e) {
       // OK
@@ -95,6 +106,13 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
     correct.setAttribute("id", SubjectTestHelper.SUBJ0_ID);
 
     runResolveTest("testIdOnly", SubjectTestHelper.SUBJ0, correct);
+  }
+  
+  public void testIdOnlySource() {
+    AttributeMap correct = new AttributeMap();
+    correct.setAttribute("id", SubjectTestHelper.SUBJ0_ID);
+
+    runResolveTest("testIdOnlySource", SubjectTestHelper.SUBJ0, correct);
   }
 
   public void testIdNameDescription() {
@@ -161,6 +179,14 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
     correct.addAttribute("groups:all:customList", groupB);
 
     runResolveTest("testGroupsCustomList", SubjectTestHelper.SUBJ2, correct);
+  }
+  
+  public void testGroupsFilterExactAttributeSubj0() {
+    AttributeMap correct = new AttributeMap();
+    correct.setAttribute("id", SubjectTestHelper.SUBJ0_ID);
+    correct.addAttribute("groups", groupA);
+
+    runResolveTest("testGroupsFilterExactAttribute", SubjectTestHelper.SUBJ0, correct);
   }
 
   public void testAdminsSubj3() {

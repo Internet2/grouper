@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.shibboleth.filter.provider.ExactAttribut
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemNameGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.util.SourceIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.shibboleth.common.config.BaseSpringNamespaceHandler;
 
 public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
@@ -77,6 +78,9 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
 
     registerBeanDefinitionParser(SimpleAttributeAuthorityBeanDefinitionParser.TYPE_NAME,
         new SimpleAttributeAuthorityBeanDefinitionParser());
+    
+    registerBeanDefinitionParser(SourceIdentifierBeanDefinitionParser.TYPE_NAME,
+        new SourceIdentifierBeanDefinitionParser());
 
   }
 }
