@@ -29,6 +29,11 @@ public abstract class BaseMembershipField extends BaseField {
     if (this.getIdElements().size() > 1) {
       try {
         memberFilter = FieldMemberFilter.valueOf(this.getSecondIdElement());
+
+        if (this.getSecondIdElement().equals("composite")) {
+          throw new GrouperException("Composite memberships are not currently supported.");
+        }
+
       } catch (IllegalArgumentException e) {
         throw new GrouperException("Unknown filter value, should be one of "
             + Arrays.asList(FieldMemberFilter.values()), e);
