@@ -35,18 +35,18 @@
     <grouper:Attribute id="groups:effective:customList" />
     <grouper:Attribute id="groups:composite:customList" />
   </resolver:DataConnector>
-  
+
   <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:GroupDataConnector" />
 
   <resolver:DataConnector id="testAttributesAndMembers" xsi:type="grouper:GroupDataConnector">
     <grouper:Attribute id="members" />
   </resolver:DataConnector>
-  
+
   <resolver:DataConnector id="testAttributesAndMembersCustomList" xsi:type="grouper:GroupDataConnector">
     <grouper:Attribute id="members:all:customList" />
   </resolver:DataConnector>
-  
-   <resolver:DataConnector id="testFilterExactAttribute" xsi:type="grouper:GroupDataConnector">
+
+  <resolver:DataConnector id="testFilterExactAttribute" xsi:type="grouper:GroupDataConnector">
     <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupA" />
   </resolver:DataConnector>
 
