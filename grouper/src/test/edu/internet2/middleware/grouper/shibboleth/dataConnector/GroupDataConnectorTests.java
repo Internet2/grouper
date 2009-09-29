@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -368,4 +369,121 @@ public class GroupDataConnectorTests extends GrouperTest {
         SubjectTestHelper.SUBJ2, false));
     runResolveTest("testAttributesAndMembersCustomList", groupB, correctAttributesB);
   }
+
+  public void testFilterExactAttribute() {
+
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterExactAttribute");
+
+      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+
+      Set<Group> groups = filter.getResults(grouperSession);
+
+      assertEquals(1, groups.size());
+
+      assertTrue(groups.contains(groupA));
+      assertFalse(groups.contains(groupB));
+      assertFalse(groups.contains(groupC));
+
+      assertTrue(filter.matchesGroup(groupA));
+      assertFalse(filter.matchesGroup(groupB));
+      assertFalse(filter.matchesGroup(groupC));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void testFilterStemNameSUB() {
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameSUB");
+
+      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+
+      Set<Group> groups = filter.getResults(grouperSession);
+
+      assertEquals(3, groups.size());
+
+      assertTrue(groups.contains(groupA));
+      assertTrue(groups.contains(groupB));
+      assertTrue(groups.contains(groupC));
+
+      assertTrue(filter.matchesGroup(groupA));
+      assertTrue(filter.matchesGroup(groupB));
+      assertTrue(filter.matchesGroup(groupC));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void testFilterStemNameONE() {
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterStemNameONE");
+
+      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+
+      Set<Group> groups = filter.getResults(grouperSession);
+
+      assertEquals(2, groups.size());
+
+      assertTrue(groups.contains(groupA));
+      assertTrue(groups.contains(groupB));
+      assertFalse(groups.contains(groupC));
+
+      assertTrue(filter.matchesGroup(groupA));
+      assertTrue(filter.matchesGroup(groupB));
+      assertFalse(groups.contains(groupC));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void testFilterAnd() {
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterAnd");
+
+      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+
+      Set<Group> groups = filter.getResults(grouperSession);
+
+      assertEquals(1, groups.size());
+
+      assertFalse(groups.contains(groupA));
+      assertTrue(groups.contains(groupB));
+      assertFalse(groups.contains(groupC));
+
+      assertFalse(filter.matchesGroup(groupA));
+      assertTrue(filter.matchesGroup(groupB));
+      assertFalse(filter.matchesGroup(groupC));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void testFilterOr() {
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterOr");
+
+      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+
+      Set<Group> groups = filter.getResults(grouperSession);
+
+      assertEquals(2, groups.size());
+
+      assertFalse(groups.contains(groupA));
+      assertTrue(groups.contains(groupB));
+      assertTrue(groups.contains(groupC));
+
+      assertFalse(filter.matchesGroup(groupA));
+      assertTrue(filter.matchesGroup(groupB));
+      assertTrue(filter.matchesGroup(groupC));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }
