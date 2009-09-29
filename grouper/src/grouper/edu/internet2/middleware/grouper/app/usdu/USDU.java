@@ -22,7 +22,6 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
@@ -424,21 +423,8 @@ public class USDU {
    *  the GrouperSourceAdapter identifier
    */
   protected static String getGrouperSourceAdapterId() {
-
-    if (grouperSourceAdapterId == null) {
-
-      for (Object source : SubjectFinder.getSources()) {
-        if (((Source) source) instanceof GrouperSourceAdapter) {
-          grouperSourceAdapterId = ((Source) source).getId();
-        }
-      }
-
-      if (grouperSourceAdapterId == null) {
-        throw new RuntimeException("Cannot find GrouperSourceAdapter");
-      }
-    }
-
-    return grouperSourceAdapterId;
+    
+    return SubjectFinder.internal_getGSA().getId();
   }
 
   /**

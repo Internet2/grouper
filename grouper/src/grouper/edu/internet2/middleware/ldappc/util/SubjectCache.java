@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.7 2009-06-12 13:02:01 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.8 2009-09-29 06:43:31 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -30,6 +30,7 @@ import javax.naming.directory.SearchResult;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
@@ -154,7 +155,7 @@ public class SubjectCache {
     String sourceId = member.getSubjectSourceId();
 
     // return null if we aren't provisioning member groups and source is g:gsa
-    if (sourceId.equals("g:gsa")
+    if (sourceId.equals(SubjectFinder.internal_getGSA().getId())
         && (!ldappc.getConfig().getProvisionMemberGroups())) {
       return null;
     }
@@ -178,7 +179,7 @@ public class SubjectCache {
     // determine filter, use built-in for g:gsa source
     LdapSearchFilter filter = null;
 
-    if (sourceId.equals("g:gsa")) {
+    if (sourceId.equals(SubjectFinder.internal_getGSA().getId())) {
 
       Name groupDN = ldappc.calculateGroupDn(member.toGroup());
       filter = new LdapSearchFilter(groupDN.toString(), SearchControls.OBJECT_SCOPE,

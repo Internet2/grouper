@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -68,7 +69,7 @@ public class GroupAttributeDefinition extends BaseAttributeDefinition {
       Group group = (Group) value;
 
       for (AttributeIdentifier attr : attributes) {
-        if (attr.getSource().equals("g:gsa")) {
+        if (attr.getSource().equals(SubjectFinder.internal_getGSA().getId())) {
           attribute.getValues().add(group.getAttributeOrFieldValue(attr.getId(), false, false));
         }
       }
