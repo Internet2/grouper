@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.74 2009-09-28 05:06:46 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.75 2009-09-29 06:53:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1972,6 +1972,21 @@ public enum GrouperDdl implements DdlVersionable {
    */
   public void dropAllViews(DdlVersionBean ddlVersionBean) {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v");
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_group_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_stem_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_member_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_mship_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_attrdef_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_assn_v");
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_group_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_stem_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_member_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_mship_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_attrdef_v");
+    
+
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_name_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_priv_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v");
@@ -3582,6 +3597,605 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gadnParentThenHas.id = gadnsParent.then_has_attribute_def_name_id  "
         + "order by ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name ");
 
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_group_v", 
+        "grouper_attr_asn_group_v: attribute assigned to a group, with related columns",
+        GrouperUtil.toSet("group_name",
+          "action",
+          "attribute_def_name_name",
+          "group_display_name",
+          "attribute_def_name_disp_name",
+          "name_of_attribute_def",
+          "attribute_assign_notes",
+          "group_id",
+          "attribute_assign_id",
+          "attribute_def_name_id",
+          "attribute_def_id"
+        ),
+        GrouperUtil.toSet("group_name: name of group assigned the attribute",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "group_display_name: display name of the group assigned an attribute",
+            "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+            "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+            "attribute_assign_notes: notes related to the attribute assignment",
+            "group_id: group id of the group assigned the attribute",
+            "attribute_assign_id: id of the attribute assignment",
+            "attribute_def_name_id: id of the attribute definition name",
+            "attribute_def_id: id of the attribute definition"
+        ),
+        "select gg.name as group_name, " +
+        "gaa.action, " +
+        "gadn.name as attribute_def_name_name, "
+        + "gg.display_name as group_display_name, "
+        + "gadn.display_name as attribute_def_name_disp_name, "
+        + "gad.name as name_of_attribute_def, "
+        + "gaa.notes as attribute_assign_notes, "
+        + "gg.id as group_id, "
+        + "gaa.id as attribute_assign_id, "
+        + "gadn.id as attribute_def_name_id, "
+        + "gad.id as attribute_def_id "
+        + "from grouper_attribute_assign gaa, grouper_groups gg, "
+        + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
+        + "where gaa.owner_group_id = gg.id "
+        + "and gaa.attribute_def_name_id = gadn.id "
+        + "and gadn.attribute_def_id = gad.id "
+        + "and gaa.enabled = 'T' ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_stem_v", 
+        "grouper_attr_asn_stem_v: attribute assigned to a stem and related cols",
+        GrouperUtil.toSet("stem_name",
+            "action",
+            "attribute_def_name_name",
+            "stem_display_name",
+            "attribute_def_name_disp_name",
+            "name_of_attribute_def",
+            "attribute_assign_notes",
+            "stem_id",
+            "attribute_assign_id",
+            "attribute_def_name_id",
+            "attribute_def_id"
+        ),
+        GrouperUtil.toSet("stem_name: name of stem assigned the attribute",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "stem_display_name: display name of the stem assigned an attribute",
+            "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+            "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+            "attribute_assign_notes: notes related to the attribute assignment",
+            "stem_id: stem id of the stem assigned the attribute",
+            "attribute_assign_id: id of the attribute assignment",
+            "attribute_def_name_id: id of the attribute definition name",
+            "attribute_def_id: id of the attribute definition"
+        ),
+        "select gs.name as stem_name, " +
+        "gaa.action, " +
+        "gadn.name as attribute_def_name_name, "
+        + "gs.display_name as stem_display_name, "
+        + "gadn.display_name as attribute_def_name_disp_name, "
+        + "gad.name as name_of_attribute_def, "
+        + "gaa.notes as attribute_assign_notes, "
+        + "gs.id as stem_id, "
+        + "gaa.id as attribute_assign_id, "
+        + "gadn.id as attribute_def_name_id, "
+        + "gad.id as attribute_def_id "
+        + "from grouper_attribute_assign as gaa, grouper_stems as gs, "
+        + "grouper_attribute_def_name as gadn, grouper_attribute_def as gad "
+        + "where gaa.owner_stem_id = gs.id "
+        + "and gaa.attribute_def_name_id = gadn.id "
+        + "and gadn.attribute_def_id = gad.id "
+        + "and gaa.enabled = 'T' ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_member_v", 
+        "grouper_attr_asn_member_v: attribute assigned to a member and related cols",
+        GrouperUtil.toSet("source_id", "subject_id",
+            "action",
+            "attribute_def_name_name",
+            "attribute_def_name_disp_name",
+            "name_of_attribute_def",
+            "attribute_assign_notes",
+            "member_id",
+            "attribute_assign_id",
+            "attribute_def_name_id",
+            "attribute_def_id"
+        ),
+        GrouperUtil.toSet("source_id: source of the subject that belongs to the member",
+            "subject_id: subject_id of the subject that belongs to the member",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+            "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+            "attribute_assign_notes: notes related to the attribute assignment",
+            "member_id: member id of the member assigned the attribute (this is an internal grouper uuid)",
+            "attribute_assign_id: id of the attribute assignment",
+            "attribute_def_name_id: id of the attribute definition name",
+            "attribute_def_id: id of the attribute definition"
+        ),
+        "select gm.subject_source as source_id, gm.subject_id, " +
+        "gaa.action, " +
+        "gadn.name as attribute_def_name_name, "
+        + "gadn.display_name as attribute_def_name_disp_name, "
+        + "gad.name as name_of_attribute_def, "
+        + "gaa.notes as attribute_assign_notes, "
+        + "gm.id as member_id, "
+        + "gaa.id as attribute_assign_id, "
+        + "gadn.id as attribute_def_name_id, "
+        + "gad.id as attribute_def_id "
+        + "from grouper_attribute_assign as gaa, grouper_members as gm, "
+        + "grouper_attribute_def_name as gadn, grouper_attribute_def as gad "
+        + "where gaa.owner_member_id = gm.id "
+        + "and gaa.attribute_def_name_id = gadn.id "
+        + "and gadn.attribute_def_id = gad.id "
+        + "and gaa.enabled = 'T' ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_mship_v", 
+        "grouper_attr_asn_mship_v: attribute assigned to an immediate memberships, and related cols",
+        GrouperUtil.toSet("group_name",
+            "source_id",
+            "subject_id",
+            "action",
+            "attribute_def_name_name",
+            "attribute_def_name_disp_name",
+            "list_name",
+            "name_of_attribute_def",
+            "attribute_assign_notes",
+            "group_id",
+            "membership_id",
+            "member_id",
+            "attribute_assign_id",
+            "attribute_def_name_id",
+            "attribute_def_id"
+          ),
+          GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
+              "source_id: source of the subject that belongs to the member",
+              "subject_id: subject_id of the subject that belongs to the member",
+              "action: the action associated with the attribute assignment (default is assign)",
+              "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+              "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+              "list_name: name of list in membership assigned the attribute",
+              "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+              "attribute_assign_notes: notes related to the attribute assignment",
+              "group_id: group id of the membership assigned the attribute",
+              "membership_id: membership id assigned the attribute",
+              "member_id: internal grouper member uuid of the membership assigned the attribute",
+              "attribute_assign_id: id of the attribute assignment",
+              "attribute_def_name_id: id of the attribute definition name",
+              "attribute_def_id: id of the attribute definition"
+          ),
+          "select gg.name as group_name, " +
+          "gm.subject_source as source_id, " +
+          "gm.subject_id, " +
+          "gaa.action, " +
+          "gadn.name as attribute_def_name_name, "
+          + "gadn.display_name as attribute_def_name_disp_name, "
+          + "gf.name as list_name, "
+          + "gad.name as name_of_attribute_def, "
+          + "gaa.notes as attribute_assign_notes, "
+          + "gg.id as group_id, "
+          + "gms.id as membership_id, "
+          + "gm.id as member_id, "
+          + "gaa.id as attribute_assign_id, "
+          + "gadn.id as attribute_def_name_id, "
+          + "gad.id as attribute_def_id "
+          + "from grouper_attribute_assign gaa, grouper_groups gg, grouper_memberships gms, "
+          + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_members gm, grouper_fields gf "
+          + "where gaa.owner_membership_id = gms.id "
+          + "and gaa.attribute_def_name_id = gadn.id "
+          + "and gadn.attribute_def_id = gad.id "
+          + "and gaa.enabled = 'T'" +
+          		" and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id" +
+          		" and gf.type = 'list'");
+
+    
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_attrdef_v", 
+        "grouper_attr_asn_attrdef_v: attribute assigned to an attribute definition, and related columns",
+        GrouperUtil.toSet("name_of_attr_def_assigned_to",
+            "action",
+            "attribute_def_name_name",
+            "attribute_def_name_disp_name",
+            "name_of_attribute_def_assigned",
+            "attribute_assign_notes",
+            "id_of_attr_def_assigned_to",
+            "attribute_assign_id",
+            "attribute_def_name_id",
+            "attribute_def_id"
+          ),
+          GrouperUtil.toSet("name_of_attr_def_assigned_to: name of attribute def assigned the attribute",
+              "action: the action associated with the attribute assignment (default is assign)",
+              "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+              "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+              "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+              "attribute_assign_notes: notes related to the attribute assignment",
+              "id_of_attr_def_assigned_to: attrDef id of the attributeDef assigned the attribute",
+              "attribute_assign_id: id of the attribute assignment",
+              "attribute_def_name_id: id of the attribute definition name",
+              "attribute_def_id: id of the attribute definition"
+          ),
+          "select gad_assigned_to.name as name_of_attr_def_assigned_to, " +
+          "gaa.action, " +
+          "gadn.name as attribute_def_name_name, "
+          + "gadn.display_name as attribute_def_name_disp_name, "
+          + "gad.name as name_of_attribute_def, "
+          + "gaa.notes as attribute_assign_notes, "
+          + "gad_assigned_to.id as id_of_attr_def_assigned_to, "
+          + "gaa.id as attribute_assign_id, "
+          + "gadn.id as attribute_def_name_id, "
+          + "gad.id as attribute_def_id "
+          + "from grouper_attribute_assign gaa, grouper_attribute_def gad_assigned_to, "
+          + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
+          + "where gaa.owner_attribute_def_id = gad_assigned_to.id "
+          + "and gaa.attribute_def_name_id = gadn.id "
+          + "and gadn.attribute_def_id = gad.id "
+          + "and gaa.enabled = 'T' ");
+
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_group_v", 
+        "grouper_attr_asn_asn_group_v: attribute assigned to an assignment of attribute to a group, and related cols",
+        GrouperUtil.toSet("group_name",
+            "action1",
+            "action2",
+            "attribute_def_name_name1",
+            "attribute_def_name_name2",
+            "group_display_name",
+            "attribute_def_name_disp_name1",
+            "attribute_def_name_disp_name2",
+            "name_of_attribute_def1",
+            "name_of_attribute_def2",
+            "attribute_assign_notes1",
+            "attribute_assign_notes2",
+            "group_id",
+            "attribute_assign_id1",
+            "attribute_assign_id2",
+            "attribute_def_name_id1",
+            "attribute_def_name_id2",
+            "attribute_def_id1",
+            "attribute_def_id2"
+          ),
+          GrouperUtil.toSet("group_name: name of group assigned the attribute",
+              "action1: the action associated with the original attribute assignment (default is assign)",
+              "action2: the action associated with this attribute assignment (default is assign)",
+              "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+              "attribute_def_name_name2: name of the current attribute definition name which is assigned to the assignment",
+              "group_display_name: display name of the group assigned an attribute",
+              "attribute_def_name_disp_name1: display name of the attribute definition name assigned to the original attribute",
+              "attribute_def_name_disp_name2: display name of the attribute definition name assigned to the new attribute",
+              "name_of_attribute_def1: name of the attribute definition associated with the original attribute definition name assigned to the group",
+              "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
+              "attribute_assign_notes1: notes related to the original attribute assignment to the group",
+              "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+              "group_id: group id of the group assigned the attribute",
+              "attribute_assign_id1: id of the original attribute assignment to the group",
+              "attribute_assign_id2: id of the new attribute assignment to the assignment",
+              "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
+              "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
+              "attribute_def_id1: id of the original attribute definition assigned to the group",
+              "attribute_def_id2: id of the new attribute definition assigned to the attribute"
+          ),
+          "select gg.name as group_name, " +
+          "gaa1.action as action1, gaa2.action as action2, " +
+          "gadn1.name as attribute_def_name_name1, " +
+          "gadn2.name as attribute_def_name_name2, "
+          + "gg.display_name as group_display_name, "
+          + "gadn1.display_name as attribute_def_name_disp_name1, "
+          + "gadn2.display_name as attribute_def_name_disp_name2, "
+          + "gad1.name as name_of_attribute_def1, "
+          + "gad2.name as name_of_attribute_def2, "
+          + "gaa1.notes as attribute_assign_notes1, "
+          + "gaa2.notes as attribute_assign_notes2, "
+          + "gg.id as group_id, "
+          + "gaa1.id as attribute_assign_id1, "
+          + "gaa2.id as attribute_assign_id2, "
+          + "gadn1.id as attribute_def_name_id1, "
+          + "gadn2.id as attribute_def_name_id2, "
+          + "gad1.id as attribute_def_id1, "
+          + "gad2.id as attribute_def_id2 "
+          + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_groups gg, "
+          + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
+          + "grouper_attribute_def gad2 "
+          + "where gaa1.id = gaa2.owner_attribute_assign_id "
+          + "and gaa1.attribute_def_name_id = gadn1.id "
+          + "and gaa2.attribute_def_name_id = gadn2.id "
+          + "and gadn1.attribute_def_id = gad1.id "
+          + "and gadn2.attribute_def_id = gad2.id "
+          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
+          		"and gg.id = gaa1.owner_group_id");
+
+    
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_stem_v", 
+        "grouper_attr_asn_asn_stem_v: attribute assigned to an assignment of attribute to a stem, and related cols",
+        GrouperUtil.toSet("stem_name",
+            "action1",
+            "action2",
+            "attribute_def_name_name1",
+            "attribute_def_name_name2",
+            "stem_display_name",
+            "attribute_def_name_disp_name1",
+            "attribute_def_name_disp_name2",
+            "name_of_attribute_def1",
+            "name_of_attribute_def2",
+            "attribute_assign_notes1",
+            "attribute_assign_notes2",
+            "stem_id",
+            "attribute_assign_id1",
+            "attribute_assign_id2",
+            "attribute_def_name_id1",
+            "attribute_def_name_id2",
+            "attribute_def_id1",
+            "attribute_def_id2"
+          ),
+          GrouperUtil.toSet("stem_name: name of stem assigned the attribute",
+              "action1: the action associated with the original attribute assignment (default is assign)",
+              "action2: the action associated with this attribute assignment (default is assign)",
+              "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+              "attribute_def_name_name2: name of the current attribute definition name which is assigned to the assignment",
+              "stem_display_name: display name of the stem assigned an attribute",
+              "attribute_def_name_disp_name1: display name of the attribute definition name assigned to the original attribute",
+              "attribute_def_name_disp_name2: display name of the attribute definition name assigned to the new attribute",
+              "name_of_attribute_def1: name of the attribute definition associated with the original attribute definition name assigned to the group",
+              "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
+              "attribute_assign_notes1: notes related to the original attribute assignment to the group",
+              "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+              "stem_id: stem id of the stem assigned the attribute",
+              "attribute_assign_id1: id of the original attribute assignment to the group",
+              "attribute_assign_id2: id of the new attribute assignment to the assignment",
+              "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
+              "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
+              "attribute_def_id1: id of the original attribute definition assigned to the group",
+              "attribute_def_id2: id of the new attribute definition assigned to the attribute"
+          ),
+          "select gs.name as stem_name, " +
+          "gaa1.action as action1, gaa2.action as action2, " +
+          "gadn1.name as attribute_def_name_name1, " +
+          "gadn2.name as attribute_def_name_name2, "
+          + "gs.display_name as stem_display_name, "
+          + "gadn1.display_name as attribute_def_name_disp_name1, "
+          + "gadn2.display_name as attribute_def_name_disp_name2, "
+          + "gad1.name as name_of_attribute_def1, "
+          + "gad2.name as name_of_attribute_def2, "
+          + "gaa1.notes as attribute_assign_notes1, "
+          + "gaa2.notes as attribute_assign_notes2, "
+          + "gs.id as stem_id, "
+          + "gaa1.id as attribute_assign_id1, "
+          + "gaa2.id as attribute_assign_id2, "
+          + "gadn1.id as attribute_def_name_id1, "
+          + "gadn2.id as attribute_def_name_id2, "
+          + "gad1.id as attribute_def_id1, "
+          + "gad2.id as attribute_def_id2 "
+          + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_stems gs, "
+          + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
+          + "grouper_attribute_def gad2 "
+          + "where gaa1.id = gaa2.owner_attribute_assign_id "
+          + "and gaa1.attribute_def_name_id = gadn1.id "
+          + "and gaa2.attribute_def_name_id = gadn2.id "
+          + "and gadn1.attribute_def_id = gad1.id "
+          + "and gadn2.attribute_def_id = gad2.id "
+          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
+              "and gs.id = gaa1.owner_stem_id");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_member_v", 
+        "grouper_attr_asn_asn_member_v: attribute assigned to an assignment of an attribute to a member, and related cols",
+        GrouperUtil.toSet("source_id", "subject_id", 
+            "action1",
+            "action2",
+            "attribute_def_name_name1",
+            "attribute_def_name_name2",
+            "attribute_def_name_disp_name1",
+            "attribute_def_name_disp_name2",
+            "name_of_attribute_def1",
+            "name_of_attribute_def2",
+            "attribute_assign_notes1",
+            "attribute_assign_notes2",
+            "member_id",
+            "attribute_assign_id1",
+            "attribute_assign_id2",
+            "attribute_def_name_id1",
+            "attribute_def_name_id2",
+            "attribute_def_id1",
+            "attribute_def_id2"
+          ),
+          GrouperUtil.toSet("source_id: source id of the member assigned the original attribute",
+              "subject_id: subject id of the member assigned the original attribute",
+              "action1: the action associated with the original attribute assignment (default is assign)",
+              "action2: the action associated with this attribute assignment (default is assign)",
+              "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+              "attribute_def_name_name2: name of the current attribute definition name which is assigned to the assignment",
+              "attribute_def_name_disp_name1: display name of the attribute definition name assigned to the original attribute",
+              "attribute_def_name_disp_name2: display name of the attribute definition name assigned to the new attribute",
+              "name_of_attribute_def1: name of the attribute definition associated with the original attribute definition name assigned to the group",
+              "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
+              "attribute_assign_notes1: notes related to the original attribute assignment to the group",
+              "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+              "member_id: member id of the member assigned the original attribute",
+              "attribute_assign_id1: id of the original attribute assignment to the group",
+              "attribute_assign_id2: id of the new attribute assignment to the assignment",
+              "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
+              "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
+              "attribute_def_id1: id of the original attribute definition assigned to the group",
+              "attribute_def_id2: id of the new attribute definition assigned to the attribute"
+          ),
+          "select gm.subject_source as source_id, gm.subject_id, " +
+          "gaa1.action as action1, gaa2.action as action2, " +
+          "gadn1.name as attribute_def_name_name1, " +
+          "gadn2.name as attribute_def_name_name2, "
+          + "gadn1.display_name as attribute_def_name_disp_name1, "
+          + "gadn2.display_name as attribute_def_name_disp_name2, "
+          + "gad1.name as name_of_attribute_def1, "
+          + "gad2.name as name_of_attribute_def2, "
+          + "gaa1.notes as attribute_assign_notes1, "
+          + "gaa2.notes as attribute_assign_notes2, "
+          + "gm.id as member_id, "
+          + "gaa1.id as attribute_assign_id1, "
+          + "gaa2.id as attribute_assign_id2, "
+          + "gadn1.id as attribute_def_name_id1, "
+          + "gadn2.id as attribute_def_name_id2, "
+          + "gad1.id as attribute_def_id1, "
+          + "gad2.id as attribute_def_id2 "
+          + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_members gm, "
+          + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
+          + "grouper_attribute_def gad2 "
+          + "where gaa1.id = gaa2.owner_attribute_assign_id "
+          + "and gaa1.attribute_def_name_id = gadn1.id "
+          + "and gaa2.attribute_def_name_id = gadn2.id "
+          + "and gadn1.attribute_def_id = gad1.id "
+          + "and gadn2.attribute_def_id = gad2.id "
+          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
+              "and gm.id = gaa1.owner_member_id");
+
+    
+    
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_mship_v", 
+        "grouper_attr_asn_asn_mship_v: attribute assigned to an assignment of an attribute to a membership, and related cols",
+        GrouperUtil.toSet("group_name",
+            "source_id",
+            "subject_id",
+            "action1",
+            "action2",
+            "attribute_def_name_name1",
+            "attribute_def_name_name2",
+            "attribute_def_name_disp_name1",
+            "attribute_def_name_disp_name2",
+            "list_name",
+            "name_of_attribute_def1",
+            "name_of_attribute_def2",
+            "attribute_assign_notes1",
+            "attribute_assign_notes2",
+            "group_id",
+            "membership_id",
+            "member_id",
+            "attribute_assign_id1",
+            "attribute_assign_id2",
+            "attribute_def_name_id1",
+            "attribute_def_name_id2",
+            "attribute_def_id1",
+            "attribute_def_id2"
+          ),
+          GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
+              "source_id: source of the subject that belongs to the member",
+              "subject_id: subject_id of the subject that belongs to the member",
+              "action1: the action associated with the original attribute assignment (default is assign)",
+              "action2: the action associated with the new attribute assignment (default is assign)",
+              "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+              "attribute_def_name_name2: name of the new attribute definition name which is assigned to the group",
+              "attribute_def_name_disp_name1: display name of the original attribute definition name assigned to the attribute",
+              "attribute_def_name_disp_name2: display name of the new attribute definition name assigned to the attribute",
+              "list_name: name of list in membership assigned the attribute",
+              "name_of_attribute_def1: name of the original attribute definition associated with the attribute definition name assigned to the group",
+              "name_of_attribute_def2: name of the new attribute definition associated with the attribute definition name assigned to the group",
+              "attribute_assign_notes1: notes related to the original attribute assignment",
+              "attribute_assign_notes2: notes related to the new attribute assignment",
+              "group_id: group id of the membership assigned the attribute",
+              "membership_id: membership id assigned the attribute",
+              "member_id: internal grouper member uuid of the membership assigned the attribute",
+              "attribute_assign_id1: id of the original attribute assignment",
+              "attribute_assign_id2: id of the new attribute assignment",
+              "attribute_def_name_id1: id of the original attribute definition name",
+              "attribute_def_name_id2: id of the new attribute definition name",
+              "attribute_def_id1: id of the original attribute definition",
+              "attribute_def_id2: id of the new attribute definition"
+          ),
+          "select gg.name as group_name, " +
+          "gm.subject_source as source_id, " +
+          "gm.subject_id, " +
+          "gaa1.action as action1, gaa2.action as action2, " +
+          "gadn1.name as attribute_def_name_name1, gadn2.name as attribute_def_name_name2, "
+          + "gadn1.display_name as attribute_def_name_disp_name1, gadn2.display_name as attribute_def_name_disp_name2, "
+          + "gf.name as list_name, "
+          + "gad1.name as name_of_attribute_def1, "
+          + "gad2.name as name_of_attribute_def2, "
+          + "gaa1.notes as attribute_assign_notes1, "
+          + "gaa2.notes as attribute_assign_notes2, "
+          + "gg.id as group_id, "
+          + "gms.id as membership_id, "
+          + "gm.id as member_id, "
+          + "gaa1.id as attribute_assign_id1, "
+          + "gaa2.id as attribute_assign_id2, "
+          + "gadn1.id as attribute_def_name_id1, "
+          + "gadn2.id as attribute_def_name_id2, "
+          + "gad1.id as attribute_def_id1, "
+          + "gad2.id as attribute_def_id2 "
+          + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, " +
+          		"grouper_groups gg, grouper_memberships gms, "
+          + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, " +
+          		"grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf "
+          + "where gaa1.owner_membership_id = gms.id and gaa2.owner_attribute_assign_id = gaa1.id  "
+          + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
+          + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
+          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T'" +
+              " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id" +
+              " and gf.type = 'list'");
+
+
+    
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_attrdef_v", 
+        "grouper_attr_asn_asn_attrdef_v: attribute assigned to an assignment of an attribute to an attribute definition, and related cols",
+        GrouperUtil.toSet("name_of_attr_def_assigned_to",
+            "action1",
+            "action2",
+            "attribute_def_name_name1",
+            "attribute_def_name_name2",
+            "attribute_def_name_disp_name1",
+            "attribute_def_name_disp_name2",
+            "name_of_attribute_def1",
+            "name_of_attribute_def2",
+            "attribute_assign_notes1",
+            "attribute_assign_notes2",
+            "id_of_attr_def_assigned_to",
+            "attribute_assign_id1",
+            "attribute_assign_id2",
+            "attribute_def_name_id1",
+            "attribute_def_name_id2",
+            "attribute_def_id1",
+            "attribute_def_id2"
+          ),
+          GrouperUtil.toSet("name_of_attr_def_assigned_to: name of attribute_def originally assigned the attribute",
+              "action1: the action associated with the original attribute assignment (default is assign)",
+              "action2: the action associated with this attribute assignment (default is assign)",
+              "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+              "attribute_def_name_name2: name of the current attribute definition name which is assigned to the assignment",
+              "attribute_def_name_disp_name1: display name of the attribute definition name assigned to the original attribute",
+              "attribute_def_name_disp_name2: display name of the attribute definition name assigned to the new attribute",
+              "name_of_attribute_def1: name of the attribute definition associated with the original attribute definition name assigned to the group",
+              "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
+              "attribute_assign_notes1: notes related to the original attribute assignment to the group",
+              "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+              "id_of_attr_def_assigned_to: id of the attribute def assigned the attribute",
+              "attribute_assign_id1: id of the original attribute assignment to the group",
+              "attribute_assign_id2: id of the new attribute assignment to the assignment",
+              "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
+              "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
+              "attribute_def_id1: id of the original attribute definition assigned to the group",
+              "attribute_def_id2: id of the new attribute definition assigned to the attribute"
+          ),
+          "select gad.name as name_of_attr_def_assigned_to, " +
+          "gaa1.action as action1, gaa2.action as action2, " +
+          "gadn1.name as attribute_def_name_name1, " +
+          "gadn2.name as attribute_def_name_name2, "
+          + "gadn1.display_name as attribute_def_name_disp_name1, "
+          + "gadn2.display_name as attribute_def_name_disp_name2, "
+          + "gad1.name as name_of_attribute_def1, "
+          + "gad2.name as name_of_attribute_def2, "
+          + "gaa1.notes as attribute_assign_notes1, "
+          + "gaa2.notes as attribute_assign_notes2, "
+          + "gad.id as id_of_attr_def_assigned_to, "
+          + "gaa1.id as attribute_assign_id1, "
+          + "gaa2.id as attribute_assign_id2, "
+          + "gadn1.id as attribute_def_name_id1, "
+          + "gadn2.id as attribute_def_name_id2, "
+          + "gad1.id as attribute_def_id1, "
+          + "gad2.id as attribute_def_id2 "
+          + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_attribute_def gad, "
+          + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
+          + "grouper_attribute_def gad2 "
+          + "where gaa1.id = gaa2.owner_attribute_assign_id "
+          + "and gaa1.attribute_def_name_id = gadn1.id "
+          + "and gaa2.attribute_def_name_id = gadn2.id "
+          + "and gadn1.attribute_def_id = gad1.id "
+          + "and gadn2.attribute_def_id = gad2.id "
+          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
+              "and gad.id = gaa1.owner_attribute_def_id");
+
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_def_priv_v", 
         "grouper_attr_def_priv_v: shows all privileges internal to grouper of attribute defs",
         GrouperUtil.toSet("subject_id", 
