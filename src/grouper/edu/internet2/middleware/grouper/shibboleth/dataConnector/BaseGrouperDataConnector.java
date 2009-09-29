@@ -22,6 +22,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField;
@@ -32,6 +33,7 @@ import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
+import edu.internet2.middleware.subject.Source;
 
 public abstract class BaseGrouperDataConnector extends BaseDataConnector {
 
@@ -55,6 +57,12 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
 
   /** the privileges to return as attributes */
   private ArrayList<PrivilegeField> privilegeFields = new ArrayList<PrivilegeField>();
+
+  /** the subject attributes which should be returned by this data connector */
+  private List<AttributeIdentifier> subjectAttributeIdentifiers = new ArrayList<AttributeIdentifier>();
+
+  /** the ids of all sources */
+  private Set<String> sourceIds;
 
   /** the query which filters the groups returned by this data connector */
   private GroupQueryFilter groupQueryFilter;
@@ -85,23 +93,40 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
 
     for (AttributeIdentifier fieldIdentifier : fieldIdentifiers) {
 
-      BaseField bf = new BaseField(fieldIdentifier.getId());
+      LOG.debug("attribute identifier '{}' for dc '{}'", fieldIdentifier, this.getId());
 
-      if (!validFirstIdElements.contains(bf.getFirstIdElement())) {
-        throw new GrouperException("Invalid identifer '" + fieldIdentifier.getId() + "', should start with one of "
-            + validFirstIdElements);
-      }
+      // internal grouper fields
+      if (fieldIdentifier.getSource().equals(SubjectFinder.internal_getGSA().getId())) {
 
-      if (bf.getFirstIdElement().equals(GroupsField.NAME)) {
+        BaseField bf = new BaseField(fieldIdentifier.getId());
 
-        groupsFields.add(new GroupsField(fieldIdentifier.getId()));
+        if (!validFirstIdElements.contains(bf.getFirstIdElement())) {
+          LOG.error("Invalid identifer '" + fieldIdentifier.getId() + "', should start with one of "
+              + validFirstIdElements);
+          throw new GrouperException("Invalid identifer '" + fieldIdentifier.getId() + "', should start with one of "
+              + validFirstIdElements);
+        }
 
-      } else if (bf.getFirstIdElement().equals(MembersField.NAME)) {
+        if (bf.getFirstIdElement().equals(GroupsField.NAME)) {
 
-        membersFields.add(new MembersField(fieldIdentifier.getId()));
+          groupsFields.add(new GroupsField(fieldIdentifier.getId()));
 
+        } else if (bf.getFirstIdElement().equals(MembersField.NAME)) {
+
+          membersFields.add(new MembersField(fieldIdentifier.getId()));
+
+        } else {
+
+          privilegeFields.add(new PrivilegeField(fieldIdentifier.getId(), getGrouperSession().getAccessResolver()));
+
+        }
       } else {
-        privilegeFields.add(new PrivilegeField(fieldIdentifier.getId(), getGrouperSession().getAccessResolver()));
+        // subject source attributes
+        if (!this.getSourceIds().contains(fieldIdentifier.getSource())) {
+          LOG.error("Unknown source '" + fieldIdentifier.getSource() + "'");
+          throw new GrouperException("Unknown source '" + fieldIdentifier.getSource() + "'");
+        }
+        subjectAttributeIdentifiers.add(fieldIdentifier);
       }
     }
 
@@ -176,6 +201,30 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
    */
   public List<PrivilegeField> getPrivilegeFields() {
     return privilegeFields;
+  }
+
+  /**
+   * Get all source ids.
+   * 
+   * @return the ids of all sources
+   */
+  private Set<String> getSourceIds() {
+    if (sourceIds == null) {
+      sourceIds = new HashSet<String>();
+      for (Source source : SubjectFinder.getSources()) {
+        sourceIds.add(source.getId());
+      }
+    }
+
+    return sourceIds;
+  }
+
+  /**
+   * The {@link AttributeIdentifier}s for subject attributes.
+   * @return 
+   */
+  public List<AttributeIdentifier> getSubjectAttributeIdentifiers() {
+    return subjectAttributeIdentifiers;
   }
 
 }

@@ -62,4 +62,12 @@ public class AttributeIdentifier {
     this.source = source;
   }
 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return "id '" + id + "' source '" + source + "'";
+  }
+
 }
