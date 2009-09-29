@@ -46,4 +46,30 @@
     <grouper:Attribute id="members:all:customList" />
   </resolver:DataConnector>
   
+   <resolver:DataConnector id="testFilterExactAttribute" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupA" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterStemNameONE" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterStemNameSUB" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="SUB" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterAnd" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:AND">
+      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
+    </grouper:GroupFilter>
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testFilterOr" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:OR">
+      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem:childStem" scope="ONE" />
+    </grouper:GroupFilter>
+  </resolver:DataConnector>
+  
 </AttributeResolver>
