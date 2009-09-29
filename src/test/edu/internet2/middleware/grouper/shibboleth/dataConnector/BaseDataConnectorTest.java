@@ -62,6 +62,10 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
   protected Member memberSubj3;
 
   protected Member memberAll;
+  
+  protected AttributeMap correctAttributesParentStem;
+  
+  protected AttributeMap correctAttributesChildStem;
 
   public BaseDataConnectorTest(String name) {
     super(name);
@@ -75,14 +79,27 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
 
     root = StemHelper.findRootStem(grouperSession);
 
-    parentStem = StemHelper.addChildStem(root, "parentStem", "Parent Stem");
+    // parent stem
+    parentStem = StemHelper.addChildStem(root, "parentStem", "Parent Stem");    
+    correctAttributesParentStem = new AttributeMap();
+    correctAttributesParentStem.setAttribute("extension", "parentStem");
+    correctAttributesParentStem.setAttribute("displayExtension", "Parent Stem");
+    correctAttributesParentStem.setAttribute("name", "parentStem");
+    correctAttributesParentStem.setAttribute("displayName", "Parent Stem");
 
+    // child stem
     childStem = StemHelper.addChildStem(parentStem, "childStem", "Child Stem");
+    correctAttributesChildStem = new AttributeMap();
+    correctAttributesChildStem.setAttribute("extension", "childStem");
+    correctAttributesChildStem.setAttribute("displayExtension", "Child Stem");
+    correctAttributesChildStem.setAttribute("name", "parentStem:childStem");
+    correctAttributesChildStem.setAttribute("displayName", "Parent Stem:Child Stem");
+    correctAttributesChildStem.setAttribute(BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR, "parentStem");
 
+    // custom list
     GroupType type = GroupType.createType(grouperSession, "groupType");
     type.addAttribute(grouperSession, "attr1", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false);
     type.addList(grouperSession, "customList", AccessPrivilege.READ, AccessPrivilege.UPDATE);
-
     Field customList = FieldFinder.find("customList", true);
 
     // group A
