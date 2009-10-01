@@ -40,13 +40,14 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ObjectAsMap.java,v 1.8 2008-04-03 13:30:21 isgwb Exp $
+ * @version $Id: ObjectAsMap.java,v 1.9 2009-10-01 13:43:13 isgwb Exp $
  */
 public class ObjectAsMap extends HashMap {
 	protected String objType = null;
 
 	protected Object wrappedObject = null;
 	protected DynaBean dynaBean=null;
+	protected String dateFormat="dd MMM yyyy HH:mm:ss";
 	public ObjectAsMap() {
 		
 	}
@@ -263,4 +264,12 @@ public static ObjectAsMap getInstance(String type, Subject object) {
 		}
 		return map.entrySet();
 	}
+	public String getDateFormat() {
+		return dateFormat;
+	}
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+	
+	
 }

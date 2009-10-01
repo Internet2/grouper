@@ -18,6 +18,8 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.util;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -43,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AuditEntryAsMap.java,v 1.3 2009-08-11 14:17:21 isgwb Exp $
+ * @version $Id: AuditEntryAsMap.java,v 1.4 2009-10-01 13:43:13 isgwb Exp $
  */
 public class AuditEntryAsMap extends ObjectAsMap {
 	
@@ -175,6 +177,12 @@ public class AuditEntryAsMap extends ObjectAsMap {
 					return m;
 				}
 				return ObjectAsMap.getInstance("SubjectAsMap", m.getSubject());
+			}
+			if("formatLastUpdated".equals(key)) {
+				Date date = entry.getLastUpdated();
+				String df = getDateFormat();
+				SimpleDateFormat sdf = new SimpleDateFormat(df);
+				return sdf.format(date);
 			}
 			if("actAsMember".equals(key)) {
 				String actAs = entry.getActAsMemberId();

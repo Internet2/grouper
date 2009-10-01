@@ -2,13 +2,13 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: queryResult.jsp,v 1.4 2009-09-09 15:10:03 mchyzer Exp $
+  @version $Id: queryResult.jsp,v 1.5 2009-10-01 13:43:13 isgwb Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
 <tiles:importAttribute ignore="true"/>
 <c:set var="auditEntry" value="${viewObject}"/>
 <c:set var="actionKey">audit.query.<c:out value="${auditEntry.auditType.actionName}"/>-<c:out value="${auditEntry.auditType.auditCategory}"/></c:set>	
-<tr><td><fmt:formatDate pattern="${mediaMap['audit.query.display-date-format']}" value="\\${auditEntry.lastUpdated}" /></td>
+<tr><td>${auditEntry.formatLastUpdated}</td>
     
     <td><c:set var="actor" value="${auditEntry.loggedInMember}"/><c:set var="actAsMember" value="${auditEntry.actAsMember}"/>
     <c:choose>

@@ -221,7 +221,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: DoUserAuditReportAction.java,v 1.5 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: DoUserAuditReportAction.java,v 1.6 2009-10-01 13:43:13 isgwb Exp $
  */
 public class DoUserAuditReportAction extends GrouperCapableAction {
 
@@ -245,6 +245,13 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
         Boolean schemaOnly = (Boolean)auditForm.get("schemaChangesOnly");
         if(schemaOnly==null) {
         	schemaOnly=Boolean.FALSE;
+        }
+        String displayDateFormat = null;
+        
+        try {
+        	displayDateFormat = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("audit.query.display-date-format");
+        }catch(Exception e) {
+        	
         }
         String groupTypeId=auditForm.getString("groupTypeId");
         String groupId=auditForm.getString("groupId");
@@ -429,8 +436,13 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 	   
 	    int end = start + pageSize;
 	    List<ObjectAsMap> resultsAsMaps = new ArrayList<ObjectAsMap>();
+	    ObjectAsMap auditMap;
 	    for (AuditEntry entry : results) {
-			resultsAsMaps.add(ObjectAsMap.getInstance("AuditEntryAsMap", entry,grouperSession));
+	    	auditMap=ObjectAsMap.getInstance("AuditEntryAsMap", entry,grouperSession);
+	    	if(!isEmpty(displayDateFormat)) {
+	    		auditMap.setDateFormat(displayDateFormat);
+	    	}
+			resultsAsMaps.add(auditMap);
 		}
 	    
 	    CollectionPager pager = new CollectionPager(resultsAsMaps,count,
