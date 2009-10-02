@@ -42,7 +42,7 @@
         <group-attribute-map group-attribute="displayName"
           ldap-attribute="displayName" />
                     
-         <group-attribute-map group-attribute="displayName"
+         <group-attribute-map group-attribute="extension"
             ldap-attribute="sAMAccountName" />
           
       </group-attribute-mapping>
