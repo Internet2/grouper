@@ -40,7 +40,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.36 2009-10-02 05:57:58 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.37 2009-10-02 20:21:33 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -122,6 +122,8 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3MembershipDAO.class);
       addClass(CFG, Hib3MembershipDAO.class, "Hib3ImmediateMembershipDAO");
       addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleViewDAO");
+      addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleSubjectViewDAO");
+      addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionAllViewDAO");
       addClass(CFG, Hib3RegistrySubjectDAO.class);
       addClass(CFG, Hib3RegistrySubjectAttributeDAO.class);
       addClass(CFG, Hib3RoleSetDAO.class);

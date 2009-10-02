@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.132 2009-09-28 19:12:39 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.133 2009-10-02 20:21:33 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -1876,6 +1876,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
         immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
           .findImmediateByOwnerAttrDefAndMemberGroupAndField(this.getOwnerAttrDefId(), memberGroup.getUuid(), this.getField());
+      } else {
+        throw new RuntimeException("not expecting");
       }
       
       // delete it..  it may not exist if it was previously disabled.
@@ -1937,9 +1939,14 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       if (this.getOwnerGroupId() != null) {
         immediateGroupSet.setOwnerGroupId(this.getOwnerGroupId());
         parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getOwnerGroupId(), this.getFieldId());
-      } else {
+      } else if (this.getOwnerStemId() != null) {
         immediateGroupSet.setOwnerStemId(this.getOwnerStemId());
         parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(this.getOwnerStemId(), this.getFieldId());
+      } else if (this.getOwnerAttrDefId() != null) {
+        immediateGroupSet.setOwnerAttrDefId(this.getOwnerAttrDefId());
+        parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfAttrDef(this.getOwnerAttrDefId(), this.getFieldId());
+      } else {
+        throw new RuntimeException("Not expecting");
       }
       
       immediateGroupSet.setParentId(parent.getId());

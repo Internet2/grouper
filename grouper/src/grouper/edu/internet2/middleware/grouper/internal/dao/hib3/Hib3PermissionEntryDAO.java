@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>PermissionEntry</code> DAO interface.
  * @author  Chris Hyzer
- * @version $Id: Hib3PermissionEntryDAO.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
+ * @version $Id: Hib3PermissionEntryDAO.java,v 1.2 2009-10-02 20:21:33 mchyzer Exp $
  */
 public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDAO {
 
@@ -37,6 +37,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
   private static final Log LOG = GrouperUtil.getLog(Hib3PermissionEntryDAO.class);
 
   /** */
+  @SuppressWarnings("unused")
   private static final String KLASS = Hib3PermissionEntryDAO.class.getName();
 
   /**
@@ -45,7 +46,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
    */
   public Set<PermissionEntry> findByMemberId(String memberId) {
     Set<PermissionEntry> permissionEntries = HibernateSession.byHqlStatic().createQuery(
-        "select thePermissionEntryRole from PermissionEntryRole thePermissionEntryRole where thePermissionEntryRole.memberId = :theMemberId")
+        "select thePermissionEntryAll from PermissionEntryAll thePermissionEntryAll where thePermissionEntryAll.memberId = :theMemberId")
         .setString("theMemberId", memberId)
         .listSet(PermissionEntry.class);
 

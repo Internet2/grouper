@@ -7,6 +7,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -29,7 +30,7 @@ public class GroupAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GroupAttributeSecurityTest("testSecuritySubj7"));
+    TestRunner.run(new GroupAttributeSecurityTest("assignPrivilegeToGroup"));
   }
 
   /** grouper sesion */
@@ -99,7 +100,7 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
     ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
 
-    this.etc = this.root.addChildStem("etc", "etc");    
+    this.etc = new StemSave(this.grouperSession).assignStemNameToEdit("etc").assignName("etc").save();
     this.wheel = etc.addChildGroup("wheel","wheel");
     
     ApiConfig.testConfig.put("groups.wheel.use", "true");
@@ -143,6 +144,13 @@ public class GroupAttributeSecurityTest extends GrouperTest {
 
   }
 
+  /**
+   * assign a privilege to a group
+   */
+  public void assignPrivilegeToGroup() {
+    this.attributeDef1.getPrivilegeDelegate().grantPriv(this.group.toSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+  }
+  
   /**
    * @throws Exception 
    */
