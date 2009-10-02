@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperSetEnum.java,v 1.3 2009-09-17 04:19:15 mchyzer Exp $
+ * $Id: GrouperSetEnum.java,v 1.4 2009-10-02 05:57:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperSet;
 
@@ -20,8 +20,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.permissions.RoleHierarchyType;
-import edu.internet2.middleware.grouper.permissions.RoleSet;
+import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 

@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.permissions;
+package edu.internet2.middleware.grouper.permissions.role;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author mchyzer $Id: RoleSet.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
+ * @author mchyzer $Id: RoleSet.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class RoleSet extends GrouperAPI 

@@ -1,14 +1,14 @@
 /*
  * @author mchyzer
- * $Id: RoleSetDAO.java,v 1.3 2009-09-17 22:40:07 mchyzer Exp $
+ * $Id: RoleSetDAO.java,v 1.4 2009-10-02 05:57:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.exception.RoleSetNotFoundException;
-import edu.internet2.middleware.grouper.permissions.Role;
-import edu.internet2.middleware.grouper.permissions.RoleSet;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 
 /**
  * attribute def name set, links up attributes with other attributes (probably for privs)

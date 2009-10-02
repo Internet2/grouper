@@ -1,8 +1,8 @@
 /**
  * @author mchyzer
- * $Id: RoleInheritanceDelegate.java,v 1.1 2009-09-17 22:40:07 mchyzer Exp $
+ * $Id: RoleInheritanceDelegate.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.permissions;
+package edu.internet2.middleware.grouper.permissions.role;
 
 import java.io.Serializable;
 import java.util.Set;

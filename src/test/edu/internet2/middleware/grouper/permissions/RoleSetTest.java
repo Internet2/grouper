@@ -15,6 +15,10 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
+import edu.internet2.middleware.grouper.permissions.role.RoleSetView;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**

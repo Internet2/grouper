@@ -24,8 +24,8 @@ public enum AttributeDefType {
   /** if this is a limit of an attribute */
   limit, 
   
-  /** if this is a privilege */
-  priv;
+  /** if this is a permission */
+  perm;
 
   /**
    * do a case-insensitive matching

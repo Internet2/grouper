@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.permissions;
+package edu.internet2.middleware.grouper.permissions.role;
 
 import java.util.Set;
 

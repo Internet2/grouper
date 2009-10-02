@@ -11,13 +11,13 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RoleSetDAO;
-import edu.internet2.middleware.grouper.permissions.Role;
-import edu.internet2.middleware.grouper.permissions.RoleSet;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 
 /**
  * Data Access Object for role set
  * @author  mchyzer
- * @version $Id: Hib3RoleSetDAO.java,v 1.3 2009-09-17 22:40:07 mchyzer Exp $
+ * @version $Id: Hib3RoleSetDAO.java,v 1.4 2009-10-02 05:57:58 mchyzer Exp $
  */
 public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
   
@@ -52,14 +52,14 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#saveOrUpdate(edu.internet2.middleware.grouper.permissions.RoleSet)
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#saveOrUpdate(edu.internet2.middleware.grouper.permissions.role.RoleSet)
    */
   public void saveOrUpdate(RoleSet roleSet) {
     HibernateSession.byObjectStatic().saveOrUpdate(roleSet);
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#delete(edu.internet2.middleware.grouper.permissions.RoleSet)
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#delete(edu.internet2.middleware.grouper.permissions.role.RoleSet)
    */
   public void delete(final RoleSet roleSet) {
     //HibernateSession.byObjectStatic().delete(roleSet);
@@ -148,7 +148,7 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#deleteByIfHasRole(edu.internet2.middleware.grouper.permissions.Role)
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#deleteByIfHasRole(edu.internet2.middleware.grouper.permissions.role.Role)
    */
   public void deleteByIfHasRole(final Role role) {
 

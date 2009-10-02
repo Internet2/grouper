@@ -1,12 +1,12 @@
 /*
  * @author mchyzer
- * $Id: RoleSetViewDAO.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
+ * $Id: RoleSetViewDAO.java,v 1.2 2009-10-02 05:57:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.permissions.RoleSetView;
+import edu.internet2.middleware.grouper.permissions.role.RoleSetView;
 
 /**
  * attribute def name set views, links up attributes with other attributes (probably for privs)

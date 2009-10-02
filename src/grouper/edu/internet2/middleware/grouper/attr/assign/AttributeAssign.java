@@ -11,8 +11,10 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
@@ -211,6 +213,32 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public AttributeAssign(Group ownerGroup, String theAction, AttributeDefName attributeDefName) {
     
     this.setOwnerGroupId(ownerGroup.getUuid());
+    this.setAction(theAction);
+    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setId(GrouperUuid.getUuid());
+
+  }
+
+  /**
+   * create an attribute assign, including a uuid.  This is for an effective membership
+   * @param ownerGroup
+   * @param ownerMember 
+   * @param theAction
+   * @param attributeDefName
+   */
+  public AttributeAssign(Group ownerGroup, Member ownerMember, String theAction, AttributeDefName attributeDefName) {
+    
+    //this must be an immediate, list membership
+    Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), 
+        ownerGroup, ownerMember.getSubject(), Group.getDefaultList(), false);
+
+    if (membership == null) {
+      throw new RuntimeException("Effective memberships which have attributes must be immediate on the members list: " 
+          + ownerGroup + ", " + GrouperUtil.subjectToString(ownerMember.getSubject()));
+    }
+    
+    this.setOwnerGroupId(ownerGroup.getUuid());
+    this.setOwnerMemberId(ownerMember.getUuid());
     this.setAction(theAction);
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());
