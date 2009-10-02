@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.filter.NullFilter;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
@@ -268,7 +269,8 @@ public final class Ldappc extends TimerTask {
       throw new ConfigurationException("Unable to parse root DN.", e);
     }
 
-    Subject subject = SubjectFinder.findById(options.getSubjectId(), false);
+    GrouperStartup.startup();
+    Subject subject = SubjectFinder.findById(options.getSubjectId(), true);
     grouperSession = GrouperSession.start(subject);
   }
 
