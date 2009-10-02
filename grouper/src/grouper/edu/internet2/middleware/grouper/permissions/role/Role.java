@@ -1,10 +1,11 @@
 /**
  * @author mchyzer
- * $Id: Role.java,v 1.3 2009-09-17 22:40:07 mchyzer Exp $
+ * $Id: Role.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.permissions;
+package edu.internet2.middleware.grouper.permissions.role;
 
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
+import edu.internet2.middleware.grouper.permissions.PermissionRoleDelegate;
 
 
 /**
@@ -109,4 +110,10 @@ public interface Role extends GrouperSetElement {
    * @return the delegate
    */
   public RoleInheritanceDelegate getRoleInheritanceDelegate();
+  
+  /**
+   * delegate calls to this class for permission role stuff
+   * @return the delegate
+   */
+  public PermissionRoleDelegate getPermissionRoleDelegate();
 }

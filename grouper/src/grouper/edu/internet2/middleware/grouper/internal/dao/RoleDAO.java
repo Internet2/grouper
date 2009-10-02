@@ -1,11 +1,11 @@
 /*
  * @author mchyzer
- * $Id: RoleDAO.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
+ * $Id: RoleDAO.java,v 1.2 2009-10-02 05:57:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
 import edu.internet2.middleware.grouper.exception.RoleNotFoundException;
-import edu.internet2.middleware.grouper.permissions.Role;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 
 /**
  * role data access methods

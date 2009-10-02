@@ -40,7 +40,9 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignGroupDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -100,8 +102,9 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.misc.SaveMode;
-import edu.internet2.middleware.grouper.permissions.Role;
-import edu.internet2.middleware.grouper.permissions.RoleInheritanceDelegate;
+import edu.internet2.middleware.grouper.permissions.PermissionRoleDelegate;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.permissions.role.RoleInheritanceDelegate;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -129,7 +132,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.262 2009-09-28 16:05:54 mchyzer Exp $
+ * @version $Id: Group.java,v 1.263 2009-10-02 05:57:58 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -410,6 +413,40 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       this.attributeAssignGroupDelegate = new AttributeAssignGroupDelegate(this);
     }
     return this.attributeAssignGroupDelegate;
+  }
+  
+  /**
+   * delegate for effective memberships
+   * @param member 
+   * @return the delegate
+   */
+  public AttributeAssignEffMshipDelegate getAttributeDelegateEffMship(Member member) {
+    return new AttributeAssignEffMshipDelegate(this, member);
+  }
+  
+  /**
+   * delegate for effective memberships
+   * @param member 
+   * @return the delegate
+   */
+  public AttributeAssignMembershipDelegate getAttributeDelegateMembership(Member member) {
+    return getAttributeDelegateMembership(member, Group.getDefaultList());
+  }
+  
+  /**
+   * delegate for effective memberships
+   * @param member 
+   * @param field 
+   * @return the delegate
+   */
+  public AttributeAssignMembershipDelegate getAttributeDelegateMembership(Member member, Field field) {
+    Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), 
+        this, member.getSubject(), field, false);
+    if (membership == null) {
+      throw new RuntimeException("Cannot get the immediate membership attribute delegate if not an immediate member: " 
+          + this + ", " + GrouperUtil.subjectToString(member.getSubject()) + ", " + field);
+    }
+    return new AttributeAssignMembershipDelegate(membership);
   }
   
   /**
@@ -5312,28 +5349,28 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.permissions.Role#getId()
+   * @see edu.internet2.middleware.grouper.permissions.role.Role#getId()
    */
   public String getId() {
     return this.getUuid();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.permissions.Role#getStemId()
+   * @see edu.internet2.middleware.grouper.permissions.role.Role#getStemId()
    */
   public String getStemId() {
     return this.getParentUuid();
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.permissions.Role#setId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.permissions.role.Role#setId(java.lang.String)
    */
   public void setId(String id1) {
     this.setUuid(id1);
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.permissions.Role#setStemId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.permissions.role.Role#setStemId(java.lang.String)
    */
   public void setStemId(String stemId1) {
     this.setParentUuid(stemId1);
@@ -5355,4 +5392,19 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     return this.roleInheritanceDelegate;
   }
   
+  /**
+   * cache this for performance.  delegate calls to this class for role hierarchy stuff
+   */
+  private PermissionRoleDelegate permissionRoleDelegate = null;
+
+  /**
+   * @see edu.internet2.middleware.grouper.permissions.role.Role#getPermissionRoleDelegate()
+   */
+  public PermissionRoleDelegate getPermissionRoleDelegate() {
+    if (this.permissionRoleDelegate == null) {
+      this.permissionRoleDelegate = new PermissionRoleDelegate(this);
+    }
+    return this.permissionRoleDelegate;
+  }
+
 }

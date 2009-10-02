@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import edu.internet2.middleware.grouper.internal.dao.RoleDAO;
@@ -51,7 +52,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.17 2009-09-17 04:19:15 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.18 2009-10-02 05:57:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -235,6 +236,15 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public AttributeAssignDAO getAttributeAssign() {
     return new Hib3AttributeAssignDAO();
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPermissionEntry()
+   */
+  @Override
+  public PermissionEntryDAO getPermissionEntry() {
+    return new Hib3PermissionEntryDAO();
   }
 
   /**

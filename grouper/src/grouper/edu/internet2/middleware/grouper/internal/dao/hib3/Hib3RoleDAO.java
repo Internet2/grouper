@@ -5,12 +5,12 @@ import edu.internet2.middleware.grouper.exception.RoleNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RoleDAO;
-import edu.internet2.middleware.grouper.permissions.Role;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 
 /**
  * Data Access Object for role
  * @author  mchyzer
- * @version $Id: Hib3RoleDAO.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
+ * @version $Id: Hib3RoleDAO.java,v 1.2 2009-10-02 05:57:58 mchyzer Exp $
  */
 public class Hib3RoleDAO extends Hib3DAO implements RoleDAO {
   

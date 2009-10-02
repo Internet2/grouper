@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.75 2009-09-29 06:53:01 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.76 2009-10-02 05:57:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.permissions.RoleSet;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -1974,6 +1974,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v");
 
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_group_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_efmship_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_stem_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_member_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_mship_v");
@@ -1984,6 +1985,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_stem_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_member_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_mship_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_efmship_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_asn_asn_attrdef_v");
     
 
@@ -1993,6 +1995,11 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
+    
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_role_subject_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_perms_all_v");
+    
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
@@ -3642,6 +3649,70 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gadn.attribute_def_id = gad.id "
         + "and gaa.enabled = 'T' ");
 
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_efmship_v", 
+        "grouper_attr_asn_efmship_v: attribute assigned to an effective membership",
+        GrouperUtil.toSet("group_name",
+          "subject_source_id",
+          "subject_id",
+          "action",
+          "attribute_def_name_name",
+          "group_display_name",
+          "attribute_def_name_disp_name",
+          "name_of_attribute_def",
+          "attribute_assign_notes",
+          "list_name",
+          "group_id",
+          "attribute_assign_id",
+          "attribute_def_name_id",
+          "attribute_def_id",
+          "member_id"
+        ),
+        GrouperUtil.toSet("group_name: name of group assigned the attribute",
+            "subject_source_id: source id of the subject being assigned",
+            "subject_id: subject id of the subject being assigned",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "group_display_name: display name of the group assigned an attribute",
+            "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+            "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
+            "attribute_assign_notes: notes related to the attribute assignment",
+            "list_name: name of the membership list for this effective membership",
+            "group_id: group id of the group assigned the attribute",
+            "attribute_assign_id: id of the attribute assignment",
+            "attribute_def_name_id: id of the attribute definition name",
+            "attribute_def_id: id of the attribute definition",
+            "member_id: id of the member assigned the attribute"
+        ),
+        "select distinct gg.name as group_name, "
+        + "gm.subject_source as subject_source_id, "
+        + "gm.subject_id, "
+        + "gaa.action, "
+        + "gadn.name as attribute_def_name_name, "
+        + "gg.display_name as group_display_name, "
+        + "gadn.display_name as attribute_def_name_disp_name, "
+        + "gad.name as name_of_attribute_def, "
+        + "gaa.notes as attribute_assign_notes, "
+        + "gf.name as list_name, "
+        + "gg.id as group_id, "
+        + "gaa.id as attribute_assign_id, "
+        + "gadn.id as attribute_def_name_id, "
+        + "gad.id as attribute_def_id, "
+        + "gm.id as member_id "
+        + "from grouper_attribute_assign gaa, grouper_memberships_all_v gmav, "
+        + "grouper_attribute_def_name gadn, grouper_attribute_def gad, "
+        + "grouper_groups gg, grouper_fields gf, grouper_members gm "
+        + "where gaa.owner_group_id = gmav.owner_group_id "
+        + "and gaa.owner_member_id = gmav.member_id "
+        + "and gaa.attribute_def_name_id = gadn.id "
+        + "and gadn.attribute_def_id = gad.id "
+        + "and gaa.enabled = 'T' "
+        + "and gmav.immediate_mship_enabled = 'T' "
+        + "and gmav.owner_group_id = gg.id "
+        + "and gmav.field_id = gf.id "
+        + "and gf.type = 'list' "
+        + "and gmav.member_id = gm.id ");
+
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_stem_v", 
         "grouper_attr_asn_stem_v: attribute assigned to a stem and related cols",
         GrouperUtil.toSet("stem_name",
@@ -3900,6 +3971,85 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
           		"and gg.id = gaa1.owner_group_id");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_efmship_v", 
+        "grouper_attr_asn_asn_efmship_v: attribute assigned to an assignment of an attribute to an effective membership, and related cols",
+        GrouperUtil.toSet("group_name",
+            "source_id",
+            "subject_id",
+            "action1",
+            "action2",
+            "attribute_def_name_name1",
+            "attribute_def_name_name2",
+            "attribute_def_name_disp_name1",
+            "attribute_def_name_disp_name2",
+            "list_name",
+            "name_of_attribute_def1",
+            "name_of_attribute_def2",
+            "attribute_assign_notes1",
+            "attribute_assign_notes2",
+            "group_id",
+            "member_id",
+            "attribute_assign_id1",
+            "attribute_assign_id2",
+            "attribute_def_name_id1",
+            "attribute_def_name_id2",
+            "attribute_def_id1",
+            "attribute_def_id2"
+          ),
+          GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
+              "source_id: source of the subject that belongs to the member",
+              "subject_id: subject_id of the subject that belongs to the member",
+              "action1: the action associated with the original attribute assignment (default is assign)",
+              "action2: the action associated with the new attribute assignment (default is assign)",
+              "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
+              "attribute_def_name_name2: name of the new attribute definition name which is assigned to the group",
+              "attribute_def_name_disp_name1: display name of the original attribute definition name assigned to the attribute",
+              "attribute_def_name_disp_name2: display name of the new attribute definition name assigned to the attribute",
+              "list_name: name of list in membership assigned the attribute",
+              "name_of_attribute_def1: name of the original attribute definition associated with the attribute definition name assigned to the group",
+              "name_of_attribute_def2: name of the new attribute definition associated with the attribute definition name assigned to the group",
+              "attribute_assign_notes1: notes related to the original attribute assignment",
+              "attribute_assign_notes2: notes related to the new attribute assignment",
+              "group_id: group id of the membership assigned the attribute",
+              "member_id: internal grouper member uuid of the membership assigned the attribute",
+              "attribute_assign_id1: id of the original attribute assignment",
+              "attribute_assign_id2: id of the new attribute assignment",
+              "attribute_def_name_id1: id of the original attribute definition name",
+              "attribute_def_name_id2: id of the new attribute definition name",
+              "attribute_def_id1: id of the original attribute definition",
+              "attribute_def_id2: id of the new attribute definition"
+          ),
+          "select distinct gg.name as group_name, " +
+          "gm.subject_source as source_id, " +
+          "gm.subject_id, " +
+          "gaa1.action as action1, gaa2.action as action2, " +
+          "gadn1.name as attribute_def_name_name1, gadn2.name as attribute_def_name_name2, "
+          + "gadn1.display_name as attribute_def_name_disp_name1, gadn2.display_name as attribute_def_name_disp_name2, "
+          + "gf.name as list_name, "
+          + "gad1.name as name_of_attribute_def1, "
+          + "gad2.name as name_of_attribute_def2, "
+          + "gaa1.notes as attribute_assign_notes1, "
+          + "gaa2.notes as attribute_assign_notes2, "
+          + "gg.id as group_id, "
+          + "gm.id as member_id, "
+          + "gaa1.id as attribute_assign_id1, "
+          + "gaa2.id as attribute_assign_id2, "
+          + "gadn1.id as attribute_def_name_id1, "
+          + "gadn2.id as attribute_def_name_id2, "
+          + "gad1.id as attribute_def_id1, "
+          + "gad2.id as attribute_def_id2 "
+          + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, " +
+              "grouper_groups gg, grouper_memberships_all_v gmav, "
+          + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, " +
+              "grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf "
+          + "where gaa1.owner_member_id = gmav.member_id and gaa1.owner_group_id = gmav.owner_group_id" +
+          		" and gaa2.owner_attribute_assign_id = gaa1.id  "
+          + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
+          + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
+          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' and gmav.immediate_mship_enabled = 'T'" +
+              " and gmav.field_id = gf.id and gmav.member_id = gm.id and gmav.owner_group_id = gg.id" +
+              " and gf.type = 'list'");
 
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_stem_v", 
@@ -4237,6 +4387,169 @@ public enum GrouperDdl implements DdlVersionable {
         + "from grouper_memberships_all_v gmav, grouper_attribute_def gad, grouper_fields gf, grouper_members gm "
         + "where gmav.owner_attr_def_id = gad.id and gmav.field_id = gf.id "
         + "and gmav.immediate_mship_enabled = 'T' and gmav.member_id = gm.id ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_role_v", 
+        "grouper_perms_role_v: shows all permissions assigned to users due to the users being in a role, and the role being assigned the permission",
+        GrouperUtil.toSet("role_name", 
+            "subject_source_id", 
+            "subject_id",
+            "action", 
+            "attribute_def_name_name",
+            "attribute_def_name_disp_name",
+            "role_display_name",
+            "role_id",
+            "attribute_def_id",
+            "member_id", 
+            "attribute_def_name_id"
+            ),
+        GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
+            "subject_source_id: source id of the subject which is in the role and thus has the permission",
+            "subject_id: subject id of the subject which is in the role and thus has the permission",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+            "role_display_name: display name of role the subject is in, and that the permissions are assigned to",
+            "role_id: id of role the subject is in, and that the permissions are assigned to",
+            "attribute_def_id: id of the attribute definition",
+            "member_id: id of the subject in the members table",
+            "attribute_def_name_id: id of the attribute definition name"
+        ),
+        "select distinct gr.name as role_name, "
+        + "gm.subject_source as subject_source_id, "
+        + "gm.subject_id, "
+        + "gaa.action as action, "
+        + "gadn.name as attribute_def_name_name, "
+        + "gadn.display_name as attribute_def_name_disp_name, "
+        + "gr.display_name as role_display_name, "
+        + "gr.id as role_id, "
+        + "gadn.attribute_def_id, "
+        + "gm.id as member_id, "
+        + "gadn.id as attribute_def_name_id "
+        + "from grouper_groups gr, "
+        + "grouper_memberships_all_v gmav, "
+        + "grouper_members gm, "
+        + "grouper_fields gf, "
+        + "grouper_role_set grs, " 
+        + "grouper_attribute_assign gaa, "
+        + "grouper_attribute_def_name gadn "
+        + "where gr.type_of_group = 'role' "
+        + "and gmav.owner_group_id = gr.id "
+        + "and gmav.field_id = gf.id "
+        + "and gf.type = 'list' "
+        + "and gf.name = 'members' "
+        + "and gmav.immediate_mship_enabled = 'T' "
+        + "and gmav.member_id = gm.id "
+        + "and grs.if_has_role_id = gr.id "
+        + "and gaa.owner_group_id = grs.then_has_role_id "
+        + "and gaa.enabled = 'T' "
+        + "and gaa.attribute_def_name_id = gadn.id");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_role_subject_v", 
+        "grouper_perms_role_subject_v: shows all permissions assigned to users directly while in a role",
+        GrouperUtil.toSet("role_name", 
+            "subject_source_id", 
+            "subject_id",
+            "action", 
+            "attribute_def_name_name",
+            "attribute_def_name_disp_name",
+            "role_display_name",
+            "role_id",
+            "attribute_def_id",
+            "member_id", 
+            "attribute_def_name_id"
+            ),
+        GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
+            "subject_source_id: source id of the subject which is in the role and thus has the permission",
+            "subject_id: subject id of the subject which is in the role and thus has the permission",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+            "role_display_name: display name of role the subject is in, and that the permissions are assigned to",
+            "role_id: id of role the subject is in, and that the permissions are assigned to",
+            "attribute_def_id: id of the attribute definition",
+            "member_id: id of the subject in the members table",
+            "attribute_def_name_id: id of the attribute definition name"
+        ),
+        "select distinct gr.name as role_name, "
+        + "gm.subject_source as subject_source_id, "
+        + "gm.subject_id, "
+        + "gaa.action as action, "
+        + "gadn.name as attribute_def_name_name, "
+        + "gadn.display_name as attribute_def_name_disp_name, "
+        + "gr.display_name as role_display_name, "
+        + "gr.id as role_id, "
+        + "gadn.attribute_def_id, "
+        + "gm.id as member_id, "
+        + "gadn.id as attribute_def_name_id "
+        + "from grouper_groups gr, "
+        + "grouper_memberships_all_v gmav, "
+        + "grouper_members gm, "
+        + "grouper_fields gf, "
+        + "grouper_attribute_assign gaa, " 
+        + "grouper_attribute_def_name gadn "
+        + "where gr.type_of_group = 'role' "
+        + "and gmav.owner_group_id = gr.id "
+        + "and gmav.field_id = gf.id "
+        + "and gmav.owner_group_id = gaa.owner_group_id "
+        + "and gmav.member_id = gaa.owner_member_id "
+        + "and gf.type = 'list' "
+        + "and gf.name = 'members' "
+        + "and gmav.immediate_mship_enabled = 'T' "
+        + "and gmav.member_id = gm.id "
+        + "and gaa.enabled = 'T' "
+        + "and gaa.attribute_def_name_id = gadn.id");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_all_v", 
+        "grouper_perms_all_v: shows all permissions assigned to users directly while in a role, or assigned to roles (and users in the role)",
+        GrouperUtil.toSet("role_name", 
+            "subject_source_id", 
+            "subject_id",
+            "action", 
+            "attribute_def_name_name",
+            "attribute_def_name_disp_name",
+            "role_display_name",
+            "role_id",
+            "attribute_def_id",
+            "member_id", 
+            "attribute_def_name_id"
+            ),
+        GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
+            "subject_source_id: source id of the subject which is in the role and thus has the permission",
+            "subject_id: subject id of the subject which is in the role and thus has the permission",
+            "action: the action associated with the attribute assignment (default is assign)",
+            "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
+            "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
+            "role_display_name: display name of role the subject is in, and that the permissions are assigned to",
+            "role_id: id of role the subject is in, and that the permissions are assigned to",
+            "attribute_def_id: id of the attribute definition",
+            "member_id: id of the subject in the members table",
+            "attribute_def_name_id: id of the attribute definition name"
+        ),
+        "select role_name, " + 
+        "subject_source_id, " + 
+        "subject_id, " +
+        "action, " +
+        "attribute_def_name_name, " + 
+        "attribute_def_name_disp_name, " + 
+        "role_display_name, " +
+        "role_id, " +
+        "attribute_def_id, " + 
+        "member_id, " +
+        "attribute_def_name_id " +
+        "from grouper_perms_role_v " +
+        "union " +
+        "select role_name, " +
+        "subject_source_id, " +
+        "subject_id, " +
+        "action, " +
+        "attribute_def_name_name, " + 
+        "attribute_def_name_disp_name, " + 
+        "role_display_name, " +
+        "role_id, " +
+        "attribute_def_id, " + 
+        "member_id, " +
+        "attribute_def_name_id " +
+        "from grouper_perms_role_subject_v ");
 
   }
 

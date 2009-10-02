@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeDefNameSetDAO.java,v 1.7 2009-09-17 22:40:07 mchyzer Exp $
+ * $Id: AttributeDefNameSetDAO.java,v 1.8 2009-10-02 05:57:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -9,7 +9,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
-import edu.internet2.middleware.grouper.permissions.Role;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 
 /**
  * attribute def name set, links up attributes with other attributes (probably for privs)

@@ -20,9 +20,9 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3RoleSetDAO.hbm.xml,v 1.1 2009-09-17 04:19:15 mchyzer Exp $ -->
+<!-- $Id: Hib3RoleSetDAO.hbm.xml,v 1.2 2009-10-02 05:57:58 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.permissions">
+<hibernate-mapping package="edu.internet2.middleware.grouper.permissions.role">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
