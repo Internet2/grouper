@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.15 2009-06-24 06:22:25 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.16 2009-10-02 20:37:57 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -136,7 +136,8 @@ public class GrouperShell {
       grouperShellHelper(args, null);
     }
     catch (GrouperShellException eGS) {
-      System.err.println(eGS.getMessage());
+      eGS.printStackTrace();
+      LOG.error("GSH is exiting: " + eGS.getMessage(), eGS);
       System.exit(1);
     }
     System.exit(0);
