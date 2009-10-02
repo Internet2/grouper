@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: ContextContainer.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
+ * $Id: ContextContainer.java,v 1.2 2009-10-02 21:43:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans;
 
@@ -60,7 +60,6 @@ public class ContextContainer {
         //lets sort them by id
         Collections.sort(sources, new Comparator() {
   
-          @Override
           public int compare(Object o1, Object o2) {
             return ((Source)o1).getId().compareTo(((Source)o2).getId());
           }

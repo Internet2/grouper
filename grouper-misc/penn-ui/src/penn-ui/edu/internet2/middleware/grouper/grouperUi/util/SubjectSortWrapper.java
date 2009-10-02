@@ -1,6 +1,6 @@
 /**
  * @author Kate
- * $Id: SubjectSortWrapper.java,v 1.1 2009-08-07 07:36:02 mchyzer Exp $
+ * $Id: SubjectSortWrapper.java,v 1.2 2009-10-02 21:43:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -61,7 +61,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
    */
-  @Override
   public String getAttributeValue(String name) {
     return this.wrappedSubject.getAttributeValue(name);
   }
@@ -69,7 +68,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
    */
-  @Override
   public Set getAttributeValues(String name) {
     return this.wrappedSubject.getAttributeValues(name);
   }
@@ -77,7 +75,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributes()
    */
-  @Override
   public Map getAttributes() {
     return this.wrappedSubject.getAttributes();
   }
@@ -85,7 +82,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see edu.internet2.middleware.subject.Subject#getDescription()
    */
-  @Override
   public String getDescription() {
     return this.wrappedSubject.getDescription();
   }
@@ -93,7 +89,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see edu.internet2.middleware.subject.Subject#getId()
    */
-  @Override
   public String getId() {
     return this.wrappedSubject.getId();
   }
@@ -101,7 +96,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see edu.internet2.middleware.subject.Subject#getName()
    */
-  @Override
   public String getName() {
     return this.wrappedSubject.getName();
   }
@@ -109,7 +103,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see edu.internet2.middleware.subject.Subject#getSource()
    */
-  @Override
   public Source getSource() {
     return this.wrappedSubject.getSource();
   }
@@ -117,7 +110,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see edu.internet2.middleware.subject.Subject#getType()
    */
-  @Override
   public SubjectType getType() {
     return this.wrappedSubject.getType();
   }
@@ -125,7 +117,6 @@ public class SubjectSortWrapper implements Subject, Comparable {
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  @Override
   public int compareTo(Object o) {
     if (!(o instanceof SubjectSortWrapper)) {
       return -1;

@@ -1,6 +1,6 @@
 /**
  * @author Kate
- * $Id: MemberSortWrapper.java,v 1.1 2009-08-07 07:36:02 mchyzer Exp $
+ * $Id: MemberSortWrapper.java,v 1.2 2009-10-02 21:43:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -43,7 +43,6 @@ public class MemberSortWrapper implements Comparable {
          * 
          * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
          */
-        @Override
         public String getAttributeValue(String name) {
           return null;
         }
@@ -52,7 +51,6 @@ public class MemberSortWrapper implements Comparable {
          * 
          * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
          */
-        @Override
         public Set getAttributeValues(String name) {
           return null;
         }
@@ -61,7 +59,6 @@ public class MemberSortWrapper implements Comparable {
          * 
          * @see edu.internet2.middleware.subject.Subject#getAttributes()
          */
-        @Override
         public Map getAttributes() {
           return null;
         }
@@ -70,22 +67,18 @@ public class MemberSortWrapper implements Comparable {
          * 
          * @see edu.internet2.middleware.subject.Subject#getDescription()
          */
-        @Override
         public String getDescription() {
           return subjectString;
         }
 
-        @Override
         public String getId() {
           return MemberSortWrapper.this.wrappedMember.getSubjectId();
         }
 
-        @Override
         public String getName() {
           return subjectString;
         }
 
-        @Override
         public Source getSource() {
           try {
             return SubjectFinder.getSource(MemberSortWrapper.this.wrappedMember.getSubjectSourceId());
@@ -95,7 +88,6 @@ public class MemberSortWrapper implements Comparable {
           return null;
         }
 
-        @Override
         public SubjectType getType() {
           return MemberSortWrapper.this.wrappedMember.getSubjectType();
         }
@@ -124,7 +116,6 @@ public class MemberSortWrapper implements Comparable {
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  @Override
   public int compareTo(Object o) {
     if (!(o instanceof MemberSortWrapper)) {
       return -1;

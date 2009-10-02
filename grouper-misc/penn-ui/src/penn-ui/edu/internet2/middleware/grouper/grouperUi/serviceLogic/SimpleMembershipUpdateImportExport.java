@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateImportExport.java,v 1.3 2009-09-09 15:06:05 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateImportExport.java,v 1.4 2009-10-02 21:43:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -120,7 +120,6 @@ public class SimpleMembershipUpdateImportExport {
          * @param o2
          * @return 1, -1, 0
          */
-        @Override
         public int compare(Object o1, Object o2) {
           String[] first = (String[])o1;
           String[] second = (String[])o2;
@@ -273,7 +272,6 @@ public class SimpleMembershipUpdateImportExport {
          * @param o2
          * @return 1, -1, 0
          */
-        @Override
         public int compare(Object o1, Object o2) {
           String[] first = (String[])o1;
           String[] second = (String[])o2;

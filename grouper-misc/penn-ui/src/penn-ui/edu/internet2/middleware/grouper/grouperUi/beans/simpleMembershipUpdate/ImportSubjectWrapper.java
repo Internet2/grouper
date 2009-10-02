@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: ImportSubjectWrapper.java,v 1.2 2009-09-06 07:01:49 mchyzer Exp $
+ * $Id: ImportSubjectWrapper.java,v 1.3 2009-10-02 21:43:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
@@ -174,7 +174,6 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
    */
-  @Override
   public String getAttributeValue(String name) {
     throw new RuntimeException("Dont call this method on an import subject");
   }
@@ -182,7 +181,6 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
    */
-  @Override
   public Set getAttributeValues(String name) {
     throw new RuntimeException("Dont call this method on an import subject");
   }
@@ -190,7 +188,6 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributes()
    */
-  @Override
   public Map getAttributes() {
     throw new RuntimeException("Dont call this method on an import subject");
   }
@@ -198,7 +195,6 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getDescription()
    */
-  @Override
   public String getDescription() {
     throw new RuntimeException("Dont call this method on an import subject");
   }
@@ -206,7 +202,6 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getId()
    */
-  @Override
   public String getId() {
     return this.subjectId;
   }
@@ -214,7 +209,6 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getName()
    */
-  @Override
   public String getName() {
     throw new RuntimeException("Dont call this method on an import subject");
   }
@@ -222,7 +216,6 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getSource()
    */
-  @Override
   public Source getSource() {
     try {
       return SourceManager.getInstance().getSource(this.sourceId);
@@ -237,7 +230,6 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getType()
    */
-  @Override
   public SubjectType getType() {
     //TODO make this illegal, it causes a lookup
     return this.wrappedSubject().getType();
