@@ -20,13 +20,13 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3PermissionRoleViewDAO.hbm.xml,v 1.2 2009-10-02 20:21:33 mchyzer Exp $ -->
+<!-- $Id: Hib3PermissionRoleSubjectViewDAO.hbm.xml,v 1.1 2009-10-02 20:21:33 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.permissions">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="PermissionEntry" table="grouper_perms_role_v" entity-name="PermissionEntryRole" >
+  <class name="PermissionEntry" table="grouper_perms_role_v" entity-name="PermissionEntryRoleSubject" >
 
     <composite-id >
       <key-property name="roleName" column="role_name"/>
