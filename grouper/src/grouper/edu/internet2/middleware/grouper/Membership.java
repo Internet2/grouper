@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.133 2009-10-02 20:21:33 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.134 2009-10-03 13:47:12 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -588,6 +588,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * id of the field which is the list name and type
    */
   private String fieldId;
+  
+  /**
+   * id of the field for the immediate membership that causes this membership
+   */
+  private String immediateFieldId;
 
   /**
    * 
@@ -2309,6 +2314,22 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setFieldId(String fieldId1) {
     this.fieldId = fieldId1;
+  }
+  
+  /**
+   * id of the field for the immediate membership that causes this membership
+   * @return the field id
+   */
+  public String getImmediateFieldId() {
+    return immediateFieldId;
+  }
+
+  /**
+   * id of the field for the immediate membership that causes this membership
+   * @param immediateFieldId
+   */
+  public void setImmediateFieldId(String immediateFieldId) {
+    this.immediateFieldId = immediateFieldId;
   }
 
   /**

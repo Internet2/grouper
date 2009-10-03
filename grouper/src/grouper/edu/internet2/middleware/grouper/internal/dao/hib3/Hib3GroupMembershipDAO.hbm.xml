@@ -20,14 +20,14 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.19 2009-10-03 13:47:13 shilen Exp $ -->
+<!-- $Id: Hib3GroupMembershipDAO.hbm.xml,v 1.1 2009-10-03 13:47:13 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
-  <class name="Membership" table="grouper_memberships_all_v" batch-size="5" optimistic-lock="version" entity-name="MembershipEntry">
+  <class name="Membership" table="grouper_memberships_group_v" batch-size="5" optimistic-lock="version" entity-name="GroupMembershipEntry">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>

@@ -31,6 +31,7 @@ import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -50,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.45 2009-09-28 05:06:46 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.46 2009-10-03 13:47:13 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -194,32 +195,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setString("member", memberUUID)
       .listSet(Object[].class);
 	  return _getMembershipsFromMembershipAndMemberQuery(mships);
-  } 
-
-  /**
-   * @param memberUUID 
-   * @param viaGroupId 
-   * @param enabledOnly
-   * @return set
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   */
-  public Set<Membership> findAllByMemberAndViaGroup(String memberUUID, String viaGroupId, boolean enabledOnly) 
-    throws  GrouperDAOException {
-
-    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
-        + "     ms.memberUuid  = :member          "
-        + "and  ms.viaGroupId     = :via             "
-        + "and  ms.memberUuid  = m.uuid         ");
-    if (enabledOnly) {
-      sql.append(" and ms.enabledDb = 'T'");
-    }
-
-	  Set<Object[]> mships =  HibernateSession.byHqlStatic()
-      .createQuery(sql.toString())
-      .setString( "member", memberUUID )
-      .setString( "via",    viaGroupId    ).listSet(Object[].class);
-    return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -906,12 +881,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllEffectiveByMemberAndField(String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException
   {
-    StringBuilder sql = new StringBuilder(
-        "select ms, m from MembershipEntry as ms, Member as m where  "
-          + "     ms.memberUuid  = :member          "
-          + "and  ms.fieldId = :fuuid "
-          + "and ms.memberUuid = m.uuid  " 
-          + "and  ms.type = 'effective' ");
+    // I'm adding a check for the immediate field id to help with performance 
+    // in cases where the member has a lot of non-default list immediate memberships.
+    
+    StringBuilder sql = new StringBuilder("select ms, m from ");
+    sql.append(getHibernateEntity(f));
+    sql.append(" as ms, Member as m where ms.memberUuid = m.uuid and ");
+    sql.append("ms.memberUuid = :member and ms.immediateFieldId = :defaultMembersField and ms.fieldId = :fuuid and ms.type = 'effective'");
+
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
     }
@@ -922,6 +899,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setCacheRegion(KLASS + ".FindAllEffectiveByMemberAndField")
       .setString( "member", memberUUID             )
       .setString( "fuuid",  f.getUuid()            )
+      .setString("defaultMembersField", Group.getDefaultList().getUuid())
       .listSet(Object[].class);
 	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
@@ -1085,12 +1063,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException
   {
-    StringBuilder sql = new StringBuilder(
-        "select ms, m from MembershipEntry as ms, Member as m where  "
-          + "     ms.memberUuid = :member           "
-          + "and  ms.fieldId = :fuuid "
-          + "and  ms.type       = :type             "
-          + "and ms.memberUuid = m.uuid");
+    // I'm adding a check for the immediate field id to help with performance 
+    // in cases where the member has a lot of memberships but with different fields
+    
+    StringBuilder sql = new StringBuilder("select ms, m from ");
+    sql.append(getHibernateEntity(f));
+    sql.append(" as ms, Member as m where ms.memberUuid = m.uuid and ");
+    sql.append("ms.memberUuid = :member and ms.immediateFieldId = :fuuid and ms.fieldId = :fuuid and ms.type = :type");
+
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
     }
@@ -1183,37 +1163,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
 
-  
-  /**
-   * @param memberUUID 
-   * @param f 
-   * @param enabledOnly
-   * @return set
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   */
-  public Set<Membership> findMembershipsByMemberAndField(String memberUUID, Field f, boolean enabledOnly)
-    throws  GrouperDAOException {
-    
-    StringBuilder sql = new StringBuilder(
-        "select ms, m from MembershipEntry as ms, Member as m where  "
-          + "     ms.memberUuid = :member           "
-          + "and  ms.fieldId = :fuuid "
-          + "and ms.memberUuid = m.uuid");
-    if (enabledOnly) {
-      sql.append(" and ms.enabledDb = 'T'");
-    }
-    
-    Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindMemberships")
-      .setString( "member", memberUUID             )
-      .setString( "fuuid" , f.getUuid()            )
-      .listSet(Object[].class);
-    return _getMembershipsFromMembershipAndMemberQuery(mships);
-  } 
-
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findMembershipsByMemberAndFieldSecure(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, edu.internet2.middleware.grouper.Field, boolean)
    */
@@ -1221,7 +1170,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         String memberUUID, Field f, boolean enabledOnly)
       throws  GrouperDAOException {
     
-    StringBuilder sql = new StringBuilder("select distinct ms, m from MembershipEntry as ms, Member as m ");
+    StringBuilder sql = new StringBuilder("select ms, m from ");
+    sql.append(getHibernateEntity(f));
+    sql.append(" as ms, Member as m ");
     
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -1242,9 +1193,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       sql.append(" and ");
     }
 
-    sql.append("     ms.memberUuid = :member           "
-        + "and  ms.fieldId = :fuuid "
-        + "and ms.memberUuid = m.uuid");
+    // I'm adding a check for the immediate field id and type to help with performance 
+    // in cases where the member has a lot of memberships but with different fields
+    
+    sql.append(" ms.memberUuid = m.uuid and ");
+    
+    sql.append("((ms.memberUuid = :member and ms.immediateFieldId = :fuuid and ms.fieldId = :fuuid and ms.depth = '0') "
+        + "or (ms.memberUuid = :member and ms.immediateFieldId = :defaultMembersField and ms.fieldId = :fuuid and ms.type = 'effective'))");
     
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
@@ -1256,6 +1211,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setCacheRegion(KLASS + ".FindMemberships")
       .setString( "member", memberUUID)
       .setString( "fuuid" , f.getUuid())
+      .setString("defaultMembersField", Group.getDefaultList().getUuid())
       .listSet(Object[].class);
     Set<Membership> memberships = _getMembershipsFromMembershipAndMemberQuery(mships);
 
@@ -1700,4 +1656,19 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   }
 
+  /**
+   * Returns the string value for a hibernate entity name
+   * @param f
+   */
+  private String getHibernateEntity(Field f) {
+    if (f.getType() == FieldType.LIST || f.getType() == FieldType.ACCESS) {
+      return "GroupMembershipEntry";
+    } else if (f.getType() == FieldType.NAMING) {
+      return "StemMembershipEntry";
+    } else if (f.getType() == FieldType.ATTRIBUTE_DEF) {
+      return "AttributeDefMembershipEntry";
+    } else {
+      throw new RuntimeException("Unknown field type");
+    }
+  }
 }
