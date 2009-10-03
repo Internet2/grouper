@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.76 2009-10-02 05:57:58 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.77 2009-10-03 13:47:12 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2003,7 +2003,12 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
+    
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_group_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_stem_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_attr_def_v");
+    
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_role_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_composites_v");
@@ -3148,6 +3153,7 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_SET_ID", 
             "MEMBER_ID", 
             "FIELD_ID", 
+            "IMMEDIATE_FIELD_ID", 
             "OWNER_ATTR_DEF_ID", 
             "OWNER_GROUP_ID", 
             "OWNER_STEM_ID", 
@@ -3170,6 +3176,7 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_SET_ID: uuid of the group set that causes this membership", 
             "MEMBER_ID: id in the grouper_members table", 
             "FIELD_ID: id in the grouper_fields table", 
+            "IMMEDIATE_FIELD_ID: id in the grouper_fields table for the immediate (or composite) membership that causes this membership", 
             "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
             "OWNER_GROUP_ID: owner group if applicable", 
             "OWNER_STEM_ID: owner stem if applicable", 
@@ -3193,6 +3200,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "gs.id as group_set_id, "
             + "ms.member_id, "
             + "gs.field_id, "
+            + "ms.field_id, "
             + "gs.owner_attr_def_id, "
             + "gs.owner_group_id, "
             + "gs.owner_stem_id, " 
@@ -3210,12 +3218,241 @@ public enum GrouperDdl implements DdlVersionable {
             + "gs.create_time as group_set_create_time, "
             + "ms.hibernate_version_number, "
             + "ms.context_id "
-            + "from grouper_memberships ms, grouper_group_set gs, grouper_fields f1, grouper_fields f2 "
+            + "from grouper_memberships ms, grouper_group_set gs, grouper_fields f1 "
             + "where (ms.owner_stem_id = gs.member_stem_id or ms.owner_group_id = gs.member_group_id" +
             		" or ms.owner_attr_def_id = gs.member_attr_def_id) and " 
-            + "      f1.id = ms.field_id and f2.id = gs.field_id and "
-            + "      ((ms.field_id = gs.field_id and f1.name='members' and f1.type='list') or (ms.field_id = gs.field_id and gs.depth = '0') or (f1.name='members' and f1.type='list' and gs.depth > '0'))");
+            + "      f1.id = ms.field_id and "
+            + "      ((ms.field_id = gs.field_id and gs.depth = '0') or (f1.name='members' and f1.type='list' and gs.mship_type = 'effective'))");
 
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_group_v", 
+        "grouper_memberships_group_v is a join between grouper_group_set and grouper_memberships for group based memberships.  It is not a complete join in that it does not join fields together.",
+        GrouperUtil.toSet("MEMBERSHIP_ID", 
+            "IMMEDIATE_MEMBERSHIP_ID", 
+            "GROUP_SET_ID", 
+            "MEMBER_ID", 
+            "FIELD_ID", 
+            "IMMEDIATE_FIELD_ID", 
+            "OWNER_ATTR_DEF_ID", 
+            "OWNER_GROUP_ID", 
+            "OWNER_STEM_ID", 
+            "VIA_GROUP_ID",
+            "VIA_COMPOSITE_ID",
+            "DEPTH", 
+            "MSHIP_TYPE", 
+            "IMMEDIATE_MSHIP_ENABLED",
+            "IMMEDIATE_MSHIP_ENABLED_TIME",
+            "IMMEDIATE_MSHIP_DISABLED_TIME",
+            "GROUP_SET_PARENT_ID", 
+            "MEMBERSHIP_CREATOR_ID", 
+            "MEMBERSHIP_CREATE_TIME",
+            "GROUP_SET_CREATOR_ID", 
+            "GROUP_SET_CREATE_TIME", 
+            "HIBERNATE_VERSION_NUMBER", 
+            "CONTEXT_ID"),
+        GrouperUtil.toSet("MEMBERSHIP_ID: uuid unique id of this membership", 
+            "IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate (or composite) membership that causes this membership", 
+            "GROUP_SET_ID: uuid of the group set that causes this membership", 
+            "MEMBER_ID: id in the grouper_members table", 
+            "FIELD_ID: id in the grouper_fields table", 
+            "IMMEDIATE_FIELD_ID: id in the grouper_fields table for the immediate (or composite) membership that causes this membership", 
+            "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
+            "OWNER_GROUP_ID: owner group if applicable", 
+            "OWNER_STEM_ID: owner stem if applicable", 
+            "VIA_GROUP_ID: membership is due to this group if effective",
+            "VIA_COMPOSITE_ID: membership is due to this composite if applicable",
+            "DEPTH: number of hops in a directed graph", 
+            "MSHIP_TYPE: type of membership, immediate or effective or composite", 
+            "IMMEDIATE_MSHIP_ENABLED: T or F to indicate if this membership is enabled",
+            "IMMEDIATE_MSHIP_ENABLED_TIME: when the membership will be enabled if the time is in the future",
+            "IMMEDIATE_MSHIP_DISABLED_TIME: when the membership will be disabled if the time is in the future.",
+            "GROUP_SET_PARENT_ID: parent group set", 
+            "MEMBERSHIP_CREATOR_ID: member uuid of the creator of the immediate or composite membership", 
+            "MEMBERSHIP_CREATOR_TIME: number of millis since 1970 the immedate or composite membership was created",
+            "GROUP_SET_CREATOR_ID: member uuid of the creator of the group set", 
+            "GROUP_SET_CREATE_TIME: number of millis since 1970 the group set was created", 
+            "HIBERNATE_VERSION_NUMBER: hibernate uses this to version rows", 
+            "CONTEXT_ID: Context id links together multiple operations into one high level action"),
+            "select "
+            + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
+            + "ms.id as immediate_membership_id, "
+            + "gs.id as group_set_id, "
+            + "ms.member_id, "
+            + "gs.field_id, "
+            + "ms.field_id, "
+            + "gs.owner_attr_def_id, "
+            + "gs.owner_group_id, "
+            + "gs.owner_stem_id, " 
+            + "gs.via_group_id, " 
+            + "ms.via_composite_id, " 
+            + "gs.depth, " 
+            + "gs.mship_type, " 
+            + "ms.enabled, " 
+            + "ms.enabled_timestamp, " 
+            + "ms.disabled_timestamp, "
+            + "gs.parent_id as group_set_parent_id, "
+            + "ms.creator_id as membership_creator_id, "
+            + "ms.create_time as membership_create_time, "
+            + "gs.creator_id as group_set_creator_id, "
+            + "gs.create_time as group_set_create_time, "
+            + "ms.hibernate_version_number, "
+            + "ms.context_id "
+            + "from grouper_memberships ms, grouper_group_set gs "
+            + "where ms.owner_group_id = gs.member_group_id");
+    
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_stem_v", 
+        "grouper_memberships_stem_v is a join between grouper_group_set and grouper_memberships for stem based memberships.  It is not a complete join in that it does not join fields together.",
+        GrouperUtil.toSet("MEMBERSHIP_ID", 
+            "IMMEDIATE_MEMBERSHIP_ID", 
+            "GROUP_SET_ID", 
+            "MEMBER_ID", 
+            "FIELD_ID", 
+            "IMMEDIATE_FIELD_ID", 
+            "OWNER_ATTR_DEF_ID", 
+            "OWNER_GROUP_ID", 
+            "OWNER_STEM_ID", 
+            "VIA_GROUP_ID",
+            "VIA_COMPOSITE_ID",
+            "DEPTH", 
+            "MSHIP_TYPE", 
+            "IMMEDIATE_MSHIP_ENABLED",
+            "IMMEDIATE_MSHIP_ENABLED_TIME",
+            "IMMEDIATE_MSHIP_DISABLED_TIME",
+            "GROUP_SET_PARENT_ID", 
+            "MEMBERSHIP_CREATOR_ID", 
+            "MEMBERSHIP_CREATE_TIME",
+            "GROUP_SET_CREATOR_ID", 
+            "GROUP_SET_CREATE_TIME", 
+            "HIBERNATE_VERSION_NUMBER", 
+            "CONTEXT_ID"),
+        GrouperUtil.toSet("MEMBERSHIP_ID: uuid unique id of this membership", 
+            "IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate (or composite) membership that causes this membership", 
+            "GROUP_SET_ID: uuid of the group set that causes this membership", 
+            "MEMBER_ID: id in the grouper_members table", 
+            "FIELD_ID: id in the grouper_fields table", 
+            "IMMEDIATE_FIELD_ID: id in the grouper_fields table for the immediate (or composite) membership that causes this membership", 
+            "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
+            "OWNER_GROUP_ID: owner group if applicable", 
+            "OWNER_STEM_ID: owner stem if applicable", 
+            "VIA_GROUP_ID: membership is due to this group if effective",
+            "VIA_COMPOSITE_ID: membership is due to this composite if applicable",
+            "DEPTH: number of hops in a directed graph", 
+            "MSHIP_TYPE: type of membership, immediate or effective or composite", 
+            "IMMEDIATE_MSHIP_ENABLED: T or F to indicate if this membership is enabled",
+            "IMMEDIATE_MSHIP_ENABLED_TIME: when the membership will be enabled if the time is in the future",
+            "IMMEDIATE_MSHIP_DISABLED_TIME: when the membership will be disabled if the time is in the future.",
+            "GROUP_SET_PARENT_ID: parent group set", 
+            "MEMBERSHIP_CREATOR_ID: member uuid of the creator of the immediate or composite membership", 
+            "MEMBERSHIP_CREATOR_TIME: number of millis since 1970 the immedate or composite membership was created",
+            "GROUP_SET_CREATOR_ID: member uuid of the creator of the group set", 
+            "GROUP_SET_CREATE_TIME: number of millis since 1970 the group set was created", 
+            "HIBERNATE_VERSION_NUMBER: hibernate uses this to version rows", 
+            "CONTEXT_ID: Context id links together multiple operations into one high level action"),
+            "select "
+            + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
+            + "ms.id as immediate_membership_id, "
+            + "gs.id as group_set_id, "
+            + "ms.member_id, "
+            + "gs.field_id, "
+            + "ms.field_id, "
+            + "gs.owner_attr_def_id, "
+            + "gs.owner_group_id, "
+            + "gs.owner_stem_id, " 
+            + "gs.via_group_id, " 
+            + "ms.via_composite_id, " 
+            + "gs.depth, " 
+            + "gs.mship_type, " 
+            + "ms.enabled, " 
+            + "ms.enabled_timestamp, " 
+            + "ms.disabled_timestamp, "
+            + "gs.parent_id as group_set_parent_id, "
+            + "ms.creator_id as membership_creator_id, "
+            + "ms.create_time as membership_create_time, "
+            + "gs.creator_id as group_set_creator_id, "
+            + "gs.create_time as group_set_create_time, "
+            + "ms.hibernate_version_number, "
+            + "ms.context_id "
+            + "from grouper_memberships ms, grouper_group_set gs "
+            + "where ms.owner_stem_id = gs.member_stem_id");
+    
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_attr_def_v", 
+        "grouper_memberships_attr_def_v is a join between grouper_group_set and grouper_memberships for attribute based memberships.  It is not a complete join in that it does not join fields together.",
+        GrouperUtil.toSet("MEMBERSHIP_ID", 
+            "IMMEDIATE_MEMBERSHIP_ID", 
+            "GROUP_SET_ID", 
+            "MEMBER_ID", 
+            "FIELD_ID", 
+            "IMMEDIATE_FIELD_ID", 
+            "OWNER_ATTR_DEF_ID", 
+            "OWNER_GROUP_ID", 
+            "OWNER_STEM_ID", 
+            "VIA_GROUP_ID",
+            "VIA_COMPOSITE_ID",
+            "DEPTH", 
+            "MSHIP_TYPE", 
+            "IMMEDIATE_MSHIP_ENABLED",
+            "IMMEDIATE_MSHIP_ENABLED_TIME",
+            "IMMEDIATE_MSHIP_DISABLED_TIME",
+            "GROUP_SET_PARENT_ID", 
+            "MEMBERSHIP_CREATOR_ID", 
+            "MEMBERSHIP_CREATE_TIME",
+            "GROUP_SET_CREATOR_ID", 
+            "GROUP_SET_CREATE_TIME", 
+            "HIBERNATE_VERSION_NUMBER", 
+            "CONTEXT_ID"),
+        GrouperUtil.toSet("MEMBERSHIP_ID: uuid unique id of this membership", 
+            "IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate (or composite) membership that causes this membership", 
+            "GROUP_SET_ID: uuid of the group set that causes this membership", 
+            "MEMBER_ID: id in the grouper_members table", 
+            "FIELD_ID: id in the grouper_fields table", 
+            "IMMEDIATE_FIELD_ID: id in the grouper_fields table for the immediate (or composite) membership that causes this membership", 
+            "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
+            "OWNER_GROUP_ID: owner group if applicable", 
+            "OWNER_STEM_ID: owner stem if applicable", 
+            "VIA_GROUP_ID: membership is due to this group if effective",
+            "VIA_COMPOSITE_ID: membership is due to this composite if applicable",
+            "DEPTH: number of hops in a directed graph", 
+            "MSHIP_TYPE: type of membership, immediate or effective or composite", 
+            "IMMEDIATE_MSHIP_ENABLED: T or F to indicate if this membership is enabled",
+            "IMMEDIATE_MSHIP_ENABLED_TIME: when the membership will be enabled if the time is in the future",
+            "IMMEDIATE_MSHIP_DISABLED_TIME: when the membership will be disabled if the time is in the future.",
+            "GROUP_SET_PARENT_ID: parent group set", 
+            "MEMBERSHIP_CREATOR_ID: member uuid of the creator of the immediate or composite membership", 
+            "MEMBERSHIP_CREATOR_TIME: number of millis since 1970 the immedate or composite membership was created",
+            "GROUP_SET_CREATOR_ID: member uuid of the creator of the group set", 
+            "GROUP_SET_CREATE_TIME: number of millis since 1970 the group set was created", 
+            "HIBERNATE_VERSION_NUMBER: hibernate uses this to version rows", 
+            "CONTEXT_ID: Context id links together multiple operations into one high level action"),
+            "select "
+            + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
+            + "ms.id as immediate_membership_id, "
+            + "gs.id as group_set_id, "
+            + "ms.member_id, "
+            + "gs.field_id, "
+            + "ms.field_id, "
+            + "gs.owner_attr_def_id, "
+            + "gs.owner_group_id, "
+            + "gs.owner_stem_id, " 
+            + "gs.via_group_id, " 
+            + "ms.via_composite_id, " 
+            + "gs.depth, " 
+            + "gs.mship_type, " 
+            + "ms.enabled, " 
+            + "ms.enabled_timestamp, " 
+            + "ms.disabled_timestamp, "
+            + "gs.parent_id as group_set_parent_id, "
+            + "ms.creator_id as membership_creator_id, "
+            + "ms.create_time as membership_create_time, "
+            + "gs.creator_id as group_set_creator_id, "
+            + "gs.create_time as group_set_create_time, "
+            + "ms.hibernate_version_number, "
+            + "ms.context_id "
+            + "from grouper_memberships ms, grouper_group_set gs "
+            + "where ms.owner_attr_def_id = gs.member_attr_def_id");
+
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_lw_v", 
         "Grouper_memberships_lw_v unique membership records that can be read from a SQL interface outside of grouper.  Immediate and effective memberships are represented here (distinct)",
         GrouperUtil.toSet("SUBJECT_ID", "SUBJECT_SOURCE", "GROUP_NAME", "LIST_NAME", "LIST_TYPE", "GROUP_ID"),

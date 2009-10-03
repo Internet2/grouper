@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.47 2009-09-24 18:07:16 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.48 2009-10-03 13:47:13 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -1588,7 +1588,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
   
     sql.append( " theGroup.nameDb like :scope" +
-        " and listMembership.ownerGroupId = nameAttribute.groupUuid and listMembership.fieldId = :listId" +
+        " and listMembership.ownerGroupId = theGroup.uuid and listMembership.fieldId = :listId" +
         " and listMembership.memberUuid = :memberId ");
     
     if (enabledOnly) {

@@ -37,7 +37,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.17 2009-09-21 06:14:26 mchyzer Exp $
+ * @version $Id: NamingWrapper.java,v 1.18 2009-10-03 13:47:13 shilen Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
@@ -264,9 +264,9 @@ public class NamingWrapper implements NamingResolver {
   /**
    * @see edu.internet2.middleware.grouper.privs.NamingResolver#postHqlFilterStems(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<Stem> postHqlFilterStems(Set<Stem> groups, Subject subject,
+  public Set<Stem> postHqlFilterStems(Set<Stem> stems, Subject subject,
       Set<Privilege> privInSet) {
-    return null;
+    return this.naming.postHqlFilterStems(this.s, stems, subject, privInSet);
   }
 
   /**

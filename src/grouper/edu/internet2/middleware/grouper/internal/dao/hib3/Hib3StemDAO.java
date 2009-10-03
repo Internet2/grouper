@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.35 2009-09-24 18:07:16 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.36 2009-10-03 13:47:13 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -1037,7 +1037,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("theStem.displayName");
+      queryOptions.sortAsc("theStem.displayNameDb");
     }
   
     StringBuilder sql = new StringBuilder("select distinct theStem from Stem as theStem ");
@@ -1091,7 +1091,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("theStem.displayName");
+      queryOptions.sortAsc("theStem.displayNameDb");
     }
     //TODO update for 1.5
 
@@ -1100,7 +1100,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     //see if we are adding more to the query
-    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+    boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
         sql, "theStem.uuid", inPrivSet);
 
     //see if there is a scope
