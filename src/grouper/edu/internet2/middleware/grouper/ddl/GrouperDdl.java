@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.77 2009-10-03 13:47:12 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.78 2009-10-03 18:32:36 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -5085,6 +5085,45 @@ public enum GrouperDdl implements DdlVersionable {
         "group_set_uniq_idx", true, "owner_attr_def_id_null", "owner_group_id_null", 
         "owner_stem_id_null", "member_attr_def_id_null", "member_group_id_null",
         "member_stem_id_null", "mship_type", "field_id", "parent_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_creator_idx", false, "creator_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_parent_idx", false, "parent_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_via_group_idx", false, "via_group_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_context_idx", false, "context_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_gmember_idx", false, "member_group_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_smember_idx", false, "member_stem_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_amember_idx", false, "member_attr_def_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_gowner_field_idx", false, "owner_group_id", "field_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_sowner_field_idx", false, "owner_stem_id", "field_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_aowner_field_idx", false, "owner_attr_def_id", "field_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_gowner_member_idx", false, "owner_group_id", "member_group_id", "field_id", "depth");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_sowner_member_idx", false, "owner_stem_id", "member_stem_id", "field_id", "depth");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_aowner_member_idx", false, "owner_attr_def_id", "member_attr_def_id", "field_id", "depth");
   }
 
   /**
