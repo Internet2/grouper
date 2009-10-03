@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.11 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.12 2009-10-03 14:29:14 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -155,7 +155,7 @@ public class RegistryReset {
 
 
   // PRIVATE INSTANCE METHODS //
-  private void _addSubjects()   
+  public void _addSubjects()   
     throws  GrouperException
   {
     for (int i=0; i<10; i++) {
