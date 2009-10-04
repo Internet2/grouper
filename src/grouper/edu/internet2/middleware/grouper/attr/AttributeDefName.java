@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.attr;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -507,4 +508,17 @@ public class AttributeDefName extends GrouperAPI
     }
     return this.attributeDefNameSetDelegate;
   }
+  
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
+    return new ToStringBuilder(this)
+      .append( "name", this.name)
+      .append( "uuid", this.getId() )
+      .toString();
+  }
+
 }

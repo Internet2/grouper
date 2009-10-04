@@ -1,11 +1,15 @@
 /**
  * @author mchyzer
- * $Id: Role.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
+ * $Id: Role.java,v 1.2 2009-10-04 16:14:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions.role;
 
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.permissions.PermissionRoleDelegate;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -116,4 +120,68 @@ public interface Role extends GrouperSetElement {
    * @return the delegate
    */
   public PermissionRoleDelegate getPermissionRoleDelegate();
+
+  /**
+   * Add a subject to this role as immediate member.
+   * 
+   * An immediate member is directly assigned to a role.
+   * A composite role has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single role, and 0 to many effective memberships to a role.
+   * A role can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   role.addMember(subj);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add subject
+   * } 
+   * </pre>
+   * @param   subj  Add this {@link Subject}
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the role
+   * @return false if it already existed, true if it didnt already exist
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   */
+  public boolean addMember(Subject subj, boolean exceptionIfAlreadyMember) 
+    throws  InsufficientPrivilegeException,
+            MemberAddException;
+
+  /** 
+   * remove a subject from this role, and subject must be immediate
+   * member.  Will not remove the effective membership.
+   * 
+   * An immediate member is directly assigned to a role.
+   * A composite role has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single role, and 0 to many effective memberships to a role.
+   * A role can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(subj);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   subj  remove this {@link Subject}
+   * @param exceptionIfAlreadyDeleted 
+   * @return false if it was already deleted, true if it wasnt already deleted
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   */
+  public boolean deleteMember(Subject subj, boolean exceptionIfAlreadyDeleted)
+    throws  InsufficientPrivilegeException,
+            MemberDeleteException;
 }

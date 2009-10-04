@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: PermissionRoleDelegate.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
+ * $Id: PermissionRoleDelegate.java,v 1.2 2009-10-04 16:14:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions;
 
@@ -47,6 +47,15 @@ public class PermissionRoleDelegate implements Serializable {
   }
   
   /**
+   * remove a permission from a role, which means that any subject in the role will not directly have this permission, 
+   * and any role in the roleSet directed graph will also not get this permission from this role
+   * @param attributeDefName
+   */
+  public void removeRolePermission(AttributeDefName attributeDefName) {
+    this.group.getAttributeDelegate().removeAttribute(attributeDefName);
+  }
+  
+  /**
    * add a permission to a role / subject pair (effective membership)
    * @param attributeDefName
    * @param member 
@@ -59,6 +68,15 @@ public class PermissionRoleDelegate implements Serializable {
     this.group.getAttributeDelegateEffMship(member).assignAttribute(attributeDefName);
   }
   
+  /**
+   * add a permission to a role / subject pair (effective membership)
+   * @param attributeDefName
+   * @param member 
+   */
+  public void removeSubjectRolePermission(AttributeDefName attributeDefName, Member member) {
+    this.group.getAttributeDelegateEffMship(member).removeAttribute(attributeDefName);
+  }
+
   /**
    * assert that this is a role
    * @param object 
