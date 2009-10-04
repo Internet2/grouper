@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.78 2009-10-03 18:32:36 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.79 2009-10-04 16:14:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3987,8 +3987,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
         + "gad.id as attribute_def_id "
-        + "from grouper_attribute_assign as gaa, grouper_stems as gs, "
-        + "grouper_attribute_def_name as gadn, grouper_attribute_def as gad "
+        + "from grouper_attribute_assign gaa, grouper_stems gs, "
+        + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
         + "where gaa.owner_stem_id = gs.id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
@@ -4029,8 +4029,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
         + "gad.id as attribute_def_id "
-        + "from grouper_attribute_assign as gaa, grouper_members as gm, "
-        + "grouper_attribute_def_name as gadn, grouper_attribute_def as gad "
+        + "from grouper_attribute_assign gaa, grouper_members gm, "
+        + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
         + "where gaa.owner_member_id = gm.id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
@@ -4661,7 +4661,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "gr.id as role_id, "
         + "gadn.attribute_def_id, "
         + "gm.id as member_id, "
-        + "gadn.id as attribute_def_name_id "
+        + "gadn.id as attribute_def_name_id, "
+        + "grouper_attribute_def_name_set gadns "
         + "from grouper_groups gr, "
         + "grouper_memberships_all_v gmav, "
         + "grouper_members gm, "
@@ -4679,7 +4680,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "and grs.if_has_role_id = gr.id "
         + "and gaa.owner_group_id = grs.then_has_role_id "
         + "and gaa.enabled = 'T' "
-        + "and gaa.attribute_def_name_id = gadn.id");
+        + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id "
+        + "and gadn.id = gadns.then_has_attribute_def_name_id");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_role_subject_v", 
         "grouper_perms_role_subject_v: shows all permissions assigned to users directly while in a role",
@@ -4734,7 +4736,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gmav.immediate_mship_enabled = 'T' "
         + "and gmav.member_id = gm.id "
         + "and gaa.enabled = 'T' "
-        + "and gaa.attribute_def_name_id = gadn.id");
+        + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id "
+        + "and gadn.id = gadns.then_has_attribute_def_name_id");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_all_v", 
         "grouper_perms_all_v: shows all permissions assigned to users directly while in a role, or assigned to roles (and users in the role)",
