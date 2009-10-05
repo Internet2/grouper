@@ -504,6 +504,27 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   /**
+   * set of allowed actions
+   */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private Set<String> allowedActionsSet = null;
+
+  /**
+   * get (and cache) the allowed actions
+   * @return the set of strings
+   */
+  public Set<String> allowedActions() {
+    if (this.allowedActionsSet == null) {
+      if (StringUtils.isBlank(this.actions)) {
+        throw new RuntimeException("actions cant be null: " + this);
+      }
+      String[] actionsArray = GrouperUtil.splitTrim(this.actions, ",");
+      this.allowedActionsSet = GrouperUtil.toSet(actionsArray);
+    }
+    return this.allowedActionsSet;
+  }
+  
+  /**
    * if this attribute can be assigned to the same action to the same object more than once
    * @return if multiassignable
    */

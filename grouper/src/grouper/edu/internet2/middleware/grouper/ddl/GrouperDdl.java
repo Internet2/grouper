@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.79 2009-10-04 16:14:34 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.80 2009-10-05 00:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3884,7 +3884,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "where gaa.owner_group_id = gg.id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
-        + "and gaa.enabled = 'T' ");
+        + "and gaa.enabled = 'T' "
+        + "and gaa.owner_member_id is null ");
 
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_efmship_v", 
@@ -3948,7 +3949,9 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gmav.owner_group_id = gg.id "
         + "and gmav.field_id = gf.id "
         + "and gf.type = 'list' "
-        + "and gmav.member_id = gm.id ");
+        + "and gmav.member_id = gm.id "
+        + "and gaa.owner_member_id is not null "
+        + "and gaa.owner_group_id is null ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_stem_v", 
         "grouper_attr_asn_stem_v: attribute assigned to a stem and related cols",
@@ -4034,7 +4037,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "where gaa.owner_member_id = gm.id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
-        + "and gaa.enabled = 'T' ");
+        + "and gaa.enabled = 'T' "
+        + "and gaa.owner_group_id is null ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_mship_v", 
         "grouper_attr_asn_mship_v: attribute assigned to an immediate memberships, and related cols",
@@ -4092,7 +4096,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gadn.attribute_def_id = gad.id "
           + "and gaa.enabled = 'T'" +
           		" and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id" +
-          		" and gf.type = 'list'");
+          		" and gf.type = 'list' ");
 
     
 
@@ -4206,8 +4210,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
-          		"and gg.id = gaa1.owner_group_id");
+          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " 
+          +	"and gg.id = gaa1.owner_group_id "
+          + "and gaa1.owner_member_id is null ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_efmship_v", 
         "grouper_attr_asn_asn_efmship_v: attribute assigned to an assignment of an attribute to an effective membership, and related cols",
@@ -4286,7 +4291,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' and gmav.immediate_mship_enabled = 'T'" +
               " and gmav.field_id = gf.id and gmav.member_id = gm.id and gmav.owner_group_id = gg.id" +
-              " and gf.type = 'list'");
+              " and gf.type = 'list'"
+          + " and gaa1.owner_member_id is not null "
+          + " and gaa1.owner_group_id is not null");
 
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_stem_v", 
@@ -4427,7 +4434,8 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
-              "and gm.id = gaa1.owner_member_id");
+              "and gm.id = gaa1.owner_member_id "
+          + "and gaa1.owner_group_id is null");
 
     
     
@@ -4661,15 +4669,15 @@ public enum GrouperDdl implements DdlVersionable {
         + "gr.id as role_id, "
         + "gadn.attribute_def_id, "
         + "gm.id as member_id, "
-        + "gadn.id as attribute_def_name_id, "
-        + "grouper_attribute_def_name_set gadns "
+        + "gadn.id as attribute_def_name_id "
         + "from grouper_groups gr, "
         + "grouper_memberships_all_v gmav, "
         + "grouper_members gm, "
         + "grouper_fields gf, "
         + "grouper_role_set grs, " 
         + "grouper_attribute_assign gaa, "
-        + "grouper_attribute_def_name gadn "
+        + "grouper_attribute_def_name gadn, "
+        + "grouper_attribute_def_name_set gadns "
         + "where gr.type_of_group = 'role' "
         + "and gmav.owner_group_id = gr.id "
         + "and gmav.field_id = gf.id "
@@ -4725,7 +4733,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "grouper_members gm, "
         + "grouper_fields gf, "
         + "grouper_attribute_assign gaa, " 
-        + "grouper_attribute_def_name gadn "
+        + "grouper_attribute_def_name gadn, "
+        + "grouper_attribute_def_name_set gadns "
         + "where gr.type_of_group = 'role' "
         + "and gmav.owner_group_id = gr.id "
         + "and gmav.field_id = gf.id "

@@ -8,8 +8,6 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +31,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.16 2009-10-02 20:37:57 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.17 2009-10-05 00:50:24 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -341,6 +339,7 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.finder.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.audit.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.xml.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.registry.*;");

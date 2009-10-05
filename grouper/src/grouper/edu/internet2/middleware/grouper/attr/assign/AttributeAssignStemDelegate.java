@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignStemDelegate.java,v 1.3 2009-09-28 15:08:23 mchyzer Exp $
+ * $Id: AttributeAssignStemDelegate.java,v 1.4 2009-10-05 00:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -67,12 +67,12 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
   }
 
   /**
-   * @param attributeDefName
-   * @return attribute assign
+   * 
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
-  AttributeAssign newAttributeAssign(AttributeDefName attributeDefName) {
-    return new AttributeAssign(this.stem, AttributeDef.ACTION_DEFAULT, attributeDefName);
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
+    return new AttributeAssign(this.stem, action, attributeDefName);
   }
 
   /**

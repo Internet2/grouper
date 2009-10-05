@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignAttributeDefDelegate.java,v 1.1 2009-09-28 16:05:54 mchyzer Exp $
+ * $Id: AttributeAssignAttributeDefDelegate.java,v 1.2 2009-10-05 00:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -41,8 +41,8 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
    * @return attribute assign
    */
   @Override
-  AttributeAssign newAttributeAssign(AttributeDefName attributeDefName) {
-    return new AttributeAssign(this.attributeDef, AttributeDef.ACTION_DEFAULT, attributeDefName);
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
+    return new AttributeAssign(this.attributeDef, action, attributeDefName);
   }
 
   /**
