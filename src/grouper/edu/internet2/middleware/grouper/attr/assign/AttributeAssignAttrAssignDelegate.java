@@ -1,12 +1,11 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignAttrAssignDelegate.java,v 1.1 2009-09-28 20:30:34 mchyzer Exp $
+ * $Id: AttributeAssignAttrAssignDelegate.java,v 1.2 2009-10-05 00:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -14,7 +13,6 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -36,14 +34,14 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
   public AttributeAssignAttrAssignDelegate(AttributeAssign attributeAssign1) {
     this.attributeAssignToAssignTo = attributeAssign1;
   }
-  
+
   /**
-   * @param attributeDefName
-   * @return attribute assign
+   * 
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
-  AttributeAssign newAttributeAssign(AttributeDefName attributeDefName) {
-    return new AttributeAssign(this.attributeAssignToAssignTo, AttributeDef.ACTION_DEFAULT, attributeDefName);
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
+    return new AttributeAssign(this.attributeAssignToAssignTo, action, attributeDefName);
   }
 
   /**

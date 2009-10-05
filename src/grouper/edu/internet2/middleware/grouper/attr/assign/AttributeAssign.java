@@ -261,6 +261,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     }
     
     this.setOwnerAttributeAssignId(ownerAttributeAssign.getId());
+    
+    theAction = StringUtils.defaultIfEmpty(theAction, AttributeDef.ACTION_DEFAULT);
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    if (!attributeDef.allowedActions().contains(theAction)) {
+      throw new RuntimeException("Not a valid action: '" + theAction + "', should be one of: " + attributeDef.getActions());
+    }
+    
     this.setAction(theAction);
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());

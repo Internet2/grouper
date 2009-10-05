@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignEffMshipDelegate.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
+ * $Id: AttributeAssignEffMshipDelegate.java,v 1.2 2009-10-05 00:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -75,15 +75,15 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
     this.group = group1;
     this.member = member1;
   }
-  
+
   /**
-   * @param attributeDefName
-   * @return attribute assign
+   * 
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
-  AttributeAssign newAttributeAssign(AttributeDefName attributeDefName) {
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
     assertMemberOfGroup();
-    return new AttributeAssign(this.group, this.member, AttributeDef.ACTION_DEFAULT, attributeDefName);
+    return new AttributeAssign(this.group, this.member, action, attributeDefName);
   }
 
   /**

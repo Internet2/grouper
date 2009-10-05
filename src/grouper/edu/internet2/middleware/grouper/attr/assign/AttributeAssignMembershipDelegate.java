@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignMembershipDelegate.java,v 1.1 2009-09-28 19:12:39 mchyzer Exp $
+ * $Id: AttributeAssignMembershipDelegate.java,v 1.2 2009-10-05 00:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -36,14 +36,14 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
   public AttributeAssignMembershipDelegate(Membership membership1) {
     this.membership = membership1;
   }
-  
+
   /**
-   * @param attributeDefName
-   * @return attribute assign
+   * 
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
-  AttributeAssign newAttributeAssign(AttributeDefName attributeDefName) {
-    return new AttributeAssign(this.membership, AttributeDef.ACTION_DEFAULT, attributeDefName);
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
+    return new AttributeAssign(this.membership, action, attributeDefName);
   }
 
   /**

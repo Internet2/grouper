@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignGroupDelegate.java,v 1.4 2009-09-28 16:05:54 mchyzer Exp $
+ * $Id: AttributeAssignGroupDelegate.java,v 1.5 2009-10-05 00:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -36,14 +36,14 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
   public AttributeAssignGroupDelegate(Group group1) {
     this.group = group1;
   }
-  
+
   /**
-   * @param attributeDefName
-   * @return attribute assign
+   * 
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
-  AttributeAssign newAttributeAssign(AttributeDefName attributeDefName) {
-    return new AttributeAssign(this.group, AttributeDef.ACTION_DEFAULT, attributeDefName);
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
+    return new AttributeAssign(this.group, action, attributeDefName);
   }
 
   /**

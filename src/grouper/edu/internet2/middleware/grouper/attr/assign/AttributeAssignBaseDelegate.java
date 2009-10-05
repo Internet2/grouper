@@ -1,16 +1,17 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignBaseDelegate.java,v 1.2 2009-09-28 15:08:23 mchyzer Exp $
+ * $Id: AttributeAssignBaseDelegate.java,v 1.3 2009-10-05 00:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -25,11 +26,12 @@ public abstract class AttributeAssignBaseDelegate {
   }
   
   /**
-   * 
+   * @param action is the action on the attribute assignment (e.g. read, write, assign [default])
+   * if null, should go to default
    * @param attributeDefName
    * @return attribute assign
    */
-  abstract AttributeAssign newAttributeAssign(AttributeDefName attributeDefName);
+  abstract AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName);
   
   /**
    * make sure the user can read the attribute (including looking at object if necessary)
@@ -59,18 +61,7 @@ public abstract class AttributeAssignBaseDelegate {
    */
   public boolean assignAttribute(AttributeDefName attributeDefName) {
 
-    this.assertCanUpdateAttributeDefName(attributeDefName);
-
-    //see if it exists
-    if (this.hasAttributeHelper(attributeDefName, false)) {
-      return false;
-    }
-
-    AttributeAssign attributeAssign = newAttributeAssign(attributeDefName);
-    attributeAssign.saveOrUpdate();
-
-    return true;
-    
+    return assignAttribute(null, attributeDefName);
   }
 
   /**
@@ -79,10 +70,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return if added or already there
    */
   public boolean assignAttributeByName(String attributeDefNameName) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
-    return assignAttribute(attributeDefName);
-    
+    return assignAttributeByName(null, attributeDefNameName);
   }
 
   /**
@@ -91,9 +79,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return if added or already there
    */
   public boolean assignAttributeById(String attributeDefNameId) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
-    return assignAttribute(attributeDefName);
+    return this.assignAttributeById(null, attributeDefNameId);
   }
 
   /**
@@ -102,10 +88,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return true if has attribute, false if not
    */
   public boolean hasAttributeById(String attributeDefNameId) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-    .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
-
-    return hasAttribute(attributeDefName);
+    return hasAttributeById(null, attributeDefNameId);
   }
   
   /**
@@ -114,21 +97,31 @@ public abstract class AttributeAssignBaseDelegate {
    * @return true if has attribute, false if not
    */
   public boolean hasAttribute(AttributeDefName attributeDefName) {
-    return hasAttributeHelper(attributeDefName, true);
+    return hasAttribute(null, attributeDefName);
   }
 
   /**
    * 
+   * @param action on the assignment
    * @param attributeDefName
    * @param checkSecurity 
    * @return true if has attribute, false if not
    */
-  boolean hasAttributeHelper(AttributeDefName attributeDefName, boolean checkSecurity) {
+  boolean hasAttributeHelper(String action, AttributeDefName attributeDefName, boolean checkSecurity) {
     if (checkSecurity) {
       this.assertCanReadAttributeDefName(attributeDefName);
     }
     Set<AttributeAssign> attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
-    return GrouperUtil.length(attributeAssigns) > 0;
+    
+    action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
+    for (AttributeAssign attributeAssign : attributeAssigns) {
+      String currentAttributeAction = StringUtils.defaultIfEmpty(attributeAssign.getAction(), AttributeDef.ACTION_DEFAULT);
+      if (StringUtils.equals(action, currentAttributeAction)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
 
@@ -138,12 +131,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return true if has attribute, false if not
    */
   public boolean hasAttributeByName(String attributeDefNameName) {
-    
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
-    
-    Set<AttributeAssign> attributeAssigns = retrieveAssignments(attributeDefName);
-    return GrouperUtil.length(attributeAssigns) > 0;
+    return hasAttributeByName(null, attributeDefNameName);
   }
 
   /**
@@ -225,21 +213,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return if removed or already not assigned
    */
   public boolean removeAttribute(AttributeDefName attributeDefName) {
-    
-    this.assertCanUpdateAttributeDefName(attributeDefName);
-    
-    //see if it exists
-    if (!this.hasAttributeHelper(attributeDefName, false)) {
-      return false;
-    }
-    
-    Set<AttributeAssign> attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
-    for (AttributeAssign attributeAssign : attributeAssigns) {
-      attributeAssign.delete();
-    }
-  
-    return true;
-    
+    return removeAttribute(null, attributeDefName);
   }
 
   /**
@@ -262,10 +236,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return if added or already there
    */
   public boolean removeAttributeById(String attributeDefNameId) {
-    
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
-    return removeAttribute(attributeDefName);
+    return removeAttributeById(null, attributeDefNameId);
   }
 
   /**
@@ -274,10 +245,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return if added or already there
    */
   public boolean removeAttributeByName(String attributeDefNameName) {
-    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
-      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
-    return removeAttribute(attributeDefName);
-    
+    return removeAttributeByName(null, attributeDefNameName);
   }
 
   /**
@@ -286,6 +254,147 @@ public abstract class AttributeAssignBaseDelegate {
    * @return set of def names or empty if none there
    */
   abstract Set<AttributeDefName> retrieveAttributeDefNamesByOwnerAndAttributeDefId(String attributeDefId);
+
+  /**
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefName
+   * @return if added or already there
+   */
+  public boolean assignAttribute(String action, AttributeDefName attributeDefName) {
+    this.assertCanUpdateAttributeDefName(attributeDefName);
+
+    //see if it exists
+    if (this.hasAttributeHelper(action, attributeDefName, false)) {
+      return false;
+    }
+
+    AttributeAssign attributeAssign = newAttributeAssign(action, attributeDefName);
+    attributeAssign.saveOrUpdate();
+
+    return true;
+
+  }
+
+  /**
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefNameId
+   * @return if added or already there
+   */
+  public boolean assignAttributeById(String action, String attributeDefNameId) {
+    
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+    return assignAttribute(action, attributeDefName);
+
+  }
+
+  /**
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefNameName
+   * @return if added or already there
+   */
+  public boolean assignAttributeByName(String action, String attributeDefNameName) {
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    return assignAttribute(action, attributeDefName);
+
+  }
+
+  /**
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefName
+   * @return true if has attribute, false if not
+   */
+  public boolean hasAttribute(String action, AttributeDefName attributeDefName) {
+    return hasAttributeHelper(action, attributeDefName, true);
+  }
+
+  /**
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefNameId
+   * @return true if has attribute, false if not
+   */
+  public boolean hasAttributeById(String action, String attributeDefNameId) {
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+
+    return hasAttribute(action, attributeDefName);
+
+  }
+
+  /**
+   * see if the group
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefNameName
+   * @return true if has attribute, false if not
+   */
+  public boolean hasAttributeByName(String action, String attributeDefNameName) {
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    
+    Set<AttributeAssign> attributeAssigns = retrieveAssignments(attributeDefName);
+    action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
+    for (AttributeAssign attributeAssign : attributeAssigns) {
+      String currentAttributeAction = StringUtils.defaultIfEmpty(attributeAssign.getAction(), AttributeDef.ACTION_DEFAULT);
+      if (StringUtils.equals(action, currentAttributeAction)) {
+        return true;
+      }
+    }
+    return false;
+
+  }
+
+  /**
+   * 
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefName
+   * @return if removed or already not assigned
+   */
+  public boolean removeAttribute(String action, AttributeDefName attributeDefName) {
+    this.assertCanUpdateAttributeDefName(attributeDefName);
+    
+    //see if it exists
+    if (!this.hasAttributeHelper(action, attributeDefName, false)) {
+      return false;
+    }
+    action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
+    Set<AttributeAssign> attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
+    for (AttributeAssign attributeAssign : attributeAssigns) {
+      String currentAttributeAction = StringUtils.defaultIfEmpty(attributeAssign.getAction(), AttributeDef.ACTION_DEFAULT);
+      if (StringUtils.equals(action, currentAttributeAction)) {
+        attributeAssign.delete();
+      }
+    }
+  
+    return true;
+    
+
+  }
+
+  /**
+   * 
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefNameId
+   * @return if added or already there
+   */
+  public boolean removeAttributeById(String action, String attributeDefNameId) {
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+    return removeAttribute(action, attributeDefName);
+  }
+
+  /**
+   * 
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefNameName
+   * @return if added or already there
+   */
+  public boolean removeAttributeByName(String action, String attributeDefNameName) {
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    return removeAttribute(action, attributeDefName);
+  
+  }
 
   
 }
