@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.80 2009-10-05 00:50:24 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.81 2009-10-05 00:56:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -4689,7 +4689,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gaa.owner_group_id = grs.then_has_role_id "
         + "and gaa.enabled = 'T' "
         + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id "
-        + "and gadn.id = gadns.then_has_attribute_def_name_id");
+        + "and gadn.id = gadns.then_has_attribute_def_name_id "
+        + "and gaa.owner_member_id is null ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_role_subject_v", 
         "grouper_perms_role_subject_v: shows all permissions assigned to users directly while in a role",
