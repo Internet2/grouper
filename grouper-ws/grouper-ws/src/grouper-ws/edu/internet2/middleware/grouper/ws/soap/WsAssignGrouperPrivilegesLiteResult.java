@@ -10,7 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
@@ -106,7 +106,7 @@ public class WsAssignGrouperPrivilegesLiteResult implements WsResponseBean, Resu
       if (e.getCause() instanceof SubjectNotUniqueException) {
         wsMemberChangeSubjectLiteResultCodeOverride = WsAssignGrouperPrivilegesLiteResultCode.SUBJECT_DUPLICATE;
       }
-      if (e.getCause() instanceof InsufficientPrivilegeRuntimeException) {
+      if (e.getCause() instanceof InsufficientPrivilegeException) {
         wsMemberChangeSubjectLiteResultCodeOverride = WsAssignGrouperPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES;
       }
       //a helpful exception will probably be in the getMessage()

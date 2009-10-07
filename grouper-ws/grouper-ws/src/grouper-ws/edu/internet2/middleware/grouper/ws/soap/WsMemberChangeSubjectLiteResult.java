@@ -8,7 +8,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
@@ -81,7 +81,7 @@ public class WsMemberChangeSubjectLiteResult implements WsResponseBean, ResultMe
       if (e.getCause() instanceof SubjectNotUniqueException) {
         wsMemberChangeSubjectLiteResultCodeOverride = WsMemberChangeSubjectLiteResultCode.SUBJECT_DUPLICATE;
       }
-      if (e.getCause() instanceof InsufficientPrivilegeRuntimeException) {
+      if (e.getCause() instanceof InsufficientPrivilegeException) {
         wsMemberChangeSubjectLiteResultCodeOverride = WsMemberChangeSubjectLiteResultCode.INSUFFICIENT_PRIVILEGES;
       }
       //a helpful exception will probably be in the getMessage()

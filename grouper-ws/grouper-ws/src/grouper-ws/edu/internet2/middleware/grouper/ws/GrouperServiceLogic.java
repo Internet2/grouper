@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.26 2009-04-13 20:24:22 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.27 2009-10-07 12:54:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -24,7 +24,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
@@ -2039,7 +2038,7 @@ public class GrouperServiceLogic {
                   //assign one of 4 success codes
                   wsMemberChangeSubjectResult.assignResultCode(WsMemberChangeSubjectResultCode.SUCCESS);
   
-                } catch (InsufficientPrivilegeRuntimeException ipe) {
+                } catch (InsufficientPrivilegeException ipe) {
                   wsMemberChangeSubjectResult
                       .assignResultCode(WsMemberChangeSubjectResultCode.INSUFFICIENT_PRIVILEGES);
                 } catch (Exception e) {
@@ -3187,7 +3186,7 @@ public class GrouperServiceLogic {
       
     } catch (WebServiceDoneException wsde) {
       //ignore this
-    } catch (InsufficientPrivilegeRuntimeException ipe) {
+    } catch (InsufficientPrivilegeException ipe) {
       wsGetGrouperPrivilegesLiteResult
           .assignResultCode(WsGetGrouperPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES);
     } catch (Exception e) {
@@ -3730,7 +3729,7 @@ public class GrouperServiceLogic {
             }
           }
         }
-      } catch (InsufficientPrivilegeRuntimeException ipe) {
+      } catch (InsufficientPrivilegeException ipe) {
         wsAssignGrouperPrivilegesLiteResult
             .assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES);
       } catch (Exception e) {
