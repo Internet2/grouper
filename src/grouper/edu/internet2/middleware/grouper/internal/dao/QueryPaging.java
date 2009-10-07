@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: QueryPaging.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
+ * $Id: QueryPaging.java,v 1.3 2009-10-07 14:38:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -358,8 +358,8 @@ public class QueryPaging {
    * @return the number of pages total
    */
   private int numberOfPages() {
-    int pages = this.getTotalRecordCount() / this.getPageSize();
-    int totalOnLastPage = this.getTotalRecordCount() % this.getPageSize();
+    int pages = this.getPageSize() == 0 ? 1 : this.getTotalRecordCount() / this.getPageSize();
+    int totalOnLastPage = this.getPageSize() == 0 ? 0 : this.getTotalRecordCount() % this.getPageSize();
     if (totalOnLastPage > 0) {
       pages++;
     }
