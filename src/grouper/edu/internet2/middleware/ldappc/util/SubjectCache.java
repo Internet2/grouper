@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.8 2009-09-29 06:43:31 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.9 2009-10-09 16:18:04 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -209,7 +209,7 @@ public class SubjectCache {
       //
       // Get the subject's name attribute value
       //
-      if (!sourceNameAttr.equals("id")) {
+      if (!sourceNameAttr.equalsIgnoreCase("id")) {
         LOG.debug("get source attribute '{}' for subject '{}'", sourceNameAttr,
             subjectIdentifier);
         subjectIdentifier = member.getSubject().getAttributeValue(sourceNameAttr);
