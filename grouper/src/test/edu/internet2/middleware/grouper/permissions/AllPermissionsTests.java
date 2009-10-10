@@ -18,6 +18,7 @@ public class AllPermissionsTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.attr");
     //$JUnit-BEGIN$
     suite.addTestSuite(RoleSetTest.class);
+    suite.addTestSuite(PermissionEntryTest.class);
     //$JUnit-END$
     return suite;
   }

@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignBaseDelegate.java,v 1.3 2009-10-05 00:50:24 mchyzer Exp $
+ * $Id: AttributeAssignBaseDelegate.java,v 1.4 2009-10-10 18:02:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -269,6 +269,11 @@ public abstract class AttributeAssignBaseDelegate {
     }
 
     AttributeAssign attributeAssign = newAttributeAssign(action, attributeDefName);
+    
+    if (StringUtils.isBlank(attributeAssign.getAction())) {
+      attributeAssign.setAction(AttributeDef.ACTION_DEFAULT);
+    }
+    
     attributeAssign.saveOrUpdate();
 
     return true;

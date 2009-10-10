@@ -68,6 +68,12 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public static final String COLUMN_ATTRIBUTE_DEF_NAME_ID = "attribute_def_name_id";
 
   /** column */
+  public static final String COLUMN_ATTRIBUTE_ASSIGN_DELEGATABLE = "attribute_assign_delegatable";
+
+  /** column */
+  public static final String COLUMN_ATTRIBUTE_ASSIGN_TYPE = "attribute_assign_type";
+
+  /** column */
   public static final String COLUMN_OWNER_GROUP_ID = "owner_group_id";
 
   /** column */
@@ -99,6 +105,12 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
   /** constant for field name for: action */
   public static final String FIELD_ACTION = "action";
+
+  /** constant for field name for: attributeAssignDelegatable */
+  public static final String FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE = "attributeAssignDelegatable";
+
+  /** constant for field name for: attributeAssignType */
+  public static final String FIELD_ATTRIBUTE_ASSIGN_TYPE = "attributeAssignType";
 
   /** constant for field name for: attributeNameId */
   public static final String FIELD_ATTRIBUTE_NAME_ID = "attributeNameId";
@@ -150,7 +162,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ACTION, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, 
+      FIELD_ACTION, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, 
+      FIELD_CREATED_ON_DB, 
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_ID, 
       FIELD_LAST_UPDATED_DB, FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, 
       FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID);
@@ -172,6 +185,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeAssign() {
     //default
+    this.attributeAssignDelegatable = AttributeAssignDelegatable.FALSE;
   }
   
   /**
@@ -181,7 +195,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param attributeDefName
    */
   public AttributeAssign(Stem ownerStem, String theAction, AttributeDefName attributeDefName) {
-    
+
+    this();
+    this.setAttributeAssignType(AttributeAssignType.stem);
     this.setOwnerStemId(ownerStem.getUuid());
     this.setAction(theAction);
     this.setAttributeDefNameId(attributeDefName.getId());
@@ -197,6 +213,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeAssign(AttributeDef ownerAttributeDef, String theAction, AttributeDefName attributeDefName) {
     
+    this();
+    this.setAttributeAssignType(AttributeAssignType.attr_def);
     this.setOwnerAttributeDefId(ownerAttributeDef.getId());
     this.setAction(theAction);
     this.setAttributeDefNameId(attributeDefName.getId());
@@ -212,6 +230,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeAssign(Group ownerGroup, String theAction, AttributeDefName attributeDefName) {
     
+    this();
+    this.setAttributeAssignType(AttributeAssignType.group);
     this.setOwnerGroupId(ownerGroup.getUuid());
     this.setAction(theAction);
     this.setAttributeDefNameId(attributeDefName.getId());
@@ -220,7 +240,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
 
   /**
-   * create an attribute assign, including a uuid.  This is for an effective membership
+   * create an attribute assign, including a uuid.  This is for an immediate or effective membership
    * @param ownerGroup
    * @param ownerMember 
    * @param theAction
@@ -228,6 +248,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeAssign(Group ownerGroup, Member ownerMember, String theAction, AttributeDefName attributeDefName) {
     
+    this();
+    this.setAttributeAssignType(AttributeAssignType.any_mem);
+
     //this must be an immediate, list membership
     Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), 
         ownerGroup, ownerMember.getSubject(), Group.getDefaultList(), false);
@@ -251,7 +274,28 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param theAction
    * @param attributeDefName
    */
-  public AttributeAssign(AttributeAssign ownerAttributeAssign, String theAction, AttributeDefName attributeDefName) {
+  public AttributeAssign(AttributeAssign ownerAttributeAssign, String theAction, 
+      AttributeDefName attributeDefName) {
+    
+    this();
+    
+    AttributeAssignType ownerType = ownerAttributeAssign.getAttributeAssignType();
+    if (AttributeAssignType.group == ownerType) {
+      this.attributeAssignType = AttributeAssignType.group_asgn;
+    } else if (AttributeAssignType.stem == ownerType) {
+      this.attributeAssignType = AttributeAssignType.stem_asgn;
+    } else if (AttributeAssignType.member == ownerType) {
+      this.attributeAssignType = AttributeAssignType.mem_asgn;
+    } else if (AttributeAssignType.attr_def == ownerType) {
+      this.attributeAssignType = AttributeAssignType.attr_def_asgn;
+    } else if (AttributeAssignType.any_mem == ownerType) {
+      this.attributeAssignType = AttributeAssignType.any_mem_asgn;
+    } else if (AttributeAssignType.imm_mem == ownerType) {
+      this.attributeAssignType = AttributeAssignType.imm_mem_asgn;
+    } else {
+      throw new RuntimeException("Not expecting attribute on ownerAttributeType: " + ownerType);
+    }
+
     
     //cant assign to an assignment of an assignment.
     if (!StringUtils.isBlank(ownerAttributeAssign.getOwnerAttributeAssignId())) {
@@ -282,6 +326,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeAssign(Membership ownerMembership, String theAction, AttributeDefName attributeDefName) {
     
+    this();
+    this.setAttributeAssignType(AttributeAssignType.imm_mem);
+
     //this must be an immediate, list membership
     if (!ownerMembership.isImmediate()) {
       throw new RuntimeException("Memberships which have attributes must be immediate: " 
@@ -309,6 +356,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeAssign(Member ownerMember, String theAction, AttributeDefName attributeDefName) {
     
+    this();
+    this.setAttributeAssignType(AttributeAssignType.member);
+
     this.setOwnerMemberId(ownerMember.getUuid());
     this.setAction(theAction);
     this.setAttributeDefNameId(attributeDefName.getId());
@@ -337,10 +387,84 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public AttributeAssign clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
-
+  
   /** attribute name in this assignment */
   private String attributeDefNameId;
 
+  /** if the subjects assigned to the attribute can delegate to someone else, or delegate as delegatable */
+  private AttributeAssignDelegatable attributeAssignDelegatable;
+  
+  /** type of assignment */
+  private AttributeAssignType attributeAssignType;
+  
+  /**
+   * get the enum for delegatable, do not return null
+   * @return the attributeAssignDelegatable
+   */
+  public AttributeAssignDelegatable getAttributeAssignDelegatable() {
+    return GrouperUtil.defaultIfNull(this.attributeAssignDelegatable, 
+        AttributeAssignDelegatable.FALSE); 
+  }
+
+  /**
+   * internal method for hibernate to persist this enum
+   * @return the string value (enum name)
+   */
+  public String getAttributeAssignDelegatableDb() {
+    return this.getAttributeAssignDelegatable().name();
+  }
+
+  /**
+   * internal method for hibernate to set if delegatable
+   * @param theAttributeAssignDelegatableDb
+   */
+  public void setAttributeAssignDelegatableDb(String theAttributeAssignDelegatableDb) {
+    this.attributeAssignDelegatable = AttributeAssignDelegatable.valueOfIgnoreCase(
+        theAttributeAssignDelegatableDb, false);
+  }
+  
+  /**
+   * @param attributeAssignDelegatable1 the attributeAssignDelegatable to set
+   */
+  public void setAttributeAssignDelegatable(
+      AttributeAssignDelegatable attributeAssignDelegatable1) {
+    this.attributeAssignDelegatable = attributeAssignDelegatable1;
+  }
+
+  /**
+   * get the enum for delegatable, should not return null
+   * @return the attributeAssignDelegatable
+   */
+  public AttributeAssignType getAttributeAssignType() {
+    return this.attributeAssignType;
+  }
+
+  /**
+   * internal method for hibernate to persist this enum
+   * @return the string value (enum name)
+   */
+  public String getAttributeAssignTypeDb() {
+    return this.getAttributeAssignType().name();
+  }
+
+  /**
+   * internal method for hibernate to set if delegatable
+   * @param theAttributeAssignTypeDb
+   */
+  public void setAttributeAssignTypeDb(String theAttributeAssignTypeDb) {
+    this.attributeAssignType = AttributeAssignType.valueOfIgnoreCase(
+        theAttributeAssignTypeDb, false);
+  }
+  
+  /**
+   * @param attributeAssignType1 the attributeAssignDelegatable to set
+   */
+  public void setAttributeAssignType(
+      AttributeAssignType attributeAssignType1) {
+    this.attributeAssignType = attributeAssignType1;
+  }
+
+  
   /** if this is an attribute assign attribute, this is the foreign key */
   private String ownerAttributeAssignId;
   
@@ -845,4 +969,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     super.onPreUpdate(hibernateSession);
     this.setLastUpdatedDb(System.currentTimeMillis());
   }
+  
+  
 }

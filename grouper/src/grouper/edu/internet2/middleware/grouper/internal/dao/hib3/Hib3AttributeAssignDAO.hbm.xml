@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeAssignDAO.hbm.xml,v 1.2 2009-09-28 05:06:46 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeAssignDAO.hbm.xml,v 1.3 2009-10-10 18:02:33 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.attr.assign">
 
@@ -41,6 +41,8 @@
 
     <property name="action" column="action"/>
     <property name="attributeDefNameId" column="attribute_def_name_id"/>
+    <property name="attributeAssignDelegatableDb" column="attribute_assign_delegatable"/>
+    <property name="attributeAssignTypeDb" column="attribute_assign_type"/>
     <property name="contextId" column="context_id"/>
     <property name="createdOnDb" column="created_on"/>
     <property name="disabledTimeDb" column="disabled_time"/>
