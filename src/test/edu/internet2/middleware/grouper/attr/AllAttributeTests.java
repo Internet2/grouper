@@ -17,16 +17,19 @@ public class AllAttributeTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.attr");
     //$JUnit-BEGIN$
+    suite.addTestSuite(AttributeAssignValueTest.class);
+    suite.addTestSuite(EffMshipAttributeSecurityTest.class);
+    suite.addTestSuite(AttributeDefAttributeSecurityTest.class);
     suite.addTestSuite(AttributeDefTest.class);
+    suite.addTestSuite(AttributeDefScopeTest.class);
+    suite.addTestSuite(MemberAttributeSecurityTest.class);
     suite.addTestSuite(GroupAttributeSecurityTest.class);
+    suite.addTestSuite(AttributeAssignTest.class);
     suite.addTestSuite(AttributeDefNameSetTest.class);
+    suite.addTestSuite(AttrAssignAttributeSecurityTest.class);
     suite.addTestSuite(AttributeDefNameTest.class);
     suite.addTestSuite(StemAttributeSecurityTest.class);
-    suite.addTestSuite(AttributeDefAttributeSecurityTest.class);
-    suite.addTestSuite(AttributeAssignValueTest.class);
-    suite.addTestSuite(AttributeDefScopeTest.class);
-    suite.addTestSuite(AttributeAssignTest.class);
-    suite.addTestSuite(MemberAttributeSecurityTest.class);
+    suite.addTestSuite(MembershipAttributeSecurityTest.class);
     //$JUnit-END$
     return suite;
   }

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.81 2009-10-05 00:56:05 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.82 2009-10-10 18:02:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3851,6 +3851,10 @@ public enum GrouperDdl implements DdlVersionable {
           "attribute_def_name_disp_name",
           "name_of_attribute_def",
           "attribute_assign_notes",
+          "attribute_assign_delegatable",
+          "enabled",
+          "enabled_time",
+          "disabled_time",
           "group_id",
           "attribute_assign_id",
           "attribute_def_name_id",
@@ -3863,6 +3867,10 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
             "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
             "attribute_assign_notes: notes related to the attribute assignment",
+            "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+            "enabled: if this assignment is enabled: T, F",
+            "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+            "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
             "group_id: group id of the group assigned the attribute",
             "attribute_assign_id: id of the attribute assignment",
             "attribute_def_name_id: id of the attribute definition name",
@@ -3875,6 +3883,10 @@ public enum GrouperDdl implements DdlVersionable {
         + "gadn.display_name as attribute_def_name_disp_name, "
         + "gad.name as name_of_attribute_def, "
         + "gaa.notes as attribute_assign_notes, "
+        + "gaa.attribute_assign_delegatable, "
+        + "gaa.enabled, "
+        + "gaa.enabled_time, "
+        + "gaa.disabled_time, "
         + "gg.id as group_id, "
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
@@ -3884,7 +3896,6 @@ public enum GrouperDdl implements DdlVersionable {
         + "where gaa.owner_group_id = gg.id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
-        + "and gaa.enabled = 'T' "
         + "and gaa.owner_member_id is null ");
 
 
@@ -3900,6 +3911,10 @@ public enum GrouperDdl implements DdlVersionable {
           "name_of_attribute_def",
           "attribute_assign_notes",
           "list_name",
+          "attribute_assign_delegatable",
+          "enabled",
+          "enabled_time",
+          "disabled_time",
           "group_id",
           "attribute_assign_id",
           "attribute_def_name_id",
@@ -3916,6 +3931,10 @@ public enum GrouperDdl implements DdlVersionable {
             "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
             "attribute_assign_notes: notes related to the attribute assignment",
             "list_name: name of the membership list for this effective membership",
+            "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+            "enabled: if this assignment is enabled: T, F",
+            "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+            "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
             "group_id: group id of the group assigned the attribute",
             "attribute_assign_id: id of the attribute assignment",
             "attribute_def_name_id: id of the attribute definition name",
@@ -3932,6 +3951,10 @@ public enum GrouperDdl implements DdlVersionable {
         + "gad.name as name_of_attribute_def, "
         + "gaa.notes as attribute_assign_notes, "
         + "gf.name as list_name, "
+        + "gaa.attribute_assign_delegatable, "
+        + "gaa.enabled, "
+        + "gaa.enabled_time, "
+        + "gaa.disabled_time, "
         + "gg.id as group_id, "
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
@@ -3944,7 +3967,6 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gaa.owner_member_id = gmav.member_id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
-        + "and gaa.enabled = 'T' "
         + "and gmav.immediate_mship_enabled = 'T' "
         + "and gmav.owner_group_id = gg.id "
         + "and gmav.field_id = gf.id "
@@ -3962,6 +3984,9 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_disp_name",
             "name_of_attribute_def",
             "attribute_assign_notes",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
             "stem_id",
             "attribute_assign_id",
             "attribute_def_name_id",
@@ -3974,6 +3999,9 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
             "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
             "attribute_assign_notes: notes related to the attribute assignment",
+            "enabled: if this assignment is enabled: T, F",
+            "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+            "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
             "stem_id: stem id of the stem assigned the attribute",
             "attribute_assign_id: id of the attribute assignment",
             "attribute_def_name_id: id of the attribute definition name",
@@ -3986,6 +4014,9 @@ public enum GrouperDdl implements DdlVersionable {
         + "gadn.display_name as attribute_def_name_disp_name, "
         + "gad.name as name_of_attribute_def, "
         + "gaa.notes as attribute_assign_notes, "
+        + "gaa.enabled, "
+        + "gaa.enabled_time, "
+        + "gaa.disabled_time, "
         + "gs.id as stem_id, "
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
@@ -3994,8 +4025,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
         + "where gaa.owner_stem_id = gs.id "
         + "and gaa.attribute_def_name_id = gadn.id "
-        + "and gadn.attribute_def_id = gad.id "
-        + "and gaa.enabled = 'T' ");
+        + "and gadn.attribute_def_id = gad.id ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_member_v", 
         "grouper_attr_asn_member_v: attribute assigned to a member and related cols",
@@ -4005,6 +4035,10 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_disp_name",
             "name_of_attribute_def",
             "attribute_assign_notes",
+            "attribute_assign_delegatable",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
             "member_id",
             "attribute_assign_id",
             "attribute_def_name_id",
@@ -4017,6 +4051,10 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
             "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
             "attribute_assign_notes: notes related to the attribute assignment",
+            "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+            "enabled: if this assignment is enabled: T, F",
+            "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+            "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
             "member_id: member id of the member assigned the attribute (this is an internal grouper uuid)",
             "attribute_assign_id: id of the attribute assignment",
             "attribute_def_name_id: id of the attribute definition name",
@@ -4028,6 +4066,10 @@ public enum GrouperDdl implements DdlVersionable {
         + "gadn.display_name as attribute_def_name_disp_name, "
         + "gad.name as name_of_attribute_def, "
         + "gaa.notes as attribute_assign_notes, "
+        + "gaa.attribute_assign_delegatable, "
+        + "gaa.enabled, "
+        + "gaa.enabled_time, "
+        + "gaa.disabled_time, "
         + "gm.id as member_id, "
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
@@ -4037,7 +4079,6 @@ public enum GrouperDdl implements DdlVersionable {
         + "where gaa.owner_member_id = gm.id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
-        + "and gaa.enabled = 'T' "
         + "and gaa.owner_group_id is null ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_mship_v", 
@@ -4051,6 +4092,10 @@ public enum GrouperDdl implements DdlVersionable {
             "list_name",
             "name_of_attribute_def",
             "attribute_assign_notes",
+            "attribute_assign_delegatable",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
             "group_id",
             "membership_id",
             "member_id",
@@ -4067,6 +4112,10 @@ public enum GrouperDdl implements DdlVersionable {
               "list_name: name of list in membership assigned the attribute",
               "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
               "attribute_assign_notes: notes related to the attribute assignment",
+              "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+              "enabled: if this assignment is enabled: T, F",
+              "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
               "group_id: group id of the membership assigned the attribute",
               "membership_id: membership id assigned the attribute",
               "member_id: internal grouper member uuid of the membership assigned the attribute",
@@ -4083,6 +4132,10 @@ public enum GrouperDdl implements DdlVersionable {
           + "gf.name as list_name, "
           + "gad.name as name_of_attribute_def, "
           + "gaa.notes as attribute_assign_notes, "
+          + "gaa.attribute_assign_delegatable, "
+          + "gaa.enabled, "
+          + "gaa.enabled_time, "
+          + "gaa.disabled_time, "
           + "gg.id as group_id, "
           + "gms.id as membership_id, "
           + "gm.id as member_id, "
@@ -4094,9 +4147,8 @@ public enum GrouperDdl implements DdlVersionable {
           + "where gaa.owner_membership_id = gms.id "
           + "and gaa.attribute_def_name_id = gadn.id "
           + "and gadn.attribute_def_id = gad.id "
-          + "and gaa.enabled = 'T'" +
-          		" and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id" +
-          		" and gf.type = 'list' ");
+      		+ " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id "
+          + " and gf.type = 'list' ");
 
     
 
@@ -4108,6 +4160,9 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_disp_name",
             "name_of_attribute_def_assigned",
             "attribute_assign_notes",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
             "id_of_attr_def_assigned_to",
             "attribute_assign_id",
             "attribute_def_name_id",
@@ -4119,6 +4174,9 @@ public enum GrouperDdl implements DdlVersionable {
               "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
               "name_of_attribute_def: name of the attribute definition associated with the attribute definition name assigned to the group",
               "attribute_assign_notes: notes related to the attribute assignment",
+              "enabled: if this assignment is enabled: T, F",
+              "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
               "id_of_attr_def_assigned_to: attrDef id of the attributeDef assigned the attribute",
               "attribute_assign_id: id of the attribute assignment",
               "attribute_def_name_id: id of the attribute definition name",
@@ -4130,6 +4188,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "gadn.display_name as attribute_def_name_disp_name, "
           + "gad.name as name_of_attribute_def, "
           + "gaa.notes as attribute_assign_notes, "
+          + "gaa.enabled, "
+          + "gaa.enabled_time, "
+          + "gaa.disabled_time, "
           + "gad_assigned_to.id as id_of_attr_def_assigned_to, "
           + "gaa.id as attribute_assign_id, "
           + "gadn.id as attribute_def_name_id, "
@@ -4138,8 +4199,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
           + "where gaa.owner_attribute_def_id = gad_assigned_to.id "
           + "and gaa.attribute_def_name_id = gadn.id "
-          + "and gadn.attribute_def_id = gad.id "
-          + "and gaa.enabled = 'T' ");
+          + "and gadn.attribute_def_id = gad.id ");
 
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_group_v", 
@@ -4156,6 +4216,9 @@ public enum GrouperDdl implements DdlVersionable {
             "name_of_attribute_def2",
             "attribute_assign_notes1",
             "attribute_assign_notes2",
+            "enabled2",
+            "enabled_time2",
+            "disabled_time2",
             "group_id",
             "attribute_assign_id1",
             "attribute_assign_id2",
@@ -4176,6 +4239,9 @@ public enum GrouperDdl implements DdlVersionable {
               "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
               "attribute_assign_notes1: notes related to the original attribute assignment to the group",
               "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+              "enabled2: if this assignment is enabled: T, F",
+              "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
               "group_id: group id of the group assigned the attribute",
               "attribute_assign_id1: id of the original attribute assignment to the group",
               "attribute_assign_id2: id of the new attribute assignment to the assignment",
@@ -4195,6 +4261,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "gad2.name as name_of_attribute_def2, "
           + "gaa1.notes as attribute_assign_notes1, "
           + "gaa2.notes as attribute_assign_notes2, "
+          + "gaa2.enabled as enabled2, "
+          + "gaa2.enabled_time as enabled_time2, "
+          + "gaa2.disabled_time as disabled_time2, "
           + "gg.id as group_id, "
           + "gaa1.id as attribute_assign_id1, "
           + "gaa2.id as attribute_assign_id2, "
@@ -4210,7 +4279,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " 
+          + "and gaa1.enabled = 'T' " 
           +	"and gg.id = gaa1.owner_group_id "
           + "and gaa1.owner_member_id is null ");
 
@@ -4230,6 +4299,9 @@ public enum GrouperDdl implements DdlVersionable {
             "name_of_attribute_def2",
             "attribute_assign_notes1",
             "attribute_assign_notes2",
+            "enabled2",
+            "enabled_time2",
+            "disabled_time2",
             "group_id",
             "member_id",
             "attribute_assign_id1",
@@ -4253,6 +4325,9 @@ public enum GrouperDdl implements DdlVersionable {
               "name_of_attribute_def2: name of the new attribute definition associated with the attribute definition name assigned to the group",
               "attribute_assign_notes1: notes related to the original attribute assignment",
               "attribute_assign_notes2: notes related to the new attribute assignment",
+              "enabled2: if this assignment is enabled: T, F",
+              "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
               "group_id: group id of the membership assigned the attribute",
               "member_id: internal grouper member uuid of the membership assigned the attribute",
               "attribute_assign_id1: id of the original attribute assignment",
@@ -4273,6 +4348,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "gad2.name as name_of_attribute_def2, "
           + "gaa1.notes as attribute_assign_notes1, "
           + "gaa2.notes as attribute_assign_notes2, "
+          + "gaa2.enabled as enabled2, "
+          + "gaa2.enabled_time as enabled_time2, "
+          + "gaa2.disabled_time as disabled_time2, "
           + "gg.id as group_id, "
           + "gm.id as member_id, "
           + "gaa1.id as attribute_assign_id1, "
@@ -4289,7 +4367,7 @@ public enum GrouperDdl implements DdlVersionable {
           		" and gaa2.owner_attribute_assign_id = gaa1.id  "
           + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' and gmav.immediate_mship_enabled = 'T'" +
+          + "and gaa1.enabled = 'T' and gmav.immediate_mship_enabled = 'T'" +
               " and gmav.field_id = gf.id and gmav.member_id = gm.id and gmav.owner_group_id = gg.id" +
               " and gf.type = 'list'"
           + " and gaa1.owner_member_id is not null "
@@ -4310,6 +4388,9 @@ public enum GrouperDdl implements DdlVersionable {
             "name_of_attribute_def2",
             "attribute_assign_notes1",
             "attribute_assign_notes2",
+            "enabled2",
+            "enabled_time2",
+            "disabled_time2",
             "stem_id",
             "attribute_assign_id1",
             "attribute_assign_id2",
@@ -4330,6 +4411,9 @@ public enum GrouperDdl implements DdlVersionable {
               "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
               "attribute_assign_notes1: notes related to the original attribute assignment to the group",
               "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+              "enabled2: if this assignment is enabled: T, F",
+              "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
               "stem_id: stem id of the stem assigned the attribute",
               "attribute_assign_id1: id of the original attribute assignment to the group",
               "attribute_assign_id2: id of the new attribute assignment to the assignment",
@@ -4349,6 +4433,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "gad2.name as name_of_attribute_def2, "
           + "gaa1.notes as attribute_assign_notes1, "
           + "gaa2.notes as attribute_assign_notes2, "
+          + "gaa2.enabled as enabled2, "
+          + "gaa2.enabled_time as enabled_time2, "
+          + "gaa2.disabled_time as disabled_time2, "
           + "gs.id as stem_id, "
           + "gaa1.id as attribute_assign_id1, "
           + "gaa2.id as attribute_assign_id2, "
@@ -4364,7 +4451,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
+          + "and gaa1.enabled = 'T' " +
               "and gs.id = gaa1.owner_stem_id");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_member_v", 
@@ -4380,6 +4467,9 @@ public enum GrouperDdl implements DdlVersionable {
             "name_of_attribute_def2",
             "attribute_assign_notes1",
             "attribute_assign_notes2",
+            "enabled2",
+            "enabled_time2",
+            "disabled_time2",
             "member_id",
             "attribute_assign_id1",
             "attribute_assign_id2",
@@ -4400,6 +4490,9 @@ public enum GrouperDdl implements DdlVersionable {
               "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
               "attribute_assign_notes1: notes related to the original attribute assignment to the group",
               "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+              "enabled2: if this assignment is enabled: T, F",
+              "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
               "member_id: member id of the member assigned the original attribute",
               "attribute_assign_id1: id of the original attribute assignment to the group",
               "attribute_assign_id2: id of the new attribute assignment to the assignment",
@@ -4418,6 +4511,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "gad2.name as name_of_attribute_def2, "
           + "gaa1.notes as attribute_assign_notes1, "
           + "gaa2.notes as attribute_assign_notes2, "
+          + "gaa2.enabled as enabled2, "
+          + "gaa2.enabled_time as enabled_time2, "
+          + "gaa2.disabled_time as disabled_time2, "
           + "gm.id as member_id, "
           + "gaa1.id as attribute_assign_id1, "
           + "gaa2.id as attribute_assign_id2, "
@@ -4433,7 +4529,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
+          + "and gaa1.enabled = 'T' " +
               "and gm.id = gaa1.owner_member_id "
           + "and gaa1.owner_group_id is null");
 
@@ -4455,6 +4551,9 @@ public enum GrouperDdl implements DdlVersionable {
             "name_of_attribute_def2",
             "attribute_assign_notes1",
             "attribute_assign_notes2",
+            "enabled2",
+            "enabled_time2",
+            "disabled_time2",
             "group_id",
             "membership_id",
             "member_id",
@@ -4479,6 +4578,9 @@ public enum GrouperDdl implements DdlVersionable {
               "name_of_attribute_def2: name of the new attribute definition associated with the attribute definition name assigned to the group",
               "attribute_assign_notes1: notes related to the original attribute assignment",
               "attribute_assign_notes2: notes related to the new attribute assignment",
+              "enabled2: if this assignment is enabled: T, F",
+              "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
               "group_id: group id of the membership assigned the attribute",
               "membership_id: membership id assigned the attribute",
               "member_id: internal grouper member uuid of the membership assigned the attribute",
@@ -4500,6 +4602,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "gad2.name as name_of_attribute_def2, "
           + "gaa1.notes as attribute_assign_notes1, "
           + "gaa2.notes as attribute_assign_notes2, "
+          + "gaa2.enabled as enabled2, "
+          + "gaa2.enabled_time as enabled_time2, "
+          + "gaa2.disabled_time as disabled_time2, "
           + "gg.id as group_id, "
           + "gms.id as membership_id, "
           + "gm.id as member_id, "
@@ -4516,7 +4621,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "where gaa1.owner_membership_id = gms.id and gaa2.owner_attribute_assign_id = gaa1.id  "
           + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T'" +
+          + "and gaa1.enabled = 'T' " +
               " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id" +
               " and gf.type = 'list'");
 
@@ -4535,6 +4640,9 @@ public enum GrouperDdl implements DdlVersionable {
             "name_of_attribute_def2",
             "attribute_assign_notes1",
             "attribute_assign_notes2",
+            "enabled2",
+            "enabled_time2",
+            "disabled_time2",
             "id_of_attr_def_assigned_to",
             "attribute_assign_id1",
             "attribute_assign_id2",
@@ -4554,6 +4662,9 @@ public enum GrouperDdl implements DdlVersionable {
               "name_of_attribute_def2: name of the attribute definition associated with the new attribute definition name assigned to the assignment",
               "attribute_assign_notes1: notes related to the original attribute assignment to the group",
               "attribute_assign_notes2: notes related to the new attribute assignment to the assignment",
+              "enabled2: if this assignment is enabled: T, F",
+              "enabled_time2: the time (seconds since 1970) that this assignment will be enabled",
+              "disabled_time2: the time (seconds since 1970) that this assignment will be disabled",
               "id_of_attr_def_assigned_to: id of the attribute def assigned the attribute",
               "attribute_assign_id1: id of the original attribute assignment to the group",
               "attribute_assign_id2: id of the new attribute assignment to the assignment",
@@ -4572,6 +4683,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "gad2.name as name_of_attribute_def2, "
           + "gaa1.notes as attribute_assign_notes1, "
           + "gaa2.notes as attribute_assign_notes2, "
+          + "gaa2.enabled as enabled2, "
+          + "gaa2.enabled_time as enabled_time2, "
+          + "gaa2.disabled_time as disabled_time2, "
           + "gad.id as id_of_attr_def_assigned_to, "
           + "gaa1.id as attribute_assign_id1, "
           + "gaa2.id as attribute_assign_id2, "
@@ -4587,7 +4701,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' and gaa2.enabled = 'T' " +
+          + "and gaa1.enabled = 'T' " +
               "and gad.id = gaa1.owner_attribute_def_id");
 
     
@@ -4642,6 +4756,10 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_name",
             "attribute_def_name_disp_name",
             "role_display_name",
+            "attribute_assign_delegatable",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
             "role_id",
             "attribute_def_id",
             "member_id", 
@@ -4654,43 +4772,50 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
             "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
             "role_display_name: display name of role the subject is in, and that the permissions are assigned to",
+            "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+            "enabled: if this assignment is enabled: T, F",
+            "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+            "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
             "role_id: id of role the subject is in, and that the permissions are assigned to",
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
             "attribute_def_name_id: id of the attribute definition name"
         ),
-        "select distinct gr.name as role_name, "
-        + "gm.subject_source as subject_source_id, "
-        + "gm.subject_id, "
-        + "gaa.action as action, "
-        + "gadn.name as attribute_def_name_name, "
-        + "gadn.display_name as attribute_def_name_disp_name, "
-        + "gr.display_name as role_display_name, "
-        + "gr.id as role_id, "
-        + "gadn.attribute_def_id, "
-        + "gm.id as member_id, "
-        + "gadn.id as attribute_def_name_id "
-        + "from grouper_groups gr, "
-        + "grouper_memberships_all_v gmav, "
-        + "grouper_members gm, "
-        + "grouper_fields gf, "
-        + "grouper_role_set grs, " 
-        + "grouper_attribute_assign gaa, "
-        + "grouper_attribute_def_name gadn, "
-        + "grouper_attribute_def_name_set gadns "
-        + "where gr.type_of_group = 'role' "
-        + "and gmav.owner_group_id = gr.id "
-        + "and gmav.field_id = gf.id "
-        + "and gf.type = 'list' "
-        + "and gf.name = 'members' "
-        + "and gmav.immediate_mship_enabled = 'T' "
-        + "and gmav.member_id = gm.id "
-        + "and grs.if_has_role_id = gr.id "
-        + "and gaa.owner_group_id = grs.then_has_role_id "
-        + "and gaa.enabled = 'T' "
-        + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id "
-        + "and gadn.id = gadns.then_has_attribute_def_name_id "
-        + "and gaa.owner_member_id is null ");
+        "select distinct gr.name as role_name,  "
+        + "gm.subject_source as subject_source_id,  "
+        + "gm.subject_id,  "
+        + "gaa.action as action,  "
+        + "gadn.name as attribute_def_name_name,  "
+        + "gadn.display_name as attribute_def_name_disp_name,  "
+        + "gr.display_name as role_display_name,  "
+        + "gaa.attribute_assign_delegatable, "
+        + "gaa.enabled, "
+        + "gaa.enabled_time, "
+        + "gaa.disabled_time, "
+        + "gr.id as role_id,  "
+        + "gadn.attribute_def_id,  "
+        + "gm.id as member_id,  "
+        + "gadn.id as attribute_def_name_id  "
+        + "from grouper_groups gr,  "
+        + "grouper_memberships_all_v gmav,  "
+        + "grouper_members gm,  "
+        + "grouper_fields gf,  "
+        + "grouper_role_set grs,  "
+        + "grouper_attribute_assign gaa,  "
+        + "grouper_attribute_def_name gadn,  "
+        + "grouper_attribute_def_name_set gadns  "
+        + "where gr.type_of_group = 'role'  "
+        + "and gmav.owner_group_id = gr.id  "
+        + "and gmav.field_id = gf.id  "
+        + "and gf.type = 'list'  "
+        + "and gf.name = 'members'  "
+        + "and gmav.immediate_mship_enabled = 'T'  "
+        + "and gmav.member_id = gm.id  "
+        + "and grs.if_has_role_id = gr.id  "
+        + "and gaa.owner_group_id = grs.then_has_role_id  "
+        + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id  "
+        + "and gadn.id = gadns.then_has_attribute_def_name_id  "
+        + "and gaa.attribute_assign_type = 'group' ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_role_subject_v", 
         "grouper_perms_role_subject_v: shows all permissions assigned to users directly while in a role",
@@ -4701,6 +4826,10 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_name",
             "attribute_def_name_disp_name",
             "role_display_name",
+            "attribute_assign_delegatable",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
             "role_id",
             "attribute_def_id",
             "member_id", 
@@ -4713,41 +4842,49 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
             "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
             "role_display_name: display name of role the subject is in, and that the permissions are assigned to",
+            "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+            "enabled: if this assignment is enabled: T, F",
+            "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+            "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
             "role_id: id of role the subject is in, and that the permissions are assigned to",
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
             "attribute_def_name_id: id of the attribute definition name"
         ),
-        "select distinct gr.name as role_name, "
-        + "gm.subject_source as subject_source_id, "
-        + "gm.subject_id, "
-        + "gaa.action as action, "
-        + "gadn.name as attribute_def_name_name, "
-        + "gadn.display_name as attribute_def_name_disp_name, "
-        + "gr.display_name as role_display_name, "
-        + "gr.id as role_id, "
-        + "gadn.attribute_def_id, "
-        + "gm.id as member_id, "
-        + "gadn.id as attribute_def_name_id "
-        + "from grouper_groups gr, "
-        + "grouper_memberships_all_v gmav, "
-        + "grouper_members gm, "
-        + "grouper_fields gf, "
-        + "grouper_attribute_assign gaa, " 
-        + "grouper_attribute_def_name gadn, "
-        + "grouper_attribute_def_name_set gadns "
-        + "where gr.type_of_group = 'role' "
-        + "and gmav.owner_group_id = gr.id "
-        + "and gmav.field_id = gf.id "
-        + "and gmav.owner_group_id = gaa.owner_group_id "
-        + "and gmav.member_id = gaa.owner_member_id "
-        + "and gf.type = 'list' "
-        + "and gf.name = 'members' "
-        + "and gmav.immediate_mship_enabled = 'T' "
-        + "and gmav.member_id = gm.id "
-        + "and gaa.enabled = 'T' "
-        + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id "
-        + "and gadn.id = gadns.then_has_attribute_def_name_id");
+        "select distinct gr.name as role_name,  "
+        + "gm.subject_source as subject_source_id,  "
+        + "gm.subject_id,  "
+        + "gaa.action as action,  "
+        + "gadn.name as attribute_def_name_name,  "
+        + "gadn.display_name as attribute_def_name_disp_name,  "
+        + "gr.display_name as role_display_name,  "
+        + "gaa.attribute_assign_delegatable, "
+        + "gaa.enabled, "
+        + "gaa.enabled_time, "
+        + "gaa.disabled_time, "
+        + "gr.id as role_id,  "
+        + "gadn.attribute_def_id,  "
+        + "gm.id as member_id,  "
+        + "gadn.id as attribute_def_name_id  "
+        + "from grouper_groups gr,  "
+        + "grouper_memberships_all_v gmav,  "
+        + "grouper_members gm,  "
+        + "grouper_fields gf,  "
+        + "grouper_attribute_assign gaa,  "
+        + "grouper_attribute_def_name gadn,  "
+        + "grouper_attribute_def_name_set gadns  "
+        + "where gr.type_of_group = 'role'  "
+        + "and gmav.owner_group_id = gr.id  "
+        + "and gmav.field_id = gf.id  "
+        + "and gmav.owner_group_id = gaa.owner_group_id  "
+        + "and gmav.member_id = gaa.owner_member_id  "
+        + "and gf.type = 'list'  "
+        + "and gf.name = 'members'  "
+        + "and gmav.immediate_mship_enabled = 'T'  "
+        + "and gmav.member_id = gm.id  "
+        + "and gaa.attribute_assign_type = 'eff_mem' "
+        + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id  "
+        + "and gadn.id = gadns.then_has_attribute_def_name_id ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_all_v", 
         "grouper_perms_all_v: shows all permissions assigned to users directly while in a role, or assigned to roles (and users in the role)",
@@ -4758,6 +4895,10 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_name",
             "attribute_def_name_disp_name",
             "role_display_name",
+            "attribute_assign_delegatable",
+            "enabled",
+            "enabled_time",
+            "disabled_time",
             "role_id",
             "attribute_def_id",
             "member_id", 
@@ -4770,36 +4911,48 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_name: name of the attribute definition name which is assigned to the group",
             "attribute_def_name_disp_name: display name of the attribute definition name assigned to the attribute",
             "role_display_name: display name of role the subject is in, and that the permissions are assigned to",
+            "attribute_assign_delegatable: if this assignment is delegatable or grantable: TRUE, FALSE, GRANT",
+            "enabled: if this assignment is enabled: T, F",
+            "enabled_time: the time (seconds since 1970) that this assignment will be enabled",
+            "disabled_time: the time (seconds since 1970) that this assignment will be disabled",
             "role_id: id of role the subject is in, and that the permissions are assigned to",
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
             "attribute_def_name_id: id of the attribute definition name"
         ),
-        "select role_name, " + 
-        "subject_source_id, " + 
-        "subject_id, " +
-        "action, " +
-        "attribute_def_name_name, " + 
-        "attribute_def_name_disp_name, " + 
-        "role_display_name, " +
-        "role_id, " +
-        "attribute_def_id, " + 
-        "member_id, " +
-        "attribute_def_name_id " +
-        "from grouper_perms_role_v " +
-        "union " +
-        "select role_name, " +
-        "subject_source_id, " +
-        "subject_id, " +
-        "action, " +
-        "attribute_def_name_name, " + 
-        "attribute_def_name_disp_name, " + 
-        "role_display_name, " +
-        "role_id, " +
-        "attribute_def_id, " + 
-        "member_id, " +
-        "attribute_def_name_id " +
-        "from grouper_perms_role_subject_v ");
+        "select role_name,  "
+        + "subject_source_id,  "
+        + "subject_id,  "
+        + "action,  "
+        + "attribute_def_name_name,  "
+        + "attribute_def_name_disp_name,  "
+        + "role_display_name,  "
+        + "attribute_assign_delegatable, "
+        + "enabled, "
+        + "enabled_time, "
+        + "disabled_time, "
+        + "role_id,  "
+        + "attribute_def_id,  "
+        + "member_id,  "
+        + "attribute_def_name_id  "
+        + "from grouper_perms_role_v  "
+        + "union  "
+        + "select role_name,  "
+        + "subject_source_id,  "
+        + "subject_id,  "
+        + "action,  "
+        + "attribute_def_name_name,  "
+        + "attribute_def_name_disp_name,  "
+        + "role_display_name,  "
+        + "attribute_assign_delegatable, "
+        + "enabled, "
+        + "enabled_time, "
+        + "disabled_time, "
+        + "role_id,  "
+        + "attribute_def_id,  "
+        + "member_id,  "
+        + "attribute_def_name_id  "
+        + "from grouper_perms_role_subject_v  ");
 
   }
 
@@ -5816,6 +5969,12 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
           AttributeAssign.COLUMN_NOTES, Types.VARCHAR, "1024", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_DELEGATABLE, Types.VARCHAR, "15", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE, Types.VARCHAR, "15", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
           AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, Types.VARCHAR, "128", false, false);

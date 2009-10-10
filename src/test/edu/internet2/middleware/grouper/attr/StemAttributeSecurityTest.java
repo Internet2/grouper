@@ -7,6 +7,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -99,7 +100,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
     ApiConfig.testConfig.put("stems.create.grant.all.create", "false");
     ApiConfig.testConfig.put("stems.create.grant.all.stem", "false");
 
-    this.etc = this.root.addChildStem("etc", "etc");    
+    this.etc = new StemSave(this.grouperSession).assignStemNameToEdit("etc").assignName("etc").save();
     this.wheel = etc.addChildGroup("wheel","wheel");
 
     ApiConfig.testConfig.put("groups.wheel.use", "true");
