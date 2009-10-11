@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.ezmorph.bean.BeanMorpher;
 import net.sf.json.util.JSONUtils;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 /**
  * AppState object comes from javascript on ajax requests
@@ -42,7 +42,7 @@ public class AppState implements Serializable {
    * store to request scope
    */
   public void storeToRequest() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     httpServletRequest.setAttribute("appState", this);
   }
   
@@ -51,7 +51,7 @@ public class AppState implements Serializable {
    * @return the app state in request scope
    */
   public static AppState retrieveFromRequest() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     AppState appState = (AppState)httpServletRequest.getAttribute("appState");
     if (appState == null) {
       throw new RuntimeException("App state is null");

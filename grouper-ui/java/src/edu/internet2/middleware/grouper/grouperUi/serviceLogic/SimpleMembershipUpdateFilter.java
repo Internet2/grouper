@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateFilter.java,v 1.3 2009-10-11 07:32:24 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateFilter.java,v 1.4 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -21,16 +21,16 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.HttpContentType;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -58,7 +58,7 @@ public class SimpleMembershipUpdateFilter {
    * @param httpServletResponse
    */
   public void filterGroups(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     
     GrouperSession grouperSession = null;
@@ -71,49 +71,49 @@ public class SimpleMembershipUpdateFilter {
       
       Set<Group> groups = null;
       
-      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
   
       QueryOptions queryOptions = null;
       
       if (StringUtils.defaultString(searchTerm).length() < 2) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-            GuiUtils.message("simpleMembershipUpdate.errorNotEnoughGroupChars", false), "bullet_error.png");
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughGroupChars", false), "bullet_error.png");
       } else {
         queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleMembershipUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
         
         if (GrouperUtil.length(groups) == 0) {
-          GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-              GuiUtils.message("simpleMembershipUpdate.errorNoGroupsFound", false), "bullet_error.png");
+          GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GrouperUiUtils.message("simpleMembershipUpdate.errorNoGroupsFound", false), "bullet_error.png");
         }
       }
       
       for (Group group : GrouperUtil.nonNull(groups)) {
   
         String value = group.getUuid();
-        String label = GuiUtils.escapeHtml(group.getDisplayName(), true);
-        String imageName = GuiUtils.imageFromSubjectSource("g:gsa");
+        String label = GrouperUiUtils.escapeHtml(group.getDisplayName(), true);
+        String imageName = GrouperUiUtils.imageFromSubjectSource("g:gsa");
   
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
       }
   
       //add one more for more options if we didnt get them all
       if (queryOptions != null && queryOptions.getCount() != null 
           && groups != null && queryOptions.getCount() > groups.size()) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-            GuiUtils.message("simpleMembershipUpdate.errorTooManyGroups", false), "bullet_error.png");
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simpleMembershipUpdate.errorTooManyGroups", false), "bullet_error.png");
       }
       
       
-      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
       
-      GuiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
     } catch (NoSessionException se) {
       throw se;
     } catch (Exception se) {
-      throw new RuntimeException("Error searching for groups: '" + GuiUtils.escapeHtml(searchTerm, true) + "', " + se.getMessage(), se);
+      throw new RuntimeException("Error searching for groups: '" + GrouperUiUtils.escapeHtml(searchTerm, true) + "', " + se.getMessage(), se);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -130,7 +130,7 @@ public class SimpleMembershipUpdateFilter {
    */
   public void filterMembers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
   
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
   
@@ -143,11 +143,11 @@ public class SimpleMembershipUpdateFilter {
       
       Set<Subject> subjects = null;
       
-      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
       boolean notEnoughChars = false;
       //minimum input length
       if (StringUtils.defaultString(searchTerm).length() < 3) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterChars"), null);
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterChars"), null);
         notEnoughChars = true;
       } else {
         GuiPaging guiPaging = new GuiPaging();
@@ -155,31 +155,31 @@ public class SimpleMembershipUpdateFilter {
         int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleMembershipUpdate.subjectComboboxResultSize", 50);
         guiPaging.setPageSize(maxSubjectsDropDown);
         Set<Member> members = retrieveMembersFilter(guiPaging, group, searchTerm);
-        subjects = GuiUtils.convertMembersToSubject(members);
+        subjects = GrouperUiUtils.convertMembersToSubject(members);
       }
       
       //convert to XML for DHTMLX
       for (Subject subject : GrouperUtil.nonNull(subjects)) {
-        String value = GuiUtils.convertSubjectToValue(subject);
+        String value = GrouperUiUtils.convertSubjectToValue(subject);
   
-        String imageName = GuiUtils.imageFromSubjectSource(subject.getSource().getId());
-        String label = GuiUtils.escapeHtml(GuiUtils.convertSubjectToLabelConfigured(subject), true);
+        String imageName = GrouperUiUtils.imageFromSubjectSource(subject.getSource().getId());
+        String label = GrouperUiUtils.escapeHtml(GrouperUiUtils.convertSubjectToLabelConfigured(subject), true);
   
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
       }
       int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
       
       //this might not be correct, but probably is
       if (!notEnoughChars && GrouperUtil.length(subjects) == maxSubjectsSort) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, null, GuiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
             "bullet_error.png");
       } else if (!notEnoughChars && GrouperUtil.length(subjects) == 0) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
       }
   
-      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
       
-      GuiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
     } catch (NoSessionException se) {
       throw se;
@@ -201,7 +201,7 @@ public class SimpleMembershipUpdateFilter {
    */
   public void filterUsers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
   
@@ -213,13 +213,13 @@ public class SimpleMembershipUpdateFilter {
       
       Set<Subject> subjects = null;
       
-      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
       QueryPaging queryPaging = null;
       
       //minimum input length
       if (StringUtils.defaultString(searchTerm).length() < 2) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-            GuiUtils.message("simpleMembershipUpdate.errorNotEnoughSubjectChars"), null);
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughSubjectChars"), null);
       } else {
         subjects = SubjectFinder.findAll(searchTerm);
         
@@ -229,31 +229,31 @@ public class SimpleMembershipUpdateFilter {
         queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
         
         //sort and page the results
-        subjects = GuiUtils.subjectsSortedPaged(subjects, queryPaging);
+        subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
         
       }
       
       //convert to XML for DHTMLX
       for (Subject subject : GrouperUtil.nonNull(subjects)) {
-        String value = GuiUtils.convertSubjectToValue(subject);
+        String value = GrouperUiUtils.convertSubjectToValue(subject);
   
-        String imageName = GuiUtils.imageFromSubjectSource(subject.getSource().getId());
-        String label = GuiUtils.escapeHtml(GuiUtils.convertSubjectToLabelConfigured(subject), true);
+        String imageName = GrouperUiUtils.imageFromSubjectSource(subject.getSource().getId());
+        String label = GrouperUiUtils.escapeHtml(GrouperUiUtils.convertSubjectToLabelConfigured(subject), true);
   
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
       }
   
       //maybe add one more if we hit the limit
       if (queryPaging != null && GrouperUtil.length(subjects) < queryPaging.getTotalRecordCount()) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, null, GuiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
             "bullet_error.png");
       } else if (GrouperUtil.length(subjects) == 0) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
       }
   
-      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
       
-      GuiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
     } catch (NoSessionException se) {
       throw se;
@@ -288,7 +288,7 @@ public class SimpleMembershipUpdateFilter {
     //lets do the subject search
     if (StringUtils.defaultString(filterString).length() < TagUtils.mediaResourceInt("simpleMembershipUpdate.filterComboMinChars", 3)) {
       guiResponseJs.addAction(GuiScreenAction.newAlert(
-          GuiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterCharsAlert")));
+          GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterCharsAlert")));
       return members;
     } 
     
@@ -297,13 +297,13 @@ public class SimpleMembershipUpdateFilter {
     
     //lets see if there is a subject in there
     try {
-      Subject subject = GuiUtils.findSubject(filterString);
+      Subject subject = GrouperUiUtils.findSubject(filterString);
       if (subject != null) {
         //if there was a subject selected...
         filterByOneSubject = true;
         subjects = GrouperUtil.toSet(subject);
         //show filter string on screen
-        simpleMembershipUpdateContainer.setMemberFilterForScreen(GuiUtils.convertSubjectToLabelConfigured(subject));
+        simpleMembershipUpdateContainer.setMemberFilterForScreen(GrouperUiUtils.convertSubjectToLabelConfigured(subject));
       }
     } catch (Exception e) {
       //just ignore
@@ -317,14 +317,14 @@ public class SimpleMembershipUpdateFilter {
       if (GrouperUtil.length(subjects) > TagUtils.mediaResourceInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
         simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
         guiResponseJs.addAction(GuiScreenAction.newAlert(
-            GuiUtils.message("simpleMembershipUpdate.errorMemberFilterTooManyResults")));
+            GrouperUiUtils.message("simpleMembershipUpdate.errorMemberFilterTooManyResults")));
         return members;
       }
       
     }    
       
     //lets convert these subjects to members
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
   
     GrouperSession grouperSession = null;
   
@@ -336,7 +336,7 @@ public class SimpleMembershipUpdateFilter {
   
       groupName = group.getName();
       
-      members = GuiUtils.convertSubjectsToMembers(grouperSession, group, subjects, true);
+      members = GrouperUiUtils.convertSubjectsToMembers(grouperSession, group, subjects, true);
     
     } catch (Exception se) {
       throw new RuntimeException("Error searching for members: '" + filterString 
@@ -362,7 +362,7 @@ public class SimpleMembershipUpdateFilter {
     queryPaging.setPageNumber(guiPaging.getPageNumber());
     
     if (totalSize <= maxSubjectsSort) {
-      members = GuiUtils.membersSortedPaged(members, queryPaging);
+      members = GrouperUiUtils.membersSortedPaged(members, queryPaging);
     } else {
   
       members = new LinkedHashSet<Member>(GrouperUtil.batchList(members, pageSize, guiPaging.getPageNumber()-1));

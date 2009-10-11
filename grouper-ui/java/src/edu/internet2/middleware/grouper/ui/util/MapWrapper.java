@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.grouperUi.util;
+package edu.internet2.middleware.grouper.ui.util;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * simple wrapper of map
- * @version $Id: MapWrapper.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * @version $Id: MapWrapper.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  * @author mchyzer
  * @param <K> 
  * @param <V> 

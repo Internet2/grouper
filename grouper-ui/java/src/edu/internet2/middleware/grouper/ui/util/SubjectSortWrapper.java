@@ -1,8 +1,8 @@
 /**
  * @author Kate
- * $Id: SubjectSortWrapper.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: SubjectSortWrapper.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.util;
+package edu.internet2.middleware.grouper.ui.util;
 
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class SubjectSortWrapper implements Subject, Comparable {
     
     if (this.screenLabel == null) {
       
-      this.screenLabel = GuiUtils.convertSubjectToLabelConfigured(this.wrappedSubject);
+      this.screenLabel = GrouperUiUtils.convertSubjectToLabelConfigured(this.wrappedSubject);
       this.screenLabel = StringUtils.defaultString(this.screenLabel);
     }
     

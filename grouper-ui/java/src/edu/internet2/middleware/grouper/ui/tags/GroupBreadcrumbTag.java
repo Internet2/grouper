@@ -1,15 +1,15 @@
 /**
  * @author mchyzer
- * $Id: GroupBreadcrumbTag.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
+ * $Id: GroupBreadcrumbTag.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.tags;
+package edu.internet2.middleware.grouper.ui.tags;
 
 import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -35,24 +35,24 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
     //<span class="browseStemsLocationHere">
     //    <img onmouseover="grouperTooltip('Group - A collection of entities (members) which can be people, other groups or other things (e.g., resources)');" onmouseout="UnTip()" src="../public/assets/images/group.gif" class="groupIcon" alt="Folder">ldapUsers</span>
     //</div></div>
-    result.append("<div class=\"browseStemsLocation\"><strong>" + GuiUtils.message("simpleMembershipUpdate.find.browse.here", false)
+    result.append("<div class=\"browseStemsLocation\"><strong>" + GrouperUiUtils.message("simpleMembershipUpdate.find.browse.here", false)
         + " </strong> &nbsp; \n");
     String[] names = GrouperUtil.splitTrim(this.groupName, ":");
     for (int i=0; i<GrouperUtil.length(names); i++) {
       //if its a folder
       if (i != GrouperUtil.length(names)-1) {
         result.append("<img onmouseover=\"grouperTooltip(\'" 
-            + GuiUtils.escapeHtml(GuiUtils.message("stem.icon.tooltip", false), true, true) 
+            + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("stem.icon.tooltip", false), true, true) 
             + "\');\" onmouseout=\"UnTip()\" src=\"../public/assets/images/folder.gif\" "
-          + "class=\"groupIcon\" alt=\"" + GuiUtils.message("stem.icon.alt", false) + "\"/>" 
-          + GuiUtils.escapeHtml(names[i], true, false) + ": ");
+          + "class=\"groupIcon\" alt=\"" + GrouperUiUtils.message("stem.icon.alt", false) + "\"/>" 
+          + GrouperUiUtils.escapeHtml(names[i], true, false) + ": ");
         
       } else {
         result.append("<span class=\"browseStemsLocationHere\">\n"
           + "<img onmouseover=\"grouperTooltip(\'" 
-          + GuiUtils.escapeHtml(GuiUtils.message("group.icon.tooltip", true), true, true) + "\');\" onmouseout=\"UnTip()\""
-          + " src=\"../public/assets/images/group.png\" class=\"groupIcon\" alt=\"" + GuiUtils.message("group.icon.alt", true) 
-          + "\"/>" + GuiUtils.escapeHtml(names[i], true, false) + "</span>\n");
+          + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("group.icon.tooltip", true), true, true) + "\');\" onmouseout=\"UnTip()\""
+          + " src=\"../public/assets/images/group.png\" class=\"groupIcon\" alt=\"" + GrouperUiUtils.message("group.icon.alt", true) 
+          + "\"/>" + GrouperUiUtils.escapeHtml(names[i], true, false) + "</span>\n");
       }
     }
     result.append("</div>\n");

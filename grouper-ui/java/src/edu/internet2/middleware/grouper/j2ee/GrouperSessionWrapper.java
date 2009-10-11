@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperSessionWrapper.java,v 1.1 2009-08-12 04:52:14 mchyzer Exp $
+ * $Id: GrouperSessionWrapper.java,v 1.2 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.j2ee;
 
@@ -15,7 +15,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 
 
 /**
- *
+ * wrap session so we can customize
  */
 public class GrouperSessionWrapper implements HttpSession {
 

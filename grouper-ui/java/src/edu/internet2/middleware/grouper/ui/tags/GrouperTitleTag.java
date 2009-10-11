@@ -12,7 +12,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package edu.internet2.middleware.grouper.grouperUi.tags;
+package edu.internet2.middleware.grouper.ui.tags;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +26,10 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ui.tags.GrouperHideShowTarget;
+import edu.internet2.middleware.grouper.ui.tags.GrouperInfodotTag;
+import edu.internet2.middleware.grouper.ui.tags.GrouperMessageTag;
+import edu.internet2.middleware.grouper.ui.tags.GrouperParamTag;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

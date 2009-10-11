@@ -38,19 +38,9 @@
   	<filter-class>edu.internet2.middleware.grouper.ui.CallerPageFilter</filter-class>
     </filter>
 
-  <filter>
-    <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
-    <filter-name>Grouper UI filter</filter-name>
-    <filter-class>edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee</filter-class>
-  </filter>
-  
   <!-- Map the filter to a Servlet or URL -->
   <filter-mapping>
     <filter-name>GrouperUi</filter-name>
-    <url-pattern>/grouperUi/app/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>Grouper UI filter</filter-name>
     <url-pattern>/grouperUi/app/*</url-pattern>
   </filter-mapping>
 
@@ -109,7 +99,7 @@
 
   <servlet>
     <servlet-name>UiServlet</servlet-name>
-    <servlet-class>edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiRestServlet</servlet-class>
+    <servlet-class>edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>

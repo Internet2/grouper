@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package edu.internet2.middleware.grouper.grouperUi.tags;
+package edu.internet2.middleware.grouper.ui.tags;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  *
  */
-public class GrouperHideShowTarget extends BodyTagSupport {
+public class GrouperHideShowButtonText extends BodyTagSupport {
   
 	/**
 	 * 

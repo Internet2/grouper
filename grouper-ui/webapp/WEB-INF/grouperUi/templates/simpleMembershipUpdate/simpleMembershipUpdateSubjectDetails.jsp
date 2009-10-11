@@ -4,7 +4,7 @@
 
   <div class="section">
   
-    <grouperGui:subtitle key="simpleMembershipUpdate.memberDetailsSubtitle" />
+    <grouper:subtitle key="simpleMembershipUpdate.memberDetailsSubtitle" />
   
     <div class="sectionBody">
       <table class="formTable formTableSpaced SubjectInfo">
@@ -33,7 +33,7 @@
               </c:if>
               <c:choose>
                 <c:when test="${! empty navNullMap[subjectSummaryNavKey]}">
-                  <grouperGui:message key="${subjectSummaryNavKey}" />
+                  <grouper:message key="${subjectSummaryNavKey}" />
                 </c:when>
                 <c:otherwise>
                   <c:out value="${attribute.key}"/>

@@ -1,14 +1,14 @@
 /**
  * @author Kate
- * $Id: GrouperUiFunctions.java,v 1.2 2009-10-11 07:32:24 mchyzer Exp $
+ * $Id: GrouperUiFunctions.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.tags;
+package edu.internet2.middleware.grouper.ui.tags;
 
 import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 
 
@@ -25,13 +25,13 @@ public class GrouperUiFunctions {
    * @return the message string
    */
   public static String message(String key, boolean escapeHtml, boolean escapeSingleQuotes) {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)httpServletRequest.getSession().getAttribute("navNullMap");
     
     String value = (String)mapBundleWrapper.get(key);
 
     if (escapeHtml) {
-      value = GuiUtils.escapeHtml(value, true, escapeSingleQuotes);
+      value = GrouperUiUtils.escapeHtml(value, true, escapeSingleQuotes);
     }
     
     return value;
@@ -55,15 +55,15 @@ public class GrouperUiFunctions {
    * In the business logic, you must init the hide show before the JSP draws (this has name,
    * text when shown, hidden, if show initially, and if store in session):
    * GuiHideShow.init("simpleMembershipUpdateAdvanced", false, 
-   *    GuiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
-   *       GuiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
+   *    GrouperUiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
+   *       GrouperUiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
    *
    * Finally, use these EL functions to display the state correctly in JSP:
    * Something that is hidden/shown
-   * style="${grouperGui:hideShowStyle('hideShowName', true)}
+   * style="${grouper:hideShowStyle('hideShowName', true)}
    * 
    * Button text:
-   * ${grouperGui:hideShowButtonText('hideShowName')}
+   * ${grouper:hideShowButtonText('hideShowName')}
    * 
    * In the button, use this onclick:
    * onclick="return guiHideShow(event, 'hideShowName');"
@@ -104,15 +104,15 @@ public class GrouperUiFunctions {
    * In the business logic, you must init the hide show before the JSP draws (this has name,
    * text when shown, hidden, if show initially, and if store in session):
    * GuiHideShow.init("simpleMembershipUpdateAdvanced", false, 
-   *    GuiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
-   *       GuiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
+   *    GrouperUiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
+   *       GrouperUiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
    *
    * Finally, use these EL functions to display the state correctly in JSP:
    * Something that is hidden/shown
-   * style="${grouperGui:hideShowStyle('hideShowName', true)}
+   * style="${grouper:hideShowStyle('hideShowName', true)}
    * 
    * Button text:
-   * ${grouperGui:hideShowButtonText('hideShowName')}
+   * ${grouper:hideShowButtonText('hideShowName')}
    * 
    * In the button, use this onclick:
    * onclick="return guiHideShow(event, 'hideShowName');"

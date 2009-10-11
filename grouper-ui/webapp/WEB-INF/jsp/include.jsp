@@ -4,7 +4,7 @@
 		  
 --%><%--
   @author Gary Brown.
-  @version $Id: include.jsp,v 1.4 2009-09-09 15:10:03 mchyzer Exp $
+  @version $Id: include.jsp,v 1.5 2009-10-11 22:04:18 mchyzer Exp $
 --%><%@ taglib uri="/WEB-INF/tld/c.tld" prefix="c" %><c:set var="_trash">
 
 <%@page import="java.util.*"%>
@@ -24,6 +24,5 @@
 <%@ taglib uri="/WEB-INF/tld/grouper-el.tld" prefix="grouper"%>
 
 <%-- @ taglib uri="/WEB-INF/tld/fn.tld" prefix="fn" --%>
-<%-- @ taglib uri="/WEB-INF/tld/grouperGui.tld" prefix="grouperGui" --%>
 
 <html:xhtml/></c:set>

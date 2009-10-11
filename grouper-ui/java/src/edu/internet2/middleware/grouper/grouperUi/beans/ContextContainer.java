@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: ContextContainer.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: ContextContainer.java,v 1.2 2009-10-11 22:04:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans;
 
@@ -12,7 +12,7 @@ import javax.servlet.ServletContext;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -37,7 +37,7 @@ public class ContextContainer {
    * store to session scope
    */
   public void storeToContext() {
-    ServletContext servletContext = GrouperUiJ2ee.retrieveHttpServlet().getServletContext();
+    ServletContext servletContext = GrouperUiFilter.retrieveHttpServlet().getServletContext();
     if (servletContext.getAttribute("contextContainer") != instance) {
       servletContext.setAttribute("contextContainer", instance);
     }

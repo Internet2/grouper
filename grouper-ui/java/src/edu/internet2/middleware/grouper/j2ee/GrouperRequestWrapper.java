@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperRequestWrapper.java,v 1.2 2009-10-11 07:32:24 mchyzer Exp $
+ * $Id: GrouperRequestWrapper.java,v 1.3 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.j2ee;
 
@@ -27,12 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiRestServlet;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.SetToEnumeration;
-import edu.internet2.middleware.grouper.grouperUi.util.MapWrapper;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -235,7 +233,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
    */
   private static synchronized ServletFileUpload servletFileUpload() {
 
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     
     if (fileItemFactory == null) {
       

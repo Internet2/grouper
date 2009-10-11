@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiSettings.java,v 1.1 2009-09-09 15:10:04 mchyzer Exp $
+ * $Id: GuiSettings.java,v 1.2 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
@@ -9,7 +9,7 @@ import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 
 /**
@@ -22,7 +22,7 @@ public class GuiSettings implements Serializable {
    * @return the app state in request scope
    */
   public static GuiSettings retrieveFromRequest() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     GuiSettings guiSettings = (GuiSettings)httpServletRequest
       .getAttribute("guiSettings");
     if (guiSettings == null) {
@@ -35,7 +35,7 @@ public class GuiSettings implements Serializable {
    * store to request scope
    */
   public void storeToRequest() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     httpServletRequest.setAttribute("guiSettings", this);
   }
 

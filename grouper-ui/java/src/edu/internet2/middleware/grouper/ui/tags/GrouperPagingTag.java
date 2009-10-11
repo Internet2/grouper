@@ -1,8 +1,8 @@
 /**
  * @author mchyzer
- * $Id: GrouperPagingTag.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
+ * $Id: GrouperPagingTag.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.tags;
+package edu.internet2.middleware.grouper.ui.tags;
 
 import java.io.IOException;
 
@@ -10,8 +10,8 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -61,7 +61,7 @@ public class GrouperPagingTag extends SimpleTagSupport  {
       result.append(" of ");
       result.append(queryPaging.getTotalRecordCount());
       result.append(" &nbsp;&nbsp; ");
-      result.append(GuiUtils.escapeHtml(GuiUtils.message("page.size"), true));
+      result.append(GrouperUiUtils.escapeHtml(GrouperUiUtils.message("page.size"), true));
       result.append(" ");
       String id = GrouperUtil.uniqueId();
       

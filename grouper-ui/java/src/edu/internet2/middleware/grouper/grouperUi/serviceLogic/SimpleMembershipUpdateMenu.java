@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateMenu.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateMenu.java,v 1.3 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -21,12 +21,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.HttpContentType;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -106,45 +106,45 @@ public class SimpleMembershipUpdateMenu {
     GuiHideShow showMemberFilter = GuiHideShow.retrieveHideShow("simpleMembershipUpdateMemberFilter", true);
     String showMemberFilterChecked = showMemberFilter.isShowing() ? " checked=\"true\"" : "";
   
-    GuiUtils.printToScreen(
+    GrouperUiUtils.printToScreen(
         "<?xml version=\"1.0\"?>\n"
         + "<menu>\n"
         + "  <item id=\"multiDelete\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultiple"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultiple"), true) 
         + "\" type=\"checkbox\" " + showMultiDeleteChecked + "><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultipleTooltip"), true) + "</tooltip></item>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultipleTooltip"), true) + "</tooltip></item>\n"
         + "  <item id=\"showGroupDetails\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetails"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetails"), true) 
         + "\" type=\"checkbox\" " + showGroupDetailsChecked + "><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetailsTooltip"), true) + "</tooltip></item>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetailsTooltip"), true) + "</tooltip></item>\n"
         
         + "  <item id=\"showMemberFilter\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilter"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilter"), true) 
         + "\" type=\"checkbox\" " + showMemberFilterChecked + "><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilterTooltip"), true) + "</tooltip></item>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilterTooltip"), true) + "</tooltip></item>\n"
   
         + "  <item id=\"importExport\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportExport"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuImportExport"), true) 
         + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportExportTooltip"), true) + "</tooltip>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuImportExportTooltip"), true) + "</tooltip>\n"
         + "    <item id=\"export\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExport"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExport"), true) 
         + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportTooltip"), true) + "</tooltip>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportTooltip"), true) + "</tooltip>\n"
         + "      <item id=\"exportSubjectIds\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIds"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIds"), true) 
         + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIdsTooltip"), true) + "</tooltip></item>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIdsTooltip"), true) + "</tooltip></item>\n"
         + "      <item id=\"exportAll\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportAll"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportAll"), true) 
         + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportAllTooltip"), true) + "</tooltip></item>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportAllTooltip"), true) + "</tooltip></item>\n"
         //close the export
         + "   </item>\n"
         + "   <item id=\"import\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImport"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuImport"), true) 
         + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportTooltip"), true) + "</tooltip></item>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuImportTooltip"), true) + "</tooltip></item>\n"
         //close the import/export
         + "  </item>\n"
         //+ "  <item id=\"m3\" text=\"Help\" type=\"checkbox\" checked=\"true\"/>\n"
@@ -185,13 +185,13 @@ public class SimpleMembershipUpdateMenu {
    */
   public void memberMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
-    GuiUtils.printToScreen(
+    GrouperUiUtils.printToScreen(
         "<?xml version=\"1.0\"?>\n"
         + "<menu>\n"
         + "  <item id=\"memberDetails\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.memberMenuDetailsLabel"), true) 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuDetailsLabel"), true) 
         + "\"><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.memberMenuDetailsTooltip"), true) + "</tooltip></item>\n"
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuDetailsTooltip"), true) + "</tooltip></item>\n"
         + "</menu>", HttpContentType.TEXT_XML, false, false);
     throw new ControllerDone();
   }
@@ -205,7 +205,7 @@ public class SimpleMembershipUpdateMenu {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
     //lets see which subject we are dealing with:
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
     if (StringUtils.isBlank(menuIdOfMenuTarget)) {
       throw new RuntimeException("Missing id of menu target");
@@ -215,7 +215,7 @@ public class SimpleMembershipUpdateMenu {
     }
     String memberId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "memberMenuButton_", false);
     
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
     

@@ -1,8 +1,8 @@
 /**
  * @author mchyzer
- * $Id: SubjectIconTag.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: SubjectIconTag.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.tags;
+package edu.internet2.middleware.grouper.ui.tags;
 
 import java.io.IOException;
 
@@ -12,7 +12,7 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -33,7 +33,7 @@ public class SubjectIconTag extends SimpleTagSupport  {
 
     sourceId = this.guiSubject != null ? this.guiSubject.getSubject().getSource().getId() : sourceId;
     
-    String icon = GuiUtils.imageFromSubjectSource(sourceId);
+    String icon = GrouperUiUtils.imageFromSubjectSource(sourceId);
 
     if (!StringUtils.isBlank(icon)) {
       

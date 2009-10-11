@@ -614,15 +614,15 @@ function guiToggle(event, jqueryElementKey) {
  * In the business logic, you must init the hide show before the JSP draws (this has name,
  * text when shown, hidden, if show initially, and if store in session):
  * GuiHideShow.init("simpleMembershipUpdateAdvanced", false, 
- *    GuiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
- *       GuiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
+ *    GrouperUiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
+ *       GrouperUiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
  *
  * Finally, use these EL functions to display the state correctly in JSP:
  * Something that is hidden/shown
- * style="${grouperGui:hideShowStyle('hideShowName', true)}
+ * style="${grouper:hideShowStyle('hideShowName', true)}
  * 
  * Button text:
- * ${grouperGui:hideShowButtonText('hideShowName')}
+ * ${grouper:hideShowButtonText('hideShowName')}
  * 
  * In the button, use this onclick:
  * onclick="return guiHideShow(event, 'hideShowName');"

@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: GenericServletResponseWrapper.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
+ * $Id: GenericServletResponseWrapper.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.j2ee;
+package edu.internet2.middleware.grouper.j2ee;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

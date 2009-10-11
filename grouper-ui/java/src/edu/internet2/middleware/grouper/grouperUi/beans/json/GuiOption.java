@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -189,7 +189,7 @@ public class GuiOption implements Serializable {
       boolean shallowCloneFirst, boolean throwExceptionIfNotThere) {
     //just clone once
     if (shallowCloneFirst) {
-      guiOptions = GuiUtils.cloneShallow(guiOptions);
+      guiOptions = GrouperUiUtils.cloneShallow(guiOptions);
     }
     if (keys != null) {
       for (String key : keys) {
@@ -213,7 +213,7 @@ public class GuiOption implements Serializable {
       boolean shallowCloneFirst, boolean throwExceptionIfNotThere) {
   
     if (shallowCloneFirst) {
-      guiOptions = GuiUtils.cloneShallow(guiOptions);
+      guiOptions = GrouperUiUtils.cloneShallow(guiOptions);
     }
     //keep track if we found one
     boolean foundOne = false;
@@ -254,11 +254,11 @@ public class GuiOption implements Serializable {
     List<GuiOption> originalList = guiOptions;
     
     if (shallowCloneFirst) {
-      guiOptions = GuiUtils.cloneShallow(guiOptions);
+      guiOptions = GrouperUiUtils.cloneShallow(guiOptions);
     }
     
     //clone keys in case caller will use again
-    keys = GuiUtils.cloneShallow(keys);
+    keys = GrouperUiUtils.cloneShallow(keys);
     
     //there need to be option values and keys
     GrouperUtil.assertion(guiOptions != null, "guiOptions cant be null");

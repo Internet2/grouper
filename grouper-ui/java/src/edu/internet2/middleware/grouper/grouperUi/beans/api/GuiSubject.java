@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiSubject.java,v 1.1 2009-09-09 15:10:04 mchyzer Exp $
+ * $Id: GuiSubject.java,v 1.2 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -36,7 +36,7 @@ public class GuiSubject implements Serializable {
    * @return screen label
    */
   public String getScreenLabel() {
-    return GuiUtils.convertSubjectToLabel(this.subject);
+    return GrouperUiUtils.convertSubjectToLabel(this.subject);
   }
   
   /** attributes in string - string format */
@@ -88,7 +88,7 @@ public class GuiSubject implements Serializable {
    */
   public static String attributeValue(Subject subject, String attrName) {
     if (StringUtils.equalsIgnoreCase("screenLabel", attrName)) {
-      return GuiUtils.convertSubjectToLabel(subject);
+      return GrouperUiUtils.convertSubjectToLabel(subject);
     }
     if (StringUtils.equalsIgnoreCase("subjectId", attrName)) {
       return subject.getId();

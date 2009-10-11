@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateImportExport.java,v 1.3 2009-10-11 07:32:24 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateImportExport.java,v 1.4 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -32,14 +32,14 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.HttpContentType;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -65,7 +65,7 @@ public class SimpleMembershipUpdateImportExport {
   @SuppressWarnings("unchecked")
   public void exportAllCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
   
     GrouperSession grouperSession = null;
   
@@ -83,7 +83,7 @@ public class SimpleMembershipUpdateImportExport {
       
       Set<Member> members = group.getImmediateMembers();
       
-      HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
+      HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse(); 
       
       String[] headers = GrouperUtil.splitTrim(TagUtils.mediaResourceString( 
           "simpleMembershipUpdate.exportAllSubjectFields"), ",");
@@ -124,9 +124,9 @@ public class SimpleMembershipUpdateImportExport {
           String[] first = (String[])o1;
           String[] second = (String[])o2;
           if (SOURCE_ID_COL != -1 && !StringUtils.equals(first[SOURCE_ID_COL], second[SOURCE_ID_COL])) {
-            return GuiUtils.compare(first[SOURCE_ID_COL], second[SOURCE_ID_COL], true);
+            return GrouperUiUtils.compare(first[SOURCE_ID_COL], second[SOURCE_ID_COL], true);
           }
-          return GuiUtils.compare(first[SORT_COL], second[SORT_COL], true);
+          return GrouperUiUtils.compare(first[SORT_COL], second[SORT_COL], true);
         }
       });
       
@@ -209,7 +209,7 @@ public class SimpleMembershipUpdateImportExport {
         } else if ("description".equalsIgnoreCase(header)) {
           result[i] = subject.getDescription();
         } else if ("screenLabel".equalsIgnoreCase(header)) {
-          result[i] = GuiUtils.convertSubjectToLabelConfigured(subject);
+          result[i] = GrouperUiUtils.convertSubjectToLabelConfigured(subject);
         } else if (isAttribute[i]) {
           result[i] = subject.getAttributeValue(header);
         }
@@ -236,7 +236,7 @@ public class SimpleMembershipUpdateImportExport {
   @SuppressWarnings("unchecked")
   public void exportSubjectIdsCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
   
     GrouperSession grouperSession = null;
   
@@ -254,7 +254,7 @@ public class SimpleMembershipUpdateImportExport {
       
       Set<Member> members = group.getImmediateMembers();
       
-      HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
+      HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse(); 
       
       List<String[]> memberData = new ArrayList<String[]>(); 
       for (Member member : members) {
@@ -276,9 +276,9 @@ public class SimpleMembershipUpdateImportExport {
           String[] first = (String[])o1;
           String[] second = (String[])o2;
           if (!StringUtils.equals(first[0], second[0])) {
-            return GuiUtils.compare(first[0], second[0], true);
+            return GrouperUiUtils.compare(first[0], second[0], true);
           }
-          return GuiUtils.compare(first[1], second[1], true);
+          return GrouperUiUtils.compare(first[1], second[1], true);
         }
       });
       
@@ -333,7 +333,7 @@ public class SimpleMembershipUpdateImportExport {
     guiResponseJs.setAddTextAreaTag(true);
     guiResponseJs.addAction(GuiScreenAction.newCloseModal());
   
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
   
@@ -368,7 +368,7 @@ public class SimpleMembershipUpdateImportExport {
             &&  !importCsvFile.getName().toLowerCase().endsWith(".txt"))) {
         
         guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
-            + GuiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile") + fileName + "</pre>"));
+            + GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile") + fileName + "</pre>"));
         return;
       }
       
@@ -379,7 +379,7 @@ public class SimpleMembershipUpdateImportExport {
       List<Subject> importedSubjectWrappers = parseCsvImportFile(
           importCsvFile, fileName, subjectErrors);
   
-      GuiUtils.removeOverlappingSubjects(existingMembers, importedSubjectWrappers);
+      GrouperUiUtils.removeOverlappingSubjects(existingMembers, importedSubjectWrappers);
       
       int addedCount = 0;
       List<String> addErrors = new ArrayList<String>();
@@ -441,30 +441,30 @@ public class SimpleMembershipUpdateImportExport {
       boolean hasError = errorSize > 0;
       if (!hasError) {
         
-        result.append("<b>").append(GuiUtils.message("simpleMembershipUpdate.importSuccessSummary")).append("</b><br /><br />\n");
+        result.append("<b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importSuccessSummary")).append("</b><br /><br />\n");
         
       } else {
         
-        result.append("<b>").append(GuiUtils.message("simpleMembershipUpdate.importErrorSummary", 
+        result.append("<b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importErrorSummary", 
             false, false, Integer.toString(errorSize))).append("</b><br /><br />\n");
         
       }
       
       //give general summary
-      result.append(GuiUtils.message("simpleMembershipUpdate.importSizeSummary", false, false, 
+      result.append(GrouperUiUtils.message("simpleMembershipUpdate.importSizeSummary", false, false, 
           Integer.toString(existingCount), Integer.toString(newSize))).append("<br />\n");
   
       if (didntImportDueToSubjects) {
-        result.append(GuiUtils.message("simpleMembershipUpdate.importErrorSubjectProblems", false, false, 
+        result.append(GrouperUiUtils.message("simpleMembershipUpdate.importErrorSubjectProblems", false, false, 
             Integer.toString(existingCount), Integer.toString(newSize))).append("<br />\n");
       }
       
       //adds, deletes
-      result.append(GuiUtils.message("simpleMembershipUpdate.importAddsDeletesSummary", false, 
+      result.append(GrouperUiUtils.message("simpleMembershipUpdate.importAddsDeletesSummary", false, 
           false, Integer.toString(addedCount), Integer.toString(deletedCount))).append("<br />\n");
       
       if (GrouperUtil.length(subjectErrors) > 0) {
-        result.append("<br /><b>").append(GuiUtils.message("simpleMembershipUpdate.importSubjectErrorsLabel"))
+        result.append("<br /><b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importSubjectErrorsLabel"))
             .append("</b><br />\n");
         for (String error: subjectErrors) {
           result.append(error).append("<br />\n");
@@ -472,7 +472,7 @@ public class SimpleMembershipUpdateImportExport {
       }
       
       if (GrouperUtil.length(addErrors) > 0) {
-        result.append("<br /><b>").append(GuiUtils.message("simpleMembershipUpdate.importAddErrorsLabel"))
+        result.append("<br /><b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importAddErrorsLabel"))
             .append("</b><br />\n");
         for (String error: addErrors) {
           result.append(error).append("<br />\n");
@@ -480,7 +480,7 @@ public class SimpleMembershipUpdateImportExport {
       }
   
       if (GrouperUtil.length(deleteErrors) > 0) {
-        result.append("<br /><b>").append(GuiUtils.message("simpleMembershipUpdate.importRemoveErrorsLabel"))
+        result.append("<br /><b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importRemoveErrorsLabel"))
           .append("</b><br />\n");
         for (String error: deleteErrors) {
           result.append(error).append("<br />\n");
@@ -537,7 +537,7 @@ public class SimpleMembershipUpdateImportExport {
     
     //must have lines
     if (GrouperUtil.length(csvEntries) <= 1) {
-      throw new RuntimeException(GuiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
+      throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
     }
     
     //lets go through the headers
@@ -560,7 +560,7 @@ public class SimpleMembershipUpdateImportExport {
     
     //must pass in an id
     if (subjectIdColumn == -1 && subjectIdentifierColumn == -1 && subjectIdOrIdentifierColumn == -1) {
-      throw new RuntimeException(GuiUtils.message("simpleMembershipUpdate.importErrorNoIdCol"));
+      throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoIdCol"));
     }
     
     //ok, lets go through the rows, start after the headers

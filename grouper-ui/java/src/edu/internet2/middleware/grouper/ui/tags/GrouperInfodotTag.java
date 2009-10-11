@@ -30,8 +30,8 @@ import org.apache.strutsel.taglib.utils.EvalHelper;
  * Generates something like this:
  * 
  * &lt;a href="#" onclick="return grouperHideShow(event, 'firstHideShow');"&gt;&lt;img
- *	src="grouper/images/infodot.gif" border="0" alt="More Information" class="infodotImage"
- *	height="16" width="16" /&gt;&lt;/a&gt;
+ *  src="grouper/images/infodot.gif" border="0" alt="More Information" class="infodotImage"
+ *  height="16" width="16" /&gt;&lt;/a&gt;
  * </pre>
  * @author mchyzer
  *
@@ -87,16 +87,13 @@ public class GrouperInfodotTag extends BodyTagSupport {
   @Override
   public int doEndTag() throws JspException {
 
-    this.evaluateExpressions();
-    
     //if not enabled, then dont display anything
-    if (!TagUtils.mediaResourceBoolean(this.pageContext.getRequest(), "infodot.enable",
+    if (!TagUtils.mediaResourceBoolean("infodot.enable",
         true)) {
       return Tag.EVAL_PAGE;
     }
 
-    String altText = StringUtils.trim(TagUtils.navResourceString(this.pageContext
-        .getRequest(), "groups.infodot.alt"));
+    String altText = StringUtils.trim(TagUtils.navResourceString("groups.infodot.alt"));
 
     String result = "<a href=\"#\" class=\"infodotLink\" onclick=\"return grouperHideShow(event, '"
         + this.hideShowHtmlId
@@ -114,23 +111,6 @@ public class GrouperInfodotTag extends BodyTagSupport {
     }
     
     return Tag.EVAL_PAGE;
-  }
-
-  /**
-   * Processes all attribute values which use the JSTL expression evaluation
-   * engine to determine their values.
-   * 
-   * @exception JspException
-   *                if a JSP exception has occurred
-   */
-  public void evaluateExpressions() throws JspException {
-  	String string = null;
-  
-  	if ((string = EvalHelper.evalString("hideShowHtmlId", 
-  	    this.hideShowHtmlId, this, this.pageContext)) != null) {
-  	  this.hideShowHtmlId = string;
-  	}
-    
   }
 
 }

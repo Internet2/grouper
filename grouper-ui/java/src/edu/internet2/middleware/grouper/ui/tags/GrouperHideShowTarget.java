@@ -49,33 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperHideShowTarget extends BodyTagSupport {
   
   /**
-   * Processes all attribute values which use the JSTL expression evaluation
-   * engine to determine their values.
-   * 
-   * @exception JspException
-   *                if a JSP exception has occurred
    */
-  public void evaluateExpressions() throws JspException {
-    String string = null;
-  
-    if ((string = EvalHelper.evalString("hideShowHtmlId", 
-        this.hideShowHtmlId, this, this.pageContext)) != null) {
-      this.hideShowHtmlId = string;
-    }
-    if ((string = EvalHelper.evalString("omitStyle", 
-        this.omitStyle, this, this.pageContext)) != null) {
-      this.omitStyle = string;
-    }
-    if ((string = EvalHelper.evalString("showInitially", 
-        this.showInitially, this, this.pageContext)) != null) {
-      this.showInitially = string;
-    }
-    
-  }
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 0L;
 
 	/** 
@@ -142,8 +116,6 @@ public class GrouperHideShowTarget extends BodyTagSupport {
 	@Override
 	public int doEndTag() throws JspException {
 		
-	  this.evaluateExpressions();
-	  
 		StringBuilder result = new StringBuilder();
 		
 		//id="firstHideShow0" style="display:none;"
@@ -174,7 +146,7 @@ public class GrouperHideShowTarget extends BodyTagSupport {
 		
 		//put in style if we need it
 		if (!this.omitStyle() && !this.showInitially()) {
-			result.append("style=\"display:none;visibility:hidden;\" ");
+			result.append("style=\"display:none;\" ");
 		}
 				
 		//just print out the image tag

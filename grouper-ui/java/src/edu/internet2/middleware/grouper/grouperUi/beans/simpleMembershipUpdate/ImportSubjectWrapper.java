@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: ImportSubjectWrapper.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: ImportSubjectWrapper.java,v 1.2 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
@@ -10,7 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -110,7 +110,7 @@ public class ImportSubjectWrapper implements Subject {
     boolean hasSubjectIdOrIdentifier = !StringUtils.isBlank(subjectIdOrIdentifier);
     
     if (!hasSubjectId && !hasSubjectIdentifier && !hasSubjectIdOrIdentifier) {
-      throw new RuntimeException(GuiUtils.message("simpleMembershipUpdate.importErrorNoId"));
+      throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoId"));
     }
     
     //ok, we have an id

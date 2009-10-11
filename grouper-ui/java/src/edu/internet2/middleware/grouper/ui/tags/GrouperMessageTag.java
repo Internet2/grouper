@@ -46,7 +46,7 @@ import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
 import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -173,10 +173,10 @@ public class GrouperMessageTag extends MessageTag {
   
   
   /**
-   * @param escapeHtml the escapeHtml to set
+   * @param escapeHtml1 the escapeHtml to set
    */
-  public void setEscapeHtml(boolean escapeHtml) {
-    this.escapeHtml = escapeHtml;
+  public void setEscapeHtml(boolean escapeHtml1) {
+    this.escapeHtml = escapeHtml1;
   }
 
   /**
@@ -227,7 +227,7 @@ public class GrouperMessageTag extends MessageTag {
   
       String prefix = null;
       
-      if (!bundleSpecified) {
+      if (!this.bundleSpecified) {
         Tag t = findAncestorWithClass(this, BundleSupport.class);
         if (t != null) {
           // use resource bundle from parent <bundle> tag
@@ -239,7 +239,7 @@ public class GrouperMessageTag extends MessageTag {
         }
       } else {
         // localization context taken from 'bundle' attribute
-        locCtxt = bundleAttrValue;
+        locCtxt = this.bundleAttrValue;
         if (locCtxt.getLocale() != null) {
           GrouperUtil.callMethod(SetLocaleSupport.class,
               "setResponseLocale", new Class[] { PageContext.class,
@@ -337,7 +337,7 @@ public class GrouperMessageTag extends MessageTag {
     
     boolean isEscapeSingleQuotes = GrouperUtil.booleanValue(this.escapeSingleQuotes, false);
     if (this.escapeHtml) {
-      message = GuiUtils.escapeHtml(message, true, isEscapeSingleQuotes);
+      message = GrouperUiUtils.escapeHtml(message, true, isEscapeSingleQuotes);
     } else {
       //maybe this is a javascript message and should be escaped (e.g. tooltip)
       if (isEscapeSingleQuotes) {
@@ -391,7 +391,7 @@ public class GrouperMessageTag extends MessageTag {
     if (this.tooltipKeys == null || this.useNewTermContext()) {
       
       //add the tooltips:
-      ResourceBundle resourceBundle = GuiUtils.getNavResourcesStatic(this.pageContext.getSession());
+      ResourceBundle resourceBundle = GrouperUiUtils.getNavResourcesStatic(this.pageContext.getSession());
       
       //add properties to map
       Map<String, String> propertiesConfigurationMap = convertPropertiesToMap(null, resourceBundle, true);
@@ -470,7 +470,7 @@ public class GrouperMessageTag extends MessageTag {
     //the class="tooltip" is substituted later, so if this is changed, change in other places as well
     tooltipText = "<span " + (isIgnoreTooltipStyle ? "" : "class=\"tooltip\" ") 
       + "onmouseover=\"grouperTooltip('" 
-      + GuiUtils.escapeHtml(tooltipText, true, true) + "');\" onmouseout=\"UnTip()\">" + term + "</span>";
+      + GrouperUiUtils.escapeHtml(tooltipText, true, true) + "');\" onmouseout=\"UnTip()\">" + term + "</span>";
     return tooltipText;
   }
   

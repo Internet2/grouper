@@ -1,14 +1,66 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
-                           "http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd" version="2.0">
 
-<taglib>
-    <tlibversion>1.0</tlibversion>
-    <jspversion>1.1</jspversion>
-    <shortname>grouper</shortname>
-    <uri>http://middleware.internet2.edu/dir/groups/grouper</uri>
-    <info>Grouper tag library</info>
+  <description>Grouper GUI library</description>
+  <display-name>Grouper GUI library</display-name>
+  <tlib-version>1.0</tlib-version>
+  <short-name>grouper</short-name>
+  <uri>http://internet2.edu/grouper/gui</uri>
 
+
+  <tag>
+    <description>
+      Creates a dhtmlx combobox
+    </description>
+    <name>combobox</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperComboboxTag
+    </tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        id and class of elements, and name of combobox. Make this unique in app
+        </description>
+      <name>id</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        width, int, means pixels
+        </description>
+      <name>width</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the operation to call when filtering
+        </description>
+      <name>filterOperation</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
+  <tag>
+    <description>
+      Prints out stem or folder location
+    </description>
+    <name>groupBreadcrumb</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GroupBreadcrumbTag
+    </tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        Name of groupName or groupDisplayName
+        </description>
+      <name>groupName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
     <tag>
         <name>recordTile</name>
         <tagclass>edu.internet2.middleware.grouper.ui.ELTileRecorderTag</tagclass>
@@ -103,6 +155,62 @@
     </attribute>
   </tag>
   <tag>
+    <description>
+      Prints out paging labels or buttons
+    </description>
+    <name>paging</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        Ajax operation to call to refresh the list when a button is clicked
+        </description>
+      <name>refreshOperation</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        true for summary or false for buttons
+        </description>
+      <name>showSummaryOrButtons</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        name of pager (should be unique in the whole app)
+        </description>
+      <name>pagingName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
+    <description>
+      Prints out a subject icon
+    </description>
+    <name>subjectIcon</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.SubjectIconTag</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        Subject
+        </description>
+      <name>subject</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        Gui Subject
+        </description>
+      <name>guiSubject</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
     <name>param</name>
     <info>
         Supplies an argument for parametric replacement to a containing
@@ -129,6 +237,61 @@
         <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
+  
+  <tag>
+    <description>
+      Creates a dhtmlx menu. If a context menu, you need something to attach the context click to,
+      e.g.
+      &lt;a id="advancedLink" href="#" class="smallLink" onclick="this.oncontextmenu(event);
+      return false"&gt;Advanced&lt;/a&gt; </description>
+    <name>menu</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperMenuTag</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        the id of the HTML element of the menu
+        </description>
+      <name>menuId</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        when events occur (onclick), then that operation is called via ajax
+        </description>
+      <name>operation</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the operation called to define the structure of the menu
+        </description>
+      <name>structureOperation</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        true if context menu, false if not
+        </description>
+      <name>contextMenu</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the jquery handle (e.g. #someId) which this menu should be attached to. note
+        that any element you are attaching to must have an id attribute defined. Note
+        this is not needed if this isnt a context menu
+        </description>
+      <name>contextZoneJqueryHandle</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+  
     <tag>
     <name>subtitle</name>
     <!--  description>
@@ -154,6 +317,33 @@
         <name>param2</name>
         <required>false</required>
         <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
+    <name>title</name>
+    <info>
+      This will generate a title, and perhaps an infodot
+    </info>
+    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperTitleTag</tagclass>
+    <attribute>
+      <name>key</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>label</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>param1</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>param2</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
     <tag>
@@ -202,5 +392,52 @@
         <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
+    <function>
+    <description>
+      Prints out a message from the nav bundle. String is the key, then boolean
+      for if escape HTML,
+      and then boolean for if escaping HTML, if single quotes should be
+      escaped
+    </description>
+    <name>message</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String message(java.lang.String, boolean, boolean)
+    </function-signature>
+    <example>
+      &lt;img alt="${grouper:message('some.key', true, false)}" ...
+    </example>
+  </function>
+  <function>
+    <description>
+      Prints out appropriate styles (or none) for hide show. Note this will
+      print a semi colon at end if something printed.
+      Pass in the name of the hide show and
+      whether or not it needs to show when showing.
+    </description>
+    <name>hideShowStyle</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String hideShowStyle(java.lang.String, boolean)
+    </function-signature>
+    <example>
+      &lt;div style="${grouper:hideShowStyle('someName', true)}" ...
+    </example>
+  </function>
+  <function>
+    <description>
+      Prints out appropriate button text for hide show.
+      Pass in the name of the
+      hide show.
+    </description>
+    <name>hideShowButtonText</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String hideShowButtonText(java.lang.String)</function-signature>
+    <example>
+      &lt;a href="#" onclick="onclick="return guiHideShow(event,
+      'hideShowName');"&gt;${grouper:hideShowButtonText('hideShowName')}&lt;/a&gt;
+    </example>
+  </function>
   
 </taglib>

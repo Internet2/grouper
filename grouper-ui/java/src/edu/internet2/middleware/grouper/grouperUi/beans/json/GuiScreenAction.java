@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.json;
 import java.io.Serializable;
 import java.util.List;
 
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -422,7 +422,7 @@ public class GuiScreenAction implements Serializable {
    */
   public static GuiScreenAction newInnerHtmlFromJsp(String htmlReplaceJqueryHandle1, String jspName) {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
-    String jspContents = GuiUtils.convertJspToString(jspName);
+    String jspContents = GrouperUiUtils.convertJspToString(jspName);
     
     guiScreenAction.setInnerHtmlJqueryHandle(htmlReplaceJqueryHandle1);
     guiScreenAction.setInnerHtml(jspContents);
@@ -437,7 +437,7 @@ public class GuiScreenAction implements Serializable {
    */
   public static GuiScreenAction newAlertFromJsp(String jspName) {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
-    String jspContents = GuiUtils.convertJspToString(jspName);
+    String jspContents = GrouperUiUtils.convertJspToString(jspName);
     
     guiScreenAction.setAlert(jspContents);
     
@@ -451,7 +451,7 @@ public class GuiScreenAction implements Serializable {
    */
   public static GuiScreenAction newDialogFromJsp(String jspName) {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
-    String jspContents = GuiUtils.convertJspToString(jspName);
+    String jspContents = GrouperUiUtils.convertJspToString(jspName);
     
     guiScreenAction.setDialog(jspContents);
     

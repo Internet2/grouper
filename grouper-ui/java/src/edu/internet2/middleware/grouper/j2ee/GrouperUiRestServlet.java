@@ -1,7 +1,7 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.j2ee;
+package edu.internet2.middleware.grouper.j2ee;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,10 +25,11 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -83,7 +84,7 @@ public class GrouperUiRestServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
-    GrouperUiJ2ee.assignHttpServlet(this);
+    GrouperUiFilter.assignHttpServlet(this);
     
     List<String> urlStrings = extractUrlStrings(request);
     
@@ -161,7 +162,7 @@ public class GrouperUiRestServlet extends HttpServlet {
         guiResponseJs = new GuiResponseJs();
         guiResponseJs.addAction(GuiScreenAction.newCloseModal());
         guiResponseJs.setAddTextAreaTag(addTextArea);
-        guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.startOver")));
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.startOver")));
 
       } catch (ControllerDone cd) {
         printToScreen = cd.isPrintGuiReponseJs();
@@ -169,7 +170,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       } catch (RuntimeException re) {
         String error = "Problem calling reflection from URL: " + className + "." + methodName + "\n\n" + ExceptionUtils.getFullStackTrace(re);
         LOG.error(error);
-        GuiUtils.appendErrorToRequest(error);
+        GrouperUiUtils.appendErrorToRequest(error);
         
         //if adding text area for form file submits, make sure to do that in errors too
         boolean addTextArea = guiResponseJs.isAddTextAreaTag();
@@ -178,7 +179,7 @@ public class GrouperUiRestServlet extends HttpServlet {
         guiResponseJs = new GuiResponseJs();
         guiResponseJs.addAction(GuiScreenAction.newCloseModal());
         guiResponseJs.setAddTextAreaTag(addTextArea);
-        guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GuiUtils.escapeHtml(re.getMessage(), true)));
+        guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
         
       }
     } else {
@@ -188,7 +189,7 @@ public class GrouperUiRestServlet extends HttpServlet {
         + GrouperUtil.toStringForLog(urlStrings);
       guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + error));
       LOG.error(error);
-      GuiUtils.appendErrorToRequest(error);
+      GrouperUiUtils.appendErrorToRequest(error);
     }
     
     if (printToScreen) {
@@ -206,7 +207,7 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     guiSettings.setAuthnKey(GrouperUuid.getUuid());
     
-    Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
     
     // lets see where the templates are: assume grouperUiText.properties is in WEB-INF/classes,
@@ -217,7 +218,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.guiSettings", guiSettings));
       guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
-          + GuiUtils.message("simpleMembershipUpdate.title", false) + "'"));
+          + GrouperUiUtils.message("simpleMembershipUpdate.title", false) + "'"));
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
           "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
   

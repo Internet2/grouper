@@ -1,6 +1,6 @@
 /**
  * @author Kate
- * $Id: SessionContainer.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: SessionContainer.java,v 1.2 2009-10-11 22:04:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans;
 
@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -70,7 +70,7 @@ public class SessionContainer implements Serializable {
    * @return the app state in request scope
    */
   public static SessionContainer retrieveFromSession() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     HttpSession httpSession = httpServletRequest.getSession();
     SessionContainer sessionContainer = (SessionContainer)httpSession
       .getAttribute("sessionContainer");
@@ -85,7 +85,7 @@ public class SessionContainer implements Serializable {
    * store to session scope
    */
   public void storeToSession() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     httpServletRequest.getSession().setAttribute("sessionContainer", this);
   }
 

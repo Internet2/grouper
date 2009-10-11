@@ -12,10 +12,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONObject;
-
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.HttpContentType;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 
 /**
  * container object for the response back to screen
@@ -43,7 +42,7 @@ public class GuiResponseJs implements Serializable {
       result.append("</textarea>");
     }
     
-    GuiUtils.printToScreen(result.toString(), 
+    GrouperUiUtils.printToScreen(result.toString(), 
         this.isAddTextAreaTag() ? HttpContentType.TEXT_HTML : HttpContentType.APPLICATION_JSON, false, false);
 
   }
@@ -102,7 +101,7 @@ public class GuiResponseJs implements Serializable {
    * @return the response
    */
   public static GuiResponseJs retrieveGuiResponseJs() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     GuiResponseJs guiResponseJs = (GuiResponseJs)httpServletRequest.getAttribute("guiResponseJs");
     if (guiResponseJs == null) {
       guiResponseJs = new GuiResponseJs();

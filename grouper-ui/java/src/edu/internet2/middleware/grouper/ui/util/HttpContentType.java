@@ -1,8 +1,8 @@
 /**
  * @author mchyzer
- * $Id: HttpContentType.java,v 1.1 2009-09-09 15:20:20 mchyzer Exp $
+ * $Id: HttpContentType.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.util;
+package edu.internet2.middleware.grouper.ui.util;
 
 
 /**

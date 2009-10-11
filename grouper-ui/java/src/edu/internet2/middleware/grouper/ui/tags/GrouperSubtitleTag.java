@@ -74,38 +74,6 @@ public class GrouperSubtitleTag extends BodyTagSupport {
   }
 
   /**
-   * Processes all attribute values which use the JSTL expression evaluation
-   * engine to determine their values.
-   * 
-   * @exception JspException
-   *                if a JSP exception has occurred
-   */
-  public void evaluateExpressions() throws JspException {
-    String string = null;
-  
-    if ((string = EvalHelper.evalString("key", 
-        this.key, this, this.pageContext)) != null) {
-      this.key = string;
-    }
-    
-    if ((string = EvalHelper.evalString("label", 
-        this.label, this, this.pageContext)) != null) {
-      this.label = string;
-    }
-    
-    if ((string = EvalHelper.evalString("param1", 
-        this.param1, this, this.pageContext)) != null) {
-      this.param1 = string;
-    }
-    
-    if ((string = EvalHelper.evalString("param2", 
-        this.param2, this, this.pageContext)) != null) {
-      this.param2 = string;
-    }
-    
-  }
-
-  /**
    * init fields on construct
    */
   public GrouperSubtitleTag() {
@@ -126,8 +94,6 @@ public class GrouperSubtitleTag extends BodyTagSupport {
    */
   @Override
   public int doEndTag() throws JspException {
-
-    this.evaluateExpressions();
 
     if (!StringUtils.isBlank(this.key) && !StringUtils.isBlank(this.label)) {
       throw new RuntimeException("Cant set key and label in subtitle tag: " 

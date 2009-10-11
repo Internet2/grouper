@@ -67,33 +67,6 @@ public class GrouperTooltipTag extends BodyTagSupport {
   }
 
   /**
-   * Processes all attribute values which use the JSTL expression evaluation
-   * engine to determine their values.
-   * 
-   * @exception JspException
-   *                if a JSP exception has occurred
-   */
-  public void evaluateExpressions() throws JspException {
-    String string = null;
-  
-    if ((string = EvalHelper.evalString("key", 
-        this.key, this, this.pageContext)) != null) {
-      this.key = string;
-    }
-    
-    if ((string = EvalHelper.evalString("param1", 
-        this.param1, this, this.pageContext)) != null) {
-      this.param1 = string;
-    }
-    
-    if ((string = EvalHelper.evalString("param2", 
-        this.param2, this, this.pageContext)) != null) {
-      this.param2 = string;
-    }
-    
-  }
-
-  /**
    * init fields on construct
    */
   public GrouperTooltipTag() {
@@ -115,8 +88,6 @@ public class GrouperTooltipTag extends BodyTagSupport {
   @Override
   public int doEndTag() throws JspException {
 
-    this.evaluateExpressions();
-    
     List<String> paramsList = new ArrayList<String>();
     if (StringUtils.isNotBlank(this.param1)) {
       paramsList.add(this.param1);
@@ -140,6 +111,7 @@ public class GrouperTooltipTag extends BodyTagSupport {
       grouperMessageTag.setPageContext(this.pageContext);
       grouperMessageTag.setKey(this.key);
       grouperMessageTag.setTooltipDisable("true");
+      grouperMessageTag.setEscapeHtml(true);
       grouperMessageTag.setEscapeSingleQuotes("true");
       grouperMessageTag.doStartTag();
       //maybe we have to do some substitutions
@@ -155,7 +127,7 @@ public class GrouperTooltipTag extends BodyTagSupport {
       }
       grouperMessageTag.doEndTag();
       out.flush();
-      out.print("');\"");
+      out.print("');\" onmouseout=\"UnTip()\"");
       
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);

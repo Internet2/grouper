@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.3 2009-10-11 22:04:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
@@ -13,9 +13,9 @@ import javax.servlet.http.HttpSession;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
-import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -29,7 +29,7 @@ public class SimpleMembershipUpdateContainer implements Serializable {
    * store to session scope
    */
   public void storeToSession() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     httpServletRequest.getSession().setAttribute("simpleMembershipUpdateContainer", this);
   }
 
@@ -38,12 +38,12 @@ public class SimpleMembershipUpdateContainer implements Serializable {
    * @return the app state in request scope
    */
   public static SimpleMembershipUpdateContainer retrieveFromSession() {
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
     HttpSession httpSession = httpServletRequest.getSession();
     SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = (SimpleMembershipUpdateContainer)httpSession
       .getAttribute("simpleMembershipUpdateContainer");
     if (simpleMembershipUpdateContainer == null) {
-      throw new NoSessionException(GuiUtils.message("simpleMembershipUpdate.noContainer"));
+      throw new NoSessionException(GrouperUiUtils.message("simpleMembershipUpdate.noContainer"));
     }
     return simpleMembershipUpdateContainer;
   }

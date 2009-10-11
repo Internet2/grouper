@@ -1,8 +1,8 @@
 /**
  * @author mchyzer
- * $Id: ControllerDone.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: ControllerDone.java,v 1.1 2009-10-11 22:04:17 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.exceptions;
+package edu.internet2.middleware.grouper.ui.exceptions;
 
 
 /**

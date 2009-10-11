@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.io.Serializable;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 
 
 /**
@@ -59,7 +59,7 @@ public class GuiGroup implements Serializable {
   public static String getExportSubjectIdsFileNameStatic(Group group) {
     String groupExtensionFileName = group.getDisplayExtension();
     
-    groupExtensionFileName = GuiUtils.stripNonFilenameChars(groupExtensionFileName);
+    groupExtensionFileName = GrouperUiUtils.stripNonFilenameChars(groupExtensionFileName);
     
     return "groupExportSubjectIds_" + groupExtensionFileName + ".csv";
  
@@ -81,7 +81,7 @@ public class GuiGroup implements Serializable {
   public static String getExportAllFileNameStatic(Group group) {
     String groupExtensionFileName = group.getDisplayExtension();
     
-    groupExtensionFileName = GuiUtils.stripNonFilenameChars(groupExtensionFileName);
+    groupExtensionFileName = GrouperUiUtils.stripNonFilenameChars(groupExtensionFileName);
     
     return "groupExportAll_" + groupExtensionFileName + ".csv";
  
