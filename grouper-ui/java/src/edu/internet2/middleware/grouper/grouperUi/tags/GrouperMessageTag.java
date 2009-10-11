@@ -47,7 +47,7 @@ import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.MapBundleWrapper;
+import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**

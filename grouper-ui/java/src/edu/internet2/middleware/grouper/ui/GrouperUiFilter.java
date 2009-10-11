@@ -62,7 +62,7 @@ import edu.internet2.middleware.subject.Subject;
  * Generic filter for ui for grouper (e.g. set hooks context)
  * 
  * @author Chris Hyzer.
- * @version $Id: GrouperUiFilter.java,v 1.6 2009-09-08 02:29:01 mchyzer Exp $
+ * @version $Id: GrouperUiFilter.java,v 1.7 2009-10-11 07:32:24 mchyzer Exp $
  */
 
 public class GrouperUiFilter implements Filter {
@@ -78,7 +78,10 @@ public class GrouperUiFilter implements Filter {
    * @return the nav resource bundle
    */
   public static ResourceBundle retrieveSessionNavResourceBundle() {
-    return ((LocalizationContext)retrieveHttpServletRequest().getSession().getAttribute("nav")).getResourceBundle();
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+    HttpSession session = httpServletRequest.getSession();
+    LocalizationContext attribute = (LocalizationContext)session.getAttribute("nav");
+    return attribute.getResourceBundle();
   }
   
   /**

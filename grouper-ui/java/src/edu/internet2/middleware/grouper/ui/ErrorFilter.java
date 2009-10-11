@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  *  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ErrorFilter.java,v 1.4 2008-08-26 16:41:48 mchyzer Exp $
+ * @version $Id: ErrorFilter.java,v 1.5 2009-10-11 07:32:24 mchyzer Exp $
  */
 
 public class ErrorFilter implements Filter {
@@ -81,14 +81,10 @@ public class ErrorFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse) res;
 		HttpSession session=request.getSession();
 		String x = request.getRequestURI();
-		Integer requestCount = (Integer)session.getAttribute("requestCount");
-		if(requestCount==null) {
-			requestCount=Integer.valueOf(1);
-		}else{
-			requestCount = Integer.valueOf(requestCount.intValue()+1);
-		}
-		session.setAttribute("requestCount",requestCount);
-		
+		Integer requestCount = incrementRequestCount(session);
+    requestCount = Integer.valueOf(requestCount.intValue()+1);
+    session.setAttribute("requestCount",requestCount);
+
 		if(!Boolean.TRUE.equals(session.getAttribute("sessionInited"))) {
 		    org.apache.struts.config.ModuleConfig config1 = (org.apache.struts.config.ModuleConfig) request.getAttribute("org.apache.struts.action.MODULE");
 		    String module = "";
@@ -164,9 +160,22 @@ public class ErrorFilter implements Filter {
 			}
 		}
 	}
+
+  /**
+   * @param session
+   */
+  private static Integer incrementRequestCount(HttpSession session) {
+    Integer requestCount = (Integer)session.getAttribute("requestCount");
+		if(requestCount==null) {
+			requestCount=Integer.valueOf(1);
+			session.setAttribute("requestCount",requestCount);
+		}
+		return requestCount;
+  }
 	
 	public static void initNDC(HttpServletRequest request) {
 		HttpSession session=request.getSession();
+		incrementRequestCount(session);
 		String requestCount = session.getAttribute("requestCount").toString();
 		String pad="0000";
 		requestCount=pad.substring(requestCount.length()) + requestCount;

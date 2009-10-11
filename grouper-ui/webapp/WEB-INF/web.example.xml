@@ -46,7 +46,16 @@
   
   <!-- Map the filter to a Servlet or URL -->
   <filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
     <filter-name>Grouper UI filter</filter-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>Error Catcher</filter-name>
     <url-pattern>/grouperUi/app/*</url-pattern>
   </filter-mapping>
 

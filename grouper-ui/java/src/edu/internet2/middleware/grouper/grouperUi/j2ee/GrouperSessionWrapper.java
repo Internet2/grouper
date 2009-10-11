@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperSessionWrapper.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
+ * $Id: GrouperSessionWrapper.java,v 1.3 2009-10-11 07:32:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
-import edu.internet2.middleware.grouper.grouperUi.util.SessionInitialiser;
+import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 
 
 /**

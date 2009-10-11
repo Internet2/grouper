@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.3 2009-10-11 07:32:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -164,10 +165,10 @@ public class GuiUtils {
       
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select gm " +
-          "from Member gm, Membership gms " +
+          "from Member gm, ImmediateMembershipEntry gms " +
           "where gm.uuid = gms.memberUuid " +
           "and gms.fieldId = :fieldId " +
-          "and gms.ownerUuid = :ownerId " +
+          "and gms.ownerGroupId = :ownerId " +
           (immediateOnly ? "and gms.type = 'immediate' " : "") + 
           "and gm.subjectIdDb in (");
       

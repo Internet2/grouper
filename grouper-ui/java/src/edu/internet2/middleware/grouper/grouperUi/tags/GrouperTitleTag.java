@@ -26,7 +26,7 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.grouperUi.util.MapBundleWrapper;
+import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
