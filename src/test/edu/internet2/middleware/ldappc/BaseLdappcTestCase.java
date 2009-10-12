@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,34 +29,16 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
-import org.apache.directory.server.constants.ServerDNConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
-import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
-import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.mina.util.AvailablePortFinder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -66,6 +47,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
+import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -75,8 +57,6 @@ public class BaseLdappcTestCase extends GrouperTest {
   private static final Log LOG = GrouperUtil.getLog(CRUDTest.class);
 
   public static final String LDAPPC_TEST_XML = "edu/internet2/middleware/ldappc/ldappc.test.xml";
-
-  public static final String EDUMEMBER_SCHEMA = "edu/internet2/middleware/ldappc/eduMember.ldif";
 
   public static final String GROUPER_BASE_DN = "dc=grouper,dc=edu";
 
@@ -90,23 +70,19 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   protected LdapContext ldapContext;
 
-  private DirectoryService directoryService;
-
-  private LdapServer ldapService;
+  private List<EmbeddedApacheDS> embeddedADSServers = new ArrayList<EmbeddedApacheDS>();
 
   protected String className = getClass().getSimpleName();
+  
+  public BaseLdappcTestCase(String name) {
+    super(name);
+  }
 
   public void setUp() {
     super.setUp();
     grouperSession = SessionHelper.getRootSession();
     root = StemHelper.findRootStem(grouperSession);
-    edu = StemHelper.addChildStem(root, "edu", "education");
-
-    try {
-      setUpLdappc(null);
-    } catch (Exception e) {
-      fail("An error occurred : " + e);
-    }
+    edu = StemHelper.addChildStem(root, "edu", "education");    
   }
 
   /**
@@ -133,8 +109,16 @@ public class BaseLdappcTestCase extends GrouperTest {
     options.setConfigManagerLocation(configManagerLocation);
     ConfigManager configuration = new ConfigManager(configManagerLocation);
 
+    ldappc = new Ldappc(options, configuration, setUpLdapContext());
+  }
+
+  public LdapContext setUpLdapContext() throws Exception {
+
     if (useEmbedded()) {
-      this.setUpEmbeddedServer();
+      EmbeddedApacheDS embeddedApacheDS = new EmbeddedApacheDS(10389);
+      embeddedApacheDS.startup();
+      embeddedADSServers.add(embeddedApacheDS);
+      ldapContext = embeddedApacheDS.getNewLdapContext();
     } else {
       String url = ResourceBundleUtil.getString("test.provider_url");
       String user = ResourceBundleUtil.getString("test.security_principal");
@@ -150,63 +134,11 @@ public class BaseLdappcTestCase extends GrouperTest {
       env.put(Context.SECURITY_PRINCIPAL, user);
       env.put(Context.SECURITY_CREDENTIALS, ResourceBundleUtil
           .getString("test.security_credentials"));
+
       ldapContext = LdapUtil.getLdapContext(env, null);
     }
 
-    ldappc = new Ldappc(options, configuration, ldapContext);
-  }
-
-  private void setUpEmbeddedServer() throws Exception {
-
-    directoryService = new DefaultDirectoryService();
-    directoryService.setWorkingDirectory(new File(ResourceBundleUtil
-        .getString("testLdapWorkingDirectory")));
-    directoryService.setShutdownHookEnabled(false);
-    int port = AvailablePortFinder.getNextAvailable(1024);
-    ldapService = new LdapServer();
-    ldapService.setTransports(new TcpTransport(port));
-    ldapService.setDirectoryService(directoryService);
-
-    Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String, MechanismHandler>();
-    mechanismHandlerMap.put(SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler());
-    ldapService.setSaslMechanismHandlers(mechanismHandlerMap);
-
-    // reset working directory
-    if (directoryService.getWorkingDirectory().exists()) {
-      FileUtils.deleteDirectory(directoryService.getWorkingDirectory());
-      if (directoryService.getWorkingDirectory().exists()) {
-        fail("can't delete " + directoryService.getWorkingDirectory());
-      }
-    }
-
-    directoryService.startup();
-
-    // create partition
-    Partition partition = new JdbmPartition();
-    partition.setId("grouper");
-    partition.setSuffix(GROUPER_BASE_DN);
-    directoryService.addPartition(partition);
-
-    ldapService.start();
-
-    // add root entry
-    ServerEntry entryFoo = directoryService.newEntry(new LdapDN(GROUPER_BASE_DN));
-    entryFoo.add("objectClass", "top", "domain", "extensibleObject");
-    entryFoo.add("dc", "grouper");
-    directoryService.getAdminSession().add(entryFoo);
-
-    // create ldap context
-    Hashtable<String, String> env = new Hashtable<String, String>();
-    env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-    env.put(Context.PROVIDER_URL, "ldap://localhost:" + ldapService.getPort());
-    env.put(Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN);
-    env.put(Context.SECURITY_CREDENTIALS, "secret");
-    env.put(Context.SECURITY_AUTHENTICATION, "simple");
-
-    ldapContext = new InitialLdapContext(env, null);
-
-    // load eduMember schema
-    loadLdif(GrouperUtil.fileFromResourceName(EDUMEMBER_SCHEMA));
+    return ldapContext;
   }
 
   public void tearDown() {
@@ -214,11 +146,12 @@ public class BaseLdappcTestCase extends GrouperTest {
 
     try {
       tearDownDIT();
+      if (ldapContext != null) {
+        ldapContext.close();
+      }
       if (useEmbedded()) {
-        ldapService.stop();
-        directoryService.shutdown();
-        if (directoryService.getWorkingDirectory().exists()) {
-          FileUtils.deleteDirectory(directoryService.getWorkingDirectory());
+        for (EmbeddedApacheDS embeddedADS : embeddedADSServers) {
+          embeddedADS.shutdown();
         }
       }
     } catch (Exception e) {
@@ -241,12 +174,11 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   public File calculate(GroupDNStructure structure) throws Exception {
 
-
-    File file = new File(ldappc.getOptions().getCalculateOutputFileLocation());
+    File file = new File(ldappc.getOptions().getOutputFileLocation());
     if (file.exists()) {
       file.delete();
     }
-    
+
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
     return ldappc.calculate();
@@ -278,32 +210,6 @@ public class BaseLdappcTestCase extends GrouperTest {
     }
 
     return tree;
-  }
-
-  public void loadLdif(String file) throws Exception {
-    if (file.endsWith(".ldif")) {
-      loadLdif(new File(getClass().getResource(file).toURI()));
-    } else {
-      fail("file does not end in .ldif");
-    }
-  }
-
-  public void loadLdif(File file) throws Exception {
-
-    LdifReader ldifReader = new LdifReader(file);
-    for (LdifEntry entry : ldifReader) {
-      Attributes attributes = new BasicAttributes(true);
-      for (EntryAttribute entryAttribute : entry.getEntry()) {
-        BasicAttribute attribute = new BasicAttribute(entryAttribute.getId());
-        Iterator<Value<?>> values = entryAttribute.getAll();
-        while (values.hasNext()) {
-          attribute.add(values.next().get());
-        }
-        attributes.put(attribute);
-      }
-      LOG.debug("creating '" + entry.getDn().toString() + " " + attributes);
-      ldapContext.createSubcontext(entry.getDn().toString(), attributes);
-    }
   }
 
   public void print() throws Exception {
@@ -355,6 +261,19 @@ public class BaseLdappcTestCase extends GrouperTest {
 
     ldappc.provision();
   }
+  
+  public File dryRun(GroupDNStructure structure) throws Exception {
+
+    ldappc.getOptions().setMode(ProvisioningMode.DRYRUN);
+        
+    File file = File.createTempFile("BaseLdappcTestCaseDryRun", null);    
+    ldappc.getOptions().setOutputFileLocation(file.getAbsolutePath());
+    file.delete();
+    
+    ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
+
+    return ldappc.dryRun();
+  }
 
   /**
    * Returns true when testing against an embedded ApacheDS LDAP server.
@@ -395,27 +314,6 @@ public class BaseLdappcTestCase extends GrouperTest {
         .getAbsolutePath()));
 
     Map<LdapDN, Entry> currentMap = buildMap(reader.parseLdif(ldif));
-
-    for (LdapDN dnA : correctMap.keySet()) {
-      assertEquals("correct ", correctMap.get(dnA), currentMap.get(dnA));
-    }
-
-    for (LdapDN dnB : currentMap.keySet()) {
-      assertEquals("current", correctMap.get(dnB), currentMap.get(dnB));
-    }
-
-  }
-
-  public void verify(String file, File ldif) throws Exception {
-
-    File ldifFile = new File(getClass().getResource(file).toURI());
-
-    LdifReader reader = new LdifReader();
-
-    Map<LdapDN, Entry> correctMap = buildMap(reader.parseLdifFile(ldifFile
-        .getAbsolutePath()));
-
-    Map<LdapDN, Entry> currentMap = buildMap(reader.parseLdifFile(ldif.getAbsolutePath()));
 
     for (LdapDN dnA : correctMap.keySet()) {
       assertEquals("correct ", correctMap.get(dnA), currentMap.get(dnA));

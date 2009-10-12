@@ -30,6 +30,10 @@ import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 
 public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
+  public GrouperSynchronizerTest(String name) {
+    super(name);
+  }
+
   public void setUp() {
     super.setUp();
 

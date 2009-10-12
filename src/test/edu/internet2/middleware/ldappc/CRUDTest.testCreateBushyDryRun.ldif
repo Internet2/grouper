@@ -1,0 +1,39 @@
+dn: ou=edu,ou=groups,dc=grouper,dc=edu
+changetype: add
+ou: edu
+objectclass: organizationalUnit
+
+dn: cn=groupA,ou=edu,ou=groups,dc=grouper,dc=edu
+changetype: add
+member: uid=test.subject.0,ou=people,dc=grouper,dc=edu
+hasmember: name.test.subject.0
+cn: groupA
+objectclass: eduMember
+objectclass: groupOfNames
+
+dn: cn=groupB,ou=edu,ou=groups,dc=grouper,dc=edu
+changetype: add
+member: uid=test.subject.1,ou=people,dc=grouper,dc=edu
+hasmember: name.test.subject.1
+cn: groupB
+description: descriptionB
+objectclass: eduMember
+objectclass: groupOfNames
+
+dn: uid=test.subject.0,ou=people,dc=grouper,dc=edu
+changetype: modify
+add: objectclass
+objectclass: eduMember
+-
+add: ismemberof
+ismemberof: edu:groupA
+-
+
+dn: uid=test.subject.1,ou=people,dc=grouper,dc=edu
+changetype: modify
+add: objectclass
+objectclass: eduMember
+-
+add: ismemberof
+ismemberof: edu:groupB
+-

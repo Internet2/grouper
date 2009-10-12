@@ -23,10 +23,12 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
+import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
@@ -263,9 +265,14 @@ public class StringMembershipSynchronizer {
       //
       // Perform the modifications
       //
-      LOG.info("Modify subject '{}' {}", getSubject(), Arrays.asList(mods));
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+        LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(new LdapDN(
+            getSubject()), mods));
+      } else {
+        LOG.info("Modify subject '{}' {}", getSubject(), Arrays.asList(mods));
+        ldappc.getContext().modifyAttributes(getSubject(), mods);
+      }
 
-      ldappc.getContext().modifyAttributes(getSubject(), mods);
     }
   }
 

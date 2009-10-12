@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,6 +32,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
 
 import junit.framework.Assert;
 
@@ -49,6 +52,7 @@ import org.openspml.v2.util.xml.UnknownSpml2TypeException;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.IgnoreRequestIDDifferenceListener;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.bean.LdapAttributes;
@@ -60,16 +64,19 @@ public class LdappcTestHelper {
 
   private static final Logger LOG = GrouperUtil.getLogger(LdappcTestHelper.class);
 
-  public static Map<LdapDN, Entry> buildLdapEntryMap(List<LdifEntry> ldifEntries) throws NamingException {
+  public static Map<LdapDN, LdifEntry> buildLdapEntryMap(List<LdifEntry> ldifEntries)
+      throws NamingException {
 
-    Map<LdapDN, Entry> map = new HashMap<LdapDN, Entry>();
+    Map<LdapDN, LdifEntry> map = new HashMap<LdapDN, LdifEntry>();
 
     for (LdifEntry ldifEntry : ldifEntries) {
-      Entry entry = ldifEntry.getEntry();
-      if (entry.contains("objectclass", "top")) {
-        entry.remove("objectclass", "top");
+      if (ldifEntry.isEntry()) {
+        Entry entry = ldifEntry.getEntry();
+        if (entry.contains("objectclass", "top")) {
+          entry.remove("objectclass", "top");
+        }
       }
-      map.put(ldifEntry.getDn(), entry);
+      map.put(ldifEntry.getDn(), ldifEntry);
     }
 
     return map;
@@ -95,8 +102,8 @@ public class LdappcTestHelper {
   public static List<String> getChildDNs(String name, Ldap ldap) throws NamingException {
     ArrayList<String> tree = new ArrayList<String>();
 
-    Iterator<SearchResult> searchResults = ldap.searchAttributes(name, new BasicAttributes("objectclass", null),
-        new String[] {});
+    Iterator<SearchResult> searchResults = ldap.searchAttributes(name,
+        new BasicAttributes("objectclass", null), new String[] {});
     LdapResult ldapResult = new LdapResult(searchResults);
     for (LdapEntry ldapEntry : ldapResult.getEntries()) {
       tree.addAll(getChildDNs(ldapEntry.getDn(), ldap));
@@ -131,6 +138,28 @@ public class LdappcTestHelper {
     return ldif.toString();
   }
 
+  /**
+   * Return the file from the given object's classloader.
+   * 
+   * @param object
+   *          the parent
+   * @param fileName
+   *          the file name
+   * @return the File
+   */
+  public static File getFile(Object object, String fileName) {
+    try {
+      URL url = object.getClass().getResource(fileName);
+      if (url == null) {
+        throw new LdappcException("File not found : " + fileName);
+      }
+      return new File(url.toURI());
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+      throw new LdappcException("An error occurred : " + e.getMessage());
+    }
+  }
+
   public static void loadLdif(File file, Ldap ldap) throws NamingException {
 
     LdifReader ldifReader = new LdifReader(file);
@@ -149,6 +178,24 @@ public class LdappcTestHelper {
     }
   }
 
+  public static void loadLdif(File file, LdapContext ldapContext) throws Exception {
+
+    LdifReader ldifReader = new LdifReader(file);
+    for (LdifEntry entry : ldifReader) {
+      Attributes attributes = new BasicAttributes(true);
+      for (EntryAttribute entryAttribute : entry.getEntry()) {
+        BasicAttribute attribute = new BasicAttribute(entryAttribute.getId());
+        Iterator<Value<?>> values = entryAttribute.getAll();
+        while (values.hasNext()) {
+          attribute.add(values.next().get());
+        }
+        attributes.put(attribute);
+      }
+      LOG.debug("creating '" + entry.getDn().toString() + " " + attributes);
+      ldapContext.createSubcontext(entry.getDn().toString(), attributes);
+    }
+  }
+
   public static String readFile(File file) {
 
     StringBuffer buffer = new StringBuffer();
@@ -157,7 +204,7 @@ public class LdappcTestHelper {
       BufferedReader in = new BufferedReader(new FileReader(file));
       String str;
       while ((str = in.readLine()) != null) {
-        buffer.append(str);
+        buffer.append(str + System.getProperty("line.separator"));
       }
       in.close();
     } catch (IOException e) {
@@ -177,39 +224,45 @@ public class LdappcTestHelper {
     return null;
   }
 
-  public static void verifyLdif(File correctLdifFile, File currentLdifFile) throws NamingException {
+  public static void verifyLdif(File correctLdifFile, File currentLdifFile)
+      throws NamingException {
     LdifReader reader = new LdifReader();
 
-    Map<LdapDN, Entry> correctMap = buildLdapEntryMap(reader.parseLdifFile(correctLdifFile.getAbsolutePath()));
-    Map<LdapDN, Entry> currentMap = buildLdapEntryMap(reader.parseLdifFile(currentLdifFile.getAbsolutePath()));
+    Map<LdapDN, LdifEntry> correctMap = buildLdapEntryMap(reader.parseLdifFile(correctLdifFile.getAbsolutePath()));
+    Map<LdapDN, LdifEntry> currentMap = buildLdapEntryMap(reader.parseLdifFile(currentLdifFile.getAbsolutePath()));
 
     verifyLdif(correctMap, currentMap);
   }
 
-  public static void verifyLdif(File correctLdifFile, String currentLdif) throws NamingException {
+  public static void verifyLdif(File correctLdifFile, String currentLdif)
+      throws NamingException {
     LdifReader reader = new LdifReader();
 
-    Map<LdapDN, Entry> correctMap = buildLdapEntryMap(reader.parseLdifFile(correctLdifFile.getAbsolutePath()));
-    Map<LdapDN, Entry> currentMap = buildLdapEntryMap(reader.parseLdif(currentLdif));
+    Map<LdapDN, LdifEntry> correctMap = buildLdapEntryMap(reader.parseLdifFile(correctLdifFile.getAbsolutePath()));
+    Map<LdapDN, LdifEntry> currentMap = buildLdapEntryMap(reader.parseLdif(currentLdif));
 
     verifyLdif(correctMap, currentMap);
   }
 
-  public static void verifyLdif(Map<LdapDN, Entry> correctMap, Map<LdapDN, Entry> currentMap) {
+  public static void verifyLdif(Map<LdapDN, LdifEntry> correctMap,
+      Map<LdapDN, LdifEntry> currentMap) {
     for (LdapDN correctDn : correctMap.keySet()) {
-      Assert.assertEquals("correct ", correctMap.get(correctDn), currentMap.get(correctDn));
+      Assert.assertEquals("correct ", correctMap.get(correctDn), currentMap
+          .get(correctDn));
     }
     for (LdapDN currentDn : currentMap.keySet()) {
-      Assert.assertEquals("current", correctMap.get(currentDn), currentMap.get(currentDn));
+      Assert
+          .assertEquals("current", correctMap.get(currentDn), currentMap.get(currentDn));
     }
   }
 
-  public static Marshallable verifySpml(XMLMarshaller m, XMLUnmarshaller u, Marshallable testObject, File correctXMLFile) {
+  public static Marshallable verifySpml(XMLMarshaller m, XMLUnmarshaller u,
+      Marshallable testObject, File correctXMLFile) {
     return verifySpml(m, u, testObject, correctXMLFile, false);
   }
 
-  public static Marshallable verifySpml(XMLMarshaller m, XMLUnmarshaller u, Marshallable testObject,
-      File correctXMLFile, boolean testEquality) {
+  public static Marshallable verifySpml(XMLMarshaller m, XMLUnmarshaller u,
+      Marshallable testObject, File correctXMLFile, boolean testEquality) {
 
     try {
       String testXML = testObject.toXML(m);
@@ -238,14 +291,16 @@ public class LdappcTestHelper {
       // OCEtoMarshallableAdapter does not have an equals() method
 
       // test marshalling and unmarshalling xml
-      DetailedDiff marshallingDiff = new DetailedDiff(new Diff(testXML, unmarshalledTestXML));
+      DetailedDiff marshallingDiff = new DetailedDiff(new Diff(testXML,
+          unmarshalledTestXML));
       Assert.assertTrue(marshallingDiff.identical());
 
       // ignore requestID, must test similar not identical
       DifferenceListener ignoreRequestID = new IgnoreRequestIDDifferenceListener();
 
       // test testXML against correctXML
-      Diff correctDiff = new Diff(new FileReader(correctXMLFile), new StringReader(testXML));
+      Diff correctDiff = new Diff(new FileReader(correctXMLFile), new StringReader(
+          testXML));
       correctDiff.overrideDifferenceListener(ignoreRequestID);
       DetailedDiff correctDetailedDiff = new DetailedDiff(correctDiff);
       if (!correctDetailedDiff.getAllDifferences().isEmpty()) {
@@ -256,7 +311,8 @@ public class LdappcTestHelper {
       Assert.assertTrue(correctDetailedDiff.similar());
 
       // test unmarshalledXML against correctXML
-      Diff unmarshalledDiff = new Diff(new FileReader(correctXMLFile), new StringReader(unmarshalledTestXML));
+      Diff unmarshalledDiff = new Diff(new FileReader(correctXMLFile), new StringReader(
+          unmarshalledTestXML));
       unmarshalledDiff.overrideDifferenceListener(ignoreRequestID);
       DetailedDiff unmarshalledDetailedDiff = new DetailedDiff(unmarshalledDiff);
       if (!unmarshalledDetailedDiff.getAllDifferences().isEmpty()) {
