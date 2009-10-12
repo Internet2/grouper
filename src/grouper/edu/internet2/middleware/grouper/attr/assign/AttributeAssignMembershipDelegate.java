@@ -1,11 +1,17 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignMembershipDelegate.java,v 1.2 2009-10-05 00:50:24 mchyzer Exp $
+ * $Id: AttributeAssignMembershipDelegate.java,v 1.3 2009-10-12 09:46:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -148,5 +154,17 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefNamesByMembershipIdAndAttributeDefId(this.membership.getUuid(), attributeDefId);
   }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
+    return new ToStringBuilder(this)
+      .append( "membership", this.membership)
+      .toString();
+  }
+
 
 }

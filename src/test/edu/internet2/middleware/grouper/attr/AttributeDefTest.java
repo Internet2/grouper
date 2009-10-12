@@ -22,7 +22,6 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /**
  * @author mchyzer
@@ -364,11 +363,11 @@ public class AttributeDefTest extends GrouperTest {
   
     assertFalse(this.group.getAttributeDelegate().hasAttributeByName("top:testName"));
     
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName));
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName).isChanged());
   
     assertTrue(this.group.getAttributeDelegate().hasAttributeByName("top:testName"));
 
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName));
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName).isChanged());
     
   }
 

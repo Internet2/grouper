@@ -1,10 +1,12 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignGroupDelegate.java,v 1.5 2009-10-05 00:50:24 mchyzer Exp $
+ * $Id: AttributeAssignGroupDelegate.java,v 1.6 2009-10-12 09:46:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -147,5 +149,17 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefNamesByGroupIdAndAttributeDefId(this.group.getUuid(), attributeDefId);
   }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
+    return new ToStringBuilder(this)
+      .append( "group", this.group)
+      .toString();
+  }
+
 
 }

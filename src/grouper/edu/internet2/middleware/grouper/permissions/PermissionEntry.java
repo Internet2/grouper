@@ -1,12 +1,16 @@
 /**
  * @author mchyzer
- * $Id: PermissionEntry.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
+ * $Id: PermissionEntry.java,v 1.2 2009-10-12 09:46:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions;
+
+import java.sql.Timestamp;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -48,6 +52,17 @@ public class PermissionEntry extends GrouperAPI {
   /** id of the attribute def name which is the permission */
   private String attributeDefNameId;
 
+  /** if this assignment is enabled */
+  private boolean enabled;
+  
+  /** the delegatable flag on assignment */
+  private AttributeAssignDelegatable attributeAssignDelegatable;
+  
+  /** the time this assignment was enabled */
+  private Long enabledTimeDb;
+  
+  /** the time this assignment was disabled */
+  private Long disabledTimeDb;
   
   /**
    * role which has the permission or which the subject must be in to have the permission
@@ -266,6 +281,164 @@ public class PermissionEntry extends GrouperAPI {
       .append( "attributeDefNameName", this.attributeDefNameName )
       .append( "action", this.action )
       .toString();
+  }
+
+
+  /**
+   * get the enum for delegatable, do not return null
+   * @return the attributeAssignDelegatable
+   */
+  public AttributeAssignDelegatable getAttributeAssignDelegatable() {
+    return GrouperUtil.defaultIfNull(this.attributeAssignDelegatable, 
+        AttributeAssignDelegatable.FALSE); 
+  }
+
+
+  /**
+   * internal method for hibernate to persist this enum
+   * @return the string value (enum name)
+   */
+  public String getAttributeAssignDelegatableDb() {
+    return this.getAttributeAssignDelegatable().name();
+  }
+
+
+  /**
+   * if there is a date here, and it is in the past, this assignment is disabled
+   * @return the disabledTimeDb
+   */
+  public Timestamp getDisabledTime() {
+    return this.disabledTimeDb == null ? null : new Timestamp(this.disabledTimeDb);
+  }
+
+
+  /**
+   * if there is a date here, and it is in the past, this assignment is disabled
+   * @return the disabledTimeDb
+   */
+  public Long getDisabledTimeDb() {
+    return this.disabledTimeDb;
+  }
+
+
+  /**
+   * true or false for if this assignment is enabled (e.g. might have expired) 
+   * @return the enabled
+   */
+  public String getEnabledDb() {
+    return this.enabled ? "T" : "F";
+  }
+
+
+  /**
+   * if there is a date here, and it is in the future, this assignment is disabled
+   * until that time
+   * @return the enabledTimeDb
+   */
+  public Timestamp getEnabledTime() {
+    return this.enabledTimeDb == null ? null : new Timestamp(this.enabledTimeDb);
+  }
+
+
+  /**
+   * if there is a date here, and it is in the future, this assignment is disabled
+   * until that time
+   * @return the enabledTimeDb
+   */
+  public Long getEnabledTimeDb() {
+    return this.enabledTimeDb;
+  }
+
+
+  /**
+   * true or false for if this assignment is enabled (e.g. might have expired) 
+   * @return the enabled
+   */
+  public boolean isEnabled() {
+    //currently this is based on timestamp
+    long now = System.currentTimeMillis();
+    if (this.enabledTimeDb != null && this.enabledTimeDb > now) {
+      return false;
+    }
+    if (this.disabledTimeDb != null && this.disabledTimeDb < now) {
+      return false;
+    }
+    return true;
+  }
+
+
+  /**
+   * @param attributeAssignDelegatable1 the attributeAssignDelegatable to set
+   */
+  public void setAttributeAssignDelegatable(
+      AttributeAssignDelegatable attributeAssignDelegatable1) {
+    this.attributeAssignDelegatable = attributeAssignDelegatable1;
+  }
+
+
+  /**
+   * internal method for hibernate to set if delegatable
+   * @param theAttributeAssignDelegatableDb
+   */
+  public void setAttributeAssignDelegatableDb(String theAttributeAssignDelegatableDb) {
+    this.attributeAssignDelegatable = AttributeAssignDelegatable.valueOfIgnoreCase(
+        theAttributeAssignDelegatableDb, false);
+  }
+
+
+  /**
+   * if there is a date here, and it is in the past, this assignment is disabled
+   * @param disabledTimeDb1 the disabledTimeDb to set
+   */
+  public void setDisabledTime(Timestamp disabledTimeDb1) {
+    this.disabledTimeDb = disabledTimeDb1 == null ? null : disabledTimeDb1.getTime();
+  }
+
+
+  /**
+   * if there is a date here, and it is in the past, this assignment is disabled
+   * @param disabledTimeDb1 the disabledTimeDb to set
+   */
+  public void setDisabledTimeDb(Long disabledTimeDb1) {
+    this.disabledTimeDb = disabledTimeDb1;
+  }
+
+
+  /**
+   * true or false for if this assignment is enabled (e.g. might have expired) 
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabled(boolean enabled1) {
+    this.enabled = enabled1;
+  }
+
+
+  /**
+   * true or false for if this assignment is enabled (e.g. might have expired) 
+   * @param enabled1 the enabled to set
+   */
+  public void setEnabledDb(String enabled1) {
+    this.enabled = GrouperUtil.booleanValue(enabled1);
+  }
+
+
+  /**
+   * if there is a date here, and it is in the future, this assignment is disabled
+   * until that time
+   * @param enabledTimeDb1 the enabledTimeDb to set
+   */
+  public void setEnabledTime(Timestamp enabledTimeDb1) {
+    this.enabledTimeDb = enabledTimeDb1 == null ? null : enabledTimeDb1.getTime();
+  }
+
+
+  /**
+   * if there is a date here, and it is in the future, this assignment is disabled
+   * until that time
+   * @param enabledTimeDb1 the enabledTimeDb to set
+   */
+  public void setEnabledTimeDb(Long enabledTimeDb1) {
+    this.enabledTimeDb = enabledTimeDb1;
   }
 
 }

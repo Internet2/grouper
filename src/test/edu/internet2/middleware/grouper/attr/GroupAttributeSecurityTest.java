@@ -160,12 +160,12 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     // try grouper system
     
     //assign these
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_2));
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_2));
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
     
     assertTrue(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -652,12 +652,12 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ3 );
   
     //assign these
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_2));
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_2));
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
     
     assertTrue(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -710,7 +710,7 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ4 );
   
     //assign these
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     try {
       this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -723,7 +723,7 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     
     assertTrue(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -894,8 +894,8 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     
     
     //assign these
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     try {
       this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -992,7 +992,7 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ7 );
   
     //assign these
-    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertTrue(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     try {
       this.group.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1005,7 +1005,7 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertFalse(this.group.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     
     assertTrue(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_2));

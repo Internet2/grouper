@@ -1,10 +1,12 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignEffMshipDelegate.java,v 1.2 2009-10-05 00:50:24 mchyzer Exp $
+ * $Id: AttributeAssignEffMshipDelegate.java,v 1.3 2009-10-12 09:46:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -29,7 +31,7 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
    * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assignAttribute(edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
-  public boolean assignAttribute(AttributeDefName attributeDefName) {
+  public AttributeAssignResult assignAttribute(AttributeDefName attributeDefName) {
     //make sure the member is a member of the group before assigning
     assertMemberOfGroup();
     return super.assignAttribute(attributeDefName);
@@ -188,5 +190,18 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefNamesByGroupIdMemberIdAndAttributeDefId(this.group.getUuid(), this.member.getUuid(), attributeDefId);
   }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
+    return new ToStringBuilder(this)
+      .append( "group", this.group)
+      .append( "member", this.member )
+      .toString();
+  }
+
 
 }

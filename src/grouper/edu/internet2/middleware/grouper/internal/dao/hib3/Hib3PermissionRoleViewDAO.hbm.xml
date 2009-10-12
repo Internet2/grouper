@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3PermissionRoleViewDAO.hbm.xml,v 1.2 2009-10-02 20:21:33 mchyzer Exp $ -->
+<!-- $Id: Hib3PermissionRoleViewDAO.hbm.xml,v 1.3 2009-10-12 09:46:34 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.permissions">
 
@@ -40,8 +40,12 @@
       <key-property name="attributeDefId" column="attribute_def_id"/>
       <key-property name="memberId" column="member_id"/>
       <key-property name="attributeDefNameId" column="attribute_def_name_id"/>
+      <key-property name="enabledDb" column="enabled"/>
+      <key-property name="attributeAssignDelegatableDb" column="attribute_assign_delegatable"/>
       
     </composite-id>
+    <property name="enabledTimeDb" column="enabled_time"/>
+    <property name="disabledTimeDb" column="disabled_time"/>
   </class>
 </hibernate-mapping>
 

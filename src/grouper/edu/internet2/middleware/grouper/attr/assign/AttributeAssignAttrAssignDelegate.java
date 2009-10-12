@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignAttrAssignDelegate.java,v 1.2 2009-10-05 00:50:24 mchyzer Exp $
+ * $Id: AttributeAssignAttrAssignDelegate.java,v 1.3 2009-10-12 09:46:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -144,6 +144,30 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
       String attributeDefId) {
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefNamesByAttrAssignIdAndAttributeDefId(this.attributeAssignToAssignTo.getId(), attributeDefId);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#toString()
+   */
+  @Override
+  public String toString() {
+    return this.attributeAssignToAssignTo == null ? null : this.attributeAssignToAssignTo.toString();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanDelegateAttributeDefName(String, edu.internet2.middleware.grouper.attr.AttributeDefName)
+   */
+  @Override
+  void assertCanDelegateAttributeDefName(String action, AttributeDefName attributeDefName) {
+    throw new RuntimeException("Cannot delegate an attribute on attribute assignment");
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanGrantAttributeDefName(String, edu.internet2.middleware.grouper.attr.AttributeDefName)
+   */
+  @Override
+  void assertCanGrantAttributeDefName(String action, AttributeDefName attributeDefName) {
+    throw new RuntimeException("Cannot grant an attribute on attribute assignment");
   }
 
 }

@@ -153,12 +153,12 @@ public class StemAttributeSecurityTest extends GrouperTest {
     // try grouper system
     
     //assign these
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2));
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2));
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
     
     assertTrue(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -492,9 +492,9 @@ public class StemAttributeSecurityTest extends GrouperTest {
     this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
   
   
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2));
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     
     //############################################
     // Try to read an attribute
@@ -842,12 +842,12 @@ public class StemAttributeSecurityTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ3 );
   
     //assign these
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2));
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2));
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
     
     assertTrue(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -900,7 +900,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ4 );
   
     //assign these
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     try {
       this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -913,7 +913,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     
     assertTrue(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -989,7 +989,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
 
     //assign these
     try {
-      assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+      assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
       fail("Not allowed");
     } catch (InsufficientPrivilegeException ipe) {
       //good
@@ -1090,8 +1090,8 @@ public class StemAttributeSecurityTest extends GrouperTest {
     
     
     //assign these
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     try {
       this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1188,7 +1188,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ7 );
   
     //assign these
-    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     try {
       this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1201,7 +1201,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
     
     assertTrue(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));

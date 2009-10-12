@@ -1,10 +1,12 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignStemDelegate.java,v 1.4 2009-10-05 00:50:24 mchyzer Exp $
+ * $Id: AttributeAssignStemDelegate.java,v 1.5 2009-10-12 09:46:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -142,5 +144,33 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefNamesByStemIdAndAttributeDefId(this.stem.getUuid(), attributeDefId);
   }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
+    return new ToStringBuilder(this)
+      .append( "stem", this.stem)
+      .toString();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanDelegateAttributeDefName(String, edu.internet2.middleware.grouper.attr.AttributeDefName)
+   */
+  @Override
+  void assertCanDelegateAttributeDefName(String action, AttributeDefName attributeDefName) {
+    throw new RuntimeException("Cannot delegate an attribute on stem assignment");
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanGrantAttributeDefName(String, edu.internet2.middleware.grouper.attr.AttributeDefName)
+   */
+  @Override
+  void assertCanGrantAttributeDefName(String action, AttributeDefName attributeDefName) {
+    throw new RuntimeException("Cannot grant an attribute on stem assignment");
+  }
+
 
 }

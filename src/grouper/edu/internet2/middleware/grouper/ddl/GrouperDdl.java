@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.82 2009-10-10 18:02:33 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.83 2009-10-12 09:46:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -4882,7 +4882,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gf.name = 'members'  "
         + "and gmav.immediate_mship_enabled = 'T'  "
         + "and gmav.member_id = gm.id  "
-        + "and gaa.attribute_assign_type = 'eff_mem' "
+        + "and gaa.attribute_assign_type = 'any_mem' "
         + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id  "
         + "and gadn.id = gadns.then_has_attribute_def_name_id ");
 
