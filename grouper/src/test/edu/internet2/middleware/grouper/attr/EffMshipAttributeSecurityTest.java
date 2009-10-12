@@ -168,12 +168,12 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     
     //assign these
     AttributeAssignEffMshipDelegate attributeDelegate = this.group.getAttributeDelegateEffMship(this.member);
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1));
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName2_1));
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName2_2));
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName2_1));
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName2_2));
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName2_1).isChanged());
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName2_2).isChanged());
     
     assertTrue(attributeDelegate.hasAttribute(attributeDefName1_1));
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_2));
@@ -664,12 +664,12 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
   
     //assign these
     AttributeAssignEffMshipDelegate attributeDelegate = this.group.getAttributeDelegateEffMship(this.member);
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1));
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName2_1));
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName2_2));
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName2_1));
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName2_2));
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName2_1).isChanged());
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName2_2).isChanged());
     
     assertTrue(attributeDelegate.hasAttribute(attributeDefName1_1));
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_2));
@@ -723,7 +723,7 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
   
     //assign these
     AttributeAssignEffMshipDelegate attributeDelegate = this.group.getAttributeDelegateEffMship(this.member);
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1));
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
     try {
       attributeDelegate.assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -736,7 +736,7 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1));
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
     
     assertTrue(attributeDelegate.hasAttribute(attributeDefName1_1));
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_2));
@@ -909,8 +909,8 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     
     //assign these
     AttributeAssignEffMshipDelegate attributeDelegate = this.group.getAttributeDelegateEffMship(this.member);
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1));
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
     try {
       attributeDelegate.assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1008,7 +1008,7 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
   
     //assign these
     AttributeAssignEffMshipDelegate attributeDelegate = this.group.getAttributeDelegateEffMship(this.member);
-    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1));
+    assertTrue(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
     try {
       attributeDelegate.assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1021,7 +1021,7 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1));
+    assertFalse(attributeDelegate.assignAttribute(attributeDefName1_1).isChanged());
     
     assertTrue(attributeDelegate.hasAttribute(attributeDefName1_1));
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_2));

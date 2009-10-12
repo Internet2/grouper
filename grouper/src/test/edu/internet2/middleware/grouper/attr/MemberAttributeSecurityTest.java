@@ -132,12 +132,12 @@ public class MemberAttributeSecurityTest extends GrouperTest {
     // try grouper system
     
     //assign these
-    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_2));
-    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_2));
+    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
     
     assertTrue(this.member.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.member.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -479,12 +479,12 @@ public class MemberAttributeSecurityTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ3 );
   
     //assign these
-    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_2));
-    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName1_1));
-    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_1));
-    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_2));
+    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_1).isChanged());
+    assertFalse(this.member.getAttributeDelegate().assignAttribute(attributeDefName2_2).isChanged());
     
     assertTrue(this.member.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.member.getAttributeDelegate().hasAttribute(attributeDefName1_2));

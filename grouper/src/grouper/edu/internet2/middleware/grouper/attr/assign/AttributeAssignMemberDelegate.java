@@ -1,10 +1,12 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignMemberDelegate.java,v 1.2 2009-10-05 00:50:24 mchyzer Exp $
+ * $Id: AttributeAssignMemberDelegate.java,v 1.3 2009-10-12 09:46:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -138,6 +140,17 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
       String attributeDefId) {
     return GrouperDAOFactory.getFactory()
       .getAttributeAssign().findAttributeDefNamesByMemberIdAndAttributeDefId(this.member.getUuid(), attributeDefId);
+  }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
+    return new ToStringBuilder(this)
+      .append( "member", this.member)
+      .toString();
   }
 
 }

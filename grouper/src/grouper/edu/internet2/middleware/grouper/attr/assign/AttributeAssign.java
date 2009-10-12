@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -251,12 +252,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this();
     this.setAttributeAssignType(AttributeAssignType.any_mem);
 
-    //this must be an immediate, list membership
-    Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), 
-        ownerGroup, ownerMember.getSubject(), Group.getDefaultList(), false);
+    //this can be any membership
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllByGroupOwnerAndMemberAndField(ownerGroup.getId(), ownerMember.getUuid(), 
+          Group.getDefaultList(), true);
 
-    if (membership == null) {
-      throw new RuntimeException("Effective memberships which have attributes must be immediate on the members list: " 
+    if (memberships.size() == 0) {
+      throw new RuntimeException("'Any' memberships which have attributes must be immediate or effective on the members list: " 
           + ownerGroup + ", " + GrouperUtil.subjectToString(ownerMember.getSubject()));
     }
     
@@ -970,5 +972,16 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this.setLastUpdatedDb(System.currentTimeMillis());
   }
   
-  
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    // Bypass privilege checks.  If the group is loaded it is viewable.
+    return new ToStringBuilder(this)
+      .append( "id", this.id)
+      .append( "action", this.action )
+      .append( "attributeDefName", this.attributeDefName )
+      .toString();
+  }
 }
