@@ -35,6 +35,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Rdn;
 
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Group;
@@ -42,6 +44,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
+import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
@@ -245,8 +248,8 @@ public class GroupEntrySynchronizer {
         // with a modifier, add it
         //
         if (mappedLdapAttributes.get(ldapAttr) == null) {
-          String emptyValue = ldappc.getConfig()
-              .getGroupAttributeMappingLdapEmptyValue(ldapAttr);
+          String emptyValue = ldappc.getConfig().getGroupAttributeMappingLdapEmptyValue(
+              ldapAttr);
           mappedLdapAttributes.put(ldapAttr, new AttributeModifier(ldapAttr, emptyValue));
         }
       }
@@ -466,8 +469,13 @@ public class GroupEntrySynchronizer {
     // Modify the entry
     //
     if (modificationItems.length > 0) {
-      LOG.info("Modify '" + groupDn + "' " + Arrays.asList(modificationItems));
-      ldappc.getContext().modifyAttributes(groupDn, modificationItems);
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+        LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(
+            new LdapDN(groupDn), modificationItems));
+      } else {
+        LOG.info("Modify '" + groupDn + "' " + Arrays.asList(modificationItems));
+        ldappc.getContext().modifyAttributes(groupDn, modificationItems);
+      }
     }
   }
 
@@ -751,8 +759,7 @@ public class GroupEntrySynchronizer {
     //
     // If defined, store the grouper attribute object class
     //
-    String attrMapObjClass = ldappc.getConfig()
-        .getGroupAttributeMappingObjectClass();
+    String attrMapObjClass = ldappc.getConfig().getGroupAttributeMappingObjectClass();
     if (attrMapObjClass != null) {
       objectClassMods.store(attrMapObjClass);
     }
@@ -859,7 +866,12 @@ public class GroupEntrySynchronizer {
     // Build the subject context
     //
     LOG.info("Creating '" + groupDn + "' attrs " + attributes);
-    ldappc.getContext().createSubcontext(groupDn, attributes);
+    if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+      LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifAdd(new LdapDN(groupDn),
+          attributes));
+    } else {
+      ldappc.getContext().createSubcontext(groupDn, attributes);
+    }
 
     //
     // If creating the group then modifying members,
@@ -880,9 +892,14 @@ public class GroupEntrySynchronizer {
       // Modify the entry
       //
       if (!modifications.isEmpty()) {
-        LOG.info("Modify '" + groupDn + "' " + modifications);
-        ldappc.getContext().modifyAttributes(groupDn,
-            modifications.toArray(new ModificationItem[] {}));
+        if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+          LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(new LdapDN(
+              groupDn), modifications.toArray(new ModificationItem[] {})));
+        } else {
+          LOG.info("Modify '" + groupDn + "' " + modifications);
+          ldappc.getContext().modifyAttributes(groupDn,
+              modifications.toArray(new ModificationItem[] {}));
+        }
       }
     }
   }
@@ -959,8 +976,14 @@ public class GroupEntrySynchronizer {
           //
           Rdn rdn = new Rdn(stemDn.get(stemDn.size() - 1));
           attributes.put(OrganizationalUnit.Attribute.OU, rdn.getValue().toString());
-          LOG.info("Creating '" + stemDn + "' attrs " + attributes);
-          ldappc.getContext().createSubcontext(stemDn, attributes);
+
+          if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+            LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifAdd(
+                new LdapDN(stemDn), attributes));
+          } else {
+            LOG.info("Creating '" + stemDn + "' attrs " + attributes);
+            ldappc.getContext().createSubcontext(stemDn, attributes);
+          }
 
           //
           // Add it to deleteOus so if the group isn't processed it
@@ -1095,8 +1118,7 @@ public class GroupEntrySynchronizer {
         // Try to delete it
         //
         try {
-          LOG.debug("delete '" + entryDn + "'");
-          LdapUtil.delete(ldappc.getContext(), entryDn);
+          LdapUtil.delete(ldappc, entryDn);
         } catch (Exception e) {
           LOG.warn("Unable to delete " + entryDn, e);
         }
@@ -1248,8 +1270,7 @@ public class GroupEntrySynchronizer {
       //
       // Delete it
       //
-      LOG.info("Delete group '" + dn + "'");
-      LdapUtil.delete(ldappc.getContext(), dn);
+      LdapUtil.delete(ldappc, dn);
     }
 
     //
@@ -1271,8 +1292,7 @@ public class GroupEntrySynchronizer {
       //
       // Try to delete it
       //
-      LOG.info("Delete ou '" + dn + "'");
-      LdapUtil.delete(ldappc.getContext(), dn);
+      LdapUtil.delete(ldappc, dn);
     }
 
   }

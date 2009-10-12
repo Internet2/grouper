@@ -15,6 +15,13 @@
 
 package edu.internet2.middleware.ldappc.util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Hashtable;
 
 import javax.naming.Binding;
@@ -25,15 +32,34 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.shared.ldap.entry.client.ClientModification;
+import org.apache.directory.shared.ldap.entry.client.DefaultClientAttribute;
+import org.apache.directory.shared.ldap.ldif.ChangeType;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.slf4j.Logger;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.ldappc.Ldappc;
+import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
+import edu.internet2.middleware.ldappc.exception.LdappcException;
+
 /**
  * This provides utility methods for interacting with a LDAP directory.
  */
 public final class LdapUtil {
+
+  /**
+   * Logger.
+   */
+  private static final Logger LOG = GrouperUtil.getLogger(LdapUtil.class);
 
   /**
    * Object class attribute name.
@@ -81,8 +107,8 @@ public final class LdapUtil {
   static final char BACKWARD_SLASH = '\\';
 
 /**
-     * Less than (i.e., '<').
-     */
+       * Less than (i.e., '<').
+       */
   static final char LESS_THAN = '<';
 
   /**
@@ -134,7 +160,7 @@ public final class LdapUtil {
    * @throws NamingException
    *           thrown if a naming error occurs
    */
-  public static boolean delete(DirContext context, Name dn) throws NamingException {
+  public static boolean delete(Ldappc ldappc, Name dn) throws NamingException {
     //
     // Init return value
     //
@@ -145,7 +171,7 @@ public final class LdapUtil {
     //
     DirContext subContext = null;
     try {
-      subContext = (DirContext) context.lookup(dn);
+      subContext = (DirContext) ldappc.getContext().lookup(dn);
     } catch (NamingException ne) {
       success = false;
     }
@@ -157,12 +183,17 @@ public final class LdapUtil {
       //
       // Make sure the subcontext is empty
       //
-      prune(subContext);
+      prune(subContext, ldappc);
 
       //
       // Remove the subcontext
       //
-      context.destroySubcontext(dn);
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+        LdapUtil.writeLdif(ldappc.getWriter(), getLdifDelete(new LdapDN(dn)));
+      } else {
+        LOG.debug("delete '{}'", dn);
+        ldappc.getContext().destroySubcontext(dn);
+      }
     }
 
     return success;
@@ -177,7 +208,7 @@ public final class LdapUtil {
    * @throws NamingException
    *           Thrown if the tree cannot be pruned.
    */
-  public static void prune(DirContext context) throws NamingException {
+  public static void prune(DirContext context, Ldappc ldappc) throws NamingException {
     //
     // List each of the child context
     //
@@ -197,8 +228,15 @@ public final class LdapUtil {
       // Prune the child and then remove the child
       // MUST be done in this order
       //
-      prune(child);
-      context.unbind(binding.getName());
+      prune(child, ldappc);
+
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+        LdapUtil.writeLdif(ldappc.getWriter(),
+            getLdifDelete(new LdapDN(binding.getName())));
+      } else {
+        LOG.debug("delete '{}'", binding.getName());
+        context.unbind(binding.getName());
+      }
     }
   }
 
@@ -463,4 +501,108 @@ public final class LdapUtil {
     return ldif.toString();
   }
 
+  public static String getLdifModify(LdapDN dn, ModificationItem[] modificationItems)
+      throws NamingException {
+
+    LdifEntry ldifEntry = new LdifEntry();
+    ldifEntry.setChangeType(ChangeType.Modify);
+    ldifEntry.setDn(dn);
+
+    for (ModificationItem modificationItem : modificationItems) {
+      ClientModification clientModification = new ClientModification();
+      clientModification.setOperation(modificationItem.getModificationOp());
+
+      DefaultClientAttribute clientAttribute = new DefaultClientAttribute();
+      clientAttribute.setId(modificationItem.getAttribute().getID());
+
+      NamingEnumeration<?> values = modificationItem.getAttribute().getAll();
+      while (values.hasMore()) {
+        // only strings, not bytes
+        clientAttribute.add(values.next().toString());
+      }
+      clientModification.setAttribute(clientAttribute);
+
+      ldifEntry.addModificationItem(clientModification);
+    }
+
+    return LdifUtils.convertToLdif(ldifEntry);
+  }
+
+  public static String getLdifAdd(LdapDN dn, Attributes attributes)
+      throws NamingException {
+
+    LdifEntry ldifEntry = new LdifEntry();
+    ldifEntry.setChangeType(ChangeType.Add);
+    ldifEntry.setDn(dn);
+
+    NamingEnumeration<?> a = attributes.getAll();
+    while (a.hasMore()) {
+      Attribute ax = (Attribute) a.next();
+
+      DefaultClientAttribute clientAttribute = new DefaultClientAttribute();
+      clientAttribute.setId(ax.getID());
+
+      NamingEnumeration<?> values = ax.getAll();
+      while (values.hasMore()) {
+        // only strings, not bytes
+        clientAttribute.add(values.next().toString());
+      }
+
+      ldifEntry.addAttribute(clientAttribute);
+    }
+
+    return LdifUtils.convertToLdif(ldifEntry);
+  }
+
+  public static String getLdifDelete(LdapDN dn) throws NamingException {
+    LdifEntry ldifEntry = new LdifEntry();
+    ldifEntry.setChangeType(ChangeType.Delete);
+    ldifEntry.setDn(dn);
+
+    return LdifUtils.convertToLdif(ldifEntry);
+  }
+
+  public static void writeLdif(BufferedWriter writer, String ldif) {
+    try {
+      writer.write(ldif);
+    } catch (IOException e) {
+      throw new LdappcException(e);
+    }
+  }
+
+  /**
+   * Open the file for writing.
+   * 
+   * @param file
+   *          File to write to.
+   * @return BufferedWriter for the file.
+   * @throws LdappcException
+   *           thrown if the file cannot be opened.
+   */
+  public static BufferedWriter openWriter(File file) throws LdappcException {
+    try {
+      return new BufferedWriter(new FileWriter(file));
+    } catch (IOException e) {
+      throw new LdappcException("Unable to open file: " + file, e);
+    }
+  }
+
+  /**
+   * Open file for reading.
+   * 
+   * @param file
+   *          File to read from.
+   * 
+   * @return BufferedReader for the file.
+   * 
+   * @throws LdappcException
+   *           thrown if the file cannot be opened.
+   */
+  public static BufferedReader openReader(File file) throws LdappcException {
+    try {
+      return new BufferedReader(new FileReader(file));
+    } catch (FileNotFoundException e) {
+      throw new LdappcException("Unable to open membership file", e);
+    }
+  }
 }

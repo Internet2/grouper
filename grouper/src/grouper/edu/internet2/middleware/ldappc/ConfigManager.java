@@ -125,10 +125,8 @@ public class ConfigManager implements LdappcConfig {
 
   /**
    * Grouper attribute whose value is the Group DN RDN value. Must have a value of
-   * {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_ID_ATTRIBUTE}
-   * or
-   * {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_NAME_ATTRIBUTE}
-   * .
+   * {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_ID_ATTRIBUTE} or
+   * {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_NAME_ATTRIBUTE} .
    */
   private String groupDnGrouperAttribute;
 
@@ -269,7 +267,7 @@ public class ConfigManager implements LdappcConfig {
 
   public ConfigManager() throws ConfigurationException {
 
-    this(CONFIG_FILE_RESOURCE);
+    this(null);
   }
 
   /**
@@ -289,7 +287,7 @@ public class ConfigManager implements LdappcConfig {
     // Initialize the ConfigManager instance
     //
     if (uri == null) {
-      uri = CONFIG_FILE_RESOURCE;
+      uri = getSystemResourceURL(CONFIG_FILE_RESOURCE, true).getPath();
     }
 
     init(uri);
@@ -578,10 +576,12 @@ public class ConfigManager implements LdappcConfig {
     }
 
     // 1.5 20090525 don't allow source-subject-identifier for source "g:gsa"; now built-in
-    if (getSourceSubjectNamingAttributes().containsKey(SubjectFinder.internal_getGSA().getId())) {
-      throw new ConfigurationException("The source-subject-identifier for source '"
-          + SubjectFinder.internal_getGSA().getId() + "' should be removed. This functionality "
-          + "has been replaced by the provision-member-groups attribute of the <groups /> element.");
+    if (getSourceSubjectNamingAttributes().containsKey(
+        SubjectFinder.internal_getGSA().getId())) {
+      throw new ConfigurationException(
+          "The source-subject-identifier for source '"
+              + SubjectFinder.internal_getGSA().getId()
+              + "' should be removed. This functionality has been replaced by the provision-member-groups attribute of the <groups /> element.");
     }
   }
 
@@ -821,8 +821,7 @@ public class ConfigManager implements LdappcConfig {
    * This returns the defined Group DN structure.
    * 
    * @return Group DN structure, either
-   *         {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUP_DN_FLAT}
-   *         or
+   *         {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUP_DN_FLAT} or
    *         {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUP_DN_BUSHY}
    */
   public GroupDNStructure getGroupDnStructure() {
@@ -864,8 +863,7 @@ public class ConfigManager implements LdappcConfig {
 
   /**
    * Returns the name of the object class for the Group entry when
-   * {@link #getGroupDnStructure()} returns {@link LdappcConfig#GROUP_DN_FLAT}
-   * .
+   * {@link #getGroupDnStructure()} returns {@link LdappcConfig#GROUP_DN_FLAT} .
    * 
    * @return Name of the object class for a Group
    */
@@ -916,8 +914,7 @@ public class ConfigManager implements LdappcConfig {
    * 
    * @param attribute
    *          Either
-   *          {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_ID_ATTRIBUTE}
-   *          or
+   *          {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_ID_ATTRIBUTE} or
    *          {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_NAME_ATTRIBUTE}
    */
   private void setGroupDnGrouperAttribute(String attribute) {

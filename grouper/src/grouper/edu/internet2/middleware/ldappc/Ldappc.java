@@ -18,9 +18,6 @@ package edu.internet2.middleware.ldappc;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,12 +77,24 @@ import edu.internet2.middleware.subject.Subject;
  */
 public final class Ldappc extends TimerTask {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOG = GrouperUtil.getLogger(Ldappc.class);
 
+  /**
+   * The command line options.
+   */
   private LdappcOptions options;
 
+  /**
+   * The xml configuration.
+   */
   private LdappcConfig configuration;
 
+  /**
+   * The ldap context.
+   */
   private LdapContext ldapContext;
 
   /**
@@ -98,6 +107,9 @@ public final class Ldappc extends TimerTask {
    */
   protected Name rootDn;
 
+  /**
+   * The grouper session.
+   */
   private GrouperSession grouperSession;
 
   /**
@@ -106,12 +118,16 @@ public final class Ldappc extends TimerTask {
    */
   private static final int SORT_BATCH_SIZE = 200000;
 
+  /**
+   * Writer used during dryRun or calculate modes.
+   */
+  private BufferedWriter writer;
+
   public Ldappc(LdappcOptions options) {
     this(options, null, null);
   }
 
-  public Ldappc(LdappcOptions options, LdappcConfig configuration,
-      LdapContext ldapContext) {
+  public Ldappc(LdappcOptions options, LdappcConfig configuration, LdapContext ldapContext) {
 
     this.options = options;
     this.configuration = configuration;
@@ -195,19 +211,12 @@ public final class Ldappc extends TimerTask {
 
         case CALCULATE:
 
-          File file = calculate();
-
-          BufferedReader in = new BufferedReader(new FileReader(file));
-          String str;
-          while ((str = in.readLine()) != null) {
-            System.out.println(str);
-          }
-          in.close();
+          calculate();
           break;
 
         case DRYRUN:
 
-          System.out.println("not yet implemented");
+          dryRun();
           break;
       }
 
@@ -317,16 +326,17 @@ public final class Ldappc extends TimerTask {
    * @throws ConfigurationException
    * @throws NamingException
    */
+  // TODO not totally correct, does not include stems
   public File calculate() throws IOException, ConfigurationException, NamingException {
 
-    File file = new File(options.getCalculateOutputFileLocation());
+    File file = new File(options.getOutputFileLocation());
 
     if (!file.createNewFile()) {
-      throw new LdappcException("File '" + options.getCalculateOutputFileLocation()
+      throw new LdappcException("File '" + options.getOutputFileLocation()
           + "' already exists.");
     }
 
-    BufferedWriter writer = openMembershipWriter(file);
+    BufferedWriter writer = LdapUtil.openWriter(file);
 
     GroupEntrySynchronizer synchronizer = new GroupEntrySynchronizer(this);
 
@@ -358,6 +368,32 @@ public final class Ldappc extends TimerTask {
     // Stop the Grouper session
     //
     grouperSession.stop();
+
+    return file;
+  }
+
+  /**
+   * Write provisioning changes to a file. No changes are made to the target directory.
+   * 
+   * @return
+   * @throws IOException
+   * @throws NamingException
+   * @throws LdappcException
+   */
+  public File dryRun() throws IOException, NamingException, LdappcException {
+
+    File file = new File(options.getOutputFileLocation());
+
+    if (!file.createNewFile()) {
+      throw new LdappcException("File '" + options.getOutputFileLocation()
+          + "' already exists.");
+    }
+
+    writer = LdapUtil.openWriter(file);
+
+    provision();
+
+    writer.close();
 
     return file;
   }
@@ -496,7 +532,7 @@ public final class Ldappc extends TimerTask {
 
     File updatesFile = getTempFile();
 
-    BufferedWriter updatesWriter = openMembershipWriter(updatesFile);
+    BufferedWriter updatesWriter = LdapUtil.openWriter(updatesFile);
     String groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
     if (groupNamingAttribute == null) {
       throw new ConfigurationException("The name of the group naming attribute is null.");
@@ -600,7 +636,7 @@ public final class Ldappc extends TimerTask {
     //
     // Re-open the sorted memberships file for reading.
     //
-    BufferedReader updatesReader = openMembershipReader(updatesFile);
+    BufferedReader updatesReader = LdapUtil.openReader(updatesFile);
 
     //
     // Read the memberships from the file, batching by subject DN.
@@ -671,7 +707,7 @@ public final class Ldappc extends TimerTask {
     //
     // Re-open the sorted memberships file for reading.
     //
-    BufferedReader updatesReader = openMembershipReader(updatesFile);
+    BufferedReader updatesReader = LdapUtil.openReader(updatesFile);
 
     //
     // Read the memberships from the file, batching by subject DN.
@@ -747,49 +783,6 @@ public final class Ldappc extends TimerTask {
     } catch (Exception e) {
       LOG.error("An error occurred ", e);
     }
-  }
-
-  /**
-   * Open the membership file for writing.
-   * 
-   * @param membershipsFile
-   *          File to write memberships to.
-   * @return BufferedWriter for the file.
-   * @throws LdappcException
-   *           thrown if the file cannot be opened.
-   */
-  private BufferedWriter openMembershipWriter(File membershipsFile)
-      throws LdappcException {
-    BufferedWriter membershipsWriter = null;
-    try {
-      membershipsWriter = new BufferedWriter(new FileWriter(membershipsFile));
-    } catch (Exception e) {
-      membershipsWriter = null;
-      throw new LdappcException("Unable to open membership file: " + membershipsFile, e);
-    }
-    return membershipsWriter;
-  }
-
-  /**
-   * Open the membership file for reading.
-   * 
-   * @param membershipsFile
-   *          File to read memberships from.
-   * 
-   * @return BufferedReader for the file.
-   * 
-   * @throws LdappcException
-   *           thrown if the file cannot be opened.
-   */
-  private BufferedReader openMembershipReader(File membershipsFile)
-      throws LdappcException {
-    BufferedReader membershipsReader = null;
-    try {
-      membershipsReader = new BufferedReader(new FileReader(membershipsFile));
-    } catch (FileNotFoundException e) {
-      throw new LdappcException("Unable to open membership file", e);
-    }
-    return membershipsReader;
   }
 
   /**
@@ -1250,5 +1243,9 @@ public final class Ldappc extends TimerTask {
     }
 
     return names;
+  }
+
+  public BufferedWriter getWriter() {
+    return writer;
   }
 }

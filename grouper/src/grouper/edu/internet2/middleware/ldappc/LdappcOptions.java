@@ -28,6 +28,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 
 /**
@@ -39,7 +40,7 @@ public class LdappcOptions {
   /**
    * The subjectId.
    */
-  private String subjectId;
+  private String subjectId = GrouperConfig.ROOT;
 
   /**
    * Flag for skipping logging of error messages when doing a JUnit test run. This is
@@ -50,12 +51,12 @@ public class LdappcOptions {
   /**
    * An indicator that groups are to be provisioned.
    */
-  private boolean doGroups;
+  private boolean doGroups = false;
 
   /**
    * An indicator that memberships are to be provisioned.
    */
-  private boolean doMemberships;
+  private boolean doMemberships = false;
 
   /**
    * The lastModifyTime.
@@ -73,9 +74,9 @@ public class LdappcOptions {
   private String configManagerLocation;
 
   /**
-   * The path to the file written when calculating provisioning.
+   * The path to the output file.
    */
-  private String calculateOutputFileLocation = "ldappc.ldif";
+  private String outputFileLocation = "ldappc.ldif";
 
   /**
    * Modes of operation.
@@ -130,19 +131,17 @@ public class LdappcOptions {
   private Option calculateOption = new Option("calc", "calculate", true,
       "Calculate provisioning and write to file, defaults to ldappc.ldif");
 
-  private Option dryRunOption = new Option("n", "dry-run", false,
-      "Show what would be done without doing it");
+  private Option dryRunOption = new Option("n", "dry-run", true,
+      "Write provisioning changes to file, defaults to ldappc.ldif");
 
   public LdappcOptions() {
 
     subjectOption.setArgName("subjectId");
     options.addOption(subjectOption);
 
-    OptionGroup optionGroup = new OptionGroup();
-    optionGroup.addOption(groupsOption);
-    optionGroup.addOption(membershipsOption);
-    optionGroup.setRequired(true);
-    options.addOptionGroup(optionGroup);
+    options.addOption(groupsOption);
+
+    options.addOption(membershipsOption);
 
     lastModifyTimeOption.setArgName("yyyy-MM-dd[_hh:mm:ss]");
     options.addOption(lastModifyTimeOption);
@@ -157,6 +156,7 @@ public class LdappcOptions {
     calculateOption.setArgName("ldappc.ldif");
     modeOptionGroup.addOption(calculateOption);
     modeOptionGroup.addOption(dryRunOption);
+    dryRunOption.setArgName("ldappc.ldif");
     options.addOptionGroup(modeOptionGroup);
   }
 
@@ -190,7 +190,9 @@ public class LdappcOptions {
 
     CommandLine line = parser.parse(options, args);
 
-    this.setSubjectId(line.getOptionValue(subjectOption.getOpt(), "GrouperSystem"));
+    if (line.hasOption(subjectOption.getOpt())) {
+      this.setSubjectId(line.getOptionValue(subjectOption.getOpt()));
+    }
 
     if (line.hasOption(groupsOption.getOpt())) {
       this.setDoGroups(true);
@@ -198,6 +200,11 @@ public class LdappcOptions {
 
     if (line.hasOption(membershipsOption.getOpt())) {
       this.setDoMemberships(true);
+    }
+
+    if (!(this.getDoGroups() || this.getDoMemberships())) {
+      throw new LdappcException("Specify either " + groupsOption.toString() + " or "
+          + membershipsOption.toString());
     }
 
     if (line.hasOption(lastModifyTimeOption.getOpt())) {
@@ -232,12 +239,12 @@ public class LdappcOptions {
     }
 
     if (line.hasOption(calculateOption.getOpt())) {
-      String file = line.getOptionValue(calculateOption.getOpt());
-      this.setCalculateOutputFileLocation(file);
+      this.setOutputFileLocation(line.getOptionValue(calculateOption.getOpt()));
       this.setMode(ProvisioningMode.CALCULATE);
     }
 
-    if (line.hasOption(this.dryRunOption.getOpt())) {
+    if (line.hasOption(dryRunOption.getOpt())) {
+      this.setOutputFileLocation(line.getOptionValue(dryRunOption.getOpt()));
       this.setMode(ProvisioningMode.DRYRUN);
     }
   }
@@ -353,11 +360,11 @@ public class LdappcOptions {
    * 
    * @return the path
    */
-  public String getCalculateOutputFileLocation() {
-    return calculateOutputFileLocation;
+  public String getOutputFileLocation() {
+    return outputFileLocation;
   }
 
-  protected void setCalculateOutputFileLocation(String calculateOutputFileLocation) {
-    this.calculateOutputFileLocation = calculateOutputFileLocation;
+  protected void setOutputFileLocation(String outputFileLocation) {
+    this.outputFileLocation = outputFileLocation;
   }
 }

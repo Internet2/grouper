@@ -1,0 +1,23 @@
+dn: cn=groupB,ou=edu,ou=groups,dc=grouper,dc=edu
+changetype: modify
+add: member
+member: uid=test.subject.0,ou=people,dc=grouper,dc=edu
+member: cn=groupA,ou=edu,ou=groups,dc=grouper,dc=edu
+-
+add: hasmember
+hasmember: edu:groupA
+hasmember: name.test.subject.0
+-
+
+dn: cn=groupA,ou=edu,ou=groups,dc=grouper,dc=edu
+changetype: modify
+add: ismemberof
+ismemberof: edu:groupB
+-
+
+dn: uid=test.subject.0,ou=people,dc=grouper,dc=edu
+changetype: modify
+add: ismemberof
+ismemberof: edu:groupB
+-
+

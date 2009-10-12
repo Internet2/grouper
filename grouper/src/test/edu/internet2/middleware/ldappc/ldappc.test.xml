@@ -45,10 +45,10 @@
     <context>
       <parameter-list>
         <parameter name="initial_context_factory" value="com.sun.jndi.ldap.LdapCtxFactory" />
-        <parameter name="provider_url" value="" />
-        <parameter name="security_authentication" value="" />
-        <parameter name="security_principal" value="" />
-        <parameter name="security_credentials" value="" />
+        <parameter name="provider_url" value="ldap://127.0.0.1:10389" />
+        <parameter name="security_authentication" value="simple" />
+        <parameter name="security_principal" value="uid=admin,ou=system" />
+        <parameter name="security_credentials" value="secret" />
       </parameter-list>
     </context>
   </ldap>
