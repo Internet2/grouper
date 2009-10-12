@@ -1,3 +1,7 @@
+dn: ou=edu,ou=groups,dc=grouper,dc=edu
+ou: edu
+objectClass: organizationalUnit
+
 dn: cn=groupA,ou=edu,ou=groups,dc=grouper,dc=edu
 objectClass: eduMember
 objectClass: groupOfNames

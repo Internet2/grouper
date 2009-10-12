@@ -3,6 +3,7 @@ package edu.internet2.middleware.ldappc;
 import java.io.File;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
@@ -14,8 +15,7 @@ public class CRUDTest extends BaseLdappcTestCase {
   private Group groupB;
 
   public static void main(String[] args) {
-    //TestRunner.run(new CRUDTest("testModifyMemberBushyDryRun"));
-    //TestRunner.run(new CRUDTest("testDeleteGroupsBushyDryRun"));
+    // TestRunner.run(new CRUDTest("testCalculateBushy"));
   }
 
   public CRUDTest(String name) {
@@ -61,6 +61,31 @@ public class CRUDTest extends BaseLdappcTestCase {
     }
   }
 
+  public void testCalculateChildStems() throws Exception {
+
+    Stem courses = this.edu.addChildStem("courses", "Courses");
+
+    Stem spring = courses.addChildStem("spring", "Spring");
+    Stem fall = courses.addChildStem("fall", "Fall");
+
+    spring.addChildGroup("courseA", "Course A");
+    spring.addChildGroup("courseB", "Course B");
+
+    fall.addChildGroup("courseA", "Course A");
+    fall.addChildGroup("courseB", "Course B");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    LdappcTestHelper.verifyLdif(getFile("CRUDTest.testCalculateChildStems.after.ldif"),
+        ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
   public void testCreateBushy() throws Exception {
 
     loadLdif("CRUDTest.before.ldif");
@@ -76,8 +101,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     File file = dryRun(GroupDNStructure.bushy);
 
-    LdappcTestHelper.verifyLdif(getFile("CRUDTest.testCreateBushyDryRun.ldif"),
-        file);
+    LdappcTestHelper.verifyLdif(getFile("CRUDTest.testCreateBushyDryRun.ldif"), file);
   }
 
   public void testCreateFlat() throws Exception {
@@ -159,7 +183,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     verify("CRUDTest.testDeleteGroupsBushy.after.ldif");
   }
-  
+
   public void testDeleteGroupsBushyDryRun() throws Exception {
 
     loadLdif("CRUDTest.testDeleteGroupsBushy.before.ldif");

@@ -31,15 +31,21 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 
+import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.Rdn;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Group;
@@ -326,7 +332,6 @@ public final class Ldappc extends TimerTask {
    * @throws ConfigurationException
    * @throws NamingException
    */
-  // TODO not totally correct, does not include stems
   public File calculate() throws IOException, ConfigurationException, NamingException {
 
     File file = new File(options.getOutputFileLocation());
@@ -349,8 +354,22 @@ public final class Ldappc extends TimerTask {
     // If provisioning Groups, do so
     //
     if (options.getDoGroups()) {
+
+      // stems
+      if (GroupDNStructure.bushy.equals(getConfig().getGroupDnStructure())) {
+        Set<Name> stemDns = new TreeSet<Name>();
+        for (Group group : groups) {
+          stemDns.addAll(calculateStemDns(group));
+        }
+        for (Name stemDn : stemDns) {
+          BasicAttributes attributes = calculateStemAttributes(stemDn);
+          writer.write(LdifUtils.convertToLdif(attributes, new LdapDN(stemDn)) + "\n");
+        }
+      }
+
+      // groups
       for (Group group : groups) {
-        writer.write(synchronizer.calculateLdif(group));
+        writer.write(synchronizer.calculateLdif(group) + "\n");
       }
     }
 
@@ -1243,6 +1262,26 @@ public final class Ldappc extends TimerTask {
     }
 
     return names;
+  }
+
+  /**
+   * Calculate a stem's attributes, essentially ou = stem name.
+   * 
+   * @param stemDn
+   *          the DN of the stem
+   * @return the stem's attributes
+   * @throws InvalidNameException
+   */
+  public BasicAttributes calculateStemAttributes(Name stemDn) throws InvalidNameException {
+
+    BasicAttributes attributes = new BasicAttributes(true);
+    attributes.put(new BasicAttribute(LdapUtil.OBJECT_CLASS_ATTRIBUTE,
+        OrganizationalUnit.OBJECT_CLASS));
+
+    Rdn rdn = new Rdn(stemDn.get(stemDn.size() - 1));
+    attributes.put(OrganizationalUnit.Attribute.OU, rdn.getValue().toString());
+
+    return attributes;
   }
 
   public BufferedWriter getWriter() {

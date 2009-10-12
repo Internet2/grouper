@@ -28,7 +28,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -292,29 +291,27 @@ public class GroupEntrySynchronizer {
 
     initializeInclude(group);
 
-    Name groupDn = buildGroupDn(group);
+    Name groupDn = ldappc.calculateGroupDn(group);
 
+    Rdn rdn = new Rdn(groupDn.get(groupDn.size() - 1));
+    rdnMods.store(rdn.getValue().toString());
+    
     storeGroupData(group);
 
-    StringBuffer ldif = new StringBuffer();
-
-    ldif.append("dn: " + groupDn + "\n");
-
-    ldif.append(LdapUtil.getLdif(objectClassMods.getAdditions()));
-    ldif.append(LdapUtil.getLdif(memberDnMods.getAdditions()));
-    ldif.append(LdapUtil.getLdif(memberNameMods.getAdditions()));
-    ldif.append(LdapUtil.getLdif(rdnMods.getAdditions()));
-
+    BasicAttributes attributes = new BasicAttributes();
+    attributes.put(objectClassMods.getAdditions());
+    attributes.put(memberDnMods.getAdditions());
+    attributes.put(memberNameMods.getAdditions());
+    attributes.put(rdnMods.getAdditions());
+    
     NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
     while (ldapAttrEnum.hasMore()) {
       Attribute attribute = ldapAttrEnum.next();
       AttributeModifier modifier = (AttributeModifier) attribute.get();
-      ldif.append(LdapUtil.getLdif(modifier.getAdditions()));
+      attributes.put(modifier.getAdditions());
     }
-
-    ldif.append("\n");
-
-    return ldif.toString();
+    
+    return LdifUtils.convertToLdif(attributes, new LdapDN(groupDn));
   }
 
   /**
@@ -951,14 +948,7 @@ public class GroupEntrySynchronizer {
    *           thrown if a Naming exception occured.
    * @see #updateProcessedOus(Name)
    */
-  protected void buildStemOuEntries(Group group) throws NamingException {
-    //
-    // Build an attribute list once for creating new ou entries
-    // below. Note, the "ou" attribute is added below.
-    //
-    Attributes attributes = new BasicAttributes(true);
-    attributes.put(new BasicAttribute(LdapUtil.OBJECT_CLASS_ATTRIBUTE,
-        OrganizationalUnit.OBJECT_CLASS));
+  protected void buildStemOuEntries(Group group) throws NamingException {    
 
     List<Name> stemDns = ldappc.calculateStemDns(group);
     for (Name stemDn : stemDns) {
@@ -974,8 +964,7 @@ public class GroupEntrySynchronizer {
           //
           // Build the new OU
           //
-          Rdn rdn = new Rdn(stemDn.get(stemDn.size() - 1));
-          attributes.put(OrganizationalUnit.Attribute.OU, rdn.getValue().toString());
+          Attributes attributes = ldappc.calculateStemAttributes(stemDn);
 
           if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
             LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifAdd(
