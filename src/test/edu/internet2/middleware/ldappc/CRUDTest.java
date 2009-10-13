@@ -34,18 +34,12 @@ public class CRUDTest extends BaseLdappcTestCase {
     groupB.store();
 
     try {
-      setUpLdappc(LDAPPC_TEST_XML);
+      setUpLdapContext();
+      setUpLdappc(pathToConfig, pathToProperties);
     } catch (Exception e) {
+      e.printStackTrace();
       fail("An error occurred : " + e);
     }
-  }
-
-  private File getFile(String fileName) {
-    return LdappcTestHelper.getFile(this, fileName);
-  }
-
-  private void loadLdif(String file) throws Exception {
-    LdappcTestHelper.loadLdif(getFile(file), ldappc.getContext());
   }
 
   public void testCalculateBushy() throws Exception {
@@ -54,7 +48,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     File ldif = calculate(GroupDNStructure.bushy);
 
-    LdappcTestHelper.verifyLdif(getFile("CRUDTest.testCalculateBushy.after.ldif"), ldif);
+    verifyLdif("CRUDTest.testCalculateBushy.after.ldif", ldif);
 
     if (!ldif.delete()) {
       fail("could not delete " + ldif.getAbsolutePath());
@@ -78,8 +72,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     File ldif = calculate(GroupDNStructure.bushy);
 
-    LdappcTestHelper.verifyLdif(getFile("CRUDTest.testCalculateChildStems.after.ldif"),
-        ldif);
+    verifyLdif("CRUDTest.testCalculateChildStems.after.ldif", ldif);
 
     if (!ldif.delete()) {
       fail("could not delete " + ldif.getAbsolutePath());
@@ -101,7 +94,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     File file = dryRun(GroupDNStructure.bushy);
 
-    LdappcTestHelper.verifyLdif(getFile("CRUDTest.testCreateBushyDryRun.ldif"), file);
+    verifyLdif("CRUDTest.testCreateBushyDryRun.ldif", file);
   }
 
   public void testCreateFlat() throws Exception {
@@ -193,8 +186,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     File file = dryRun(GroupDNStructure.bushy);
 
-    LdappcTestHelper.verifyLdif(getFile("CRUDTest.testDeleteGroupsBushyDryRun.ldif"),
-        file);
+    verifyLdif("CRUDTest.testDeleteGroupsBushyDryRun.ldif", file);
   }
 
   public void testModifyMemberBushy() throws Exception {
@@ -216,8 +208,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     File file = dryRun(GroupDNStructure.bushy);
 
-    LdappcTestHelper.verifyLdif(getFile("CRUDTest.testModifyMembersBushyDryRun.ldif"),
-        file);
+    verifyLdif("CRUDTest.testModifyMembersBushyDryRun.ldif", file);
   }
 
 }

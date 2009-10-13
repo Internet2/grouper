@@ -15,14 +15,20 @@
 
 package edu.internet2.middleware.ldappc.configuration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.naming.Context;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
 import junit.framework.TestCase;
@@ -40,7 +46,7 @@ public class ConfigManagerTest extends TestCase {
   /**
    * Relative configuration resource path
    */
-  public static String RELATIVE_RESOURCE_PATH = "edu/internet2/middleware/ldappc/configuration/data/";
+  public static String RELATIVE_RESOURCE_PATH = "/test/edu/internet2/middleware/ldappc/configuration/data/";
 
   /**
    * Valid configuration file resource with all elements and attributes
@@ -72,8 +78,23 @@ public class ConfigManagerTest extends TestCase {
   public static String INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
       + "ldappcInvalidNoLdappcElement.xml";
 
+  /**
+   * Invalid configuration file with unnecessary g:gsa source-subject-identifier
+   */
   public static String PROVISION_MEMBER_GROUPS_CONFIG_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
       + "ldappcProvisionMemberGroups.xml";
+
+  /**
+   * Valid configuration file with property replacement
+   */
+  public static String PROPERTY_REPLACEMENT_CONFIG_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
+      + "ldappcPropertyReplacement.xml";
+
+  /**
+   * Valid properties file for property replacement
+   */
+  public static String PROPERTY_REPLACEMENT_PROPERTRY_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
+      + "ldappcPropertyReplacement.properties";
 
   /**
    * Class constructor
@@ -108,7 +129,7 @@ public class ConfigManagerTest extends TestCase {
       // Get the configuration manager and validate all of the entries
       //
       ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
-          VALID_ALL_CONFIG_FILE_RESOURCE, true).toString());
+          VALID_ALL_CONFIG_FILE_RESOURCE, true).getPath());
       // ConfigManager cm =
       // ConfigManager.load(ConfigManager.getSystemResourceURL(VALID_ALL_CONFIG_FILE_RESOURCE,
       // true).to);
@@ -240,7 +261,7 @@ public class ConfigManagerTest extends TestCase {
       // Get the configuration manager and validate all of the entries
       //
       ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
-          VALID_NO_OPTIONAL_ATTRIBUTES_CONFIG_FILE_RESOURCE, true).toString());
+          VALID_NO_OPTIONAL_ATTRIBUTES_CONFIG_FILE_RESOURCE, true).getPath());
       // ConfigManager cm =
       // ConfigManager.load(VALID_NO_OPTIONAL_ATTRIBUTES_CONFIG_FILE_RESOURCE);
 
@@ -354,7 +375,7 @@ public class ConfigManagerTest extends TestCase {
       // Get the configuration manager and validate all of the entries
       //      
       ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
-          VALID_GROUPER_GROUP_MINIMAL_CONFIG_FILE_RESOURCE, true).toString());
+          VALID_GROUPER_GROUP_MINIMAL_CONFIG_FILE_RESOURCE, true).getPath());
       // ConfigManager cm =
       // ConfigManager.load(VALID_GROUPER_GROUP_MINIMAL_CONFIG_FILE_RESOURCE);
 
@@ -442,7 +463,7 @@ public class ConfigManagerTest extends TestCase {
       // Get the configuration manager and validate all of the entries
       //
       ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
-          VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE, true).toString());
+          VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE, true).getPath());
       // ConfigManager cm =
       // ConfigManager.load(VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE);
 
@@ -524,7 +545,7 @@ public class ConfigManagerTest extends TestCase {
       // Get the configuration manager and validate all of the entries
       //
       new ConfigManager(ConfigManager.getSystemResourceURL(
-          INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE, true).toString());
+          INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE, true).getPath());
       // ConfigManager cm =
       // ConfigManager.load(INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE);
       fail("Test failed : File without ldappc element parsed without error.");
@@ -540,10 +561,34 @@ public class ConfigManagerTest extends TestCase {
 
     try {
       new ConfigManager(ConfigManager.getSystemResourceURL(
-          PROVISION_MEMBER_GROUPS_CONFIG_FILE_RESOURCE, true).toString());
+          PROVISION_MEMBER_GROUPS_CONFIG_FILE_RESOURCE, true).getPath());
       fail("Should throw ConfigurationException.");
     } catch (ConfigurationException e) {
       // ok
     }
+  }
+
+  public void testPropertyReplacement() throws FileNotFoundException, IOException {
+
+    String configPath = ConfigManager.getSystemResourceURL(
+        PROPERTY_REPLACEMENT_CONFIG_FILE_RESOURCE, true).getPath();
+    String propsPath = ConfigManager.getSystemResourceURL(
+        PROPERTY_REPLACEMENT_PROPERTRY_FILE_RESOURCE, true).getPath();
+
+    Properties properties = new Properties();
+    properties.load(new FileInputStream(new File(propsPath)));
+
+    ConfigManager cm = new ConfigManager(configPath, propsPath);
+
+    assertEquals(properties.get("groupDnRoot"), cm.getGroupDnRoot());
+
+    assertEquals(properties.get("provider_url"), cm.getLdapContextParameters().get(
+        DirContext.PROVIDER_URL));
+    assertEquals(properties.get("security_authentication"), cm.getLdapContextParameters()
+        .get(DirContext.SECURITY_AUTHENTICATION));
+    assertEquals(properties.get("security_principal"), cm.getLdapContextParameters().get(
+        DirContext.SECURITY_PRINCIPAL));
+    assertEquals(properties.get("security_credentials"), cm.getLdapContextParameters()
+        .get(DirContext.SECURITY_CREDENTIALS));
   }
 }

@@ -74,6 +74,11 @@ public class LdappcOptions {
   private String configManagerLocation;
 
   /**
+   * The propertiesFileLocation is the location of an alternative propertiesFile.
+   */
+  private String propertiesFileLocation;
+
+  /**
    * The path to the output file.
    */
   private String outputFileLocation = "ldappc.ldif";
@@ -122,6 +127,9 @@ public class LdappcOptions {
   private Option configManagerOption = new Option("c", "configManager", true,
       "Location of substitute configuration file, other than default, ldappc.xml");
 
+  private Option propertiesFileOption = new Option("p", "properties", true,
+      "Location of substitute properties file, other than default, ldappc.properties");
+
   private Option intervalOption = new Option(
       "i",
       "interval",
@@ -129,10 +137,10 @@ public class LdappcOptions {
       "Number of seconds between provisioning cycles. If omitted, only one provisioning cycle is performed.");
 
   private Option calculateOption = new Option("calc", "calculate", true,
-      "Calculate provisioning and write to file, defaults to ldappc.ldif");
+      "Calculate provisioning and write to file.");
 
   private Option dryRunOption = new Option("n", "dry-run", true,
-      "Write provisioning changes to file, defaults to ldappc.ldif");
+      "Write provisioning changes to file.");
 
   public LdappcOptions() {
 
@@ -152,11 +160,14 @@ public class LdappcOptions {
     configManagerOption.setArgName("path");
     options.addOption(configManagerOption);
 
+    propertiesFileOption.setArgName("path");
+    options.addOption(propertiesFileOption);
+
     OptionGroup modeOptionGroup = new OptionGroup();
-    calculateOption.setArgName("ldappc.ldif");
+    calculateOption.setArgName("file");
     modeOptionGroup.addOption(calculateOption);
     modeOptionGroup.addOption(dryRunOption);
-    dryRunOption.setArgName("ldappc.ldif");
+    dryRunOption.setArgName("file");
     options.addOptionGroup(modeOptionGroup);
   }
 
@@ -235,6 +246,15 @@ public class LdappcOptions {
         this.setConfigManagerLocation(file);
       } else {
         throw new LdappcException("Cannot find config file : " + file);
+      }
+    }
+
+    if (line.hasOption(propertiesFileOption.getOpt())) {
+      String file = line.getOptionValue(propertiesFileOption.getOpt());
+      if (new File(file).exists()) {
+        this.setPropertiesFileLocation(file);
+      } else {
+        throw new LdappcException("Cannot find properties file : " + file);
       }
     }
 
@@ -325,7 +345,8 @@ public class LdappcOptions {
   }
 
   protected void setConfigManagerLocation(String configManagerLocation) {
-    this.configManagerLocation = "file:" + configManagerLocation;
+    // this.configManagerLocation = "file:" + configManagerLocation;
+    this.configManagerLocation = configManagerLocation;
   }
 
   /**
@@ -366,5 +387,18 @@ public class LdappcOptions {
 
   protected void setOutputFileLocation(String outputFileLocation) {
     this.outputFileLocation = outputFileLocation;
+  }
+
+  /**
+   * The path to the properties file.
+   * 
+   * @return
+   */
+  public String getPropertiesFileLocation() {
+    return propertiesFileLocation;
+  }
+
+  public void setPropertiesFileLocation(String propertiesFileLocation) {
+    this.propertiesFileLocation = propertiesFileLocation;
   }
 }

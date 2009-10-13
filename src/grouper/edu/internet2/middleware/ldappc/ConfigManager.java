@@ -15,6 +15,8 @@
 
 package edu.internet2.middleware.ldappc;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -35,6 +37,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.digester.CallMethodRule;
 import org.apache.commons.digester.Digester;
+import org.opensaml.util.resource.PropertyReplacementResourceFilter;
+import org.opensaml.util.resource.ResourceException;
 import org.slf4j.Logger;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -43,8 +47,8 @@ import org.xml.sax.SAXParseException;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
+import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
-import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 
 /**
  * Class for accessing values from the Auth2Ldap configuration file.
@@ -57,6 +61,11 @@ public class ConfigManager implements LdappcConfig {
    * Default configuration file resource name.
    */
   public static final String CONFIG_FILE_RESOURCE = "ldappc.xml";
+
+  /**
+   * Default properties file resource name.
+   */
+  public static final String PROPERTIES_FILE_RESOURCE = "ldappc.properties";
 
   /**
    * Configuration Schema file resource name.
@@ -81,7 +90,7 @@ public class ConfigManager implements LdappcConfig {
   /**
    * Flag indicating to get data from ldappc.properties instead of ldappc.xml.
    */
-  private static final String GET_FROM_PROPERTIES_FILE = "GetFromPropertiesFile";
+  // private static final String GET_FROM_PROPERTIES_FILE = "GetFromPropertiesFile";
 
   /**
    * List of SAXParseException objects created while parsing the configuration. file
@@ -276,21 +285,54 @@ public class ConfigManager implements LdappcConfig {
    * 
    * Constructor is private to enforce singleton pattern.
    * 
-   * @param uri
-   *          URI containing the configuration file XML.
+   * @param pathToConfig
+   *          path to configuration file
    * @throws ConfigurationException
    *           thrown if an error occurs loading the instance from the given uri.
    * 
    */
-  public ConfigManager(String uri) throws ConfigurationException {
+  public ConfigManager(String pathToConfig) throws ConfigurationException {
+    this(pathToConfig, null);
+  }
+
+  /**
+   * Constructs an instance of ConfigManager using the given configuration file and
+   * properties file
+   * 
+   * @param pathToConfig
+   *          path to configuration file
+   * @param ldappcPropertiesFile
+   *          path to properties file
+   * @throws ConfigurationException
+   */
+  public ConfigManager(String pathToConfig, String pathToProperties)
+      throws ConfigurationException {
     //
     // Initialize the ConfigManager instance
     //
-    if (uri == null) {
-      uri = getSystemResourceURL(CONFIG_FILE_RESOURCE, true).getPath();
+    if (pathToConfig == null) {
+      pathToConfig = getSystemResourceURL(CONFIG_FILE_RESOURCE, true).getPath();
     }
 
-    init(uri);
+    if (pathToProperties == null) {
+      pathToProperties = getSystemResourceURL(PROPERTIES_FILE_RESOURCE, true).getPath();
+    }
+
+    File propertiesFile = new File(pathToProperties);
+    if (!propertiesFile.exists() || !propertiesFile.canRead()) {
+      LOG.error("Unable to read properties file '" + pathToProperties + "'");
+      throw new LdappcException("Unable to find properties file '" + pathToProperties
+          + "'");
+    }
+
+    File configFile = new File(pathToConfig);
+    if (!configFile.exists() || !configFile.canRead()) {
+      LOG.error("Unable to read config file '" + pathToConfig + "'");
+      throw new ConfigurationException("Unable to locate config file '" + pathToConfig
+          + "'");
+    }
+
+    init(configFile, propertiesFile);
   }
 
   /**
@@ -302,7 +344,9 @@ public class ConfigManager implements LdappcConfig {
    * @throws ConfigurationException
    *           thrown if an error occurs parsing the configuration file.
    */
-  private void init(String uri) throws ConfigurationException {
+  private void init(File config, File properties) throws ConfigurationException {
+    LOG.debug("reading configuration from '{}' and properties from '{}'", config,
+        properties);
     //
     // Build a Digester for processing the config file
     //
@@ -491,7 +535,13 @@ public class ConfigManager implements LdappcConfig {
       //
       // Parse the config file
       //
-      digester.parse(uri);
+      // digester.parse(uri);
+
+      // property replacement filter
+      PropertyReplacementResourceFilter prf = new PropertyReplacementResourceFilter(
+          properties);
+      digester.parse(prf.applyFilter(new FileInputStream(config)));
+
     } catch (SAXException se) {
       // 
       // Fatal if file can't be parsed
@@ -504,6 +554,12 @@ public class ConfigManager implements LdappcConfig {
       //
       LOG.error("An error occurred", ioe);
       throw new ConfigurationException(ioe);
+    } catch (ResourceException e) {
+      // 
+      // Fatal if file can't be filtered
+      //
+      LOG.error("An error occurred", e);
+      throw new ConfigurationException(e);
     }
 
     //
@@ -723,6 +779,7 @@ public class ConfigManager implements LdappcConfig {
       LOG.debug("{} is not a valid javax.naming.ldap.LdapContext constant.", name);
     }
 
+    // 2009-10-12 tz use property replacement filter
     //
     // Allow the SECURITY_CREDENTIALS to be obtained from the
     // auth2lap.properties file. Doing this is flagged by placing the
@@ -732,11 +789,11 @@ public class ConfigManager implements LdappcConfig {
     // ldappc.properties file.
     //
 
-    if (GET_FROM_PROPERTIES_FILE.equals(value)) {
-      if (LdapContext.SECURITY_CREDENTIALS.equals(name)) {
-        value = ResourceBundleUtil.getString("securityCredentials");
-      }
-    }
+    // if (GET_FROM_PROPERTIES_FILE.equals(value)) {
+    // if (LdapContext.SECURITY_CREDENTIALS.equals(name)) {
+    // value = ResourceBundleUtil.getString("securityCredentials");
+    // }
+    // }
 
     //
     // Add the name value pair
