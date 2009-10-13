@@ -443,7 +443,7 @@ public final class GrouperServiceUtils {
   /**
    * take an http request and format it (assume xml or json)
    * @param http
-   * @return
+   * @return format
    */
   public static String formatHttp(String http) {
     //is newline correct?  platform independent?
@@ -936,12 +936,20 @@ public final class GrouperServiceUtils {
    * add response headers for a success and response code
    * will retrieve the response object from threadlocal
    * @param wsResultMeta result metadata
+   * @param isSoap if soap
    */
-  public static void addResponseHeaders(WsResultMeta wsResultMeta) {
+  public static void addResponseHeaders(WsResultMeta wsResultMeta, boolean isSoap) {
     HttpServletResponse httpServletResponse = GrouperServiceJ2ee
         .retrieveHttpServletResponse();
     addResponseHeaders(httpServletResponse, wsResultMeta.getSuccess(), wsResultMeta
         .getResultCode(), wsResultMeta.getResultCode2());
+    
+    //if soap, then add a content type if specified in the grouper-ws.properties
+    //NOTE: this doesnt do anything since Axis sets its own headers...
+//    String soapContentType = GrouperWsConfig.getPropertyString("ws.soapContentType");
+//    if (!StringUtils.isBlank(soapContentType)) {
+//      httpServletResponse.setContentType(soapContentType);
+//    }
   }
 
 }

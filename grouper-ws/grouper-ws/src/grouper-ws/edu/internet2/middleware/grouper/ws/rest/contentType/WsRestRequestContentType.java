@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestRequestContentType.java,v 1.3 2008-03-27 20:39:26 mchyzer Exp $
+ * @author mchyzer $Id: WsRestRequestContentType.java,v 1.4 2009-10-13 16:13:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.thoughtworks.xstream.XStream;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -288,10 +289,15 @@ public enum WsRestRequestContentType {
         		+ contentTypeError(null));
       }
     }
+    String theContentTypeBeforeSemi = StringUtils.trim(GrouperUtil.prefixOrSuffix(theContentType, ";", true));
     for (WsRestRequestContentType wsRestRequestContentType : WsRestRequestContentType.values()) {
-      if (!StringUtils.isBlank(wsRestRequestContentType.getContentType()) 
-          && theContentType.startsWith(wsRestRequestContentType.getContentType())) {
-        return wsRestRequestContentType;
+      if (!StringUtils.isBlank(wsRestRequestContentType.getContentType())) {
+        //get before the semi 
+        String wsRestRequestContentTypeBeforeSemi = StringUtils.trim(GrouperUtil.prefixOrSuffix(
+            wsRestRequestContentType.getContentType(), ";", true));
+        if (StringUtils.equals(theContentTypeBeforeSemi, wsRestRequestContentTypeBeforeSemi)) {
+          return wsRestRequestContentType;
+        }
       }
       //handle null
       if (StringUtils.isBlank(theContentType) 

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.11 2009-03-15 08:15:37 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.12 2009-10-13 16:13:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -201,7 +201,7 @@ public class GrouperRestServlet extends HttpServlet {
     }
 
     //set response headers (they should be set at this point, but make sure)
-    GrouperServiceUtils.addResponseHeaders(wsResponseBean.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsResponseBean.getResultMetadata(), false);
     
     //set http status code, content type, and write the response
     try {
@@ -213,7 +213,14 @@ public class GrouperRestServlet extends HttpServlet {
       //set the status code
       response.setStatus(wsResponseBean.getResultMetadata().retrieveHttpStatusCode());
 
-      response.setContentType(wsRestResponseContentType.getContentType());
+      String restCharset = GrouperWsConfig.getPropertyString("ws.restHttpContentTypeCharset");
+      String responseContentType = wsRestResponseContentType.getContentType();
+      
+      if (!StringUtils.isBlank(restCharset)) {
+        responseContentType += "; charset=" + restCharset;
+      }
+      
+      response.setContentType(responseContentType);
       
       //init millis for rest since doesnt call getters
       wsResponseBean.getResponseMetadata().getMillis();
