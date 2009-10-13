@@ -256,7 +256,8 @@ public final class Ldappc extends TimerTask {
   public void initialize() {
 
     if (configuration == null) {
-      configuration = new ConfigManager(options.getConfigManagerLocation());
+      configuration = new ConfigManager(options.getConfigManagerLocation(), options
+          .getPropertiesFileLocation());
     }
 
     try {
@@ -671,12 +672,8 @@ public final class Ldappc extends TimerTask {
 
         if (!subjectDn.equals(currentSubjectDn)) {
           if (currentSubjectDn != null) {
-            writer.write("dn: " + currentSubjectDn + "\n");
-            for (String group : groups) {
-              writer.write(configuration.getMemberGroupsListAttribute() + ": " + group
-                  + "\n");
-            }
-            writer.write("\n");
+            StringMembershipSynchronizer synchronizer = getMembershipSynchronizer(currentSubjectDn);
+            writer.write(synchronizer.calculateLdif(groups));
           }
           currentSubjectDn = subjectDn;
           groups.clear();
@@ -684,12 +681,8 @@ public final class Ldappc extends TimerTask {
         groups.add(groupNameString);
       }
       if (currentSubjectDn != null) {
-        writer.write("dn: " + currentSubjectDn + "\n");
-        for (String group : groups) {
-          writer
-              .write(configuration.getMemberGroupsListAttribute() + ": " + group + "\n");
-        }
-        writer.write("\n");
+        StringMembershipSynchronizer synchronizer = getMembershipSynchronizer(currentSubjectDn);
+        writer.write(synchronizer.calculateLdif(groups));
       }
     } catch (IOException e) {
       e.printStackTrace();

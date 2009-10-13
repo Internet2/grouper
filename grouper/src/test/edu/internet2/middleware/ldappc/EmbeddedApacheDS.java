@@ -1,9 +1,12 @@
 package edu.internet2.middleware.ldappc;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -31,27 +34,56 @@ import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
 
+/**
+ * An embedded ApacheDS 1.5.5 Server
+ * 
+ */
 public class EmbeddedApacheDS {
 
+  /** logger */
   private static final Logger LOG = GrouperUtil.getLogger(EmbeddedApacheDS.class);
 
-  public static final String EDUMEMBER_SCHEMA = "edu/internet2/middleware/ldappc/eduMember.ldif";
+  /** the eduMember schema ldif */
+  public static final String EDUMEMBER_SCHEMA = "/test/edu/internet2/middleware/ldappc/eduMember.ldif";
 
+  /** the internal directory service */
   private DirectoryService directoryService;
 
+  /** the internal ldap server */
   private LdapServer ldapServer;
 
+  /** the port the server listens on **/
   private int port = -1;
 
-  public static final String base = "dc=grouper,dc=edu";
+  /** the base of the DIT */
+  public static final String base = "dc=testgrouper,dc=edu";
 
+  /**
+   * Constructs an embedded ApacheDS server listening on the first available port greater
+   * than 1024.
+   * 
+   * @throws Exception
+   */
   public EmbeddedApacheDS() throws Exception {
   }
 
+  /**
+   * Constructs an embedded ApacheDS server listening on the given port.
+   * 
+   * @param port
+   *          the port to listen on
+   * @throws Exception
+   */
   public EmbeddedApacheDS(int port) throws Exception {
     this.port = port;
   }
 
+  /**
+   * Start the server. Creates a temporary working directory which is deleted by calling
+   * {@link #shutdown()}. Creates a "grouper" partition. Loads the eduMember schema.
+   * 
+   * @throws Exception
+   */
   public void startup() throws Exception {
     directoryService = new DefaultDirectoryService();
 
@@ -90,7 +122,7 @@ public class EmbeddedApacheDS {
     // add root entry
     ServerEntry entryFoo = directoryService.newEntry(new LdapDN(base));
     entryFoo.add("objectClass", "top", "domain", "extensibleObject");
-    entryFoo.add("dc", "grouper");
+    entryFoo.add("dc", "testgrouper");
     directoryService.getAdminSession().add(entryFoo);
 
     // load eduMember schema
@@ -99,6 +131,11 @@ public class EmbeddedApacheDS {
     lc.close();
   }
 
+  /**
+   * Shuts the server down. Deletes the temporary working directory.
+   * 
+   * @throws Exception
+   */
   public void shutdown() throws Exception {
     if (ldapServer.isStarted()) {
       ldapServer.stop();
@@ -112,10 +149,21 @@ public class EmbeddedApacheDS {
     }
   }
 
+  /**
+   * Gets a vt-ldap connection to the server.
+   * 
+   * @return the vt-ldap connection
+   */
   public Ldap getNewLdap() {
     return new Ldap(new LdapConfig("ldap://127.0.0.1:" + ldapServer.getPort(), base));
   }
 
+  /**
+   * Gets a default JNDI connection to the server.
+   * 
+   * @return the JNDI LdapContext
+   * @throws NamingException
+   */
   public LdapContext getNewLdapContext() throws NamingException {
     // create ldap context
     Hashtable<String, String> env = new Hashtable<String, String>();
@@ -128,11 +176,47 @@ public class EmbeddedApacheDS {
     return new InitialLdapContext(env, null);
   }
 
+  /**
+   * Gets the port the server is listening on.
+   * 
+   * @return the port
+   */
   public int getPort() {
     if (port == -1) {
       port = AvailablePortFinder.getNextAvailable(1024);
     }
 
     return port;
+  }
+
+  /**
+   * Gets properties of the form used by ldappc to connect to this server.
+   * 
+   * @return the properties
+   */
+  public Properties getProperties() {
+    Properties properties = new Properties();
+    properties.setProperty("initial_context_factory", "com.sun.jndi.ldap.LdapCtxFactory");
+    properties.setProperty("provider_url", "ldap://127.0.0.1:" + getPort());
+    properties.setProperty("security_authentication", "simple");
+    properties.setProperty("security_principal", ServerDNConstants.ADMIN_SYSTEM_DN);
+    properties.setProperty("security_credentials", "secret");
+    properties.setProperty("testUseEmbeddedLdap", "true");
+    properties.setProperty("base", base);
+    return properties;
+  }
+
+  /**
+   * Gets a temporary properties file of the form used by ldappc to connect to this
+   * server. The file is deleted upon exit.
+   * 
+   * @return the temporary properties file
+   * @throws IOException
+   */
+  public File getNewPropertiesFile() throws IOException {
+    File tmpPropertiesFile = File.createTempFile("EmbeddedApacheDSProps", null);
+    tmpPropertiesFile.deleteOnExit();
+    getProperties().store(new FileWriter(tmpPropertiesFile), null);
+    return tmpPropertiesFile;
   }
 }

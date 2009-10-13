@@ -21,8 +21,10 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 
@@ -129,7 +131,7 @@ public class StringMembershipSynchronizer {
       //
       // Process the group
       //
-      performInclude(groupNameString, Ldappc.STATUS_UNKNOWN);
+      membershipMods.store(groupNameString);
     }
 
     //
@@ -138,26 +140,32 @@ public class StringMembershipSynchronizer {
     commit();
   }
 
-  /**
-   * This identifies the underlying group as one that must remain or, if need be, must be
-   * added to the subject's LDAP entry. If the group has already been provisioned to the
-   * entry, it will remain within the subject's LDAP entry.
-   * 
-   * @param groupNameString
-   *          Group to be included
-   * @param status
-   *          Either {@link #STATUS_NEW}, {@link #STATUS_MODIFIED},
-   *          {@link #STATUS_UNCHANGED} or {@link #STATUS_UNKNOWN}.
-   * @throws NamingException
-   *           thrown if a Naming error occurs
-   * @throws LdappcException
-   *           thrown if an error occurs
-   * @see edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer#performInclude(String,
-   *      int)
-   */
-  protected void performInclude(String groupNameString, int status)
-      throws NamingException, LdappcException {
-    membershipMods.store(groupNameString);
+  public String calculateLdif(Set<String> groupNames) throws LdappcException,
+      NamingException {
+    //
+    // Initialize the process
+    //
+    initialize();
+
+    //
+    // Iterate over the set of membership group names.
+    //
+    for (String groupNameString : groupNames) {
+      //
+      // Process the group
+      //
+      membershipMods.store(groupNameString);
+    }
+
+    BasicAttributes attributes = new BasicAttributes();
+    if (objectClassMods != null) {
+      attributes.put(objectClassMods.getAdditions());
+    }
+    if (membershipMods != null) {
+      attributes.put(membershipMods.getAdditions());
+    }
+
+    return LdifUtils.convertToLdif(attributes, new LdapDN(getSubject())) + "\n";
   }
 
   /**

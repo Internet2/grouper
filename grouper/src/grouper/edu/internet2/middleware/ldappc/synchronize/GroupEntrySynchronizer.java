@@ -295,22 +295,26 @@ public class GroupEntrySynchronizer {
 
     Rdn rdn = new Rdn(groupDn.get(groupDn.size() - 1));
     rdnMods.store(rdn.getValue().toString());
-    
+
     storeGroupData(group);
 
     BasicAttributes attributes = new BasicAttributes();
     attributes.put(objectClassMods.getAdditions());
-    attributes.put(memberDnMods.getAdditions());
-    attributes.put(memberNameMods.getAdditions());
+    if (memberDnMods != null) {
+      attributes.put(memberDnMods.getAdditions());
+    }
+    if (memberNameMods != null) {
+      attributes.put(memberNameMods.getAdditions());
+    }
     attributes.put(rdnMods.getAdditions());
-    
+
     NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
     while (ldapAttrEnum.hasMore()) {
       Attribute attribute = ldapAttrEnum.next();
       AttributeModifier modifier = (AttributeModifier) attribute.get();
       attributes.put(modifier.getAdditions());
     }
-    
+
     return LdifUtils.convertToLdif(attributes, new LdapDN(groupDn));
   }
 
@@ -948,7 +952,7 @@ public class GroupEntrySynchronizer {
    *           thrown if a Naming exception occured.
    * @see #updateProcessedOus(Name)
    */
-  protected void buildStemOuEntries(Group group) throws NamingException {    
+  protected void buildStemOuEntries(Group group) throws NamingException {
 
     List<Name> stemDns = ldappc.calculateStemDns(group);
     for (Name stemDn : stemDns) {

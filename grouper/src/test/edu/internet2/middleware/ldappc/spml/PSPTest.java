@@ -673,6 +673,8 @@ public class PSPTest extends GrouperTest {
   protected void verifyLdif(String fileName) {
 
     File correctLdifFile = getFile(fileName);
+    
+    String correctLdif = LdappcTestHelper.readFile(correctLdifFile);
 
     for (TargetDefinition targetDefinition : psp.getTargetDefinitions().values()) {
 
@@ -689,7 +691,7 @@ public class PSPTest extends GrouperTest {
 
         String currentLdif = LdappcTestHelper.getCurrentLdif(GROUPER_BASE_DN, ldap);
 
-        LdappcTestHelper.verifyLdif(correctLdifFile, currentLdif);
+        LdappcTestHelper.verifyLdif(correctLdif, currentLdif);
 
       } catch (Exception e) {
         e.printStackTrace();

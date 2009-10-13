@@ -1,7 +1,7 @@
-dn: cn=groupA,ou=edu,ou=groups,dc=grouper,dc=edu
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: delete
 
-dn: cn=groupB,ou=edu,ou=groups,dc=grouper,dc=edu
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # an artifact of the test case
@@ -12,16 +12,16 @@ changetype: delete
 dn: cn=groupB
 changetype: delete
 
-dn: ou=edu,ou=groups,dc=grouper,dc=edu
+dn: ou=edu,ou=testgroups,${base}
 changetype: delete
 
-dn: uid=test.subject.0,ou=people,dc=grouper,dc=edu
+dn: cn=test.subject.0,ou=testpeople,${base}
 changetype: modify
 delete: ismemberof
 ismemberof: edu:groupA
 -
 
-dn: uid=test.subject.1,ou=people,dc=grouper,dc=edu
+dn: cn=test.subject.1,ou=testpeople,${base}
 changetype: modify
 delete: ismemberof
 ismemberof: edu:groupB

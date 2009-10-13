@@ -20,6 +20,8 @@ import java.util.GregorianCalendar;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 
 /**
  * InputOptionsTest verifies that arguments input to the InputOptions class constructor
@@ -157,6 +159,74 @@ public class InputOptionsTest extends TestCase {
       assertNull("Failed on lastModifyTime", inputOptions2.getLastModifyTime());
     } catch (Exception e) {
       fail("Failure in testInputOptions2: " + e.getMessage());
+    }
+  }
+
+  public void testInputOptionsNoGroupsNorMemberships() {
+    String[] args = {};
+    try {
+      inputOptions = new LdappcOptions(args);
+      fail("should fail without groups or memberships option");
+    } catch (Exception e) {
+      // OK
+    }
+  }
+
+  public void testInputOptionsCalculate() {
+    String[] args = { "-g", "-calc", "filename" };
+    try {
+      inputOptions = new LdappcOptions(args);
+      assertEquals(ProvisioningMode.CALCULATE, inputOptions.getMode());
+      assertEquals("filename", inputOptions.getOutputFileLocation());
+    } catch (Exception e) {
+      fail("Failure : " + e);
+    }
+  }
+
+  public void testInputOptionsDryRun() {
+    String[] args = { "-g", "-n", "filename" };
+    try {
+      inputOptions = new LdappcOptions(args);
+      assertEquals(ProvisioningMode.DRYRUN, inputOptions.getMode());
+      assertEquals("filename", inputOptions.getOutputFileLocation());
+    } catch (Exception e) {
+      fail("Failure : " + e);
+    }
+  }
+
+  public void testInputOptionsProvision() {
+    String[] args = { "-g" };
+    try {
+      inputOptions = new LdappcOptions(args);
+      assertEquals(ProvisioningMode.PROVISION, inputOptions.getMode());
+    } catch (Exception e) {
+      fail("Failure : " + e);
+    }
+  }
+
+  public void testInputOptionsConfigFile() {
+    String path = GrouperUtil.fileFromResourceName(BaseLdappcTestCase.CONFIG_RESOURCE)
+        .getAbsolutePath();
+    String[] args = { "-g", "-c", path };
+    try {
+      inputOptions = new LdappcOptions(args);
+      assertEquals(path, inputOptions.getConfigManagerLocation());
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failure : " + e);
+    }
+  }
+
+  public void testInputOptionsPropertiesFile() {
+    String path = GrouperUtil
+        .fileFromResourceName(BaseLdappcTestCase.PROPERTIES_RESOURCE).getAbsolutePath();
+    String[] args = { "-g", "-p", path };
+    try {
+      inputOptions = new LdappcOptions(args);
+      assertEquals(path, inputOptions.getPropertiesFileLocation());
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failure : " + e);
     }
   }
 
