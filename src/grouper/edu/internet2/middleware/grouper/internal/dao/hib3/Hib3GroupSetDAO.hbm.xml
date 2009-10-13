@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupSetDAO.hbm.xml,v 1.2 2009-09-21 06:14:26 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupSetDAO.hbm.xml,v 1.3 2009-10-13 15:02:34 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.group">
 
@@ -65,6 +65,7 @@
     <property name="memberStemId" column="member_stem_id"/>
     <property name="memberStemIdNull" column="member_stem_id_null"/>
     
+    <property name="memberFieldId" column="member_field_id"/>
 
   </class>
 </hibernate-mapping>

@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.7 2009-09-22 12:51:10 shilen Exp $
+ * @author shilen $Id: GroupSet.java,v 1.8 2009-10-13 15:02:34 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
@@ -100,6 +100,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   
   /** same as member_stem_id except nulls are replaced with the string '<NULL>' */
   public static final String COLUMN_MEMBER_STEM_ID_NULL = "member_stem_id_null";
+  
+  /** field id used in joining this record with entries in grouper_memberships */
+  public static final String COLUMN_MEMBER_FIELD_ID = "member_field_id";
   
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
@@ -802,11 +805,29 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   }
 
   /**
-   * return field id
    * @param fieldId
    */
   public void setFieldId(String fieldId) {
     this.fieldId = fieldId;
+  }
+  
+  /**
+   * @return field id used in joining with grouper_memberships table
+   */
+  public String getMemberFieldId() {
+    if (this.depth == 0) {
+      return this.fieldId;
+    }
+    
+    return Group.getDefaultList().getUuid();
+  }
+
+  /**
+   * Internal use only.
+   * @param memberFieldId
+   */
+  public void setMemberFieldId(String memberFieldId) {
+    // not used
   }
 
   

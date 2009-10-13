@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.83 2009-10-12 09:46:34 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.84 2009-10-13 15:02:34 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2513,6 +2513,8 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_STEM_ID_NULL, "same as " + GroupSet.COLUMN_MEMBER_STEM_ID + " except nulls are replaced with the string " + GroupSet.nullColumnValue);
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
+        GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_FIELD_ID, "used to join with the field_id column in the grouper_memberships table");
     
     
     
@@ -2794,7 +2796,9 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_group_set_owner_stem_id", Stem.TABLE_GROUPER_STEMS, GroupSet.COLUMN_OWNER_STEM_ID, Stem.COLUMN_ID);
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, GroupSet.TABLE_GROUPER_GROUP_SET, 
         "fk_group_set_member_stem_id", Stem.TABLE_GROUPER_STEMS, GroupSet.COLUMN_MEMBER_STEM_ID, Stem.COLUMN_ID);
-          
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, GroupSet.TABLE_GROUPER_GROUP_SET, 
+        "fk_group_set_member_field_id", Field.TABLE_GROUPER_FIELDS, GroupSet.COLUMN_MEMBER_FIELD_ID, "id");
+    
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Stem.TABLE_GROUPER_STEMS, 
         "fk_stems_parent_stem", Stem.TABLE_GROUPER_STEMS, "parent_stem", stemIdCol);
@@ -3218,15 +3222,14 @@ public enum GrouperDdl implements DdlVersionable {
             + "gs.create_time as group_set_create_time, "
             + "ms.hibernate_version_number, "
             + "ms.context_id "
-            + "from grouper_memberships ms, grouper_group_set gs, grouper_fields f1 "
+            + "from grouper_memberships ms, grouper_group_set gs "
             + "where (ms.owner_stem_id = gs.member_stem_id or ms.owner_group_id = gs.member_group_id" +
             		" or ms.owner_attr_def_id = gs.member_attr_def_id) and " 
-            + "      f1.id = ms.field_id and "
-            + "      ((ms.field_id = gs.field_id and gs.depth = '0') or (f1.name='members' and f1.type='list' and gs.mship_type = 'effective'))");
+            + "ms.field_id = gs.member_field_id");
 
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_group_v", 
-        "grouper_memberships_group_v is a join between grouper_group_set and grouper_memberships for group based memberships.  It is not a complete join in that it does not join fields together.",
+        "grouper_memberships_group_v is a join between grouper_group_set and grouper_memberships for group based memberships.",
         GrouperUtil.toSet("MEMBERSHIP_ID", 
             "IMMEDIATE_MEMBERSHIP_ID", 
             "GROUP_SET_ID", 
@@ -3298,11 +3301,11 @@ public enum GrouperDdl implements DdlVersionable {
             + "ms.hibernate_version_number, "
             + "ms.context_id "
             + "from grouper_memberships ms, grouper_group_set gs "
-            + "where ms.owner_group_id = gs.member_group_id");
+            + "where ms.owner_group_id = gs.member_group_id and ms.field_id = gs.member_field_id");
     
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_stem_v", 
-        "grouper_memberships_stem_v is a join between grouper_group_set and grouper_memberships for stem based memberships.  It is not a complete join in that it does not join fields together.",
+        "grouper_memberships_stem_v is a join between grouper_group_set and grouper_memberships for stem based memberships.",
         GrouperUtil.toSet("MEMBERSHIP_ID", 
             "IMMEDIATE_MEMBERSHIP_ID", 
             "GROUP_SET_ID", 
@@ -3374,11 +3377,11 @@ public enum GrouperDdl implements DdlVersionable {
             + "ms.hibernate_version_number, "
             + "ms.context_id "
             + "from grouper_memberships ms, grouper_group_set gs "
-            + "where ms.owner_stem_id = gs.member_stem_id");
+            + "where ms.owner_stem_id = gs.member_stem_id and ms.field_id = gs.member_field_id");
     
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_attr_def_v", 
-        "grouper_memberships_attr_def_v is a join between grouper_group_set and grouper_memberships for attribute based memberships.  It is not a complete join in that it does not join fields together.",
+        "grouper_memberships_attr_def_v is a join between grouper_group_set and grouper_memberships for attribute based memberships.",
         GrouperUtil.toSet("MEMBERSHIP_ID", 
             "IMMEDIATE_MEMBERSHIP_ID", 
             "GROUP_SET_ID", 
@@ -3450,7 +3453,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "ms.hibernate_version_number, "
             + "ms.context_id "
             + "from grouper_memberships ms, grouper_group_set gs "
-            + "where ms.owner_attr_def_id = gs.member_attr_def_id");
+            + "where ms.owner_attr_def_id = gs.member_attr_def_id and ms.field_id = gs.member_field_id");
 
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_lw_v", 
@@ -5218,6 +5221,9 @@ public enum GrouperDdl implements DdlVersionable {
         Types.VARCHAR, "40", false, true, GroupSet.nullColumnValue);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "field_id",
+        Types.VARCHAR, "40", false, true);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_field_id",
         Types.VARCHAR, "40", false, true);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "mship_type",
