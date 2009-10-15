@@ -12,7 +12,7 @@
     </group-queries>
    
     <groups structure="bushy" root-dn="ou=testgroups,${base}" ldap-object-class="groupOfNames"
-            ldap-rdn-attribute="cn" grouper-attribute="name" provision-member-groups="true" >
+            ldap-rdn-attribute="cn" grouper-attribute="name" provision-member-groups="true" provision-groups-two-step="true" >
    
       <group-members-dn-list list-object-class="groupOfNames" list-attribute="member" list-empty-value=""/>
    

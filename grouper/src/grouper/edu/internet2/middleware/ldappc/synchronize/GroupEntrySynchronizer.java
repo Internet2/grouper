@@ -129,14 +129,16 @@ public class GroupEntrySynchronizer {
    *          Grouper provisioning options
    * @param subjectCache
    *          Subject cache to speed subject retrieval
+   * @param provisionMemberDns
+   *          will provision member DNs if true
    * 
    * @throws NamingException
    *           Thrown when a naming exception occurs.
    * @throws ConfigurationException
    *           Thrown if the configuration file is not correct.
    */
-  public GroupEntrySynchronizer(Ldappc ldappc) throws NamingException,
-      ConfigurationException {
+  public GroupEntrySynchronizer(Ldappc ldappc, boolean provisionMemberDns)
+      throws NamingException, ConfigurationException {
 
     this.ldappc = ldappc;
 
@@ -205,10 +207,15 @@ public class GroupEntrySynchronizer {
       }
 
       //
-      // Build the member Dn list attribute modifier
+      // If provisioning member dns, memberDnMods will not be null
       //
-      memberDnMods = new DnAttributeModifier(attrName, ldappc.getConfig()
-          .getGroupMembersDnListEmptyValue());
+      if (provisionMemberDns) {
+        //
+        // Build the member Dn list attribute modifier
+        //
+        memberDnMods = new DnAttributeModifier(attrName, ldappc.getConfig()
+            .getGroupMembersDnListEmptyValue());
+      }
     }
 
     //
@@ -424,7 +431,7 @@ public class GroupEntrySynchronizer {
       // If no members could be resolved, then provision the noValue value if appropriate
       //
       if (memberDnMods.getRetainedValues().size() == 0
-          && memberDnMods.getNoValue() != null) {
+          && memberDnMods.getAdds().size() == 0 && memberDnMods.getNoValue() != null) {
         memberDnMods.store(memberDnMods.getNoValue());
       }
       modifiers.add(memberDnMods);
@@ -632,7 +639,9 @@ public class GroupEntrySynchronizer {
             if (subjectDn != null) {
               memberDnMods.store(subjectDn.toString());
             }
-          } catch (Exception e) {
+          } catch (NamingException e) {
+            LOG.warn(getErrorData(subject), e);
+          } catch (LdappcException e) {
             LOG.warn(getErrorData(subject), e);
           }
         }
@@ -812,6 +821,17 @@ public class GroupEntrySynchronizer {
         memberDnMods.store(memberDnMods.getNoValue());
       }
       memberModifiers.add(memberDnMods);
+    } else {
+      // If we are not provisioning member dns, but the provisioned attribute has an empty
+      // value (is required), then provision that empty value
+      if (ldappc.getConfig().isGroupMembersDnListed()
+          && ldappc.getConfig().getGroupMembersDnListEmptyValue() != null) {
+        memberDnMods = new DnAttributeModifier(ldappc.getConfig()
+            .getGroupMembersDnListAttribute(), ldappc.getConfig()
+            .getGroupMembersDnListEmptyValue());
+        memberDnMods.store(memberDnMods.getNoValue());
+        memberModifiers.add(memberDnMods);
+      }
     }
 
     if (memberNameMods != null) {

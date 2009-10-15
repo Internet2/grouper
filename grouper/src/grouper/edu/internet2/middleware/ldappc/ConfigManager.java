@@ -274,6 +274,12 @@ public class ConfigManager implements LdappcConfig {
    */
   private boolean provisionMemberGroups = true;
 
+  /**
+   * Boolean indication if groups should be provisioned in two steps, first all groups
+   * without members, and second all groups with members.
+   */
+  private boolean provisionGroupsTwoStep = true;
+
   public ConfigManager() throws ConfigurationException {
 
     this(null);
@@ -434,6 +440,9 @@ public class ConfigManager implements LdappcConfig {
 
     digester.addCallMethod(elementPath, "setProvisionMemberGroups", 1);
     digester.addCallParam(elementPath, 0, "provision-member-groups");
+
+    digester.addCallMethod(elementPath, "setProvisionGroupsTwoStep", 1);
+    digester.addCallParam(elementPath, 0, "provision-groups-two-step");
 
     // Save the Member Group Listing parameters
     elementPath = "ldappc/grouper/memberships/member-groups-list";
@@ -1651,6 +1660,23 @@ public class ConfigManager implements LdappcConfig {
     this.provisionMemberGroups = provisionMemberGroups;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see edu.internet2.middleware.ldappc.LdappcConfig#getProvisionGroupsTwoStep()
+   */
+  public boolean getProvisionGroupsTwoStep() {
+    return provisionGroupsTwoStep;
+  }
+
+  private void setProvisionGroupsTwoStep(String string) {
+    this.provisionGroupsTwoStep = Boolean.parseBoolean(string);
+  }
+
+  protected void setProvisionGroupsTwoStep(Boolean provisionGroupsTwoStep) {
+    this.provisionGroupsTwoStep = provisionGroupsTwoStep;
+  }
+
   /**
    * This is class allows the Digester processing the configuration file access to all the
    * necessary methods, regardless of visibility, for setting values in the ConfigManager
@@ -2089,6 +2115,10 @@ public class ConfigManager implements LdappcConfig {
 
     public void setProvisionMemberGroups(String string) {
       ConfigManager.this.setProvisionMemberGroups(string);
+    }
+
+    public void setProvisionGroupsTwoStep(String string) {
+      ConfigManager.this.setProvisionGroupsTwoStep(string);
     }
   }
 

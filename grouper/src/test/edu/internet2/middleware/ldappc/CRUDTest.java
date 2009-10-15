@@ -164,6 +164,19 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     verify("CRUDTest.testCreateSubgroupPhasingFlat.after.ldif");
   }
+  
+  public void testCreateSubgroupPhasingFlatOneStep() throws Exception {
+
+    ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
+    
+    loadLdif("CRUDTest.before.ldif");
+
+    groupA.addMember(groupB.toSubject());
+
+    provision(GroupDNStructure.flat);
+
+    verify("CRUDTest.testCreateSubgroupPhasingFlatOneStep.after.ldif");
+  }
 
   public void testDeleteGroupsBushy() throws Exception {
 
@@ -209,6 +222,46 @@ public class CRUDTest extends BaseLdappcTestCase {
     File file = dryRun(GroupDNStructure.bushy);
 
     verifyLdif("CRUDTest.testModifyMembersBushyDryRun.ldif", file);
+  }
+
+  public void testModifyEmptyListValueAddMember() throws Exception {
+
+    loadLdif("CRUDTest.testModifyEmptyListValueAddMember.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    verify("CRUDTest.testCreateBushy.after.ldif");
+  }
+
+  public void testModifyEmptyListValueAddMemberDryRun() throws Exception {
+
+    loadLdif("CRUDTest.testModifyEmptyListValueAddMember.before.ldif");
+
+    File file = dryRun(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testModifyEmptyListValueAddMemberDryRun.ldif", file);
+  }
+
+  public void testModifyEmptyListDeleteMember() throws Exception {
+
+    loadLdif("CRUDTest.testCreateBushy.after.ldif");
+
+    groupA.deleteMember(SubjectTestHelper.SUBJ0);
+
+    provision(GroupDNStructure.bushy);
+
+    verify("CRUDTest.testModifyEmptyListValueDeleteMember.after.ldif");
+  }
+
+  public void testModifyEmptyListDeleteMemberDryRun() throws Exception {
+
+    loadLdif("CRUDTest.testCreateBushy.after.ldif");
+
+    groupA.deleteMember(SubjectTestHelper.SUBJ0);
+
+    File file = dryRun(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testModifyEmptyListValueDeleteMemberDryRun.ldif", file);
   }
 
 }

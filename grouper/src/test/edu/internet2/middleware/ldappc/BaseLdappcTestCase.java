@@ -253,6 +253,8 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   public void provision(GroupDNStructure structure) throws Exception {
 
+    ldappc.getOptions().setMode(ProvisioningMode.PROVISION);
+
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
     ldappc.provision();
