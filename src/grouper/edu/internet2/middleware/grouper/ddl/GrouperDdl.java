@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.84 2009-10-13 15:02:34 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.85 2009-10-15 13:12:08 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -286,9 +286,7 @@ public enum GrouperDdl implements DdlVersionable {
           
           Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
               Membership.TABLE_GROUPER_MEMBERSHIPS);
-  
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ID_BAK, 
-              Types.VARCHAR, "128", false, false);
+
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_VIA_ID_BAK, 
               Types.VARCHAR, "128", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_DEPTH_BAK, 
@@ -301,8 +299,6 @@ public enum GrouperDdl implements DdlVersionable {
           ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
               + "set owner_group_id = (select gg.id from grouper_groups gg where gg.id = owner_id), \n"
               + "owner_stem_id = (select gs.id from grouper_stems gs where gs.id = owner_id), \n"
-              + "owner_id_bak = owner_id, \n"
-              + "owner_id = ' ', \n"
               + "via_composite_id = (select gc.id from grouper_composites gc where gc.id = via_id), \n"
               + "via_id_bak = via_id, \n"
               + "via_id = null, \n"
@@ -310,27 +306,8 @@ public enum GrouperDdl implements DdlVersionable {
               + "depth = 0, \n"
               + "parent_membership_bak = parent_membership, \n"
               + "parent_membership = null \n"
-              + "where owner_group_id is null and owner_stem_id is null \n"  
-              + "and via_composite_id is null and owner_id_bak is null and via_id_bak is null;\ncommit;\n");
-          
-          
-          // copy data from owner group id and owner stem id to the null columns
-          ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
-              + "set owner_group_id_null = owner_group_id, \n"
-              + "owner_stem_id_null = owner_stem_id, \n"
-              + "owner_attr_def_id_null = owner_attr_def_id;\n");
-          
-          ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
-              + "set owner_group_id_null = '" + GroupSet.nullColumnValue + "' \n"
-              + "where owner_group_id_null is null;\n");
-
-          ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
-              + "set owner_attr_def_id_null = '" + GroupSet.nullColumnValue + "' \n"
-              + "where owner_attr_def_id_null is null;\n");
-          
-          ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
-              + "set owner_stem_id_null = '" + GroupSet.nullColumnValue + "' \n"
-              + "where owner_stem_id_null is null;\ncommit;\n");
+              + "where owner_group_id is null and owner_stem_id is null and owner_attr_def_id is null \n"  
+              + "and via_composite_id is null and via_id_bak is null;\ncommit;\n");
           
           ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
               + "set enabled = 'T' \n"
@@ -341,7 +318,6 @@ public enum GrouperDdl implements DdlVersionable {
         // see if we should delete the bak columns
         if (!needsUpgrade && dropMembershipBackupColFromMshipUpgrade) {
           GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_VIA_ID_BAK, ddlVersionBean);
-          GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_ID_BAK, ddlVersionBean);
           GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_DEPTH_BAK, ddlVersionBean);
           GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_PARENT_MEMBERSHIP_BAK, ddlVersionBean);
         }
@@ -368,8 +344,6 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
           Membership.COLUMN_VIA_ID, ddlVersionBean);
-      GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-          Membership.COLUMN_OWNER_ID, ddlVersionBean);
       GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
           Membership.COLUMN_DEPTH, ddlVersionBean);
       GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
@@ -1465,6 +1439,9 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "member_id", 
             Types.VARCHAR, "128", false, true);
         
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ID, 
+            Types.VARCHAR, "128", false, true);
+        
         //only add the col if a new table, else it is added in a subsequent version
         if (!membershipsTableExists || membershipsTable.findColumn(Membership.COLUMN_FIELD_ID) != null) {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_FIELD_ID, 
@@ -1900,18 +1877,12 @@ public enum GrouperDdl implements DdlVersionable {
       //not has via bak
       && GrouperDdlUtils.ddlutilsFindColumn(database, 
           Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_VIA_ID_BAK, false) == null
-      
-      //has owner id
-      && GrouperDdlUtils.ddlutilsFindColumn(database, 
-          Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_ID, false) != null
+
       //not has owner_group_id, or owner_stem_id
       && GrouperDdlUtils.ddlutilsFindColumn(database, 
           Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_GROUP_ID, false) == null
       && GrouperDdlUtils.ddlutilsFindColumn(database, 
           Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_STEM_ID, false) == null
-      //not has owner bak
-      && GrouperDdlUtils.ddlutilsFindColumn(database, 
-          Membership.TABLE_GROUPER_MEMBERSHIPS, "OWNER_ID_BAK", false) == null
       
       // has depth
       && GrouperDdlUtils.ddlutilsFindColumn(database, 
@@ -1927,15 +1898,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       // not has parent membership bak
       && GrouperDdlUtils.ddlutilsFindColumn(database, 
-          Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_PARENT_MEMBERSHIP_BAK, false) == null  
-          
-      // not has owner group id null
-      && GrouperDdlUtils.ddlutilsFindColumn(database, 
-          Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_GROUP_ID_NULL, false) == null  
-      
-      // not has owner stem id null
-      && GrouperDdlUtils.ddlutilsFindColumn(database, 
-          Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_STEM_ID_NULL, false) == null;
+          Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_PARENT_MEMBERSHIP_BAK, false) == null;
   }  
 
   
@@ -2005,9 +1968,6 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_group_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_stem_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_attr_def_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_role_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v");
@@ -2406,6 +2366,9 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "member_id", 
           "member of the memership");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OWNER_ID,
+          "owner of the memership");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_FIELD_ID, 
             "foreign key to field by id");
@@ -2428,12 +2391,6 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-        Membership.COLUMN_OWNER_GROUP_ID_NULL, "Same as " + Membership.COLUMN_OWNER_GROUP_ID + " except nulls are replaced with the string " + Membership.nullColumnValue);
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-        Membership.COLUMN_OWNER_STEM_ID_NULL, "Same as " + Membership.COLUMN_OWNER_STEM_ID + " except nulls are replaced with the string " + Membership.nullColumnValue);
-    
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         Membership.COLUMN_ENABLED, "T or F to indicate if the membership is enabled");
     
@@ -2499,19 +2456,13 @@ public enum GrouperDdl implements DdlVersionable {
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_ATTR_DEF_ID, "member attr def if applicable");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_ATTR_DEF_ID_NULL, "same as " + GroupSet.COLUMN_MEMBER_ATTR_DEF_ID + " except nulls are replaced with the string " + GroupSet.nullColumnValue);
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_GROUP_ID, "member group if applicable");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_GROUP_ID_NULL, "same as " + GroupSet.COLUMN_MEMBER_GROUP_ID + " except nulls are replaced with the string " + GroupSet.nullColumnValue);
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_STEM_ID, "member stem if applicable");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_STEM_ID_NULL, "same as " + GroupSet.COLUMN_MEMBER_STEM_ID + " except nulls are replaced with the string " + GroupSet.nullColumnValue);
+        GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_ID, "member id");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_FIELD_ID, "used to join with the field_id column in the grouper_memberships table");
@@ -3223,237 +3174,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "ms.hibernate_version_number, "
             + "ms.context_id "
             + "from grouper_memberships ms, grouper_group_set gs "
-            + "where (ms.owner_stem_id = gs.member_stem_id or ms.owner_group_id = gs.member_group_id" +
-            		" or ms.owner_attr_def_id = gs.member_attr_def_id) and " 
-            + "ms.field_id = gs.member_field_id");
-
-
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_group_v", 
-        "grouper_memberships_group_v is a join between grouper_group_set and grouper_memberships for group based memberships.",
-        GrouperUtil.toSet("MEMBERSHIP_ID", 
-            "IMMEDIATE_MEMBERSHIP_ID", 
-            "GROUP_SET_ID", 
-            "MEMBER_ID", 
-            "FIELD_ID", 
-            "IMMEDIATE_FIELD_ID", 
-            "OWNER_ATTR_DEF_ID", 
-            "OWNER_GROUP_ID", 
-            "OWNER_STEM_ID", 
-            "VIA_GROUP_ID",
-            "VIA_COMPOSITE_ID",
-            "DEPTH", 
-            "MSHIP_TYPE", 
-            "IMMEDIATE_MSHIP_ENABLED",
-            "IMMEDIATE_MSHIP_ENABLED_TIME",
-            "IMMEDIATE_MSHIP_DISABLED_TIME",
-            "GROUP_SET_PARENT_ID", 
-            "MEMBERSHIP_CREATOR_ID", 
-            "MEMBERSHIP_CREATE_TIME",
-            "GROUP_SET_CREATOR_ID", 
-            "GROUP_SET_CREATE_TIME", 
-            "HIBERNATE_VERSION_NUMBER", 
-            "CONTEXT_ID"),
-        GrouperUtil.toSet("MEMBERSHIP_ID: uuid unique id of this membership", 
-            "IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate (or composite) membership that causes this membership", 
-            "GROUP_SET_ID: uuid of the group set that causes this membership", 
-            "MEMBER_ID: id in the grouper_members table", 
-            "FIELD_ID: id in the grouper_fields table", 
-            "IMMEDIATE_FIELD_ID: id in the grouper_fields table for the immediate (or composite) membership that causes this membership", 
-            "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
-            "OWNER_GROUP_ID: owner group if applicable", 
-            "OWNER_STEM_ID: owner stem if applicable", 
-            "VIA_GROUP_ID: membership is due to this group if effective",
-            "VIA_COMPOSITE_ID: membership is due to this composite if applicable",
-            "DEPTH: number of hops in a directed graph", 
-            "MSHIP_TYPE: type of membership, immediate or effective or composite", 
-            "IMMEDIATE_MSHIP_ENABLED: T or F to indicate if this membership is enabled",
-            "IMMEDIATE_MSHIP_ENABLED_TIME: when the membership will be enabled if the time is in the future",
-            "IMMEDIATE_MSHIP_DISABLED_TIME: when the membership will be disabled if the time is in the future.",
-            "GROUP_SET_PARENT_ID: parent group set", 
-            "MEMBERSHIP_CREATOR_ID: member uuid of the creator of the immediate or composite membership", 
-            "MEMBERSHIP_CREATOR_TIME: number of millis since 1970 the immedate or composite membership was created",
-            "GROUP_SET_CREATOR_ID: member uuid of the creator of the group set", 
-            "GROUP_SET_CREATE_TIME: number of millis since 1970 the group set was created", 
-            "HIBERNATE_VERSION_NUMBER: hibernate uses this to version rows", 
-            "CONTEXT_ID: Context id links together multiple operations into one high level action"),
-            "select "
-            + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
-            + "ms.id as immediate_membership_id, "
-            + "gs.id as group_set_id, "
-            + "ms.member_id, "
-            + "gs.field_id, "
-            + "ms.field_id, "
-            + "gs.owner_attr_def_id, "
-            + "gs.owner_group_id, "
-            + "gs.owner_stem_id, " 
-            + "gs.via_group_id, " 
-            + "ms.via_composite_id, " 
-            + "gs.depth, " 
-            + "gs.mship_type, " 
-            + "ms.enabled, " 
-            + "ms.enabled_timestamp, " 
-            + "ms.disabled_timestamp, "
-            + "gs.parent_id as group_set_parent_id, "
-            + "ms.creator_id as membership_creator_id, "
-            + "ms.create_time as membership_create_time, "
-            + "gs.creator_id as group_set_creator_id, "
-            + "gs.create_time as group_set_create_time, "
-            + "ms.hibernate_version_number, "
-            + "ms.context_id "
-            + "from grouper_memberships ms, grouper_group_set gs "
-            + "where ms.owner_group_id = gs.member_group_id and ms.field_id = gs.member_field_id");
-    
-
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_stem_v", 
-        "grouper_memberships_stem_v is a join between grouper_group_set and grouper_memberships for stem based memberships.",
-        GrouperUtil.toSet("MEMBERSHIP_ID", 
-            "IMMEDIATE_MEMBERSHIP_ID", 
-            "GROUP_SET_ID", 
-            "MEMBER_ID", 
-            "FIELD_ID", 
-            "IMMEDIATE_FIELD_ID", 
-            "OWNER_ATTR_DEF_ID", 
-            "OWNER_GROUP_ID", 
-            "OWNER_STEM_ID", 
-            "VIA_GROUP_ID",
-            "VIA_COMPOSITE_ID",
-            "DEPTH", 
-            "MSHIP_TYPE", 
-            "IMMEDIATE_MSHIP_ENABLED",
-            "IMMEDIATE_MSHIP_ENABLED_TIME",
-            "IMMEDIATE_MSHIP_DISABLED_TIME",
-            "GROUP_SET_PARENT_ID", 
-            "MEMBERSHIP_CREATOR_ID", 
-            "MEMBERSHIP_CREATE_TIME",
-            "GROUP_SET_CREATOR_ID", 
-            "GROUP_SET_CREATE_TIME", 
-            "HIBERNATE_VERSION_NUMBER", 
-            "CONTEXT_ID"),
-        GrouperUtil.toSet("MEMBERSHIP_ID: uuid unique id of this membership", 
-            "IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate (or composite) membership that causes this membership", 
-            "GROUP_SET_ID: uuid of the group set that causes this membership", 
-            "MEMBER_ID: id in the grouper_members table", 
-            "FIELD_ID: id in the grouper_fields table", 
-            "IMMEDIATE_FIELD_ID: id in the grouper_fields table for the immediate (or composite) membership that causes this membership", 
-            "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
-            "OWNER_GROUP_ID: owner group if applicable", 
-            "OWNER_STEM_ID: owner stem if applicable", 
-            "VIA_GROUP_ID: membership is due to this group if effective",
-            "VIA_COMPOSITE_ID: membership is due to this composite if applicable",
-            "DEPTH: number of hops in a directed graph", 
-            "MSHIP_TYPE: type of membership, immediate or effective or composite", 
-            "IMMEDIATE_MSHIP_ENABLED: T or F to indicate if this membership is enabled",
-            "IMMEDIATE_MSHIP_ENABLED_TIME: when the membership will be enabled if the time is in the future",
-            "IMMEDIATE_MSHIP_DISABLED_TIME: when the membership will be disabled if the time is in the future.",
-            "GROUP_SET_PARENT_ID: parent group set", 
-            "MEMBERSHIP_CREATOR_ID: member uuid of the creator of the immediate or composite membership", 
-            "MEMBERSHIP_CREATOR_TIME: number of millis since 1970 the immedate or composite membership was created",
-            "GROUP_SET_CREATOR_ID: member uuid of the creator of the group set", 
-            "GROUP_SET_CREATE_TIME: number of millis since 1970 the group set was created", 
-            "HIBERNATE_VERSION_NUMBER: hibernate uses this to version rows", 
-            "CONTEXT_ID: Context id links together multiple operations into one high level action"),
-            "select "
-            + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
-            + "ms.id as immediate_membership_id, "
-            + "gs.id as group_set_id, "
-            + "ms.member_id, "
-            + "gs.field_id, "
-            + "ms.field_id, "
-            + "gs.owner_attr_def_id, "
-            + "gs.owner_group_id, "
-            + "gs.owner_stem_id, " 
-            + "gs.via_group_id, " 
-            + "ms.via_composite_id, " 
-            + "gs.depth, " 
-            + "gs.mship_type, " 
-            + "ms.enabled, " 
-            + "ms.enabled_timestamp, " 
-            + "ms.disabled_timestamp, "
-            + "gs.parent_id as group_set_parent_id, "
-            + "ms.creator_id as membership_creator_id, "
-            + "ms.create_time as membership_create_time, "
-            + "gs.creator_id as group_set_creator_id, "
-            + "gs.create_time as group_set_create_time, "
-            + "ms.hibernate_version_number, "
-            + "ms.context_id "
-            + "from grouper_memberships ms, grouper_group_set gs "
-            + "where ms.owner_stem_id = gs.member_stem_id and ms.field_id = gs.member_field_id");
-    
-
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_attr_def_v", 
-        "grouper_memberships_attr_def_v is a join between grouper_group_set and grouper_memberships for attribute based memberships.",
-        GrouperUtil.toSet("MEMBERSHIP_ID", 
-            "IMMEDIATE_MEMBERSHIP_ID", 
-            "GROUP_SET_ID", 
-            "MEMBER_ID", 
-            "FIELD_ID", 
-            "IMMEDIATE_FIELD_ID", 
-            "OWNER_ATTR_DEF_ID", 
-            "OWNER_GROUP_ID", 
-            "OWNER_STEM_ID", 
-            "VIA_GROUP_ID",
-            "VIA_COMPOSITE_ID",
-            "DEPTH", 
-            "MSHIP_TYPE", 
-            "IMMEDIATE_MSHIP_ENABLED",
-            "IMMEDIATE_MSHIP_ENABLED_TIME",
-            "IMMEDIATE_MSHIP_DISABLED_TIME",
-            "GROUP_SET_PARENT_ID", 
-            "MEMBERSHIP_CREATOR_ID", 
-            "MEMBERSHIP_CREATE_TIME",
-            "GROUP_SET_CREATOR_ID", 
-            "GROUP_SET_CREATE_TIME", 
-            "HIBERNATE_VERSION_NUMBER", 
-            "CONTEXT_ID"),
-        GrouperUtil.toSet("MEMBERSHIP_ID: uuid unique id of this membership", 
-            "IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate (or composite) membership that causes this membership", 
-            "GROUP_SET_ID: uuid of the group set that causes this membership", 
-            "MEMBER_ID: id in the grouper_members table", 
-            "FIELD_ID: id in the grouper_fields table", 
-            "IMMEDIATE_FIELD_ID: id in the grouper_fields table for the immediate (or composite) membership that causes this membership", 
-            "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
-            "OWNER_GROUP_ID: owner group if applicable", 
-            "OWNER_STEM_ID: owner stem if applicable", 
-            "VIA_GROUP_ID: membership is due to this group if effective",
-            "VIA_COMPOSITE_ID: membership is due to this composite if applicable",
-            "DEPTH: number of hops in a directed graph", 
-            "MSHIP_TYPE: type of membership, immediate or effective or composite", 
-            "IMMEDIATE_MSHIP_ENABLED: T or F to indicate if this membership is enabled",
-            "IMMEDIATE_MSHIP_ENABLED_TIME: when the membership will be enabled if the time is in the future",
-            "IMMEDIATE_MSHIP_DISABLED_TIME: when the membership will be disabled if the time is in the future.",
-            "GROUP_SET_PARENT_ID: parent group set", 
-            "MEMBERSHIP_CREATOR_ID: member uuid of the creator of the immediate or composite membership", 
-            "MEMBERSHIP_CREATOR_TIME: number of millis since 1970 the immedate or composite membership was created",
-            "GROUP_SET_CREATOR_ID: member uuid of the creator of the group set", 
-            "GROUP_SET_CREATE_TIME: number of millis since 1970 the group set was created", 
-            "HIBERNATE_VERSION_NUMBER: hibernate uses this to version rows", 
-            "CONTEXT_ID: Context id links together multiple operations into one high level action"),
-            "select "
-            + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
-            + "ms.id as immediate_membership_id, "
-            + "gs.id as group_set_id, "
-            + "ms.member_id, "
-            + "gs.field_id, "
-            + "ms.field_id, "
-            + "gs.owner_attr_def_id, "
-            + "gs.owner_group_id, "
-            + "gs.owner_stem_id, " 
-            + "gs.via_group_id, " 
-            + "ms.via_composite_id, " 
-            + "gs.depth, " 
-            + "gs.mship_type, " 
-            + "ms.enabled, " 
-            + "ms.enabled_timestamp, " 
-            + "ms.disabled_timestamp, "
-            + "gs.parent_id as group_set_parent_id, "
-            + "ms.creator_id as membership_creator_id, "
-            + "ms.create_time as membership_create_time, "
-            + "gs.creator_id as group_set_creator_id, "
-            + "gs.create_time as group_set_create_time, "
-            + "ms.hibernate_version_number, "
-            + "ms.context_id "
-            + "from grouper_memberships ms, grouper_group_set gs "
-            + "where ms.owner_attr_def_id = gs.member_attr_def_id and ms.field_id = gs.member_field_id");
+            + "where ms.owner_id = gs.member_id and ms.field_id = gs.member_field_id");
 
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_lw_v", 
@@ -5130,15 +4851,6 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_member_cvia_idx", false, "member_id", Membership.COLUMN_VIA_COMPOSITE_ID);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_GROUP_ID_NULL, 
-        Types.VARCHAR, "128", false, requireNewMembershipColumns, GroupSet.nullColumnValue);
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_STEM_ID_NULL, 
-        Types.VARCHAR, "128", false, requireNewMembershipColumns, GroupSet.nullColumnValue);
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ATTR_DEF_ID_NULL, 
-        Types.VARCHAR, "128", false, requireNewMembershipColumns, GroupSet.nullColumnValue);
-    
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_gowner_member_idx", false, Membership.COLUMN_OWNER_GROUP_ID, "member_id",
         "field_id");
@@ -5204,21 +4916,15 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_attr_def_id",
         Types.VARCHAR, "40", false, false);
-
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_attr_def_id_null",
-        Types.VARCHAR, "40", false, true, GroupSet.nullColumnValue);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_group_id",
         Types.VARCHAR, "40", false, false);
-
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_group_id_null",
-        Types.VARCHAR, "40", false, true, GroupSet.nullColumnValue);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_stem_id",
         Types.VARCHAR, "40", false, false);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_stem_id_null",
-        Types.VARCHAR, "40", false, true, GroupSet.nullColumnValue);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_id",
+        Types.VARCHAR, "40", false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "field_id",
         Types.VARCHAR, "40", false, true);
@@ -5254,9 +4960,8 @@ public enum GrouperDdl implements DdlVersionable {
     // set parent_id to null before removing self groupSets without getting a constraint
     // violiations.
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
-        "group_set_uniq_idx", true, "owner_attr_def_id_null", "owner_group_id_null", 
-        "owner_stem_id_null", "member_attr_def_id_null", "member_group_id_null",
-        "member_stem_id_null", "mship_type", "field_id", "parent_id");
+        "group_set_uniq_idx", true, "member_id", "owner_attr_def_id_null", "owner_group_id_null", 
+        "owner_stem_id_null", "mship_type", "field_id", "parent_id");
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
         "group_set_creator_idx", false, "creator_id");
@@ -5342,8 +5047,7 @@ public enum GrouperDdl implements DdlVersionable {
    */
   private static void addMembershipUniqueIndex(Database database, Table membershipsTable) {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
-        "membership_uniq_idx", true, Membership.COLUMN_OWNER_GROUP_ID_NULL, Membership.COLUMN_OWNER_STEM_ID_NULL,
-        Membership.COLUMN_OWNER_ATTR_DEF_ID_NULL, Membership.COLUMN_MEMBER_ID, Membership.COLUMN_FIELD_ID);
+        "membership_uniq_idx", true, Membership.COLUMN_OWNER_ID, Membership.COLUMN_MEMBER_ID, Membership.COLUMN_FIELD_ID);
   }
 
   /** logger */

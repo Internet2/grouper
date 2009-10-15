@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.8 2009-10-13 15:02:34 shilen Exp $
+ * @author shilen $Id: GroupSet.java,v 1.9 2009-10-15 13:12:08 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
@@ -86,20 +86,14 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   /** member group if applicable */
   public static final String COLUMN_MEMBER_GROUP_ID = "member_group_id";
   
-  /** same as member_group_id except nulls are replaced with the string '<NULL>' */
-  public static final String COLUMN_MEMBER_GROUP_ID_NULL = "member_group_id_null";
-  
   /** member attr def if applicable */
   public static final String COLUMN_MEMBER_ATTR_DEF_ID = "member_attr_def_id";
-  
-  /** same as member_attr_def_id except nulls are replaced with the string '<NULL>' */
-  public static final String COLUMN_MEMBER_ATTR_DEF_ID_NULL = "member_attr_def_id_null";
   
   /** member stem if applicable */
   public static final String COLUMN_MEMBER_STEM_ID = "member_stem_id";
   
-  /** same as member_stem_id except nulls are replaced with the string '<NULL>' */
-  public static final String COLUMN_MEMBER_STEM_ID_NULL = "member_stem_id_null";
+  /** member id */
+  public static final String COLUMN_MEMBER_ID = "member_id";
   
   /** field id used in joining this record with entries in grouper_memberships */
   public static final String COLUMN_MEMBER_FIELD_ID = "member_field_id";
@@ -134,14 +128,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   /** constant for field name for: memberGroupId */
   public static final String FIELD_MEMBER_GROUP_ID = "memberGroupId";
 
-  /** constant for field name for: memberGroupIdNull */
-  public static final String FIELD_MEMBER_GROUP_ID_NULL = "memberGroupIdNull";
-
   /** constant for field name for: memberStemId */
   public static final String FIELD_MEMBER_STEM_ID = "memberStemId";
-
-  /** constant for field name for: memberStemIdNull */
-  public static final String FIELD_MEMBER_STEM_ID_NULL = "memberStemIdNull";
 
   /** constant for field name for: ownerGroupId */
   public static final String FIELD_OWNER_GROUP_ID = "ownerGroupId";
@@ -175,7 +163,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATE_TIME, FIELD_CREATOR_ID, FIELD_DEPTH, FIELD_VIA_GROUP_ID,
       FIELD_FIELD_ID, FIELD_MSHIP_TYPE, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_MEMBER_GROUP_ID, 
-      FIELD_MEMBER_GROUP_ID_NULL, FIELD_MEMBER_STEM_ID, FIELD_MEMBER_STEM_ID_NULL, FIELD_OWNER_GROUP_ID, 
+      FIELD_MEMBER_STEM_ID, FIELD_OWNER_GROUP_ID, 
       FIELD_OWNER_GROUP_ID_NULL, FIELD_OWNER_STEM_ID, FIELD_OWNER_STEM_ID_NULL, FIELD_PARENT_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -224,15 +212,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   
   /** group id for group memberships.  this is the member. */
   private String memberGroupId;
-  
-  /** memberGroupId except nulls are replaced with a string so we can use this in a unique constraint */
-  private String memberGroupIdNull = GroupSet.nullColumnValue;
 
   /** stem id for stem memberships.  this is the member. */
   private String memberStemId;
-  
-  /** memberStemId except nulls are replaced with a string so we can use this in a unique constraint */
-  private String memberStemIdNull = GroupSet.nullColumnValue;
 
   /**
    * the value we're storing in the db for nulls that need a value so that we can add a unique constraint.
@@ -300,9 +282,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
 
   /** attr def id for attr def memberships.  this is the member. */
   private String memberAttrDefId;
-
-  /** memberAttrDefId except nulls are replaced with a string so we can use this in a unique constraint */
-  private String memberAttrDefIdNull = GroupSet.nullColumnValue;
 
   /** attr def id for attr def memberships.  this is the owner. */
   private String ownerAttrDefId;
@@ -1009,29 +988,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    */
   public void setMemberGroupId(String memberGroupId) {
     this.memberGroupId = memberGroupId;
-    setMemberGroupIdNull(memberGroupId);
-    if (memberGroupId == null) {
-      setMemberGroupIdNull(GroupSet.nullColumnValue);
-    }
   }
-
-  /**
-   * This is for internal use only.  This is the same as getMemberGroupId() except nulls are replaced with
-   * a constant string.
-   * @return group id for the member if the member is a group
-   */  
-  public String getMemberGroupIdNull() {
-    return memberGroupIdNull;
-  }
-
-  /**
-   * Set group id for the member if the member is a group.  This is for internal use only.
-   * @param memberGroupIdNull
-   */  
-  public void setMemberGroupIdNull(String memberGroupIdNull) {
-    this.memberGroupIdNull = memberGroupIdNull;
-  }
-
   
   /**
    * @return stem id for the member if the member is a stem
@@ -1047,29 +1004,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    */
   public void setMemberStemId(String memberStemId) {
     this.memberStemId = memberStemId;
-    setMemberStemIdNull(memberStemId);
-    if (memberStemId == null) {
-      setMemberStemIdNull(GroupSet.nullColumnValue);
-    }
   }
-
-  /**
-   * This is for internal use only.  This is the same as getMemberStemId() except nulls are replaced with
-   * a constant string.
-   * @return stem id for the member if the member is a stem
-   */  
-  public String getMemberStemIdNull() {
-    return memberStemIdNull;
-  }
-
-  /**
-   * Set stem id for the member if the member is a stem.  This is for internal use only.
-   * @param memberStemIdNull
-   */  
-  public void setMemberStemIdNull(String memberStemIdNull) {
-    this.memberStemIdNull = memberStemIdNull;
-  }
-  
 
   
   /**
@@ -1124,15 +1059,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   }
 
   /**
-   * This is for internal use only.  This is the same as getMemberAttrDefId() except nulls are replaced with
-   * a constant string.
-   * @return attrdef id for the member if the member is a attrdef
-   */  
-  public String getMemberAttrDefIdNull() {
-    return this.memberAttrDefIdNull;
-  }
-
-  /**
    * @return attrdef id for the owner if this is a attrdef membership
    */
   public String getOwnerAttrDefId() {
@@ -1154,18 +1080,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    */
   public void setMemberAttrDefId(String memberAttrDefId1) {
     this.memberAttrDefId = memberAttrDefId1;
-    setMemberAttrDefIdNull(memberAttrDefId1);
-    if (memberAttrDefId1 == null) {
-      setMemberAttrDefIdNull(GroupSet.nullColumnValue);
-    }
-  }
-
-  /**
-   * Set attrdef id for the member if the member is a attrdef.  This is for internal use only.
-   * @param memberAttrDefIdNull1
-   */  
-  public void setMemberAttrDefIdNull(String memberAttrDefIdNull1) {
-    this.memberAttrDefIdNull = memberAttrDefIdNull1;
   }
 
   /**
@@ -1186,5 +1100,33 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    */
   public void setOwnerAttrDefIdNull(String ownerAttrDefIdNull1) {
     this.ownerAttrDefIdNull = ownerAttrDefIdNull1;
+  }
+  
+  /**
+   * get the member id
+   * @return the member id
+   */
+  public String getMemberId() {
+    if (this.memberAttrDefId != null) {
+      return this.memberAttrDefId;
+    }
+    
+    if (this.memberGroupId != null) {
+      return this.memberGroupId;
+    }
+    
+    if (this.memberStemId != null) {
+      return this.memberStemId;
+    }
+    
+    throw new RuntimeException("No value for member.");
+  }
+  
+  /**
+   * This is for internal use only.
+   * @param member
+   */
+  public void setMemberId(String member) {
+    // not used
   }
 }

@@ -51,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.46 2009-10-03 13:47:13 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.47 2009-10-15 13:12:08 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -884,9 +884,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     // I'm adding a check for the immediate field id to help with performance 
     // in cases where the member has a lot of non-default list immediate memberships.
     
-    StringBuilder sql = new StringBuilder("select ms, m from ");
-    sql.append(getHibernateEntity(f));
-    sql.append(" as ms, Member as m where ms.memberUuid = m.uuid and ");
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where ms.memberUuid = m.uuid and ");
     sql.append("ms.memberUuid = :member and ms.immediateFieldId = :defaultMembersField and ms.fieldId = :fuuid and ms.type = 'effective'");
 
     if (enabledOnly) {
@@ -1066,9 +1064,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     // I'm adding a check for the immediate field id to help with performance 
     // in cases where the member has a lot of memberships but with different fields
     
-    StringBuilder sql = new StringBuilder("select ms, m from ");
-    sql.append(getHibernateEntity(f));
-    sql.append(" as ms, Member as m where ms.memberUuid = m.uuid and ");
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where ms.memberUuid = m.uuid and ");
     sql.append("ms.memberUuid = :member and ms.immediateFieldId = :fuuid and ms.fieldId = :fuuid and ms.type = :type");
 
     if (enabledOnly) {
@@ -1170,9 +1166,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         String memberUUID, Field f, boolean enabledOnly)
       throws  GrouperDAOException {
     
-    StringBuilder sql = new StringBuilder("select ms, m from ");
-    sql.append(getHibernateEntity(f));
-    sql.append(" as ms, Member as m ");
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m ");
     
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -1654,21 +1648,5 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
     return _getMembershipsFromMembershipAndMemberQuery(mships);
 
-  }
-
-  /**
-   * Returns the string value for a hibernate entity name
-   * @param f
-   */
-  private String getHibernateEntity(Field f) {
-    if (f.getType() == FieldType.LIST || f.getType() == FieldType.ACCESS) {
-      return "GroupMembershipEntry";
-    } else if (f.getType() == FieldType.NAMING) {
-      return "StemMembershipEntry";
-    } else if (f.getType() == FieldType.ATTRIBUTE_DEF) {
-      return "AttributeDefMembershipEntry";
-    } else {
-      throw new RuntimeException("Unknown field type");
-    }
   }
 }

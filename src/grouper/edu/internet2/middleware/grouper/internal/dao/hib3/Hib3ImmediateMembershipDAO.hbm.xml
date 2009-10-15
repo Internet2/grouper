@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3ImmediateMembershipDAO.hbm.xml,v 1.5 2009-09-21 06:14:26 mchyzer Exp $ -->
+<!-- $Id: Hib3ImmediateMembershipDAO.hbm.xml,v 1.6 2009-10-15 13:12:08 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
 
@@ -48,12 +48,10 @@
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="hibernateVersionNumber" type="long" column="hibernate_version_number"/>
 
+    <property name="ownerId" type="string" column="owner_id" />
     <property name="ownerAttrDefId" type="string" column="owner_attr_def_id" />
-    <property name="ownerAttrDefIdNull" type="string" column="owner_attr_def_id_null" />
     <property name="ownerGroupId" type="string" column="owner_group_id" />
-    <property name="ownerGroupIdNull" type="string" column="owner_group_id_null" />
     <property name="ownerStemId" type="string" column="owner_stem_id" />
-    <property name="ownerStemIdNull" type="string" column="owner_stem_id_null" />
 
     <property name="enabledDb" type="string" column="enabled" />
     <property name="enabledTimeDb" type="long" column="enabled_timestamp" />
