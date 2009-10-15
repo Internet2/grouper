@@ -92,9 +92,13 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     loadLdif("CRUDTest.before.ldif");
 
-    File file = dryRun(GroupDNStructure.bushy);
+    File ldif = dryRun(GroupDNStructure.bushy);
 
-    verifyLdif("CRUDTest.testCreateBushyDryRun.ldif", file);
+    verifyLdif("CRUDTest.testCreateBushyDryRun.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
   }
 
   public void testCreateBushyWriteLdif() throws Exception {
@@ -108,11 +112,19 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     loadLdif("CRUDTest.before.ldif");
 
-    File file = provision(GroupDNStructure.bushy);
+    File ldif = provision(GroupDNStructure.bushy);
 
     verify("CRUDTest.testCreateBushy.after.ldif");
 
-    verifyLdif("CRUDTest.testCreateBushyWriteLdif.ldif", file);
+    if (ldappc.getConfig().getBundleModifications()) {
+      verifyLdif("CRUDTest.testCreateBushyWriteLdif.ldif", ldif);
+    } else {
+      verifyLdif("CRUDTest.testCreateBushyWriteLdif.unbundled.ldif", ldif);
+    }
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
   }
 
   public void testCreateFlat() throws Exception {
@@ -215,9 +227,13 @@ public class CRUDTest extends BaseLdappcTestCase {
     groupA.delete();
     groupB.delete();
 
-    File file = dryRun(GroupDNStructure.bushy);
+    File ldif = dryRun(GroupDNStructure.bushy);
 
-    verifyLdif("CRUDTest.testDeleteGroupsBushyDryRun.ldif", file);
+    verifyLdif("CRUDTest.testDeleteGroupsBushyDryRun.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
   }
 
   public void testModifyMemberBushy() throws Exception {
@@ -237,12 +253,24 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     groupB.addMember(groupA.toSubject());
 
-    File file = dryRun(GroupDNStructure.bushy);
+    File ldif = dryRun(GroupDNStructure.bushy);
 
-    verifyLdif("CRUDTest.testModifyMembersBushyDryRun.ldif", file);
+    if (ldappc.getConfig().getBundleModifications()) {
+      verifyLdif("CRUDTest.testModifyMembersBushyDryRun.ldif", ldif);
+    } else {
+      verifyLdif("CRUDTest.testModifyMembersBushyDryRun.unbundled.ldif", ldif);
+    }
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
   }
 
   public void testModifyEmptyListValueAddMember() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
 
     loadLdif("CRUDTest.testModifyEmptyListValueAddMember.before.ldif");
 
@@ -253,14 +281,30 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testModifyEmptyListValueAddMemberDryRun() throws Exception {
 
+    if (useActiveDirectory()) {
+      return;
+    }
+
     loadLdif("CRUDTest.testModifyEmptyListValueAddMember.before.ldif");
 
-    File file = dryRun(GroupDNStructure.bushy);
+    File ldif = dryRun(GroupDNStructure.bushy);
 
-    verifyLdif("CRUDTest.testModifyEmptyListValueAddMemberDryRun.ldif", file);
+    if (ldappc.getConfig().getBundleModifications()) {
+      verifyLdif("CRUDTest.testModifyEmptyListValueAddMemberDryRun.ldif", ldif);
+    } else {
+      verifyLdif("CRUDTest.testModifyEmptyListValueAddMemberDryRun.unbundled.ldif", ldif);
+    }
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
   }
 
   public void testModifyEmptyListDeleteMember() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
 
     loadLdif("CRUDTest.testCreateBushy.after.ldif");
 
@@ -273,13 +317,26 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testModifyEmptyListDeleteMemberDryRun() throws Exception {
 
+    if (useActiveDirectory()) {
+      return;
+    }
+
     loadLdif("CRUDTest.testCreateBushy.after.ldif");
 
     groupA.deleteMember(SubjectTestHelper.SUBJ0);
 
-    File file = dryRun(GroupDNStructure.bushy);
+    File ldif = dryRun(GroupDNStructure.bushy);
 
-    verifyLdif("CRUDTest.testModifyEmptyListValueDeleteMemberDryRun.ldif", file);
+    if (ldappc.getConfig().getBundleModifications()) {
+      verifyLdif("CRUDTest.testModifyEmptyListValueDeleteMemberDryRun.ldif", ldif);
+    } else {
+      verifyLdif("CRUDTest.testModifyEmptyListValueDeleteMemberDryRun.unbundled.ldif",
+          ldif);
+    }
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
   }
 
 }
