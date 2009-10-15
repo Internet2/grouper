@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.221 2009-09-02 05:57:26 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.222 2009-10-15 22:57:32 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -78,6 +78,10 @@
   <if><not><available file="${conf.dir}/ldappc.properties" /></not>
     <then><copy file="${conf.dir}/ldappc.example.properties" 
       tofile="${conf.dir}/ldappc.properties" /></then>
+  </if>
+  <if><not><available file="${resources.dir.test.ldappc}/ldappc.test.properties" /></not>
+  	<then><copy file="${resources.dir.test.ldappc}/ldappc.test.example.properties" 
+  		tofile="${resources.dir.test.ldappc}/ldappc.test.properties" /></then>
   </if>
 
   <!-- TARGETS -->
