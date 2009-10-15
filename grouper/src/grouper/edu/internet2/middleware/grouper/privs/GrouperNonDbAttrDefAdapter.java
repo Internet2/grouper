@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
  * slower and more explicit than the GrouperAccessAdapter (subclass)
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNonDbAttrDefAdapter.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
+ * @version $Id: GrouperNonDbAttrDefAdapter.java,v 1.3 2009-10-15 13:12:08 shilen Exp $
  */
 public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     AttributeDefAdapter {
@@ -409,14 +409,11 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
 
     Member member = MemberFinder.findBySubject(grouperSession, subject, true);
     Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-        .findAllImmediateByMember(member.getUuid(), false);
+        .findAllImmediateByMemberAndFieldType(member.getUuid(), FieldType.ATTRIBUTE_DEF.getType(), false);
     Iterator<Membership> iter = memberships.iterator();
     while (iter.hasNext()) {
       Membership mship = iter.next();
-      Field f = FieldFinder.findById(mship.getFieldId(), true);
-      if (FieldType.ATTRIBUTE_DEF.equals(f.getType())) {
-        GrouperDAOFactory.getFactory().getMembership().delete(mship);
-      }
+      GrouperDAOFactory.getFactory().getMembership().delete(mship);
     }
   }
 

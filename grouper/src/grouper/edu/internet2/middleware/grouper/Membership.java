@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.134 2009-10-03 13:47:12 shilen Exp $
+ * @version $Id: Membership.java,v 1.135 2009-10-15 13:12:08 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -177,12 +177,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /** constant for field name for: ownerStemId */
   public static final String FIELD_OWNER_STEM_ID = "ownerStemId";
 
-  /** constant for field name for: ownerGroupIdNull */
-  public static final String FIELD_OWNER_GROUP_ID_NULL = "ownerGroupIdNull";
-
-  /** constant for field name for: ownerStemIdNull */
-  public static final String FIELD_OWNER_STEM_ID_NULL = "ownerStemIdNull";
-
   /** constant for field name for: type */
   public static final String FIELD_TYPE = "type";
 
@@ -220,8 +214,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       FIELD_CONTEXT_ID, FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, 
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_FIELD_ID, 
       FIELD_GROUP_SET_CREATE_TIME_LONG, FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID, FIELD_GROUP_SET_PARENT_ID, 
-      FIELD_IMMEDIATE_MEMBERSHIP_ID, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_GROUP_ID_NULL, 
-      FIELD_OWNER_STEM_ID, FIELD_OWNER_STEM_ID_NULL, FIELD_TYPE, FIELD_UUID, 
+      FIELD_IMMEDIATE_MEMBERSHIP_ID, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, 
+      FIELD_OWNER_STEM_ID, FIELD_TYPE, FIELD_UUID, 
       FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
 
   /**
@@ -232,7 +226,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_FIELD_ID, 
       FIELD_GROUP_SET_CREATE_TIME_LONG, FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID, FIELD_GROUP_SET_PARENT_ID, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_IMMEDIATE_MEMBERSHIP_ID, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, 
-      FIELD_OWNER_GROUP_ID_NULL, FIELD_OWNER_STEM_ID, FIELD_OWNER_STEM_ID_NULL, FIELD_TYPE, 
+      FIELD_OWNER_STEM_ID, FIELD_TYPE, 
       FIELD_UUID, FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -284,12 +278,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * memberships
    */
   public static final String IMMEDIATE = "immediate";
-
-
-  /**
-   * the value we're storing in the db for nulls that need a value so that we can add a unique constraint.
-   */
-  public static final String nullColumnValue = "<NULL>";
   
   /**
    * separator used in the uuid field to split immediate_membership_id and group_set_id
@@ -347,16 +335,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * group set parent id
    */
   private String groupSetParentId;
-
-  /** 
-   * if group membership, this is the group id. Otherwise, this is a constant string.
-   */
-  private String ownerGroupIdNull = Membership.nullColumnValue;
-
-  /** 
-   * if stem membership, this is the stem id.  Otherwise, this is a constant string.
-   */
-  private String ownerStemIdNull = Membership.nullColumnValue;
 
   /** either composite, immediate, effective */
   private String  type        = Membership.IMMEDIATE;           // reasonable default
@@ -602,22 +580,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /**
    * 
    */
-  public static final String COLUMN_OWNER_ID_BAK = "owner_id_bak";
-
-  /**
-   * 
-   */
   public static final String COLUMN_VIA_COMPOSITE_ID = "via_composite_id";
 
   /**
    * 
    */
   public static final String COLUMN_OWNER_STEM_ID = "owner_stem_id";
-  
-  /**
-   * 
-   */
-  public static final String COLUMN_OWNER_STEM_ID_NULL = "owner_stem_id_null";
 
   /**
    * 
@@ -627,17 +595,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /**
    * 
    */
-  public static final String COLUMN_OWNER_GROUP_ID_NULL = "owner_group_id_null";
-  
-  /**
-   * 
-   */
   public static final String COLUMN_OWNER_ATTR_DEF_ID = "owner_attr_def_id";
-  
-  /**
-   * 
-   */
-  public static final String COLUMN_OWNER_ATTR_DEF_ID_NULL = "owner_attr_def_id_null";
 
   /**
    * 
@@ -2331,6 +2289,34 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   public void setImmediateFieldId(String immediateFieldId) {
     this.immediateFieldId = immediateFieldId;
   }
+  
+  /**
+   * get the owner id
+   * @return the owner id
+   */
+  public String getOwnerId() {
+    if (this.ownerAttrDefId != null) {
+      return this.ownerAttrDefId;
+    }
+    
+    if (this.ownerGroupId != null) {
+      return this.ownerGroupId;
+    }
+    
+    if (this.ownerStemId != null) {
+      return this.ownerStemId;
+    }
+    
+    throw new RuntimeException("No value for owner.");
+  }
+  
+  /**
+   * This is for internal use only.
+   * @param owner
+   */
+  public void setOwnerId(String owner) {
+    // not used
+  }
 
   /**
    * if group membership, this is the group id
@@ -2355,11 +2341,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setOwnerGroupId(String groupId1) {
     this.ownerGroupId = groupId1;
-    
-    setOwnerGroupIdNull(ownerGroupId);
-    if (ownerGroupId == null) {
-      setOwnerGroupIdNull(Membership.nullColumnValue);
-    }
   }
 
   /**
@@ -2368,9 +2349,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setOwnerAttrDefId(String attrDefId1) {
     this.ownerAttrDefId = attrDefId1;
-    
-    setOwnerAttrDefIdNull(ownerAttrDefId == null ? 
-        Membership.nullColumnValue : ownerAttrDefId);
   }
 
 
@@ -2388,11 +2366,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setOwnerStemId(String stemId1) {
     this.ownerStemId = stemId1;
-    
-    setOwnerStemIdNull(ownerStemId);
-    if (ownerStemId == null) {
-      setOwnerStemIdNull(Membership.nullColumnValue);
-    }
   }
 
   /** context id of the transaction */
@@ -2402,11 +2375,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * if attribute security membership, this is the attrDef id 
    */
   private String ownerAttrDefId;
-
-  /** 
-   * if attribute security membership, this is the attrDef id. Otherwise, this is a constant string.
-   */
-  private String ownerAttrDefIdNull = Membership.nullColumnValue;
 
   /**
    * context id of the transaction
@@ -2422,58 +2390,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setContextId(String contextId1) {
     this.contextId = contextId1;
-  }
-  
-  /**
-   * This is for internal use only.  This is the same as getOwnerStemId() except nulls are replaced with
-   * a constant string.
-   * @return stem id for the owner if this is a stem membership
-   */
-  public String getOwnerStemIdNull() {
-    return ownerStemIdNull;
-  }
-
-  /**
-   * Set stem id for the owner if this is a stem membership.  This is for internal use only.
-   * @param ownerStemIdNull
-   */
-  public void setOwnerStemIdNull(String ownerStemIdNull) {
-    this.ownerStemIdNull = ownerStemIdNull;
-  }
-  
-  /**
-   * This is for internal use only.  This is the same as getOwnerGroupId() except nulls are replaced with
-   * a constant string.
-   * @return group id for the owner if this is a group membership
-   */
-  public String getOwnerGroupIdNull() {
-    return this.ownerGroupIdNull;
-  }
-
-  /**
-   * This is for internal use only.  This is the same as getOwnerAttrDefId() except nulls are replaced with
-   * a constant string.
-   * @return attrDef id for the owner if this is a attrDef membership
-   */
-  public String getOwnerAttrDefIdNull() {
-    return this.ownerAttrDefIdNull;
-  }
-
-  
-  /**
-   * Set group id for the owner if this is a group membership.  This is for internal use only.
-   * @param ownerGroupIdNull
-   */
-  public void setOwnerGroupIdNull(String ownerGroupIdNull) {
-    this.ownerGroupIdNull = ownerGroupIdNull;
-  }
-  
-  /**
-   * Set attrDef id for the owner if this is an attrDef membership.  This is for internal use only.
-   * @param ownerAttrDefIdNull
-   */
-  public void setOwnerAttrDefIdNull(String ownerAttrDefIdNull) {
-    this.ownerAttrDefIdNull = ownerAttrDefIdNull;
   }
   
   /**

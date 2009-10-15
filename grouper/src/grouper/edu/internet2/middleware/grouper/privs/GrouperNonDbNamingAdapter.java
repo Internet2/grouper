@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperNonDbNamingAdapter.java,v 1.6 2009-08-29 15:57:59 shilen Exp $
+ * $Id: GrouperNonDbNamingAdapter.java,v 1.7 2009-10-15 13:12:08 shilen Exp $
  */
 package edu.internet2.middleware.grouper.privs;
 
@@ -14,7 +14,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -430,14 +429,12 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     }
     
     Member member = MemberFinder.findBySubject(grouperSession, subject, true);
-    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMember(member.getUuid(), false);
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+        .findAllImmediateByMemberAndFieldType(member.getUuid(), FieldType.NAMING.getType(), false);
     Iterator<Membership> iter = memberships.iterator();
     while (iter.hasNext()) {
       Membership mship = iter.next();
-      Field f = FieldFinder.findById(mship.getFieldId(), true);
-      if (FieldType.NAMING.equals(f.getType())) {
-        GrouperDAOFactory.getFactory().getMembership().delete(mship);
-      }
+      GrouperDAOFactory.getFactory().getMembership().delete(mship);
     }
   }
 

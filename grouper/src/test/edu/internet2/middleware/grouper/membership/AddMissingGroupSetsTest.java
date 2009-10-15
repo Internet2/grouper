@@ -165,7 +165,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     // This is a bit of a hack, but here's what I'm trying to do...
     // In order to verify that the currentGroupSets equal the originalGroupSets, we need to update the parentIds.
     // Based on the groupSets that were added, I'm using the following as a key for lookups.  In reality, this isn't a unique constraint.
-    //      owner_group_id_null, owner_stem_id_null, member_group_id_null, member_stem_id_null, field_id
+    //      owner_group_id_null, owner_stem_id_null, member_id, field_id
     
     Set<GroupSet> currentGroupSetsAfterMod = new HashSet<GroupSet>();
     
@@ -175,16 +175,16 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     Iterator<GroupSet> originalGroupSetsIter = originalGroupSets.iterator();
     while (originalGroupSetsIter.hasNext()) {
       GroupSet gs = originalGroupSetsIter.next();
-      String key = gs.getOwnerGroupIdNull() + ":" + gs.getOwnerStemIdNull() + ":" + gs.getMemberGroupIdNull() + ":" + 
-          gs.getMemberStemIdNull() + ":" + gs.getFieldId();
+      String key = gs.getOwnerGroupIdNull() + ":" + gs.getOwnerStemIdNull() + ":" + gs.getMemberId() + ":" + 
+          gs.getFieldId();
       lookupOrigIdByKey.put(key, gs.getId());
     }
     
     Iterator<GroupSet> currentGroupSetsIter = currentGroupSets.iterator();
     while (currentGroupSetsIter.hasNext()) {
       GroupSet gs = currentGroupSetsIter.next();
-      String key = gs.getOwnerGroupIdNull() + ":" + gs.getOwnerStemIdNull() + ":" + gs.getMemberGroupIdNull() + ":" + 
-          gs.getMemberStemIdNull() + ":" + gs.getFieldId();
+      String key = gs.getOwnerGroupIdNull() + ":" + gs.getOwnerStemIdNull() + ":" + gs.getMemberId() + ":" + 
+          gs.getFieldId();
       lookupOrigIdByCurrentId.put(gs.getId(), lookupOrigIdByKey.get(key));
     }
     
