@@ -477,10 +477,14 @@ public class GroupEntrySynchronizer {
     // Modify the entry
     //
     if (modificationItems.length > 0) {
-      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+          || ldappc.getOptions().getWriteLdif()) {
         LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(
             new LdapDN(groupDn), modificationItems));
-      } else {
+      }
+
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
         LOG.info("Modify '" + groupDn + "' " + Arrays.asList(modificationItems));
         ldappc.getContext().modifyAttributes(groupDn, modificationItems);
       }
@@ -886,11 +890,15 @@ public class GroupEntrySynchronizer {
     //
     // Build the subject context
     //
-    LOG.info("Creating '" + groupDn + "' attrs " + attributes);
-    if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+
+    if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+        || ldappc.getOptions().getWriteLdif()) {
       LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifAdd(new LdapDN(groupDn),
           attributes));
-    } else {
+    }
+
+    if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
+      LOG.info("Creating '" + groupDn + "' attrs " + attributes);
       ldappc.getContext().createSubcontext(groupDn, attributes);
     }
 
@@ -913,10 +921,14 @@ public class GroupEntrySynchronizer {
       // Modify the entry
       //
       if (!modifications.isEmpty()) {
-        if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+
+        if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+            || ldappc.getOptions().getWriteLdif()) {
           LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(new LdapDN(
               groupDn), modifications.toArray(new ModificationItem[] {})));
-        } else {
+        }
+
+        if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
           LOG.info("Modify '" + groupDn + "' " + modifications);
           ldappc.getContext().modifyAttributes(groupDn,
               modifications.toArray(new ModificationItem[] {}));
@@ -990,10 +1002,13 @@ public class GroupEntrySynchronizer {
           //
           Attributes attributes = ldappc.calculateStemAttributes(stemDn);
 
-          if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+          if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+              || ldappc.getOptions().getWriteLdif()) {
             LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifAdd(
                 new LdapDN(stemDn), attributes));
-          } else {
+          }
+
+          if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
             LOG.info("Creating '" + stemDn + "' attrs " + attributes);
             ldappc.getContext().createSubcontext(stemDn, attributes);
           }

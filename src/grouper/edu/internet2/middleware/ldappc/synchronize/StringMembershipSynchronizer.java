@@ -273,14 +273,16 @@ public class StringMembershipSynchronizer {
       //
       // Perform the modifications
       //
-      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+          || ldappc.getOptions().getWriteLdif()) {
         LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(new LdapDN(
             getSubject()), mods));
-      } else {
+      }
+
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
         LOG.info("Modify subject '{}' {}", getSubject(), Arrays.asList(mods));
         ldappc.getContext().modifyAttributes(getSubject(), mods);
       }
-
     }
   }
 

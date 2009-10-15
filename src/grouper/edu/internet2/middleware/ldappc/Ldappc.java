@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
+import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
@@ -215,14 +216,14 @@ public final class Ldappc extends TimerTask {
           provision();
           break;
 
+        case DRYRUN:
+
+          provision();
+          break;
+
         case CALCULATE:
 
           calculate();
-          break;
-
-        case DRYRUN:
-
-          dryRun();
           break;
       }
 
@@ -297,7 +298,22 @@ public final class Ldappc extends TimerTask {
    * @throws LdappcException
    * @throws IOException
    */
-  public void provision() throws LdappcException, NamingException, IOException {
+  public File provision() throws LdappcException, NamingException, IOException {
+
+    File file = null;
+
+    if (getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+        || getOptions().getWriteLdif()) {
+
+      file = new File(options.getOutputFileLocation());
+
+      if (!file.createNewFile()) {
+        throw new LdappcException("File '" + options.getOutputFileLocation()
+            + "' already exists.");
+      }
+
+      writer = LdapUtil.openWriter(file);
+    }
 
     //
     // Find the set of Groups to be provisioned
@@ -322,6 +338,12 @@ public final class Ldappc extends TimerTask {
     // Stop the Grouper session
     //
     grouperSession.stop();
+
+    if (writer != null) {
+      writer.close();
+    }
+
+    return file;
   }
 
   /**
@@ -381,37 +403,6 @@ public final class Ldappc extends TimerTask {
       File membershipFile = buildMembershipFile(groups);
       parseMembershipUpdates(membershipFile, writer);
     }
-
-    writer.close();
-
-    //
-    // Stop the Grouper session
-    //
-    grouperSession.stop();
-
-    return file;
-  }
-
-  /**
-   * Write provisioning changes to a file. No changes are made to the target directory.
-   * 
-   * @return
-   * @throws IOException
-   * @throws NamingException
-   * @throws LdappcException
-   */
-  public File dryRun() throws IOException, NamingException, LdappcException {
-
-    File file = new File(options.getOutputFileLocation());
-
-    if (!file.createNewFile()) {
-      throw new LdappcException("File '" + options.getOutputFileLocation()
-          + "' already exists.");
-    }
-
-    writer = LdapUtil.openWriter(file);
-
-    provision();
 
     writer.close();
 
