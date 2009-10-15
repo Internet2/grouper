@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.9 2009-10-09 16:18:04 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.10 2009-10-15 19:34:45 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.naming.Name;
+import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -29,6 +30,7 @@ import javax.naming.directory.SearchResult;
 
 import org.slf4j.Logger;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -73,8 +75,7 @@ public class SubjectCache {
     // Initialize the hash tables mapping between RDN and subject ID.
     // Use the estimate in the config file if present
     //
-    Map<String, Integer> estimates = ldappc.getConfig()
-        .getSourceSubjectHashEstimates();
+    Map<String, Integer> estimates = ldappc.getConfig().getSourceSubjectHashEstimates();
     for (String source : ldappc.getConfig().getSourceSubjectLdapFilters().keySet()) {
       int estimate = DEFAULT_HASH_ESTIMATE;
       if (estimates.get(source) != null) {
@@ -180,8 +181,9 @@ public class SubjectCache {
     LdapSearchFilter filter = null;
 
     if (sourceId.equals(SubjectFinder.internal_getGSA().getId())) {
-
-      Name groupDN = ldappc.calculateGroupDn(member.toGroup());
+      Group group = member.toGroup();
+      Name groupDN = ldappc.calculateGroupDn(group);
+      subjectIdentifier = group.getName(); // for logging
       filter = new LdapSearchFilter(groupDN.toString(), SearchControls.OBJECT_SCOPE,
           "(objectclass=*)");
 
@@ -199,8 +201,8 @@ public class SubjectCache {
       //
       // Get the source name attribute
       //
-      String sourceNameAttr = ldappc.getConfig().getSourceSubjectNamingAttribute(
-          sourceId);
+      String sourceNameAttr = ldappc.getConfig()
+          .getSourceSubjectNamingAttribute(sourceId);
       if (sourceNameAttr == null) {
         throw new LdappcException("Subject source [ " + sourceId
             + " ] does not identify a source subject naming attribute");
@@ -222,18 +224,19 @@ public class SubjectCache {
 
     // perform ldap search
     Name subjectDn = findSubjectDn(filter, subjectIdentifier);
-
-    // add to cache
-    subjectIdToDnTables.get(sourceId).put(subjectIdentifier, subjectDn);
-
-    LOG.debug("search found dn '{}' for sourceId '{}' subjectId '{}'", new Object[] {
-        subjectDn, sourceId, subjectIdentifier });
+    if (subjectDn != null) {
+      // add to cache
+      subjectIdToDnTables.get(sourceId).put(subjectIdentifier, subjectDn);
+      LOG.debug("search found dn '{}' for sourceId '{}' subjectId '{}'", new Object[] {
+          subjectDn, sourceId, subjectIdentifier });
+    }
 
     return subjectDn;
   }
 
   /**
    * Return the DN for the given subject identifier using the supplied filter object.
+   * Returns null if the subject cannot be found.
    * 
    * @param filter
    *          the filter appropriate for the subject's source
@@ -243,7 +246,8 @@ public class SubjectCache {
    * @throws NamingException
    *           thrown if an ldap error occurs
    * @throws LdappcException
-   *           thrown if the search does not return exactly 1 result
+   *           thrown if the search returns more than 1 object or if the object is
+   *           relative
    */
   private Name findSubjectDn(LdapSearchFilter filter, String subjectIdentifier)
       throws NamingException, LdappcException {
@@ -273,14 +277,22 @@ public class SubjectCache {
     // Perform the search
     //
     LOG.debug(msg);
-    NamingEnumeration namingEnum = ldappc.getContext().search(baseName, filterExpr,
-        filterArgs, searchControls);
+    NamingEnumeration namingEnum = null;
+    try {
+      namingEnum = ldappc.getContext().search(baseName, filterExpr, filterArgs,
+          searchControls);
+    } catch (NameNotFoundException e) {
+      LOG.warn("Subject not found using " + msg);
+      return null;
+    }
 
     //
-    // If no entries where found, throw an exception
+    // If no entries where found, throw an exception - no return null
     //
     if (!namingEnum.hasMore()) {
-      throw new LdappcException("Subject not found using " + msg);
+      // throw new LdappcException("Subject not found using " + msg);
+      LOG.warn("Subject not found using " + msg);
+      return null;
     }
 
     //
