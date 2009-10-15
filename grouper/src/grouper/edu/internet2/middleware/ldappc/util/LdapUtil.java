@@ -188,9 +188,12 @@ public final class LdapUtil {
       //
       // Remove the subcontext
       //
-      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+          || ldappc.getOptions().getWriteLdif()) {
         LdapUtil.writeLdif(ldappc.getWriter(), getLdifDelete(new LdapDN(dn)));
-      } else {
+      }
+
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
         LOG.debug("delete '{}'", dn);
         ldappc.getContext().destroySubcontext(dn);
       }
@@ -230,10 +233,13 @@ public final class LdapUtil {
       //
       prune(child, ldappc);
 
-      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+          || ldappc.getOptions().getWriteLdif()) {
         LdapUtil.writeLdif(ldappc.getWriter(),
             getLdifDelete(new LdapDN(binding.getName())));
-      } else {
+      }
+
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
         LOG.debug("delete '{}'", binding.getName());
         context.unbind(binding.getName());
       }

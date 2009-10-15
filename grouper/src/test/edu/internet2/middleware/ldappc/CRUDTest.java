@@ -97,6 +97,24 @@ public class CRUDTest extends BaseLdappcTestCase {
     verifyLdif("CRUDTest.testCreateBushyDryRun.ldif", file);
   }
 
+  public void testCreateBushyWriteLdif() throws Exception {
+
+    File tmpFile = File.createTempFile("ldappcTestCreateBushyWriteLdif", null);
+    String tmpPath = tmpFile.getAbsolutePath();
+    tmpFile.delete();
+
+    ldappc.getOptions().setWriteLdif(true);
+    ldappc.getOptions().setOutputFileLocation(tmpPath);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File file = provision(GroupDNStructure.bushy);
+
+    verify("CRUDTest.testCreateBushy.after.ldif");
+
+    verifyLdif("CRUDTest.testCreateBushyWriteLdif.ldif", file);
+  }
+
   public void testCreateFlat() throws Exception {
 
     loadLdif("CRUDTest.before.ldif");
@@ -164,11 +182,11 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     verify("CRUDTest.testCreateSubgroupPhasingFlat.after.ldif");
   }
-  
+
   public void testCreateSubgroupPhasingFlatOneStep() throws Exception {
 
     ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
-    
+
     loadLdif("CRUDTest.before.ldif");
 
     groupA.addMember(groupB.toSubject());

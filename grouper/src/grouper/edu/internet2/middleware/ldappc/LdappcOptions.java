@@ -84,6 +84,11 @@ public class LdappcOptions {
   private String outputFileLocation = "ldappc.ldif";
 
   /**
+   * While provisioning, write changes as ldif to file.
+   */
+  private boolean writeLdif = false;
+
+  /**
    * Modes of operation.
    */
   public enum ProvisioningMode {
@@ -140,7 +145,10 @@ public class LdappcOptions {
       "Calculate provisioning and write to file.");
 
   private Option dryRunOption = new Option("n", "dry-run", true,
-      "Write provisioning changes to file.");
+      "Do not perform provisioning, just write changes to file.");
+
+  private Option writeLdifOption = new Option("w", "writeLdif", true,
+      "While provisioning, also write changes to file.");
 
   public LdappcOptions() {
 
@@ -163,11 +171,14 @@ public class LdappcOptions {
     propertiesFileOption.setArgName("path");
     options.addOption(propertiesFileOption);
 
+    writeLdifOption.setArgName("file");
+    options.addOption(writeLdifOption);
+
     OptionGroup modeOptionGroup = new OptionGroup();
     calculateOption.setArgName("file");
     modeOptionGroup.addOption(calculateOption);
-    modeOptionGroup.addOption(dryRunOption);
     dryRunOption.setArgName("file");
+    modeOptionGroup.addOption(dryRunOption);
     options.addOptionGroup(modeOptionGroup);
   }
 
@@ -266,6 +277,11 @@ public class LdappcOptions {
     if (line.hasOption(dryRunOption.getOpt())) {
       this.setOutputFileLocation(line.getOptionValue(dryRunOption.getOpt()));
       this.setMode(ProvisioningMode.DRYRUN);
+    }
+
+    if (line.hasOption(writeLdifOption.getOpt())) {
+      this.setOutputFileLocation(line.getOptionValue(writeLdifOption.getOpt()));
+      this.setWriteLdif(true);
     }
   }
 
@@ -400,5 +416,20 @@ public class LdappcOptions {
 
   public void setPropertiesFileLocation(String propertiesFileLocation) {
     this.propertiesFileLocation = propertiesFileLocation;
+  }
+
+  protected void setWriteLdif(boolean writeLdif) {
+    this.writeLdif = writeLdif;
+  }
+
+  /**
+   * This returns a boolean indicating whether or not to write changes to a file while
+   * provisioning.
+   * 
+   * @return <code>true</code> if the file should be written or <code>false</code>
+   *         otherwise.
+   */
+  public boolean getWriteLdif() {
+    return writeLdif;
   }
 }
