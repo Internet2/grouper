@@ -366,4 +366,14 @@ public interface LdappcConfig {
    * @return true if member groups should be provisioned as members.
    */
   public boolean getProvisionMemberGroups();
+
+  /**
+   * Returns true if groups should be provisioned in two steps. The first step provisions
+   * all groups without any members. The second step provisions all groups with members.
+   * If false, LDAPPC will log errors when provisioning groups which have other groups as
+   * members which have not been provisioned yet.
+   * 
+   * @return
+   */
+  public boolean getProvisionGroupsTwoStep();
 }

@@ -1,0 +1,17 @@
+dn: cn=groupA,ou=edu,ou=testgroups,dc=testgrouper,dc=edu
+changetype: modify
+add: member
+member: 
+-
+delete: member
+member: cn=test.subject.0,ou=testpeople,dc=testgrouper,dc=edu
+-
+delete: hasmember
+hasmember: name.test.subject.0
+-
+
+dn: cn=test.subject.0,ou=testpeople,dc=testgrouper,dc=edu
+changetype: modify
+delete: ismemberof
+ismemberof: edu:groupA
+-

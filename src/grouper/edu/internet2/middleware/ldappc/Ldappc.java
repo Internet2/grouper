@@ -344,7 +344,7 @@ public final class Ldappc extends TimerTask {
 
     BufferedWriter writer = LdapUtil.openWriter(file);
 
-    GroupEntrySynchronizer synchronizer = new GroupEntrySynchronizer(this);
+    GroupEntrySynchronizer synchronizer = new GroupEntrySynchronizer(this, true);
 
     //
     // Find the set of Groups to be provisioned
@@ -414,6 +414,11 @@ public final class Ldappc extends TimerTask {
     provision();
 
     writer.close();
+
+    //
+    // Stop the Grouper session
+    //
+    grouperSession.stop();
 
     return file;
   }
@@ -487,8 +492,16 @@ public final class Ldappc extends TimerTask {
     //
     // Synchronize the root
     //
-    GroupEntrySynchronizer synchronizer = new GroupEntrySynchronizer(this);
-    synchronizer.synchronize(groups);
+    if (getConfig().getProvisionGroupsTwoStep()) {
+      GroupEntrySynchronizer synchronizerWithoutMemberDns = new GroupEntrySynchronizer(
+          this, false);
+      synchronizerWithoutMemberDns.synchronize(groups);
+    }
+
+    GroupEntrySynchronizer synchronizerWithMemberDns = new GroupEntrySynchronizer(this,
+        true);
+    synchronizerWithMemberDns.synchronize(groups);
+
   }
 
   /**

@@ -148,7 +148,7 @@ public class LdappcTestHelper {
       Set<String> attributeIds = new HashSet<String>();
 
       if (!ldifEntry.isEntry()) {
-        LOG.debug("Unable to parse LdifEntry as an Entry {}", ldifEntry);
+        LOG.trace("Unable to parse LdifEntry as an Entry {}", ldifEntry);
         return null;
       }
       Entry entry = ldifEntry.getEntry();
