@@ -205,6 +205,10 @@ public class BaseLdappcTestCase extends GrouperTest {
 
     ConfigManager configuration = new ConfigManager(pathToConfig, pathToProperties);
 
+    if (useEmbedded()) {
+      configuration.setBundleModifications(false);
+    }
+
     ldappc = new Ldappc(options, configuration, ldapContext);
   }
 

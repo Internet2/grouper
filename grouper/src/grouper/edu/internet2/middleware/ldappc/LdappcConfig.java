@@ -373,7 +373,16 @@ public interface LdappcConfig {
    * If false, LDAPPC will log errors when provisioning groups which have other groups as
    * members which have not been provisioned yet.
    * 
-   * @return
+   * @return true if groups should be provisioned in two steps.
    */
   public boolean getProvisionGroupsTwoStep();
+
+  /**
+   * Returns true if a group's attribute modifications should be performed in one LDAP
+   * operation. If false, each group attribute modification is performed as a separate
+   * LDAP operation.
+   * 
+   * @return true if attribute modifications should be bundled
+   */
+  public boolean getBundleModifications();
 }

@@ -485,13 +485,28 @@ public class GroupEntrySynchronizer {
 
       if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
           || ldappc.getOptions().getWriteLdif()) {
-        LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(
-            new LdapDN(groupDn), modificationItems));
+        if (ldappc.getConfig().getBundleModifications()) {
+          LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(new LdapDN(
+              groupDn), modificationItems));
+        } else {
+          for (ModificationItem modificationItem : modificationItems) {
+            LdapUtil.writeLdif(ldappc.getWriter(), LdapUtil.getLdifModify(new LdapDN(
+                groupDn), new ModificationItem[] { modificationItem }));
+          }
+        }
       }
 
       if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
-        LOG.info("Modify '" + groupDn + "' " + Arrays.asList(modificationItems));
-        ldappc.getContext().modifyAttributes(groupDn, modificationItems);
+        if (ldappc.getConfig().getBundleModifications()) {
+          LOG.info("Modify '" + groupDn + "' " + Arrays.asList(modificationItems));
+          ldappc.getContext().modifyAttributes(groupDn, modificationItems);
+        } else {
+          for (ModificationItem modificationItem : modificationItems) {
+            ModificationItem[] unbundledMod = new ModificationItem[] { modificationItem };
+            LOG.info("Modify '" + groupDn + "' " + Arrays.asList(unbundledMod));
+            ldappc.getContext().modifyAttributes(groupDn, unbundledMod);
+          }
+        }
       }
     }
   }
@@ -835,11 +850,11 @@ public class GroupEntrySynchronizer {
       // value (is required), then provision that empty value
       if (ldappc.getConfig().isGroupMembersDnListed()
           && ldappc.getConfig().getGroupMembersDnListEmptyValue() != null) {
-        memberDnMods = new DnAttributeModifier(ldappc.getConfig()
-            .getGroupMembersDnListAttribute(), ldappc.getConfig()
+        AttributeModifier memberDnModsEmptyValue = new DnAttributeModifier(ldappc
+            .getConfig().getGroupMembersDnListAttribute(), ldappc.getConfig()
             .getGroupMembersDnListEmptyValue());
-        memberDnMods.store(memberDnMods.getNoValue());
-        memberModifiers.add(memberDnMods);
+        memberDnModsEmptyValue.store(memberDnModsEmptyValue.getNoValue());
+        memberModifiers.add(memberDnModsEmptyValue);
       }
     }
 
@@ -857,11 +872,11 @@ public class GroupEntrySynchronizer {
       // empty value (is required), then provision that empty value
       if (ldappc.getConfig().isGroupMembersNameListed()
           && ldappc.getConfig().getGroupMembersNameListEmptyValue() != null) {
-        memberNameMods = new AttributeModifier(ldappc.getConfig()
-            .getGroupMembersNameListAttribute(), ldappc.getConfig()
+        AttributeModifier memberNameModsEmptyValue = new AttributeModifier(ldappc
+            .getConfig().getGroupMembersNameListAttribute(), ldappc.getConfig()
             .getGroupMembersNameListEmptyValue());
-        memberDnMods.store(memberNameMods.getNoValue());
-        memberModifiers.add(memberNameMods);
+        memberNameModsEmptyValue.store(memberNameModsEmptyValue.getNoValue());
+        memberModifiers.add(memberNameModsEmptyValue);
       }
     }
 

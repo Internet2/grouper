@@ -275,10 +275,15 @@ public class ConfigManager implements LdappcConfig {
   private boolean provisionMemberGroups = true;
 
   /**
-   * Boolean indication if groups should be provisioned in two steps, first all groups
+   * Boolean indicating if groups should be provisioned in two steps, first all groups
    * without members, and second all groups with members.
    */
   private boolean provisionGroupsTwoStep = true;
+
+  /**
+   * Boolean indicating if a group's attribute modifications should be bundled.
+   */
+  private boolean bundleModifications = true;
 
   public ConfigManager() throws ConfigurationException {
 
@@ -443,6 +448,9 @@ public class ConfigManager implements LdappcConfig {
 
     digester.addCallMethod(elementPath, "setProvisionGroupsTwoStep", 1);
     digester.addCallParam(elementPath, 0, "provision-groups-two-step");
+
+    digester.addCallMethod(elementPath, "setBundleModifications", 1);
+    digester.addCallParam(elementPath, 0, "bundle-modifications");
 
     // Save the Member Group Listing parameters
     elementPath = "ldappc/grouper/memberships/member-groups-list";
@@ -1677,6 +1685,23 @@ public class ConfigManager implements LdappcConfig {
     this.provisionGroupsTwoStep = provisionGroupsTwoStep;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see edu.internet2.middleware.ldappc.LdappcConfig#getBundleModifications()
+   */
+  public boolean getBundleModifications() {
+    return bundleModifications;
+  }
+
+  private void setBundleModifications(String string) {
+    this.bundleModifications = Boolean.parseBoolean(string);
+  }
+
+  protected void setBundleModifications(Boolean bundleModifications) {
+    this.bundleModifications = bundleModifications;
+  }
+
   /**
    * This is class allows the Digester processing the configuration file access to all the
    * necessary methods, regardless of visibility, for setting values in the ConfigManager
@@ -2119,6 +2144,10 @@ public class ConfigManager implements LdappcConfig {
 
     public void setProvisionGroupsTwoStep(String string) {
       ConfigManager.this.setProvisionGroupsTwoStep(string);
+    }
+
+    public void setBundleModifications(String string) {
+      ConfigManager.this.setBundleModifications(string);
     }
   }
 
