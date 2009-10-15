@@ -233,10 +233,15 @@ public class GroupEntrySynchronizer {
       }
 
       //
-      // Initialize the instance variable
+      // If provisioning member dns, memberNameMods will not be null
       //
-      memberNameMods = new AttributeModifier(attrName, ldappc.getConfig()
-          .getGroupMembersNameListEmptyValue());
+      if (provisionMemberDns) {
+        //
+        // Build the member name list attribute modifier
+        //
+        memberNameMods = new AttributeModifier(attrName, ldappc.getConfig()
+            .getGroupMembersNameListEmptyValue());
+      }
     }
 
     //
@@ -442,7 +447,7 @@ public class GroupEntrySynchronizer {
       // If no members could be resolved, then provision the noValue value if appropriate
       //
       if (memberNameMods.getRetainedValues().size() == 0
-          && memberNameMods.getNoValue() != null) {
+          && memberNameMods.getAdds().size() == 0 && memberNameMods.getNoValue() != null) {
         memberNameMods.store(memberNameMods.getNoValue());
       }
       modifiers.add(memberNameMods);
@@ -847,6 +852,17 @@ public class GroupEntrySynchronizer {
         memberNameMods.store(memberNameMods.getNoValue());
       }
       memberModifiers.add(memberNameMods);
+    } else {
+      // If we are not provisioning member names, but the provisioned attribute has an
+      // empty value (is required), then provision that empty value
+      if (ldappc.getConfig().isGroupMembersNameListed()
+          && ldappc.getConfig().getGroupMembersNameListEmptyValue() != null) {
+        memberNameMods = new AttributeModifier(ldappc.getConfig()
+            .getGroupMembersNameListAttribute(), ldappc.getConfig()
+            .getGroupMembersNameListEmptyValue());
+        memberDnMods.store(memberNameMods.getNoValue());
+        memberModifiers.add(memberNameMods);
+      }
     }
 
     //
