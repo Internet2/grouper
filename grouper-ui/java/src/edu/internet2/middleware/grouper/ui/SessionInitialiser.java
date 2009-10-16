@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.ui.util.MembershipImportManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.23 2009-09-08 02:29:01 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.24 2009-10-16 08:06:26 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -377,7 +377,8 @@ public class SessionInitialiser {
 				}
 			}
 		}
-		if((debuggers==null && attemptedDebuggers) || (debuggers !=null &&!debuggers.hasMember(getGrouperSession(session).getSubject()))) {
+		GrouperSession gs = getGrouperSession(session);
+		if(gs==null || (debuggers==null && attemptedDebuggers) || (debuggers !=null &&!debuggers.hasMember(gs.getSubject()))) {
 			session.setAttribute("debugMessage", "debug.error.not-allowed");
 			return;
 		}
