@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperRequestWrapper.java,v 1.3 2009-10-11 22:04:17 mchyzer Exp $
+ * $Id: GrouperRequestWrapper.java,v 1.4 2009-10-16 10:30:07 isgwb Exp $
  */
 package edu.internet2.middleware.grouper.j2ee;
 
@@ -337,7 +337,8 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
     }
   
     //not expecting
-    throw new RuntimeException("Not expecting type: " + name + ", " + objectSubmitted.getClass());
+    //throw new RuntimeException("Not expecting type: " + name + ", " + objectSubmitted.getClass());
+    return super.getParameterValues(name);
   }
 
   /**

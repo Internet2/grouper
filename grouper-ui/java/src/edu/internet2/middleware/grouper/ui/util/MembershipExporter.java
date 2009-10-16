@@ -17,6 +17,7 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.util;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -116,15 +117,15 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipExporter.java,v 1.6 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: MembershipExporter.java,v 1.7 2009-10-16 10:30:08 isgwb Exp $
  */
 
-public class MembershipExporter {
+public class MembershipExporter implements Serializable{
 	private boolean active=false;
 	//MCH 20090811 XXX THIS IS NOT SERIALIZABLE, SHOULDNT BE IN SESSION!!!!
-	private Document configXml;
-	private Map formatCache = new HashMap();
-	private Map fieldsCache = new HashMap();
+	private transient Document configXml;
+	private transient Map formatCache = new HashMap();
+	private transient Map fieldsCache = new HashMap();
 	private String separator=",";
 	private String contextType=null;
 	private boolean quote=false;
@@ -152,6 +153,10 @@ public class MembershipExporter {
 	}
 	
 	private void init() throws Exception{
+		if(configXml!=null) {
+			return;
+		}
+		
 		String configResource = null;
 		try {
 			configResource=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("membership-export.config");
@@ -167,8 +172,9 @@ public class MembershipExporter {
 		return active;
 	}
 	
-	public List getAvailableFormats() {
+	public List getAvailableFormats() throws Exception{
 		List res = new ArrayList();
+		init();
 		NodeList nl = configXml.getElementsByTagName("format");
 		Element el =null;
 		for (int i=0; i<nl.getLength();i++) {
@@ -179,11 +185,12 @@ public class MembershipExporter {
 		return res;
 	}
 	
-	public int getNumberOfAvailableFormats() {
+	public int getNumberOfAvailableFormats() throws Exception{
 		return getAvailableFormats().size();
 	}
 	
-	public void export(String name,Collection subjects,PrintWriter writer) throws IOException {
+	public void export(String name,Collection subjects,PrintWriter writer) throws Exception,IOException {
+		init();
 		if(getFormat(name)==null) throw new IllegalArgumentException(name  +" is not a valid format");
 		String sep = getFormat(name).getAttribute("separator");
 		quote=Boolean.parseBoolean(getFormat(name).getAttribute("quote"));
@@ -217,7 +224,7 @@ public class MembershipExporter {
 		return;
 	}
 	
-	private void printHeader(PrintWriter writer,String name,String sep) throws IOException {
+	private void printHeader(PrintWriter writer,String name,String sep) throws Exception,IOException {
 		List headers = getHeaders(name);
 		for(int i=0;i<headers.size();i++) {
 			if(i>0) writer.print(sep);
@@ -228,7 +235,7 @@ public class MembershipExporter {
 		if(!headers.isEmpty()) writer.print("\n");
 	}
 	
-	private void printSubject(PrintWriter writer,String name,Subject subject,String sep) throws IOException {
+	private void printSubject(PrintWriter writer,String name,Subject subject,String sep) throws Exception,IOException {
 		List fields = getFields(name,subject);
 		if(fields==null) return;
 		Element field;
@@ -267,11 +274,12 @@ public class MembershipExporter {
 		writer.print("\n");
 	}
 	
-	private Element getFormat(String name) {
+	private Element getFormat(String name) throws Exception{
+		init();
 		return (Element)formatCache.get(name);
 	}
 	
-	private List getFields(String format,Subject subject) {
+	private List getFields(String format,Subject subject) throws Exception{
 		String lookup = format + ":" + subject.getSource().getId();
 		if("".equals(fieldsCache.get(lookup))) return null;
 		List fields = (List)fieldsCache.get(lookup);
@@ -304,7 +312,7 @@ public class MembershipExporter {
 		return fields;
 	}
 	
-	private List getHeaders(String format) {
+	private List getHeaders(String format) throws Exception{
 		List headers=new ArrayList();
 		Element fe = getFormat(format);
 		NodeList nl = fe.getElementsByTagName("header");
@@ -316,13 +324,13 @@ public class MembershipExporter {
 		return headers;
 	}
 	
-	public String getContentType(String format) {
+	public String getContentType(String format) throws Exception{
 		String ct = getFormat(format).getAttribute("content-type");
 		if("".equals(ct)) ct=null;
 		return ct;
 	}
 	
-	public String getExtension(String format) {
+	public String getExtension(String format) throws Exception{
 		String ext = getFormat(format).getAttribute("extension");
 		if("".equals(ext)) ext=null;
 		return ext;

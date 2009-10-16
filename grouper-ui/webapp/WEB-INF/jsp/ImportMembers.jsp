@@ -2,8 +2,10 @@
 			Imports data from uploaded file and displays output
 --%><%--
   @author Gary Brown.
-  @version $Id: ImportMembers.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
---%><%@include file="/WEB-INF/jsp/include.jsp"%><c:choose>
+  @version $Id: ImportMembers.jsp,v 1.7 2009-10-16 10:30:07 isgwb Exp $
+--%><%@include file="/WEB-INF/jsp/include.jsp"%>
+<%@page import="edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper"%>
+<%@page import="org.apache.commons.fileupload.FileItem"%><c:choose>
 	<c:when test="${canWriteField}"><%importMembers(request,response);%>
 		<c:if test="${mediaMap['membership-import.allow-textarea']=='true'}">
 			<html:form  action="/populateGroupMembers" enctype="multipart/form-data">
@@ -60,22 +62,29 @@
 			String format=(String)request.getSession().getAttribute("importFormat");
 			java.io.PrintWriter output = response.getWriter();
 			output.println("<pre>\n");
-			org.apache.struts.action.DynaActionForm form = (org.apache.struts.action.DynaActionForm) request.getAttribute("groupForm");
-			org.apache.struts.upload.FormFile inputFile = (org.apache.struts.upload.FormFile)form.get("importData");
-			java.io.Reader input =null;
-			if(inputFile!=null) {
-				 
-				 input = new java.io.InputStreamReader(inputFile.getInputStream());
-			}else if(form.get("importString")!=null){
 			
-				input = new java.io.StringReader((String)form.get("importString"));
-			}else{
-				res=-1;
+			if(request instanceof GrouperRequestWrapper) {
+				GrouperRequestWrapper grouperRequest = (GrouperRequestWrapper) request;
+				FileItem fileItem = grouperRequest.getParameterFileItem("importData");
+				java.io.Reader input =null;
+				if(fileItem!=null) {
+					 
+					 input = new java.io.InputStreamReader(fileItem.getInputStream());
+				}else if(request.getParameter("importString")!=null){
+				
+					input = new java.io.StringReader(request.getParameter("importString"));
+				}else{
+					res=-1;
+				}
+				if(input !=null) {
+					edu.internet2.middleware.grouper.ui.util.MembershipImportManager importer = (edu.internet2.middleware.grouper.ui.util.MembershipImportManager)request.getSession().getAttribute("MembershipImportManager");
+					res=importer.load(format,group, input, output,field);
+				}
+				
 			}
-			if(input !=null) {
-				edu.internet2.middleware.grouper.ui.util.MembershipImportManager importer = (edu.internet2.middleware.grouper.ui.util.MembershipImportManager)request.getSession().getAttribute("MembershipImportManager");
-				res=importer.load(format,group, input, output,field);
-			}
+			
+
+			
 				output.println("</pre>\n");
 			output.flush();
 			return;

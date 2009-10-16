@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ui.util;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,13 +60,13 @@ which case it will be used as a default.</p>
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipImportManager.java,v 1.5 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: MembershipImportManager.java,v 1.6 2009-10-16 10:30:08 isgwb Exp $
  */
-public class MembershipImportManager {
+public class MembershipImportManager implements Serializable{
 	private boolean active=false;
 	//MCH 20090811 XXX take this out of session it is not serializable
-	private Document configXml;
-	private Map formatCache = new HashMap();
+	private transient Document configXml;
+	private transient Map formatCache = new HashMap();
 
 	
 	/**
@@ -80,6 +81,9 @@ public class MembershipImportManager {
 	}
 	
 	private void init() throws Exception{
+		if(configXml != null) {
+			return;
+		}
 		String configResource = null;
 		try {
 			configResource=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("membership-import.config");
@@ -106,8 +110,9 @@ public class MembershipImportManager {
 	 * Returns the configured import formats
 	 * @return list of import format names
 	 */
-	public List getAvailableFormats() {
+	public List getAvailableFormats() throws Exception{
 		List res = new ArrayList();
+		init();
 		NodeList nl = configXml.getElementsByTagName("format");
 		Element el =null;
 		for (int i=0; i<nl.getLength();i++) {
@@ -130,7 +135,8 @@ public class MembershipImportManager {
 	 * @throws IOException
 	 * @throws SchemaException
 	 */
-	public int load(String format,Group group, Reader input, PrintWriter output,Field field) throws IOException,SchemaException{
+	public int load(String format,Group group, Reader input, PrintWriter output,Field field) throws Exception,IOException,SchemaException{
+		init();
 		MembershipImporter importer=null;
 		Element fe = getFormat(format);
 		try {
@@ -141,7 +147,8 @@ public class MembershipImportManager {
 		return importer.load(group,input,output,fe,field);
 	}
 	
-	private Element getFormat(String name) {
+	private Element getFormat(String name) throws Exception{
+		init();
 		return (Element)formatCache.get(name);
 	}
 
