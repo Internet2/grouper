@@ -15,7 +15,9 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +50,10 @@ import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.PSPUtil;
+import edu.internet2.middleware.shibboleth.common.attribute.AttributeRequestException;
+import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
+import edu.internet2.middleware.shibboleth.common.profile.provider.BaseSAMLProfileRequestContext;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -261,6 +267,28 @@ public class GroupEntrySynchronizer {
         if (mappedLdapAttributes.get(ldapAttr) == null) {
           String emptyValue = ldappc.getConfig().getGroupAttributeMappingLdapEmptyValue(
               ldapAttr);
+          mappedLdapAttributes.put(ldapAttr, new AttributeModifier(ldapAttr, emptyValue));
+        }
+      }
+    }
+
+    //
+    // Build attribute modifiers for the grouper to ldap attribute mapping
+    //
+    Map<String, List<String>> resolverMap = ldappc.getConfig()
+        .getAttributeResolverMapping();
+    for (String resolverAttr : resolverMap.keySet()) {
+      //
+      // Get the next key (i.e., resolver attribute name) and the
+      // corresponding value (i.e., ldap attribute name)
+      for (String ldapAttr : resolverMap.get(resolverAttr)) {
+        //
+        // If the ldapAttr is not yet defined in mappedLdapAttributes
+        // with a modifier, add it
+        //
+        if (mappedLdapAttributes.get(ldapAttr) == null) {
+          String emptyValue = ldappc.getConfig()
+              .getAttributeResolverMappingLdapEmptyValue(ldapAttr);
           mappedLdapAttributes.put(ldapAttr, new AttributeModifier(ldapAttr, emptyValue));
         }
       }
@@ -753,6 +781,80 @@ public class GroupEntrySynchronizer {
         else if (attributeModifier.getNoValue() != null) {
           attributeModifier.store(attributeModifier.getNoValue());
         }
+      }
+    }
+
+    //
+    // Populate mapped attributes from the AttributeResolver
+    //
+    Map<String, List<String>> resolverMap = ldappc.getConfig()
+        .getAttributeResolverMapping();
+    if (!resolverMap.isEmpty()) {
+      try {
+        BaseSAMLProfileRequestContext attributeRequestContext = new BaseSAMLProfileRequestContext();
+        attributeRequestContext.setPrincipalName(group.getName());
+        Map<String, BaseAttribute> attributes = ldappc.getAttributeAuthority()
+            .getAttributes(attributeRequestContext);
+
+        if (LOG.isDebugEnabled()) {
+          for (String key : attributes.keySet()) {
+            for (Object value : attributes.get(key).getValues()) {
+              LOG.debug("resolver returned '{}' : {}", key, PSPUtil.getString(value));
+            }
+          }
+        }
+
+        for (String resolverAttribute : resolverMap.keySet()) {
+          //
+          // Get the attribute value from the resolver
+          //
+          BaseAttribute baseAttribute = attributes.get(resolverAttribute);
+          if (baseAttribute == null) {
+            LOG.warn("No attribute was returned from the resolver for '{}'",
+                resolverAttribute);
+            continue;
+          }
+          Collection<?> resolverAttributeValues = baseAttribute.getValues();
+
+          //
+          // Only storing non-empty string attributes (i.e., length > 0)
+          //
+          List<String> stringResolverAttributeValues = new ArrayList<String>();
+          for (Object resolverAttributeValue : resolverAttributeValues) {
+            if (resolverAttributeValue != null
+                && resolverAttributeValue instanceof String
+                && (((String) resolverAttributeValue).length()) > 0) {
+              stringResolverAttributeValues.add(resolverAttributeValue.toString());
+            }
+          }
+
+          //
+          // Get the next key (i.e., resolver attribute name) and the
+          // corresponding value (i.e., ldap attribute name)
+          for (String ldapAttr : resolverMap.get(resolverAttribute)) {
+            //
+            // If the group has this attribute populated, store it
+            //
+            Attribute attribute = mappedLdapAttributes.get(ldapAttr);
+            AttributeModifier attributeModifier = (AttributeModifier) attribute.get();
+
+            //
+            // Store noValue value if there are no values and noValue is defined
+            //
+            if (stringResolverAttributeValues.isEmpty()
+                && attributeModifier.getNoValue() != null) {
+              attributeModifier.store(attributeModifier.getNoValue());
+            } else {
+              for (String stringResolverAttributeValue : stringResolverAttributeValues) {
+                attributeModifier.store(stringResolverAttributeValue);
+              }
+            }
+          }
+        }
+
+      } catch (AttributeRequestException e) {
+        LOG.error("Unable to resolve attributes : " + e.getMessage(), e);
+        throw new LdappcException("Unable to resolve attributes", e);
       }
     }
   }

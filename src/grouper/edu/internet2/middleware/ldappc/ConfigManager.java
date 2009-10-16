@@ -285,6 +285,24 @@ public class ConfigManager implements LdappcConfig {
    */
   private boolean bundleModifications = true;
 
+  /**
+   * Object class a Group entry must have to support the AttributeResolver attribute to
+   * LDAP attribute mapping.
+   */
+  private String attributeResolverMappingObjectClass;
+
+  /**
+   * AttributeResolver attribute name to LDAP attribute name mapping.
+   */
+  private Map<String, List<String>> attributeResolverMapping = new HashMap<String, List<String>>();
+
+  /**
+   * Associated empty values for the ldap attributes defined in the AttributeResolver
+   * attribute mapping key = ldap attribute in upper case, value = empty value (Must be a
+   * HashMap to allow null values).
+   */
+  private Map attributeResolverMappingLdapEmptyValues = new HashMap();
+
   public ConfigManager() throws ConfigurationException {
 
     this(null);
@@ -515,6 +533,21 @@ public class ConfigManager implements LdappcConfig {
 
     elementPath = "ldappc/grouper/groups/group-attribute-mapping/group-attribute-map";
     digester.addCallMethod(elementPath, "addGroupAttributeMappingLdapEmptyValue", 2);
+    digester.addCallParam(elementPath, 0, "ldap-attribute");
+    digester.addCallParam(elementPath, 1, "ldap-attribute-empty-value");
+
+    // Save the Attribute Resolver Mapping parameters
+    elementPath = "ldappc/grouper/groups/attribute-resolver-mapping";
+    digester.addCallMethod(elementPath, "setAttributeResolverMappingObjectClass", 1);
+    digester.addCallParam(elementPath, 0, "ldap-object-class");
+
+    elementPath = "ldappc/grouper/groups/attribute-resolver-mapping/attribute-resolver-map";
+    digester.addCallMethod(elementPath, "addAttributeResolverMapping", 2);
+    digester.addCallParam(elementPath, 0, "resolver-attribute");
+    digester.addCallParam(elementPath, 1, "ldap-attribute");
+
+    elementPath = "ldappc/grouper/groups/attribute-resolver-mapping/attribute-resolver-map";
+    digester.addCallMethod(elementPath, "addAttributeResolverMappingLdapEmptyValue", 2);
     digester.addCallParam(elementPath, 0, "ldap-attribute");
     digester.addCallParam(elementPath, 1, "ldap-attribute-empty-value");
 
@@ -1703,6 +1736,88 @@ public class ConfigManager implements LdappcConfig {
   }
 
   /**
+   * This method returns a possibly empty {@link java.util.Map} of the AttributeResolver
+   * attribute name to LDAP attribute name mapping.
+   * 
+   * @return Map of Group attribute names to LDAP attribute names.
+   */
+  public Map<String, List<String>> getAttributeResolverMapping() {
+    //
+    // Return a copy to prevent the original from being
+    // unexpectedly changed
+    //
+    return new Hashtable(this.attributeResolverMapping);
+  }
+
+  /**
+   * This method adds a AttributeResolver attribute name and LDAP attribute name pair to
+   * the Group attribute map.
+   * 
+   * @param resolverAttribute
+   *          AttributeResolver attribute name
+   * @param ldapAttribute
+   *          LDAP attribute name
+   */
+  private void addAttributeResolverMapping(String resolverAttribute, String ldapAttribute) {
+    if (!attributeResolverMapping.containsKey(resolverAttribute)) {
+      attributeResolverMapping.put(resolverAttribute, new ArrayList<String>());
+    }
+    attributeResolverMapping.get(resolverAttribute).add(ldapAttribute);
+  }
+
+  /**
+   * This gets the value to store in the ldap attribute if there are no AttributeResolver
+   * attribute values to store there.
+   * 
+   * @param ldapAttribute
+   *          Name of the Ldap Attribute
+   * @return String to place in the ldap attribute if no AttributeResolver attribute
+   *         values are found to store there, or <code>null</code> if not defined.
+   */
+  public String getAttributeResolverMappingLdapEmptyValue(String ldapAttribute) {
+    return (String) attributeResolverMappingLdapEmptyValues
+        .get(convertToUpperCase(ldapAttribute));
+  }
+
+  /**
+   * This method adds an LDAP attribute name and empty value pair to the AttributeResolver
+   * attribute mapping ldap empty value map.
+   * 
+   * @param ldapAttribute
+   *          LDAP attribute name
+   * @param value
+   *          String value or <code>null</code> if no empty value is desired
+   */
+  private void addAttributeResolverMappingLdapEmptyValue(String ldapAttribute,
+      String value) {
+    attributeResolverMappingLdapEmptyValues.put(convertToUpperCase(ldapAttribute), value);
+  }
+
+  /**
+   * This sets objectclass that a Group entry must have in order to support the
+   * AttributeResolver attribute to LDAP attribute.
+   * 
+   * @param objectClass
+   *          Object class to support the AttributeResolver attribute to LDAP attribute
+   *          map
+   */
+  public String getAttributeResolverMappingObjectClass() {
+    return attributeResolverMappingObjectClass;
+  }
+
+  /**
+   * This sets objectclass that a Group entry must have in order to support the
+   * AttributeResolver attribute to LDAP attribute.
+   * 
+   * @param objectClass
+   *          Object class to support the AttributeResolver attribute to LDAP attribute
+   *          map
+   */
+  private void setAttributeResolverMappingObjectClass(String objectClass) {
+    this.attributeResolverMappingObjectClass = objectClass;
+  }
+
+  /**
    * This is class allows the Digester processing the configuration file access to all the
    * necessary methods, regardless of visibility, for setting values in the ConfigManager
    * instance. This class is not intended to be used outside of ConfigManager.
@@ -2148,6 +2263,51 @@ public class ConfigManager implements LdappcConfig {
 
     public void setBundleModifications(String string) {
       ConfigManager.this.setBundleModifications(string);
+    }
+
+    /**
+     * Adds the AttributeResolver attribute mapping.
+     * 
+     * @param resolverAttribute
+     *          the resolver attribute
+     * @param ldapAttribute
+     *          the value to provision
+     * 
+     *          Calls {@link ConfigManager#addAttributeResolverMapping(String, String)}.
+     */
+    public void addAttributeResolverMapping(String resolverAttribute, String ldapAttribute) {
+      ConfigManager.this.addAttributeResolverMapping(resolverAttribute, ldapAttribute);
+    }
+
+    /**
+     * Adds the AttributeResolver attribute mapping LDAP empty value.
+     * 
+     * @param ldapAttribute
+     *          the LDAP attribute
+     * @param value
+     *          the value to provision
+     * 
+     *          Calls
+     *          {@link ConfigManager#addAttributeResolverMappingLdapEmptyValue(String,String)}
+     *          .
+     */
+    public void addAttributeResolverMappingLdapEmptyValue(String ldapAttribute,
+        String value) {
+      ConfigManager.this.addAttributeResolverMappingLdapEmptyValue(ldapAttribute, value);
+    }
+
+    /**
+     * Sets the AttributeResolver attribute mapping object class.
+     * 
+     * @param objectClass
+     *          the object class
+     * 
+     *          Calls {@link ConfigManager#setAttributeResolverMappingObjectClass(String)}
+     *          .
+     * 
+     */
+    public void setAttributeResolverMappingObjectClass(String objectClass) {
+      ConfigManager.this.setAttributeResolverMappingObjectClass(objectClass);
     }
   }
 

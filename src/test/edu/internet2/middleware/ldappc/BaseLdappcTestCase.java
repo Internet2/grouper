@@ -200,6 +200,10 @@ public class BaseLdappcTestCase extends GrouperTest {
     }
     options.setIsTest(true);
 
+    File file = GrouperUtil.fileFromResourceName(TEST_PATH
+        + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL);
+    options.setAttributeResolverLocation(file.getParent());
+
     options.setConfigManagerLocation(pathToConfig);
     options.setPropertiesFileLocation(pathToProperties);
 

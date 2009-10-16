@@ -9,8 +9,8 @@ changetype: add
 objectclass: top
 objectclass: group
 cn: groupA
+sAMAccountName: edu_groupA
 member: cn=test.subject.0,ou=testpeople,${base}
-hasmember: name.test.subject.0
 
 dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: add
@@ -18,4 +18,5 @@ objectclass: top
 objectclass: group
 cn: groupB
 description: descriptionB
+sAMAccountName: edu_groupB
 member: cn=test.subject.1,ou=testpeople,${base}

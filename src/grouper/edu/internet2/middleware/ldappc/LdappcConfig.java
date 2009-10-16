@@ -385,4 +385,31 @@ public interface LdappcConfig {
    * @return true if attribute modifications should be bundled
    */
   public boolean getBundleModifications();
+
+  /**
+   * This gets the LDAP objectclass the Group entry must have to support the
+   * AttributeResolver attribute to LDAP attribute mapping.
+   * 
+   * @return LDAP object class or <code>null</code> if not defined.
+   */
+  public String getAttributeResolverMappingObjectClass();
+
+  /**
+   * This method returns a possibly empty {@link java.util.Map} of the AttributeResolver
+   * attribute name to LDAP attribute name mapping.
+   * 
+   * @return Map of AttributeResolver attribute names to LDAP attribute names.
+   */
+  public Map<String, List<String>> getAttributeResolverMapping();
+
+  /**
+   * This gets the value to store in the ldap attribute if there are no AttributeResolver
+   * attribute values to store there.
+   * 
+   * @param ldapAttribute
+   *          Name of the Ldap Attribute
+   * @return String to place in the ldap attribute if no AttributeResolver attribute
+   *         values are found to store there, or <code>null</code> if not defined.
+   */
+  public String getAttributeResolverMappingLdapEmptyValue(String ldapAttribute);
 }
