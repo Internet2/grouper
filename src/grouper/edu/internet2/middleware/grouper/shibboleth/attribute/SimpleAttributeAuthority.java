@@ -82,9 +82,11 @@ public class SimpleAttributeAuthority extends BaseService implements AttributeAu
 
     String msg = "get attributes '" + principalName + "' aa '" + this.getId() + "'";
     LOG.debug("{}", msg);
-    if (LOG.isDebugEnabled()) {
-      for (String attrId : requestContext.getRequestedAttributesIds()) {
-        LOG.debug("{} requested attribute '{}'", msg, attrId);
+    if (LOG.isTraceEnabled()) {
+      if (requestContext.getRequestedAttributesIds() != null) {
+        for (String attrId : requestContext.getRequestedAttributesIds()) {
+          LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
+        }
       }
     }
 
