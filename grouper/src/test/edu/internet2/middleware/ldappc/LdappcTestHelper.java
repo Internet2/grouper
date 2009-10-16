@@ -589,20 +589,21 @@ public class LdappcTestHelper {
     return list;
   }
 
-  public static void verifyLdif(String correctLdif, String currentLdif)
-      throws NamingException, FileNotFoundException, IOException, ResourceException {
-    verifyLdif(correctLdif, currentLdif, null);
+  public static void verifyLdif(String correctLdif, String currentLdif,
+      boolean purgeAttributes) throws NamingException, FileNotFoundException,
+      IOException, ResourceException {
+    verifyLdif(correctLdif, currentLdif, null, purgeAttributes);
   }
 
   public static void verifyLdif(String correctLdif, String currentLdif,
-      File propertiesFile) throws NamingException, FileNotFoundException, IOException,
-      ResourceException {
-    verifyLdif(correctLdif, currentLdif, propertiesFile, null);
+      File propertiesFile, boolean purgeAttributes) throws NamingException,
+      FileNotFoundException, IOException, ResourceException {
+    verifyLdif(correctLdif, currentLdif, propertiesFile, null, purgeAttributes);
   }
 
   public static void verifyLdif(String correctLdif, File propertiesFile,
-      Collection<String> normalizeDnAttributes, String base, LdapContext ldapContext)
-      throws IOException, ResourceException, NamingException {
+      Collection<String> normalizeDnAttributes, String base, LdapContext ldapContext,
+      boolean purgeAttributes) throws IOException, ResourceException, NamingException {
 
     // replace macros
     String filteredCorrectLdif = LdappcTestHelper
@@ -622,33 +623,30 @@ public class LdappcTestHelper {
 
     // verify ldif
     LdappcTestHelper.verifyLdif(correctLdif, currentLdif, propertiesFile,
-        normalizeDnAttributes);
+        normalizeDnAttributes, purgeAttributes);
   }
 
   public static void verifyLdif(String correctLdif, String currentLdif,
-      File propertiesFile, Collection<String> normalizeDnAttributes)
-      throws NamingException, FileNotFoundException, IOException, ResourceException {
+      File propertiesFile, Collection<String> normalizeDnAttributes,
+      boolean purgeAttributes) throws NamingException, FileNotFoundException,
+      IOException, ResourceException {
     InputStream correct = new ByteArrayInputStream(correctLdif.getBytes());
     InputStream current = new ByteArrayInputStream(currentLdif.getBytes());
-    verifyLdif(correct, current, propertiesFile, normalizeDnAttributes);
-  }
-
-  public static void verifyLdif(File correctFile, File currentFile, File propertiesFile)
-      throws FileNotFoundException, IOException, ResourceException, NamingException {
-    verifyLdif(correctFile, currentFile, propertiesFile, null);
+    verifyLdif(correct, current, propertiesFile, normalizeDnAttributes, purgeAttributes);
   }
 
   public static void verifyLdif(File correctFile, File currentFile, File propertiesFile,
-      Collection<String> normalizeDnAttributes) throws FileNotFoundException,
-      IOException, ResourceException, NamingException {
+      Collection<String> normalizeDnAttributes, boolean purgeAttributes)
+      throws FileNotFoundException, IOException, ResourceException, NamingException {
     InputStream correct = new FileInputStream(correctFile);
     InputStream current = new FileInputStream(currentFile);
-    verifyLdif(correct, current, propertiesFile, normalizeDnAttributes);
+    verifyLdif(correct, current, propertiesFile, normalizeDnAttributes, purgeAttributes);
   }
 
   public static void verifyLdif(InputStream correct, InputStream current,
-      File propertiesFile, Collection<String> normalizeDnAttributes)
-      throws FileNotFoundException, IOException, ResourceException, NamingException {
+      File propertiesFile, Collection<String> normalizeDnAttributes,
+      boolean purgeAttributes) throws FileNotFoundException, IOException,
+      ResourceException, NamingException {
     String correctLdif;
     String currentLdif;
     if (propertiesFile != null) {
@@ -672,10 +670,12 @@ public class LdappcTestHelper {
     purgeObjectclassTop(correctEntries);
     purgeObjectclassTop(currentEntries);
 
-    Map<String, Collection<String>> objectClassAttributeMap = buildObjectlassAttributeMap(correctEntries);
-    if (objectClassAttributeMap != null) {
-      purgeAttributes(correctEntries, objectClassAttributeMap);
-      purgeAttributes(currentEntries, objectClassAttributeMap);
+    if (purgeAttributes) {
+      Map<String, Collection<String>> objectClassAttributeMap = buildObjectlassAttributeMap(correctEntries);
+      if (objectClassAttributeMap != null) {
+        purgeAttributes(correctEntries, objectClassAttributeMap);
+        purgeAttributes(currentEntries, objectClassAttributeMap);
+      }
     }
 
     // normalize dn values
