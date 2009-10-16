@@ -451,47 +451,51 @@
 	-->
 	<target name="-merge-xmls" unless="web.xmls.isempty">
 	  
-	  <if><not><available file="webapp/WEB-INF/web.xml" /></not>
-	    <then><copy file="webapp/WEB-INF/web.example.xml" 
-	      tofile="webapp/WEB-INF/web.xml" /></then>
+	 <if>
+		<or>
+			<not><available file="webapp/WEB-INF/web.xml" /></not>
+			<not><equals arg1="${web.xml.overwrite}" arg2="false" /></not>
+		</or>
+	    <then>
+			    <echo message="temp.dir : ${temp.dir}" />
+				<echo message="final.web.xmls : ${final.web.xmls}" />
+				<echo message="ui.folder : ${ui.folder}" />
+				<echo message="webapp.folder : ${webapp.folder}" />
+				<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml" filtering="true"/>
+				<copy file="${ui.folder}/webapp/WEB-INF/web.ajax.xml" tofile="${temp.dir}/60.web.ajax.xml" filtering="true"/>
+
+				<path id="final.web.xml.files">
+					<fileset dir="${temp.dir}">
+						<include name="**/*.xml"/>
+					</fileset>
+				</path>
+				<property name="final.web.xmls" refid="final.web.xml.files"/>
+	  
+	  
+			<java classname="edu.internet2.middleware.grouper.ui.util.MergeWebXmls" classpathref="merge.class.path" outputproperty="mergeOutput" resultProperty="result">
+				<arg value="${temp.dir}"/>
+				<arg value="${final.web.xmls}"/>
+				<arg value="${ui.folder}/web-xml-merge.xsl"/>
+				<arg value="${ui.folder}/web-xml-merge-tags.xml"/>
+				<arg value="${webapp.folder}/WEB-INF/web.xml"/>
+			</java>
+			<echo message="${mergeOutput}"/>
+			<echo message="Result: ${result}"/>
+			<condition property="failed">
+				<not>
+					<equals arg1="0" arg2="${result}"/>
+				</not>
+			</condition>
+		</then>
+		 <else>
+			<echo message="web.xml exists and web.xml.overwrite=false, so NOT rebuilding web.xml. Delete web.xml to force a rebuild" />
+		</else>
 	  </if> 
     
-	  <copy file="webapp/WEB-INF/web.xml" 
-	          tofile="${webapp.folder}/WEB-INF/web.xml" />
-	  
-    <!-- echo message="temp.dir : ${temp.dir}" />
-    <echo message="final.web.xmls : ${final.web.xmls}" />
-    <echo message="ui.folder : ${ui.folder}" />
-    <echo message="webapp.folder : ${webapp.folder}" / -->
-
-	
-	  <!--
-   <copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml" filtering="true"/>
-
-   <path id="final.web.xml.files">
-			<fileset dir="${temp.dir}">
-				<include name="**/*.xml"/>
-			</fileset>
-		</path>
-		<property name="final.web.xmls" refid="final.web.xml.files"/>
-	  
-	  
-		<java classname="edu.internet2.middleware.grouper.ui.util.MergeWebXmls" classpathref="merge.class.path" outputproperty="mergeOutput" resultProperty="result">
-			<arg value="${temp.dir}"/>
-			<arg value="${final.web.xmls}"/>
-			<arg value="${ui.folder}/web-xml-merge.xsl"/>
-			<arg value="${ui.folder}/web-xml-merge-tags.xml"/>
-			<arg value="${webapp.folder}/WEB-INF/web.xml"/>
-		</java>
-		<echo message="${mergeOutput}"/>
-		<echo message="Result: ${result}"/>
-		<condition property="failed">
-			<not>
-				<equals arg1="0" arg2="${result}"/>
-			</not>
-		</condition>
 		<fail if="failed">Something went wrong processing web.xmls - check output for details</fail>
-		-->
+			  <copy file="webapp/WEB-INF/web.xml" 
+	          tofile="${webapp.folder}/WEB-INF/web.xml" />
+		
 	</target>
 	
 	<!--
