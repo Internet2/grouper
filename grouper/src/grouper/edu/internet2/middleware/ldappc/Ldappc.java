@@ -38,6 +38,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
@@ -175,8 +176,7 @@ public final class Ldappc extends TimerTask {
       if (options.getInterval() == 0) {
         ldappc.run();
       } else {
-        Timer timer = new Timer();
-        timer.schedule(ldappc, 0, 1000 * options.getInterval());
+        ldappc.schedule();
       }
 
       LOG.info("End of Ldappc execution.");
@@ -197,6 +197,10 @@ public final class Ldappc extends TimerTask {
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LDAPPC, false, true);
 
     LOG.info("***** Starting Provisioning *****");
+
+    getGrouperSession();
+
+    getContext();
 
     Date now = new Date();
 
@@ -246,31 +250,36 @@ public final class Ldappc extends TimerTask {
     } finally {
       try {
         if (!(options.isTest()) && ldapContext != null) {
+          LOG.debug("closing connection to ldap '{}'", configuration
+              .getLdapContextParameters().get(DirContext.PROVIDER_URL));
           ldapContext.close();
+          ldapContext = null;
         }
       } catch (NamingException e) {
         // May have already been closed.
       }
+
+      if (grouperSession != null) {
+        LOG.debug("stopping grouper session '{}'", grouperSession);
+        grouperSession.stop();
+        grouperSession = null;
+      }
     }
   }
 
+  /**
+   * Load configuration, connect to ldap, instantiate the subject cache, and start
+   * Grouper.
+   */
   public void initialize() {
 
+    //
+    // load configuration
+    //
     if (configuration == null) {
       configuration = new ConfigManager(options.getConfigManagerLocation(), options
           .getPropertiesFileLocation());
     }
-
-    try {
-      if (ldapContext == null) {
-        ldapContext = LdapUtil.getLdapContext(configuration.getLdapContextParameters(),
-            null);
-      }
-    } catch (NamingException e) {
-      throw new LdappcException(e);
-    }
-
-    subjectCache = new SubjectCache(this);
 
     //
     // Get the Name of the root ou
@@ -280,15 +289,26 @@ public final class Ldappc extends TimerTask {
       throw new ConfigurationException("Group root DN is not defined.");
     }
 
+    //
+    // load and connect to ldap
+    //
+    getContext();
+
     try {
       rootDn = getContext().getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
     } catch (NamingException e) {
       throw new ConfigurationException("Unable to parse root DN.", e);
     }
 
+    //
+    // instantiate the subject cache
+    //
+    subjectCache = new SubjectCache(this);
+
+    //
+    // startup Grouper
+    // 
     GrouperStartup.startup();
-    Subject subject = SubjectFinder.findById(options.getSubjectId(), true);
-    grouperSession = GrouperSession.start(subject);
   }
 
   /**
@@ -333,11 +353,6 @@ public final class Ldappc extends TimerTask {
     if (options.getDoMemberships()) {
       provisionMemberships(groups);
     }
-
-    //
-    // Stop the Grouper session
-    //
-    grouperSession.stop();
 
     if (writer != null) {
       writer.close();
@@ -406,11 +421,6 @@ public final class Ldappc extends TimerTask {
 
     writer.close();
 
-    //
-    // Stop the Grouper session
-    //
-    grouperSession.stop();
-
     return file;
   }
 
@@ -424,7 +434,7 @@ public final class Ldappc extends TimerTask {
     //
     // Find the root stem for building filters
     //
-    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    Stem rootStem = StemFinder.findRootStem(getGrouperSession());
 
     //
     // Init the query filter
@@ -452,7 +462,7 @@ public final class Ldappc extends TimerTask {
     Set<String> subStems = configuration.getGroupSubordinateStemQueries();
     for (String stemName : subStems) {
       try {
-        Stem stem = StemFinder.findByName(grouperSession, stemName, true);
+        Stem stem = StemFinder.findByName(getGrouperSession(), stemName, true);
         groupFilter = new UnionFilter(groupFilter, new ChildGroupFilter(stem));
       } catch (StemNotFoundException snfe) {
         LOG.error(snfe.getMessage(), snfe);
@@ -462,7 +472,7 @@ public final class Ldappc extends TimerTask {
     //
     // Build and execute the query
     //
-    GrouperQuery query = GrouperQuery.createQuery(grouperSession, groupFilter);
+    GrouperQuery query = GrouperQuery.createQuery(getGrouperSession(), groupFilter);
 
     return query.getGroups();
   }
@@ -1051,11 +1061,25 @@ public final class Ldappc extends TimerTask {
   }
 
   /**
-   * Get the Ldap context.
+   * Get the Ldap context. Will create a new instance if necessary, otherwise will re-use
+   * existing connection.
    * 
    * @return the LDAP context.
    */
-  public LdapContext getContext() {
+  public LdapContext getContext() throws LdappcException {
+
+    try {
+      if (ldapContext == null) {
+        LOG.debug("Connecting to ldap '{}'", configuration.getLdapContextParameters()
+            .get(DirContext.PROVIDER_URL));
+        ldapContext = LdapUtil.getLdapContext(configuration.getLdapContextParameters(),
+            null);
+      }
+    } catch (NamingException e) {
+      LOG.error("Unable to connect to ldap", e);
+      throw new LdappcException(e);
+    }
+
     return ldapContext;
   }
 
@@ -1281,7 +1305,35 @@ public final class Ldappc extends TimerTask {
     return attributes;
   }
 
+  /**
+   * Get the private writer.
+   * 
+   * @return
+   */
   public BufferedWriter getWriter() {
     return writer;
+  }
+
+  /**
+   * Get a Grouper session. Will create a new instance if necessary, otherwise will re-use
+   * existing session.
+   * 
+   * @return
+   */
+  protected GrouperSession getGrouperSession() {
+    if (grouperSession == null) {
+      Subject subject = SubjectFinder.findById(options.getSubjectId(), true);
+      grouperSession = GrouperSession.start(subject);
+      LOG.debug("started grouper session '{}'", grouperSession);
+    }
+    return grouperSession;
+  }
+
+  /**
+   * Schedule ldappc as a time task.
+   */
+  protected void schedule() {
+    Timer timer = new Timer();
+    timer.schedule(this, 0, 1000 * options.getInterval());
   }
 }
