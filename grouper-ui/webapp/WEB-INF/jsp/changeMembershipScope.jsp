@@ -6,7 +6,7 @@
 		If configured, an dthe user has appropriate privileges, it is possible to import/export members from/to flat files
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.11 2009-09-09 15:10:03 mchyzer Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.12 2009-10-16 12:16:32 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -66,7 +66,7 @@
 		<input type="submit" class="blueButton" name="submit.export" value="<c:out value="${navMap['groups.export.submit']}"/>"/>
 	</c:if>
 	
-<html:hidden property="groupId"/>
+<!-- html:hidden property="groupId"/-->
 	<c:if test="${MembershipImportManager.active}">
   <grouper:subtitle key="groups.heading.import-members" />
 	<html:file property="importData" title="${navMap['groups.import.select-file-title']}"/>

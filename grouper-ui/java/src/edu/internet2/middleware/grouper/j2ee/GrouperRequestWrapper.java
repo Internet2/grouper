@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperRequestWrapper.java,v 1.4 2009-10-16 10:30:07 isgwb Exp $
+ * $Id: GrouperRequestWrapper.java,v 1.5 2009-10-16 12:16:32 isgwb Exp $
  */
 package edu.internet2.middleware.grouper.j2ee;
 
@@ -392,7 +392,9 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
       }
       return (String)((List) objectSubmitted).get(0);
     }
- 
+    if (objectSubmitted instanceof FileItem) {
+    	return null; 
+    }
     throw new RuntimeException("Not expecting type: " + (objectSubmitted == null ? null : objectSubmitted.getClass()));
     
   }

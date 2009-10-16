@@ -40,13 +40,13 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ObjectAsMap.java,v 1.9 2009-10-01 13:43:13 isgwb Exp $
+ * @version $Id: ObjectAsMap.java,v 1.10 2009-10-16 12:16:32 isgwb Exp $
  */
 public class ObjectAsMap extends HashMap {
 	protected String objType = null;
 
 	protected Object wrappedObject = null;
-	protected DynaBean dynaBean=null;
+	protected transient DynaBean dynaBean=null;
 	protected String dateFormat="dd MMM yyyy HH:mm:ss";
 	public ObjectAsMap() {
 		
@@ -91,6 +91,7 @@ public class ObjectAsMap extends HashMap {
 		return super.get(key);
 	}
 	protected Object getByIntrospection(Object key) {
+		if (dynaBean==null) dynaBean=new WrapDynaBean(wrappedObject);
 		try {
 			return dynaBean.get(key.toString());
 		}catch(Exception e){return null;}
