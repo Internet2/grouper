@@ -899,6 +899,14 @@ public class GroupEntrySynchronizer {
     if (attrMapObjClass != null) {
       objectClassMods.store(attrMapObjClass);
     }
+
+    //
+    // If defined, store the grouper attribute object class
+    //
+    String arMapObjClass = ldappc.getConfig().getAttributeResolverMappingObjectClass();
+    if (arMapObjClass != null) {
+      objectClassMods.store(arMapObjClass);
+    }
   }
 
   /**
