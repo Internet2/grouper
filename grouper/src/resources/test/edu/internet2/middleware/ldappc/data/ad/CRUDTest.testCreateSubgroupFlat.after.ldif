@@ -19,10 +19,6 @@ dn: ou=testgroups,${base}
 objectclass: organizationalUnit
 ou: testgroups
 
-dn: ou=testgroups,${base}
-objectclass: organizationalUnit
-ou: testgroups
-
 dn: cn=edu:groupA,ou=testgroups,${base}
 objectClass: group
 cn: edu:groupA
