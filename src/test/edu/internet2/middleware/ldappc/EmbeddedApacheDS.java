@@ -1,7 +1,7 @@
 package edu.internet2.middleware.ldappc;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -216,7 +216,7 @@ public class EmbeddedApacheDS {
   public File getNewPropertiesFile() throws IOException {
     File tmpPropertiesFile = File.createTempFile("EmbeddedApacheDSProps", null);
     tmpPropertiesFile.deleteOnExit();
-    getProperties().store(new FileWriter(tmpPropertiesFile), null);
+    getProperties().store(new FileOutputStream(tmpPropertiesFile), null);
     return tmpPropertiesFile;
   }
 }
