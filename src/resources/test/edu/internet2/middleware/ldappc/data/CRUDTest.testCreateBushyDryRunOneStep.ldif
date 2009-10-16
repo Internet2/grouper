@@ -5,25 +5,6 @@ objectclass: organizationalUnit
 
 dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: add
-member: 
-cn: groupA
-objectclass: groupOfNames
-
-dn: cn=groupB,ou=edu,ou=testgroups,${base}
-changetype: add
-member: 
-cn: groupB
-description: descriptionB
-objectclass: groupOfNames
-
-# an artifact of testing
-dn: ou=edu,ou=testgroups,${base}
-changetype: add
-ou: edu
-objectclass: organizationalUnit
-
-dn: cn=groupA,ou=edu,ou=testgroups,${base}
-changetype: add
 member: cn=test.subject.0,ou=testpeople,${base}
 hasmember: name.test.subject.0
 cn: groupA

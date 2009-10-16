@@ -101,6 +101,21 @@ public class CRUDTest extends BaseLdappcTestCase {
     }
   }
 
+  public void testCreateBushyDryRunOneStep() throws Exception {
+
+    ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = dryRun(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateBushyDryRunOneStep.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
   public void testCreateBushyWriteLdif() throws Exception {
 
     File tmpFile = File.createTempFile("ldappcTestCreateBushyWriteLdif", null);
@@ -230,6 +245,24 @@ public class CRUDTest extends BaseLdappcTestCase {
     File ldif = dryRun(GroupDNStructure.bushy);
 
     verifyLdif("CRUDTest.testDeleteGroupsBushyDryRun.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testDeleteGroupsBushyDryRunOneStep() throws Exception {
+
+    ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
+
+    loadLdif("CRUDTest.testDeleteGroupsBushy.before.ldif");
+
+    groupA.delete();
+    groupB.delete();
+
+    File ldif = dryRun(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testDeleteGroupsBushyDryRunOneStep.ldif", ldif);
 
     if (!ldif.delete()) {
       fail("could not delete " + ldif.getAbsolutePath());

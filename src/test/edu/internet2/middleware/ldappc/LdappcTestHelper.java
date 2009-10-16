@@ -27,6 +27,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -97,38 +99,6 @@ public class LdappcTestHelper {
         propertiesFile);
     return DatatypeHelper.inputstreamToString(filter
         .applyFilter(new ByteArrayInputStream(ldif.getBytes())), null);
-  }
-
-  /**
-   * Get a map with keys ldap DNs and values ldif entries. Ignores objectclass=top.
-   * 
-   * @param ldifEntries
-   * @return
-   * @throws NamingException
-   */
-  public static Map<LdapDN, LdifEntry> buildLdapEntryMap(List<LdifEntry> ldifEntries,
-      boolean caseSensitiveAttributeNames) throws NamingException {
-
-    Map<LdapDN, LdifEntry> map = new HashMap<LdapDN, LdifEntry>();
-
-    for (LdifEntry ldifEntry : ldifEntries) {
-      if (ldifEntry.isEntry()) {
-        Entry entry = ldifEntry.getEntry();
-        if (entry.contains("objectclass", "top")) {
-          entry.remove("objectclass", "top");
-        }
-        if (!caseSensitiveAttributeNames) {
-          Iterator<EntryAttribute> iterator = entry.iterator();
-          while (iterator.hasNext()) {
-            EntryAttribute entryAttribute = iterator.next();
-            entryAttribute.setId(entryAttribute.getId().toLowerCase()); // redundant ?
-          }
-        }
-      }
-      map.put(ldifEntry.getDn(), ldifEntry);
-    }
-
-    return map;
   }
 
   /**
@@ -355,6 +325,13 @@ public class LdappcTestHelper {
     }
   }
 
+  /**
+   * Create entries read from the given ldif file.
+   * 
+   * @param file
+   * @param ldap
+   * @throws NamingException
+   */
   public static void loadLdif(File file, Ldap ldap) throws NamingException {
 
     LdifReader ldifReader = new LdifReader(file);
@@ -373,31 +350,38 @@ public class LdappcTestHelper {
     }
   }
 
+  /**
+   * Create entries read from the given ldif file.
+   * 
+   * @param file
+   * @param ldap
+   * @throws NamingException
+   */
   public static void loadLdif(File file, LdapContext ldapContext) throws Exception {
 
-    LdifReader ldifReader = new LdifReader(file);
-    for (LdifEntry entry : ldifReader) {
-      Attributes attributes = new BasicAttributes(true);
-      for (EntryAttribute entryAttribute : entry.getEntry()) {
-        BasicAttribute attribute = new BasicAttribute(entryAttribute.getId());
-        Iterator<Value<?>> values = entryAttribute.getAll();
-        while (values.hasNext()) {
-          attribute.add(values.next().get());
-        }
-        attributes.put(attribute);
-      }
-      LOG.debug("creating '" + entry.getDn().toString() + " " + attributes);
-      ldapContext.createSubcontext(entry.getDn().toString(), attributes);
-    }
+    loadLdif(file, null, ldapContext);
   }
 
+  /**
+   * Create entries read from the given ldif file after replacing macros.
+   * 
+   * @param ldifFile
+   * @param replacementPropertiesFile
+   * @param ldapContext
+   * @throws Exception
+   */
   public static void loadLdif(File ldifFile, File replacementPropertiesFile,
       LdapContext ldapContext) throws Exception {
 
-    PropertyReplacementResourceFilter prf = new PropertyReplacementResourceFilter(
-        replacementPropertiesFile);
+    LdifReader ldifReader = null;
+    if (replacementPropertiesFile != null) {
+      PropertyReplacementResourceFilter prf = new PropertyReplacementResourceFilter(
+          replacementPropertiesFile);
+      ldifReader = new LdifReader(prf.applyFilter(new FileInputStream(ldifFile)));
+    } else {
+      ldifReader = new LdifReader(ldifFile);
+    }
 
-    LdifReader ldifReader = new LdifReader(prf.applyFilter(new FileInputStream(ldifFile)));
     for (LdifEntry entry : ldifReader) {
       Attributes attributes = new BasicAttributes(true);
       for (EntryAttribute entryAttribute : entry.getEntry()) {
@@ -527,6 +511,24 @@ public class LdappcTestHelper {
   }
 
   /**
+   * Remove any attribute whose name is "objectclass" and value is "top".
+   * 
+   * @param ldifEntries
+   * @throws NamingException
+   */
+  public static void purgeObjectclassTop(Collection<LdifEntry> ldifEntries)
+      throws NamingException {
+    for (LdifEntry ldifEntry : ldifEntries) {
+      if (ldifEntry.isEntry()) {
+        Entry entry = ldifEntry.getEntry();
+        if (entry.contains("objectclass", "top")) {
+          entry.remove("objectclass", "top");
+        }
+      }
+    }
+  }
+
+  /**
    * Return the contents of the given file as a string.
    * 
    * @param file
@@ -558,6 +560,33 @@ public class LdappcTestHelper {
       Assert.fail("An error occurred : " + e.getMessage());
     }
     return null;
+  }
+
+  /**
+   * Sort the given entries by DN or string LDIF representation.
+   * 
+   * @param ldifEntries
+   * @return
+   */
+  public static List<LdifEntry> sortLdif(Collection<LdifEntry> ldifEntries) {
+
+    ArrayList<LdifEntry> list = new ArrayList<LdifEntry>(ldifEntries);
+    list.trimToSize();
+
+    Collections.sort(list, new Comparator() {
+
+      public int compare(Object o1, Object o2) {
+        // first compare by DN
+        int c = (((LdifEntry) o1).getDn()).compareTo(((LdifEntry) o2).getDn());
+        if (c != 0) {
+          return c;
+        }
+        // then compare by "ldif"
+        return ((LdifEntry) o1).toString().compareTo(((LdifEntry) o2).toString());
+      }
+    });
+
+    return list;
   }
 
   public static void verifyLdif(String correctLdif, String currentLdif)
@@ -636,38 +665,46 @@ public class LdappcTestHelper {
     // the ApacheDS reader
     LdifReader reader = new LdifReader();
 
-    // build map of entries from string ldif
-    Map<LdapDN, LdifEntry> correctMap = buildLdapEntryMap(reader.parseLdif(correctLdif),
-        false);
-    Map<LdapDN, LdifEntry> currentMap = buildLdapEntryMap(reader.parseLdif(currentLdif),
-        false);
+    Collection<LdifEntry> correctEntries = reader.parseLdif(correctLdif);
+    Collection<LdifEntry> currentEntries = reader.parseLdif(currentLdif);
 
-    // only compare attributes that exist in the correct file
-    Map<String, Collection<String>> objectClassAttributeMap = buildObjectlassAttributeMap(correctMap
-        .values());
+    // remove objectclass: top
+    purgeObjectclassTop(correctEntries);
+    purgeObjectclassTop(currentEntries);
+
+    Map<String, Collection<String>> objectClassAttributeMap = buildObjectlassAttributeMap(correctEntries);
     if (objectClassAttributeMap != null) {
-      purgeAttributes(correctMap.values(), objectClassAttributeMap);
-      purgeAttributes(currentMap.values(), objectClassAttributeMap);
+      purgeAttributes(correctEntries, objectClassAttributeMap);
+      purgeAttributes(currentEntries, objectClassAttributeMap);
     }
 
     // normalize dn values
     if (normalizeDnAttributes != null) {
-      normalizeDNValues(correctMap.values(), normalizeDnAttributes);
-      normalizeDNValues(currentMap.values(), normalizeDnAttributes);
+      normalizeDNValues(correctEntries, normalizeDnAttributes);
+      normalizeDNValues(currentEntries, normalizeDnAttributes);
     }
 
-    verifyLdif(correctMap, currentMap);
+    verifyLdif(correctEntries, currentEntries);
   }
 
-  public static void verifyLdif(Map<LdapDN, LdifEntry> correctMap,
-      Map<LdapDN, LdifEntry> currentMap) {
-    for (LdapDN correctDn : correctMap.keySet()) {
-      Assert
-          .assertEquals("correct", correctMap.get(correctDn), currentMap.get(correctDn));
+  /**
+   * Verify that the given ldif entries are equal.
+   * 
+   * @param correctEntries
+   * @param currentEntries
+   */
+  public static void verifyLdif(Collection<LdifEntry> correctEntries,
+      Collection<LdifEntry> currentEntries) {
+
+    List<LdifEntry> correctList = LdappcTestHelper.sortLdif(correctEntries);
+    List<LdifEntry> currentList = LdappcTestHelper.sortLdif(currentEntries);
+
+    for (int i = 0; i < correctList.size(); i++) {
+      Assert.assertEquals(correctList.get(i), currentList.get(i));
     }
-    for (LdapDN currentDn : currentMap.keySet()) {
-      Assert
-          .assertEquals("current", correctMap.get(currentDn), currentMap.get(currentDn));
+
+    for (int i = 0; i < currentList.size(); i++) {
+      Assert.assertEquals(currentList.get(i), correctList.get(i));
     }
   }
 
