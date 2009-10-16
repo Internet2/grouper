@@ -90,6 +90,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -110,7 +111,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.21 2009-07-17 03:00:29 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.22 2009-10-16 08:10:39 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -254,6 +255,8 @@ public class XmlImporter {
     if(!"true".equals(rc.getProperty(XmlArgs.RC_NOPROMPT))) {
     GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     }
+    GrouperStartup.runFromMain = true;
+    GrouperStartup.startup();
     final XmlImporter[] importer = new XmlImporter[1];
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.NONE, AuditControl.WILL_AUDIT,
@@ -261,7 +264,7 @@ public class XmlImporter {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            try {
+            try { 
               
               importer[0]  = new XmlImporter(
                 GrouperSession.start(
