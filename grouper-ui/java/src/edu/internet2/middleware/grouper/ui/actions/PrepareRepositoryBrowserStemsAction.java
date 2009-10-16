@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
+import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 
 
 /**
@@ -224,7 +225,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.22 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.23 2009-10-16 08:08:20 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -422,7 +423,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 			
 		//Skip empty stems
 		//should only skip where no stem / create privilege
-		if(children.size()==1) {
+		if(children.size()==1 && children.get(0) instanceof StemAsMap) {
 			Map m = (Map)children.get(0);
 			String stemId = (String)m.get("stemId");
 			if(!isEmpty(stemId)) {
