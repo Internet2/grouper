@@ -18,6 +18,12 @@ grouper.role=*
 # re-built 
 web.xml.overwrite=true
 
+# Set to true if you want to give users access to lite ui
+login.ui-lite.show-link=false
+
+# Set to true if you want the admin-ui to link to the lite ui (membership management only)
+ui-lite.link-from-admin-ui=false
+
 #You can override the default browse stem, however, you must ensure that the stem
 #exists by creating it using the Grouper API
 #default.browse.stem=<stem_name>

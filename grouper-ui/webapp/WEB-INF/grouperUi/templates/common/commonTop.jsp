@@ -1,9 +1,9 @@
 <%@ include file="../common/commonTaglib.jsp" %>
 <div id="topLeftLogo">
-  <img src="../public/assets/images/logo.gif" id="topLeftLogoImage" />
+  <img src="../../${mediaMap['image.organisation-logo']}" id="topLeftLogoImage" />
 </div>
 <div id="topRightLogo">
-  <img src="../public/assets/images/grouper.gif" id="topRightLogoImage" />
+  <img src="../../${mediaMap['image.grouper-logo']}" id="topRightLogoImage" />
 </div>
 <div id="navbar"> 
      <grouper:message key="simpleMembershipUpdate.screenWelcome"/> ${guiSettings.loggedInSubject.subject.description} 
