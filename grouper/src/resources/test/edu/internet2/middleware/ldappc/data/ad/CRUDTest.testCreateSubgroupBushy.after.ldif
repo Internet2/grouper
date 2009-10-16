@@ -27,6 +27,7 @@ dn: cn=groupA,ou=edu,ou=testgroups,${base}
 objectClass: group
 cn: groupA
 member: cn=test.subject.0,ou=testpeople,${base}
+sAMAccountName: edu_groupA
 
 dn: cn=groupB,ou=edu,ou=testgroups,${base}
 objectClass: group
@@ -34,5 +35,6 @@ cn: groupB
 description: descriptionB
 member: cn=test.subject.0,ou=testpeople,${base}
 member: cn=test.subject.1,ou=testpeople,${base}
-member: cn=groupA,ou=edu,ou=testgroups,${base} 
+member: cn=groupA,ou=edu,ou=testgroups,${base}
+sAMAccountName: edu_groupB 
 

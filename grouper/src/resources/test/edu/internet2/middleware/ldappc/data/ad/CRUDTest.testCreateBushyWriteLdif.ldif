@@ -7,12 +7,14 @@ dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: add
 cn: groupA
 objectclass: group
+sAMAccountName: edu_groupA
 
 dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: add
 cn: groupB
 description: descriptionB
 objectclass: group
+sAMAccountName: edu_groupB
 
 dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: modify

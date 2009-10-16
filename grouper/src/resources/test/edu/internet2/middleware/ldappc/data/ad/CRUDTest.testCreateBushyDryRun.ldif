@@ -1,34 +1,38 @@
-dn: ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: ou=edu,ou=testgroups,${base}
 changetype: add
 ou: edu
 objectclass: organizationalUnit
 
-dn: cn=groupA,ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: add
-cn: groupA
 objectclass: group
+cn: groupA
+sAMAccountName: edu_groupA
 
-dn: cn=groupB,ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: add
+objectclass: group
 cn: groupB
 description: descriptionB
-objectclass: group
+sAMAccountName: edu_groupB
 
 # artifact of test case
-dn: ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: ou=edu,ou=testgroups,${base}
 changetype: add
 ou: edu
 objectclass: organizationalUnit
 
-dn: cn=groupA,ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: add
-member: CN=test.subject.0,ou=testpeople,OU=Prod Test,DC=uom,DC=memphis,DC=edu
-cn: groupA
 objectclass: group
+cn: groupA
+sAMAccountName: edu_groupA
+member: CN=test.subject.0,ou=testpeople,${base}
 
-dn: cn=groupB,ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: add
-member: CN=test.subject.1,ou=testpeople,OU=Prod Test,DC=uom,DC=memphis,DC=edu
-cn: groupB
 description: descriptionB
 objectclass: group
+cn: groupB
+sAMAccountName: edu_groupB
+member: CN=test.subject.1,ou=testpeople,${base}

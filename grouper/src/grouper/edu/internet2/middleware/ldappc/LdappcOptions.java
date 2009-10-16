@@ -89,6 +89,26 @@ public class LdappcOptions {
   private boolean writeLdif = false;
 
   /**
+   * Path to AttributeResolver configuration files.
+   */
+  private String attributeResolverLocation;
+
+  /**
+   * The name of the "internal" Spring configuration file for the Attribute Resolver.
+   */
+  public static final String ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL = "ldappc-internal.xml";
+
+  /**
+   * The name of the "services" Spring configuration file for the Attribute Resolver.
+   */
+  public static final String ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES = "ldappc-services.xml";
+  
+  /**
+   * The name of the Attribute Authority service.
+   */
+  public static final String ATTRIBUTE_AUTHORITY_NAME = "grouper.AttributeAuthority";
+
+  /**
    * Modes of operation.
    */
   public enum ProvisioningMode {
@@ -150,6 +170,9 @@ public class LdappcOptions {
   private Option writeLdifOption = new Option("w", "writeLdif", true,
       "While provisioning, also write changes to file.");
 
+  private Option attributeResolverLocationOption = new Option("r", "resolver", true,
+      "Location of Attribute Resolver configuration files.");
+
   public LdappcOptions() {
 
     subjectOption.setArgName("subjectId");
@@ -180,6 +203,9 @@ public class LdappcOptions {
     dryRunOption.setArgName("file");
     modeOptionGroup.addOption(dryRunOption);
     options.addOptionGroup(modeOptionGroup);
+
+    attributeResolverLocationOption.setArgName("path");
+    options.addOption(attributeResolverLocationOption);
   }
 
   /**
@@ -282,6 +308,11 @@ public class LdappcOptions {
     if (line.hasOption(writeLdifOption.getOpt())) {
       this.setOutputFileLocation(line.getOptionValue(writeLdifOption.getOpt()));
       this.setWriteLdif(true);
+    }
+
+    if (line.hasOption(attributeResolverLocationOption.getOpt())) {
+      this.setAttributeResolverLocation(line
+          .getOptionValue(attributeResolverLocationOption.getOpt()));
     }
   }
 
@@ -431,5 +462,18 @@ public class LdappcOptions {
    */
   public boolean getWriteLdif() {
     return writeLdif;
+  }
+
+  /**
+   * The path to the Attribute Resolver configuration files.
+   * 
+   * @return
+   */
+  public String getAttributeResolverLocation() {
+    return attributeResolverLocation;
+  }
+
+  protected void setAttributeResolverLocation(String attributeResolverLocation) {
+    this.attributeResolverLocation = attributeResolverLocation;
   }
 }

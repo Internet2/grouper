@@ -162,6 +162,8 @@
                 </xs:choice>
                 <xs:element ref="group-attribute-mapping" minOccurs="0"
                     maxOccurs="1" />
+                <xs:element ref="attribute-resolver-mapping" minOccurs="0"
+                    maxOccurs="1" />
             </xs:sequence>
             <!-- Attributes -->
             <xs:attribute name="structure" use="required">
@@ -327,6 +329,29 @@
                     maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:attribute name="group-attribute"
+                            use="required"
+                            type="grouper-attribute-name-type" />
+                        <xs:attribute name="ldap-attribute"
+                            use="required"
+                            type="ldap-attribute-name-type" />
+                        <xs:attribute name="ldap-attribute-empty-value"
+                            type="empty-attribute-value-type" />
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="ldap-object-class"
+                type="ldap-objectclass-name-type" />
+        </xs:complexType>
+    </xs:element>
+    
+    <!-- =============== ATTRIBUTE-RESOLVER-MAPPING ELEMENT ================ -->
+    <xs:element name="attribute-resolver-mapping">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="attribute-resolver-map" minOccurs="1"
+                    maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="resolver-attribute"
                             use="required"
                             type="grouper-attribute-name-type" />
                         <xs:attribute name="ldap-attribute"

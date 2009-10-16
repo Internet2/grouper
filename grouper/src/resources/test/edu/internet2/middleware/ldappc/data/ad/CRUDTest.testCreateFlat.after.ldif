@@ -22,10 +22,12 @@ ou: testgroups
 dn: cn=edu:groupA,ou=testgroups,${base}
 objectClass: group
 cn: edu:groupA
+sAMAccountName: edu_groupA
 member: cn=test.subject.0,ou=testpeople,${base}
 
 dn: cn=edu:groupB,ou=testgroups,${base}
 objectClass: group
 cn: edu:groupB
 description: descriptionB
+sAMAccountName: edu_groupB
 member: cn=test.subject.1,ou=testpeople,${base}
