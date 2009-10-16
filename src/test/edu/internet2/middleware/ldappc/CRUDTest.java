@@ -85,7 +85,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.bushy);
 
-    verify("CRUDTest.testCreateBushy.after.ldif");
+    verifyLdif("CRUDTest.testCreateBushy.after.ldif");
   }
 
   public void testCreateBushyDryRun() throws Exception {
@@ -129,7 +129,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     File ldif = provision(GroupDNStructure.bushy);
 
-    verify("CRUDTest.testCreateBushy.after.ldif");
+    verifyLdif("CRUDTest.testCreateBushy.after.ldif");
 
     if (ldappc.getConfig().getBundleModifications()) {
       verifyLdif("CRUDTest.testCreateBushyWriteLdif.ldif", ldif);
@@ -148,7 +148,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.flat);
 
-    verify("CRUDTest.testCreateFlat.after.ldif");
+    verifyLdif("CRUDTest.testCreateFlat.after.ldif");
   }
 
   public void testCreateSubgroupBushy() throws Exception {
@@ -159,7 +159,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.bushy);
 
-    verify("CRUDTest.testCreateSubgroupBushy.after.ldif");
+    verifyLdif("CRUDTest.testCreateSubgroupBushy.after.ldif");
   }
 
   public void testCreateSubgroupBushyNoMemberGroups() throws Exception {
@@ -172,7 +172,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.bushy);
 
-    verify("CRUDTest.testCreateSubgroupBushyNoMemberGroups.after.ldif");
+    verifyLdif("CRUDTest.testCreateSubgroupBushyNoMemberGroups.after.ldif");
   }
 
   public void testCreateSubgroupFlat() throws Exception {
@@ -183,7 +183,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.flat);
 
-    verify("CRUDTest.testCreateSubgroupFlat.after.ldif");
+    verifyLdif("CRUDTest.testCreateSubgroupFlat.after.ldif");
   }
 
   public void testCreateSubgroupFlatNoMemberGroups() throws Exception {
@@ -196,7 +196,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.flat);
 
-    verify("CRUDTest.testCreateSubgroupFlatNoMemberGroups.after.ldif");
+    verifyLdif("CRUDTest.testCreateSubgroupFlatNoMemberGroups.after.ldif");
   }
 
   public void testCreateSubgroupPhasingFlat() throws Exception {
@@ -207,7 +207,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.flat);
 
-    verify("CRUDTest.testCreateSubgroupPhasingFlat.after.ldif");
+    verifyLdif("CRUDTest.testCreateSubgroupPhasingFlat.after.ldif");
   }
 
   public void testCreateSubgroupPhasingFlatOneStep() throws Exception {
@@ -220,7 +220,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.flat);
 
-    verify("CRUDTest.testCreateSubgroupPhasingFlatOneStep.after.ldif");
+    verifyLdif("CRUDTest.testCreateSubgroupPhasingFlatOneStep.after.ldif");
   }
 
   public void testDeleteGroupsBushy() throws Exception {
@@ -232,7 +232,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.bushy);
 
-    verify("CRUDTest.testDeleteGroupsBushy.after.ldif");
+    verifyLdif("CRUDTest.testDeleteGroupsBushy.after.ldif");
   }
 
   public void testDeleteGroupsBushyDryRun() throws Exception {
@@ -277,7 +277,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.bushy);
 
-    verify("CRUDTest.testModifyMemberBushy.after.ldif");
+    verifyLdif("CRUDTest.testModifyMemberBushy.after.ldif");
   }
 
   public void testModifyMemberBushyDryRun() throws Exception {
@@ -309,7 +309,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.bushy);
 
-    verify("CRUDTest.testCreateBushy.after.ldif");
+    verifyLdif("CRUDTest.testCreateBushy.after.ldif");
   }
 
   public void testModifyEmptyListValueAddMemberDryRun() throws Exception {
@@ -345,7 +345,7 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.bushy);
 
-    verify("CRUDTest.testModifyEmptyListValueDeleteMember.after.ldif");
+    verifyLdif("CRUDTest.testModifyEmptyListValueDeleteMember.after.ldif");
   }
 
   public void testModifyEmptyListDeleteMemberDryRun() throws Exception {

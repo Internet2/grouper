@@ -691,7 +691,7 @@ public class PSPTest extends GrouperTest {
 
         String currentLdif = LdappcTestHelper.getCurrentLdif(GROUPER_BASE_DN, ldap);
 
-        LdappcTestHelper.verifyLdif(correctLdif, currentLdif);
+        LdappcTestHelper.verifyLdif(correctLdif, currentLdif, true);
 
       } catch (Exception e) {
         e.printStackTrace();

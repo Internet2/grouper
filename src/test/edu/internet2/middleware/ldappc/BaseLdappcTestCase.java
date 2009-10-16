@@ -321,7 +321,7 @@ public class BaseLdappcTestCase extends GrouperTest {
     return GrouperUtil.propertiesValueBoolean(properties, TEST_USE_EMBEDDED, false);
   }
 
-  public void verify(String pathToCorrectFile) {
+  public void verifyLdif(String pathToCorrectFile) {
     try {
       ArrayList<String> normalizeDnAttributes = new ArrayList<String>();
       normalizeDnAttributes.add(ldappc.getConfig().getGroupMembersDnListAttribute());
@@ -329,7 +329,7 @@ public class BaseLdappcTestCase extends GrouperTest {
       String correctLdif = LdappcTestHelper.readFile(getFile(pathToCorrectFile));
 
       LdappcTestHelper.verifyLdif(correctLdif, propertiesFile, normalizeDnAttributes,
-          base, ldapContext);
+          base, ldapContext, useActiveDirectory());
     } catch (Exception e) {
       e.printStackTrace();
       fail("An error occurred : " + e);
@@ -343,6 +343,6 @@ public class BaseLdappcTestCase extends GrouperTest {
     dnAttributeNames.add(ldappc.getConfig().getGroupMembersDnListAttribute());
 
     LdappcTestHelper.verifyLdif(getFile(correctFile), currentFile, propertiesFile,
-        dnAttributeNames);
+        dnAttributeNames, useActiveDirectory());
   }
 }
