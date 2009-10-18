@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HierarchicalOrgLoaderHook.java,v 1.3 2009-08-11 20:18:09 mchyzer Exp $
+ * $Id: HierarchicalOrgLoaderHook.java,v 1.4 2009-10-18 16:30:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -184,7 +184,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
       if (StringUtils.isBlank(parentStem)) {
         parentStem = "poc:orgs";
       }
-      parentStem = StringUtils.stripEnd(parentStem, ":");
+      parentStem = GrouperUtil.stripSuffix(parentStem, ":");
       StringBuilder result = new StringBuilder(parentStem);
       for (int i=0; i<hierarchy.size(); i++) {
         result.append(":").append(hierarchy.get(i).getOrgName());

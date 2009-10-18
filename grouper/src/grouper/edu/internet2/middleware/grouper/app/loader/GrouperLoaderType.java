@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.22 2009-09-02 05:57:26 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.23 2009-10-18 16:30:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -625,6 +625,7 @@ public enum GrouperLoaderType {
               
             } catch (Exception e) {
               hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+              LOG.error("Error in job for group: " + groupName, e);
             }
             //start next one now (so we dont lose time)
             groupStartedMillis = System.currentTimeMillis();
@@ -1150,21 +1151,62 @@ public enum GrouperLoaderType {
         if (groupPrivsToAdd != null && groupPrivsToAdd.size() > 0) {
           
           Set<Group> groupsForPrivs = GroupTypeTupleIncludeExcludeHook.relatedGroups(theGroup);
-          for (Group groupForPriv : groupsForPrivs) {
           
+          boolean isIncludeExclude = false;
+          if (groupsForPrivs.size() > 1) {
+          for (Group groupForPriv : groupsForPrivs) {
+              if (groupForPriv.getName().endsWith(GroupTypeTupleIncludeExcludeHook.includeExtensionSuffix())) {
+                isIncludeExclude = true;
+              }
+            }
+          }
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Related groups to " + theGroup.getName() 
+                + ": " + GrouperUtil.toStringForLog(groupsForPrivs)
+                + ", isIncludeExclude: " + isIncludeExclude + ", groupSize: " + groupsForPrivs.size());
+          }
+          
+          for (Group groupForPriv : groupsForPrivs) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Cycling through privs, group: " + groupForPriv);
+            }
+            
             for (Privilege privilege : groupPrivsToAdd.keySet()) {
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("Cycling through privs, priv: " + privilege.getName() + ", group: " + groupForPriv);
+              }
               List<Subject> subjects = groupPrivsToAdd.get(privilege);
               for (Subject subject : subjects) {
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug("Cycling through privs, subject: " + GrouperUtil.subjectToString(subject) 
+                      + ", priv: " + privilege.getName() + ", group: " + groupForPriv);
+                }
                 //add the priv
                 Boolean added = null;
+                boolean skipPriv = false;
                 try {
+                  if (isIncludeExclude) {
+                    if (AccessPrivilege.UPDATE.getName().equals(privilege.getName())) {
+                      if (!groupForPriv.getName().endsWith(GroupTypeTupleIncludeExcludeHook.excludeExtensionSuffix())
+                          && !groupForPriv.getName().endsWith(GroupTypeTupleIncludeExcludeHook.includeExtensionSuffix())) {
+                        if (LOG.isDebugEnabled()) {
+                          LOG.debug("Skipping priv: " + privilege + ", on group: " + groupForPriv.getName() 
+                              + " since update and includeExclude group which is not the includes or excludes...");
+                        }
+                        skipPriv = true;
+                      }
+                    }
+                  }
+                  if (!skipPriv) {    
                   added = groupForPriv.grantPriv(subject, privilege, false);
-                  if (added) {
+                  }
+                  if (added != null && added) {
                     hib3GrouploaderLog.addInsertCount(1);
                   }
                 } finally {
+                  if (!skipPriv && LOG.isDebugEnabled()) {
                   String logMessage = "Granting privilege " + privilege + " to group: " + groupForPriv.getName() + " to subject: "
-                      + GrouperUtil.subjectToString(subject) + " already existed? " + added;
+                        + GrouperUtil.subjectToString(subject) + " already existed? " + (added == null ? null : !added);
                   //System.out.println(logMessage);
                   LOG.debug(logMessage);
                 }
@@ -1173,7 +1215,10 @@ public enum GrouperLoaderType {
           }
         }
       }
-      
+      }
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Done assigning privilege to related groups: " + theGroup.getName());
+      }
       hib3GrouploaderLog.setGroupUuid(group[0].getUuid());
 
       Set<LoaderMemberWrapper> currentMembers = new LinkedHashSet<LoaderMemberWrapper>();
@@ -1405,6 +1450,7 @@ public enum GrouperLoaderType {
     } catch (Exception e) {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       hib3GrouploaderLog.insertJobMessage(ExceptionUtils.getFullStackTrace(e));
+      LOG.error("Problem with group: " + groupName, e);
       throw new RuntimeException("Problem with group: " + groupName, e);
     } finally {
       hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
