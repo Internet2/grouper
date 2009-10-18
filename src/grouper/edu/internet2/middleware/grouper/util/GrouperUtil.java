@@ -936,10 +936,15 @@ public class GrouperUtil {
     if (url == null) {
       return null;
     }
+    try {
+      String fileName = URLDecoder.decode(url.getFile(), "UTF-8");
 
-    File configFile = new File(url.getFile());
+      File configFile = new File(fileName);
 
     return configFile;
+    } catch (UnsupportedEncodingException uee) {
+      throw new RuntimeException(uee);
+    }
   }
   
 
@@ -1015,6 +1020,22 @@ public class GrouperUtil {
       return (T[])(Object)new char[0];
     }
     return array == null ? ((T[])Array.newInstance(theClass, 0)) : array;
+  }
+  
+  /**
+   * strip the suffix off
+   * @param string
+   * @param suffix
+   * @return the string without the suffix
+   */
+  public static String stripSuffix(String string, String suffix) {
+    if (string == null || suffix == null) {
+      return string;
+    }
+    if (string.endsWith(suffix)) {
+      return string.substring(0, string.length() - suffix.length());
+    }
+    return string;
   }
   
   /**

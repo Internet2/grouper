@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderTest.java,v 1.10 2009-08-11 20:18:08 mchyzer Exp $
+ * $Id: GrouperLoaderTest.java,v 1.11 2009-10-18 16:30:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -437,6 +437,9 @@ public class GrouperLoaderTest extends GrouperTest {
       GrouperDdlUtils.internal_printDdlUpdateMessage = false;
       this.grouperSession = GrouperSession.startRootSession();
       
+      GrouperLoaderConfig.testConfig.put("groups.create.grant.all.read", "false");
+      GrouperLoaderConfig.testConfig.put("groups.create.grant.all.view", "false");
+
       ensureTestgrouperLoaderTables();
   
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader").executeUpdate();
@@ -566,7 +569,7 @@ public class GrouperLoaderTest extends GrouperTest {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
+   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
    */
   @Override
   protected void tearDown() {
@@ -576,5 +579,234 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
 
   }
+  
+  
+//  /**
+//   * test the loader to make sure you can apply security to include/exclude
+//   * without removing custom members
+//   * @throws Exception 
+//   */
+//  public void testLoaderTypesGroupMetaDontRemove() throws Exception {
+//    
+//    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+//    
+//    TestgrouperLoader group1subj0 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+//    testDataList.add(group1subj0);
+//    TestgrouperLoader group1subj1 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ1_ID, null);
+//    testDataList.add(group1subj1);
+//    TestgrouperLoader group2subj1 = new TestgrouperLoader("loader:group2_systemOfRecord", SubjectTestHelper.SUBJ1_ID, null);
+//    testDataList.add(group2subj1);
+//    TestgrouperLoader group2subj2 = new TestgrouperLoader("loader:group2_systemOfRecord", SubjectTestHelper.SUBJ2_ID, null);
+//    testDataList.add(group2subj2);
+//    TestgrouperLoader group3subj2 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ2_ID, null);
+//    testDataList.add(group3subj2);
+//    TestgrouperLoader group3subj3 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ3_ID, null);
+//    testDataList.add(group3subj3);
+//    TestgrouperLoader group4subj3 = new TestgrouperLoader("loader:group4_systemOfRecord", SubjectTestHelper.SUBJ3_ID, null);
+//    testDataList.add(group4subj3);
+//    TestgrouperLoader group4subj4 = new TestgrouperLoader("loader:group4_systemOfRecord", SubjectTestHelper.SUBJ4_ID, null);
+//    testDataList.add(group4subj4);
+//    TestgrouperLoader group6subj5 = new TestgrouperLoader("loader:group6_systemOfRecord", SubjectTestHelper.SUBJ5_ID, null);
+//    testDataList.add(group6subj5);
+//    TestgrouperLoader group6subj6 = new TestgrouperLoader("loader:group6_systemOfRecord", SubjectTestHelper.SUBJ6_ID, null);
+//    testDataList.add(group6subj6);
+//  
+//    TestgrouperLoaderGroups group1meta = new TestgrouperLoaderGroups("loader:group1_systemOfRecord", 
+//        "The loader:group 1 system of record", "This is the first group");
+//    testDataList.add(group1meta);
+//    TestgrouperLoaderGroups group2meta = new TestgrouperLoaderGroups("loader:group2_systemOfRecord", 
+//        "The loader:group 2 system of record", null);
+//    testDataList.add(group2meta);
+//    TestgrouperLoaderGroups group3meta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord", 
+//        null, "This is the third group");
+//    testDataList.add(group3meta);
+//    
+//    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+//  
+//    //lets add a group which will load these
+//    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+//        "loader2:owner",null, null, null, true);
+//    loaderGroup.addType(GroupTypeFinder.find("grouperLoader"));
+//    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+//        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+//    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
+//        "addIncludeExclude");
+//    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+//      "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+//    
+//    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+//    
+//    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1");
+//    assertEquals("The loader:group 1", overallGroup1.getDisplayName());
+//    Group systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord");
+//    assertEquals("This is the first group", systemOfRecordGroup1.getDescription());
+//    assertEquals("The loader:group 1 system of record", systemOfRecordGroup1.getDisplayName());
+//    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
+//    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ1));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ2));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ3));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ4));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ5));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ6));
+//    
+//    Group overallGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2");
+//  
+//    assertEquals("The loader:group 2", overallGroup2.getDisplayName());
+//    Group systemOfRecordGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2_systemOfRecord");
+//    assertTrue(systemOfRecordGroup2.getDescription().length() > 0);
+//    assertEquals("The loader:group 2 system of record", systemOfRecordGroup2.getDisplayName());
+//  
+//    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ0));
+//    assertTrue(overallGroup2.hasMember(SubjectTestHelper.SUBJ1));
+//    assertTrue(overallGroup2.hasMember(SubjectTestHelper.SUBJ2));
+//    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ3));
+//    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ4));
+//    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ5));
+//    assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ6));
+//    
+//    Group overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3");
+//    assertEquals("The loader:group3", overallGroup3.getDisplayName());
+//    Group systemOfRecordGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord");
+//    assertEquals("This is the third group", systemOfRecordGroup3.getDescription());
+//    assertEquals("The loader:group3_systemOfRecord", systemOfRecordGroup3.getDisplayName());
+//  
+//    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ0));
+//    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ1));
+//    assertTrue(overallGroup3.hasMember(SubjectTestHelper.SUBJ2));
+//    assertTrue(overallGroup3.hasMember(SubjectTestHelper.SUBJ3));
+//    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ4));
+//    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ5));
+//    assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ6));
+//  
+//    Group overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4");
+//    assertEquals("The loader:group4", overallGroup4.getDisplayName());
+//    Group systemOfRecordGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_systemOfRecord");
+//    assertTrue(systemOfRecordGroup4.getDescription().length() > 0);
+//    assertEquals("The loader:group4_systemOfRecord", systemOfRecordGroup4.getDisplayName());
+//    assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ0));
+//    assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ1));
+//    assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ2));
+//    assertTrue(overallGroup4.hasMember(SubjectTestHelper.SUBJ3));
+//    assertTrue(overallGroup4.hasMember(SubjectTestHelper.SUBJ4));
+//    assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ5));
+//    assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ6));
+//  
+//    Group overallGroup5 = GroupFinder.findByName(this.grouperSession, "loader:group5", false);
+//    assertNull(overallGroup5);
+//    
+//    //lets use the includes/excludes for group6
+//    Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes");
+//    group6includes.addMember(SubjectTestHelper.SUBJ9);
+//  
+//    Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6");
+//    assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
+//    assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
+//    assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ2));
+//    assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ3));
+//    assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ4));
+//    assertTrue(overallGroup6.hasMember(SubjectTestHelper.SUBJ5));
+//    assertTrue(overallGroup6.hasMember(SubjectTestHelper.SUBJ6));
+//    assertTrue(overallGroup6.hasMember(SubjectTestHelper.SUBJ9));
+//    
+//    //lets make sure the security groups dont exist
+//    new StemSave(this.grouperSession).assignName("loaderSecurity")
+//      .assignSaveMode(SaveMode.INSERT).saveUnchecked();
+//    
+//    Group admins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:admins", false);
+//    assertNull(admins);
+//    Group readers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:readers", false);
+//    assertNull(readers);
+//    Group updaters = GroupFinder.findByName(this.grouperSession, "loaderSecurity:updaters", false);
+//    assertNull(updaters);
+//    Group viewers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:viewers", false);
+//    assertNull(viewers);
+//    Group optins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optins", false);
+//    assertNull(optins);
+//    Group optouts = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optouts", false);
+//    assertNull(optouts);
+//  
+//    //add a record to the includes
+//    Group group4includes = GroupFinder.findByName(this.grouperSession, "loader:group4_includes", true);
+//    group4includes.addMember(SubjectTestHelper.SUBJ8);
+//    
+//    //change the query to include all these groups
+//    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+//      "select group_name, group_display_name, group_description, 'loaderSecurity:admins' as admins, " +
+//      "'loaderSecurity:readers' as readers, 'loaderSecurity:viewers' as viewers, " +
+//      "'loaderSecurity:updaters' as updaters, 'loaderSecurity:optins' as optins, " +
+//      "'loaderSecurity:optouts' as optouts, 'T' as manage_deletes from testgrouper_loader_groups union " +
+//      "select 'loader:group4_includes' as group_name, 'loader:group4 includes' as group_display_name, " +
+//      "null as group_description, 'loaderSecurity:admins' as admins, " +
+//      "'loaderSecurity:readers' as readers, 'loaderSecurity:viewers' as viewers, " +
+//      "'loaderSecurity:updaters' as updaters, 'loaderSecurity:optins' as optins, " +
+//      "'loaderSecurity:optouts' as optouts, 'F' as manage_deletes from testgrouper_loader_groups where group_name = 'loader:group4_systemOfRecord' ");
+//    loaderGroup.store();
+//    
+//    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+//  
+//    admins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:admins", false);
+//    assertNotNull(admins);
+//    readers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:readers", false);
+//    assertNotNull(readers);
+//    updaters = GroupFinder.findByName(this.grouperSession, "loaderSecurity:updaters", false);
+//    assertNotNull(updaters);
+//    viewers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:viewers", false);
+//    assertNotNull(viewers);
+//    optins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optins", false);
+//    assertNotNull(optins);
+//    optouts = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optouts", false);
+//    assertNotNull(optouts);
+//    
+//    //make sure they have the privilege
+//    overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4");
+//    assertTrue(overallGroup4.hasRead(readers.toSubject()));
+//    assertFalse(overallGroup4.hasAdmin(viewers.toSubject()));
+//    assertTrue(overallGroup4.hasView(viewers.toSubject()));
+//    assertTrue(overallGroup4.hasUpdate(updaters.toSubject()));
+//    assertTrue(overallGroup4.hasOptin(optins.toSubject()));
+//    assertTrue(overallGroup4.hasOptout(optouts.toSubject()));
+//    assertTrue(overallGroup4.hasAdmin(admins.toSubject()));
+//    
+//    Group overallGroup4includes = GroupFinder.findByName(this.grouperSession, "loader:group4_includes");
+//    assertTrue(overallGroup4includes.hasRead(readers.toSubject()));
+//    assertFalse(overallGroup4includes.hasAdmin(viewers.toSubject()));
+//    assertTrue(overallGroup4includes.hasView(viewers.toSubject()));
+//    assertTrue(overallGroup4includes.hasUpdate(updaters.toSubject()));
+//    assertTrue(overallGroup4includes.hasOptin(optins.toSubject()));
+//    assertTrue(overallGroup4includes.hasOptout(optouts.toSubject()));
+//    assertTrue(overallGroup4includes.hasAdmin(admins.toSubject()));
+//    
+//    Group overallGroup4excludes = GroupFinder.findByName(this.grouperSession, "loader:group4_excludes");
+//    assertFalse(overallGroup4excludes.hasRead(readers.toSubject()));
+//    assertFalse(overallGroup4excludes.hasView(viewers.toSubject()));
+//    assertFalse(overallGroup4excludes.hasUpdate(updaters.toSubject()));
+//    assertFalse(overallGroup4excludes.hasOptin(optins.toSubject()));
+//    assertFalse(overallGroup4excludes.hasOptout(optouts.toSubject()));
+//    assertFalse(overallGroup4excludes.hasAdmin(admins.toSubject()));
+//    
+//    //make sure the member is still there
+//    group4includes = GroupFinder.findByName(this.grouperSession, "loader:group4_includes", true);
+//    assertTrue(group4includes.hasMember(SubjectTestHelper.SUBJ8));
+//    
+//    //set manage deletes to true
+//    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+//        "select group_name, group_display_name, group_description, 'loaderSecurity:admins' as admins, " +
+//        "'loaderSecurity:readers' as readers, 'loaderSecurity:viewers' as viewers, " +
+//        "'loaderSecurity:updaters' as updaters, 'loaderSecurity:optins' as optins, " +
+//        "'loaderSecurity:optouts' as optouts, 'T' as manage_deletes from testgrouper_loader_groups union " +
+//        "select 'loader:group4_includes' as group_name, 'loader:group4 includes' as group_display_name, " +
+//        "null as group_description, 'loaderSecurity:admins' as admins, " +
+//        "'loaderSecurity:readers' as readers, 'loaderSecurity:viewers' as viewers, " +
+//        "'loaderSecurity:updaters' as updaters, 'loaderSecurity:optins' as optins, " +
+//        "'loaderSecurity:optouts' as optouts, 'T' as manage_deletes from testgrouper_loader_groups where group_name = 'loader:group4_systemOfRecord' ");
+//    loaderGroup.store();
+//      
+//    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+//    
+//    group4includes = GroupFinder.findByName(this.grouperSession, "loader:group4_includes", true);
+//    assertFalse(group4includes.hasMember(SubjectTestHelper.SUBJ8));
+//
+//    
+//  }
   
 }

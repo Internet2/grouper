@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.8 2009-08-11 20:18:08 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.9 2009-10-18 16:30:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -244,8 +244,14 @@ public class GrouperLoaderResultset {
       try {
         if (!StringUtils.isBlank(subjectSourceId)) {
           this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId, true);
+          //CH 20091013: we need the loader to be based on subjectId to eliminate lookups...
+          //this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId, false);
+          //if (this.subject == null) {
+          //  this.subject = SubjectFinder.getSource(subjectSourceId).getSubjectByIdentifier(subjectId, true);
+          //}
         } else {
           this.subject = SubjectFinder.findById(subjectId, true);
+          //this.subject = SubjectFinder.findByIdOrIdentifier(subjectId, true);
         }
       } catch (Exception e) {
         this.subjectError = "Problem with subjectId: " 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.14 2009-03-24 17:12:08 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.15 2009-10-18 16:30:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -31,9 +31,21 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testConvertMillisToFriendlyString"));
+    TestRunner.run(new GrouperUtilTest("testStringSuffix"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * test strip suffix
+   */
+  public void testStringSuffix() {
+    assertEquals("whatever", GrouperUtil.stripSuffix("whatever", "what"));
+    assertEquals("whatever", GrouperUtil.stripSuffix("whatever", "eve"));
+    assertEquals(null, GrouperUtil.stripSuffix(null, null));
+    assertEquals("a", GrouperUtil.stripSuffix("a", null));
+    assertEquals(null, GrouperUtil.stripSuffix(null, "a"));
+    assertEquals("what", GrouperUtil.stripSuffix("whatever", "ever"));
   }
   
   /**

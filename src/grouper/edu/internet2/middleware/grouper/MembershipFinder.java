@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.105 2009-09-21 06:14:27 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.106 2009-10-18 16:30:51 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -322,8 +322,13 @@ public class MembershipFinder {
       // ignore  
     }
     catch (SchemaException eSchema) {
-      //MCH 20090405: Shouldnt this rethrow?
-      LOG.warn("Error retrieving members", eSchema);
+      String groupName = null;
+      try {
+        groupName = group.getName();
+      } catch (Exception e) {
+        LOG.error("error getting group name", e);
+      }
+      throw new RuntimeException("Error retrieving members for group: " + groupName, eSchema);
     }
     return members;
   } 
