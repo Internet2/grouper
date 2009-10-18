@@ -993,6 +993,22 @@ public class GrouperUtil {
   }
   
   /**
+   * strip the suffix off
+   * @param string
+   * @param suffix
+   * @return the string without the suffix
+   */
+  public static String stripSuffix(String string, String suffix) {
+    if (string == null || suffix == null) {
+      return string;
+    }
+    if (string.endsWith(suffix)) {
+      return string.substring(0, string.length() - suffix.length());
+    }
+    return string;
+  }
+  
+  /**
    * get the prefix or suffix of a string based on a separator
    * 
    * @param startString

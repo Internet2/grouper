@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.3.2.1 2009-05-19 19:34:30 mchyzer Exp $
+ * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.3.2.2 2009-10-18 15:50:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -151,7 +151,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
    * @param postInsertBean
    * @param requireRequireGroups true if only callable from required groups type
    */
-  private void groupTypeTupleHelper(HooksGroupTypeTupleBean postInsertBean, boolean requireRequireGroups) {
+  private void groupTypeTupleHelper(HooksGroupTypeTupleBean postInsertBean, @SuppressWarnings("unused") boolean requireRequireGroups) {
     boolean useGrouperIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.use", false);
     boolean useRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
     
@@ -258,13 +258,13 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     if (useGrouperIncludeExclude) {
       
       if (name.endsWith(systemOfRecordExtensionSuffix())) {
-        baseName = StringUtils.stripEnd(name, systemOfRecordExtensionSuffix());
+        baseName = GrouperUtil.stripSuffix(name, systemOfRecordExtensionSuffix());
       } else if (name.endsWith(includeExtensionSuffix())) {
-        baseName = StringUtils.stripEnd(name, includeExtensionSuffix());
+        baseName = GrouperUtil.stripSuffix(name, includeExtensionSuffix());
       } else if (name.endsWith(includesMinusExcludesExtensionSuffix())) {
-        baseName = StringUtils.stripEnd(name, includesMinusExcludesExtensionSuffix());
+        baseName = GrouperUtil.stripSuffix(name, includesMinusExcludesExtensionSuffix());
       } else if (name.endsWith(systemOfRecordAndIncludesExtensionSuffix())) {
-        baseName = StringUtils.stripEnd(name, systemOfRecordAndIncludesExtensionSuffix());
+        baseName = GrouperUtil.stripSuffix(name, systemOfRecordAndIncludesExtensionSuffix());
       }
     }
     boolean useRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
@@ -277,6 +277,10 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       }
     }
 
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("name: " + name + ", baseName: " + baseName);
+    }
+    
     GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
     
     Group groupFind = null;
@@ -299,6 +303,11 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     
       //include
       groupFind = GroupFinder.findByName(grouperSession, baseName + includeExtensionSuffix(),false);
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Searching for group: " + (baseName + includeExtensionSuffix()) + ", found: " + (groupFind != null));
+      }
+      
       if (groupFind != null) {
         groups.add(groupFind);
       }
