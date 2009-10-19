@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.222 2009-10-15 22:57:32 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.223 2009-10-19 14:12:35 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -25,6 +25,10 @@
   <!-- Grouper Global Build Properties -->
   <property file="${basedir}/build.properties"/>
 
+  <!-- validate the build.properties -->
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): resources.dir" unless="resources.dir" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): resources.dir.test.ldappc" unless="resources.dir.test.ldappc" />
+  
   <property file="${basedir}/misc/version.properties"/>
 
   <property name="dist.binary" value="${dist.dir}/binary"/>
