@@ -372,14 +372,25 @@ public class LdappcTestHelper {
    */
   public static void loadLdif(File ldifFile, File replacementPropertiesFile,
       LdapContext ldapContext) throws Exception {
+    loadLdif(new FileInputStream(ldifFile), replacementPropertiesFile, ldapContext);
+  }
+
+  public static void loadLdif(String ldif, File replacementPropertiesFile,
+      LdapContext ldapContext) throws Exception {
+    loadLdif(new ByteArrayInputStream(ldif.getBytes()), replacementPropertiesFile,
+        ldapContext);
+  }
+
+  public static void loadLdif(InputStream ldif, File replacementPropertiesFile,
+      LdapContext ldapContext) throws Exception {
 
     LdifReader ldifReader = null;
     if (replacementPropertiesFile != null) {
       PropertyReplacementResourceFilter prf = new PropertyReplacementResourceFilter(
           replacementPropertiesFile);
-      ldifReader = new LdifReader(prf.applyFilter(new FileInputStream(ldifFile)));
+      ldifReader = new LdifReader(prf.applyFilter(ldif));
     } else {
-      ldifReader = new LdifReader(ldifFile);
+      ldifReader = new LdifReader(ldif);
     }
 
     for (LdifEntry entry : ldifReader) {
@@ -610,16 +621,20 @@ public class LdappcTestHelper {
         .applyFilter(correctLdif, propertiesFile);
 
     // get attribute ids to request
+    String[] requestedAttributes = null;
     Map<String, Collection<String>> map = LdappcTestHelper
         .buildObjectlassAttributeMap(filteredCorrectLdif);
-    Set<String> attrIds = new HashSet<String>();
-    for (Collection<String> values : map.values()) {
-      attrIds.addAll(values);
+    if (map != null) {
+      Set<String> attrIds = new HashSet<String>();
+      for (Collection<String> values : map.values()) {
+        attrIds.addAll(values);
+      }
+      requestedAttributes = attrIds.toArray(new String[] {});
     }
 
     // get current ldif using requested attribute ids
-    String currentLdif = LdappcTestHelper.getCurrentLdif(base, attrIds
-        .toArray(new String[] {}), ldapContext);
+    String currentLdif = LdappcTestHelper.getCurrentLdif(base, requestedAttributes,
+        ldapContext);
 
     // verify ldif
     LdappcTestHelper.verifyLdif(correctLdif, currentLdif, propertiesFile,

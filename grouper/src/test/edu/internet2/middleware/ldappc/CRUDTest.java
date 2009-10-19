@@ -6,7 +6,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
+import edu.internet2.middleware.ldappc.exception.LdappcException;
 
 public class CRUDTest extends BaseLdappcTestCase {
 
@@ -35,14 +37,29 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     try {
       setUpLdapContext();
-      setUpLdappc(pathToConfig, pathToProperties);
     } catch (Exception e) {
       e.printStackTrace();
       fail("An error occurred : " + e);
     }
   }
 
+  private void setUpLdappc() throws Exception {
+    setUpLdappc(pathToConfig, pathToProperties);
+  }
+
+  private void setUpLdappc(String configResource) throws Exception {
+
+    File file = GrouperUtil.fileFromResourceName(TEST_PATH + configResource);
+    if (file == null) {
+      throw new LdappcException("Unable to find resource '" + configResource + "'");
+    }
+
+    setUpLdappc(file.getAbsolutePath(), pathToProperties);
+  }
+
   public void testCalculateBushy() throws Exception {
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.before.ldif");
 
@@ -56,6 +73,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCalculateChildStems() throws Exception {
+
+    setUpLdappc();
 
     Stem courses = this.edu.addChildStem("courses", "Courses");
 
@@ -81,6 +100,8 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateBushy() throws Exception {
 
+    setUpLdappc();
+
     loadLdif("CRUDTest.before.ldif");
 
     provision(GroupDNStructure.bushy);
@@ -89,6 +110,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateBushyDryRun() throws Exception {
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.before.ldif");
 
@@ -102,6 +125,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateBushyDryRunOneStep() throws Exception {
+
+    setUpLdappc();
 
     ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
 
@@ -117,6 +142,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateBushyWriteLdif() throws Exception {
+
+    setUpLdappc();
 
     File tmpFile = File.createTempFile("ldappcTestCreateBushyWriteLdif", null);
     String tmpPath = tmpFile.getAbsolutePath();
@@ -144,6 +171,8 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateFlat() throws Exception {
 
+    setUpLdappc();
+
     loadLdif("CRUDTest.before.ldif");
 
     provision(GroupDNStructure.flat);
@@ -152,6 +181,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateSubgroupBushy() throws Exception {
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.before.ldif");
 
@@ -163,6 +194,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateSubgroupBushyNoMemberGroups() throws Exception {
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.before.ldif");
 
@@ -177,6 +210,8 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateSubgroupFlat() throws Exception {
 
+    setUpLdappc();
+
     loadLdif("CRUDTest.before.ldif");
 
     groupB.addMember(groupA.toSubject());
@@ -187,6 +222,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateSubgroupFlatNoMemberGroups() throws Exception {
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.before.ldif");
 
@@ -201,6 +238,8 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateSubgroupPhasingFlat() throws Exception {
 
+    setUpLdappc();
+
     loadLdif("CRUDTest.before.ldif");
 
     groupA.addMember(groupB.toSubject());
@@ -211,6 +250,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateSubgroupPhasingFlatOneStep() throws Exception {
+
+    setUpLdappc();
 
     ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
 
@@ -225,6 +266,8 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testDeleteGroupsBushy() throws Exception {
 
+    setUpLdappc();
+
     loadLdif("CRUDTest.testDeleteGroupsBushy.before.ldif");
 
     groupA.delete();
@@ -236,6 +279,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testDeleteGroupsBushyDryRun() throws Exception {
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.testDeleteGroupsBushy.before.ldif");
 
@@ -252,6 +297,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testDeleteGroupsBushyDryRunOneStep() throws Exception {
+
+    setUpLdappc();
 
     ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
 
@@ -271,6 +318,8 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testModifyMemberBushy() throws Exception {
 
+    setUpLdappc();
+
     loadLdif("CRUDTest.testModifyMemberBushy.before.ldif");
 
     groupB.addMember(groupA.toSubject());
@@ -281,6 +330,8 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testModifyMemberBushyDryRun() throws Exception {
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.testModifyMemberBushy.before.ldif");
 
@@ -305,6 +356,8 @@ public class CRUDTest extends BaseLdappcTestCase {
       return;
     }
 
+    setUpLdappc();
+
     loadLdif("CRUDTest.testModifyEmptyListValueAddMember.before.ldif");
 
     provision(GroupDNStructure.bushy);
@@ -317,6 +370,8 @@ public class CRUDTest extends BaseLdappcTestCase {
     if (useActiveDirectory()) {
       return;
     }
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.testModifyEmptyListValueAddMember.before.ldif");
 
@@ -339,6 +394,8 @@ public class CRUDTest extends BaseLdappcTestCase {
       return;
     }
 
+    setUpLdappc();
+
     loadLdif("CRUDTest.testCreateBushy.after.ldif");
 
     groupA.deleteMember(SubjectTestHelper.SUBJ0);
@@ -353,6 +410,8 @@ public class CRUDTest extends BaseLdappcTestCase {
     if (useActiveDirectory()) {
       return;
     }
+
+    setUpLdappc();
 
     loadLdif("CRUDTest.testCreateBushy.after.ldif");
 
@@ -372,4 +431,69 @@ public class CRUDTest extends BaseLdappcTestCase {
     }
   }
 
+  public void testCalculateBushyResolverObjectClass() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
+
+    setUpLdappc("ldappc.test.resolverObjectClass.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushyResolverObjectClass.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCreateBushyResolverObjectClass() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
+
+    setUpLdappc("ldappc.test.resolverObjectClass.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushyResolverObjectClass.after.ldif");
+  }
+
+  public void testCreateBushyResolverObjectClassDryRun() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
+
+    setUpLdappc("ldappc.test.resolverObjectClass.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = dryRun(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateBushyResolverObjectClassDryRun.ldif", ldif);
+  }
+
+  public void testCreateBushyResolverObjectClassDryRunOneStep() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
+
+    setUpLdappc("ldappc.test.resolverObjectClass.xml");
+
+    ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = dryRun(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateBushyResolverObjectClassDryRunOneStep.ldif", ldif);
+  }
 }
