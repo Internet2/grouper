@@ -338,7 +338,8 @@ public class GroupEntrySynchronizer {
 
     storeGroupData(group);
 
-    BasicAttributes attributes = new BasicAttributes();
+    BasicAttributes attributes = new BasicAttributes(true);
+
     attributes.put(objectClassMods.getAdditions());
     if (memberDnMods != null) {
       attributes.put(memberDnMods.getAdditions());
@@ -348,11 +349,24 @@ public class GroupEntrySynchronizer {
     }
     attributes.put(rdnMods.getAdditions());
 
+    // lots of "attribute" ...
     NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
     while (ldapAttrEnum.hasMore()) {
       Attribute attribute = ldapAttrEnum.next();
       AttributeModifier modifier = (AttributeModifier) attribute.get();
-      attributes.put(modifier.getAdditions());
+      // attributes.put(modifier.getAdditions());
+      Attribute toAdd = modifier.getAdditions();
+      if (toAdd.size() > 0) {
+        Attribute attr = attributes.get(toAdd.getID());
+        if (attr == null) {
+          attributes.put(toAdd);
+        } else {
+          NamingEnumeration<?> values = toAdd.getAll();
+          while (values.hasMoreElements()) {
+            attr.add(values.next());
+          }
+        }
+      }
     }
 
     return LdifUtils.convertToLdif(attributes, new LdapDN(groupDn));
@@ -998,19 +1012,15 @@ public class GroupEntrySynchronizer {
     for (AttributeModifier modifier : modifiers) {
       Attribute attribute = modifier.getAdditions();
       if (attribute.size() > 0) {
-        attributes.put(attribute);
-      }
-    }
-
-    //
-    // If not creating the group then modifying members,
-    // include member attributes when creating the group
-    //
-    if (!ldappc.getConfig().getCreateGroupThenModifyMembers()) {
-      for (AttributeModifier modifier : memberModifiers) {
-        Attribute attribute = modifier.getAdditions();
-        if (attribute.size() > 0) {
+        // attributes.put(attribute);
+        Attribute attr = attributes.get(attribute.getID());
+        if (attr == null) {
           attributes.put(attribute);
+        } else {
+          NamingEnumeration<?> values = attribute.getAll();
+          while (values.hasMoreElements()) {
+            attr.add(values.next());
+          }
         }
       }
     }
