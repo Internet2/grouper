@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.12 2009-08-12 04:52:21 mchyzer Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.13 2009-10-19 19:01:55 mchyzer Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
@@ -78,9 +78,11 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources() ) {
-      Subject subject = sa.getSubject(id, false);
-      if (subject != null) {
-        subjects.add(subject);
+      try {
+        subjects.add( sa.getSubject(id, true) );
+      }
+      catch (SubjectNotFoundException eSNF) {
+        // ignore.  subject might be in another source.
       }
     }    
     return this.thereCanOnlyBeOne(subjects, id);
@@ -97,9 +99,11 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources(type) ) {
-      Subject subject = sa.getSubject(id, false);
-      if (subject != null) {
-        subjects.add(subject);
+      try {
+        subjects.add( sa.getSubject(id, true) );
+      }
+      catch (SubjectNotFoundException eSNF) {
+        // ignore.  subject might be in another source.
       }
     }    
     return this.thereCanOnlyBeOne(subjects, id);
@@ -167,9 +171,11 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources() ) {
-      Subject subject = sa.getSubjectByIdentifier(id, false);
-      if (subject != null) {
-        subjects.add(subject);
+      try {
+        subjects.add( sa.getSubjectByIdentifier(id, true) );
+      }
+      catch (SubjectNotFoundException eSNF) {
+        // ignore.  subject might be in another source.
       }
     }    
     return this.thereCanOnlyBeOne(subjects, id);
@@ -186,9 +192,11 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources(type) ) {
-      Subject subject = sa.getSubjectByIdentifier(id, false);
-      if (subject != null) {
-        subjects.add(subject);
+      try {
+        subjects.add( sa.getSubjectByIdentifier(id, true) );
+      }
+      catch (SubjectNotFoundException eSNF) {
+        // ignore.  subject might be in another source.
       }
     }    
     return this.thereCanOnlyBeOne(subjects, id);
