@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStemIntegration.java,v 1.1 2009-03-20 19:56:40 mchyzer Exp $
+ * @version $Id: TestStemIntegration.java,v 1.2 2009-10-20 14:55:50 shilen Exp $
  * @since   1.2.0
  */
 public class TestStemIntegration extends GrouperTest {
@@ -94,11 +94,11 @@ public class TestStemIntegration extends GrouperTest {
   public void testSetExtension_NotPrivileged() {
     try {
       LOG.info("testSetExtension_NotPrivileged");
-      R     r     = new R();
+      R       r     = R.getContext("i2mi");
+      Stem    i2mi  = r.getStem("i2mi");
       r.startAllSession();
-      Stem  root  = r.findRootStem();
-      root.setExtension("i should not be privileged to set this");
-      root.store();
+      i2mi.setExtension("i should not be privileged to set this");
+      i2mi.store();
       fail("should have thrown InsufficientPrivilegeException");
     }
     catch (InsufficientPrivilegeException eIP) {

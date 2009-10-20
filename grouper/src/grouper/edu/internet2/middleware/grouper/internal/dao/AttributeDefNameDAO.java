@@ -1,8 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AttributeDefNameDAO.java,v 1.5 2009-09-28 05:06:46 mchyzer Exp $
+ * $Id: AttributeDefNameDAO.java,v 1.6 2009-10-20 14:55:50 shilen Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
+
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
@@ -41,5 +43,12 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @param attributeDefName 
    */
   public void delete(AttributeDefName attributeDefName);
+  
+  /**
+   * Find all that have the given stem id.
+   * @param id
+   * @return set of stems
+   */
+  public Set<AttributeDefName> findByStem(String id);
   
 }

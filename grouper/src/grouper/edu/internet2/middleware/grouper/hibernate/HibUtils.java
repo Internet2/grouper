@@ -555,7 +555,7 @@ public class HibUtils {
   }
 
   /**
-   * convert a colleciton of strings (no parens) to an in clause
+   * convert a collection of strings (no parens) to an in clause
    * @param collection
    * @param scalarable to set the string
    * @return the string of in clause (without parens)
@@ -577,6 +577,25 @@ public class HibUtils {
         result.append(", ");
       }
       i++;
+    }
+    return result.toString();
+  }
+  
+  /**
+   * convert a collection of strings (no parens) to an in clause
+   * @param collection
+   * @return the string of in clause (without parens)
+   */
+  public static String convertToInClauseForSqlStatic(Collection<String> collection) {
+    
+    StringBuilder result = new StringBuilder();
+    int collectionSize = collection.size();
+    for (int i = 0; i < collectionSize; i++) {
+      result.append("?");
+
+      if (i < collectionSize - 1) {
+        result.append(", ");
+      }
     }
     return result.toString();
   }

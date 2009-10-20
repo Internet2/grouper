@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.9 2009-10-15 13:12:08 shilen Exp $
+ * @author shilen $Id: GroupSet.java,v 1.10 2009-10-20 14:55:50 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
@@ -145,6 +145,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
 
   /** constant for field name for: parentId */
   public static final String FIELD_PARENT_ID = "parentId";
+  
+  /** constant for field name for: memberFieldId */
+  public static final String FIELD_MEMBER_FIELD_ID = "memberFieldId";
 
   /**
    * fields which are included in db version
@@ -163,7 +166,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATE_TIME, FIELD_CREATOR_ID, FIELD_DEPTH, FIELD_VIA_GROUP_ID,
       FIELD_FIELD_ID, FIELD_MSHIP_TYPE, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_MEMBER_GROUP_ID, 
-      FIELD_MEMBER_STEM_ID, FIELD_OWNER_GROUP_ID, 
+      FIELD_MEMBER_STEM_ID, FIELD_OWNER_GROUP_ID, FIELD_MEMBER_FIELD_ID,  
       FIELD_OWNER_GROUP_ID_NULL, FIELD_OWNER_STEM_ID, FIELD_OWNER_STEM_ID_NULL, FIELD_PARENT_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -215,6 +218,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
 
   /** stem id for stem memberships.  this is the member. */
   private String memberStemId;
+  
+  /** member field id */
+  private String memberFieldId;
 
   /**
    * the value we're storing in the db for nulls that need a value so that we can add a unique constraint.
@@ -304,6 +310,12 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     
     if (this.creatorId == null) {
       this.creatorId = GrouperSession.staticGrouperSession().getMember().getUuid();
+    }
+    
+    if (this.depth == 0) {
+      this.memberFieldId = new String(this.fieldId);
+    } else {
+      this.memberFieldId = Group.getDefaultList().getUuid();
     }
     
     // now we need to take care of firing hooks for effective memberships
@@ -793,12 +805,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   /**
    * @return field id used in joining with grouper_memberships table
    */
-  public String getMemberFieldId() {
-    if (this.depth == 0) {
-      return this.fieldId;
-    }
-    
-    return Group.getDefaultList().getUuid();
+  public String getMemberFieldId() {    
+    return memberFieldId;
   }
 
   /**
@@ -806,7 +814,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    * @param memberFieldId
    */
   public void setMemberFieldId(String memberFieldId) {
-    // not used
+    this.memberFieldId = memberFieldId;
   }
 
   
@@ -1128,5 +1136,19 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    */
   public void setMemberId(String member) {
     // not used
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    if (this.depth == 0) {
+      this.memberFieldId = new String(this.fieldId);
+    } else {
+      this.memberFieldId = Group.getDefaultList().getUuid();
+    }
   }
 }
