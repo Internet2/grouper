@@ -39,6 +39,14 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+    
+    try {
+      setUpLdapContext();
+      setUpLdappc(pathToConfig, pathToProperties);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("An error occurred : " + e);
+    }
   }
 
   public void testStatusUnknown() throws ConfigurationException, NamingException {
