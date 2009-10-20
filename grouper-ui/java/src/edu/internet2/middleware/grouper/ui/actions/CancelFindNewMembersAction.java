@@ -106,7 +106,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: CancelFindNewMembersAction.java,v 1.7 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: CancelFindNewMembersAction.java,v 1.8 2009-10-20 12:39:13 isgwb Exp $
  */
 public class CancelFindNewMembersAction extends GrouperCapableAction {
 
@@ -125,7 +125,14 @@ public class CancelFindNewMembersAction extends GrouperCapableAction {
 			throws Exception {
 
 		String findForNode = (String) session.getAttribute("findForNode");
+		if(isEmpty(findForNode)) {	
+			findForNode=request.getParameter("groupId");
+		}
+		if(isEmpty(findForNode)) {	
+			findForNode=request.getParameter("stemId");
+		}
 		setBrowseNode(findForNode,session);
+				
 		session.removeAttribute("findForNode");
 		session.removeAttribute("findForPriv");
 		session.removeAttribute("findForListField");
