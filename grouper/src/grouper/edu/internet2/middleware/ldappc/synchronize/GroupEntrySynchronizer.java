@@ -661,7 +661,7 @@ public class GroupEntrySynchronizer {
    * @throws NamingException
    *           thrown if a naming error occurs
    */
-  protected void storeGroupData(Group group) throws NamingException {
+  protected void storeGroupData(Group group) throws NamingException, LdappcException {
     //
     // Store the object class data for the group entry.
     //
@@ -700,15 +700,11 @@ public class GroupEntrySynchronizer {
         // If maintaining member DN list, do it now
         //
         if (memberDnMods != null) {
-          try {
-            Name subjectDn = ldappc.getSubjectCache().findSubjectDn(member);
-            if (subjectDn != null) {
+          Set<Name> subjectDns = ldappc.getSubjectCache().findSubjectDn(member);
+          if (subjectDns != null) {
+            for (Name subjectDn : subjectDns) {
               memberDnMods.store(subjectDn.toString());
             }
-          } catch (NamingException e) {
-            LOG.warn(getErrorData(subject), e);
-          } catch (LdappcException e) {
-            LOG.warn(getErrorData(subject), e);
           }
         }
 

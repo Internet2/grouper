@@ -37,6 +37,7 @@ import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
+import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
 
 /**
  * This set of tests validates the {@link edu.internet2.middleware.ldappc.ConfigManager}.
@@ -93,8 +94,14 @@ public class ConfigManagerTest extends TestCase {
   /**
    * Valid properties file for property replacement
    */
-  public static String PROPERTY_REPLACEMENT_PROPERTRY_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
+  public static String PROPERTY_REPLACEMENT_PROPERTY_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
       + "ldappcPropertyReplacement.properties";
+
+  /**
+   * Valid properties file for property replacement
+   */
+  public static String VALID_LDAPSEARCHFILTER_CONFIG_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
+      + "ldappcLdapSearchFilter.xml";
 
   /**
    * Class constructor
@@ -573,7 +580,7 @@ public class ConfigManagerTest extends TestCase {
     String configPath = ConfigManager.getSystemResourceURL(
         PROPERTY_REPLACEMENT_CONFIG_FILE_RESOURCE, true).getPath();
     String propsPath = ConfigManager.getSystemResourceURL(
-        PROPERTY_REPLACEMENT_PROPERTRY_FILE_RESOURCE, true).getPath();
+        PROPERTY_REPLACEMENT_PROPERTY_FILE_RESOURCE, true).getPath();
 
     Properties properties = new Properties();
     properties.load(new FileInputStream(new File(propsPath)));
@@ -590,5 +597,39 @@ public class ConfigManagerTest extends TestCase {
         DirContext.SECURITY_PRINCIPAL));
     assertEquals(properties.get("security_credentials"), cm.getLdapContextParameters()
         .get(DirContext.SECURITY_CREDENTIALS));
+  }
+
+  public void testLdapSearchFilter() throws FileNotFoundException, IOException {
+
+    String configPath = ConfigManager.getSystemResourceURL(
+        VALID_LDAPSEARCHFILTER_CONFIG_FILE_RESOURCE, true).getPath();
+    String propsPath = ConfigManager.getSystemResourceURL(
+        PROPERTY_REPLACEMENT_PROPERTY_FILE_RESOURCE, true).getPath();
+
+    Properties properties = new Properties();
+    properties.load(new FileInputStream(new File(propsPath)));
+
+    ConfigManager cm = new ConfigManager(configPath, propsPath);
+
+    assertTrue(cm.getSourceSubjectLdapFilters().get("source1").getMultipleResults());
+    assertEquals(OnNotFound.fail, cm.getSourceSubjectLdapFilters().get("source1")
+        .getOnNotFound());
+  }
+
+  public void testLdapSearchFilterDefaults() throws FileNotFoundException, IOException {
+
+    String configPath = ConfigManager.getSystemResourceURL(
+        PROPERTY_REPLACEMENT_CONFIG_FILE_RESOURCE, true).getPath();
+    String propsPath = ConfigManager.getSystemResourceURL(
+        PROPERTY_REPLACEMENT_PROPERTY_FILE_RESOURCE, true).getPath();
+
+    Properties properties = new Properties();
+    properties.load(new FileInputStream(new File(propsPath)));
+
+    ConfigManager cm = new ConfigManager(configPath, propsPath);
+
+    assertFalse(cm.getSourceSubjectLdapFilters().get("source1").getMultipleResults());
+    assertEquals(OnNotFound.warn, cm.getSourceSubjectLdapFilters().get("source1")
+        .getOnNotFound());
   }
 }

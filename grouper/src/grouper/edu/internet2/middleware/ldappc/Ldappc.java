@@ -607,10 +607,12 @@ public final class Ldappc extends TimerTask {
       }
 
       for (Member member : group.getMembers()) {
-        Name subjectDn = subjectCache.findSubjectDn(member);
-        if (subjectDn != null) {
-          updatesWriter.write(subjectDn.toString() + "\t" + groupNameString + "\n");
-          // existingSubjectDns.remove(subjectDn);
+        Set<Name> subjectDns = subjectCache.findSubjectDn(member);
+        if (subjectDns != null) {
+          for (Name subjectDn : subjectDns) {
+            updatesWriter.write(subjectDn.toString() + "\t" + groupNameString + "\n");
+            // existingSubjectDns.remove(subjectDn);
+          }
         }
       }
     }

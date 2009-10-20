@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
 
 public class CRUDTest extends BaseLdappcTestCase {
 
@@ -452,16 +453,25 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateBushyResolverObjectClass() throws Exception {
 
+    // TODO
+
     if (useActiveDirectory()) {
       return;
     }
 
     setUpLdappc("ldappc.test.resolverObjectClass.xml");
 
+    File tmpFile = File.createTempFile("testCreateBushyResolverObjectClass", null);
+    String tmpPath = tmpFile.getAbsolutePath();
+    tmpFile.delete();
+
+    ldappc.getOptions().setWriteLdif(true);
+    ldappc.getOptions().setOutputFileLocation(tmpPath);
+
     loadLdif("CRUDTest.before.ldif");
 
-    provision(GroupDNStructure.bushy);
-
+    File ldif = provision(GroupDNStructure.bushy);
+    System.out.println(LdappcTestHelper.readFile(ldif));
     verifyLdif("CRUDTest.testCalculateBushyResolverObjectClass.after.ldif");
   }
 
@@ -495,5 +505,125 @@ public class CRUDTest extends BaseLdappcTestCase {
     File ldif = dryRun(GroupDNStructure.bushy);
 
     verifyLdif("CRUDTest.testCreateBushyResolverObjectClassDryRunOneStep.ldif", ldif);
+  }
+
+  public void testCalculateBushySubjectNotFound() throws Exception {
+
+    groupA.addMember(SubjectTestHelper.SUBJ2);
+
+    setUpLdappc();
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushySubjectNotFound.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCalculateBushySubjectNotFoundFail() throws Exception {
+
+    groupA.addMember(SubjectTestHelper.SUBJ2);
+
+    setUpLdappc();
+
+    ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
+        .setOnNotFound(OnNotFound.fail);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    try {
+      calculate(GroupDNStructure.bushy);
+    } catch (LdappcException e) {
+      // OK
+    }
+  }
+
+  public void testCalculateBushySubjectNotFoundIgnore() throws Exception {
+
+    groupA.addMember(SubjectTestHelper.SUBJ2);
+
+    setUpLdappc();
+
+    ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
+        .setOnNotFound(OnNotFound.ignore);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushySubjectNotFound.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCalculateBushySubjectNotFoundWarn() throws Exception {
+
+    groupA.addMember(SubjectTestHelper.SUBJ2);
+
+    setUpLdappc();
+
+    ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
+        .setOnNotFound(OnNotFound.warn);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushySubjectNotFound.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCalculateBushyMultipleSubjects() throws Exception {
+
+    setUpLdappc();
+
+    ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
+        .setMultipleResults(true);
+
+    loadLdif("CRUDTest.testCalculateBushyMultipleSubjects.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushyMultipleSubjects.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCalculateBushyMultipleSubjectsFail() throws Exception {
+
+    setUpLdappc();
+
+    loadLdif("CRUDTest.testCalculateBushyMultipleSubjects.before.ldif");
+
+    try {
+      calculate(GroupDNStructure.bushy);
+    } catch (LdappcException e) {
+      // OK
+    }
+  }
+
+  public void testCreateBushyMultipleSubjects() throws Exception {
+
+    setUpLdappc();
+
+    ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
+        .setMultipleResults(true);
+
+    loadLdif("CRUDTest.testCalculateBushyMultipleSubjects.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateBushyMultipleSubjects.after.ldif");
   }
 }
