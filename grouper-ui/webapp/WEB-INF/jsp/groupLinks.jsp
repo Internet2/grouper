@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.16 2009-10-16 14:33:56 isgwb Exp $
+  @version $Id: groupLinks.jsp,v 1.17 2009-10-20 15:05:59 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -58,7 +58,7 @@
 		
 		<c:if test="${!isCompositeGroup && groupPrivResolver.canManageMembers && mediaMap['ui-lite.link-from-admin-ui'] == 'true'}">
 		
-			<html:link target="_blank" page="${mediaMap['ui.lite.group-link']}${group.id}" >
+			<html:link page="${mediaMap['ui.lite.group-link']}${group.id}&fromAdminUi=true&returnTo=group" >
 				<grouper:message key="ui-lite.group-link"/>
 			</html:link>
 		

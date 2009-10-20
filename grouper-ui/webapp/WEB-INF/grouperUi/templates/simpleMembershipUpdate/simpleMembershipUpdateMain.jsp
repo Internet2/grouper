@@ -17,6 +17,10 @@
   groupName="${simpleMembershipUpdateContainer.guiGroup.group.displayName}"
 /></td><td> &nbsp; &nbsp; &nbsp; <a class="smallLink" href="#operation=SimpleMembershipUpdate.index"
   ><grouper:message key="simpleMembershipUpdate.changeLocation" /></a>
+  <c:if test="${mediaMap['ui-lite.link-from-admin-ui']=='true'}">
+  &nbsp; &nbsp; &nbsp; <a class="smallLink" href="../../populateGroupSummary.do?groupId=${simpleMembershipUpdateContainer.guiGroup.group.id}"
+  ><grouper:message key="simpleMembershipUpdate.viewInAdminUi" /></a>
+  </c:if>
 </td>
 </tr>
 </table>
