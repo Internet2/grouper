@@ -140,7 +140,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.23 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.24 2009-10-20 12:46:47 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -284,7 +284,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
         int sortLimit=Integer.parseInt(sortLimitString);
         
         allChildren = MembershipFinder.internal_findAllImmediateByGroupAndFieldAndPage(
-            group, field, start, pageSize, sortLimit, resultSizeArray);
+            group, field, (start/pageSize)+1, pageSize, sortLimit, resultSizeArray);
         resultSize = resultSizeArray[0];
         sortedChildren=LowLevelGrouperCapableAction.sort(allChildren,request,context, resultSize);
 
@@ -311,7 +311,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 					throw new RuntimeException(node + " is not recognised");
         }
         List<GroupAsMap> listOfMaps = getChildrenAsMaps(s, stemName,
-          start, pageSize, resultSizeArray);
+          (start/pageSize)+1, pageSize, resultSizeArray);
           
         if (this.pagedQuery()) {
           resultSize = resultSizeArray[0];  
