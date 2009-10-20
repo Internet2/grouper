@@ -11,14 +11,16 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.10 2009-10-15 19:34:45 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.11 2009-10-20 20:14:15 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
@@ -36,6 +38,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -53,7 +56,7 @@ public class SubjectCache {
   /**
    * Nested table mapping source ID to table mapping subject ID to DN.
    */
-  private Map<String, Hashtable<String, Name>> subjectIdToDnTables = new HashMap<String, Hashtable<String, Name>>();
+  private Map<String, Hashtable<String, Set<Name>>> subjectIdToDnTables = new HashMap<String, Hashtable<String, Set<Name>>>();
 
   /**
    * Count of subject ID's looked up.
@@ -83,7 +86,7 @@ public class SubjectCache {
       }
 
       if (subjectIdToDnTables.get(source) == null) {
-        subjectIdToDnTables.put(source, new Hashtable<String, Name>(estimate));
+        subjectIdToDnTables.put(source, new Hashtable<String, Set<Name>>(estimate));
       } else {
         subjectIdToDnTables.get(source).clear();
       }
@@ -150,7 +153,7 @@ public class SubjectCache {
    * @throws LdappcException
    *           if there is a configuration error or if exactly one DN cannot be determined
    */
-  public Name findSubjectDn(Member member) throws NamingException, LdappcException {
+  public Set<Name> findSubjectDn(Member member) throws NamingException, LdappcException {
 
     // source and subject identifiers
     String sourceId = member.getSubjectSourceId();
@@ -165,16 +168,17 @@ public class SubjectCache {
 
     // use cache
     if (subjectIdToDnTables.get(sourceId) == null) {
-      subjectIdToDnTables.put(sourceId,
-          new Hashtable<String, Name>(DEFAULT_HASH_ESTIMATE));
+      subjectIdToDnTables.put(sourceId, new Hashtable<String, Set<Name>>(
+          DEFAULT_HASH_ESTIMATE));
     } else {
-      Name subjectDn = subjectIdToDnTables.get(sourceId).get(subjectIdentifier);
-      if (subjectDn != null) {
+      Set<Name> subjectDns = subjectIdToDnTables.get(sourceId).get(subjectIdentifier);
+      if (subjectDns != null) {
         subjectIdTableHits++;
-        LOG.debug("cache found dn '{}' for sourceId '{}' subjectId '{}'", new Object[] {
-            subjectDn, sourceId, subjectIdentifier });
-        return subjectDn;
+        LOG.debug("cache found dns '{}' for sourceId '{}' subjectId '{}'", new Object[] {
+            subjectDns, sourceId, subjectIdentifier });
+        return subjectDns;
       }
+
     }
 
     // determine filter, use built-in for g:gsa source
@@ -185,7 +189,7 @@ public class SubjectCache {
       Name groupDN = ldappc.calculateGroupDn(group);
       subjectIdentifier = group.getName(); // for logging
       filter = new LdapSearchFilter(groupDN.toString(), SearchControls.OBJECT_SCOPE,
-          "(objectclass=*)");
+          "(objectclass=*)", OnNotFound.warn, false);
 
     } else {
 
@@ -223,15 +227,19 @@ public class SubjectCache {
     }
 
     // perform ldap search
-    Name subjectDn = findSubjectDn(filter, subjectIdentifier);
-    if (subjectDn != null) {
+    Set<Name> subjectDns = findSubjectDn(filter, subjectIdentifier);
+    if (subjectDns != null) {
       // add to cache
-      subjectIdToDnTables.get(sourceId).put(subjectIdentifier, subjectDn);
+      if (subjectIdToDnTables.get(sourceId).get(subjectIdentifier) == null) {
+        subjectIdToDnTables.get(sourceId).put(subjectIdentifier,
+            new LinkedHashSet<Name>());
+      }
+      subjectIdToDnTables.get(sourceId).get(subjectIdentifier).addAll(subjectDns);
       LOG.debug("search found dn '{}' for sourceId '{}' subjectId '{}'", new Object[] {
-          subjectDn, sourceId, subjectIdentifier });
+          subjectDns, sourceId, subjectIdentifier });
     }
 
-    return subjectDn;
+    return subjectDns;
   }
 
   /**
@@ -249,7 +257,7 @@ public class SubjectCache {
    *           thrown if the search returns more than 1 object or if the object is
    *           relative
    */
-  private Name findSubjectDn(LdapSearchFilter filter, String subjectIdentifier)
+  private Set<Name> findSubjectDn(LdapSearchFilter filter, String subjectIdentifier)
       throws NamingException, LdappcException {
 
     subjectIdLookups++;
@@ -282,7 +290,12 @@ public class SubjectCache {
       namingEnum = ldappc.getContext().search(baseName, filterExpr, filterArgs,
           searchControls);
     } catch (NameNotFoundException e) {
-      LOG.warn("Subject not found using " + msg);
+      if (filter.getOnNotFound().equals(OnNotFound.fail)) {
+        LOG.error("Subject not found using " + msg, e);
+        throw new LdappcException(e);
+      } else if (filter.getOnNotFound().equals(OnNotFound.warn)) {
+        LOG.warn("Subject not found using " + msg);
+      }
       return null;
     }
 
@@ -291,36 +304,48 @@ public class SubjectCache {
     //
     if (!namingEnum.hasMore()) {
       // throw new LdappcException("Subject not found using " + msg);
-      LOG.warn("Subject not found using " + msg);
+      if (filter.getOnNotFound().equals(OnNotFound.fail)) {
+        LOG.error("Subject not found using " + msg);
+        throw new LdappcException("Subject not found using " + msg);
+      } else if (filter.getOnNotFound().equals(OnNotFound.warn)) {
+        LOG.warn("Subject not found using " + msg);
+      }
       return null;
     }
 
-    //
-    // Get the first result.
-    //
-    SearchResult searchResult = (SearchResult) namingEnum.next();
+    Set<Name> subjectDns = new LinkedHashSet<Name>();
+    while (namingEnum.hasMore()) {
+      //
+      // Get the result.
+      //
+      SearchResult searchResult = (SearchResult) namingEnum.next();
 
-    //
-    // After getting the first result, if there are more throw an exception
-    // as the search result was not unique
-    //
-    if (namingEnum.hasMore()) {
-      throw new LdappcException("Multiple entries found using " + msg);
+      //
+      // After getting the first result, if there are more throw an exception
+      // as the search result was not unique, if we are not allowing multiple results
+      //
+      if (namingEnum.hasMore()) {
+        if (!filter.getMultipleResults()) {
+          throw new LdappcException("Multiple entries found using " + msg);
+        }
+      }
+
+      //
+      // If name is NOT relative, throw an exception
+      //
+      if (!searchResult.isRelative()) {
+        throw new LdappcException("Unable to resolve the reference found using " + msg);
+      }
+
+      //
+      // Build the subject's DN
+      //
+      Name subjectDn = parser.parse(searchResult.getName());
+      subjectDn = subjectDn.addAll(0, baseName);
+
+      subjectDns.add(subjectDn);
     }
 
-    //
-    // If name is NOT relative, throw an exception
-    //
-    if (!searchResult.isRelative()) {
-      throw new LdappcException("Unable to resolve the reference found using " + msg);
-    }
-
-    //
-    // Build the subject's DN
-    //
-    Name subjectDn = parser.parse(searchResult.getName());
-    subjectDn = subjectDn.addAll(0, baseName);
-
-    return subjectDn;
+    return subjectDns;
   }
 }

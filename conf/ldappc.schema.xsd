@@ -71,6 +71,16 @@
             </xs:attribute>
             <xs:attribute name="filter" use="required"
                 type="ldap-search-filter-type" />
+            <xs:attribute name="on-not-found" default="warn">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="fail" />
+                        <xs:enumeration value="warn" />
+                        <xs:enumeration value="ignore" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="multiple-results" type="xs:boolean" default="false" />
         </xs:complexType>
     </xs:element>
 

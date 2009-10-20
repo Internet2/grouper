@@ -42,6 +42,21 @@ public class LdapSearchFilter {
   private String filter;
 
   /**
+   * When a subject is not found, either fail (throw an LdappcException), warn (log), or
+   * ignore (do nothing).
+   */
+  public enum OnNotFound {
+    fail, warn, ignore
+  };
+
+  private OnNotFound onNotFound;
+
+  /**
+   * Allow multiple provisioned objects on a target for a single subject.
+   */
+  private boolean multipleResults;
+
+  /**
    * Construct a LdapSearchFilter with the given parameters.
    * 
    * @param base
@@ -50,11 +65,18 @@ public class LdapSearchFilter {
    *          Scope of the search
    * @param filter
    *          Ldap search filter
+   * @param onNotFound
+   *          action to perform when a subject can not be found
+   * @param multipleResults
+   *          allow multiple provisioned objects for a subject
    */
-  public LdapSearchFilter(String base, int scope, String filter) {
+  public LdapSearchFilter(String base, int scope, String filter, OnNotFound onNotFound,
+      boolean multipleResults) {
     setBase(base);
     setScope(scope);
     setFilter(filter);
+    setOnNotFound(onNotFound);
+    setMultipleResults(multipleResults);
   }
 
   /**
@@ -131,6 +153,32 @@ public class LdapSearchFilter {
       throw new IllegalArgumentException("Filter may not be null.");
     }
     this.filter = filter;
+  }
+
+  /**
+   * Get desired behavior when a subject is not found.
+   * 
+   * @return {@link #onNotFound}
+   */
+  public OnNotFound getOnNotFound() {
+    return onNotFound;
+  }
+
+  public void setOnNotFound(OnNotFound onNotFound) {
+    this.onNotFound = onNotFound;
+  }
+
+  /**
+   * Get whether or not multiple provisioned objects for a subject are allowed.
+   * 
+   * @return true if multiple results are allowed, defaults to false
+   */
+  public boolean getMultipleResults() {
+    return multipleResults;
+  }
+
+  public void setMultipleResults(boolean multipleResults) {
+    this.multipleResults = multipleResults;
   }
 
   /**

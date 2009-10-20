@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
+import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
 
 /**
  * Class for accessing values from the Auth2Ldap configuration file.
@@ -430,13 +431,15 @@ public class ConfigManager implements LdappcConfig {
 
     // Save the Source Subject Identifier LDAP filters
     elementPath = "ldappc/source-subject-identifiers/source-subject-identifier";
-    digester.addCallMethod(elementPath, "addSourceSubjectLdapFilter", 4);
+    digester.addCallMethod(elementPath, "addSourceSubjectLdapFilter", 6);
     digester.addCallParam(elementPath, 0, "source");
 
     elementPath = "ldappc/source-subject-identifiers/source-subject-identifier/ldap-search";
     digester.addCallParam(elementPath, 1, "base");
     digester.addCallParam(elementPath, 2, "scope");
     digester.addCallParam(elementPath, 3, "filter");
+    digester.addCallParam(elementPath, 4, "on-not-found");
+    digester.addCallParam(elementPath, 5, "multiple-results");
 
     // Save the Group DN structure parameters
     elementPath = "ldappc/grouper/groups";
@@ -1253,7 +1256,8 @@ public class ConfigManager implements LdappcConfig {
    *           thrown if an invalid scope value is encountered.
    */
   private void addSourceSubjectLdapFilter(String source, String base, String scope,
-      String filter) throws ConfigurationException {
+      String filter, String onNotFound, String multipleResults)
+      throws ConfigurationException {
     //
     // If scope matches (ignoring case) the name of a
     // javax.naming.directory.SearchControls constant,
@@ -1273,7 +1277,8 @@ public class ConfigManager implements LdappcConfig {
     //
     // Create the LdapSearchFilter object
     //
-    LdapSearchFilter ldapFilter = new LdapSearchFilter(base, scopeValue, filter);
+    LdapSearchFilter ldapFilter = new LdapSearchFilter(base, scopeValue, filter,
+        OnNotFound.valueOf(onNotFound), Boolean.parseBoolean(multipleResults));
 
     //
     // Add it to the collection
@@ -2050,8 +2055,10 @@ public class ConfigManager implements LdappcConfig {
      *           .
      */
     public void addSourceSubjectLdapFilter(String source, String base, String scope,
-        String filter) throws ConfigurationException {
-      ConfigManager.this.addSourceSubjectLdapFilter(source, base, scope, filter);
+        String filter, String onNotFound, String multipleResults)
+        throws ConfigurationException {
+      ConfigManager.this.addSourceSubjectLdapFilter(source, base, scope, filter,
+          onNotFound, multipleResults);
     }
 
     /**

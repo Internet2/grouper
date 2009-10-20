@@ -38,7 +38,7 @@
 
   <source-subject-identifiers>    
     <source-subject-identifier source="jdbc" subject-attribute="id">
-      <ldap-search base="ou=testpeople,${base}" scope="subtree_scope" filter="(cn={0})" />
+      <ldap-search base="ou=testpeople,${base}" scope="subtree_scope" filter="(cn={0})" on-not-found="warn" multiple-results="false" />
     </source-subject-identifier>  
   </source-subject-identifiers>
 
