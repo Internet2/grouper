@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /**
  * Data Access Object for attribute def name
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameDAO.java,v 1.4 2009-09-28 05:06:46 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameDAO.java,v 1.5 2009-10-20 14:55:50 shilen Exp $
  */
 public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefNameDAO {
   
@@ -136,6 +136,21 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       
     });
 
+  }
+  
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByStem(java.lang.String)
+   */
+  public Set<AttributeDefName> findByStem(String id) {
+    Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic()
+        .createQuery("from AttributeDefName where stemId = :id")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByStem")
+        .setString("id", id)
+        .listSet(AttributeDefName.class);
+    
+    return attributeDefNames;
   }
 
 } 

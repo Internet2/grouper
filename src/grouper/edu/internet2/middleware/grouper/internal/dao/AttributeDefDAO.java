@@ -1,8 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AttributeDefDAO.java,v 1.4 2009-09-28 20:30:34 mchyzer Exp $
+ * $Id: AttributeDefDAO.java,v 1.5 2009-10-20 14:55:50 shilen Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
+
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
@@ -44,5 +46,12 @@ public interface AttributeDefDAO extends GrouperDAO {
    */
   public AttributeDef findByNameSecure(String name, boolean exceptionIfNotFound) 
     throws GrouperDAOException, AttributeDefNotFoundException;
+  
+  /**
+   * Find all that have the given stem id.
+   * @param id
+   * @return set of stems
+   */
+  public Set<AttributeDef> findByStem(String id);
 
 }

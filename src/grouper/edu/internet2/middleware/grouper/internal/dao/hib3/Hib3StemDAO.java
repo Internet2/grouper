@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +46,7 @@ import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -60,7 +62,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.36 2009-10-03 13:47:13 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.37 2009-10-20 14:55:50 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -1184,10 +1186,28 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#updateLastMembershipChangeIncludeAncestorGroups(java.lang.String)
    */
   public void updateLastMembershipChangeIncludeAncestorGroups(String groupId) {
-    HibernateSession.bySqlStatic().executeSql(
-        "update grouper_stems set last_membership_change = ? where id in " + 
-          "(select distinct owner_stem_id from grouper_group_set where member_group_id = ?)",
-        GrouperUtil.toList((Object) System.currentTimeMillis(), groupId));
+    
+    // note that i'm not doing this all in one update statement with a subquery due to
+    // a mysql bug:  http://bugs.mysql.com/bug.php?id=8139
+    
+    Set<String> stemIds = GrouperDAOFactory.getFactory().getGroupSet().findAllOwnerStemsByMemberGroup(groupId);
+    if (stemIds.size() == 0) {
+      return;
+    }
+    
+    String queryPrefix = "update grouper_stems set last_membership_change = ? where id ";
+    Object time = (Object) System.currentTimeMillis();
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, 100);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> stemIdsInBatch = GrouperUtil.batchList(stemIds, 100, i);
+      List<Object> params = new ArrayList<Object>();
+      params.add(time);
+      params.addAll(stemIdsInBatch);
+      
+      String queryInClause = HibUtils.convertToInClauseForSqlStatic(stemIdsInBatch);
+      HibernateSession.bySqlStatic().executeSql(queryPrefix + " in (" + queryInClause + ")", params);    
+    }
   }
 } 
 

@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: Hib3GroupSetDAO.java,v 1.9 2009-09-24 18:07:16 shilen Exp $
+ * @version $Id: Hib3GroupSetDAO.java,v 1.10 2009-10-20 14:55:50 shilen Exp $
  */
 public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
@@ -550,6 +550,36 @@ return groupSets;
     }
     
     return groupSet;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllOwnerGroupsByMemberGroup(java.lang.String)
+   */
+  public Set<String> findAllOwnerGroupsByMemberGroup(String groupId) {
+    Set<String> ownerGroupSet = HibernateSession
+      .byHqlStatic()
+      .createQuery("select distinct ownerGroupId from GroupSet where memberGroupId = :groupId and ownerGroupId is not null")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllOwnerGroupByMemberGroup")
+      .setString("groupId", groupId)
+      .listSet(String.class);
+    
+    return ownerGroupSet;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllOwnerStemsByMemberGroup(java.lang.String)
+   */
+  public Set<String> findAllOwnerStemsByMemberGroup(String groupId) {
+    Set<String> ownerStemSet = HibernateSession
+      .byHqlStatic()
+      .createQuery("select distinct ownerStemId from GroupSet where memberGroupId = :groupId and ownerStemId is not null")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllOwnerStemByMemberGroup")
+      .setString("groupId", groupId)
+      .listSet(String.class);
+  
+    return ownerStemSet;
   }
 }
 

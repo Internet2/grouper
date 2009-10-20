@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.85 2009-10-15 13:12:08 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.86 2009-10-20 14:55:50 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -4959,9 +4959,11 @@ public enum GrouperDdl implements DdlVersionable {
     // field_id doesn't need to be in the unique index, but i'm adding it so that we can
     // set parent_id to null before removing self groupSets without getting a constraint
     // violiations.
+    // Also having a member_id, field_id index seems to be helpful in Oracle and MySQL when you
+    // have a member with a lot of effective privileges.
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
-        "group_set_uniq_idx", true, "member_id", "owner_attr_def_id_null", "owner_group_id_null", 
-        "owner_stem_id_null", "mship_type", "field_id", "parent_id");
+        "group_set_uniq_idx", true, "member_id", "field_id", "owner_attr_def_id_null", "owner_group_id_null", 
+        "owner_stem_id_null", "mship_type", "parent_id");
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
         "group_set_creator_idx", false, "creator_id");

@@ -63,7 +63,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.31 2009-09-17 17:51:50 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.32 2009-10-20 14:55:50 shilen Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -447,105 +447,6 @@ public class TestStem extends GrouperTest {
       T.e(e);
     }
   } // public void testGetChildGroups()
-
-  // testGetCreateAttrs             => TestStem6
-  // testGetModifyAttrsNotModified  => TestStem7
-  // testGetModifyAttrsModified     => TestStem8
-
-  public void testPropagateDisplayExtensionChangeRootAsRoot() {
-    LOG.info("testPropagateExtensionChangeRootAsRoot");
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem            i2    = StemHelper.addChildStem(edu, "i2", "internet2");
-    Stem            uofc  = StemHelper.addChildStem(edu, "uofc", "uchicago");
-    Group           bsd   = StemHelper.addChildGroup(uofc, "bsd", "biological sciences division");
-    Group           psd   = StemHelper.addChildGroup(uofc, "psd", "physical sciences division");
-
-    String exp = "";
-    Assert.assertTrue(
-      "root displayExtn exp(" + exp + ") got(" + root.getDisplayExtension() + ")", 
-      root.getDisplayExtension().equals(exp)
-    );
-    Assert.assertTrue(
-      "root displayName exp(" + exp + ") got(" + root.getDisplayName() + ")", 
-      root.getDisplayName().equals(exp));
-    exp = "education";
-    Assert.assertTrue(
-      "edu displayExtn exp(" + exp + ") got(" + edu.getDisplayExtension() + ")",
-      edu.getDisplayExtension().equals(exp)
-    );
-    Assert.assertTrue(
-      "edu displayName exp(" + exp + ") got(" + edu.getDisplayName() + ")",
-      edu.getDisplayName().equals(exp)
-    );
-    exp = edu.getDisplayName() + ":internet2";
-    Assert.assertTrue("i2 displayName", i2.getDisplayName().equals(exp));
-    exp = edu.getDisplayName() + ":uchicago";
-    Assert.assertTrue("uofc displayName", uofc.getDisplayName().equals(exp));
-    exp = uofc.getDisplayName() + ":biological sciences division";
-    Assert.assertTrue("bsd displayName" , bsd.getDisplayName().equals(exp));
-    exp = uofc.getDisplayName() + ":physical sciences division";
-    Assert.assertTrue("psd displayName" , psd.getDisplayName().equals(exp));
-
-    // Now rename
-    exp = "root stem";
-    try {
-      root.setDisplayExtension(exp);
-      root.store();
-      Assert.assertTrue(
-        "mod'd root displayExtension=(" + root.getDisplayExtension() + ") (" + exp + ")", 
-        root.getDisplayExtension().equals(exp)
-      );
-      Assert.assertTrue(
-        "mod'd root displayName (" + root.getDisplayName() + ") (" + exp + ")", 
-        root.getDisplayName().equals(exp)
-      );
-    }
-    catch (Exception e) {
-      Assert.fail("unable to change stem displayName: " + e.getMessage());
-    }
-    
-    // Now retrieve the children and check them 
-    Stem eduR = StemHelper.findByName(s, edu.getName());
-    exp = root.getDisplayName() + ":education";
-    Assert.assertTrue(
-      "mod'd edu displayName=(" + eduR.getDisplayName() + ") (" + exp + ")", 
-      eduR.getDisplayName().equals(exp)
-    );
-
-    Stem i2R = StemHelper.findByName(s, i2.getName());
-    exp = eduR.getDisplayName() + ":internet2";
-    Assert.assertTrue(
-      "mod'd i2 displayName=(" + i2R.getDisplayName() + ") (" + exp + ")", 
-      i2R.getDisplayName().equals(exp)
-    );
-
-    exp = eduR.getDisplayName() + ":uchicago";
-    Stem  uofcR = StemHelper.findByName(s, uofc.getName());
-    Assert.assertTrue(
-      "mod'd uofc displayName=(" + uofcR.getDisplayName() + ") (" + exp + ")", 
-      uofcR.getDisplayName().equals(exp)
-    );
-    exp = uofcR.getDisplayName() + ":biological sciences division";
-    Group bsdR  = GroupHelper.findByName(s, bsd.getName());
-    Assert.assertTrue(
-      "mod'd bsd edu displayName=(" + bsdR.getDisplayName() + ") (" + exp + ")", 
-      bsdR.getDisplayName().equals(exp)
-    );
-    exp = uofcR.getDisplayName() + ":physical sciences division";
-    Group psdR  = GroupHelper.findByName(s, psd.getName());
-    Assert.assertTrue(
-      "mod'd psd edu displayName=(" + psdR.getDisplayName() + ") (" + exp + ")", 
-      psdR.getDisplayName().equals(exp)
-    );
-
-    // Now reset root's displayExtension
-    // hack! hack! hack!
-    root.setDisplayExtensionDb(Stem.ROOT_INT);
-    root.setDisplayNameDb(Stem.ROOT_INT);
-    root.store();
-  } // public void testPropagateExtensionChangeRootAsRoot()
 
   public void testPropagateDisplayExtensionChangeAsRoot() {
     LOG.info("testPropagateExtensionChangeAsRoot");

@@ -1,6 +1,6 @@
 /**
  * @author shilen
- * $Id: GroupSetDAO.java,v 1.6 2009-09-24 18:07:16 shilen Exp $
+ * $Id: GroupSetDAO.java,v 1.7 2009-10-20 14:55:50 shilen Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -202,5 +202,18 @@ public interface GroupSetDAO extends GrouperDAO {
    * and the second element is the field.
    */
   public Set<Object[]> findMissingSelfGroupSetsForAttrDefs();
-
+  
+  /**
+   * Find a set of ownerStemIds for a memberGroup
+   * @param groupId
+   * @return set
+   */
+  public Set<String> findAllOwnerStemsByMemberGroup(String groupId);
+  
+  /**
+   * Find a set of ownerGroupIds for a memberGroup
+   * @param groupId
+   * @return set
+   */
+  public Set<String> findAllOwnerGroupsByMemberGroup(String groupId);
 }

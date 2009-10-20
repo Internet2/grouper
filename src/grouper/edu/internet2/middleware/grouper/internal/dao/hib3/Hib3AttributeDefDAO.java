@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefDAO.java,v 1.4 2009-09-28 20:30:34 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefDAO.java,v 1.5 2009-10-20 14:55:50 shilen Exp $
  */
 public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   
@@ -135,6 +135,20 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     }
     
     return attributeDef;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByStem(java.lang.String)
+   */
+  public Set<AttributeDef> findByStem(String id) {
+    Set<AttributeDef> attributeDefs = HibernateSession.byHqlStatic()
+        .createQuery("from AttributeDef where stemId = :id")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByStem")
+        .setString("id", id)
+        .listSet(AttributeDef.class);
+    
+    return attributeDefs;
   }
 
 } 

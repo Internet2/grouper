@@ -116,7 +116,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.205 2009-10-02 05:57:58 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.206 2009-10-20 14:55:50 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1352,6 +1352,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
+    // If root stem, give exception.  I'm leaving the root stem specific logic below
+    // in case we want to remove this later.  But if we remove this, the onPreUpdate logic 
+    // for name changes would need to be adjusted.
+    if (this.isRootStem()) {
+      throw new StemModifyException("cannot set display extension on root stem.");
+    }
+    
     StopWatch sw = new StopWatch();
     sw.start();
     NamingValidator nv = NamingValidator.validate(value);
@@ -1442,6 +1449,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
+    // If root stem, give exception.  I'm leaving the root stem specific logic below
+    // in case we want to remove this later.  But if we remove this, we'll have to deal
+    // with parts of the code that identify the root stem as "" or ":".
+    // Also, the onPreUpdate logic for name changes would need to be adjusted.
+    if (this.isRootStem()) {
+      throw new StemModifyException("cannot set extension on root stem.");
+    }
+    
     // TODO 20070531 DRY w/ "setDisplayExtension"
     StopWatch sw = new StopWatch();
     sw.start();
@@ -2162,30 +2177,31 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   /**
    * rename child groups
    * @since   1.2.0
-   * @param attr
+   * @param nameChange
+   * @param displayNameChange
    * @param modifier
    * @param modifyTime
    * @param setAlternateName
    * @return the set of Group's
    */
-  private Set _renameChildGroups(String attr, String modifier, long modifyTime, 
+  private Set _renameChildGroups(boolean nameChange, boolean displayNameChange, String modifier, long modifyTime, 
       boolean setAlternateName) {
-    Group            _g;
+    
     Set                 groups  = new LinkedHashSet();
-    Iterator            it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this, Stem.Scope.ONE ).iterator();
+    Iterator<Group> it = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(this, Stem.Scope.ONE).iterator();
     while (it.hasNext()) {
-      _g = (Group) it.next();
+      Group _g = (Group) it.next();
       
-      if      ( attr.equals("displayName") )  {
-        _g.setDisplayNameDb(U.constructName( this.getDisplayName(), (String) _g.getDisplayExtension()));
-        
+      if (displayNameChange) {
+        _g.setDisplayNameDb(U.constructName(this.getDisplayName(), _g.getDisplayExtension()));
       }
-      else if ( attr.equals("name") )   {
+
+      if (nameChange) {
         if (setAlternateName) {
           _g.internal_addAlternateName(_g.dbVersion().getNameDb(), false);
         }
         
-        _g.setNameDb(U.constructName( this.getName(), _g.getExtension()));
+        _g.setNameDb(U.constructName(this.getName(), _g.getExtension()));
         
         Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
             _g.getNameDb(), false);
@@ -2197,9 +2213,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               _g.getNameDb() + " already exists.");
         }
       }
-      else {
-        throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
-      }
+      
       _g.setModifierUuid(modifier);
       _g.setModifyTimeLong(modifyTime);
       _g.setDontSetModified(true);
@@ -2211,63 +2225,103 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   /**
    * rename children.
    * @since   1.2.0
-   * @param attr attr
+   * @param nameChange
+   * @param displayNameChange
    * @param setAlternateName
-   * @return the set of Stems
+   * @return set of stems and groups
    * @throws StemModifyException if problem
    */
-  private Set _renameChildren(String attr, boolean setAlternateName) 
-    throws  StemModifyException
-  {
+  private Set _renameChildren(boolean nameChange, boolean displayNameChange, boolean setAlternateName)
+    throws  StemModifyException {
+    
+    // rename attributeDef and attributeDefName
+    _renameAttr(nameChange, displayNameChange);
+    
+    // rename child groups and stems
     Set     children    = new LinkedHashSet();
     String  modifier    = GrouperSession.staticGrouperSession().getMember().getUuid();
     long    modifyTime  = new Date().getTime();
-    children.addAll( this._renameChildStemsAndGroups(attr, modifier, modifyTime, setAlternateName) );
-    children.addAll( this._renameChildGroups(attr, modifier, modifyTime, setAlternateName) );
+    children.addAll(this._renameChildStemsAndGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
+    children.addAll(this._renameChildGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
     return children;
   } 
 
   /**
    * rename child stems and groups.
-   * @param attr sttr
+   * @param nameChange
+   * @param displayNameChange
    * @param modifier modifier
    * @param modifyTime modify time
    * @param setAlternateName
-   * @return the set of Stem's
+   * @return the set of stems and groups
    * @throws IllegalStateException if problem
    */
-  private Set _renameChildStemsAndGroups(String attr, String modifier, long modifyTime,
-      boolean setAlternateName) 
-    throws  IllegalStateException
-  {
+  private Set _renameChildStemsAndGroups(boolean nameChange, boolean displayNameChange, String modifier, 
+      long modifyTime, boolean setAlternateName) throws IllegalStateException {
+    
     Set       children  = new LinkedHashSet();
-    Stem      child;
-    Iterator  it        = GrouperDAOFactory.getFactory().getStem().findAllChildStems( this, Scope.ONE ).iterator();
+    Iterator<Stem> it = GrouperDAOFactory.getFactory().getStem().findAllChildStems(this, Scope.ONE).iterator();
+    
     while (it.hasNext()) {
-      child = (Stem) it.next() ;
+      Stem child = it.next();
       
-      if      ( attr.equals("displayName") )  {
-        child.setDisplayNameDb(
-          U.constructName( this.getDisplayNameDb(), child.getDisplayExtensionDb() ) 
-        );
+      if (displayNameChange) {
+        child.setDisplayNameDb(U.constructName(this.getDisplayNameDb(), child.getDisplayExtensionDb()));
       }
-      else if ( attr.equals("name") )   {
-        child.setNameDb(
-          U.constructName( this.getNameDb(), child.getExtensionDb() ) 
-        );
+    
+      if (nameChange) {
+        child.setNameDb(U.constructName(this.getNameDb(), child.getExtensionDb()));
       }
-      else {
-        throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
-      }
+      
+      // rename attributeDef and attributeDefName
+      child._renameAttr(nameChange, displayNameChange);
 
-      children.addAll( child._renameChildGroups(attr, modifier, modifyTime, setAlternateName) );
+      children.addAll(child._renameChildGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
       child.setModifierUuid(modifier);
       child.setModifyTimeLong(modifyTime);
       children.add(child);
-      children.addAll( child._renameChildStemsAndGroups(attr, modifier, modifyTime, setAlternateName) );
+      children.addAll(child._renameChildStemsAndGroups(nameChange, displayNameChange, modifier, modifyTime, setAlternateName));
     }
     return children;
   } 
+
+  /**
+   * Rename attributeDef and attributeDefName due to a name and/or displayName change
+   * @param nameChange
+   * @param displayNameChange
+   */
+  private void _renameAttr(boolean nameChange, boolean displayNameChange) {
+    if (!nameChange && !displayNameChange) {
+      return;
+    }
+    
+    Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(this.getUuid());
+    Iterator<AttributeDefName> attributeDefNameIter = attributeDefNames.iterator();
+    while (attributeDefNameIter.hasNext()) {
+      AttributeDefName attributeDefName = attributeDefNameIter.next();
+      
+      if (nameChange) {
+        attributeDefName.setNameDb(this.getName() + ":" + attributeDefName.getExtensionDb());
+      }
+      
+      if (displayNameChange) {
+        attributeDefName.setDisplayNameDb(this.getDisplayName() + ":" + attributeDefName.getDisplayExtensionDb());
+      }
+      
+      GrouperDAOFactory.getFactory().getAttributeDefName().saveOrUpdate(attributeDefName);
+    }
+    
+    if (nameChange) {
+      Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByStem(this.getUuid());
+      Iterator<AttributeDef> attributeDefIter = attributeDefs.iterator();
+      while (attributeDefIter.hasNext()) {
+        AttributeDef attributeDef = attributeDefIter.next();
+        attributeDef.setNameDb(this.getName() + ":" + attributeDef.getExtensionDb());
+        GrouperDAOFactory.getFactory().getAttributeDef().saveOrUpdate(attributeDef);
+      }
+    }
+  }
+
 
   /**
    * revoke naming privs
@@ -2672,21 +2726,25 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       if (inOnPreUpdateBoolean == null || !inOnPreUpdateBoolean) {
         inOnPreUpdate.set(true);
         //check and see what needs to be updated
+        boolean nameChange = false;
+        boolean displayNameChange = false;
+        
         Set<String> dbVersionDifferentFields = Stem.this.dbVersionDifferentFields();
         if (dbVersionDifferentFields.contains(FIELD_EXTENSION) || 
             dbVersionDifferentFields.contains(FIELD_NAME)) {
-
-          // Now iterate through all child groups and stems, renaming each.
-          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
-              Stem.this._renameChildren("name", Stem.this.setAlternateNameOnMovesAndRenames) );
+          nameChange = true;
         }
         if (dbVersionDifferentFields.contains(FIELD_DISPLAY_EXTENSION) ||
             dbVersionDifferentFields.contains(FIELD_DISPLAY_NAME)) {
-          
-          // Now iterate through all child groups and stems, renaming each.
-          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
-              Stem.this._renameChildren("displayName", false) );
+          displayNameChange = true;
         }
+        
+        if (nameChange || displayNameChange) {
+          // Now iterate through all child groups and stems, renaming each.
+          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren(Stem.this, 
+              Stem.this._renameChildren(nameChange, displayNameChange, Stem.this.setAlternateNameOnMovesAndRenames));
+        }
+        
         //if its description, just store, we are all good
       }
     } catch (StemModifyException ste) {

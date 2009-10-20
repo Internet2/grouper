@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.48 2009-10-03 13:47:13 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.49 2009-10-20 14:55:50 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -1700,10 +1700,28 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#updateLastMembershipChangeIncludeAncestorGroups(java.lang.String)
    */
   public void updateLastMembershipChangeIncludeAncestorGroups(String groupId) {
-    HibernateSession.bySqlStatic().executeSql(
-        "update grouper_groups set last_membership_change = ? where id in " + 
-          "(select distinct owner_group_id from grouper_group_set where member_group_id = ?)",
-        GrouperUtil.toList((Object) System.currentTimeMillis(), groupId));
+    
+    // note that i'm not doing this all in one update statement with a subquery due to
+    // a mysql bug:  http://bugs.mysql.com/bug.php?id=8139
+    
+    Set<String> groupIds = GrouperDAOFactory.getFactory().getGroupSet().findAllOwnerGroupsByMemberGroup(groupId);
+    if (groupIds.size() == 0) {
+      return;
+    }
+    
+    String queryPrefix = "update grouper_groups set last_membership_change = ? where id ";
+    Object time = (Object) System.currentTimeMillis();
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupIds, 100);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> groupIdsInBatch = GrouperUtil.batchList(groupIds, 100, i);
+      List<Object> params = new ArrayList<Object>();
+      params.add(time);
+      params.addAll(groupIdsInBatch);
+      
+      String queryInClause = HibUtils.convertToInClauseForSqlStatic(groupIdsInBatch);
+      HibernateSession.bySqlStatic().executeSql(queryPrefix + " in (" + queryInClause + ")", params); 
+    }
   }
 } 
 
