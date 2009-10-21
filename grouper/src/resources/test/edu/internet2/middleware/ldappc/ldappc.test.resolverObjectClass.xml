@@ -28,9 +28,9 @@
       	<group-attribute-map group-attribute="description" ldap-attribute="description" />
       </group-attribute-mapping>
       
-      <attribute-resolver-mapping ldap-object-class="groupOfNames">
-        <attribute-resolver-map resolver-attribute="objectclass" ldap-attribute="objectclass" />
-      </attribute-resolver-mapping>
+      <resolver-attribute-mapping ldap-object-class="groupOfNames">
+        <resolver-attribute-map resolver-attribute="objectclass" ldap-attribute="objectclass" />
+      </resolver-attribute-mapping>
 
     </groups>
     

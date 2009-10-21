@@ -24,9 +24,9 @@
         </source-subject-name-mapping>
       </group-members-name-list>
 
-      <attribute-resolver-mapping ldap-object-class="groupOfNames inetLocalMailRecipient">
-      	<attribute-resolver-map resolver-attribute="description" ldap-attribute="description" />
-      </attribute-resolver-mapping>
+      <resolver-attribute-mapping ldap-object-class="groupOfNames inetLocalMailRecipient">
+      	<resolver-attribute-map resolver-attribute="description" ldap-attribute="description" />
+      </resolver-attribute-mapping>
 
     </groups>
     
