@@ -442,69 +442,11 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     loadLdif("CRUDTest.before.ldif");
 
-    File ldif = calculate(GroupDNStructure.bushy);
-
-    verifyLdif("CRUDTest.testCalculateBushyResolverObjectClass.after.ldif", ldif);
-
-    if (!ldif.delete()) {
-      fail("could not delete " + ldif.getAbsolutePath());
+    try {
+      calculate(GroupDNStructure.bushy);
+    } catch (LdappcException e) {
+      // OK
     }
-  }
-
-  public void testCreateBushyResolverObjectClass() throws Exception {
-
-    // TODO
-
-    if (useActiveDirectory()) {
-      return;
-    }
-
-    setUpLdappc("ldappc.test.resolverObjectClass.xml");
-
-    File tmpFile = File.createTempFile("testCreateBushyResolverObjectClass", null);
-    String tmpPath = tmpFile.getAbsolutePath();
-    tmpFile.delete();
-
-    ldappc.getOptions().setWriteLdif(true);
-    ldappc.getOptions().setOutputFileLocation(tmpPath);
-
-    loadLdif("CRUDTest.before.ldif");
-
-    File ldif = provision(GroupDNStructure.bushy);
-    System.out.println(LdappcTestHelper.readFile(ldif));
-    verifyLdif("CRUDTest.testCalculateBushyResolverObjectClass.after.ldif");
-  }
-
-  public void testCreateBushyResolverObjectClassDryRun() throws Exception {
-
-    if (useActiveDirectory()) {
-      return;
-    }
-
-    setUpLdappc("ldappc.test.resolverObjectClass.xml");
-
-    loadLdif("CRUDTest.before.ldif");
-
-    File ldif = dryRun(GroupDNStructure.bushy);
-
-    verifyLdif("CRUDTest.testCreateBushyResolverObjectClassDryRun.ldif", ldif);
-  }
-
-  public void testCreateBushyResolverObjectClassDryRunOneStep() throws Exception {
-
-    if (useActiveDirectory()) {
-      return;
-    }
-
-    setUpLdappc("ldappc.test.resolverObjectClass.xml");
-
-    ((ConfigManager) ldappc.getConfig()).setProvisionGroupsTwoStep(false);
-
-    loadLdif("CRUDTest.before.ldif");
-
-    File ldif = dryRun(GroupDNStructure.bushy);
-
-    verifyLdif("CRUDTest.testCreateBushyResolverObjectClassDryRunOneStep.ldif", ldif);
   }
 
   public void testCalculateBushySubjectNotFound() throws Exception {
@@ -626,4 +568,73 @@ public class CRUDTest extends BaseLdappcTestCase {
 
     verifyLdif("CRUDTest.testCreateBushyMultipleSubjects.after.ldif");
   }
+
+  public void testCalculateBushyMultipleObjectClassMapping() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
+
+    setUpLdappc("ldappc.test.multipleObjectClassMapping.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushyMultipleObjectClass.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCreateBushyMultipleObjectClassMapping() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
+
+    setUpLdappc("ldappc.test.multipleObjectClassMapping.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateBushyMultipleObjectClass.after.ldif");
+  }
+
+  public void testCalculateBushyMultipleObjectClassResolver() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
+
+    setUpLdappc("ldappc.test.multipleObjectClassResolver.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushyMultipleObjectClass.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCreateBushyMultipleObjectClassResolver() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
+
+    setUpLdappc("ldappc.test.multipleObjectClassResolver.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateBushyMultipleObjectClass.after.ldif");
+  }
+
 }

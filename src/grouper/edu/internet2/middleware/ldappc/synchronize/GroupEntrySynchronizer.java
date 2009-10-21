@@ -261,6 +261,24 @@ public class GroupEntrySynchronizer {
       // corresponding value (i.e., ldap attribute name)
       for (String ldapAttr : attributeMap.get(grouperAttr)) {
         //
+        // Make sure the ldap attribute name does not match objectclass, member-DN, or
+        // member-name
+        //
+        if (ldapAttr.equalsIgnoreCase(objectClassMods.getAttributeName())) {
+          throw new LdappcException("Unable to map an attribute whose name matches '"
+              + objectClassMods.getAttributeName() + "'");
+        }
+        if (memberDnMods != null
+            && ldapAttr.equalsIgnoreCase(memberDnMods.getAttributeName())) {
+          throw new LdappcException("Unable to map an attribute whose name matches '"
+              + memberDnMods.getAttributeName() + "'");
+        }
+        if (memberNameMods != null
+            && ldapAttr.equalsIgnoreCase(memberNameMods.getAttributeName())) {
+          throw new LdappcException("Unable to map an attribute whose name matches '"
+              + memberNameMods.getAttributeName() + "'");
+        }
+        //
         // If the ldapAttr is not yet defined in mappedLdapAttributes
         // with a modifier, add it
         //
@@ -282,6 +300,24 @@ public class GroupEntrySynchronizer {
       // Get the next key (i.e., resolver attribute name) and the
       // corresponding value (i.e., ldap attribute name)
       for (String ldapAttr : resolverMap.get(resolverAttr)) {
+        //
+        // Make sure the ldap attribute name does not match objectclass, member-DN, or
+        // member-name
+        //
+        if (ldapAttr.equalsIgnoreCase(objectClassMods.getAttributeName())) {
+          throw new LdappcException("Unable to map an attribute whose name matches '"
+              + objectClassMods.getAttributeName() + "'");
+        }
+        if (memberDnMods != null
+            && ldapAttr.equalsIgnoreCase(memberDnMods.getAttributeName())) {
+          throw new LdappcException("Unable to map an attribute whose name matches '"
+              + memberDnMods.getAttributeName() + "'");
+        }
+        if (memberNameMods != null
+            && ldapAttr.equalsIgnoreCase(memberNameMods.getAttributeName())) {
+          throw new LdappcException("Unable to map an attribute whose name matches '"
+              + memberNameMods.getAttributeName() + "'");
+        }
         //
         // If the ldapAttr is not yet defined in mappedLdapAttributes
         // with a modifier, add it
@@ -905,17 +941,21 @@ public class GroupEntrySynchronizer {
     //
     // If defined, store the grouper attribute object class
     //
-    String attrMapObjClass = ldappc.getConfig().getGroupAttributeMappingObjectClass();
-    if (attrMapObjClass != null) {
-      objectClassMods.store(attrMapObjClass);
+    Set<String> attrMapOC = ldappc.getConfig().getGroupAttributeMappingObjectClass();
+    if (attrMapOC != null) {
+      for (String objClass : attrMapOC) {
+        objectClassMods.store(objClass);
+      }
     }
 
     //
     // If defined, store the grouper attribute object class
     //
-    String arMapObjClass = ldappc.getConfig().getAttributeResolverMappingObjectClass();
-    if (arMapObjClass != null) {
-      objectClassMods.store(arMapObjClass);
+    Set<String> arMapOC = ldappc.getConfig().getAttributeResolverMappingObjectClass();
+    if (arMapOC != null) {
+      for (String objClass : arMapOC) {
+        objectClassMods.store(objClass);
+      }
     }
   }
 

@@ -259,7 +259,7 @@ public interface LdappcConfig {
    * 
    * @return LDAP object class or <code>null</code> if not defined.
    */
-  public String getGroupAttributeMappingObjectClass();
+  public Set<String> getGroupAttributeMappingObjectClass();
 
   /**
    * This method returns a possibly empty {@link java.util.Map} of the Group attribute
@@ -392,7 +392,7 @@ public interface LdappcConfig {
    * 
    * @return LDAP object class or <code>null</code> if not defined.
    */
-  public String getAttributeResolverMappingObjectClass();
+  public Set<String> getAttributeResolverMappingObjectClass();
 
   /**
    * This method returns a possibly empty {@link java.util.Map} of the AttributeResolver
