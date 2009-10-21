@@ -541,16 +541,16 @@ public class ConfigManager implements LdappcConfig {
     digester.addCallParam(elementPath, 1, "ldap-attribute-empty-value");
 
     // Save the Attribute Resolver Mapping parameters
-    elementPath = "ldappc/grouper/groups/attribute-resolver-mapping";
+    elementPath = "ldappc/grouper/groups/resolver-attribute-mapping";
     digester.addCallMethod(elementPath, "setAttributeResolverMappingObjectClass", 1);
     digester.addCallParam(elementPath, 0, "ldap-object-class");
 
-    elementPath = "ldappc/grouper/groups/attribute-resolver-mapping/attribute-resolver-map";
+    elementPath = "ldappc/grouper/groups/resolver-attribute-mapping/resolver-attribute-map";
     digester.addCallMethod(elementPath, "addAttributeResolverMapping", 2);
     digester.addCallParam(elementPath, 0, "resolver-attribute");
     digester.addCallParam(elementPath, 1, "ldap-attribute");
 
-    elementPath = "ldappc/grouper/groups/attribute-resolver-mapping/attribute-resolver-map";
+    elementPath = "ldappc/grouper/groups/resolver-attribute-mapping/resolver-attribute-map";
     digester.addCallMethod(elementPath, "addAttributeResolverMappingLdapEmptyValue", 2);
     digester.addCallParam(elementPath, 0, "ldap-attribute");
     digester.addCallParam(elementPath, 1, "ldap-attribute-empty-value");

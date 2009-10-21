@@ -172,7 +172,7 @@
                 </xs:choice>
                 <xs:element ref="group-attribute-mapping" minOccurs="0"
                     maxOccurs="1" />
-                <xs:element ref="attribute-resolver-mapping" minOccurs="0"
+                <xs:element ref="resolver-attribute-mapping" minOccurs="0"
                     maxOccurs="1" />
             </xs:sequence>
             <!-- Attributes -->
@@ -355,10 +355,10 @@
     </xs:element>
     
     <!-- =============== ATTRIBUTE-RESOLVER-MAPPING ELEMENT ================ -->
-    <xs:element name="attribute-resolver-mapping">
+    <xs:element name="resolver-attribute-mapping">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="attribute-resolver-map" minOccurs="1"
+                <xs:element name="resolver-attribute-map" minOccurs="1"
                     maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:attribute name="resolver-attribute"
