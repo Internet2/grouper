@@ -27,14 +27,8 @@
       ]]></Script>
   </resolver:AttributeDefinition>
 
-  <resolver:AttributeDefinition id="objectclass" xsi:type="ad:Simple">
-    <resolver:Dependency ref="staticDataConnector" />
+  <resolver:AttributeDefinition id="description" xsi:type="ad:Simple">
+    <resolver:Dependency ref="groupDataConnector" />
   </resolver:AttributeDefinition>
-
-  <resolver:DataConnector id="staticDataConnector" xsi:type="dc:Static">
-    <dc:Attribute id="objectclass">
-      <dc:Value>inetLocalMailRecipient</dc:Value>
-    </dc:Attribute>   
-  </resolver:DataConnector>
   
 </AttributeResolver>

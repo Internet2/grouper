@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -144,7 +145,7 @@ public class ConfigManager implements LdappcConfig {
    * Object class a Group entry must have to support the Group attribute to LDAP attribute
    * mapping.
    */
-  private String groupAttributeMappingObjectClass;
+  private Set<String> groupAttributeMappingObjectClass;
 
   /**
    * Group attribute name to LDAP attribute name mapping.
@@ -290,7 +291,7 @@ public class ConfigManager implements LdappcConfig {
    * Object class a Group entry must have to support the AttributeResolver attribute to
    * LDAP attribute mapping.
    */
-  private String attributeResolverMappingObjectClass;
+  private Set<String> attributeResolverMappingObjectClass;
 
   /**
    * AttributeResolver attribute name to LDAP attribute name mapping.
@@ -1037,7 +1038,7 @@ public class ConfigManager implements LdappcConfig {
    * 
    * @return LDAP object class or <code>null</code> if not defined.
    */
-  public String getGroupAttributeMappingObjectClass() {
+  public Set<String> getGroupAttributeMappingObjectClass() {
     return groupAttributeMappingObjectClass;
   }
 
@@ -1049,6 +1050,13 @@ public class ConfigManager implements LdappcConfig {
    *          Object class to support the Group attribute to LDAP attribute map
    */
   private void setGroupAttributeMappingObjectClass(String objectClass) {
+    List<String> list = GrouperUtil.splitTrimToList(objectClass, " ");
+    if (list != null) {
+      this.setGroupAttributeMappingObjectClass(new LinkedHashSet<String>(list));
+    }
+  }
+
+  private void setGroupAttributeMappingObjectClass(Set<String> objectClass) {
     this.groupAttributeMappingObjectClass = objectClass;
   }
 
@@ -1806,7 +1814,7 @@ public class ConfigManager implements LdappcConfig {
    *          Object class to support the AttributeResolver attribute to LDAP attribute
    *          map
    */
-  public String getAttributeResolverMappingObjectClass() {
+  public Set<String> getAttributeResolverMappingObjectClass() {
     return attributeResolverMappingObjectClass;
   }
 
@@ -1819,6 +1827,13 @@ public class ConfigManager implements LdappcConfig {
    *          map
    */
   private void setAttributeResolverMappingObjectClass(String objectClass) {
+    List<String> list = GrouperUtil.splitTrimToList(objectClass, " ");
+    if (list != null) {
+      this.setAttributeResolverMappingObjectClass(new LinkedHashSet<String>(list));
+    }
+  }
+
+  private void setAttributeResolverMappingObjectClass(Set<String> objectClass) {
     this.attributeResolverMappingObjectClass = objectClass;
   }
 
@@ -1972,7 +1987,8 @@ public class ConfigManager implements LdappcConfig {
      * @param objectClass
      *          the object class
      * 
-     *          Calls {@link ConfigManager#setGroupAttributeMappingObjectClass(String)}.
+     *          Calls {@link
+     *          ConfigManager#setGroupAttributeMappingObjectClass(Set<String>)}.
      */
     public void setGroupAttributeMappingObjectClass(String objectClass) {
       ConfigManager.this.setGroupAttributeMappingObjectClass(objectClass);
