@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.13 2009-10-22 14:37:32 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.14 2009-10-22 16:42:06 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -57,7 +57,7 @@ public class SubjectCache {
   /**
    * Nested table mapping source ID to table mapping subject ID to DN.
    */
-  private Map<String, Hashtable<String, Set<Name>>> subjectIdToDnTables = new HashMap<String, Hashtable<String, Set<Name>>>();
+  private Map<String, Hashtable<String, Set<Name>>> subjectIdToDnTables;
 
   /**
    * Count of subject ID's looked up.
@@ -75,23 +75,8 @@ public class SubjectCache {
 
     this.ldappc = ldappc;
 
-    //
-    // Initialize the hash tables mapping between RDN and subject ID.
-    // Use the estimate in the config file if present
-    //
-    Map<String, Integer> estimates = ldappc.getConfig().getSourceSubjectHashEstimates();
-    for (String source : ldappc.getConfig().getSourceSubjectLdapFilters().keySet()) {
-      int estimate = DEFAULT_HASH_ESTIMATE;
-      if (estimates.get(source) != null) {
-        estimate = estimates.get(source);
-      }
+    init();
 
-      if (subjectIdToDnTables.get(source) == null) {
-        subjectIdToDnTables.put(source, new Hashtable<String, Set<Name>>(estimate));
-      } else {
-        subjectIdToDnTables.get(source).clear();
-      }
-    }
   }
 
   /**
@@ -221,8 +206,8 @@ public class SubjectCache {
       //
       // Get the subject's name attribute value
       //
-      LOG.debug("get source attribute '{}' for subject '{}'", sourceNameAttr,
-          subjectIdentifier);
+      LOG.debug("get source attribute '{}' for subject '{}'", sourceNameAttr, member
+          .getSubjectId());
       subjectIdentifier = member.getSubject().getAttributeValue(sourceNameAttr);
       // if "name" or "id" try the accessor methods
       if (subjectIdentifier == null) {
@@ -358,5 +343,31 @@ public class SubjectCache {
     }
 
     return subjectDns;
+  }
+
+  /**
+   * Initialize, or clear, the cache. Initialize the hash tables mapping between RDN and
+   * subject ID. Use the estimate in the config file if present.
+   */
+  public void init() {
+
+    subjectIdLookups = 0;
+    subjectIdTableHits = 0;
+
+    subjectIdToDnTables = new HashMap<String, Hashtable<String, Set<Name>>>();
+
+    Map<String, Integer> estimates = ldappc.getConfig().getSourceSubjectHashEstimates();
+    for (String source : ldappc.getConfig().getSourceSubjectLdapFilters().keySet()) {
+      int estimate = DEFAULT_HASH_ESTIMATE;
+      if (estimates.get(source) != null) {
+        estimate = estimates.get(source);
+      }
+
+      if (subjectIdToDnTables.get(source) == null) {
+        subjectIdToDnTables.put(source, new Hashtable<String, Set<Name>>(estimate));
+      } else {
+        subjectIdToDnTables.get(source).clear();
+      }
+    }
   }
 }
