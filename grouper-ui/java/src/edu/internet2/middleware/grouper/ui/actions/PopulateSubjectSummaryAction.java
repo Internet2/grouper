@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -276,7 +277,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.27 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.28 2009-10-22 14:01:06 mchyzer Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 	
@@ -368,7 +369,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			request.setAttribute("subjectAttributeNames",order.split(","));
 		}catch(Exception e){
 			//No order specified, so go with all, in whatever order they come
-			List extendedAttr  = new ArrayList(subject.getAttributes().keySet());
+			List extendedAttr  = new ArrayList(GrouperUtil.nonNull(subject.getAttributes()).keySet());
 			extendedAttr.add("subjectType");
 			extendedAttr.add("id");
 			request.setAttribute("subjectAttributeNames",extendedAttr);

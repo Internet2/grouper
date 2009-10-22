@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateMenu.java,v 1.3 2009-10-11 22:04:17 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateMenu.java,v 1.4 2009-10-22 14:01:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -237,7 +237,7 @@ public class SimpleMembershipUpdateMenu {
       if (StringUtils.isBlank(order)) {
         Set<String> attributeNames = new LinkedHashSet<String>();
         attributeNames.add("screenLabel");
-        attributeNames.addAll(subject.getAttributes().keySet());
+        attributeNames.addAll(GrouperUtil.nonNull(subject.getAttributes()).keySet());
         
         //lets add subjectId, typeName, sourceId, sourceName, memberId
         attributeNames.add("subjectId");

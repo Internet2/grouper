@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.11 2009-09-02 05:57:26 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.12 2009-10-22 14:03:18 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class GrouperSubject extends SubjectImpl {
@@ -318,7 +318,8 @@ public class GrouperSubject extends SubjectImpl {
       count++;
     }
     this.loadedGroupAttributes = true;
-    LOG.debug("[" + this.getName() + "] attached " + count +  " new attributes: " + ((GrouperSubjectAttributeMap)this.getAttributes()).attrs.size() );
+    LOG.debug("[" + this.getName() + "] attached " + count +  " new attributes: " 
+        + ((GrouperSubjectAttributeMap)GrouperUtil.nonNull(this.getAttributes())).attrs.size() );
   }
 
   /** logger */
