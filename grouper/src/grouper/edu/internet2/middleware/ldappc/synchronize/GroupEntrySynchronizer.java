@@ -773,6 +773,15 @@ public class GroupEntrySynchronizer {
               // Get the subject attribute value
               //
               String nameValue = subject.getAttributeValue(nameAttribute);
+              // if "name" or "id" try the accessor methods
+              if (nameValue == null) {
+                if (nameAttribute.equalsIgnoreCase("id")) {
+                  nameValue = subject.getId();
+                }
+                if (nameAttribute.equalsIgnoreCase("name")) {
+                  nameValue = subject.getName();
+                }
+              }
               if (nameValue != null) {
                 this.memberNameMods.store(nameValue);
               } else {

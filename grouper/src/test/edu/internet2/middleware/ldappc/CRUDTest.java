@@ -637,4 +637,34 @@ public class CRUDTest extends BaseLdappcTestCase {
     verifyLdif("CRUDTest.testCreateBushyMultipleObjectClass.after.ldif");
   }
 
+  public void testCalculateSubjectNameMap() throws Exception {
+
+    setUpLdappc("ldappc.test.subjectNameMap.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateSubjectNameMap.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCalculateSubjectIdMap() throws Exception {
+
+    setUpLdappc("ldappc.test.subjectIdMap.xml");
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateSubjectIdMap.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
 }

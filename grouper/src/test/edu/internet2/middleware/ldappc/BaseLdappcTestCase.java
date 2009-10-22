@@ -227,6 +227,10 @@ public class BaseLdappcTestCase extends GrouperTest {
   }
 
   public File calculate(GroupDNStructure structure) throws Exception {
+    return calculate(structure, false);
+  }
+
+  public File calculate(GroupDNStructure structure, boolean printFile) throws Exception {
 
     File file = new File(ldappc.getOptions().getOutputFileLocation());
     if (file.exists()) {
@@ -236,7 +240,13 @@ public class BaseLdappcTestCase extends GrouperTest {
 
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
-    return ldappc.calculate();
+    file = ldappc.calculate();
+
+    if (printFile) {
+      System.out.println(LdappcTestHelper.readFile(file));
+    }
+
+    return file;
   }
 
   public File dryRun(GroupDNStructure structure) throws Exception {
