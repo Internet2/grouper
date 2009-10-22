@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.15 2009-05-13 12:18:21 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.16 2009-10-22 14:03:18 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -870,7 +870,7 @@ public class XmlExporter {
       return null;
     }
     if (XmlUtils.SPECIAL_STAR.equals(value)) {
-      return subj.getAttributes().keySet().iterator();
+      return GrouperUtil.nonNull(subj.getAttributes()).keySet().iterator();
     }
     StringTokenizer st  = new StringTokenizer(value);
     Set             res = new LinkedHashSet();
