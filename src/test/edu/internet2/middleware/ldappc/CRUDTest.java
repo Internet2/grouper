@@ -142,34 +142,6 @@ public class CRUDTest extends BaseLdappcTestCase {
     }
   }
 
-  public void testCreateBushyWriteLdif() throws Exception {
-
-    setUpLdappc();
-
-    File tmpFile = File.createTempFile("ldappcTestCreateBushyWriteLdif", null);
-    String tmpPath = tmpFile.getAbsolutePath();
-    tmpFile.delete();
-
-    ldappc.getOptions().setWriteLdif(true);
-    ldappc.getOptions().setOutputFileLocation(tmpPath);
-
-    loadLdif("CRUDTest.before.ldif");
-
-    File ldif = provision(GroupDNStructure.bushy);
-
-    verifyLdif("CRUDTest.testCreateBushy.after.ldif");
-
-    if (ldappc.getConfig().getBundleModifications()) {
-      verifyLdif("CRUDTest.testCreateBushyWriteLdif.ldif", ldif);
-    } else {
-      verifyLdif("CRUDTest.testCreateBushyWriteLdif.unbundled.ldif", ldif);
-    }
-
-    if (!ldif.delete()) {
-      fail("could not delete " + ldif.getAbsolutePath());
-    }
-  }
-
   public void testCreateFlat() throws Exception {
 
     setUpLdappc();

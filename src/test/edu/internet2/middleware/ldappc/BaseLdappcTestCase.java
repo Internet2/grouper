@@ -263,7 +263,7 @@ public class BaseLdappcTestCase extends GrouperTest {
 
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
-    file = ldappc.provision();
+    file = ldappc.dryRun();
 
     if (printFile) {
       System.out.println(LdappcTestHelper.readFile(file));
@@ -273,31 +273,21 @@ public class BaseLdappcTestCase extends GrouperTest {
     return file;
   }
 
-  public File provision(GroupDNStructure structure) throws Exception {
-    return provision(structure, false);
+  public void provision(GroupDNStructure structure) throws Exception {
+    provision(structure, false);
   }
 
-  public File provision(GroupDNStructure structure, boolean printFile) throws Exception {
+  public void provision(GroupDNStructure structure, boolean printFile) throws Exception {
 
     ldappc.getOptions().setMode(ProvisioningMode.PROVISION);
 
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
     if (printFile) {
-      ((LdappcOptions) ldappc.getOptions()).setWriteLdif(true);
+      ((LdappcOptions) ldappc.getOptions()).setLogLdif(true);
     }
 
-    File file = ldappc.provision();
-
-    if (file != null) {
-      file.deleteOnExit();
-    }
-
-    if (printFile) {
-      System.out.println(LdappcTestHelper.readFile(file));
-    }
-
-    return file;
+    ldappc.provision();
   }
 
   /**
