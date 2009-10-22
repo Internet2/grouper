@@ -5,11 +5,11 @@ dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupA
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupB
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 dn: ou=edu,ou=testgroups,${base}
@@ -24,11 +24,11 @@ dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupA
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupB
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case

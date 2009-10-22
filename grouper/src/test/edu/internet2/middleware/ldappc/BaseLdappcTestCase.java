@@ -16,13 +16,12 @@
 package edu.internet2.middleware.ldappc;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
@@ -38,7 +37,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
-import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.vt.middleware.ldap.Ldap;
 
 public class BaseLdappcTestCase extends GrouperTest {
 
@@ -92,7 +91,7 @@ public class BaseLdappcTestCase extends GrouperTest {
   protected Ldappc ldappc;
 
   /** underlying ldap connection */
-  protected LdapContext ldapContext;
+  protected Ldap ldap;
 
   /** possibly empty list of embedded servers which need to be shutdown */
   private List<EmbeddedApacheDS> embeddedADSServers = new ArrayList<EmbeddedApacheDS>();
@@ -131,7 +130,7 @@ public class BaseLdappcTestCase extends GrouperTest {
     edu = StemHelper.addChildStem(root, "edu", "education");
   }
 
-  public LdapContext setUpLdapContext() throws Exception {
+  public Ldap setUpLdapContext() throws Exception {
 
     if (useEmbedded()) {
       EmbeddedApacheDS embeddedApacheDS = new EmbeddedApacheDS();
@@ -146,38 +145,31 @@ public class BaseLdappcTestCase extends GrouperTest {
       LOG.debug("overriding properties for the embbeded ApacheDS server '{} '{}'",
           properties, pathToProperties);
 
-      ldapContext = embeddedApacheDS.getNewLdapContext();
+      ldap = embeddedApacheDS.getNewLdap();
     } else {
-      String providerUrl = GrouperUtil.propertiesValue(properties, "provider_url");
-      String user = GrouperUtil.propertiesValue(properties, "security_principal");
+      String providerUrl = GrouperUtil.propertiesValue(properties,
+          "edu.vt.middleware.ldap.ldapUrl");
+      String user = GrouperUtil.propertiesValue(properties,
+          "edu.vt.middleware.ldap.serviceUser");
 
-      base = GrouperUtil.propertiesValue(properties, "base");
+      base = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.base");
 
       GrouperUtil.promptUserAboutChanges("test ldap and destroy everything under '"
           + base + "'", true, "ldap", providerUrl, user);
 
-      Hashtable<String, String> env = new Hashtable<String, String>();
-      env.put(Context.INITIAL_CONTEXT_FACTORY, GrouperUtil.propertiesValue(properties,
-          "initial_context_factory"));
-      env.put(Context.PROVIDER_URL, providerUrl);
-      env.put(Context.SECURITY_AUTHENTICATION, GrouperUtil.propertiesValue(properties,
-          "security_authentication"));
-      env.put(Context.SECURITY_PRINCIPAL, user);
-      env.put(Context.SECURITY_CREDENTIALS, GrouperUtil.propertiesValue(properties,
-          "security_credentials"));
-
-      ldapContext = LdapUtil.getLdapContext(env, null);
+      ldap = new Ldap();
+      ldap.loadFromProperties(new FileInputStream(propertiesFile));
     }
 
-    base = GrouperUtil.propertiesValue(properties, "base");
+    base = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.base");
     LOG.debug("base '{}'", base);
     if (base == null || base.equals("")) {
       throw new LdappcException("Property base is required");
     }
 
-    LdappcTestHelper.deleteChildren(base, ldapContext);
+    LdappcTestHelper.deleteChildren(base, ldap);
 
-    return ldapContext;
+    return ldap;
   }
 
   /**
@@ -189,7 +181,7 @@ public class BaseLdappcTestCase extends GrouperTest {
    */
   public void setUpLdappc(String pathToConfig, String pathToProperties) throws Exception {
 
-    if (ldapContext == null) {
+    if (ldap == null) {
       throw new LdappcException("Call setUpLdapContext() first.");
     }
 
@@ -213,16 +205,16 @@ public class BaseLdappcTestCase extends GrouperTest {
       configuration.setBundleModifications(false);
     }
 
-    ldappc = new Ldappc(options, configuration, ldapContext);
+    ldappc = new Ldappc(options, configuration, ldap);
   }
 
   public void tearDown() {
     super.tearDown();
 
     try {
-      if (ldapContext != null) {
-        LdappcTestHelper.deleteChildren(base, ldapContext);
-        ldapContext.close();
+      if (ldap != null) {
+        LdappcTestHelper.deleteChildren(base, ldap);
+        ldap.close();
       }
       if (useEmbedded()) {
         for (EmbeddedApacheDS embeddedADS : embeddedADSServers) {
@@ -240,6 +232,7 @@ public class BaseLdappcTestCase extends GrouperTest {
     if (file.exists()) {
       file.delete();
     }
+    file.deleteOnExit();
 
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
@@ -247,6 +240,10 @@ public class BaseLdappcTestCase extends GrouperTest {
   }
 
   public File dryRun(GroupDNStructure structure) throws Exception {
+    return dryRun(structure, false);
+  }
+
+  public File dryRun(GroupDNStructure structure, boolean printFile) throws Exception {
 
     ldappc.getOptions().setMode(ProvisioningMode.DRYRUN);
 
@@ -256,16 +253,41 @@ public class BaseLdappcTestCase extends GrouperTest {
 
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
-    return ldappc.provision();
+    file = ldappc.provision();
+
+    if (printFile) {
+      System.out.println(LdappcTestHelper.readFile(file));
+      file.deleteOnExit();
+    }
+
+    return file;
   }
 
   public File provision(GroupDNStructure structure) throws Exception {
+    return provision(structure, false);
+  }
+
+  public File provision(GroupDNStructure structure, boolean printFile) throws Exception {
 
     ldappc.getOptions().setMode(ProvisioningMode.PROVISION);
 
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
-    return ldappc.provision();
+    if (printFile) {
+      ((LdappcOptions) ldappc.getOptions()).setWriteLdif(true);
+    }
+
+    File file = ldappc.provision();
+
+    if (file != null) {
+      file.deleteOnExit();
+    }
+
+    if (printFile) {
+      System.out.println(LdappcTestHelper.readFile(file));
+    }
+
+    return file;
   }
 
   /**
@@ -300,6 +322,11 @@ public class BaseLdappcTestCase extends GrouperTest {
     LdappcTestHelper.loadLdif(getFile(correctFile), propertiesFile, ldapContext);
   }
 
+  public void loadLdif(String correctFile, Ldap ldap) throws Exception {
+
+    LdappcTestHelper.loadLdif(getFile(correctFile), propertiesFile, ldap);
+  }
+
   /**
    * Returns true when testing against Active Directory, as configured in the properties
    * file with the key {@value #TEST_USE_ACTIVE_DIRECTORY}.
@@ -329,7 +356,7 @@ public class BaseLdappcTestCase extends GrouperTest {
       String correctLdif = LdappcTestHelper.readFile(getFile(pathToCorrectFile));
 
       LdappcTestHelper.verifyLdif(correctLdif, propertiesFile, normalizeDnAttributes,
-          base, ldapContext, useActiveDirectory());
+          base, ldap, useActiveDirectory());
     } catch (Exception e) {
       e.printStackTrace();
       fail("An error occurred : " + e);

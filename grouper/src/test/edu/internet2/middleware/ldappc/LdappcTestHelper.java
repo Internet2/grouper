@@ -36,13 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import junit.framework.Assert;
@@ -72,7 +69,6 @@ import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.bean.LdapAttributes;
 import edu.vt.middleware.ldap.bean.LdapEntry;
-import edu.vt.middleware.ldap.bean.LdapResult;
 import edu.vt.middleware.ldap.ldif.LdifResult;
 
 public class LdappcTestHelper {
@@ -167,7 +163,7 @@ public class LdappcTestHelper {
    * @throws NamingException
    */
   public static void deleteChildren(String baseDn, Ldap ldap) throws NamingException {
-    List<String> toDelete = getChildDNs(baseDn, ldap);
+    List<String> toDelete = LdapUtil.getChildDNs(baseDn, ldap);
     for (String dn : toDelete) {
       LOG.info("delete '{}'", dn);
       ldap.delete(dn);
@@ -183,63 +179,11 @@ public class LdappcTestHelper {
    */
   public static void deleteChildren(String base, LdapContext ldapContext)
       throws Exception {
-    List<String> toDelete = getChildDNs(base, ldapContext);
+    List<String> toDelete = LdapUtil.getChildDNs(base, ldapContext);
     for (String dn : toDelete) {
       LOG.info("delete " + dn);
       ldapContext.destroySubcontext(dn);
     }
-  }
-
-  /**
-   * Return a list of child DNs under the given DN, in (reverse) order suitable for
-   * deletion.
-   * 
-   * @param name
-   *          the top level DN
-   * @return
-   * @throws NamingException
-   */
-  public static List<String> getChildDNs(String name, Ldap ldap) throws NamingException {
-    ArrayList<String> tree = new ArrayList<String>();
-
-    Iterator<SearchResult> searchResults = ldap.searchAttributes(name,
-        new BasicAttributes("objectclass", null), new String[] {});
-    LdapResult ldapResult = new LdapResult(searchResults);
-    for (LdapEntry ldapEntry : ldapResult.getEntries()) {
-      tree.addAll(getChildDNs(ldapEntry.getDn(), ldap));
-      tree.add(ldapEntry.getDn());
-    }
-
-    return tree;
-  }
-
-  /**
-   * Return a list of child DNs under the given DN, in (reverse) order suitable for
-   * deletion.
-   * 
-   * @param name
-   *          the top level DN
-   * @return
-   * @throws NamingException
-   */
-  public static List<String> getChildDNs(String name, LdapContext ldapContext)
-      throws NamingException {
-    ArrayList<String> tree = new ArrayList<String>();
-
-    SearchControls ctrls = new SearchControls();
-    ctrls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-    ctrls.setReturningAttributes(new String[] {});
-
-    NamingEnumeration<SearchResult> results = ldapContext.search(name, "objectclass=*",
-        ctrls);
-
-    while (results.hasMore()) {
-      SearchResult result = results.next();
-      tree.addAll(getChildDNs(result.getNameInNamespace(), ldapContext));
-      tree.add(result.getNameInNamespace());
-    }
-
-    return tree;
   }
 
   /**
@@ -252,7 +196,7 @@ public class LdappcTestHelper {
 
     StringBuffer ldif = new StringBuffer();
 
-    List<String> currentDns = getChildDNs(baseDn, ldap);
+    List<String> currentDns = LdapUtil.getChildDNs(baseDn, ldap);
 
     for (String currentDn : currentDns) {
       Attributes attributes = ldap.getAttributes(currentDn);
@@ -291,11 +235,34 @@ public class LdappcTestHelper {
 
     StringBuffer ldif = new StringBuffer();
 
-    List<String> currentDns = getChildDNs(baseDn, ldapContext);
+    List<String> currentDns = LdapUtil.getChildDNs(baseDn, ldapContext);
 
     for (String currentDn : currentDns) {
       ldif.append("dn: " + currentDn + "\n");
       Attributes attributes = ldapContext.getAttributes(currentDn, attrIds);
+      ldif.append(LdapUtil.getLdif(attributes));
+      ldif.append("\n");
+    }
+
+    return ldif.toString();
+  }
+
+  /**
+   * Return an LDIF representation of the entire DIT.
+   * 
+   * @return
+   * @throws NamingException
+   */
+  public static String getCurrentLdif(String baseDn, String[] attrIds, Ldap ldap)
+      throws NamingException {
+
+    StringBuffer ldif = new StringBuffer();
+
+    List<String> currentDns = LdapUtil.getChildDNs(baseDn, ldap);
+
+    for (String currentDn : currentDns) {
+      ldif.append("dn: " + currentDn + "\n");
+      Attributes attributes = ldap.getAttributes(currentDn, attrIds);
       ldif.append(LdapUtil.getLdif(attributes));
       ldif.append("\n");
     }
@@ -375,10 +342,20 @@ public class LdappcTestHelper {
     loadLdif(new FileInputStream(ldifFile), replacementPropertiesFile, ldapContext);
   }
 
+  public static void loadLdif(File ldifFile, File replacementPropertiesFile, Ldap ldap)
+      throws Exception {
+    loadLdif(new FileInputStream(ldifFile), replacementPropertiesFile, ldap);
+  }
+
   public static void loadLdif(String ldif, File replacementPropertiesFile,
       LdapContext ldapContext) throws Exception {
     loadLdif(new ByteArrayInputStream(ldif.getBytes()), replacementPropertiesFile,
         ldapContext);
+  }
+
+  public static void loadLdif(String ldif, File replacementPropertiesFile, Ldap ldap)
+      throws Exception {
+    loadLdif(new ByteArrayInputStream(ldif.getBytes()), replacementPropertiesFile, ldap);
   }
 
   public static void loadLdif(InputStream ldif, File replacementPropertiesFile,
@@ -405,6 +382,33 @@ public class LdappcTestHelper {
       }
       LOG.debug("creating '" + entry.getDn().toString() + " " + attributes);
       ldapContext.createSubcontext(entry.getDn().toString(), attributes);
+    }
+  }
+
+  public static void loadLdif(InputStream ldif, File replacementPropertiesFile, Ldap ldap)
+      throws Exception {
+
+    LdifReader ldifReader = null;
+    if (replacementPropertiesFile != null) {
+      PropertyReplacementResourceFilter prf = new PropertyReplacementResourceFilter(
+          replacementPropertiesFile);
+      ldifReader = new LdifReader(prf.applyFilter(ldif));
+    } else {
+      ldifReader = new LdifReader(ldif);
+    }
+
+    for (LdifEntry entry : ldifReader) {
+      Attributes attributes = new BasicAttributes(true);
+      for (EntryAttribute entryAttribute : entry.getEntry()) {
+        BasicAttribute attribute = new BasicAttribute(entryAttribute.getId());
+        Iterator<Value<?>> values = entryAttribute.getAll();
+        while (values.hasNext()) {
+          attribute.add(values.next().get());
+        }
+        attributes.put(attribute);
+      }
+      LOG.debug("creating '" + entry.getDn().toString() + " " + attributes);
+      ldap.create(entry.getDn().toString(), attributes);
     }
   }
 
@@ -635,6 +639,34 @@ public class LdappcTestHelper {
     // get current ldif using requested attribute ids
     String currentLdif = LdappcTestHelper.getCurrentLdif(base, requestedAttributes,
         ldapContext);
+
+    // verify ldif
+    LdappcTestHelper.verifyLdif(correctLdif, currentLdif, propertiesFile,
+        normalizeDnAttributes, purgeAttributes);
+  }
+
+  public static void verifyLdif(String correctLdif, File propertiesFile,
+      Collection<String> normalizeDnAttributes, String base, Ldap ldap,
+      boolean purgeAttributes) throws IOException, ResourceException, NamingException {
+
+    // replace macros
+    String filteredCorrectLdif = LdappcTestHelper
+        .applyFilter(correctLdif, propertiesFile);
+
+    // get attribute ids to request
+    String[] requestedAttributes = null;
+    Map<String, Collection<String>> map = LdappcTestHelper
+        .buildObjectlassAttributeMap(filteredCorrectLdif);
+    if (map != null) {
+      Set<String> attrIds = new HashSet<String>();
+      for (Collection<String> values : map.values()) {
+        attrIds.addAll(values);
+      }
+      requestedAttributes = attrIds.toArray(new String[] {});
+    }
+
+    // get current ldif using requested attribute ids
+    String currentLdif = LdappcTestHelper.getCurrentLdif(base, requestedAttributes, ldap);
 
     // verify ldif
     LdappcTestHelper.verifyLdif(correctLdif, currentLdif, propertiesFile,
