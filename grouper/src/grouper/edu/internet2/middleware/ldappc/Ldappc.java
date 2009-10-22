@@ -225,9 +225,9 @@ public final class Ldappc extends TimerTask {
 
     try {
 
-      if (LOG.isInfoEnabled()) {
+      if (LOG.isDebugEnabled()) {
         for (String source : configuration.getSourceSubjectHashEstimates().keySet()) {
-          LOG.info("Estimate({}) = {}", source, configuration
+          LOG.debug("Estimate({}) = {}", source, configuration
               .getSourceSubjectHashEstimate(source));
         }
       }
@@ -241,7 +241,7 @@ public final class Ldappc extends TimerTask {
 
         case DRYRUN:
 
-          provision();
+          dryRun();
           break;
 
         case CALCULATE:
@@ -339,22 +339,7 @@ public final class Ldappc extends TimerTask {
    * @throws LdappcException
    * @throws IOException
    */
-  public File provision() throws LdappcException, NamingException, IOException {
-
-    File file = null;
-
-    if (getOptions().getMode().equals(ProvisioningMode.DRYRUN)
-        || getOptions().getWriteLdif()) {
-
-      file = new File(options.getOutputFileLocation());
-
-      if (!file.createNewFile()) {
-        throw new LdappcException("File '" + options.getOutputFileLocation()
-            + "' already exists.");
-      }
-
-      writer = LdapUtil.openWriter(file);
-    }
+  public void provision() throws LdappcException, NamingException, IOException {
 
     //
     // Find the set of Groups to be provisioned
@@ -374,6 +359,28 @@ public final class Ldappc extends TimerTask {
     if (options.getDoMemberships()) {
       provisionMemberships(groups);
     }
+  }
+
+  /**
+   * Write changes that would be made during provisioning to a file.
+   * 
+   * @return
+   * @throws LdappcException
+   * @throws NamingException
+   * @throws IOException
+   */
+  public File dryRun() throws LdappcException, NamingException, IOException {
+
+    File file = new File(options.getOutputFileLocation());
+
+    if (!file.createNewFile()) {
+      throw new LdappcException("File '" + options.getOutputFileLocation()
+          + "' already exists.");
+    }
+
+    writer = LdapUtil.openWriter(file);
+
+    provision();
 
     if (writer != null) {
       writer.close();
@@ -1087,20 +1094,25 @@ public final class Ldappc extends TimerTask {
   public Ldap getContext() {
 
     if (ldap == null) {
-      ldap = new Ldap();
-      if (options.getPropertiesFileLocation() == null) {
-        ldap.loadFromProperties();
-      } else {
-        try {
+      try {
+        ldap = new Ldap();
+        if (options.getPropertiesFileLocation() == null) {
+          File file = GrouperUtil
+              .fileFromResourceName(ConfigManager.PROPERTIES_FILE_RESOURCE);
+          if (file == null) {
+            throw new FileNotFoundException("Unable to find file '"
+                + ConfigManager.PROPERTIES_FILE_RESOURCE + "'");
+          }
+          ldap.loadFromProperties(new FileInputStream(file));
+        } else {
           ldap
               .loadFromProperties(new FileInputStream(options.getPropertiesFileLocation()));
-        } catch (FileNotFoundException e) {
-          LOG.error("Unable to read properties file.", e);
-          throw new LdappcException("Unable to read properties file.", e);
         }
+        LOG.debug("Connecting to ldap '{}'", ldap.getLdapConfig().getLdapUrl());
+      } catch (FileNotFoundException e) {
+        LOG.error("Unable to read properties file.", e);
+        throw new LdappcException("Unable to read properties file.", e);
       }
-
-      LOG.debug("Connecting to ldap '{}'", ldap.getLdapConfig().getLdapUrl());
     }
 
     return ldap;

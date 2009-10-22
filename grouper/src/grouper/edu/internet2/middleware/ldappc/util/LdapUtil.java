@@ -165,13 +165,17 @@ public final class LdapUtil {
     //
     List<String> childDNs = LdapUtil.getChildDNs(dn.toString(), ldappc.getContext());
     for (String childDN : childDNs) {
-      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
-          || ldappc.getOptions().getWriteLdif()) {
+      
+      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
         LdapUtil.writeLdif(ldappc.getWriter(), getLdifDelete(new LdapDN(childDN)));
       }
 
       if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
-        LOG.debug("delete '{}'", dn);
+        String msg = "delete '" + dn + "'";
+        if (ldappc.getOptions().getLogLdif()) {
+          msg += "\n\n" + getLdifDelete(new LdapDN(childDN));
+        }
+        LOG.debug(msg);
         ldappc.getContext().delete(childDN);
       }
     }
@@ -179,8 +183,7 @@ public final class LdapUtil {
     //
     // Remove the object
     //
-    if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
-        || ldappc.getOptions().getWriteLdif()) {
+    if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
       LdapUtil.writeLdif(ldappc.getWriter(), getLdifDelete(new LdapDN(dn)));
     }
 

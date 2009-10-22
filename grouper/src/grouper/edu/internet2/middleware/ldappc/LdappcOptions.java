@@ -86,7 +86,7 @@ public class LdappcOptions {
   /**
    * While provisioning, write changes as ldif to file.
    */
-  private boolean writeLdif = false;
+  private boolean logLdif = false;
 
   /**
    * Path to AttributeResolver configuration files.
@@ -102,7 +102,7 @@ public class LdappcOptions {
    * The name of the "services" Spring configuration file for the Attribute Resolver.
    */
   public static final String ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES = "ldappc-services.xml";
-  
+
   /**
    * The name of the Attribute Authority service.
    */
@@ -167,8 +167,8 @@ public class LdappcOptions {
   private Option dryRunOption = new Option("n", "dry-run", true,
       "Do not perform provisioning, just write changes to file.");
 
-  private Option writeLdifOption = new Option("w", "writeLdif", true,
-      "While provisioning, also write changes to file.");
+  private Option logLdifOption = new Option("logLDIF", false,
+      "While provisioning, log changes in LDIF format.");
 
   private Option attributeResolverLocationOption = new Option("r", "resolver", true,
       "Location of Attribute Resolver configuration files.");
@@ -194,8 +194,7 @@ public class LdappcOptions {
     propertiesFileOption.setArgName("path");
     options.addOption(propertiesFileOption);
 
-    writeLdifOption.setArgName("file");
-    options.addOption(writeLdifOption);
+    options.addOption(logLdifOption);
 
     OptionGroup modeOptionGroup = new OptionGroup();
     calculateOption.setArgName("file");
@@ -305,9 +304,8 @@ public class LdappcOptions {
       this.setMode(ProvisioningMode.DRYRUN);
     }
 
-    if (line.hasOption(writeLdifOption.getOpt())) {
-      this.setOutputFileLocation(line.getOptionValue(writeLdifOption.getOpt()));
-      this.setWriteLdif(true);
+    if (line.hasOption(logLdifOption.getOpt())) {
+      this.setLogLdif(true);
     }
 
     if (line.hasOption(attributeResolverLocationOption.getOpt())) {
@@ -449,19 +447,17 @@ public class LdappcOptions {
     this.propertiesFileLocation = propertiesFileLocation;
   }
 
-  protected void setWriteLdif(boolean writeLdif) {
-    this.writeLdif = writeLdif;
+  protected void setLogLdif(boolean logLdif) {
+    this.logLdif = logLdif;
   }
 
   /**
-   * This returns a boolean indicating whether or not to write changes to a file while
-   * provisioning.
+   * This returns a boolean indicating whether or not to log changes in LDIF format.
    * 
-   * @return <code>true</code> if the file should be written or <code>false</code>
-   *         otherwise.
+   * @return <code>true</code> if log LDIF changes <code>false</code> otherwise.
    */
-  public boolean getWriteLdif() {
-    return writeLdif;
+  public boolean getLogLdif() {
+    return logLdif;
   }
 
   /**
