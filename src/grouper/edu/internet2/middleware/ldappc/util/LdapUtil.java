@@ -22,7 +22,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.Binding;
 import javax.naming.Name;
@@ -31,8 +34,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
@@ -50,6 +53,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.vt.middleware.ldap.Ldap;
 
 /**
  * This provides utility methods for interacting with a LDAP directory.
@@ -148,101 +152,41 @@ public final class LdapUtil {
   }
 
   /**
-   * This deletes the subcontext of <code>context</code> identified by <code>dn</code>.
-   * All subcontext of the context identified by <code>dn</code> are deleted as well.
+   * This deletes the object identified by the given dn and any child objects.
    * 
-   * @param context
-   *          Directory context
+   * @param ldappc
    * @param dn
-   *          DN of the subcontext to delete
-   * @return <code>true</code> if subcontext was found and deleted, and <code>false</code>
-   *         if the subcontext was not found.
+   *          the DN to delete
    * @throws NamingException
-   *           thrown if a naming error occurs
    */
-  public static boolean delete(Ldappc ldappc, Name dn) throws NamingException {
+  public static void delete(Ldappc ldappc, Name dn) throws NamingException {
     //
-    // Init return value
+    // Remove the subcontexts
     //
-    boolean success = true;
-
-    //
-    // Find the identified subcontext
-    //
-    DirContext subContext = null;
-    try {
-      subContext = (DirContext) ldappc.getContext().lookup(dn);
-    } catch (NamingException ne) {
-      success = false;
-    }
-
-    //
-    // If subContext found, then try to delete it
-    //
-    if (success) {
-      //
-      // Make sure the subcontext is empty
-      //
-      prune(subContext, ldappc);
-
-      //
-      // Remove the subcontext
-      //
+    List<String> childDNs = LdapUtil.getChildDNs(dn.toString(), ldappc.getContext());
+    for (String childDN : childDNs) {
       if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
           || ldappc.getOptions().getWriteLdif()) {
-        LdapUtil.writeLdif(ldappc.getWriter(), getLdifDelete(new LdapDN(dn)));
+        LdapUtil.writeLdif(ldappc.getWriter(), getLdifDelete(new LdapDN(childDN)));
       }
 
       if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
         LOG.debug("delete '{}'", dn);
-        ldappc.getContext().destroySubcontext(dn);
+        ldappc.getContext().delete(childDN);
       }
     }
 
-    return success;
-  }
-
-  /**
-   * This unbinds all descendent entries of given directory context.
-   * 
-   * @param context
-   *          Directory context
-   * 
-   * @throws NamingException
-   *           Thrown if the tree cannot be pruned.
-   */
-  public static void prune(DirContext context, Ldappc ldappc) throws NamingException {
     //
-    // List each of the child context
+    // Remove the object
     //
-    NamingEnumeration childEnum = context.listBindings("");
+    if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
+        || ldappc.getOptions().getWriteLdif()) {
+      LdapUtil.writeLdif(ldappc.getWriter(), getLdifDelete(new LdapDN(dn)));
+    }
 
-    //
-    // Prune each child and then unbind the child
-    //
-    while (childEnum.hasMore()) {
-      //
-      // Get the child
-      //
-      Binding binding = (Binding) childEnum.next();
-      DirContext child = (DirContext) binding.getObject();
-
-      //
-      // Prune the child and then remove the child
-      // MUST be done in this order
-      //
-      prune(child, ldappc);
-
-      if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)
-          || ldappc.getOptions().getWriteLdif()) {
-        LdapUtil.writeLdif(ldappc.getWriter(),
-            getLdifDelete(new LdapDN(binding.getName())));
-      }
-
-      if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
-        LOG.debug("delete '{}'", binding.getName());
-        context.unbind(binding.getName());
-      }
+    if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
+      LOG.debug("delete '{}'", dn);
+      ldappc.getContext().delete(dn.toString());
     }
   }
 
@@ -610,5 +554,61 @@ public final class LdapUtil {
     } catch (FileNotFoundException e) {
       throw new LdappcException("Unable to open membership file", e);
     }
+  }
+
+  /**
+   * Return a list of child DNs under the given DN, in (reverse) order suitable for
+   * deletion.
+   * 
+   * @param dn
+   *          the dn to delete, as well as all children
+   * @param ldap
+   *          the ldap connection
+   * @return
+   * @throws NamingException
+   */
+  public static List<String> getChildDNs(String dn, Ldap ldap) throws NamingException {
+
+    ArrayList<String> tree = new ArrayList<String>();
+
+    Iterator<Binding> bindings = ldap.listBindings(dn);
+    while (bindings.hasNext()) {
+      Binding binding = bindings.next();
+      tree.addAll(getChildDNs(binding.getNameInNamespace(), ldap));
+      tree.add(binding.getNameInNamespace());
+    }
+
+    return tree;
+  }
+
+  /**
+   * Return a list of child DNs under the given DN, in (reverse) order suitable for
+   * deletion.
+   * 
+   * @param dn
+   *          the dn to delete, as well as all children
+   * @param ldap
+   *          the ldap connection
+   * @return
+   * @throws NamingException
+   */
+  public static List<String> getChildDNs(String dn, LdapContext ldap)
+      throws NamingException {
+
+    ArrayList<String> tree = new ArrayList<String>();
+
+    SearchControls ctrls = new SearchControls();
+    ctrls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+    ctrls.setReturningAttributes(new String[] {});
+
+    NamingEnumeration<SearchResult> results = ldap.search(dn, "objectclass=*", ctrls);
+
+    while (results.hasMore()) {
+      SearchResult result = results.next();
+      tree.addAll(getChildDNs(result.getNameInNamespace(), ldap));
+      tree.add(result.getNameInNamespace());
+    }
+
+    return tree;
   }
 }

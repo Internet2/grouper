@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import javax.naming.Name;
-import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -34,6 +34,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
@@ -57,6 +58,7 @@ import edu.internet2.middleware.shibboleth.common.profile.provider.BaseSAMLProfi
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.vt.middleware.ldap.SearchFilter;
 
 /**
  * This synchronizes groups stored in the directory as entries.
@@ -577,12 +579,12 @@ public class GroupEntrySynchronizer {
       if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
         if (ldappc.getConfig().getBundleModifications()) {
           LOG.info("Modify '" + groupDn + "' " + Arrays.asList(modificationItems));
-          ldappc.getContext().modifyAttributes(groupDn, modificationItems);
+          ldappc.getContext().modifyAttributes(groupDn.toString(), modificationItems);
         } else {
           for (ModificationItem modificationItem : modificationItems) {
             ModificationItem[] unbundledMod = new ModificationItem[] { modificationItem };
             LOG.info("Modify '" + groupDn + "' " + Arrays.asList(unbundledMod));
-            ldappc.getContext().modifyAttributes(groupDn, unbundledMod);
+            ldappc.getContext().modifyAttributes(groupDn.toString(), unbundledMod);
           }
         }
       }
@@ -626,7 +628,7 @@ public class GroupEntrySynchronizer {
     // Get the existing attributes defined for the entry
     //
     LOG.debug("get group attributes '" + groupDn + "' attrs " + wantedAttr);
-    Attributes attributes = ldappc.getContext().getAttributes(groupDn,
+    Attributes attributes = ldappc.getContext().getAttributes(groupDn.toString(),
         (String[]) wantedAttr.toArray(new String[0]));
 
     //
@@ -1086,7 +1088,7 @@ public class GroupEntrySynchronizer {
 
     if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
       LOG.info("Creating '" + groupDn + "' attrs " + attributes);
-      ldappc.getContext().createSubcontext(groupDn, attributes);
+      ldappc.getContext().create(groupDn.toString(), attributes);
     }
 
     //
@@ -1117,7 +1119,7 @@ public class GroupEntrySynchronizer {
 
         if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
           LOG.info("Modify '" + groupDn + "' " + modifications);
-          ldappc.getContext().modifyAttributes(groupDn,
+          ldappc.getContext().modifyAttributes(groupDn.toString(),
               modifications.toArray(new ModificationItem[] {}));
         }
       }
@@ -1197,7 +1199,7 @@ public class GroupEntrySynchronizer {
 
           if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
             LOG.info("Creating '" + stemDn + "' attrs " + attributes);
-            ldappc.getContext().createSubcontext(stemDn, attributes);
+            ldappc.getContext().create(stemDn.toString(), attributes);
           }
 
           //
@@ -1291,15 +1293,14 @@ public class GroupEntrySynchronizer {
     // Perform the search
     //
     LOG.debug("search base '" + ldappc.getRootDn() + "' filter '" + filter + "'");
-    NamingEnumeration searchEnum = ldappc.getContext().search(ldappc.getRootDn(), filter,
-        searchControls);
+    Iterator<SearchResult> searchResults = ldappc.getContext().search(
+        ldappc.getRootDn().toString(), new SearchFilter(filter), searchControls);
 
     //
     // Delete anything found here and it's children.
     //
-    NameParser parser = ldappc.getContext().getNameParser(LdapUtil.EMPTY_NAME);
-    while (searchEnum.hasMore()) {
-      SearchResult searchResult = (SearchResult) searchEnum.next();
+    while (searchResults.hasNext()) {
+      SearchResult searchResult = searchResults.next();
       if (searchResult.isRelative()) {
         //
         // Get the entry's name. If it is "" then is must be the root so
@@ -1313,15 +1314,22 @@ public class GroupEntrySynchronizer {
         //
         // Build the entry's DN
         //
-        Name entryDn = parser.parse(entryName);
-        entryDn = entryDn.addAll(0, ldappc.getRootDn());
+        // Name entryDn = parser.parse(entryName);
+        Name entryDn = new LdapName(entryName);
+
+        //
+        // Ignore root, don't delete it
+        //
+        if (ldappc.getRootDn().equals(entryDn)) {
+          continue;
+        }
 
         //
         // Try to find it as may already been deleted. If not found,
         // just continue
         //
         try {
-          ldappc.getContext().lookup(entryDn);
+          ldappc.getContext().list(entryDn.toString());
         } catch (NamingException ne) {
           //
           // Assume it couldn't be found, so just continue
@@ -1400,15 +1408,14 @@ public class GroupEntrySynchronizer {
     // Perform the search of the root
     //
     LOG.debug("search base '{}' filter '{}'", ldappc.getRootDn(), filter);
-    NamingEnumeration searchEnum = ldappc.getContext().search(ldappc.getRootDn(), filter,
-        searchControls);
+    Iterator<SearchResult> searchResults = ldappc.getContext().search(
+        ldappc.getRootDn().toString(), new SearchFilter(filter), searchControls);
 
     //
     // Populate dns with DNs of existing objects. The root dn is excluded.
     //
-    NameParser parser = ldappc.getContext().getNameParser(LdapUtil.EMPTY_NAME);
-    while (searchEnum.hasMore()) {
-      SearchResult searchResult = (SearchResult) searchEnum.next();
+    while (searchResults.hasNext()) {
+      SearchResult searchResult = searchResults.next();
       if (searchResult.isRelative()) {
         //
         // Get the name string. If empty it is the root so ignore
@@ -1421,13 +1428,18 @@ public class GroupEntrySynchronizer {
         //
         // Build the entry's DN
         //
-        Name entryDn = LdapUtil.getName(parser, searchResult);
-        entryDn = entryDn.addAll(0, ldappc.getRootDn());
+        Name entryDn = new LdapName(entryName);
+
+        //
+        // Ignore root, don't delete it
+        //
+        if (ldappc.getRootDn().equals(entryDn)) {
+          continue;
+        }
 
         //
         // Add entryDn to the deletes list
         //
-        LOG.debug("entryDn '" + entryDn + "'");
         dns.add(entryDn);
       } else {
         //
@@ -1496,7 +1508,7 @@ public class GroupEntrySynchronizer {
       // Try to find it. If not found, just continue
       //
       try {
-        ldappc.getContext().lookup(dn);
+        ldappc.getContext().list(dn.toString());
       } catch (NamingException ne) {
         //
         // Assume it couldn't be found, so just continue

@@ -73,6 +73,7 @@ import edu.internet2.middleware.ldappc.spml.request.LdapFilterQueryClause;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.service.ServiceException;
 import edu.vt.middleware.ldap.LdappcLdap;
+import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.bean.LdapAttribute;
 import edu.vt.middleware.ldap.bean.LdapAttributes;
 import edu.vt.middleware.ldap.bean.LdapEntry;
@@ -510,7 +511,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       ldap = ldapPool.checkOut();
 
       LOG.debug("{} filter '{}' base '{}' retAttrs {}", new Object[] { msg, filter, base, Arrays.asList(retAttrs) });
-      Iterator<SearchResult> searchResults = ldap.search(base, filter, retAttrs);
+      Iterator<SearchResult> searchResults = ldap.search(base, new SearchFilter(filter), retAttrs);
 
       LdapResult ldapResult = new LdapResult(searchResults);
       Collection<LdapEntry> entries = ldapResult.getEntries();

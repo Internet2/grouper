@@ -18,11 +18,14 @@ package edu.internet2.middleware.ldappc;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,15 +36,12 @@ import java.util.TreeSet;
 
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.apache.commons.cli.ParseException;
@@ -86,6 +86,8 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.shibboleth.common.attribute.AttributeAuthority;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.subject.Subject;
+import edu.vt.middleware.ldap.Ldap;
+import edu.vt.middleware.ldap.SearchFilter;
 
 /**
  * Initiates provisioning.
@@ -108,9 +110,9 @@ public final class Ldappc extends TimerTask {
   private LdappcConfig configuration;
 
   /**
-   * The ldap context.
+   * The ldap connection.
    */
-  private LdapContext ldapContext;
+  private Ldap ldap;
 
   /**
    * Subject cache to eliminate extra LDAP lookups.
@@ -152,11 +154,11 @@ public final class Ldappc extends TimerTask {
     this(options, null, null);
   }
 
-  public Ldappc(LdappcOptions options, LdappcConfig configuration, LdapContext ldapContext) {
+  public Ldappc(LdappcOptions options, LdappcConfig configuration, Ldap ldap) {
 
     this.options = options;
     this.configuration = configuration;
-    this.ldapContext = ldapContext;
+    this.ldap = ldap;
 
     initialize();
   }
@@ -265,15 +267,10 @@ public final class Ldappc extends TimerTask {
       LOG.error("Grouper Provision Failed", e);
       cancel();
     } finally {
-      try {
-        if (!(options.isTest()) && ldapContext != null) {
-          LOG.debug("closing connection to ldap '{}'", configuration
-              .getLdapContextParameters().get(DirContext.PROVIDER_URL));
-          ldapContext.close();
-          ldapContext = null;
-        }
-      } catch (NamingException e) {
-        // May have already been closed.
+      if (!(options.isTest()) && ldap != null) {
+        LOG.debug("closing connection to ldap '{}'", ldap.getLdapConfig().getLdapUrl());
+        ldap.close();
+        ldap = null;
       }
 
       if (grouperSession != null) {
@@ -312,7 +309,7 @@ public final class Ldappc extends TimerTask {
     getContext();
 
     try {
-      rootDn = getContext().getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
+      rootDn = new LdapName(rootDnStr);
     } catch (NamingException e) {
       throw new ConfigurationException("Unable to parse root DN.", e);
     }
@@ -754,8 +751,6 @@ public final class Ldappc extends TimerTask {
 
     Set<Name> subjectDNs = new HashSet<Name>();
 
-    NameParser parser = getContext().getNameParser(LdapUtil.EMPTY_NAME);
-
     //
     // Re-open the sorted memberships file for reading.
     //
@@ -774,7 +769,7 @@ public final class Ldappc extends TimerTask {
         String subjectDn = parts[0];
         String groupNameString = parts[1];
 
-        subjectDNs.add(parser.parse(subjectDn));
+        subjectDNs.add(new LdapName(subjectDn));
 
         if (!subjectDn.equals(currentSubjectDn)) {
           if (currentSubjectDn != null) {
@@ -946,21 +941,19 @@ public final class Ldappc extends TimerTask {
     //
     // Build the base DN
     //
-    NameParser parser = getContext().getNameParser(LdapUtil.EMPTY_NAME);
-    Name baseDn = parser.parse(filter.getBase());
-
+    String baseDn = filter.getBase();
     //
     // perform the search
     //
     LOG.debug("search base '" + baseDn + "' filter '" + filter + "' attrs "
         + Arrays.asList(searchControls.getReturningAttributes()));
-    NamingEnumeration searchResults = getContext().search(baseDn, filterExpr,
-        searchControls);
+    Iterator<SearchResult> searchResults = getContext().search(baseDn,
+        new SearchFilter(filterExpr), searchControls);
 
     //
     // Process the search results
     //
-    while (searchResults.hasMore()) {
+    while (searchResults.hasNext()) {
       //
       // Get the search result
       //
@@ -969,8 +962,7 @@ public final class Ldappc extends TimerTask {
       //
       // Build the DN for the search result
       //
-      Name subjectDn = LdapUtil.getName(parser, searchResult);
-      subjectDn = subjectDn.addAll(0, baseDn);
+      Name subjectDn = new LdapName(searchResult.getName());
 
       if (searchResult.getAttributes().get(listAttribute) != null) {
         //
@@ -1092,21 +1084,26 @@ public final class Ldappc extends TimerTask {
    * 
    * @return the LDAP context.
    */
-  public LdapContext getContext() throws LdappcException {
+  public Ldap getContext() {
 
-    try {
-      if (ldapContext == null) {
-        LOG.debug("Connecting to ldap '{}'", configuration.getLdapContextParameters()
-            .get(DirContext.PROVIDER_URL));
-        ldapContext = LdapUtil.getLdapContext(configuration.getLdapContextParameters(),
-            null);
+    if (ldap == null) {
+      ldap = new Ldap();
+      if (options.getPropertiesFileLocation() == null) {
+        ldap.loadFromProperties();
+      } else {
+        try {
+          ldap
+              .loadFromProperties(new FileInputStream(options.getPropertiesFileLocation()));
+        } catch (FileNotFoundException e) {
+          LOG.error("Unable to read properties file.", e);
+          throw new LdappcException("Unable to read properties file.", e);
+        }
       }
-    } catch (NamingException e) {
-      LOG.error("Unable to connect to ldap", e);
-      throw new LdappcException(e);
+
+      LOG.debug("Connecting to ldap '{}'", ldap.getLdapConfig().getLdapUrl());
     }
 
-    return ldapContext;
+    return ldap;
   }
 
   /**

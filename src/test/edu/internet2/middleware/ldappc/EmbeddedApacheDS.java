@@ -196,13 +196,13 @@ public class EmbeddedApacheDS {
    */
   public Properties getProperties() {
     Properties properties = new Properties();
-    properties.setProperty("initial_context_factory", "com.sun.jndi.ldap.LdapCtxFactory");
-    properties.setProperty("provider_url", "ldap://127.0.0.1:" + getPort());
-    properties.setProperty("security_authentication", "simple");
-    properties.setProperty("security_principal", ServerDNConstants.ADMIN_SYSTEM_DN);
-    properties.setProperty("security_credentials", "secret");
-    properties.setProperty("testUseEmbeddedLdap", "true");
     properties.setProperty("base", base);
+    properties.setProperty("edu.vt.middleware.ldap.ldapUrl", "ldap://127.0.0.1:" + getPort());
+    properties.setProperty("edu.vt.middleware.ldap.authtype", "simple");
+    properties.setProperty("edu.vt.middleware.ldap.serviceUser", ServerDNConstants.ADMIN_SYSTEM_DN);
+    properties.setProperty("edu.vt.middleware.ldap.serviceCredential", "secret");    
+    properties.setProperty("edu.vt.middleware.ldap.base", base);
+    properties.setProperty("testUseEmbeddedLdap", "true");
     return properties;
   }
 

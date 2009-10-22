@@ -11,24 +11,24 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.11 2009-10-20 20:14:15 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.12 2009-10-22 03:35:53 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
 
 import org.slf4j.Logger;
 
@@ -40,6 +40,7 @@ import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
 import edu.internet2.middleware.subject.Subject;
+import edu.vt.middleware.ldap.SearchFilter;
 
 /**
  * Cache subjects retrieved from subject sources to help with performance issues.
@@ -263,8 +264,7 @@ public class SubjectCache {
     subjectIdLookups++;
 
     // base
-    NameParser parser = ldappc.getContext().getNameParser(LdapUtil.EMPTY_NAME);
-    Name baseName = parser.parse(filter.getBase());
+    String baseName = filter.getBase();
 
     // filter
     String filterExpr = filter.getFilter();
@@ -285,10 +285,11 @@ public class SubjectCache {
     // Perform the search
     //
     LOG.debug(msg);
-    NamingEnumeration namingEnum = null;
+    Iterator<SearchResult> searchResults = null;
     try {
-      namingEnum = ldappc.getContext().search(baseName, filterExpr, filterArgs,
-          searchControls);
+      SearchFilter searchFilter = new SearchFilter(filterExpr);
+      searchFilter.setFilterArgs(filterArgs);
+      searchResults = ldappc.getContext().search(baseName, searchFilter, searchControls);
     } catch (NameNotFoundException e) {
       if (filter.getOnNotFound().equals(OnNotFound.fail)) {
         LOG.error("Subject not found using " + msg, e);
@@ -302,7 +303,7 @@ public class SubjectCache {
     //
     // If no entries where found, throw an exception - no return null
     //
-    if (!namingEnum.hasMore()) {
+    if (!searchResults.hasNext()) {
       // throw new LdappcException("Subject not found using " + msg);
       if (filter.getOnNotFound().equals(OnNotFound.fail)) {
         LOG.error("Subject not found using " + msg);
@@ -314,17 +315,17 @@ public class SubjectCache {
     }
 
     Set<Name> subjectDns = new LinkedHashSet<Name>();
-    while (namingEnum.hasMore()) {
+    while (searchResults.hasNext()) {
       //
       // Get the result.
       //
-      SearchResult searchResult = (SearchResult) namingEnum.next();
+      SearchResult searchResult = searchResults.next();
 
       //
       // After getting the first result, if there are more throw an exception
       // as the search result was not unique, if we are not allowing multiple results
       //
-      if (namingEnum.hasMore()) {
+      if (searchResults.hasNext()) {
         if (!filter.getMultipleResults()) {
           throw new LdappcException("Multiple entries found using " + msg);
         }
@@ -339,10 +340,8 @@ public class SubjectCache {
 
       //
       // Build the subject's DN
-      //
-      Name subjectDn = parser.parse(searchResult.getName());
-      subjectDn = subjectDn.addAll(0, baseName);
-
+      //     
+      Name subjectDn = new LdapName(searchResult.getName());
       subjectDns.add(subjectDn);
     }
 
