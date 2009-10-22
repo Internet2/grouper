@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.12 2009-10-22 03:35:53 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.13 2009-10-22 14:37:32 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -165,24 +165,29 @@ public class SubjectCache {
       return null;
     }
 
-    String subjectIdentifier = member.getSubjectId();
-
     // use cache
     if (subjectIdToDnTables.get(sourceId) == null) {
       subjectIdToDnTables.put(sourceId, new Hashtable<String, Set<Name>>(
           DEFAULT_HASH_ESTIMATE));
     } else {
-      Set<Name> subjectDns = subjectIdToDnTables.get(sourceId).get(subjectIdentifier);
+      Set<Name> subjectDns = subjectIdToDnTables.get(sourceId).get(member.getSubjectId());
       if (subjectDns != null) {
         subjectIdTableHits++;
         LOG.debug("cache found dns '{}' for sourceId '{}' subjectId '{}'", new Object[] {
-            subjectDns, sourceId, subjectIdentifier });
+            subjectDns, sourceId, member.getSubjectId() });
         return subjectDns;
       }
 
     }
 
-    // determine filter, use built-in for g:gsa source
+    //
+    // Subject identifier used for lookup
+    //
+    String subjectIdentifier = null;
+
+    //
+    // Determine filter, use built-in for g:gsa source
+    //
     LdapSearchFilter filter = null;
 
     if (sourceId.equals(SubjectFinder.internal_getGSA().getId())) {
@@ -216,14 +221,21 @@ public class SubjectCache {
       //
       // Get the subject's name attribute value
       //
-      if (!sourceNameAttr.equalsIgnoreCase("id")) {
-        LOG.debug("get source attribute '{}' for subject '{}'", sourceNameAttr,
-            subjectIdentifier);
-        subjectIdentifier = member.getSubject().getAttributeValue(sourceNameAttr);
-        if (subjectIdentifier == null) {
-          throw new LdappcException("Subject " + subjectIdentifier
-              + " ] has no value for attribute [ " + sourceNameAttr + " ]");
+      LOG.debug("get source attribute '{}' for subject '{}'", sourceNameAttr,
+          subjectIdentifier);
+      subjectIdentifier = member.getSubject().getAttributeValue(sourceNameAttr);
+      // if "name" or "id" try the accessor methods
+      if (subjectIdentifier == null) {
+        if (sourceNameAttr.equalsIgnoreCase("id")) {
+          subjectIdentifier = member.getSubject().getId();
         }
+        if (sourceNameAttr.equalsIgnoreCase("name")) {
+          subjectIdentifier = member.getSubject().getName();
+        }
+      }
+      if (subjectIdentifier == null) {
+        throw new LdappcException("Subject " + subjectIdentifier
+            + " ] has no value for attribute [ " + sourceNameAttr + " ]");
       }
     }
 
@@ -231,13 +243,13 @@ public class SubjectCache {
     Set<Name> subjectDns = findSubjectDn(filter, subjectIdentifier);
     if (subjectDns != null) {
       // add to cache
-      if (subjectIdToDnTables.get(sourceId).get(subjectIdentifier) == null) {
-        subjectIdToDnTables.get(sourceId).put(subjectIdentifier,
+      if (subjectIdToDnTables.get(sourceId).get(member.getSubjectId()) == null) {
+        subjectIdToDnTables.get(sourceId).put(member.getSubjectId(),
             new LinkedHashSet<Name>());
       }
-      subjectIdToDnTables.get(sourceId).get(subjectIdentifier).addAll(subjectDns);
+      subjectIdToDnTables.get(sourceId).get(member.getSubjectId()).addAll(subjectDns);
       LOG.debug("search found dn '{}' for sourceId '{}' subjectId '{}'", new Object[] {
-          subjectDns, sourceId, subjectIdentifier });
+          subjectDns, sourceId, member.getSubjectId() });
     }
 
     return subjectDns;
