@@ -124,7 +124,6 @@
                 <!-- Must have each of the following -->
                 <xs:element ref="grouper" />            
                 <xs:element ref="source-subject-identifiers" />
-                <xs:element ref="ldap" />
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -374,21 +373,6 @@
             </xs:sequence>
             <xs:attribute name="ldap-object-class"
                 type="ldap-objectclass-name-type" />
-        </xs:complexType>
-    </xs:element>
-
-    <!-- ========================= LDAP ELEMENT =========================== -->
-    <xs:element name="ldap">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="context">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element ref="parameter-list" />
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
         </xs:complexType>
     </xs:element>
 </xs:schema>

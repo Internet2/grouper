@@ -21,14 +21,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.naming.Context;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
 import junit.framework.TestCase;
@@ -186,7 +183,8 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(groupMbrsNameMap.get("source2"), "subjectAttribute2");
 
       // validate group attribute mapping
-      assertEquals(cm.getGroupAttributeMappingObjectClass(), "gamObjectClass");
+      assertEquals(cm.getGroupAttributeMappingObjectClass(), new HashSet<String>(Arrays
+          .asList(new String[] { "gamObjectClass" })));
 
       Map<String, List<String>> groupAttributeMap = cm.getGroupAttributeMapping();
       assertEquals(groupAttributeMap.size(), 4);
@@ -241,16 +239,6 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(filter.getBase(), "ldapSearchBase2");
       assertEquals(filter.getScope(), SearchControls.SUBTREE_SCOPE);
       assertEquals(filter.getFilter(), "ldapSearchFilter2");
-
-      // validate ldap initial context parameters
-      Hashtable data = cm.getLdapContextParameters();
-      assertEquals((String) data.get(Context.INITIAL_CONTEXT_FACTORY),
-          "initContextFactory");
-      assertEquals((String) data.get(Context.PROVIDER_URL), "providerUrl");
-      assertEquals((String) data.get(Context.SECURITY_AUTHENTICATION),
-          "securityAuthentication");
-      assertEquals((String) data.get(Context.SECURITY_PRINCIPAL), "securityPrincipal");
-      assertEquals((String) data.get(Context.SECURITY_CREDENTIALS), "securityCredentials");
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -357,16 +345,6 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(filter.getScope(), SearchControls.SUBTREE_SCOPE);
       assertEquals(filter.getFilter(), "ldapSearchFilter2");
 
-      // validate ldap initial context parameters
-      Hashtable data = cm.getLdapContextParameters();
-      assertEquals((String) data.get(Context.INITIAL_CONTEXT_FACTORY),
-          "initContextFactory");
-      assertEquals((String) data.get(Context.PROVIDER_URL), "providerUrl");
-      assertEquals((String) data.get(Context.SECURITY_AUTHENTICATION),
-          "securityAuthentication");
-      assertEquals((String) data.get(Context.SECURITY_PRINCIPAL), "securityPrincipal");
-      assertEquals((String) data.get(Context.SECURITY_CREDENTIALS), "securityCredentials");
-
     } catch (Exception e) {
       fail("Test failed : " + e.getMessage());
     }
@@ -444,16 +422,6 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(filter.getScope(), SearchControls.SUBTREE_SCOPE);
       assertEquals(filter.getFilter(), "ldapSearchFilter2");
 
-      // validate ldap initial context parameters
-      Hashtable data = cm.getLdapContextParameters();
-      assertEquals((String) data.get(Context.INITIAL_CONTEXT_FACTORY),
-          "initContextFactory");
-      assertEquals((String) data.get(Context.PROVIDER_URL), "providerUrl");
-      assertEquals((String) data.get(Context.SECURITY_AUTHENTICATION),
-          "securityAuthentication");
-      assertEquals((String) data.get(Context.SECURITY_PRINCIPAL), "securityPrincipal");
-      assertEquals((String) data.get(Context.SECURITY_CREDENTIALS), "securityCredentials");
-
     } catch (Exception e) {
       fail("Test failed : " + e.getMessage());
     }
@@ -523,16 +491,6 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(filter.getScope(), SearchControls.SUBTREE_SCOPE);
       assertEquals(filter.getFilter(), "ldapSearchFilter2");
 
-      // validate ldap initial context parameters
-      Hashtable data = cm.getLdapContextParameters();
-      assertEquals((String) data.get(Context.INITIAL_CONTEXT_FACTORY),
-          "initContextFactory");
-      assertEquals((String) data.get(Context.PROVIDER_URL), "providerUrl");
-      assertEquals((String) data.get(Context.SECURITY_AUTHENTICATION),
-          "securityAuthentication");
-      assertEquals((String) data.get(Context.SECURITY_PRINCIPAL), "securityPrincipal");
-      assertEquals((String) data.get(Context.SECURITY_CREDENTIALS), "securityCredentials");
-
     } catch (Exception e) {
       fail("Test failed : " + e.getMessage());
     }
@@ -588,15 +546,6 @@ public class ConfigManagerTest extends TestCase {
     ConfigManager cm = new ConfigManager(configPath, propsPath);
 
     assertEquals(properties.get("groupDnRoot"), cm.getGroupDnRoot());
-
-    assertEquals(properties.get("provider_url"), cm.getLdapContextParameters().get(
-        DirContext.PROVIDER_URL));
-    assertEquals(properties.get("security_authentication"), cm.getLdapContextParameters()
-        .get(DirContext.SECURITY_AUTHENTICATION));
-    assertEquals(properties.get("security_principal"), cm.getLdapContextParameters().get(
-        DirContext.SECURITY_PRINCIPAL));
-    assertEquals(properties.get("security_credentials"), cm.getLdapContextParameters()
-        .get(DirContext.SECURITY_CREDENTIALS));
   }
 
   public void testLdapSearchFilter() throws FileNotFoundException, IOException {
