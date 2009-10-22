@@ -42,26 +42,4 @@
 
 	</source-subject-identifiers>
 
-
-	<ldap>
-		<context>
-
-			<parameter-list>
-
-				<parameter name="initial_context_factory" value="initContextFactory" />
-
-				<parameter name="provider_url" value="providerUrl" />
-
-				<parameter name="security_authentication" value="securityAuthentication" />
-
-				<parameter name="security_principal" value="securityPrincipal" />
-
-				<parameter name="security_credentials" value="securityCredentials" />
-
-			</parameter-list>
-
-		</context>
-
-	</ldap>
-
 </ldappc>
