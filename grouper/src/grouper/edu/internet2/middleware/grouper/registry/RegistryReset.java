@@ -16,15 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.registry;
-import java.util.HashSet;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -42,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.12 2009-10-03 14:29:14 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.13 2009-10-23 15:28:31 tzeller Exp $
  */
 public class RegistryReset {
 
@@ -158,7 +155,13 @@ public class RegistryReset {
   public void _addSubjects()   
     throws  GrouperException
   {
-    for (int i=0; i<10; i++) {
+    _addSubjects(0, 10);
+  }
+  
+  public static void _addSubjects(int start, int end)   
+  throws  GrouperException
+  {
+    for (int i=start; i<end; i++) {
       String id   = "test.subject." + i;
       String name = "my name is " + id;
       RegistrySubject registrySubject = new RegistrySubject();
