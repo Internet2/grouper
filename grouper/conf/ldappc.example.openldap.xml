@@ -19,7 +19,7 @@
       -->
     </group-queries>
 
-    <groups structure="flat" root-dn="ou=groups,dc=example,dc=edu"
+    <groups structure="flat" root-dn="ou=groups,${edu.vt.middleware.ldap.base}"
       ldap-object-class="groupOfNames" ldap-rdn-attribute="cn"
       grouper-attribute="name" initial-cache-size="100">
       
@@ -51,7 +51,7 @@
   <source-subject-identifiers>
     
     <source-subject-identifier source="_source_name_" subject-attribute="_attr_name_" >
-      <ldap-search base="ou=people,dc=example,dc=edu" scope="subtree_scope" filter="(uid={0})" />
+      <ldap-search base="ou=people,${edu.vt.middleware.ldap.base}" scope="subtree_scope" filter="(uid={0})" />
     </source-subject-identifier>
         
   </source-subject-identifiers>
