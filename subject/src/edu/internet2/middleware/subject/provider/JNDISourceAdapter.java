@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISourceAdapter.java,v 1.14 2009-09-02 05:40:10 mchyzer Exp $
-$Date: 2009-09-02 05:40:10 $
+$Id: JNDISourceAdapter.java,v 1.15 2009-10-23 03:31:15 mchyzer Exp $
+$Date: 2009-10-23 03:31:15 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -126,13 +126,16 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     }
     String[] attributeNames = { this.nameAttributeName, this.descriptionAttributeName,
         this.subjectIDAttributeName };
-    Attributes attributes1 = getLdapUnique(search, id1, attributeNames);
-    subject = createSubject(attributes1);
-    if (subject == null) {
+    try {
+      Attributes attributes1 = getLdapUnique(search, id1, attributeNames);
+      subject = createSubject(attributes1);
+    } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
-        throw new SubjectNotFoundException("Subject " + id1 + " not found.");
+        throw snfe;
       }
-      return null;
+    }
+    if (subject == null && exceptionIfNull) {
+      throw new SubjectNotFoundException("Subject " + id1 + " not found.");
     }
 
     return subject;
@@ -154,13 +157,16 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     }
     String[] attributeNames = { this.nameAttributeName, this.subjectIDAttributeName,
         this.descriptionAttributeName };
-    Attributes attributes1 = getLdapUnique(search, id1, attributeNames);
-    subject = createSubject(attributes1);
-    if (subject == null) {
+    try {
+      Attributes attributes1 = getLdapUnique(search, id1, attributeNames);
+      subject = createSubject(attributes1);
+    } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
-        throw new SubjectNotFoundException("Subject " + id1 + " not found.");
+        throw snfe;
       }
-      return null;
+    }
+    if (subject == null && exceptionIfNull) {
+      throw new SubjectNotFoundException("Subject " + id1 + " not found.");
     }
     return subject;
   }
