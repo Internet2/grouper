@@ -498,6 +498,10 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCalculateBushyMultipleSubjects() throws Exception {
 
+    if (useActiveDirectory()) {
+      return;
+    }
+
     setUpLdappc();
 
     ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
@@ -516,6 +520,10 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCalculateBushyMultipleSubjectsFail() throws Exception {
 
+    if (useActiveDirectory()) {
+      return;
+    }
+
     setUpLdappc();
 
     loadLdif("CRUDTest.testCalculateBushyMultipleSubjects.before.ldif");
@@ -528,6 +536,10 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateBushyMultipleSubjects() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
 
     setUpLdappc();
 
@@ -619,6 +631,10 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCalculateSubjectNameMap() throws Exception {
 
+    if (useActiveDirectory()) {
+      return;
+    }
+
     setUpLdappc("ldappc.test.subjectNameMap.xml");
 
     loadLdif("CRUDTest.before.ldif");
@@ -633,6 +649,10 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCalculateSubjectIdMap() throws Exception {
+
+    if (useActiveDirectory()) {
+      return;
+    }
 
     setUpLdappc("ldappc.test.subjectIdMap.xml");
 
