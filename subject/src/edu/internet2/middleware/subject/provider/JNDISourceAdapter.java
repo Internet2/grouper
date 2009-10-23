@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISourceAdapter.java,v 1.15 2009-10-23 03:31:15 mchyzer Exp $
-$Date: 2009-10-23 03:31:15 $
+$Id: JNDISourceAdapter.java,v 1.16 2009-10-23 04:04:22 mchyzer Exp $
+$Date: 2009-10-23 04:04:22 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -19,13 +19,17 @@ package edu.internet2.middleware.subject.provider;
  * @author esluss
  */
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -42,6 +46,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -243,7 +248,9 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     } catch (NamingException ex) {
       log.error("LDAP Naming Except: " + ex.getMessage(), ex);
     }
-    return new SubjectImpl(subjectID, name1, description, this.getSubjectType().getName(), this.getId(), null);
+    
+    return new JNDISubject(subjectID, name1, description, 
+        this.getSubjectType().getName(), this.getId(), null);
   }
 
   /**
