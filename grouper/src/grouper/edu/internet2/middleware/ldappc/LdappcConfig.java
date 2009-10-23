@@ -412,4 +412,14 @@ public interface LdappcConfig {
    *         values are found to store there, or <code>null</code> if not defined.
    */
   public String getAttributeResolverMappingLdapEmptyValue(String ldapAttribute);
+
+  /**
+   * Returns true if the
+   * {@link edu.internet2.middleware.ldappc.util.RangeSearchResultHandler} should be used
+   * to process attributes returned from LDAP searches. See
+   * http://code.google.com/p/vt-middleware/wiki/vtldapAD
+   * 
+   * @return true if "range" attributes should be incrementally retrieved
+   */
+  public boolean useRangeSearchResultHandler();
 }

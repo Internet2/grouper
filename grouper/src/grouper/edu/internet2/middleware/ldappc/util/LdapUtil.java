@@ -54,6 +54,7 @@ import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.vt.middleware.ldap.Ldap;
+import edu.vt.middleware.ldap.SearchFilter;
 
 /**
  * This provides utility methods for interacting with a LDAP directory.
@@ -165,7 +166,7 @@ public final class LdapUtil {
     //
     List<String> childDNs = LdapUtil.getChildDNs(dn.toString(), ldappc.getContext());
     for (String childDN : childDNs) {
-      
+
       if (ldappc.getOptions().getMode().equals(ProvisioningMode.DRYRUN)) {
         LdapUtil.writeLdif(ldappc.getWriter(), getLdifDelete(new LdapDN(childDN)));
       }
@@ -613,5 +614,55 @@ public final class LdapUtil {
     }
 
     return tree;
+  }
+
+  /**
+   * Returns all attributes. See {@link #searchAttributes(Ldap, String, String[])}
+   */
+  public static Attributes searchAttributes(Ldap ldap, String dn) throws NamingException,
+      LdappcException {
+    return searchAttributes(ldap, dn, null);
+  }
+
+  /**
+   * Returns the attributes of a given LDAP dn. The underlying LdapContext method used is
+   * search(), rather than getAttributes(), so that SearchResultHandlers are used. The
+   * filter is (objectclass=*), the base is the given dn, and the scope is OBJECT.
+   * 
+   * @param ldap
+   *          the vt-ldap connection
+   * @param dn
+   *          the dn to search for
+   * @param retAttrs
+   *          the attr names to return
+   * @return
+   * @throws NamingException
+   * @throws LdappcException
+   *           if one and only one matching dn is not found
+   */
+  public static Attributes searchAttributes(Ldap ldap, String dn, String[] retAttrs)
+      throws NamingException, LdappcException {
+
+    SearchControls searchControls = new SearchControls();
+    searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
+    searchControls.setReturningAttributes(retAttrs);
+    searchControls.setCountLimit(1);
+
+    Iterator<SearchResult> results = ldap.search(dn, new SearchFilter("objectclass=*"),
+        searchControls);
+
+    if (!results.hasNext()) {
+      LOG.debug("No result found for '" + dn + "'");
+      throw new LdappcException("No result found for '" + dn + "'");
+    }
+
+    SearchResult result = results.next();
+
+    if (results.hasNext()) {
+      LOG.error("More than one result returned for '" + dn + "'");
+      throw new LdappcException("More than one result returned for " + dn + "'");
+    }
+
+    return result.getAttributes();
   }
 }

@@ -67,9 +67,6 @@ import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.IgnoreRequestIDDifferenceListener;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.vt.middleware.ldap.Ldap;
-import edu.vt.middleware.ldap.bean.LdapAttributes;
-import edu.vt.middleware.ldap.bean.LdapEntry;
-import edu.vt.middleware.ldap.ldif.LdifResult;
 
 public class LdappcTestHelper {
 
@@ -193,22 +190,7 @@ public class LdappcTestHelper {
    * @throws NamingException
    */
   public static String getCurrentLdif(String baseDn, Ldap ldap) throws NamingException {
-
-    StringBuffer ldif = new StringBuffer();
-
-    List<String> currentDns = LdapUtil.getChildDNs(baseDn, ldap);
-
-    for (String currentDn : currentDns) {
-      Attributes attributes = ldap.getAttributes(currentDn);
-      LdapEntry ldapEntry = new LdapEntry();
-      ldapEntry.setDn(currentDn);
-      ldapEntry.setLdapAttributes(new LdapAttributes(attributes));
-      LdifResult ldifResult = new LdifResult(ldapEntry);
-      ldif.append(ldifResult.toLdif());
-    }
-
-    LOG.debug("current ldif {}\n{}", ldap.getLdapConfig().getLdapUrl(), ldif.toString());
-    return ldif.toString();
+    return getCurrentLdif(baseDn, null, ldap);
   }
 
   /**
@@ -262,7 +244,7 @@ public class LdappcTestHelper {
 
     for (String currentDn : currentDns) {
       ldif.append("dn: " + currentDn + "\n");
-      Attributes attributes = ldap.getAttributes(currentDn, attrIds);
+      Attributes attributes = LdapUtil.searchAttributes(ldap, currentDn, attrIds);
       ldif.append(LdapUtil.getLdif(attributes));
       ldif.append("\n");
     }

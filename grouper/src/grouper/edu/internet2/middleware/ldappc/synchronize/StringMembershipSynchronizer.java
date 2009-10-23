@@ -204,8 +204,7 @@ public class StringMembershipSynchronizer {
     //
     LOG.debug("get attributes for '{}' attrs '{}' '{}'", new Object[] { getSubject(),
         membershipMods.getAttributeName(), objectClassMods.getAttributeName() });
-    Attributes attributes = ldappc.getContext().getAttributes(
-        getSubject(),
+    Attributes attributes = LdapUtil.searchAttributes(ldappc.getContext(), getSubject(),
         new String[] { membershipMods.getAttributeName(),
             objectClassMods.getAttributeName() });
 

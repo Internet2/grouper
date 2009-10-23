@@ -636,8 +636,8 @@ public class GroupEntrySynchronizer {
     // Get the existing attributes defined for the entry
     //
     LOG.debug("get group attributes '" + groupDn + "' attrs " + wantedAttr);
-    Attributes attributes = ldappc.getContext().getAttributes(groupDn.toString(),
-        (String[]) wantedAttr.toArray(new String[0]));
+    Attributes attributes = LdapUtil.searchAttributes(ldappc.getContext(), groupDn
+        .toString(), (String[]) wantedAttr.toArray(new String[0]));
 
     //
     // Populate the rdn attribute

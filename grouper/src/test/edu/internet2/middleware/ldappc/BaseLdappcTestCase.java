@@ -90,9 +90,6 @@ public class BaseLdappcTestCase extends GrouperTest {
   /** ldappc */
   protected Ldappc ldappc;
 
-  /** underlying ldap connection */
-  protected Ldap ldap;
-
   /** possibly empty list of embedded servers which need to be shutdown */
   private List<EmbeddedApacheDS> embeddedADSServers = new ArrayList<EmbeddedApacheDS>();
 
@@ -130,7 +127,9 @@ public class BaseLdappcTestCase extends GrouperTest {
     edu = StemHelper.addChildStem(root, "edu", "education");
   }
 
-  public Ldap setUpLdapContext() throws Exception {
+  public void setUpLdapContext() throws Exception {
+
+    Ldap ldap;
 
     if (useEmbedded()) {
       EmbeddedApacheDS embeddedApacheDS = new EmbeddedApacheDS();
@@ -169,7 +168,7 @@ public class BaseLdappcTestCase extends GrouperTest {
 
     LdappcTestHelper.deleteChildren(base, ldap);
 
-    return ldap;
+    ldap.close();
   }
 
   /**
@@ -180,10 +179,6 @@ public class BaseLdappcTestCase extends GrouperTest {
    * @throws Exception
    */
   public void setUpLdappc(String pathToConfig, String pathToProperties) throws Exception {
-
-    if (ldap == null) {
-      throw new LdappcException("Call setUpLdapContext() first.");
-    }
 
     LdappcOptions options = new LdappcOptions();
     options.setDoGroups(true);
@@ -205,13 +200,14 @@ public class BaseLdappcTestCase extends GrouperTest {
       configuration.setBundleModifications(false);
     }
 
-    ldappc = new Ldappc(options, configuration, ldap);
+    ldappc = new Ldappc(options, configuration, null);
   }
 
   public void tearDown() {
     super.tearDown();
 
     try {
+      Ldap ldap = ldappc.getContext();
       if (ldap != null) {
         LdappcTestHelper.deleteChildren(base, ldap);
         ldap.close();
@@ -356,7 +352,7 @@ public class BaseLdappcTestCase extends GrouperTest {
       String correctLdif = LdappcTestHelper.readFile(getFile(pathToCorrectFile));
 
       LdappcTestHelper.verifyLdif(correctLdif, propertiesFile, normalizeDnAttributes,
-          base, ldap, useActiveDirectory());
+          base, ldappc.getContext(), useActiveDirectory());
     } catch (Exception e) {
       e.printStackTrace();
       fail("An error occurred : " + e);
