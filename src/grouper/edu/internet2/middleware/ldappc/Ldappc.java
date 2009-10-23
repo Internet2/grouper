@@ -73,7 +73,6 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
-import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
@@ -82,12 +81,14 @@ import edu.internet2.middleware.ldappc.synchronize.StringMembershipSynchronizer;
 import edu.internet2.middleware.ldappc.util.ExternalSort;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.RangeSearchResultHandler;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.shibboleth.common.attribute.AttributeAuthority;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.SearchFilter;
+import edu.vt.middleware.ldap.handler.SearchResultHandler;
 
 /**
  * Initiates provisioning.
@@ -1109,6 +1110,18 @@ public final class Ldappc extends TimerTask {
               .loadFromProperties(new FileInputStream(options.getPropertiesFileLocation()));
         }
         LOG.debug("Connecting to ldap '{}'", ldap.getLdapConfig().getLdapUrl());
+
+        //
+        // Include the RangeSearchResultHandler if appropriate.
+        //
+        if (configuration.useRangeSearchResultHandler()) {
+          List<SearchResultHandler> handlers = new ArrayList<SearchResultHandler>(Arrays
+              .asList(ldap.getLdapConfig().getSearchResultHandlers()));
+          handlers.add(new RangeSearchResultHandler(ldap));
+          ldap.getLdapConfig().setSearchResultHandlers(
+              handlers.toArray(new SearchResultHandler[] {}));
+        }
+
       } catch (FileNotFoundException e) {
         LOG.error("Unable to read properties file.", e);
         throw new LdappcException("Unable to read properties file.", e);

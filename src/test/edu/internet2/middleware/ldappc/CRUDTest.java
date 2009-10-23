@@ -562,7 +562,11 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateBushyMultipleObjectClassMapping() throws Exception {
 
+    // inetLocalMailRecipient not supported
     if (useActiveDirectory()) {
+      return;
+    }
+    if (this.useEmbedded()) {
       return;
     }
 
@@ -596,7 +600,11 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateBushyMultipleObjectClassResolver() throws Exception {
 
+    // inetLocalMailRecipient not supported
     if (useActiveDirectory()) {
+      return;
+    }
+    if (this.useEmbedded()) {
       return;
     }
 

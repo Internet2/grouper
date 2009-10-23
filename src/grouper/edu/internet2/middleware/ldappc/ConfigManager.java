@@ -17,6 +17,7 @@ package edu.internet2.middleware.ldappc;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -28,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -88,6 +90,11 @@ public class ConfigManager implements LdappcConfig {
    * JAXP schema language value for W3C XML Schema.
    */
   public static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
+
+  /**
+   * Property which defines whether or not the range search result handler is used
+   */
+  public static final String PROPERTY_USE_RANGE_HANDLER = "edu.internet2.middleware.ldappc.useRangeSearchResultHandler";
 
   /**
    * Flag indicating to get data from ldappc.properties instead of ldappc.xml.
@@ -304,6 +311,11 @@ public class ConfigManager implements LdappcConfig {
    * HashMap to allow null values).
    */
   private Map attributeResolverMappingLdapEmptyValues = new HashMap();
+
+  /**
+   * Boolean indicating if the RangeSearchResultHandler should be used.
+   */
+  private boolean useRangeSearchResultHandler = false;
 
   public ConfigManager() throws ConfigurationException {
 
@@ -625,6 +637,21 @@ public class ConfigManager implements LdappcConfig {
     if (!isRootElementFound()) {
       throw new ConfigurationException(
           "The ldappc element was not found in the configuration file.");
+    }
+
+    //
+    // Properties
+    //
+
+    try {
+      Properties props = new Properties();
+      props.load(new FileInputStream(properties));
+      useRangeSearchResultHandler = GrouperUtil.propertiesValueBoolean(props,
+          PROPERTY_USE_RANGE_HANDLER, false);
+    } catch (FileNotFoundException e) {
+      throw new ConfigurationException("Unable to find the properties file.", e);
+    } catch (IOException e) {
+      throw new ConfigurationException("Unable to read the properties file.", e);
     }
   }
 
@@ -1835,6 +1862,13 @@ public class ConfigManager implements LdappcConfig {
 
   private void setAttributeResolverMappingObjectClass(Set<String> objectClass) {
     this.attributeResolverMappingObjectClass = objectClass;
+  }
+
+  /**
+   * @see edu.internet2.middleware.ldappc.LdappcConfig#useRangeSearchResultHandler()
+   */
+  public boolean useRangeSearchResultHandler() {
+    return useRangeSearchResultHandler;
   }
 
   /**
