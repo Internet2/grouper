@@ -1,5 +1,0 @@
-<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='id' requestID='REQUESTID_TEST' executionMode='synchronous' returnData='everything'>
-  <ldappc:id ID='id'/>
-  <ldappc:targetId ID='target1'/>
-  <ldappc:targetId ID='target2'/>
-</ldappc:calcRequest>
