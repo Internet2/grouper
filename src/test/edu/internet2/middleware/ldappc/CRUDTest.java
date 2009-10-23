@@ -667,4 +667,44 @@ public class CRUDTest extends BaseLdappcTestCase {
     }
   }
 
+  public void testCalculateSubjectWhitespace() throws Exception {
+
+    if (useActiveDirectory()) {
+      setUpLdappc("ldappc.ad.subjectWhitespace.xml");
+    } else {
+      setUpLdappc("ldappc.test.subjectWhitespace.xml");
+    }
+
+    ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
+        .setOnNotFound(OnNotFound.fail);
+
+    loadLdif("CRUDTest.testCalculateSubjectWhitespace.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateSubjectWhitespace.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCreateSubjectWhitespace() throws Exception {
+
+    if (useActiveDirectory()) {
+      setUpLdappc("ldappc.ad.subjectWhitespace.xml");
+    } else {
+      setUpLdappc("ldappc.test.subjectWhitespace.xml");
+    }
+
+    ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
+        .setOnNotFound(OnNotFound.fail);
+
+    loadLdif("CRUDTest.testCalculateSubjectWhitespace.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateSubjectWhitespace.after.ldif");
+  }
+
 }
