@@ -1,37 +1,37 @@
-dn: cn=groupA,ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: delete
 
-dn: cn=groupB,ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
-changetype: delete
-
-# artifact of test case
-dn: cn=groupA
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupB
-changetype: delete
-
-dn: ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupA,ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
+changetype: delete
+
+dn: ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupB,ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupA
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: cn=groupB
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: delete
 
 # artifact of test case
-dn: ou=edu,ou=testgroups,ou=Prod Test,dc=uom,dc=memphis,dc=edu
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
+changetype: delete
+
+# artifact of test case
+dn: ou=edu,ou=testgroups,${base}
 changetype: delete
 

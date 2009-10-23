@@ -207,8 +207,8 @@ public class BaseLdappcTestCase extends GrouperTest {
     super.tearDown();
 
     try {
-      Ldap ldap = ldappc.getContext();
-      if (ldap != null) {
+      if (ldappc != null) {
+        Ldap ldap = ldappc.getContext();
         LdappcTestHelper.deleteChildren(base, ldap);
         ldap.close();
       }
