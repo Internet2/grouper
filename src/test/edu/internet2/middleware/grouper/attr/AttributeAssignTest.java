@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -31,7 +32,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testDelegation"));
+    TestRunner.run(new AttributeAssignTest("testHibernate"));
   }
   
   /**
@@ -80,14 +81,41 @@ public class AttributeAssignTest extends GrouperTest {
   /**
    * attribute def
    */
-  public void testHibernate() {
+  public void testHibernateFail() {
     AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
 
     AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
     
     AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName);
-    attributeAssign.saveOrUpdate();
     
+    try {
+      attributeAssign.saveOrUpdate();
+      fail("Should throw exception");
+    } catch (AttributeAssignNotAllowed aana) {
+      //good
+    }
+    
+    attributeDef.setAssignToStem(true);
+    attributeDef.store();
+    
+    //should work now
+    attributeAssign.saveOrUpdate();
+  }
+
+  /**
+   * attribute def
+   */
+  public void testHibernate() {
+    AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+    attributeDef.setAssignToStem(true);
+    attributeDef.store();
+    
+    AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
+    
+    AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName);
+    
+    //should work now
+    attributeAssign.saveOrUpdate();
   }
 
   /**

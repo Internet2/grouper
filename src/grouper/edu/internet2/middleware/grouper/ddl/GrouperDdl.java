@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.87 2009-10-26 02:26:07 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.88 2009-10-26 17:20:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1984,7 +1984,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
     
   }
-  
+
   /**
    * add all foreign keys
    * @param ddlVersionBean 
@@ -5681,9 +5681,6 @@ public enum GrouperDdl implements DdlVersionable {
           database, AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
-          AttributeDef.COLUMN_ASSIGNABLE_TO, Types.VARCHAR, "32", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
           AttributeDef.COLUMN_ATTRIBUTE_DEF_PUBLIC, Types.VARCHAR, "1", false, true, "F");
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
@@ -5728,6 +5725,43 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
           AttributeDef.COLUMN_VALUE_TYPE, Types.VARCHAR, "32", false, true, "marker");
           
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_ATTRIBUTE_DEF, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_ATTRIBUTE_DEF_ASSN, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_EFF_MEMBERSHIP, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_EFF_MEMBERSHIP_ASSN, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_GROUP, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_GROUP_ASSN, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_IMM_MEMBERSHIP, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_IMM_MEMBERSHIP_ASSN, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_MEMBER, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_MEMBER_ASSN, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_STEM, Types.VARCHAR, "1", false, true, "F");
+          
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGN_TO_STEM_ASSN, Types.VARCHAR, "1", false, true, "F");
+          
+
       String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX attribute_def_name_idx " +
           "ON grouper_attribute_def (name(333));\n" : null;
       

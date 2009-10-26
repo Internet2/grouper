@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -389,6 +390,28 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * save or update this object
    */
   public void saveOrUpdate() {
+    AttributeDef attributeDef = this.getAttributeDef();
+    
+    //validate if allowed
+    if (StringUtils.isNotEmpty(this.ownerGroupId) && StringUtils.isEmpty(this.ownerMemberId) && !attributeDef.isAssignToGroup()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to group: " + attributeDef + ", " + this.ownerGroupId);
+    }
+    if (StringUtils.isNotEmpty(this.ownerStemId) && !attributeDef.isAssignToStem()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to stem: " + attributeDef + ", " + this.ownerStemId);
+    }
+    if (StringUtils.isNotEmpty(this.ownerMemberId) && StringUtils.isEmpty(this.ownerGroupId) && !attributeDef.isAssignToMember()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to member: " + attributeDef + ", " + this.ownerMemberId);
+    }
+    if (StringUtils.isNotEmpty(this.ownerMembershipId) && !attributeDef.isAssignToImmMembership()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to immediate membership: " + attributeDef + ", " + this.ownerMembershipId);
+    }
+    if (StringUtils.isNotEmpty(this.ownerAttributeDefId) && !attributeDef.isAssignToAttributeDef()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to attribute def: " + attributeDef + ", " + this.ownerAttributeDefId);
+    }
+    if (StringUtils.isNotEmpty(this.ownerMemberId) && StringUtils.isNotEmpty(this.ownerGroupId) && !attributeDef.isAssignToEffMembership()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to effective membership: " + attributeDef + ", " + this.ownerGroupId + ", " + this.ownerMemberId);
+    }
+    //TODO check for assignments
     GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(this);
   }
   
