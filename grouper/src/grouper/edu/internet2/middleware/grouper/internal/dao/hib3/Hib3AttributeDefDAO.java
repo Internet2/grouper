@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefDAO.java,v 1.5 2009-10-20 14:55:50 shilen Exp $
+ * @version $Id: Hib3AttributeDefDAO.java,v 1.6 2009-10-26 02:26:07 mchyzer Exp $
  */
 public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   
@@ -45,6 +45,22 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     
     if (attributeDef == null && exceptionIfNotFound) {
       throw new AttributeDefNotFoundException("Cant find (or not allowed to find) AttributeDef by id: " + id);
+    }
+    
+    return attributeDef;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findById(java.lang.String, boolean)
+   */
+  public AttributeDef findById(String id, boolean exceptionIfNotFound) {
+    AttributeDef attributeDef = HibernateSession.byHqlStatic().createQuery(
+        "from AttributeDef where id = :theId")
+      .setString("theId", id).uniqueResult(AttributeDef.class);
+
+    if (attributeDef == null && exceptionIfNotFound) {
+      throw new AttributeDefNotFoundException("Cant find AttributeDef by id: " + id);
     }
     
     return attributeDef;

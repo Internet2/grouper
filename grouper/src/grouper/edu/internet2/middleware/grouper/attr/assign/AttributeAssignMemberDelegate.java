@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignMemberDelegate.java,v 1.3 2009-10-12 09:46:34 mchyzer Exp $
+ * $Id: AttributeAssignMemberDelegate.java,v 1.4 2009-10-26 02:26:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -45,7 +45,11 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
    */
   @Override
   AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
-    return new AttributeAssign(this.member, action, attributeDefName);
+    
+    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+      .getAttributeDefActionDelegate().allowedAction(action, true);
+    
+    return new AttributeAssign(this.member, attributeAssignAction.getId(), attributeDefName);
   }
 
   /**

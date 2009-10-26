@@ -19,6 +19,9 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
@@ -52,7 +55,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.18 2009-10-02 05:57:58 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.19 2009-10-26 02:26:07 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -301,6 +304,30 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public RoleSetViewDAO getRoleSetView() {
     return new Hib3RoleSetViewDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAttributeAssignAction()
+   */
+  @Override
+  public AttributeAssignActionDAO getAttributeAssignAction() {
+    return new Hib3AttributeAssignActionDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAttributeAssignActionSet()
+   */
+  @Override
+  public AttributeAssignActionSetDAO getAttributeAssignActionSet() {
+    return new Hib3AttributeAssignActionSetDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAttributeAssignActionSetView()
+   */
+  @Override
+  public AttributeAssignActionSetViewDAO getAttributeAssignActionSetView() {
+    return new Hib3AttributeAssignActionSetViewDAO();
   }
 } 
 

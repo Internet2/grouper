@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttributeDefDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionDelegate;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -48,9 +49,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
 
   /** name of the groups attribute def table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF = "grouper_attribute_def";
-
-  /** actions col in db */
-  public static final String COLUMN_ACTIONS = "actions";
 
   /** assignable_to col in db */
   public static final String COLUMN_ASSIGNABLE_TO = "assignable_to";
@@ -139,9 +137,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /** constant for field name for: valueType */
   public static final String FIELD_VALUE_TYPE = "valueType";
 
-  /** constant for field name for: actions */
-  public static final String FIELD_ACTIONS = "actions";
-
   /**
    * fields which are included in db version
    */
@@ -150,7 +145,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
       FIELD_ASSIGNABLE_TO, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
       FIELD_CREATE_TIME, FIELD_DESCRIPTION, FIELD_EXTENSION, 
       FIELD_ID, FIELD_MODIFY_TIME, FIELD_MULTI_ASSIGNABLE, 
-      FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE, FIELD_ACTIONS);
+      FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE);
 
   /**
    * fields which are included in clone method
@@ -159,8 +154,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
       FIELD_ASSIGNABLE_TO, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
       FIELD_CREATE_TIME, FIELD_DESCRIPTION, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_MODIFY_TIME, 
-      FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE, 
-      FIELD_ACTIONS);
+      FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -187,6 +181,18 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
     return this.attributeAssignAttributeDefDelegate;
   }
 
+  /** delegate */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeDefActionDelegate attributeDefActionDelegate;
+  
+  /**
+   * delegate the action list management to this class
+   * @return the delegate
+   */
+  public AttributeDefActionDelegate getAttributeDefActionDelegate() {
+    this.attributeDefActionDelegate = new AttributeDefActionDelegate(this);
+    return this.attributeDefActionDelegate;
+  }
 
   /** id of this attribute def */
   private String id;
@@ -426,13 +432,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   private boolean multiValued;
 
   /**
-   * comma separated list of actions for this attribute.  at least there needs to be one.
-   * default is "assign"  actions must contain only alphanumeric or underscore, case sensitive
-   * e.g. read,write,admin
-   */
-  private String actions = ACTION_DEFAULT;
-  
-  /**
    * type of the value,  int, double, string, marker
    */
   private AttributeDefValueType valueType = AttributeDefValueType.marker;
@@ -469,61 +468,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
     this.valueType = AttributeDefValueType.valueOfIgnoreCase(valueType1, false);
   }
 
-  /**
-   * comma separated list of actions for this attribute.  at least there needs to be one.
-   * default is "assign"  actions must contain only alphanumeric or underscore, case sensitive
-   * e.g. read, write, admin
-   * @return the actions
-   */
-  public String getActions() {
-    if (StringUtils.isBlank(this.actions)) {
-      this.actions = ACTION_DEFAULT;
-    }
-    return actions;
-  }
-
-  /**
-   * get the actions for this attribute def in an array
-   * @return the array of actions
-   */
-  public String[] getActionsArray() {
-    return GrouperUtil.splitTrim(this.actions, ",");
-  }
-  
-  /**
-   * comma separated list of actions for this attribute.  at least there needs to be one.
-   * default is "assign" actions must contain only alphanumeric or underscore, case sensitive
-   * e.g. read,write,admin
-   * @param actions
-   */
-  public void setActions(String actions) {
-    this.actions = actions;
-    if (StringUtils.isBlank(this.actions)) {
-      this.actions = ACTION_DEFAULT;
-    }
-  }
-
-  /**
-   * set of allowed actions
-   */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
-  private Set<String> allowedActionsSet = null;
-
-  /**
-   * get (and cache) the allowed actions
-   * @return the set of strings
-   */
-  public Set<String> allowedActions() {
-    if (this.allowedActionsSet == null) {
-      if (StringUtils.isBlank(this.actions)) {
-        throw new RuntimeException("actions cant be null: " + this);
-      }
-      String[] actionsArray = GrouperUtil.splitTrim(this.actions, ",");
-      this.allowedActionsSet = GrouperUtil.toSet(actionsArray);
-    }
-    return this.allowedActionsSet;
-  }
-  
   /**
    * if this attribute can be assigned to the same action to the same object more than once
    * @return if multiassignable

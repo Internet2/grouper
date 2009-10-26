@@ -21,6 +21,9 @@ import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
@@ -57,7 +60,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.14 2009-10-02 05:57:58 mchyzer Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.15 2009-10-26 02:26:07 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -123,6 +126,16 @@ public abstract class GrouperDAOFactory {
   /**
    * @return attributeAssign
    */
+  public abstract AttributeAssignActionDAO getAttributeAssignAction();
+
+  /**   
+   * @return attributeAssign
+   */
+  public abstract AttributeAssignActionSetDAO getAttributeAssignActionSet();
+
+  /**
+   * @return attributeAssign
+   */
   public abstract AttributeAssignValueDAO getAttributeAssignValue();
 
   /**
@@ -139,6 +152,11 @@ public abstract class GrouperDAOFactory {
    * @return attributeDefNameSetView
    */
   public abstract AttributeDefNameSetViewDAO getAttributeDefNameSetView();
+
+  /**
+   * @return attributeAssignActionSetView
+   */
+  public abstract AttributeAssignActionSetViewDAO getAttributeAssignActionSetView();
 
   /**
    * @return attributeDefName

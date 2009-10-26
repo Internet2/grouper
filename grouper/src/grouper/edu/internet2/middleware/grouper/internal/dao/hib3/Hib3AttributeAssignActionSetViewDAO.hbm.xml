@@ -20,13 +20,13 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeDefDAO.hbm.xml,v 1.3 2009-10-26 02:26:07 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeAssignActionSetViewDAO.hbm.xml,v 1.1 2009-10-26 02:26:07 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.attr">
+<hibernate-mapping package="edu.internet2.middleware.grouper.attr.assign">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="AttributeDef" table="grouper_attribute_def" optimistic-lock="version">
+  <class name="AttributeAssignActionSetView" table="grouper_attr_assn_action_set_v"  >
 
     <cache usage="read-write"/>
 
@@ -36,23 +36,15 @@
     </id>
     <!-- id -->
 
-    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
-    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
-
-    <property name="assignableToDb" column="assignable_to"/>
-    <property name="attributeDefPublicDb" column="attribute_def_public"/>
-    <property name="attributeDefTypeDb" column="attribute_def_type"/>
-    <property name="contextId" column="context_id"/>
-    <property name="createdOnDb" column="created_on"/>
-    <property name="creatorId" column="creator_id"/>
-    <property name="description" column="description"/>
-    <property name="extensionDb" column="extension"/>
-    <property name="lastUpdatedDb" column="last_updated"/>
-    <property name="multiAssignableDb" column="multi_assignable"/>
-    <property name="multiValuedDb" column="multi_valued"/>
-    <property name="nameDb" column="name"/>
-    <property name="stemId" column="stem_id"/>
-    <property name="valueTypeDb" column="value_type"/>
+    <property name="depth" column="depth"/>
+    <property name="ifHasAttrAssignActionId" column="if_has_attr_assn_action_id"/>
+    <property name="thenHasAttrAssignActionId" column="then_has_attr_assn_action_id"/>
+    <property name="ifHasAttrAssignActionName" column="if_has_attr_assn_action_name"/>
+    <property name="thenHasAttrAssignActionName" column="then_has_attr_assn_action_name"/>
+    <property name="parentAttrAssignActionSetId" column="parent_attr_assn_action_id"/>
+    <property name="typeDb" column="type"/>
+    <property name="parentIfHasName" column="parent_if_has_name"/>
+    <property name="parentThenHasName" column="parent_then_has_name"/>
   </class>
 </hibernate-mapping>
 

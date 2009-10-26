@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignBaseDelegate.java,v 1.5 2009-10-12 09:46:34 mchyzer Exp $
+ * $Id: AttributeAssignBaseDelegate.java,v 1.6 2009-10-26 02:26:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -193,7 +193,7 @@ public abstract class AttributeAssignBaseDelegate {
     
     action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
     for (AttributeAssign attributeAssign : attributeAssigns) {
-      String currentAttributeAction = StringUtils.defaultIfEmpty(attributeAssign.getAction(), AttributeDef.ACTION_DEFAULT);
+      String currentAttributeAction = attributeAssign.getAttributeAssignAction().getName();
       if (StringUtils.equals(action, currentAttributeAction)) {
         return true;
       }
@@ -233,7 +233,7 @@ public abstract class AttributeAssignBaseDelegate {
     AttributeAssign attributeAssignResult = null;
     action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
     for (AttributeAssign attributeAssign : attributeAssigns) {
-      String currentAttributeAction = StringUtils.defaultIfEmpty(attributeAssign.getAction(), AttributeDef.ACTION_DEFAULT);
+      String currentAttributeAction = attributeAssign.getAttributeAssignAction().getName();
       if (StringUtils.equals(action, currentAttributeAction)) {
         if (attributeAssignResult != null) {
           throw new RuntimeException("Multiple assignments exist: " + attributeDefName + ", " + action + ", " + this);
@@ -407,8 +407,9 @@ public abstract class AttributeAssignBaseDelegate {
     
     attributeAssign = newAttributeAssign(action, attributeDefName);
     
-    if (StringUtils.isBlank(attributeAssign.getAction())) {
-      attributeAssign.setAction(AttributeDef.ACTION_DEFAULT);
+    if (StringUtils.isBlank(attributeAssign.getAttributeAssignActionId())) {
+      attributeAssign.setAttributeAssignActionId(attributeDefName.getAttributeDef()
+          .getAttributeDefActionDelegate().allowedAction(AttributeDef.ACTION_DEFAULT, true).getId());
     }
     
     attributeAssign.saveOrUpdate();
@@ -477,7 +478,7 @@ public abstract class AttributeAssignBaseDelegate {
     Set<AttributeAssign> attributeAssigns = retrieveAssignments(attributeDefName);
     action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
     for (AttributeAssign attributeAssign : attributeAssigns) {
-      String currentAttributeAction = StringUtils.defaultIfEmpty(attributeAssign.getAction(), AttributeDef.ACTION_DEFAULT);
+      String currentAttributeAction = attributeAssign.getAttributeAssignAction().getId();
       if (StringUtils.equals(action, currentAttributeAction)) {
         return true;
       }
@@ -517,7 +518,7 @@ public abstract class AttributeAssignBaseDelegate {
     action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
     Set<AttributeAssign> attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
     for (AttributeAssign attributeAssign : attributeAssigns) {
-      String currentAttributeAction = StringUtils.defaultIfEmpty(attributeAssign.getAction(), AttributeDef.ACTION_DEFAULT);
+      String currentAttributeAction = attributeAssign.getAttributeAssignAction().getId();
       if (StringUtils.equals(action, currentAttributeAction)) {
         attributeAssign.delete();
       }
