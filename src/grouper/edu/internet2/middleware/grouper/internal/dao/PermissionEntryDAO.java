@@ -19,13 +19,12 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 
 /** 
  * Basic <code>PermissionEntry</code> DAO interface.
  * @author  mchyzer
- * @version $Id: PermissionEntryDAO.java,v 1.2 2009-10-12 09:46:34 mchyzer Exp $
+ * @version $Id: PermissionEntryDAO.java,v 1.3 2009-10-26 04:52:17 mchyzer Exp $
  */
 public interface PermissionEntryDAO extends GrouperDAO {
 
@@ -44,5 +43,15 @@ public interface PermissionEntryDAO extends GrouperDAO {
    */
   public Set<PermissionEntry> findByMemberIdAndAttributeDefNameId(String memberId, String attributeDefNameId);
 
+  /**
+   * see if the permission exists and is enabled
+   * @param subjectId
+   * @param sourceId
+   * @param action
+   * @param attributeDefNameName
+   * @return true if has permissions and is enabled
+   */
+  public boolean hasPermissionBySubjectIdSourceIdActionAttributeDefName(String subjectId, String sourceId, 
+      String action, String attributeDefNameName);
 } 
 

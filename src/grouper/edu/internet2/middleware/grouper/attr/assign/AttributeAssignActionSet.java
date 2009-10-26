@@ -30,7 +30,49 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 //and gadn.id = gadns.then_has_attribute_def_name_id;
 
 /**
- * @author mchyzer $Id: AttributeAssignActionSet.java,v 1.1 2009-10-26 02:26:07 mchyzer Exp $
+ * <pre>
+ * Make a directed graph of attribute assign actions.  e.g. "admin" implies "read" and "write".
+ * 
+ * RegistryReset.internal_resetRegistryAndAddTestSubjects();
+ * exit;
+ * 
+ * grouperSession = GrouperSession.startRootSession();
+ * root = StemFinder.findRootStem(this.grouperSession);
+ * 
+ * top = this.root.addChildStem("top", "top display name");
+ * -or-
+ * top = StemFinder.findByName(grouperSession, "top");
+ * 
+ * role = top.addChildRole("role", "role");
+ * 
+ * //make a permission definition 
+ * permissionDef = top.addChildAttributeDef("permissionDef", AttributeDefType.perm);
+ * //make a permission name
+ * permissionName = top.addChildAttributeDefName(permissionDef, "permission", "permission");
+ * 
+ * //set the list of allowed actions for this permission definition
+ * permissionDef.getAttributeDefActionDelegate().configureActionList("admin,read,write");
+ * admin = permissionDef.getAttributeDefActionDelegate().allowedAction("admin", true);
+ * read = permissionDef.getAttributeDefActionDelegate().allowedAction("read", true);
+ * write = permissionDef.getAttributeDefActionDelegate().allowedAction("write", true);
+ * 
+ * //if someone has admin, then they have read or write
+ * admin.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(read);
+ * admin.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(write);
+ * 
+ * //assign admin permission to a role
+ * role.getPermissionRoleDelegate().assignRolePermission("admin", permissionName);
+ * 
+ * //assign the role to a user
+ * role.addMember(SubjectFinder.findById("test.subject.0"));
+ * 
+ * //see what permissions that user has (true is returned to all)
+ * GrouperDAOFactory.getFactory().getPermissionEntry().hasPermissionBySubjectIdSourceIdActionAttributeDefName("test.subject.0", "jdbc", "admin", "top:permission");
+ * GrouperDAOFactory.getFactory().getPermissionEntry().hasPermissionBySubjectIdSourceIdActionAttributeDefName("test.subject.0", "jdbc", "read", "top:permission");
+ * GrouperDAOFactory.getFactory().getPermissionEntry().hasPermissionBySubjectIdSourceIdActionAttributeDefName("test.subject.0", "jdbc", "write", "top:permission");
+ * 
+ * </pre>
+ * @author mchyzer $Id: AttributeAssignActionSet.java,v 1.2 2009-10-26 04:52:17 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class AttributeAssignActionSet extends GrouperAPI 

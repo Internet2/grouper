@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>PermissionEntry</code> DAO interface.
  * @author  Chris Hyzer
- * @version $Id: Hib3PermissionEntryDAO.java,v 1.3 2009-10-12 09:46:34 mchyzer Exp $
+ * @version $Id: Hib3PermissionEntryDAO.java,v 1.4 2009-10-26 04:52:17 mchyzer Exp $
  */
 public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDAO {
 
@@ -51,6 +51,27 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
         .listSet(PermissionEntry.class);
 
       return permissionEntries;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO#hasPermissionBySubjectIdSourceIdActionAttributeDefName(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+   */
+  public boolean hasPermissionBySubjectIdSourceIdActionAttributeDefName(String subjectId, String sourceId, 
+      String action, String attributeDefNameName) {
+    Long count = HibernateSession.byHqlStatic().createQuery(
+        "select count(*) from PermissionEntryAll thePermissionEntryAll " 
+          + "where thePermissionEntryAll.subjectId = :theSubjectId " +
+          		"and thePermissionEntryAll.subjectSourceId = :theSubjectSourceId " +
+          		"and thePermissionEntryAll.action = :theAction " +
+          		"and thePermissionEntryAll.attributeDefNameName = :theAttributeDefNameName")
+        .setString("theSubjectId", subjectId)
+        .setString("theSubjectSourceId", sourceId)
+        .setString("theAction", action)
+        .setString("theAttributeDefNameName", attributeDefNameName)
+        .uniqueResult(Long.class);
+
+    return count > 0;
   }
 
   /**
