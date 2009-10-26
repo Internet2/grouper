@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeDefDAO.hbm.xml,v 1.3 2009-10-26 02:26:07 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeDefDAO.hbm.xml,v 1.4 2009-10-26 17:20:58 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.attr">
 
@@ -39,7 +39,20 @@
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
 
-    <property name="assignableToDb" column="assignable_to"/>
+    <property name="assignToAttributeDefDb" column="assign_to_attribute_def"/>
+    <property name="assignToAttributeDefAssnDb" column="assign_to_attribute_def_assn"/>
+    <property name="assignToEffMembershipDb" column="assign_to_eff_membership"/>
+    <property name="assignToEffMembershipAssnDb" column="assign_to_eff_membership_assn"/>
+    <property name="assignToGroupDb" column="assign_to_group"/>
+    <property name="assignToGroupAssnDb" column="assign_to_group_assn"/>
+    <property name="assignToImmMembershipDb" column="assign_to_imm_membership"/>
+    <property name="assignToImmMembershipAssnDb" column="assign_to_imm_membership_assn"/>
+    <property name="assignToMemberDb" column="assign_to_member"/>
+    <property name="assignToMemberAssnDb" column="assign_to_member_assn"/>
+    <property name="assignToStemDb" column="assign_to_stem"/>
+    <property name="assignToStemAssnDb" column="assign_to_stem_assn"/>
+
+
     <property name="attributeDefPublicDb" column="attribute_def_public"/>
     <property name="attributeDefTypeDb" column="attribute_def_type"/>
     <property name="contextId" column="context_id"/>

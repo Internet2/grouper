@@ -50,9 +50,44 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /** name of the groups attribute def table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF = "grouper_attribute_def";
 
-  /** assignable_to col in db */
-  public static final String COLUMN_ASSIGNABLE_TO = "assignable_to";
+  /** constant for column for: assign_to_attribute_def */
+  public static final String COLUMN_ASSIGN_TO_ATTRIBUTE_DEF  = "assign_to_attribute_def";
+  
+  /** constant for column for: assign_to_attribute_def_assn */
+  public static final String COLUMN_ASSIGN_TO_ATTRIBUTE_DEF_ASSN  = "assign_to_attribute_def_assn";
+  
+  /** constant for column for: assign_to_eff_membership */
+  public static final String COLUMN_ASSIGN_TO_EFF_MEMBERSHIP  = "assign_to_eff_membership";
+  
+  /** constant for column for: assign_to_eff_membership_assn */
+  public static final String COLUMN_ASSIGN_TO_EFF_MEMBERSHIP_ASSN  = "assign_to_eff_membership_assn";
+  
+  /** constant for column for: assign_to_group */
+  public static final String COLUMN_ASSIGN_TO_GROUP  = "assign_to_group";
+  
+  /** constant for column for: assign_to_group_assn */
+  public static final String COLUMN_ASSIGN_TO_GROUP_ASSN  = "assign_to_group_assn";
+  
+  /** constant for column for: assign_to_imm_membership */
+  public static final String COLUMN_ASSIGN_TO_IMM_MEMBERSHIP  = "assign_to_imm_membership";
+  
+  /** constant for column for: assign_to_imm_membership_assn */
+  public static final String COLUMN_ASSIGN_TO_IMM_MEMBERSHIP_ASSN  = "assign_to_imm_membership_assn";
+  
+  /** constant for column for: assign_to_member */
+  public static final String COLUMN_ASSIGN_TO_MEMBER  = "assign_to_member";
+  
+  /** constant for column for: assign_to_member_assn */
+  public static final String COLUMN_ASSIGN_TO_MEMBER_ASSN  = "assign_to_member_assn";
+  
+  /** constant for column for: assign_to_stem */
+  public static final String COLUMN_ASSIGN_TO_STEM  = "assign_to_stem";
+  
+  /** constant for column for: assign_to_stem_assn */
+  public static final String COLUMN_ASSIGN_TO_STEM_ASSN = "assign_to_stem_assn";
 
+
+  
   /** if the attribute def is public */
   public static final String COLUMN_ATTRIBUTE_DEF_PUBLIC = "attribute_def_public";
 
@@ -98,9 +133,44 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
-  /** constant for field name for: assignableTo */
-  public static final String FIELD_ASSIGNABLE_TO = "assignableTo";
+  
+  /** constant for field name for: assignToAttributeDef */
+  public static final String ASSIGN_TO_ATTRIBUTE_DEF  = "assignToAttributeDef";
+  
+  /** constant for field name for: assignToAttributeDefAssn */
+  public static final String ASSIGN_TO_ATTRIBUTE_DEF_ASSN  = "assignToAttributeDefAssn";
+  
+  /** constant for field name for: assignToEffMembership */
+  public static final String ASSIGN_TO_EFF_MEMBERSHIP  = "assignToEffMembership";
+  
+  /** constant for field name for: assignToEffMembershipAssn */
+  public static final String ASSIGN_TO_EFF_MEMBERSHIP_ASSN  = "assignToEffMembershipAssn";
+  
+  /** constant for field name for: assignToGroup */
+  public static final String ASSIGN_TO_GROUP  = "assignToGroup";
+  
+  /** constant for field name for: assignToGroupAssn */
+  public static final String ASSIGN_TO_GROUP_ASSN  = "assignToGroupAssn";
+  
+  /** constant for field name for: assignToImmMembership */
+  public static final String ASSIGN_TO_IMM_MEMBERSHIP  = "assignToImmMembership";
+  
+  /** constant for field name for: assignToImmMembershipAssn */
+  public static final String ASSIGN_TO_IMM_MEMBERSHIP_ASSN  = "assignToImmMembershipAssn";
+  
+  /** constant for field name for: assignToMember */
+  public static final String ASSIGN_TO_MEMBER  = "assignToMember";
+  
+  /** constant for field name for: assignToMemberAssn */
+  public static final String ASSIGN_TO_MEMBER_ASSN  = "assignToMemberAssn";
+  
+  /** constant for field name for: assignToStem */
+  public static final String ASSIGN_TO_STEM  = "assignToStem";
+  
+  /** constant for field name for: assignToStemAssn */
+  public static final String ASSIGN_TO_STEM_ASSN = "assignToStemAssn";
 
+  
   /** constant for field name for: attributeDefPublic */
   public static final String FIELD_ATTRIBUTE_DEF_PUBLIC = "attributeDefPublic";
 
@@ -142,7 +212,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ASSIGNABLE_TO, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
+      FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
       FIELD_CREATE_TIME, FIELD_DESCRIPTION, FIELD_EXTENSION, 
       FIELD_ID, FIELD_MODIFY_TIME, FIELD_MULTI_ASSIGNABLE, 
       FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE);
@@ -151,7 +221,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ASSIGNABLE_TO, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
+      FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
       FIELD_CREATE_TIME, FIELD_DESCRIPTION, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_MODIFY_TIME, 
       FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE);
@@ -200,13 +270,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /** context id of the transaction */
   private String contextId;
 
-  /** 
-   * AttributeDefAssignableTo type that this attribute value is assignable to,
-   * group, stem, membership, member, groupAttribute, 
-   * stemAttribute, membershipAttribute, memberAttribute
-   */
-  private AttributeDefAssignableTo assignableTo;
-  
   /** stem that this attribute is in */
   private String stemId;
 
@@ -315,6 +378,467 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   private AttributeDefType attributeDefType;
   
+  /** if can assign to group/role */
+  private boolean assignToGroup;
+  
+  /** if can assign to stem */
+  private boolean assignToStem;
+  
+  /** if can assign to member */
+  private boolean assignToMember;
+  
+  /** if can assign to immediate membership */
+  private boolean assignToImmMembership;
+  
+  /** if can assign to effective membership */
+  private boolean assignToEffMembership;
+
+  /** if can assign to attribute def */
+  private boolean assignToAttributeDef;
+
+  /** if can assign to assignment of group/role */
+  private boolean assignToGroupAssn;
+  
+  /** if can assign to assignment of stem */
+  private boolean assignToStemAssn;
+  
+  /** if can assign to assignment of member */
+  private boolean assignToMemberAssn;
+  
+  /** if can assign to assignment of immediate membership */
+  private boolean assignToImmMembershipAssn;
+  
+  /** if can assign to assignment of effective membership */
+  private boolean assignToEffMembershipAssn;
+
+  /** if can assign to assignment of attribute def */
+  private boolean assignToAttributeDefAssn;
+
+  /**
+   * if can assign to group/role
+   * @return the assignToGroup
+   */
+  public boolean isAssignToGroup() {
+    return this.assignToGroup;
+  }
+  
+  /**
+   * if can assign to group/role
+   * @param assignToGroup the assignToGroup to set
+   */
+  public void setAssignToGroup(boolean assignToGroup) {
+    this.assignToGroup = assignToGroup;
+  }
+
+  /**
+   * if can assign to stem
+   * @return the assignToStem
+   */
+  public boolean isAssignToStem() {
+    return this.assignToStem;
+  }
+  
+  /**
+   * if can assign to stem
+   * @param assignToStem the assignToStem to set
+   */
+  public void setAssignToStem(boolean assignToStem) {
+    this.assignToStem = assignToStem;
+  }
+
+  /**
+   * if can assign to member
+   * @return the assignToMember
+   */
+  public boolean isAssignToMember() {
+    return this.assignToMember;
+  }
+  
+  /**
+   * if can assign to member
+   * @param assignToMember the assignToMember to set
+   */
+  public void setAssignToMember(boolean assignToMember) {
+    this.assignToMember = assignToMember;
+  }
+
+  /**
+   * if can assign to immediate membership
+   * @return the assignToImmMembership
+   */
+  public boolean isAssignToImmMembership() {
+    return this.assignToImmMembership;
+  }
+
+  /**
+   * if can assign to immediate membership
+   * @param assignToImmMembership the assignToImmMembership to set
+   */
+  public void setAssignToImmMembership(boolean assignToImmMembership) {
+    this.assignToImmMembership = assignToImmMembership;
+  }
+
+  /**
+   * if can assign to effective membership
+   * @return the assignToEffMembership
+   */
+  public boolean isAssignToEffMembership() {
+    return this.assignToEffMembership;
+  }
+
+  /**
+   * if can assign to effective membership
+   * @param assignToEffMembership the assignToEffMembership to set
+   */
+  public void setAssignToEffMembership(boolean assignToEffMembership) {
+    this.assignToEffMembership = assignToEffMembership;
+  }
+
+  /**
+   * if can assign to attribute def
+   * @return the assignToAttributeDef
+   */
+  public boolean isAssignToAttributeDef() {
+    return this.assignToAttributeDef;
+  }
+
+  /**
+   * if can assign to attribute def
+   * @param assignToAttributeDef the assignToAttributeDef to set
+   */
+  public void setAssignToAttributeDef(boolean assignToAttributeDef) {
+    this.assignToAttributeDef = assignToAttributeDef;
+  }
+
+  /**
+   * if can assign to assignment of group/role
+   * @return the assignToGroupAssn
+   */
+  public boolean isAssignToGroupAssn() {
+    return this.assignToGroupAssn;
+  }
+  
+  /**
+   * if can assign to assignment of group/role
+   * @param assignToGroupAssn the assignToGroupAssn to set
+   */
+  public void setAssignToGroupAssn(boolean assignToGroupAssn) {
+    this.assignToGroupAssn = assignToGroupAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to a stem assignment
+   * @return the assignToStemAssn
+   */
+  public boolean isAssignToStemAssn() {
+    return this.assignToStemAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to a stem assignment
+   * @param assignToStemAssn the assignToStemAssn to set
+   */
+  public void setAssignToStemAssn(boolean assignToStemAssn) {
+    this.assignToStemAssn = assignToStemAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to a member assignment
+   * @return the assignToMemberAssn
+   */
+  public boolean isAssignToMemberAssn() {
+    return this.assignToMemberAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to a member assignment
+   * @param assignToMemberAssn the assignToMemberAssn to set
+   */
+  public void setAssignToMemberAssn(boolean assignToMemberAssn) {
+    this.assignToMemberAssn = assignToMemberAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to an immediate membership assignment
+   * @return the assignToImmMembershipAssn
+   */
+  public boolean isAssignToImmMembershipAssn() {
+    return this.assignToImmMembershipAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to an immediate membership assignment
+   * @param assignToImmMembershipAssn the assignToImmMembershipAssn to set
+   */
+  public void setAssignToImmMembershipAssn(boolean assignToImmMembershipAssn) {
+    this.assignToImmMembershipAssn = assignToImmMembershipAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to an effective membership assignment
+   * @return the assignToEffMembershipAssn
+   */
+  public boolean isAssignToEffMembershipAssn() {
+    return this.assignToEffMembershipAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to an effective membership assignment
+   * @param assignToEffMembershipAssn the assignToEffMembershipAssn to set
+   */
+  public void setAssignToEffMembershipAssn(boolean assignToEffMembershipAssn) {
+    this.assignToEffMembershipAssn = assignToEffMembershipAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to an attribute definition assignment
+   * @return the assignToAttributeDefAssn
+   */
+  public boolean isAssignToAttributeDefAssn() {
+    return this.assignToAttributeDefAssn;
+  }
+
+
+  
+  /**
+   * allowed to assign to an attribute definition assignment
+   * @param assignToAttributeDefAssn the assignToAttributeDefAssn to set
+   */
+  public void setAssignToAttributeDefAssn(boolean assignToAttributeDefAssn) {
+    this.assignToAttributeDefAssn = assignToAttributeDefAssn;
+  }
+
+  /**
+   * if can assign to group/role
+   * @return the assignToGroup
+   */
+  public String getAssignToGroupDb() {
+    return this.assignToGroup ? "T" : "F";
+  }
+  
+  /**
+   * if can assign to group/role
+   * @param assignToGroup1 the assignToGroup to set
+   */
+  public void setAssignToGroupDb(String assignToGroup1) {
+    this.assignToGroup = GrouperUtil.booleanValue(assignToGroup1);
+  }
+
+  /**
+   * if can assign to stem
+   * @return the assignToStem
+   */
+  public String getAssignToStemDb() {
+    return this.assignToStem ? "T" : "F";
+  }
+  
+  /**
+   * if can assign to stem
+   * @param assignToStem1 the assignToStem to set
+   */
+  public void setAssignToStemDb(String assignToStem1) {
+    this.assignToStem = GrouperUtil.booleanValue(assignToStem1);
+  }
+
+  /**
+   * if can assign to member
+   * @return the assignToMember
+   */
+  public String getAssignToMemberDb() {
+    return this.assignToMember ? "T" : "F";
+  }
+  
+  /**
+   * if can assign to member
+   * @param assignToMember1 the assignToMember to set
+   */
+  public void setAssignToMemberDb(String assignToMember1) {
+    this.assignToMember = GrouperUtil.booleanValue(assignToMember1);
+  }
+
+  /**
+   * if can assign to immediate membership
+   * @return the assignToImmMembership
+   */
+  public String getAssignToImmMembershipDb() {
+    return this.assignToImmMembership ? "T" : "F";
+  }
+
+  /**
+   * if can assign to immediate membership
+   * @param assignToImmMembership1 the assignToImmMembership to set
+   */
+  public void setAssignToImmMembershipDb(String assignToImmMembership1) {
+    this.assignToImmMembership = GrouperUtil.booleanValue(assignToImmMembership1);
+  }
+
+  /**
+   * if can assign to effective membership
+   * @return the assignToEffMembership
+   */
+  public String getAssignToEffMembershipDb() {
+    return this.assignToEffMembership ? "T" : "F";
+  }
+
+  /**
+   * if can assign to effective membership
+   * @param assignToEffMembership1 the assignToEffMembership to set
+   */
+  public void setAssignToEffMembershipDb(String assignToEffMembership1) {
+    this.assignToEffMembership = GrouperUtil.booleanValue(assignToEffMembership1);
+  }
+
+  /**
+   * if can assign to attribute def
+   * @return the assignToAttributeDef
+   */
+  public String getAssignToAttributeDefDb() {
+    return this.assignToAttributeDef ? "T" : "F";
+  }
+
+  /**
+   * if can assign to attribute def
+   * @param assignToAttributeDef1 the assignToAttributeDef to set
+   */
+  public void setAssignToAttributeDefDb(String assignToAttributeDef1) {
+    this.assignToAttributeDef = GrouperUtil.booleanValue(assignToAttributeDef1);
+  }
+
+  /**
+   * if can assign to assignment of group/role
+   * @return the assignToGroupAssn
+   */
+  public String getAssignToGroupAssnDb() {
+    return this.assignToGroupAssn ? "T" : "F";
+  }
+  
+  /**
+   * if can assign to assignment of group/role
+   * @param assignToGroupAssn1 the assignToGroupAssn to set
+   */
+  public void setAssignToGroupAssnDb(String assignToGroupAssn1) {
+    this.assignToGroupAssn = GrouperUtil.booleanValue(assignToGroupAssn1);
+  }
+
+
+  
+  /**
+   * allowed to assign to a stem assignment
+   * @return the assignToStemAssn
+   */
+  public String getAssignToStemAssnDb() {
+    return this.assignToStemAssn ? "T" : "F";
+  }
+
+
+  
+  /**
+   * allowed to assign to a stem assignment
+   * @param assignToStemAssn1 the assignToStemAssn to set
+   */
+  public void setAssignToStemAssnDb(String assignToStemAssn1) {
+    this.assignToStemAssn = GrouperUtil.booleanValue(assignToStemAssn1);
+  }
+
+
+  
+  /**
+   * allowed to assign to a member assignment
+   * @return the assignToMemberAssn
+   */
+  public String getAssignToMemberAssnDb() {
+    return this.assignToMemberAssn ? "T" : "F";
+  }
+
+
+  
+  /**
+   * allowed to assign to a member assignment
+   * @param assignToMemberAssn1 the assignToMemberAssn to set
+   */
+  public void setAssignToMemberAssnDb(String assignToMemberAssn1) {
+    this.assignToMemberAssn = GrouperUtil.booleanValue(assignToMemberAssn1);
+  }
+
+
+  
+  /**
+   * allowed to assign to an immediate membership assignment
+   * @return the assignToImmMembershipAssn
+   */
+  public String getAssignToImmMembershipAssnDb() {
+    return this.assignToImmMembershipAssn ? "T" : "F";
+  }
+
+
+  
+  /**
+   * allowed to assign to an immediate membership assignment
+   * @param assignToImmMembershipAssn1 the assignToImmMembershipAssn to set
+   */
+  public void setAssignToImmMembershipAssnDb(String assignToImmMembershipAssn1) {
+    this.assignToImmMembershipAssn = GrouperUtil.booleanValue(assignToImmMembershipAssn1);
+  }
+
+
+  
+  /**
+   * allowed to assign to an effective membership assignment
+   * @return the assignToEffMembershipAssn
+   */
+  public String getAssignToEffMembershipAssnDb() {
+    return this.assignToEffMembershipAssn ? "T" : "F";
+  }
+
+
+  
+  /**
+   * allowed to assign to an effective membership assignment
+   * @param assignToEffMembershipAssnDb1 the assignToEffMembershipAssn to set
+   */
+  public void setAssignToEffMembershipAssnDb(String assignToEffMembershipAssnDb1) {
+    this.assignToEffMembershipAssn = GrouperUtil.booleanValue(assignToEffMembershipAssnDb1);
+  }
+
+
+  
+  /**
+   * allowed to assign to an attribute definition assignment
+   * @return the assignToAttributeDefAssn
+   */
+  public String getAssignToAttributeDefAssnDb() {
+    return this.assignToAttributeDefAssn ? "T" : "F";
+  }
+
+
+  
+  /**
+   * allowed to assign to an attribute definition assignment
+   * @param assignToAttributeDefAssnDb the assignToAttributeDefAssn to set
+   */
+  public void setAssignToAttributeDefAssnDb(String assignToAttributeDefAssnDb) {
+    this.assignToAttributeDefAssn = GrouperUtil.booleanValue(assignToAttributeDefAssnDb);
+  }
+
+
   /**
    * if the attribute def is public, otherwise you just see it in this stem and substem
    * @return if public
@@ -411,16 +935,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
     this.stemId = stemId1;
   }
 
-  /**
-   * AttributeDefAssignableTo type that this attribute value is assignable to,
-   * group, stem, membership, member, groupAttribute, 
-   * stemAttribute, membershipAttribute, memberAttribute
-   * @return attribute value
-   */
-  public String getAssignableToDb() {
-    return this.assignableTo == null ? null : this.assignableTo.name();
-  }
-  
   /**
    * if this attribute can be assigned to the same action to the same object more than once
    */
@@ -534,37 +1048,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   public void setMultiValued(boolean multiValued1) {
     this.multiValued = multiValued1;
-  }
-
-  /**
-   * AttributeDefAssignableTo type that this attribute value is assignable to,
-   * group, stem, membership, member, groupAttribute, 
-   * stemAttribute, membershipAttribute, memberAttribute
-   * @param assignableToString
-   */
-  public void setAssignableToDb(String assignableToString) {
-    this.assignableTo = AttributeDefAssignableTo.valueOfIgnoreCase(assignableToString, 
-        false);
-  }
-  
-  /**
-   * AttributeDefAssignableTo type that this attribute value is assignable to,
-   * group, stem, membership, member, groupAttribute, 
-   * stemAttribute, membershipAttribute, memberAttribute
-   * @return the type
-   */
-  public AttributeDefAssignableTo getAssignableTo() {
-    return assignableTo;
-  }
-
-  /**
-   * AttributeDefAssignableTo type that this attribute value is assignable to,
-   * group, stem, membership, member, groupAttribute, 
-   * stemAttribute, membershipAttribute, memberAttribute
-   * @param assignableTo1
-   */
-  public void setAssignableTo(AttributeDefAssignableTo assignableTo1) {
-    this.assignableTo = assignableTo1;
   }
 
   /**
