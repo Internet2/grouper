@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperSetEnum.java,v 1.4 2009-10-02 05:57:58 mchyzer Exp $
+ * $Id: GrouperSetEnum.java,v 1.5 2009-10-26 02:26:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperSet;
 
@@ -18,6 +18,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionType;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
@@ -184,6 +186,84 @@ public enum GrouperSetEnum {
     public GrouperSet findById(String id, boolean exceptionIfNull) {
       return GrouperDAOFactory.getFactory()
         .getAttributeDefNameSet().findById(id, exceptionIfNull);
+    }
+  }, 
+  /** attribute assign action set grouper set */
+  ATTRIBUTE_ASSIGN_ACTION_SET {
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByIfThenImmediate(java.lang.String, java.lang.String, boolean)
+     */
+    @Override
+    public GrouperSet findByIfThenImmediate(String idIf, String idThen,
+        boolean exceptionIfNotFound) {
+      
+      //lets see if this one already exists
+      AttributeAssignActionSet existingAttributeAssignActionSet = GrouperDAOFactory.getFactory()
+        .getAttributeAssignActionSet().findByIfThenImmediate(idIf, 
+          idThen, exceptionIfNotFound);
+      return existingAttributeAssignActionSet;
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByIfHasElementId(java.lang.String)
+     */
+    @Override
+    public Set<? extends GrouperSet> findByIfHasElementId(String idIf) {
+      Set<AttributeAssignActionSet> existingAttributeAssignActionSetList = 
+        GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfHasAttributeAssignActionId(idIf);
+      return existingAttributeAssignActionSetList;
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByIfThenHasElementId(java.lang.String, java.lang.String)
+     */
+    @Override
+    public Set<? extends GrouperSet> findByIfThenHasElementId(String idForThens, String idForIfs) {
+      Set<AttributeAssignActionSet> candidateAttributeAssignActionSetToRemove = 
+        GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfThenHasAttributeAssignActionId(
+            idForThens, idForIfs);
+      return candidateAttributeAssignActionSetToRemove;
+    }
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findByThenHasElementId(java.lang.String)
+     */
+    @Override
+    public Set<? extends GrouperSet> findByThenHasElementId(String idThen) {
+      Set<AttributeAssignActionSet> existingAttributeAssignActionSetList = 
+        GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByThenHasAttributeAssignActionId(idThen);
+      return existingAttributeAssignActionSetList;
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#newInstance(String, String, int)
+     */
+    @Override
+    public GrouperSet newInstance(String ifHasId, String thenHasId, int depth) {
+      AttributeAssignActionSet attributeAssignActionSet = new AttributeAssignActionSet();
+      attributeAssignActionSet.setId(GrouperUuid.getUuid());
+      attributeAssignActionSet.setDepth(depth);
+      attributeAssignActionSet.setIfHasAttrAssignActionId(ifHasId);
+      attributeAssignActionSet.setThenHasAttrAssignActionId(thenHasId);
+      attributeAssignActionSet.setType(depth == 1 ? 
+          AttributeAssignActionType.immediate : AttributeAssignActionType.effective);
+      return attributeAssignActionSet;
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#findById(java.lang.String, boolean)
+     */
+    @Override
+    public GrouperSet findById(String id, boolean exceptionIfNull) {
+      return GrouperDAOFactory.getFactory()
+        .getAttributeAssignActionSet().findById(id, exceptionIfNull);
     }
   }
   

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeDefDAO.java,v 1.5 2009-10-20 14:55:50 shilen Exp $
+ * $Id: AttributeDefDAO.java,v 1.6 2009-10-26 02:26:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -27,6 +27,14 @@ public interface AttributeDefDAO extends GrouperDAO {
    * @return the attribute def or null if not there
    */
   public AttributeDef findByIdSecure(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * find by id.  This is NOT a secure method, a grouperSession does not need to be open
+   * @param id
+   * @param exceptionIfNotFound
+   * @return the attribute def or null if not there
+   */
+  public AttributeDef findById(String id, boolean exceptionIfNotFound);
   
   /**
    * find by attributeDefNameId.  This is a secure method, a grouperSession needs to be open

@@ -1,11 +1,13 @@
 /**
  * @author mchyzer
- * $Id: PermissionEntry.java,v 1.2 2009-10-12 09:46:34 mchyzer Exp $
+ * $Id: PermissionEntry.java,v 1.3 2009-10-26 02:26:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -439,6 +441,39 @@ public class PermissionEntry extends GrouperAPI {
    */
   public void setEnabledTimeDb(Long enabledTimeDb1) {
     this.enabledTimeDb = enabledTimeDb1;
+  }
+
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null || (!(obj instanceof PermissionEntry))) {
+      return false;
+    }
+    PermissionEntry other = (PermissionEntry)obj;
+    return new EqualsBuilder().append(this.roleId, other.roleId)
+      .append(this.memberId, other.memberId)
+      .append(this.action, other.action)
+      .append(this.attributeDefNameId, other.attributeDefNameId)
+      .append(this.enabled, other.enabled)
+      .append(this.attributeAssignDelegatable, other.attributeAssignDelegatable).isEquals();
+
+  }
+
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.roleId)
+      .append(this.memberId)
+      .append(this.action)
+      .append(this.attributeDefNameId)
+      .append(this.enabled)
+      .append(this.attributeAssignDelegatable).toHashCode();
   }
 
 }

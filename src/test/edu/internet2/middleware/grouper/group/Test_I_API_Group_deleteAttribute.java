@@ -33,13 +33,14 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Test <code>Group.deleteAttribute()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.4 2009-10-26 02:26:07 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteAttribute extends GrouperTest {
@@ -194,10 +195,10 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
     assertEquals(gA.getName(), groupSubject.getAttributeValue("name"));
     assertFalse(groupSubject.isLoadedGroupAttributes());
     assertFalse(groupSubject.isLoadedModifyCreateSubjects());
-    assertEquals(gA.getName(), groupSubject.getAttributes().get("name").iterator().next());
+    assertEquals(gA.getName(), GrouperUtil.nonNull(groupSubject.getAttributes()).get("name").iterator().next());
     assertFalse(groupSubject.isLoadedGroupAttributes());
     assertFalse(groupSubject.isLoadedModifyCreateSubjects());
-    assertEquals("whatever", groupSubject.getAttributes().get(ATTRIBUTE1).iterator().next());
+    assertEquals("whatever", GrouperUtil.nonNull(groupSubject.getAttributes()).get(ATTRIBUTE1).iterator().next());
     assertTrue(groupSubject.isLoadedGroupAttributes());
     assertTrue(groupSubject.isLoadedModifyCreateSubjects());
     assertEquals("whatever", groupSubject.getAttributeValue(ATTRIBUTE1));

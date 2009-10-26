@@ -20,13 +20,13 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeAssignDAO.hbm.xml,v 1.4 2009-10-26 02:26:07 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeAssignActionSetDAO.hbm.xml,v 1.1 2009-10-26 02:26:07 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.attr.assign">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="AttributeAssign" table="grouper_attribute_assign" optimistic-lock="version">
+  <class name="AttributeAssignActionSet" table="grouper_attr_assign_action_set" optimistic-lock="version">
 
     <cache usage="read-write"/>
 
@@ -39,22 +39,14 @@
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
 
-    <property name="attributeAssignActionId" column="attribute_assign_action_id"/>
-    <property name="attributeDefNameId" column="attribute_def_name_id"/>
-    <property name="attributeAssignDelegatableDb" column="attribute_assign_delegatable"/>
-    <property name="attributeAssignTypeDb" column="attribute_assign_type"/>
     <property name="contextId" column="context_id"/>
     <property name="createdOnDb" column="created_on"/>
-    <property name="disabledTimeDb" column="disabled_time"/>
-    <property name="enabledDb" column="enabled"/>
-    <property name="enabledTimeDb" column="enabled_time"/>
     <property name="lastUpdatedDb" column="last_updated"/>
-    <property name="ownerAttributeAssignId" column="owner_attribute_assign_id"/>
-    <property name="ownerAttributeDefId" column="owner_attribute_def_id"/>
-    <property name="ownerGroupId" column="owner_group_id"/>
-    <property name="ownerMemberId" column="owner_member_id"/>
-    <property name="ownerMembershipId" column="owner_membership_id"/>
-    <property name="ownerStemId" column="owner_stem_id"/>
+    <property name="depth" column="depth"/>
+    <property name="ifHasAttrAssignActionId" column="if_has_attr_assn_action_id"/>
+    <property name="thenHasAttrAssignActionId" column="then_has_attr_assn_action_id"/>
+    <property name="parentAttrAssignActionSetId" column="parent_attr_assn_action_id"/>
+    <property name="typeDb" column="type"/>
   </class>
 </hibernate-mapping>
 

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.attr;
 
+import edu.internet2.middleware.grouper.attr.assign.AllAttrAssignTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -16,6 +17,8 @@ public class AllAttributeTests {
    */
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.attr");
+    suite.addTest(AllAttrAssignTests.suite());
+
     //$JUnit-BEGIN$
     suite.addTestSuite(AttributeAssignValueTest.class);
     suite.addTestSuite(EffMshipAttributeSecurityTest.class);
@@ -31,6 +34,7 @@ public class AllAttributeTests {
     suite.addTestSuite(StemAttributeSecurityTest.class);
     suite.addTestSuite(MembershipAttributeSecurityTest.class);
     //$JUnit-END$
+
     return suite;
   }
 

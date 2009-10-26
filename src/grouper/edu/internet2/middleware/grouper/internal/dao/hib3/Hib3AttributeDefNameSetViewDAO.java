@@ -7,13 +7,12 @@ import org.hibernate.criterion.Restrictions;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSetView;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetViewDAO;
 
 /**
  * Data Access Object for attribute def name set view
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetViewDAO.java,v 1.1 2009-07-03 21:15:13 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetViewDAO.java,v 1.2 2009-10-26 02:26:07 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetViewDAO extends Hib3DAO implements AttributeDefNameSetViewDAO {
   
@@ -24,8 +23,8 @@ public class Hib3AttributeDefNameSetViewDAO extends Hib3DAO implements Attribute
   private static final String KLASS = Hib3AttributeDefNameSetViewDAO.class.getName();
 
   /**
-   * get all records which are related to these attribute def names
-   * @see AttributeDefNameSetDAO#findByThenHasAttributeDefNameId(String)
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetViewDAO#findByAttributeDefNameSetViews(java.util.Set)
    */
   public Set<AttributeDefNameSetView> findByAttributeDefNameSetViews(Set<String> attributeDefNames) {
 

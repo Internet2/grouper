@@ -11,12 +11,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -48,7 +50,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public static final String TABLE_GROUPER_ATTRIBUTE_ASSIGN = "grouper_attribute_assign";
 
   /** actions col in db */
-  public static final String COLUMN_ACTION = "action";
+  public static final String COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID = "attribute_assign_action_id";
 
   /** column */
   public static final String COLUMN_CONTEXT_ID = "context_id";
@@ -104,8 +106,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
-  /** constant for field name for: action */
-  public static final String FIELD_ACTION = "action";
+  /** constant for field name for: attributeAssignActionId */
+  public static final String FIELD_ATTRIBUTE_ASSIGN_ACTION_ID = "attributeAssignActionId";
 
   /** constant for field name for: attributeAssignDelegatable */
   public static final String FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE = "attributeAssignDelegatable";
@@ -163,7 +165,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ACTION, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, 
+      FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, 
       FIELD_CREATED_ON_DB, 
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_ID, 
       FIELD_LAST_UPDATED_DB, FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, 
@@ -173,7 +175,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ACTION, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, 
+      FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, 
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_HIBERNATE_VERSION_NUMBER, 
       FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, 
       FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, 
@@ -200,7 +202,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this();
     this.setAttributeAssignType(AttributeAssignType.stem);
     this.setOwnerStemId(ownerStem.getUuid());
-    this.setAction(theAction);
+    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+      .getAttributeDefActionDelegate().allowedAction(theAction, true);
+
+    this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());
 
@@ -217,7 +222,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this();
     this.setAttributeAssignType(AttributeAssignType.attr_def);
     this.setOwnerAttributeDefId(ownerAttributeDef.getId());
-    this.setAction(theAction);
+    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+      .getAttributeDefActionDelegate().allowedAction(theAction, true);
+
+    this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());
 
@@ -234,7 +242,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this();
     this.setAttributeAssignType(AttributeAssignType.group);
     this.setOwnerGroupId(ownerGroup.getUuid());
-    this.setAction(theAction);
+    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+      .getAttributeDefActionDelegate().allowedAction(theAction, true);
+
+    this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());
 
@@ -264,7 +275,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     this.setOwnerGroupId(ownerGroup.getUuid());
     this.setOwnerMemberId(ownerMember.getUuid());
-    this.setAction(theAction);
+    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+      .getAttributeDefActionDelegate().allowedAction(theAction, true);
+
+    this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());
 
@@ -309,12 +323,11 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this.setOwnerAttributeAssignId(ownerAttributeAssign.getId());
     
     theAction = StringUtils.defaultIfEmpty(theAction, AttributeDef.ACTION_DEFAULT);
-    AttributeDef attributeDef = attributeDefName.getAttributeDef();
-    if (!attributeDef.allowedActions().contains(theAction)) {
-      throw new RuntimeException("Not a valid action: '" + theAction + "', should be one of: " + attributeDef.getActions());
-    }
     
-    this.setAction(theAction);
+    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+      .getAttributeDefActionDelegate().allowedAction(theAction, true);
+
+    this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());
 
@@ -344,7 +357,11 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     }
     
     this.setOwnerMembershipId(ownerMembership.getUuid());
-    this.setAction(theAction);
+
+    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+      .getAttributeDefActionDelegate().allowedAction(theAction, true);
+
+    this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());
 
@@ -353,16 +370,16 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /**
    * create an attribute assign, including a uuid
    * @param ownerMember
-   * @param theAction
+   * @param theActionId
    * @param attributeDefName
    */
-  public AttributeAssign(Member ownerMember, String theAction, AttributeDefName attributeDefName) {
+  public AttributeAssign(Member ownerMember, String theActionId, AttributeDefName attributeDefName) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.member);
 
     this.setOwnerMemberId(ownerMember.getUuid());
-    this.setAction(theAction);
+    this.setAttributeAssignActionId(theActionId);
     this.setAttributeDefNameId(attributeDefName.getId());
     this.setId(GrouperUuid.getUuid());
 
@@ -507,10 +524,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   private String notes;
 
   /**
-   * action for this assignment (e.g. assign).  Generally this will be AttributeDef.ACTION_DEFAULT.
-   * action must exist in AttributeDef.actions
+   * id of action for this assignment (e.g. assign).  Generally this will be AttributeDef.ACTION_DEFAULT
    */
-  private String action;
+  private String attributeAssignActionId;
   
   /**
    * true or false for if this assignment is enabled (e.g. might have expired) 
@@ -533,8 +549,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * action must exist in AttributeDef.actions
    * @return the action
    */
-  public String getAction() {
-    return this.action;
+  public String getAttributeAssignActionId() {
+    return this.attributeAssignActionId;
   }
 
   /** cache the attribute def name */
@@ -550,6 +566,22 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       this.attributeDefName = AttributeDefNameFinder.findById(this.attributeDefNameId, true);
     }
     return this.attributeDefName;
+  }
+  
+  /** cache the attribute assign action */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeAssignAction attributeAssignAction;
+  
+  /**
+   * 
+   * @return attributeAssignAction
+   */
+  public AttributeAssignAction getAttributeAssignAction() {
+    if (this.attributeAssignAction == null ) {
+      this.attributeAssignAction = GrouperDAOFactory.getFactory()
+        .getAttributeAssignAction().findById(this.attributeAssignActionId, true);
+    }
+    return this.attributeAssignAction;
   }
   
   /** cache the attribute def of this attribute def name */
@@ -584,13 +616,12 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
   
   /**
-   * comma separated list of actions for this attribute.  at least there needs to be one.
    * default is "assign" actions must contain only alphanumeric or underscore, case sensitive
-   * e.g. read,write,admin
-   * @param theAction
+   * e.g. id for read,write,admin
+   * @param theActionId
    */
-  public void setAction(String theAction) {
-    this.action = theAction;
+  public void setAttributeAssignActionId(String theActionId) {
+    this.attributeAssignActionId = theActionId;
   }
 
   /**
@@ -978,10 +1009,40 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   @Override
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
-    return new ToStringBuilder(this)
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this)
       .append( "id", this.id)
-      .append( "action", this.action )
-      .append( "attributeDefName", this.attributeDefName )
-      .toString();
+      .append( "action", this.getAttributeAssignAction().getName() )
+      .append( "attributeDefName", this.getAttributeDefName().getName() );
+    
+    if (!StringUtils.isBlank(this.ownerStemId)) {
+      toStringBuilder.append("stem", 
+          StemFinder.findByUuid(GrouperSession.staticGrouperSession()
+              .internal_getRootSession(), this.ownerStemId, true));
+    }
+    if (!StringUtils.isBlank(this.ownerGroupId)) {
+      toStringBuilder.append("group", 
+          GroupFinder.findByUuid(GrouperSession.staticGrouperSession()
+              .internal_getRootSession(), this.ownerGroupId, true));
+    }
+    if (!StringUtils.isBlank(this.ownerMemberId)) {
+      toStringBuilder.append("subjectId", 
+          MemberFinder.findByUuid(GrouperSession.staticGrouperSession()
+              .internal_getRootSession(), this.ownerMemberId, true));
+    }
+    if (!StringUtils.isBlank(this.ownerMembershipId)) {
+      toStringBuilder.append("membershipId", 
+              this.ownerMembershipId);
+    }
+    if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
+      toStringBuilder.append("attributeDef", 
+          GrouperDAOFactory.getFactory().getAttributeDef().findById(
+              this.ownerAttributeDefId, true));
+    }
+    if (!StringUtils.isBlank(this.ownerAttributeAssignId)) {
+      toStringBuilder.append("ownerAttributeAssignId", 
+          this.ownerAttributeAssignId);
+    }
+    
+    return toStringBuilder.toString();
   }
 }

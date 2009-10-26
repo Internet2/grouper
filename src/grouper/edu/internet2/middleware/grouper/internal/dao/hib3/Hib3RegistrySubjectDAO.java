@@ -23,12 +23,13 @@ import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Basic Hibernate <code>RegistrySubject</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectDAO.java,v 1.7 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: Hib3RegistrySubjectDAO.java,v 1.8 2009-10-26 02:26:07 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDAO {
@@ -40,7 +41,7 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
     throws  GrouperDAOException {
     HibernateSession.byObjectStatic().save(_subj);
     
-    for (String key : _subj.getAttributes().keySet()) {
+    for (String key : GrouperUtil.nonNull(_subj.getAttributes()).keySet()) {
       RegistrySubjectAttribute registrySubjectAttribute = new RegistrySubjectAttribute();
       registrySubjectAttribute.setName(key);
       String value = _subj.getAttributeValue(key);

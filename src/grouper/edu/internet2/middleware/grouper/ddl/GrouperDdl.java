@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.86 2009-10-20 14:55:50 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.87 2009-10-26 02:26:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -30,6 +30,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
@@ -1953,6 +1955,7 @@ public enum GrouperDdl implements DdlVersionable {
     
 
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_name_set_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_assn_action_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_priv_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
@@ -2664,6 +2667,9 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_attr_def_stem", Stem.TABLE_GROUPER_STEMS, 
         AttributeDef.COLUMN_STEM_ID, Stem.COLUMN_ID);
 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+        "fk_attr_assn_attr_def_id", AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+        AttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, AttributeDef.COLUMN_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET, 
         "fk_attr_def_name_set_parent", AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET, 
@@ -3565,6 +3571,42 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gadnParentThenHas.id = gadnsParent.then_has_attribute_def_name_id  "
         + "order by ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name ");
 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_assn_action_set_v", 
+        "grouper_attr_assn_action_set_v: shows all action set relationships",
+        GrouperUtil.toSet("if_has_attr_assn_action_name", 
+            "then_has_attr_assn_action_name", 
+            "depth", "type", 
+            "parent_if_has_name", "parent_then_has_name",
+            "id", "if_has_attr_assn_action_id", "then_has_attr_assn_action_id",
+            "parent_attr_assn_action_id"),
+        GrouperUtil.toSet("if_has_attr_assn_action_name: name of the set attribute action", 
+            "then_has_attr_assn_action_name: name of the member attribute action", 
+            "depth: number of hops in the directed graph",
+            "type: self, immediate, effective",
+            "parent_if_has_name: name of the attribute def name set record which is the parent ifHas on effective path (everything but last hop)",
+            "parent_then_has_name: name of the attribute def name set record which is the parent thenHas on effective path (everything but last hop)",
+            "id: id of the set record", "if_has_attr_assn_action_id: id of the set attribute assign name",
+            "then_has_attr_assn_action_id: id of the member attribute action", 
+            "parent_attr_assn_action_id: id of the attribute action set record which is the parent on effective path (everything but last hop)"
+        ),
+        "select ifHas.name as if_has_attr_assn_action_name , thenHas.name as then_has_attr_assn_action_name,   "
+        + "gaaas.depth,   "
+        + "gaaas.type, gaaaParentIfHas.name as parent_if_has_name, gaaaParentThenHas.name as parent_then_has_name,   "
+        + "gaaas.id,   "
+        + "ifHas.id as if_has_attr_assn_action_id, thenHas.id as then_has_attr_assn_action_id,   "
+        + "gaaas.parent_attr_assn_action_id  "
+        + "from grouper_attr_assign_action_set gaaas,   "
+        + "grouper_attr_assign_action_set gaaasParent,   "
+        + "grouper_attr_assign_action gaaaParentIfHas,   "
+        + "grouper_attr_assign_action gaaaParentThenHas,   "
+        + "grouper_attr_assign_action ifHas, grouper_attr_assign_action thenHas   "
+        + "where  thenHas.id = gaaas.then_has_attr_assn_action_id   "
+        + "and ifHas.id = gaaas.if_has_attr_assn_action_id   "
+        + "and gaaas.parent_attr_assn_action_id = gaaasParent.id   "
+        + "and gaaaParentIfHas.id = gaaasParent.if_has_attr_assn_action_id   "
+        + "and gaaaParentThenHas.id = gaaasParent.then_has_attr_assn_action_id   "
+        + "order by ifHas.name, thenHas.name, gaaas.depth, gaaaParentIfHas.name, gaaaParentThenHas.name");
+    
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_group_v", 
         "grouper_attr_asn_group_v: attribute assigned to a group, with related columns",
@@ -3582,7 +3624,8 @@ public enum GrouperDdl implements DdlVersionable {
           "group_id",
           "attribute_assign_id",
           "attribute_def_name_id",
-          "attribute_def_id"
+          "attribute_def_id",
+          "action_id"
         ),
         GrouperUtil.toSet("group_name: name of group assigned the attribute",
             "action: the action associated with the attribute assignment (default is assign)",
@@ -3598,10 +3641,11 @@ public enum GrouperDdl implements DdlVersionable {
             "group_id: group id of the group assigned the attribute",
             "attribute_assign_id: id of the attribute assignment",
             "attribute_def_name_id: id of the attribute definition name",
-            "attribute_def_id: id of the attribute definition"
+            "attribute_def_id: id of the attribute definition",
+            "action_id: id of the attribute assign action"
         ),
         "select gg.name as group_name, " +
-        "gaa.action, " +
+        "gaaa.name as action, " +
         "gadn.name as attribute_def_name_name, "
         + "gg.display_name as group_display_name, "
         + "gadn.display_name as attribute_def_name_disp_name, "
@@ -3614,13 +3658,15 @@ public enum GrouperDdl implements DdlVersionable {
         + "gg.id as group_id, "
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
-        + "gad.id as attribute_def_id "
+        + "gad.id as attribute_def_id, "
+        + "gaaa.id as action_id "
         + "from grouper_attribute_assign gaa, grouper_groups gg, "
-        + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
+        + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_attr_assign_action gaaa  "
         + "where gaa.owner_group_id = gg.id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
-        + "and gaa.owner_member_id is null ");
+        + "and gaa.owner_member_id is null "
+        + "and gaa.attribute_assign_action_id = gaaa.id ");
 
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_efmship_v", 
@@ -3643,7 +3689,8 @@ public enum GrouperDdl implements DdlVersionable {
           "attribute_assign_id",
           "attribute_def_name_id",
           "attribute_def_id",
-          "member_id"
+          "member_id",
+          "action_id"
         ),
         GrouperUtil.toSet("group_name: name of group assigned the attribute",
             "subject_source_id: source id of the subject being assigned",
@@ -3663,12 +3710,13 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_assign_id: id of the attribute assignment",
             "attribute_def_name_id: id of the attribute definition name",
             "attribute_def_id: id of the attribute definition",
-            "member_id: id of the member assigned the attribute"
+            "member_id: id of the member assigned the attribute",
+            "action_id: attribute assign action id"
         ),
         "select distinct gg.name as group_name, "
         + "gm.subject_source as subject_source_id, "
         + "gm.subject_id, "
-        + "gaa.action, "
+        + "gaaa.name as action, "
         + "gadn.name as attribute_def_name_name, "
         + "gg.display_name as group_display_name, "
         + "gadn.display_name as attribute_def_name_disp_name, "
@@ -3683,10 +3731,11 @@ public enum GrouperDdl implements DdlVersionable {
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
         + "gad.id as attribute_def_id, "
-        + "gm.id as member_id "
+        + "gm.id as member_id, "
+        + "gaaa.id as action_id "
         + "from grouper_attribute_assign gaa, grouper_memberships_all_v gmav, "
         + "grouper_attribute_def_name gadn, grouper_attribute_def gad, "
-        + "grouper_groups gg, grouper_fields gf, grouper_members gm "
+        + "grouper_groups gg, grouper_fields gf, grouper_members gm, grouper_attr_assign_action gaaa  "
         + "where gaa.owner_group_id = gmav.owner_group_id "
         + "and gaa.owner_member_id = gmav.member_id "
         + "and gaa.attribute_def_name_id = gadn.id "
@@ -3697,8 +3746,16 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gf.type = 'list' "
         + "and gmav.member_id = gm.id "
         + "and gaa.owner_member_id is not null "
-        + "and gaa.owner_group_id is null ");
+        + "and gaa.owner_group_id is null "
+        + "and gaa.attribute_assign_action_id = gaaa.id ");
 
+    
+
+    
+
+    
+
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_stem_v", 
         "grouper_attr_asn_stem_v: attribute assigned to a stem and related cols",
         GrouperUtil.toSet("stem_name",
@@ -3714,7 +3771,8 @@ public enum GrouperDdl implements DdlVersionable {
             "stem_id",
             "attribute_assign_id",
             "attribute_def_name_id",
-            "attribute_def_id"
+            "attribute_def_id",
+            "action_id"
         ),
         GrouperUtil.toSet("stem_name: name of stem assigned the attribute",
             "action: the action associated with the attribute assignment (default is assign)",
@@ -3729,10 +3787,11 @@ public enum GrouperDdl implements DdlVersionable {
             "stem_id: stem id of the stem assigned the attribute",
             "attribute_assign_id: id of the attribute assignment",
             "attribute_def_name_id: id of the attribute definition name",
-            "attribute_def_id: id of the attribute definition"
+            "attribute_def_id: id of the attribute definition",
+            "action_id: id of the attribute assign action"
         ),
         "select gs.name as stem_name, " +
-        "gaa.action, " +
+        "gaaa.name as action, " +
         "gadn.name as attribute_def_name_name, "
         + "gs.display_name as stem_display_name, "
         + "gadn.display_name as attribute_def_name_disp_name, "
@@ -3744,13 +3803,16 @@ public enum GrouperDdl implements DdlVersionable {
         + "gs.id as stem_id, "
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
-        + "gad.id as attribute_def_id "
+        + "gad.id as attribute_def_id, "
+        + "gaaa.id as action_id "
         + "from grouper_attribute_assign gaa, grouper_stems gs, "
-        + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
+        + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_attr_assign_action gaaa  "
         + "where gaa.owner_stem_id = gs.id "
         + "and gaa.attribute_def_name_id = gadn.id "
-        + "and gadn.attribute_def_id = gad.id ");
+        + "and gadn.attribute_def_id = gad.id "
+        + "and gaa.attribute_assign_action_id = gaaa.id ");
 
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_member_v", 
         "grouper_attr_asn_member_v: attribute assigned to a member and related cols",
         GrouperUtil.toSet("source_id", "subject_id",
@@ -3766,7 +3828,8 @@ public enum GrouperDdl implements DdlVersionable {
             "member_id",
             "attribute_assign_id",
             "attribute_def_name_id",
-            "attribute_def_id"
+            "attribute_def_id",
+            "action_id"
         ),
         GrouperUtil.toSet("source_id: source of the subject that belongs to the member",
             "subject_id: subject_id of the subject that belongs to the member",
@@ -3782,10 +3845,11 @@ public enum GrouperDdl implements DdlVersionable {
             "member_id: member id of the member assigned the attribute (this is an internal grouper uuid)",
             "attribute_assign_id: id of the attribute assignment",
             "attribute_def_name_id: id of the attribute definition name",
-            "attribute_def_id: id of the attribute definition"
+            "attribute_def_id: id of the attribute definition",
+            "action_id: id of the attribute assign action"
         ),
         "select gm.subject_source as source_id, gm.subject_id, " +
-        "gaa.action, " +
+        "gaaa.name as action, " +
         "gadn.name as attribute_def_name_name, "
         + "gadn.display_name as attribute_def_name_disp_name, "
         + "gad.name as name_of_attribute_def, "
@@ -3797,13 +3861,16 @@ public enum GrouperDdl implements DdlVersionable {
         + "gm.id as member_id, "
         + "gaa.id as attribute_assign_id, "
         + "gadn.id as attribute_def_name_id, "
-        + "gad.id as attribute_def_id "
+        + "gad.id as attribute_def_id, "
+        + "gaaa.id as action_id "
         + "from grouper_attribute_assign gaa, grouper_members gm, "
-        + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
+        + "grouper_attribute_def_name gadn, grouper_attribute_def gad, "
+        + "grouper_attr_assign_action gaaa " 
         + "where gaa.owner_member_id = gm.id "
         + "and gaa.attribute_def_name_id = gadn.id "
         + "and gadn.attribute_def_id = gad.id "
-        + "and gaa.owner_group_id is null ");
+        + "and gaa.owner_group_id is null " 
+        + " and gaa.attribute_assign_action_id = gaaa.id");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_mship_v", 
         "grouper_attr_asn_mship_v: attribute assigned to an immediate memberships, and related cols",
@@ -3825,7 +3892,8 @@ public enum GrouperDdl implements DdlVersionable {
             "member_id",
             "attribute_assign_id",
             "attribute_def_name_id",
-            "attribute_def_id"
+            "attribute_def_id",
+            "action_id"
           ),
           GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
               "source_id: source of the subject that belongs to the member",
@@ -3845,12 +3913,13 @@ public enum GrouperDdl implements DdlVersionable {
               "member_id: internal grouper member uuid of the membership assigned the attribute",
               "attribute_assign_id: id of the attribute assignment",
               "attribute_def_name_id: id of the attribute definition name",
-              "attribute_def_id: id of the attribute definition"
+              "attribute_def_id: id of the attribute definition",
+              "action_id: id of the attribute assign action"
           ),
           "select gg.name as group_name, " +
           "gm.subject_source as source_id, " +
           "gm.subject_id, " +
-          "gaa.action, " +
+          "gaaa.name as action, " +
           "gadn.name as attribute_def_name_name, "
           + "gadn.display_name as attribute_def_name_disp_name, "
           + "gf.name as list_name, "
@@ -3865,16 +3934,16 @@ public enum GrouperDdl implements DdlVersionable {
           + "gm.id as member_id, "
           + "gaa.id as attribute_assign_id, "
           + "gadn.id as attribute_def_name_id, "
-          + "gad.id as attribute_def_id "
+          + "gad.id as attribute_def_id, "
+          + "gaaa.id as action_id "
           + "from grouper_attribute_assign gaa, grouper_groups gg, grouper_memberships gms, "
-          + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_members gm, grouper_fields gf "
+          + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_members gm, grouper_fields gf, "
+          + "grouper_attr_assign_action gaaa  "
           + "where gaa.owner_membership_id = gms.id "
           + "and gaa.attribute_def_name_id = gadn.id "
           + "and gadn.attribute_def_id = gad.id "
       		+ " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id "
-          + " and gf.type = 'list' ");
-
-    
+          + " and gf.type = 'list' and gaa.attribute_assign_action_id = gaaa.id ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_attrdef_v", 
         "grouper_attr_asn_attrdef_v: attribute assigned to an attribute definition, and related columns",
@@ -3890,7 +3959,8 @@ public enum GrouperDdl implements DdlVersionable {
             "id_of_attr_def_assigned_to",
             "attribute_assign_id",
             "attribute_def_name_id",
-            "attribute_def_id"
+            "attribute_def_id",
+            "action_id"
           ),
           GrouperUtil.toSet("name_of_attr_def_assigned_to: name of attribute def assigned the attribute",
               "action: the action associated with the attribute assignment (default is assign)",
@@ -3904,10 +3974,11 @@ public enum GrouperDdl implements DdlVersionable {
               "id_of_attr_def_assigned_to: attrDef id of the attributeDef assigned the attribute",
               "attribute_assign_id: id of the attribute assignment",
               "attribute_def_name_id: id of the attribute definition name",
-              "attribute_def_id: id of the attribute definition"
+              "attribute_def_id: id of the attribute definition",
+              "action_id: id of the attribute assign action"
           ),
           "select gad_assigned_to.name as name_of_attr_def_assigned_to, " +
-          "gaa.action, " +
+          "gaaa.name as action, " +
           "gadn.name as attribute_def_name_name, "
           + "gadn.display_name as attribute_def_name_disp_name, "
           + "gad.name as name_of_attribute_def, "
@@ -3918,13 +3989,14 @@ public enum GrouperDdl implements DdlVersionable {
           + "gad_assigned_to.id as id_of_attr_def_assigned_to, "
           + "gaa.id as attribute_assign_id, "
           + "gadn.id as attribute_def_name_id, "
-          + "gad.id as attribute_def_id "
+          + "gad.id as attribute_def_id, "
+          + "gaaa.id as action_id "
           + "from grouper_attribute_assign gaa, grouper_attribute_def gad_assigned_to, "
-          + "grouper_attribute_def_name gadn, grouper_attribute_def gad "
+          + "grouper_attribute_def_name gadn, grouper_attribute_def gad, grouper_attr_assign_action gaaa  "
           + "where gaa.owner_attribute_def_id = gad_assigned_to.id "
           + "and gaa.attribute_def_name_id = gadn.id "
-          + "and gadn.attribute_def_id = gad.id ");
-
+          + "and gadn.attribute_def_id = gad.id "
+          + "and gaa.attribute_assign_action_id = gaaa.id ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_group_v", 
         "grouper_attr_asn_asn_group_v: attribute assigned to an assignment of attribute to a group, and related cols",
@@ -3949,7 +4021,9 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_id1",
             "attribute_def_name_id2",
             "attribute_def_id1",
-            "attribute_def_id2"
+            "attribute_def_id2",
+            "action_id1",
+            "action_id2"
           ),
           GrouperUtil.toSet("group_name: name of group assigned the attribute",
               "action1: the action associated with the original attribute assignment (default is assign)",
@@ -3972,10 +4046,12 @@ public enum GrouperDdl implements DdlVersionable {
               "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
               "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
               "attribute_def_id1: id of the original attribute definition assigned to the group",
-              "attribute_def_id2: id of the new attribute definition assigned to the attribute"
+              "attribute_def_id2: id of the new attribute definition assigned to the attribute",
+              "action_id1: id of the attribute assign action of the original assignment",
+              "action_id2: id of the attribute assign action assigned to the group"
           ),
           "select gg.name as group_name, " +
-          "gaa1.action as action1, gaa2.action as action2, " +
+          "gaaa1.name as action1, gaaa2.name as action2,  " +
           "gadn1.name as attribute_def_name_name1, " +
           "gadn2.name as attribute_def_name_name2, "
           + "gg.display_name as group_display_name, "
@@ -3994,10 +4070,12 @@ public enum GrouperDdl implements DdlVersionable {
           + "gadn1.id as attribute_def_name_id1, "
           + "gadn2.id as attribute_def_name_id2, "
           + "gad1.id as attribute_def_id1, "
-          + "gad2.id as attribute_def_id2 "
+          + "gad2.id as attribute_def_id2, "
+          + "gaaa1.id as action_id1, "
+          + "gaaa2.id as action_id2 "
           + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_groups gg, "
           + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
-          + "grouper_attribute_def gad2 "
+          + "grouper_attribute_def gad2, grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2   "
           + "where gaa1.id = gaa2.owner_attribute_assign_id "
           + "and gaa1.attribute_def_name_id = gadn1.id "
           + "and gaa2.attribute_def_name_id = gadn2.id "
@@ -4005,7 +4083,9 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' " 
           +	"and gg.id = gaa1.owner_group_id "
-          + "and gaa1.owner_member_id is null ");
+          + "and gaa1.owner_member_id is null "
+          + "and gaa1.attribute_assign_action_id = gaaa1 .id and gaa2.attribute_assign_action_id = gaaa2.id");
+
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_efmship_v", 
         "grouper_attr_asn_asn_efmship_v: attribute assigned to an assignment of an attribute to an effective membership, and related cols",
@@ -4033,13 +4113,15 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_id1",
             "attribute_def_name_id2",
             "attribute_def_id1",
-            "attribute_def_id2"
+            "attribute_def_id2",
+            "action_id1",
+            "action_id2"
           ),
           GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
               "source_id: source of the subject that belongs to the member",
               "subject_id: subject_id of the subject that belongs to the member",
               "action1: the action associated with the original attribute assignment (default is assign)",
-              "action2: the action associated with the new attribute assignment (default is assign)",
+              "action2: the action associated with this attribute assignment (default is assign)",
               "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
               "attribute_def_name_name2: name of the new attribute definition name which is assigned to the group",
               "attribute_def_name_disp_name1: display name of the original attribute definition name assigned to the attribute",
@@ -4059,12 +4141,14 @@ public enum GrouperDdl implements DdlVersionable {
               "attribute_def_name_id1: id of the original attribute definition name",
               "attribute_def_name_id2: id of the new attribute definition name",
               "attribute_def_id1: id of the original attribute definition",
-              "attribute_def_id2: id of the new attribute definition"
+              "attribute_def_id2: id of the new attribute definition",
+              "action_id1: id of the attribute assign action of the original assignment",
+              "action_id2: id of the attribute assign action assigned to the group"
           ),
           "select distinct gg.name as group_name, " +
           "gm.subject_source as source_id, " +
           "gm.subject_id, " +
-          "gaa1.action as action1, gaa2.action as action2, " +
+          "gaaa1.name as action1, gaaa2.name as action2,  " +
           "gadn1.name as attribute_def_name_name1, gadn2.name as attribute_def_name_name2, "
           + "gadn1.display_name as attribute_def_name_disp_name1, gadn2.display_name as attribute_def_name_disp_name2, "
           + "gf.name as list_name, "
@@ -4082,11 +4166,14 @@ public enum GrouperDdl implements DdlVersionable {
           + "gadn1.id as attribute_def_name_id1, "
           + "gadn2.id as attribute_def_name_id2, "
           + "gad1.id as attribute_def_id1, "
-          + "gad2.id as attribute_def_id2 "
+          + "gad2.id as attribute_def_id2, "
+          + "gaaa1.id as action_id1, "
+          + "gaaa2.id as action_id2 "
           + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, " +
               "grouper_groups gg, grouper_memberships_all_v gmav, "
           + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, " +
-              "grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf "
+              "grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf, "
+          + "grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2 "
           + "where gaa1.owner_member_id = gmav.member_id and gaa1.owner_group_id = gmav.owner_group_id" +
           		" and gaa2.owner_attribute_assign_id = gaa1.id  "
           + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
@@ -4095,9 +4182,10 @@ public enum GrouperDdl implements DdlVersionable {
               " and gmav.field_id = gf.id and gmav.member_id = gm.id and gmav.owner_group_id = gg.id" +
               " and gf.type = 'list'"
           + " and gaa1.owner_member_id is not null "
-          + " and gaa1.owner_group_id is not null");
+          + " and gaa1.owner_group_id is not null "
+          + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
 
-    
+
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_stem_v", 
         "grouper_attr_asn_asn_stem_v: attribute assigned to an assignment of attribute to a stem, and related cols",
         GrouperUtil.toSet("stem_name",
@@ -4121,7 +4209,9 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_id1",
             "attribute_def_name_id2",
             "attribute_def_id1",
-            "attribute_def_id2"
+            "attribute_def_id2",
+            "action_id1",
+            "action_id2"
           ),
           GrouperUtil.toSet("stem_name: name of stem assigned the attribute",
               "action1: the action associated with the original attribute assignment (default is assign)",
@@ -4144,10 +4234,12 @@ public enum GrouperDdl implements DdlVersionable {
               "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
               "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
               "attribute_def_id1: id of the original attribute definition assigned to the group",
-              "attribute_def_id2: id of the new attribute definition assigned to the attribute"
+              "attribute_def_id2: id of the new attribute definition assigned to the attribute",
+              "action_id1: id of the attribute assign action of the original assignment",
+              "action_id2: id of the attribute assign action assigned to the group"
           ),
           "select gs.name as stem_name, " +
-          "gaa1.action as action1, gaa2.action as action2, " +
+          "gaaa1.name as action1, gaaa2.name as action2,  " +
           "gadn1.name as attribute_def_name_name1, " +
           "gadn2.name as attribute_def_name_name2, "
           + "gs.display_name as stem_display_name, "
@@ -4166,18 +4258,22 @@ public enum GrouperDdl implements DdlVersionable {
           + "gadn1.id as attribute_def_name_id1, "
           + "gadn2.id as attribute_def_name_id2, "
           + "gad1.id as attribute_def_id1, "
-          + "gad2.id as attribute_def_id2 "
+          + "gad2.id as attribute_def_id2, "
+          + "gaaa1.id as action_id1, "
+          + "gaaa2.id as action_id2 "
           + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_stems gs, "
           + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
-          + "grouper_attribute_def gad2 "
+          + "grouper_attribute_def gad2, grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2 "
           + "where gaa1.id = gaa2.owner_attribute_assign_id "
           + "and gaa1.attribute_def_name_id = gadn1.id "
           + "and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' " +
-              "and gs.id = gaa1.owner_stem_id");
+              "and gs.id = gaa1.owner_stem_id "
+          + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
 
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_member_v", 
         "grouper_attr_asn_asn_member_v: attribute assigned to an assignment of an attribute to a member, and related cols",
         GrouperUtil.toSet("source_id", "subject_id", 
@@ -4200,7 +4296,10 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_id1",
             "attribute_def_name_id2",
             "attribute_def_id1",
-            "attribute_def_id2"
+            "attribute_def_id2",
+            "action_id1",
+            "action_id2"
+
           ),
           GrouperUtil.toSet("source_id: source id of the member assigned the original attribute",
               "subject_id: subject id of the member assigned the original attribute",
@@ -4223,10 +4322,12 @@ public enum GrouperDdl implements DdlVersionable {
               "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
               "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
               "attribute_def_id1: id of the original attribute definition assigned to the group",
-              "attribute_def_id2: id of the new attribute definition assigned to the attribute"
+              "attribute_def_id2: id of the new attribute definition assigned to the attribute",
+              "action_id1: id of the attribute assign action of the original assignment",
+              "action_id2: id of the attribute assign action assigned to the group"
           ),
           "select gm.subject_source as source_id, gm.subject_id, " +
-          "gaa1.action as action1, gaa2.action as action2, " +
+          "gaaa1.name as action1, gaaa2.name as action2,  " +
           "gadn1.name as attribute_def_name_name1, " +
           "gadn2.name as attribute_def_name_name2, "
           + "gadn1.display_name as attribute_def_name_disp_name1, "
@@ -4244,10 +4345,12 @@ public enum GrouperDdl implements DdlVersionable {
           + "gadn1.id as attribute_def_name_id1, "
           + "gadn2.id as attribute_def_name_id2, "
           + "gad1.id as attribute_def_id1, "
-          + "gad2.id as attribute_def_id2 "
+          + "gad2.id as attribute_def_id2, "
+          + "gaaa1.id as action_id1, "
+          + "gaaa2.id as action_id2 "
           + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_members gm, "
           + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
-          + "grouper_attribute_def gad2 "
+          + "grouper_attribute_def gad2, grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2 "
           + "where gaa1.id = gaa2.owner_attribute_assign_id "
           + "and gaa1.attribute_def_name_id = gadn1.id "
           + "and gaa2.attribute_def_name_id = gadn2.id "
@@ -4255,9 +4358,10 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' " +
               "and gm.id = gaa1.owner_member_id "
-          + "and gaa1.owner_group_id is null");
+          + "and gaa1.owner_group_id is null "
+          + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
 
-    
+
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_asn_asn_mship_v", 
         "grouper_attr_asn_asn_mship_v: attribute assigned to an assignment of an attribute to a membership, and related cols",
@@ -4286,13 +4390,15 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_id1",
             "attribute_def_name_id2",
             "attribute_def_id1",
-            "attribute_def_id2"
+            "attribute_def_id2",
+            "action_id1",
+            "action_id2"
           ),
           GrouperUtil.toSet("group_name: name of group in membership assigned the attribute",
               "source_id: source of the subject that belongs to the member",
               "subject_id: subject_id of the subject that belongs to the member",
               "action1: the action associated with the original attribute assignment (default is assign)",
-              "action2: the action associated with the new attribute assignment (default is assign)",
+              "action2: the action associated with this attribute assignment (default is assign)",
               "attribute_def_name_name1: name of the original attribute definition name which is assigned to the group",
               "attribute_def_name_name2: name of the new attribute definition name which is assigned to the group",
               "attribute_def_name_disp_name1: display name of the original attribute definition name assigned to the attribute",
@@ -4313,13 +4419,15 @@ public enum GrouperDdl implements DdlVersionable {
               "attribute_def_name_id1: id of the original attribute definition name",
               "attribute_def_name_id2: id of the new attribute definition name",
               "attribute_def_id1: id of the original attribute definition",
-              "attribute_def_id2: id of the new attribute definition"
+              "attribute_def_id2: id of the new attribute definition",
+              "action_id1: id of the attribute assign action of the original assignment",
+              "action_id2: id of the attribute assign action assigned to the group"
           ),
           "select gg.name as group_name, " +
           "gm.subject_source as source_id, " +
           "gm.subject_id, " +
-          "gaa1.action as action1, gaa2.action as action2, " +
-          "gadn1.name as attribute_def_name_name1, gadn2.name as attribute_def_name_name2, "
+          "gaaa1.name as action1, gaaa2.name as action2,  " 
+          + "gadn1.name as attribute_def_name_name1, gadn2.name as attribute_def_name_name2, "
           + "gadn1.display_name as attribute_def_name_disp_name1, gadn2.display_name as attribute_def_name_disp_name2, "
           + "gf.name as list_name, "
           + "gad1.name as name_of_attribute_def1, "
@@ -4337,17 +4445,21 @@ public enum GrouperDdl implements DdlVersionable {
           + "gadn1.id as attribute_def_name_id1, "
           + "gadn2.id as attribute_def_name_id2, "
           + "gad1.id as attribute_def_id1, "
-          + "gad2.id as attribute_def_id2 "
+          + "gad2.id as attribute_def_id2, "
+          + "gaaa1.id as action_id1, "
+          + "gaaa2.id as action_id2 "
           + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, " +
           		"grouper_groups gg, grouper_memberships gms, "
           + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, " +
-          		"grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf "
+          		"grouper_attribute_def gad1, grouper_attribute_def gad2, grouper_members gm, grouper_fields gf, "
+          + "grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2 "
           + "where gaa1.owner_membership_id = gms.id and gaa2.owner_attribute_assign_id = gaa1.id  "
           + "and gaa1.attribute_def_name_id = gadn1.id and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' " +
-              " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id" +
-              " and gf.type = 'list'");
+          + "and gaa1.enabled = 'T' " 
+          + " and gms.field_id = gf.id and gms.member_id = gm.id and gms.owner_group_id = gg.id" 
+          + " and gf.type = 'list' "
+          + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
 
 
     
@@ -4373,7 +4485,9 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_name_id1",
             "attribute_def_name_id2",
             "attribute_def_id1",
-            "attribute_def_id2"
+            "attribute_def_id2",
+            "action_id1",
+            "action_id2"
           ),
           GrouperUtil.toSet("name_of_attr_def_assigned_to: name of attribute_def originally assigned the attribute",
               "action1: the action associated with the original attribute assignment (default is assign)",
@@ -4395,10 +4509,12 @@ public enum GrouperDdl implements DdlVersionable {
               "attribute_def_name_id1: id of the original attribute definition name assigned to the group",
               "attribute_def_name_id2: id of the new attribute definition name assigned to the assignment",
               "attribute_def_id1: id of the original attribute definition assigned to the group",
-              "attribute_def_id2: id of the new attribute definition assigned to the attribute"
+              "attribute_def_id2: id of the new attribute definition assigned to the attribute",
+              "action_id1: id of the attribute assign action of the original assignment",
+              "action_id2: id of the attribute assign action assigned to the group"
           ),
           "select gad.name as name_of_attr_def_assigned_to, " +
-          "gaa1.action as action1, gaa2.action as action2, " +
+          "gaaa1.name as action1, gaaa2.name as action2,  " +
           "gadn1.name as attribute_def_name_name1, " +
           "gadn2.name as attribute_def_name_name2, "
           + "gadn1.display_name as attribute_def_name_disp_name1, "
@@ -4416,17 +4532,21 @@ public enum GrouperDdl implements DdlVersionable {
           + "gadn1.id as attribute_def_name_id1, "
           + "gadn2.id as attribute_def_name_id2, "
           + "gad1.id as attribute_def_id1, "
-          + "gad2.id as attribute_def_id2 "
+          + "gad2.id as attribute_def_id2, "
+          + "gaaa1.id as action_id1, "
+          + "gaaa2.id as action_id2 "
           + "from grouper_attribute_assign gaa1, grouper_attribute_assign gaa2, grouper_attribute_def gad, "
           + "grouper_attribute_def_name gadn1, grouper_attribute_def_name gadn2, grouper_attribute_def gad1, "
           + "grouper_attribute_def gad2 "
+          + ", grouper_attr_assign_action gaaa1, grouper_attr_assign_action gaaa2 "
           + "where gaa1.id = gaa2.owner_attribute_assign_id "
           + "and gaa1.attribute_def_name_id = gadn1.id "
           + "and gaa2.attribute_def_name_id = gadn2.id "
           + "and gadn1.attribute_def_id = gad1.id "
           + "and gadn2.attribute_def_id = gad2.id "
-          + "and gaa1.enabled = 'T' " +
-              "and gad.id = gaa1.owner_attribute_def_id");
+          + "and gaa1.enabled = 'T' " 
+          + "and gad.id = gaa1.owner_attribute_def_id "
+          + "and gaa1.attribute_assign_action_id = gaaa1 .id and gaa2.attribute_assign_action_id = gaaa2.id ");
 
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_def_priv_v", 
@@ -4487,7 +4607,8 @@ public enum GrouperDdl implements DdlVersionable {
             "role_id",
             "attribute_def_id",
             "member_id", 
-            "attribute_def_name_id"
+            "attribute_def_name_id",
+            "action_id"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -4503,12 +4624,13 @@ public enum GrouperDdl implements DdlVersionable {
             "role_id: id of role the subject is in, and that the permissions are assigned to",
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
-            "attribute_def_name_id: id of the attribute definition name"
+            "attribute_def_name_id: id of the attribute definition name",
+            "action_id: id of the attribute assign action"
         ),
         "select distinct gr.name as role_name,  "
         + "gm.subject_source as subject_source_id,  "
         + "gm.subject_id,  "
-        + "gaa.action as action,  "
+        + "gaaa.name as action, "
         + "gadn.name as attribute_def_name_name,  "
         + "gadn.display_name as attribute_def_name_disp_name,  "
         + "gr.display_name as role_display_name,  "
@@ -4519,7 +4641,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "gr.id as role_id,  "
         + "gadn.attribute_def_id,  "
         + "gm.id as member_id,  "
-        + "gadn.id as attribute_def_name_id  "
+        + "gadn.id as attribute_def_name_id,  "
+        + "gaaa.id as action_id "
         + "from grouper_groups gr,  "
         + "grouper_memberships_all_v gmav,  "
         + "grouper_members gm,  "
@@ -4527,7 +4650,9 @@ public enum GrouperDdl implements DdlVersionable {
         + "grouper_role_set grs,  "
         + "grouper_attribute_assign gaa,  "
         + "grouper_attribute_def_name gadn,  "
-        + "grouper_attribute_def_name_set gadns  "
+        + "grouper_attribute_def_name_set gadns, "
+        + "grouper_attr_assign_action gaaa, "
+        + "grouper_attr_assign_action_set gaaas "
         + "where gr.type_of_group = 'role'  "
         + "and gmav.owner_group_id = gr.id  "
         + "and gmav.field_id = gf.id  "
@@ -4539,7 +4664,13 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gaa.owner_group_id = grs.then_has_role_id  "
         + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id  "
         + "and gadn.id = gadns.then_has_attribute_def_name_id  "
-        + "and gaa.attribute_assign_type = 'group' ");
+        + "and gaa.attribute_assign_type = 'group' "
+        + "and gaa.attribute_assign_action_id = gaaas.if_has_attr_assn_action_id "
+        + "and gaaa.id = gaaas.then_has_attr_assn_action_id ");
+
+    
+
+    
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_role_subject_v", 
         "grouper_perms_role_subject_v: shows all permissions assigned to users directly while in a role",
@@ -4557,7 +4688,8 @@ public enum GrouperDdl implements DdlVersionable {
             "role_id",
             "attribute_def_id",
             "member_id", 
-            "attribute_def_name_id"
+            "attribute_def_name_id",
+            "action_id"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -4573,12 +4705,13 @@ public enum GrouperDdl implements DdlVersionable {
             "role_id: id of role the subject is in, and that the permissions are assigned to",
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
-            "attribute_def_name_id: id of the attribute definition name"
+            "attribute_def_name_id: id of the attribute definition name",
+            "action_id: id of the attribute assign action"
         ),
         "select distinct gr.name as role_name,  "
         + "gm.subject_source as subject_source_id,  "
         + "gm.subject_id,  "
-        + "gaa.action as action,  "
+        + "gaaa.name as action, "
         + "gadn.name as attribute_def_name_name,  "
         + "gadn.display_name as attribute_def_name_disp_name,  "
         + "gr.display_name as role_display_name,  "
@@ -4589,14 +4722,17 @@ public enum GrouperDdl implements DdlVersionable {
         + "gr.id as role_id,  "
         + "gadn.attribute_def_id,  "
         + "gm.id as member_id,  "
-        + "gadn.id as attribute_def_name_id  "
+        + "gadn.id as attribute_def_name_id,  "
+        + "gaaa.id as action_id "
         + "from grouper_groups gr,  "
         + "grouper_memberships_all_v gmav,  "
         + "grouper_members gm,  "
         + "grouper_fields gf,  "
         + "grouper_attribute_assign gaa,  "
         + "grouper_attribute_def_name gadn,  "
-        + "grouper_attribute_def_name_set gadns  "
+        + "grouper_attribute_def_name_set gadns,  "
+        + "grouper_attr_assign_action gaaa, "
+        + "grouper_attr_assign_action_set gaaas "
         + "where gr.type_of_group = 'role'  "
         + "and gmav.owner_group_id = gr.id  "
         + "and gmav.field_id = gf.id  "
@@ -4608,8 +4744,11 @@ public enum GrouperDdl implements DdlVersionable {
         + "and gmav.member_id = gm.id  "
         + "and gaa.attribute_assign_type = 'any_mem' "
         + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id  "
-        + "and gadn.id = gadns.then_has_attribute_def_name_id ");
+        + "and gadn.id = gadns.then_has_attribute_def_name_id "
+        + "and gaa.attribute_assign_action_id = gaaas.if_has_attr_assn_action_id "
+        + "and gaaa.id = gaaas.then_has_attr_assn_action_id ");
 
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_all_v", 
         "grouper_perms_all_v: shows all permissions assigned to users directly while in a role, or assigned to roles (and users in the role)",
         GrouperUtil.toSet("role_name", 
@@ -4626,7 +4765,8 @@ public enum GrouperDdl implements DdlVersionable {
             "role_id",
             "attribute_def_id",
             "member_id", 
-            "attribute_def_name_id"
+            "attribute_def_name_id",
+            "action_id"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -4642,7 +4782,8 @@ public enum GrouperDdl implements DdlVersionable {
             "role_id: id of role the subject is in, and that the permissions are assigned to",
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
-            "attribute_def_name_id: id of the attribute definition name"
+            "attribute_def_name_id: id of the attribute definition name",
+            "action_id: id of the attribute assign action"
         ),
         "select role_name,  "
         + "subject_source_id,  "
@@ -4658,7 +4799,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "role_id,  "
         + "attribute_def_id,  "
         + "member_id,  "
-        + "attribute_def_name_id  "
+        + "attribute_def_name_id,  "
+        + "action_id "
         + "from grouper_perms_role_v  "
         + "union  "
         + "select role_name,  "
@@ -4675,7 +4817,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "role_id,  "
         + "attribute_def_id,  "
         + "member_id,  "
-        + "attribute_def_name_id  "
+        + "attribute_def_name_id,  "
+        + "action_id "
         + "from grouper_perms_role_subject_v  ");
 
   }
@@ -5538,9 +5681,6 @@ public enum GrouperDdl implements DdlVersionable {
           database, AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
-          AttributeDef.COLUMN_ACTIONS, Types.VARCHAR, "512", false, true, "assign");
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
           AttributeDef.COLUMN_ASSIGNABLE_TO, Types.VARCHAR, "32", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
@@ -5650,7 +5790,7 @@ public enum GrouperDdl implements DdlVersionable {
           database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_ACTION, Types.VARCHAR, "32", false, true);
+          AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID, Types.VARCHAR, "40", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
           AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
@@ -5708,31 +5848,31 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attribute_asgn_attr_name_idx", false, 
-          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, AttributeAssign.COLUMN_ACTION);
+          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attr_asgn_own_asgn_idx", false, 
-          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, AttributeAssign.COLUMN_ACTION);
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attr_asgn_own_def_idx", false, 
-          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, AttributeAssign.COLUMN_ACTION);
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attr_asgn_own_group_idx", false, 
-          AttributeAssign.COLUMN_OWNER_GROUP_ID, AttributeAssign.COLUMN_ACTION);
+          AttributeAssign.COLUMN_OWNER_GROUP_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attr_asgn_own_mem_idx", false, 
-          AttributeAssign.COLUMN_OWNER_MEMBER_ID, AttributeAssign.COLUMN_ACTION);
+          AttributeAssign.COLUMN_OWNER_MEMBER_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attr_asgn_own_mship_idx", false, 
-          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, AttributeAssign.COLUMN_ACTION);
+          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attr_asgn_own_stem_idx", false, 
-          AttributeAssign.COLUMN_OWNER_STEM_ID, AttributeAssign.COLUMN_ACTION);
+          AttributeAssign.COLUMN_OWNER_STEM_ID, AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID);
 
     }
 
@@ -5875,6 +6015,88 @@ public enum GrouperDdl implements DdlVersionable {
 
     }
 
+    {
+      Table attributeAssignActionTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignActionTable,
+          AttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID, Types.VARCHAR, "40", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignActionTable,
+          AttributeAssignAction.COLUMN_CONTEXT_ID, Types.VARCHAR, "40", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignActionTable,
+          AttributeAssignAction.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignActionTable, 
+          AttributeAssignAction.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignActionTable,
+          AttributeAssignAction.COLUMN_ID, Types.VARCHAR, "40", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignActionTable,
+          AttributeAssignAction.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignActionTable,
+          AttributeAssignAction.COLUMN_NAME, Types.VARCHAR, "40", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignActionTable.getName(), 
+          "attr_assn_act_def_id_idx", false, 
+          AttributeAssignAction.COLUMN_ATTRIBUTE_DEF_ID);
+
+    }
+
+    
+    {
+      Table actionSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable, 
+          AttributeAssignActionSet.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_ID, Types.VARCHAR, "128", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_DEPTH, Types.BIGINT, "10", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, Types.VARCHAR, "40", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, Types.VARCHAR, "40", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, Types.VARCHAR, "40", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
+          AttributeAssignActionSet.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, actionSetTable.getName(), 
+          "action_set_ifhas_idx", false, 
+          AttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, actionSetTable.getName(), 
+          "action_set_then_idx", false, 
+          AttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, actionSetTable.getName(), 
+          "action_set_unq_idx", true, 
+          AttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, 
+          AttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, AttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID);
+
+    }
+
+    
     {
       Table roleSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
           database, RoleSet.TABLE_GROUPER_ROLE_SET);
