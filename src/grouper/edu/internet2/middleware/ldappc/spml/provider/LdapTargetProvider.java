@@ -72,7 +72,7 @@ import edu.internet2.middleware.ldappc.spml.definitions.PSOReferencesDefinition;
 import edu.internet2.middleware.ldappc.spml.request.LdapFilterQueryClause;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.service.ServiceException;
-import edu.vt.middleware.ldap.LdappcLdap;
+import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.bean.LdapAttribute;
 import edu.vt.middleware.ldap.bean.LdapAttributes;
@@ -88,7 +88,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
   private String ldapPoolId;
 
-  private LdapPool<LdappcLdap> ldapPool;
+  private LdapPool<Ldap> ldapPool;
 
   public LdapTargetProvider() {
   }
@@ -101,15 +101,15 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     this.ldapPoolId = ldapPoolId;
   }
 
-  public LdapPool<LdappcLdap> getLdapPool() {
+  public LdapPool<Ldap> getLdapPool() {
     return ldapPool;
   }
 
   protected void onNewContextCreated(ApplicationContext newServiceContext) throws ServiceException {
-    LdapPool<LdappcLdap> oldPool = ldapPool;
+    LdapPool<Ldap> oldPool = ldapPool;
     try {
       LOG.debug("Loading ldap pool '{}'", getLdapPoolId());
-      ldapPool = (LdapPool<LdappcLdap>) newServiceContext.getBean(getLdapPoolId());
+      ldapPool = (LdapPool<Ldap>) newServiceContext.getBean(getLdapPoolId());
     } catch (Exception e) {
       ldapPool = oldPool;
       LOG.error(getId() + " configuration is not valid, retaining old configuration", e);
@@ -150,7 +150,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = "add '" + dn + "' ldap '" + this.getId() + "'";
 
-    LdappcLdap ldap = null;
+    Ldap ldap = null;
     try {
       // build ldap attributes
       LdapAttributes ldapAttributes = new LdapAttributes();
@@ -274,7 +274,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = "delete '" + dn + "' ldap '" + this.getId() + "'";
 
-    LdappcLdap ldap = null;
+    Ldap ldap = null;
     try {
       ldap = ldapPool.checkOut();
       LOG.info("{}", msg);
@@ -331,7 +331,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = "lookup '" + dn + "' ldap '" + this.getId() + "' return '" + lookupRequest.getReturnData() + "'";
 
-    LdappcLdap ldap = null;
+    Ldap ldap = null;
     try {
 
       // This lookup requests attributes defined for *all* objects.
@@ -410,7 +410,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = "modify '" + dn + "' ldap '" + this.getId() + "'";
 
-    LdappcLdap ldap = null;
+    Ldap ldap = null;
     try {
       List<ModificationItem> modificationItem = new ArrayList<ModificationItem>();
       for (Modification modification : modifyRequest.getModifications()) {
@@ -504,7 +504,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
     String msg = "search ldap '" + this.getId() + "' return '" + searchRequest.getReturnData() + "'";
 
-    LdappcLdap ldap = null;
+    Ldap ldap = null;
     try {
       String[] retAttrs = this.getTargetDefinition().getNames(searchRequest.getReturnData()).toArray(new String[] {});
 
