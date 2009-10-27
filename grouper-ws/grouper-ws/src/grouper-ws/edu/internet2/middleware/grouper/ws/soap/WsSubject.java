@@ -82,9 +82,10 @@ public class WsSubject {
    * convert members to subject results
    * @param attributeNames to get from subjects
    * @param memberSet
+   * @param includeSubjectDetail 
    * @return the subject results
    */
-  public static WsSubject[] convertMembers(Set<Member> memberSet, String[] attributeNames) {
+  public static WsSubject[] convertMembers(Set<Member> memberSet, String[] attributeNames, boolean includeSubjectDetail) {
     int memberSetLength = GrouperUtil.length(memberSet);
     if (memberSetLength == 0) {
       return null;
@@ -93,7 +94,7 @@ public class WsSubject {
     WsSubject[] wsSubjectResults = new WsSubject[memberSetLength];
     int index = 0;
     for (Member member : memberSet) {
-      wsSubjectResults[index++] = new WsSubject(member, attributeNames, null);
+      wsSubjectResults[index++] = new WsSubject(member, attributeNames, null, includeSubjectDetail);
     }
     return wsSubjectResults;
   }
@@ -164,10 +165,11 @@ public class WsSubject {
   * @param subjectAttributeNames are the attributes the user is getting (either requested or in config)
   * (should be calculated for is detail or not)
    * @param subjectLookup 
+   * @param includeSubjectDetails 
   * @param retrieveExtendedSubjectDataBoolean
   *            true to retrieve subject info (more than just the id)
   */
-  public WsSubject(Member member, String[] subjectAttributeNames, WsSubjectLookup subjectLookup) {
+  public WsSubject(Member member, String[] subjectAttributeNames, WsSubjectLookup subjectLookup, boolean includeSubjectDetails) {
     this.setId(member.getSubjectId());
     this.setSourceId(member.getSubjectSource().getId());
 
@@ -178,7 +180,7 @@ public class WsSubject {
     }
 
     // if getting the subject data (extra queries)
-    if (attributesLength > 0) {
+    if (attributesLength > 0 || includeSubjectDetails) {
       Subject subject = null;
       try {
         subject = member.getSubject();
@@ -217,6 +219,8 @@ public class WsSubject {
     this.setId(subject.getId());
     this.setSourceId(subject.getSource().getId());
 
+    this.setName(subject.getName());
+    
     int attributesLength = GrouperUtil.length(subjectAttributeNames);
 
     // if getting the subject data (extra queries)

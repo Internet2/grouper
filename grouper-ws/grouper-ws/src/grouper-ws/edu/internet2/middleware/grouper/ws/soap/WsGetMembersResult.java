@@ -218,9 +218,10 @@ public class WsGetMembersResult  implements ResultMetadataHolder {
    * convert members to subject results
    * @param attributeNames1 to get from subjects
    * @param memberSet
+   * @param includeSubjectDetails 
    */
-  public void assignSubjectResult(Set<Member> memberSet, String[] attributeNames1) {
-    this.setWsSubjects(WsSubject.convertMembers(memberSet, attributeNames1));
+  public void assignSubjectResult(Set<Member> memberSet, String[] attributeNames1, boolean includeSubjectDetails) {
+    this.setWsSubjects(WsSubject.convertMembers(memberSet, attributeNames1, includeSubjectDetails));
     
     if (this.getWsSubjects() != null) {
       // check all entries

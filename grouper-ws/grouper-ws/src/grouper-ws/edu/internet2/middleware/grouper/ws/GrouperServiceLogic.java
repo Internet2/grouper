@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.27 2009-10-07 12:54:20 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.28 2009-10-27 17:16:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -1150,7 +1150,7 @@ public class GrouperServiceLogic {
           // lets get the members, cant be null
           Set<Member> members = memberFilter.getMembers(group, fieldName);
       
-          wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve);
+          wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
       
         } catch (Exception e) {
           wsGetMembersResult.assignResultCodeException(null, null, wsGroupLookup, e);
@@ -2017,7 +2017,8 @@ public class GrouperServiceLogic {
                 try {
   
                   Member oldMember = wsMemberChangeSubject.getOldSubjectLookup().retrieveMember();
-                  wsMemberChangeSubjectResult.processMemberOld(wsMemberChangeSubject.getOldSubjectLookup(), subjectAttributeNamesToRetrieve);
+                  wsMemberChangeSubjectResult.processMemberOld(wsMemberChangeSubject.getOldSubjectLookup(), 
+                      subjectAttributeNamesToRetrieve, includeSubjectDetail);
                   if (oldMember == null) {
                     continue;
                   }

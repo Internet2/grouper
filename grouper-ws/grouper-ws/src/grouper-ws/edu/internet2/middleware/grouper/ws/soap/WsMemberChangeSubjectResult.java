@@ -253,8 +253,9 @@ public class WsMemberChangeSubjectResult implements ResultMetadataHolder {
    * assign the code from the enum
    * @param wsSubjectLookup1
    * @param subjectAttributeNames
+   * @param includeSubjectDetail 
    */
-  public void processMemberOld(WsSubjectLookup wsSubjectLookup1, String[] subjectAttributeNames) {
+  public void processMemberOld(WsSubjectLookup wsSubjectLookup1, String[] subjectAttributeNames, boolean includeSubjectDetail) {
 
     Member oldMember = wsSubjectLookup1.retrieveMember();
     
@@ -268,7 +269,7 @@ public class WsMemberChangeSubjectResult implements ResultMetadataHolder {
         this.assignResultCode(WsMemberChangeSubjectResultCode.MEMBER_NOT_FOUND);
         break;
       case SUCCESS:
-        WsSubject oldWsSubject = new WsSubject(oldMember, subjectAttributeNames, wsSubjectLookup1);
+        WsSubject oldWsSubject = new WsSubject(oldMember, subjectAttributeNames, wsSubjectLookup1, includeSubjectDetail);
         this.setWsSubjectOld(oldWsSubject);
         
         return;

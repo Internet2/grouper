@@ -110,10 +110,11 @@ public class WsMembership {
    * 
    * @param membership
    * @param subjectAttributeNames are the attribute names the user is receiving (either requested or from config)
+   * @param includeSubjectDetail 
    * @param retrieveExtendedSubjectDataBoolean
    *            true to retrieve subject info (more than just the id)
    */
-  public WsMembership(Membership membership, String[] subjectAttributeNames) {
+  public WsMembership(Membership membership, String[] subjectAttributeNames, boolean includeSubjectDetail) {
     try {
       Membership parent = membership.getParentMembership();
       this.setParentMembershipUuid(parent.getUuid());
@@ -149,7 +150,7 @@ public class WsMembership {
       // member fields will be null if this happens
     }
     if (member != null) {
-      this.subject = new WsSubject(member, subjectAttributeNames, null);
+      this.subject = new WsSubject(member, subjectAttributeNames, null, includeSubjectDetail);
       //propagate the result code back up to this object
       if (!GrouperUtil.booleanValue(this.subject.getSuccess())) {
         this.assignResultCode(WsGetMembershipResultCode.valueOf(this.subject
@@ -348,10 +349,11 @@ public class WsMembership {
    * convert members to subject results
    * @param attributeNames to get from subjects
    * @param membershipSet
+   * @param includeSubjectDetail 
    * @return the subject results
    */
   public static WsMembership[] convertMembers(Set<Membership> membershipSet,
-      String[] attributeNames) {
+      String[] attributeNames, boolean includeSubjectDetail) {
     int memberSetLength = GrouperUtil.length(membershipSet);
     if (memberSetLength == 0) {
       return null;
@@ -360,7 +362,7 @@ public class WsMembership {
     WsMembership[] wsGetMembershipsResultArray = new WsMembership[memberSetLength];
     int index = 0;
     for (Membership membership : membershipSet) {
-      wsGetMembershipsResultArray[index++] = new WsMembership(membership, attributeNames);
+      wsGetMembershipsResultArray[index++] = new WsMembership(membership, attributeNames, includeSubjectDetail);
     }
     return wsGetMembershipsResultArray;
   }

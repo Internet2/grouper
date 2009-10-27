@@ -58,7 +58,8 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
 
     /** get the name label for a certain version of client 
      * @param clientVersion 
-     * @return */
+     * @return name
+     */
     public String nameForVersion(GrouperWsVersion clientVersion) {
       return this.name();
     }
@@ -173,9 +174,10 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
    * convert members to subject results
    * @param attributeNames1 to get from subjects
    * @param membershipSet
+   * @param includeSubjectDetail 
    */
-  public void assignSubjectResult(Set<Membership> membershipSet, String[] attributeNames1) {
-    this.setResults(WsMembership.convertMembers(membershipSet, attributeNames1));
+  public void assignSubjectResult(Set<Membership> membershipSet, String[] attributeNames1, boolean includeSubjectDetail) {
+    this.setResults(WsMembership.convertMembers(membershipSet, attributeNames1, includeSubjectDetail));
   }
 
   /**
