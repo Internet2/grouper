@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperOrgDdl.java,v 1.3 2009-08-11 20:18:09 mchyzer Exp $
+ * $Id: GrouperOrgDdl.java,v 1.4 2009-10-27 15:15:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -31,7 +31,7 @@ public enum GrouperOrgDdl implements DdlVersionable {
         Table grouperOrgHierarchicalTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouperorgs_hierarchical");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperOrgHierarchicalTable, "org_id",
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, GrouperDdl.ID_SIZE, true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperOrgHierarchicalTable, "org_hierarchical_stem", 
             Types.VARCHAR, "4000", false, false);
@@ -71,7 +71,7 @@ public enum GrouperOrgDdl implements DdlVersionable {
         Table grouperOrgTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouperorgs_poc_orgs");
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperOrgTable, "id",
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, GrouperDdl.ID_SIZE, true, true);
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperOrgTable, "org_name", 
             Types.VARCHAR, "128", false, false);
@@ -83,7 +83,7 @@ public enum GrouperOrgDdl implements DdlVersionable {
             Types.VARCHAR, "500", false, false);
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperOrgTable, "parent_id", 
-            Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, GrouperDdl.ID_SIZE, false, false);
 
         if (!hasPocOrgsTable) {
           
@@ -231,10 +231,10 @@ public enum GrouperOrgDdl implements DdlVersionable {
         Table grouperOrgAssignTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouperorgs_poc_org_assign");
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperOrgAssignTable, "id",
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, GrouperDdl.ID_SIZE, true, true);
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperOrgAssignTable, "org_id", 
-            Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, GrouperDdl.ID_SIZE, false, false);
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperOrgAssignTable, "subject_id", 
             Types.VARCHAR, "128", false, false);
