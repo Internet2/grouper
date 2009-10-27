@@ -6,9 +6,8 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
 
-  <!--  class="edu.vt.middleware.ldap.pool.DefaultLdapFactory" -->
   <bean id="ldapFactory"    
-    class="edu.vt.middleware.ldap.LdappcLdapFactory"
+    class="edu.vt.middleware.ldap.pool.DefaultLdapFactory"
     p:connectOnCreate="false" >
     <constructor-arg index="0" ref="ldapConfig"/>
   </bean>

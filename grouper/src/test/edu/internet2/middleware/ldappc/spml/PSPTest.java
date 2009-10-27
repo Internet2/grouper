@@ -72,7 +72,7 @@ import edu.internet2.middleware.ldappc.spml.request.LdapFilterQueryClause;
 import edu.internet2.middleware.ldappc.spml.request.SyncRequest;
 import edu.internet2.middleware.ldappc.spml.request.SyncResponse;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
-import edu.vt.middleware.ldap.LdappcLdap;
+import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.pool.LdapPoolException;
 
 public class PSPTest extends GrouperTest {
@@ -165,7 +165,7 @@ public class PSPTest extends GrouperTest {
       }
       LdapTargetProvider ldapTargetProvider = (LdapTargetProvider) spmlTargetProvider;
 
-      LdappcLdap ldap = null;
+      Ldap ldap = null;
       try {
         ldap = ldapTargetProvider.getLdapPool().checkOut();
         // prompt user
@@ -193,7 +193,7 @@ public class PSPTest extends GrouperTest {
     for (TargetDefinition targetDefinition : psp.getTargetDefinitions().values()) {
       LdapTargetProvider ldapTargetProvider = (LdapTargetProvider) targetDefinition.getProvider();
 
-      LdappcLdap ldap = null;
+      Ldap ldap = null;
       try {
         ldap = ldapTargetProvider.getLdapPool().checkOut();
 
@@ -651,7 +651,7 @@ public class PSPTest extends GrouperTest {
 
       LdapTargetProvider ldapTargetProvider = (LdapTargetProvider) targetDefinition.getProvider();
 
-      LdappcLdap ldap = null;
+      Ldap ldap = null;
       try {
         ldap = ldapTargetProvider.getLdapPool().checkOut();
 
@@ -685,7 +685,7 @@ public class PSPTest extends GrouperTest {
 
       LdapTargetProvider ldapTargetProvider = (LdapTargetProvider) targetDefinition.getProvider();
 
-      LdappcLdap ldap = null;
+      Ldap ldap = null;
       try {
         ldap = ldapTargetProvider.getLdapPool().checkOut();
 
