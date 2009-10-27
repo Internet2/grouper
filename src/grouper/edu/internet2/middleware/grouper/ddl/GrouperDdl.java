@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.88 2009-10-26 17:20:57 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.89 2009-10-27 15:15:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -290,11 +290,11 @@ public enum GrouperDdl implements DdlVersionable {
               Membership.TABLE_GROUPER_MEMBERSHIPS);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_VIA_ID_BAK, 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_DEPTH_BAK, 
               Types.INTEGER, "11", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_PARENT_MEMBERSHIP_BAK, 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
   
           
           //move data to the group cols
@@ -576,7 +576,7 @@ public enum GrouperDdl implements DdlVersionable {
             Types.VARCHAR, "32", false, false);
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributesTable, Attribute.COLUMN_FIELD_ID, 
-            Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, ID_SIZE, false, false);
       }
 
       if (needsMembershipFieldIdConversion) {
@@ -590,7 +590,7 @@ public enum GrouperDdl implements DdlVersionable {
             Types.VARCHAR, "32", false, false);
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_FIELD_ID, 
-            Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, ID_SIZE, false, false);
         
       }
       
@@ -870,8 +870,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table compositesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Composite.TABLE_GROUPER_COMPOSITES);
 
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_UUID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_ID, Types.VARCHAR, ID_SIZE, false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_UUID, Types.VARCHAR, ID_SIZE, false, false);
         if (isDestinationVersion) {
 
           //update records, move the uuid to the id
@@ -887,8 +887,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Membership.TABLE_GROUPER_MEMBERSHIPS);
         
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_MEMBERSHIP_UUID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_ID, Types.VARCHAR, ID_SIZE, false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_MEMBERSHIP_UUID, Types.VARCHAR, ID_SIZE, false, false);
 
         if (isDestinationVersion) {
 
@@ -904,8 +904,8 @@ public enum GrouperDdl implements DdlVersionable {
         
         Table fieldsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Field.TABLE_GROUPER_FIELDS);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_FIELD_UUID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_ID, Types.VARCHAR, ID_SIZE, false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_FIELD_UUID, Types.VARCHAR, ID_SIZE, false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -921,8 +921,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Group.TABLE_GROUPER_GROUPS);
         
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_UUID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_ID, Types.VARCHAR, ID_SIZE, false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_UUID, Types.VARCHAR, ID_SIZE, false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -938,8 +938,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Member.TABLE_GROUPER_MEMBERS);
         
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_MEMBER_UUID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_ID, Types.VARCHAR, ID_SIZE, false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_MEMBER_UUID, Types.VARCHAR, ID_SIZE, false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -955,8 +955,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table stemsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Stem.TABLE_GROUPER_STEMS);
 
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_UUID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_ID, Types.VARCHAR, ID_SIZE, false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_UUID, Types.VARCHAR, ID_SIZE, false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -972,8 +972,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table typesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             GroupType.TABLE_GROUPER_TYPES);
               
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_TYPE_UUID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_ID, Types.VARCHAR, ID_SIZE, false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_TYPE_UUID, Types.VARCHAR, ID_SIZE, false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -1023,7 +1023,7 @@ public enum GrouperDdl implements DdlVersionable {
       Table grouploaderLogTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_loader_log");
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "id", 
-          Types.VARCHAR, "128", true, true);
+          Types.VARCHAR, ID_SIZE, true, true);
       
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_name", 
@@ -1063,7 +1063,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "128", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "group_uuid", 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_quartz_cron", 
           Types.VARCHAR, "128", false, false);
@@ -1093,7 +1093,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "512", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_id", 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "and_group_names", 
           Types.VARCHAR, "512", false, false);
@@ -1136,10 +1136,10 @@ public enum GrouperDdl implements DdlVersionable {
             Attribute.TABLE_GROUPER_ATTRIBUTES);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, "group_id", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         if (buildingToThisVersion) {
           
@@ -1151,7 +1151,7 @@ public enum GrouperDdl implements DdlVersionable {
         //this is needed for hibernate, so always add it if the table is being created
         if (attributesTableNew || attributeTable.findColumn(Attribute.COLUMN_FIELD_ID) != null) {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, Attribute.COLUMN_FIELD_ID, 
-              Types.VARCHAR, "128", false, true);
+              Types.VARCHAR, ID_SIZE, false, true);
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, "value", 
@@ -1182,12 +1182,12 @@ public enum GrouperDdl implements DdlVersionable {
         boolean needsConversion = needsCompositeIdConversion(database);
       
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
 
         if (needsConversion || buildingToThisVersion) {
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "uuid", 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
               "composite_uuid_idx", true, "uuid");
@@ -1195,19 +1195,19 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "owner", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "left_factor", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "right_factor", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "type", 
             Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "creator_id", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "create_time", 
             Types.BIGINT, "20", false, true);
@@ -1240,14 +1240,14 @@ public enum GrouperDdl implements DdlVersionable {
             Field.TABLE_GROUPER_FIELDS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
 
         boolean needsConversion = needsFieldsIdConversion(database);
     
         if (needsConversion || buildingToThisVersion) {
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "field_uuid", 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, fieldsTable.getName(), 
               "field_uuid_idx", true, "field_uuid");
@@ -1255,7 +1255,7 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "grouptype_uuid", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "is_nullable", 
             Types.BIT, "1", false, false);
@@ -1284,14 +1284,14 @@ public enum GrouperDdl implements DdlVersionable {
             Group.TABLE_GROUPER_GROUPS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
   
         boolean needsConversion = needsGroupsIdConversion(database);
         
         if (needsConversion || buildingToThisVersion) {
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "uuid", 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
               "group_uuid_idx", true, "uuid");
@@ -1299,16 +1299,16 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "parent_stem", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "creator_id", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "create_time", 
             Types.BIGINT, "20", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "modifier_id", 
-            Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, ID_SIZE, false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "modify_time", 
             Types.BIGINT, "20", false, false);
@@ -1354,13 +1354,13 @@ public enum GrouperDdl implements DdlVersionable {
             "grouper_groups_types");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTypesTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTypesTable, "group_uuid", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTypesTable, "type_uuid", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTypesTable.getName(), 
             "grouptypetyple_grouptype_idx", true, "group_uuid", "type_uuid");
@@ -1379,14 +1379,14 @@ public enum GrouperDdl implements DdlVersionable {
             Member.TABLE_GROUPER_MEMBERS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
   
         boolean needsConversion = needsMembersIdConversion(database);
         
         if (needsConversion || buildingToThisVersion ) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, "member_uuid", 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
     
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), 
               "member_uuid_idx", true, "member_uuid");
@@ -1424,14 +1424,14 @@ public enum GrouperDdl implements DdlVersionable {
             Membership.TABLE_GROUPER_MEMBERSHIPS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
   
         boolean needsConversion = needsMembersIdConversion(database);
         
         if (needsConversion || buildingToThisVersion ) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "membership_uuid", 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
     
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
               "membership_uuid_idx", true, "membership_uuid");
@@ -1439,15 +1439,15 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "member_id", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ID, 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
         
         //only add the col if a new table, else it is added in a subsequent version
         if (!membershipsTableExists || membershipsTable.findColumn(Membership.COLUMN_FIELD_ID) != null) {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_FIELD_ID, 
-              Types.VARCHAR, "128", false, true);
+              Types.VARCHAR, ID_SIZE, false, true);
         }
   
         //if it doesnt exist, then add these cols/indexes...
@@ -1469,7 +1469,7 @@ public enum GrouperDdl implements DdlVersionable {
             Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "creator_id", 
-            Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, ID_SIZE, false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "create_time", 
             Types.BIGINT, "20", false, true);
@@ -1502,12 +1502,12 @@ public enum GrouperDdl implements DdlVersionable {
               "grouper_sessions");
     
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(sessionsTable, "id", 
-              Types.VARCHAR, "128", true, true);
+              Types.VARCHAR, ID_SIZE, true, true);
           
           //note, this code is only here for unit testing... no need to do id conversion
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(sessionsTable, "member_id", 
-              Types.VARCHAR, "128", false, true);
+              Types.VARCHAR, ID_SIZE, false, true);
     
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(sessionsTable, "starttime", 
               Types.BIGINT, "20", false, true);
@@ -1523,14 +1523,14 @@ public enum GrouperDdl implements DdlVersionable {
             Stem.TABLE_GROUPER_STEMS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
   
         boolean needsConversion = needsStemIdConversion(database);
         
         if (needsConversion || buildingToThisVersion) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "uuid", 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
               "stem_uuid_idx", true, "uuid");
@@ -1538,7 +1538,7 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "parent_stem", 
-            Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, ID_SIZE, false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "name", 
             Types.VARCHAR, "255", false, true);
@@ -1547,13 +1547,13 @@ public enum GrouperDdl implements DdlVersionable {
             Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "creator_id", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "create_time", 
             Types.BIGINT, "20", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "modifier_id", 
-            Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, ID_SIZE, false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "modify_time", 
             Types.BIGINT, "20", false, false);
@@ -1607,14 +1607,14 @@ public enum GrouperDdl implements DdlVersionable {
             "grouper_types");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "id", 
-            Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, ID_SIZE, true, true);
   
         boolean needsConversion = needsTypesIdConversion(database);
         
         if (needsConversion || buildingToThisVersion) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "type_uuid", 
-              Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, ID_SIZE, false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, typesTable.getName(), 
               "type_uuid_idx", true, "type_uuid");
@@ -1625,7 +1625,7 @@ public enum GrouperDdl implements DdlVersionable {
             Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "creator_uuid", 
-            Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, ID_SIZE, false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "create_time", 
             Types.BIGINT, "20", false, true);
@@ -1666,7 +1666,7 @@ public enum GrouperDdl implements DdlVersionable {
       Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_ddl");
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "id",
-          Types.VARCHAR, "128", true, true);
+          Types.VARCHAR, ID_SIZE, true, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "object_name", 
           Types.VARCHAR, "128", false, false);
@@ -1697,6 +1697,12 @@ public enum GrouperDdl implements DdlVersionable {
    */
   public static final String BAK_GROUPER_ATTRIBUTES = "BAK_GROUPER_ATTRIBUTES";
 
+  /**
+   * size of id cols
+   */
+  public static final String ID_SIZE = "40";
+
+  
   /**
    * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#getVersion()
    */
@@ -4841,7 +4847,7 @@ public enum GrouperDdl implements DdlVersionable {
         Hib3GrouperLoaderLog.TABLE_GROUPER_LOADER_LOG);
  
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderLogTable, COLUMN_CONTEXT_ID, 
-        Types.VARCHAR, "128", false, false);
+        Types.VARCHAR, ID_SIZE, false, false);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Hib3GrouperLoaderLog.TABLE_GROUPER_LOADER_LOG,
         "loader_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4856,7 +4862,7 @@ public enum GrouperDdl implements DdlVersionable {
           Attribute.TABLE_GROUPER_ATTRIBUTES);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Attribute.TABLE_GROUPER_ATTRIBUTES,
           "attribute_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4867,7 +4873,7 @@ public enum GrouperDdl implements DdlVersionable {
           Composite.TABLE_GROUPER_COMPOSITES);
  
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
  
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Composite.TABLE_GROUPER_COMPOSITES,
           "composite_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4878,7 +4884,7 @@ public enum GrouperDdl implements DdlVersionable {
           Field.TABLE_GROUPER_FIELDS);
  
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
  
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Field.TABLE_GROUPER_FIELDS,
           "fields_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4889,7 +4895,7 @@ public enum GrouperDdl implements DdlVersionable {
           Group.TABLE_GROUPER_GROUPS);
  
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
           "group_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4900,7 +4906,7 @@ public enum GrouperDdl implements DdlVersionable {
           GroupTypeTuple.TABLE_GROUPER_GROUPS_TYPES);
  
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTypesTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, GroupTypeTuple.TABLE_GROUPER_GROUPS_TYPES,
           "grouptypetuple_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4911,7 +4917,7 @@ public enum GrouperDdl implements DdlVersionable {
           Member.TABLE_GROUPER_MEMBERS);
  
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Member.TABLE_GROUPER_MEMBERS,
           "member_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4922,7 +4928,7 @@ public enum GrouperDdl implements DdlVersionable {
           Membership.TABLE_GROUPER_MEMBERSHIPS);
  
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, ID_SIZE, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Membership.TABLE_GROUPER_MEMBERSHIPS,
           "membership_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4933,7 +4939,7 @@ public enum GrouperDdl implements DdlVersionable {
           Stem.TABLE_GROUPER_STEMS);
  
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false); 
+          Types.VARCHAR, ID_SIZE, false, false); 
  
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Stem.TABLE_GROUPER_STEMS,
           "stem_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4944,7 +4950,7 @@ public enum GrouperDdl implements DdlVersionable {
           GroupType.TABLE_GROUPER_TYPES);
  
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "128", false, false); 
+          Types.VARCHAR, ID_SIZE, false, false); 
  
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, GroupType.TABLE_GROUPER_TYPES,
           "type_context_idx", false, COLUMN_CONTEXT_ID);
@@ -4968,25 +4974,25 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropIndexes(membershipsTable, Membership.COLUMN_PARENT_MEMBERSHIP);
         
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_GROUP_ID, 
-        Types.VARCHAR, "128", false, false);
+        Types.VARCHAR, ID_SIZE, false, false);
   
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_owner_group_idx", false, Membership.COLUMN_OWNER_GROUP_ID);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_STEM_ID, 
-        Types.VARCHAR, "128", false, false);
+        Types.VARCHAR, ID_SIZE, false, false);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_owner_stem_idx", false, Membership.COLUMN_OWNER_STEM_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ATTR_DEF_ID, 
-        Types.VARCHAR, "128", false, false);
+        Types.VARCHAR, ID_SIZE, false, false);
   
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_owner_attr_idx", false, Membership.COLUMN_OWNER_ATTR_DEF_ID);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_VIA_COMPOSITE_ID, 
-        Types.VARCHAR, "128", false, false);
+        Types.VARCHAR, ID_SIZE, false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_via_composite_idx", false, Membership.COLUMN_VIA_COMPOSITE_ID);
@@ -5250,7 +5256,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "50", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "context_id", 
-          Types.VARCHAR, "128", false, false); 
+          Types.VARCHAR, ID_SIZE, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "created_on", 
           Types.BIGINT, "20", false, false); 
@@ -5259,7 +5265,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.INTEGER, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "id", 
-          Types.VARCHAR, "128", true, true); 
+          Types.VARCHAR, ID_SIZE, true, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int01", 
           Types.VARCHAR, "50", false, false); 
@@ -5313,13 +5319,13 @@ public enum GrouperDdl implements DdlVersionable {
           AuditEntry.TABLE_GROUPER_AUDIT_ENTRY);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "act_as_member_id", Types.VARCHAR, "128", false, false); 
+          "act_as_member_id", Types.VARCHAR, ID_SIZE, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "audit_type_id", Types.VARCHAR, "128", false, true); 
+          "audit_type_id", Types.VARCHAR, ID_SIZE, false, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "context_id", Types.VARCHAR, "128", false, false); 
+          "context_id", Types.VARCHAR, ID_SIZE, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "created_on", Types.BIGINT, "20", false, false); 
@@ -5340,7 +5346,7 @@ public enum GrouperDdl implements DdlVersionable {
           "hibernate_version_number", Types.INTEGER, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "id", Types.VARCHAR, "128", true, true); 
+          "id", Types.VARCHAR, ID_SIZE, true, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "int01", Types.INTEGER, null, false, false); 
@@ -5361,7 +5367,7 @@ public enum GrouperDdl implements DdlVersionable {
           "last_updated", Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "logged_in_member_id", Types.VARCHAR, "128", false, false); 
+          "logged_in_member_id", Types.VARCHAR, ID_SIZE, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "server_host", Types.VARCHAR, "50", false, false); 
@@ -5446,7 +5452,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "50", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "context_id", 
-          Types.VARCHAR, "128", false, false); 
+          Types.VARCHAR, ID_SIZE, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "created_on", 
           Types.BIGINT, "20", false, false); 
@@ -5455,7 +5461,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.INTEGER, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "id", 
-          Types.VARCHAR, "128", true, true); 
+          Types.VARCHAR, ID_SIZE, true, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string01", 
           Types.VARCHAR, "50", false, false); 
@@ -5517,7 +5523,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.BIGINT, "20", false, false); 
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, "id", 
-          Types.VARCHAR, "128", true, true); 
+          Types.VARCHAR, ID_SIZE, true, true); 
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, 
           "hibernate_version_number", Types.INTEGER, null, false, false); 
@@ -5532,10 +5538,10 @@ public enum GrouperDdl implements DdlVersionable {
           ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
-          "change_log_type_id", Types.VARCHAR, "128", false, true); 
+          "change_log_type_id", Types.VARCHAR, ID_SIZE, false, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
-          "context_id", Types.VARCHAR, "128", false, false); 
+          "context_id", Types.VARCHAR, ID_SIZE, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
           "created_on", Types.BIGINT, "20", false, true); 
@@ -5583,10 +5589,10 @@ public enum GrouperDdl implements DdlVersionable {
           ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
-          "change_log_type_id", Types.VARCHAR, "128", false, true); 
+          "change_log_type_id", Types.VARCHAR, ID_SIZE, false, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
-          "context_id", Types.VARCHAR, "128", false, false); 
+          "context_id", Types.VARCHAR, ID_SIZE, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
           "created_on", Types.BIGINT, "20", false, false); 
@@ -5687,13 +5693,13 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE, Types.VARCHAR, "32", false, true, "attr");
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
-          AttributeDef.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+          AttributeDef.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
           AttributeDef.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
-          AttributeDef.COLUMN_CREATOR_ID, Types.VARCHAR, "128", false, false);
+          AttributeDef.COLUMN_CREATOR_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable, AttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, "12", false, false);
@@ -5702,7 +5708,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDef.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
-          AttributeDef.COLUMN_ID, Types.VARCHAR, "128", true, true);
+          AttributeDef.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
           AttributeDef.COLUMN_DESCRIPTION, Types.VARCHAR, "1024", false, false);
@@ -5720,7 +5726,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDef.COLUMN_MULTI_VALUED, Types.VARCHAR, "1", false, true, "F");
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
-          AttributeDef.COLUMN_STEM_ID, Types.VARCHAR, "128", false, true);
+          AttributeDef.COLUMN_STEM_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
           AttributeDef.COLUMN_VALUE_TYPE, Types.VARCHAR, "32", false, true, "marker");
@@ -5775,7 +5781,7 @@ public enum GrouperDdl implements DdlVersionable {
           database, AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
-          AttributeDefName.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+          AttributeDefName.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
           AttributeDefName.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
@@ -5788,7 +5794,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefName.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
-          AttributeDefName.COLUMN_ID, Types.VARCHAR, "128", true, true);
+          AttributeDefName.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
           AttributeDefName.COLUMN_DESCRIPTION, Types.VARCHAR, "1024", false, false);
@@ -5800,10 +5806,10 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefName.COLUMN_NAME, Types.VARCHAR, "1024", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
-          AttributeDefName.COLUMN_STEM_ID, Types.VARCHAR, "128", false, true);
+          AttributeDefName.COLUMN_STEM_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
-          AttributeDefName.COLUMN_ATTRIBUTE_DEF_ID, Types.VARCHAR, "128", false, true);
+          AttributeDefName.COLUMN_ATTRIBUTE_DEF_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
           AttributeDefName.COLUMN_DISPLAY_EXTENSION, Types.VARCHAR, "128", false, true);
@@ -5827,10 +5833,10 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID, Types.VARCHAR, "40", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
+          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssign.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
           AttributeAssign.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
@@ -5848,7 +5854,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_ID, Types.VARCHAR, "128", true, true);
+          AttributeAssign.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
           AttributeAssign.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
@@ -5863,22 +5869,22 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_TYPE, Types.VARCHAR, "15", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_OWNER_GROUP_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssign.COLUMN_OWNER_GROUP_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_OWNER_MEMBER_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssign.COLUMN_OWNER_MEMBER_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_OWNER_STEM_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssign.COLUMN_OWNER_STEM_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
           "attribute_asgn_attr_name_idx", false, 
@@ -5915,10 +5921,10 @@ public enum GrouperDdl implements DdlVersionable {
           database, AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
-          AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, Types.VARCHAR, "128", false, true);
+          AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
-          AttributeAssignValue.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssignValue.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
           AttributeAssignValue.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
@@ -5927,7 +5933,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssignValue.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
-          AttributeAssignValue.COLUMN_ID, Types.VARCHAR, "128", true, true);
+          AttributeAssignValue.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
           AttributeAssignValue.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
@@ -5939,7 +5945,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssignValue.COLUMN_VALUE_STRING, Types.VARCHAR, "4000", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
-          AttributeAssignValue.COLUMN_VALUE_MEMBER_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssignValue.COLUMN_VALUE_MEMBER_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
           "attribute_val_assign_idx", false, 
@@ -5968,10 +5974,10 @@ public enum GrouperDdl implements DdlVersionable {
           database, AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
-          AttributeDefScope.COLUMN_ATTRIBUTE_DEF_ID, Types.VARCHAR, "128", false, true);
+          AttributeDefScope.COLUMN_ATTRIBUTE_DEF_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
-          AttributeDefScope.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+          AttributeDefScope.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
           AttributeDefScope.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
@@ -5980,7 +5986,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefScope.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
-          AttributeDefScope.COLUMN_ID, Types.VARCHAR, "128", true, true);
+          AttributeDefScope.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
           AttributeDefScope.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
@@ -6005,7 +6011,7 @@ public enum GrouperDdl implements DdlVersionable {
           database, AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
-          AttributeDefNameSet.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+          AttributeDefNameSet.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
           AttributeDefNameSet.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
@@ -6014,7 +6020,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefNameSet.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
-          AttributeDefNameSet.COLUMN_ID, Types.VARCHAR, "128", true, true);
+          AttributeDefNameSet.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
           AttributeDefNameSet.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
@@ -6023,13 +6029,13 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefNameSet.COLUMN_DEPTH, Types.BIGINT, "10", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
-          AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
+          AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
-          AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
+          AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
-          AttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, Types.VARCHAR, "128", false, false);
+          AttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
           AttributeDefNameSet.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
@@ -6086,7 +6092,7 @@ public enum GrouperDdl implements DdlVersionable {
           database, AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
-          AttributeAssignActionSet.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+          AttributeAssignActionSet.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
           AttributeAssignActionSet.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
@@ -6095,7 +6101,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssignActionSet.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
-          AttributeAssignActionSet.COLUMN_ID, Types.VARCHAR, "128", true, true);
+          AttributeAssignActionSet.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(actionSetTable,
           AttributeAssignActionSet.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
@@ -6136,7 +6142,7 @@ public enum GrouperDdl implements DdlVersionable {
           database, RoleSet.TABLE_GROUPER_ROLE_SET);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
-          RoleSet.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+          RoleSet.COLUMN_CONTEXT_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
           RoleSet.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
@@ -6145,7 +6151,7 @@ public enum GrouperDdl implements DdlVersionable {
           RoleSet.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
-          RoleSet.COLUMN_ID, Types.VARCHAR, "128", true, true);
+          RoleSet.COLUMN_ID, Types.VARCHAR, ID_SIZE, true, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
           RoleSet.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
@@ -6154,13 +6160,13 @@ public enum GrouperDdl implements DdlVersionable {
           RoleSet.COLUMN_DEPTH, Types.BIGINT, "10", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
-          RoleSet.COLUMN_IF_HAS_ROLE_ID, Types.VARCHAR, "128", false, true);
+          RoleSet.COLUMN_IF_HAS_ROLE_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
-          RoleSet.COLUMN_THEN_HAS_ROLE_ID, Types.VARCHAR, "128", false, true);
+          RoleSet.COLUMN_THEN_HAS_ROLE_ID, Types.VARCHAR, ID_SIZE, false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
-          RoleSet.COLUMN_PARENT_ROLE_SET_ID, Types.VARCHAR, "128", false, false);
+          RoleSet.COLUMN_PARENT_ROLE_SET_ID, Types.VARCHAR, ID_SIZE, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(roleSetTable,
           RoleSet.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
