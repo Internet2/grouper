@@ -113,11 +113,13 @@ public class GrouperServiceJ2ee implements Filter {
     Principal principal = httpServletRequest.getUserPrincipal();
     String principalName = null;
     if (principal == null) {
-      principalName = (String)httpServletRequest.getAttribute("REMOTE_USER");
+      principalName = httpServletRequest.getRemoteUser();
+      if (StringUtils.isBlank(principalName)) {
+        principalName = (String)httpServletRequest.getAttribute("REMOTE_USER");
+      }
     } else {
       principalName = principal.getName();
     }
-    
     GrouperUtil.assertion(StringUtils.isNotBlank(principalName),
         "There is no user logged in, make sure the container requires authentication");
     return principalName;
