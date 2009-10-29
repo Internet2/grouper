@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.223 2009-10-19 14:12:35 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.224 2009-10-29 18:16:54 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -283,13 +283,48 @@
       </fileset>
     </copy>
 
-    <mkdir dir="${dist.binary.zip}/lib/test/ldappc"/>
-    <copy todir="${dist.binary.zip}/lib/test/ldappc">
-    	<fileset dir="${lib.dir}/test/ldappc">
+    <mkdir dir="${dist.binary.zip}/lib/ldappc"/>
+    <copy todir="${dist.binary.zip}/lib/ldappc">
+    	<fileset dir="${lib.dir}/ldappc">
     		<include name="*.jar"/>
     	</fileset>
     </copy>
-  
+  	
+    <mkdir dir="${dist.binary.zip}/lib/apacheds"/>
+    <copy todir="${dist.binary.zip}/lib/apacheds">
+    	<fileset dir="${lib.dir}/apacheds">
+    		<include name="*.jar"/>
+    	</fileset>
+    </copy>
+  	  
+    <mkdir dir="${dist.binary.zip}/lib/shibboleth"/>
+    <copy todir="${dist.binary.zip}/lib/shibboleth">
+      <fileset dir="${lib.dir}/shibboleth">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+  	
+    <mkdir dir="${dist.binary.zip}/lib/shibboleth/endorsed"/>
+    <copy todir="${dist.binary.zip}/lib/shibboleth/endorsed">
+      <fileset dir="${lib.dir}/shibboleth/endorsed">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+  	
+  	<mkdir dir="${dist.binary.zip}/lib/vt-ldap"/>
+    <copy todir="${dist.binary.zip}/lib/vt-ldap">
+    	<fileset dir="${lib.dir}/vt-ldap">
+    		<include name="*.jar"/>
+    	</fileset>
+    </copy>
+
+    <mkdir dir="${dist.binary.zip}/lib/test/shibboleth"/>
+    <copy todir="${dist.binary.zip}/lib/test/shibboleth">
+      <fileset dir="${lib.dir}/test/shibboleth">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+  	
    <!--<mkdir dir="${dist.binary.zip}/lib/test"/>
     <copy todir="${dist.binary.zip}/lib/test">
       <fileset dir="${lib.dir}/test">
