@@ -111,9 +111,16 @@ public class GrouperServiceJ2ee implements Filter {
         .assertion(httpServletRequest != null,
             "HttpServletRequest is null, is the GrouperServiceServlet mapped in the web.xml?");
     Principal principal = httpServletRequest.getUserPrincipal();
-    GrouperUtil.assertion(principal != null,
+    String principalName = null;
+    if (principal == null) {
+      principalName = (String)httpServletRequest.getAttribute("REMOTE_USER");
+    } else {
+      principalName = principal.getName();
+    }
+    
+    GrouperUtil.assertion(StringUtils.isNotBlank(principalName),
         "There is no user logged in, make sure the container requires authentication");
-    return principal.getName();
+    return principalName;
   }
 
   /**
@@ -255,7 +262,7 @@ public class GrouperServiceJ2ee implements Filter {
   }
 
   /**
-   * @return
+   * @return act as cache minutes
    */
   private static int actAsCacheMinutes() {
     int actAsTimeoutMinutes = GrouperWsConfig.getPropertyInt(
