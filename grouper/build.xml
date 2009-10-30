@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.225 2009-10-30 03:53:07 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.226 2009-10-30 14:53:31 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -425,8 +425,14 @@
       </fileset>
     </copy>
 
+  	<copy toDir="${dist.binary.zip}/conf" file="${conf.dir}/ldappc.schema.xsd" />
   	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/ldappc.schema" />
   	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/kitneduperson.schema" />
+  	
+  	<mkdir dir="${dist.binary.zip}/resources/test"/>
+  	<copy todir="${dist.binary.zip}/resources/test">
+      <fileset dir="${resources.dir}/test"/>        
+    </copy>
     
      <if>
       <not>
@@ -500,6 +506,11 @@
         <attribute name="Implementation-URL"      value="${impl.url}"/>
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
+      <!-- include src/resources/schema and src/resources/META-INF -->
+      <fileset dir="${resources.dir}">
+        <include name="META-INF/*" />
+        <include name="schema/*" />
+      </fileset>
     </jar>
     <copy file="${dist.dir}/lib/${app.name}-${DSTAMP}.jar"   
           tofile="${dist.dir}/lib/${app.name}.jar" 
