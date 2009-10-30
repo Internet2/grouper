@@ -194,6 +194,7 @@
 			<xs:attribute name="initial-cache-size" use="optional" type="xs:integer" />
             <xs:attribute name="create-then-modify-members" type="xs:boolean" />
             <xs:attribute name="provision-member-groups" type="xs:boolean" />
+            <xs:attribute name="provision-member-groups-ignore-queries" type="xs:boolean" />
             <xs:attribute name="provision-groups-two-step" type="xs:boolean" />
             <xs:attribute name="bundle-modifications" type="xs:boolean" />
         </xs:complexType>

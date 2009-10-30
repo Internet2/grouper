@@ -43,6 +43,8 @@ import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
@@ -351,7 +353,7 @@ public class GroupEntrySynchronizer {
     initialize();
 
     for (Group group : groups) {
-      performInclude(group, ldappc.determineStatus(group));
+      performInclude(group, ldappc.determineStatus(group), groups);
     }
 
     commit();
@@ -365,7 +367,7 @@ public class GroupEntrySynchronizer {
    * @throws LdappcException
    * @throws NamingException
    */
-  public String calculateLdif(Group group) throws LdappcException, NamingException {
+  public String calculateLdif(Group group, Set<Group> groups) throws LdappcException, NamingException {
 
     initializeInclude(group);
 
@@ -374,7 +376,7 @@ public class GroupEntrySynchronizer {
     Rdn rdn = new Rdn(groupDn.get(groupDn.size() - 1));
     rdnMods.store(rdn.getValue().toString());
 
-    storeGroupData(group);
+    storeGroupData(group, groups);
 
     BasicAttributes attributes = new BasicAttributes(true);
 
@@ -425,7 +427,7 @@ public class GroupEntrySynchronizer {
    * @throws LdappcException
    *           thrown if an error occurs
    */
-  protected void performInclude(Group group, int status) throws NamingException,
+  protected void performInclude(Group group, int status, Set<Group> groups) throws NamingException,
       LdappcException {
     // DebugLog.info("Starting include of group " + group.getName());
 
@@ -452,13 +454,13 @@ public class GroupEntrySynchronizer {
         //
         if (status == Ldappc.STATUS_NEW || status == Ldappc.STATUS_MODIFIED
             || status == Ldappc.STATUS_UNKNOWN) {
-          updateGroupEntry(groupDn, group);
+          updateGroupEntry(groupDn, group, groups);
         }
       } else {
         //
         // Add the group entry
         //
-        addGroupEntry(groupDn, group);
+        addGroupEntry(groupDn, group, groups);
 
       }
 
@@ -493,7 +495,7 @@ public class GroupEntrySynchronizer {
    * @throws NamingException
    *           thrown if a Naming exception occurs
    */
-  protected void updateGroupEntry(Name groupDn, Group group) throws NamingException {
+  protected void updateGroupEntry(Name groupDn, Group group, Set<Group> groups) throws NamingException {
     //
     // Store the values from the current entry
     //
@@ -502,7 +504,7 @@ public class GroupEntrySynchronizer {
     //
     // Store the values from the current entry in order to update
     //
-    storeGroupData(group);
+    storeGroupData(group, groups);
 
     //
     // Build a vector to hold all of the modifiers
@@ -707,7 +709,7 @@ public class GroupEntrySynchronizer {
    * @throws NamingException
    *           thrown if a naming error occurs
    */
-  protected void storeGroupData(Group group) throws NamingException, LdappcException {
+  protected void storeGroupData(Group group, Set<Group> groups) throws NamingException, LdappcException {
     //
     // Store the object class data for the group entry.
     //
@@ -740,6 +742,26 @@ public class GroupEntrySynchronizer {
           //
           LOG.warn("Subject not found", snfe);
           continue;
+        }
+        
+        //
+        // If we are not ignoring group-queries (the default) and the member is a group,
+        // don't include the member group if that group is not included in the set of
+        // groups to be provisioned, e.g. group-queries. In other words, only provision
+        // member groups if those groups are included in group-queries.
+        //
+        if (!ldappc.getConfig().getProvisionMemberGroupsIgnoreQueries()
+            && subject.getSourceId().equals(SubjectFinder.internal_getGSA().getId())) {
+          try {
+            Group memberGroup = member.toGroup();
+            if (!groups.contains(memberGroup)) {
+              LOG.debug("Ignoring member group not in group-queries " + memberGroup);
+              continue;
+            }
+          } catch (GroupNotFoundException e) {
+            LOG.warn("Unable to find group for member " + member, e);
+            continue;
+          }
         }
 
         //
@@ -990,11 +1012,11 @@ public class GroupEntrySynchronizer {
    * @throws NamingException
    *           Thrown if a naming exception occurs.
    */
-  protected void addGroupEntry(Name groupDn, Group group) throws NamingException {
+  protected void addGroupEntry(Name groupDn, Group group, Set<Group> groups) throws NamingException {
     //
     // Get the group data
     //
-    storeGroupData(group);
+    storeGroupData(group, groups);
 
     //
     // Build list of attribute modifiers possibly holding data

@@ -436,7 +436,7 @@ public final class Ldappc extends TimerTask {
 
       // groups
       for (Group group : groups) {
-        writer.write(synchronizer.calculateLdif(group) + "\n");
+        writer.write(synchronizer.calculateLdif(group, groups) + "\n");
       }
     }
 
