@@ -371,7 +371,7 @@ public interface LdappcConfig {
    * Returns true if groups should be provisioned in two steps. The first step provisions
    * all groups without any members. The second step provisions all groups with members.
    * If false, LDAPPC will log errors when provisioning groups which have other groups as
-   * members which have not been provisioned yet.
+   * members which have not been provisioned yet. True by default.
    * 
    * @return true if groups should be provisioned in two steps.
    */
@@ -380,7 +380,7 @@ public interface LdappcConfig {
   /**
    * Returns true if a group's attribute modifications should be performed in one LDAP
    * operation. If false, each group attribute modification is performed as a separate
-   * LDAP operation.
+   * LDAP operation. True by default.
    * 
    * @return true if attribute modifications should be bundled
    */

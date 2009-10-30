@@ -138,40 +138,39 @@ public class LdappcOptions {
    */
   private Options options = new Options();
 
-  private Option subjectOption = new Option("s", "subject", true,
-      "The id of the subject used to establish the Grouper session");
+  private Option subjectOption = new Option("subject", true,
+      "The SubjectId used to establish Grouper API sessions. Defaults to GrouperSystem.");
 
-  private Option groupsOption = new Option("g", "groups", false, "Provision groups");
+  private Option groupsOption = new Option("groups", false, "Provision groups.");
 
-  private Option membershipsOption = new Option("m", "memberships", false,
-      "Provision memberships");
+  private Option membershipsOption = new Option("memberships", false,
+      "Provision memberships.");
 
-  private Option lastModifyTimeOption = new Option("l", "lastModifyTime", true,
-      "Only select objects changed after this time");
+  private Option lastModifyTimeOption = new Option("lastModifyTime", true,
+      "Select objects changed since this time.");
 
-  private Option configManagerOption = new Option("c", "configManager", true,
-      "Location of substitute configuration file, other than default, ldappc.xml");
+  private Option configManagerOption = new Option("configManager", true,
+      "Path to configuration file. Defaults to classpath resource ldappc.xml.");
 
-  private Option propertiesFileOption = new Option("p", "properties", true,
-      "Location of substitute properties file, other than default, ldappc.properties");
+  private Option propertiesFileOption = new Option("properties", true,
+      "Path to properties file. Defaults to classpath resource ldappc.properties.");
 
   private Option intervalOption = new Option(
-      "i",
       "interval",
       true,
       "Number of seconds between provisioning cycles. If omitted, only one provisioning cycle is performed.");
 
-  private Option calculateOption = new Option("calc", "calculate", true,
+  private Option calculateOption = new Option("calc", true,
       "Calculate provisioning and write to file.");
 
-  private Option dryRunOption = new Option("n", "dry-run", true,
-      "Do not perform provisioning, just write changes to file.");
+  private Option dryRunOption = new Option("dryRun", true,
+      "Write provisioning changes to file only, do not provision changes.");
 
   private Option logLdifOption = new Option("logLDIF", false,
       "While provisioning, log changes in LDIF format.");
 
-  private Option attributeResolverLocationOption = new Option("r", "resolver", true,
-      "Location of Attribute Resolver configuration files.");
+  private Option attributeResolverLocationOption = new Option("resolver", true,
+      "Path to directory containing Shibboleth Attribute Resolver configuration files.");
 
   public LdappcOptions() {
 
