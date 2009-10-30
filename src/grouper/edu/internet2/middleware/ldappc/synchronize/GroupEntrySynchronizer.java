@@ -897,7 +897,7 @@ public class GroupEntrySynchronizer {
           //
           BaseAttribute baseAttribute = attributes.get(resolverAttribute);
           if (baseAttribute == null) {
-            LOG.warn("No attribute was returned from the resolver for '{}'",
+            LOG.debug("No attribute was returned from the resolver for '{}'",
                 resolverAttribute);
             continue;
           }
