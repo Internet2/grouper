@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: JDBCSourceAdapter2.java,v 1.4 2009-09-02 05:57:26 mchyzer Exp $
+ * @author mchyzer $Id: JDBCSourceAdapter2.java,v 1.5 2009-10-30 12:54:06 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
@@ -33,6 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
@@ -86,6 +87,9 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * cols which are selected in queries
    */
   private Set<String> selectCols = new LinkedHashSet<String>();
+
+  /** if there is a limit to the number of results */
+  private Integer maxResults;
 
   /**
    * map of col to attribute name
@@ -264,7 +268,16 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         return;
       }
     }
-
+    {
+      String maxResultsString = props.getProperty("maxResults");
+      if (!StringUtils.isBlank(maxResultsString)) {
+        try {
+          this.maxResults = Integer.parseInt(maxResultsString);
+        } catch (NumberFormatException nfe) {
+          throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+        }
+      }
+    }
   }
 
   /**
@@ -529,6 +542,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * @param query is query to run, prepared statement args should be question marks
    * @param args are the prepared statement args
    * @param expectSingle true if expecting one answer
+   * @param exceptionIfNull 
    * @return subjects or empty set if none or null if expect one and no results and not exception on null
    * @throws SubjectNotFoundException if expecting one and not found
    * @throws SubjectNotUniqueException
@@ -568,6 +582,13 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       while (rs.next()) {
         Subject subject = createSubject(rs, query);
         results.add(subject);
+        
+        if (this.maxResults != null && results.size() > this.maxResults) {
+          throw new SubjectTooManyResults(
+              "More results than allowed: " + this.maxResults 
+              + " for search '" + query + "'");
+        }
+
       }
 
       jdbcConnectionBean.doneWithConnection();
