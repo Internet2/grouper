@@ -30,13 +30,14 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 
 
 /**
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.44 2009-08-12 00:22:28 tzeller Exp $
+ * @version $Id: SubjectFinder.java,v 1.45 2009-10-30 12:39:26 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -302,6 +303,7 @@ public class SubjectFinder {
    * </pre>
    * @param   query     Subject query string.
    * @return  A {@link Set} of {@link Subject} objects.
+   * @throws SubjectTooManyResults if more results than configured
    */
   public static Set<Subject> findAll(String query) {
     return getResolver().findAll(query);
