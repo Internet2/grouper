@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.224 2009-10-29 18:16:54 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.225 2009-10-30 03:53:07 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -416,8 +416,6 @@
     <copy file="${dist.binary.zip}/conf/server.example.properties" tofile="${dist.binary.zip}/conf/server.properties" />
     <copy file="${dist.binary.zip}/conf/sources.example.xml" tofile="${dist.binary.zip}/conf/sources.xml" />
     <copy file="${dist.binary.zip}/conf/spy.example.properties" tofile="${dist.binary.zip}/conf/spy.properties" />
-  	<copy file="${dist.binary.zip}/conf/ldappc.example.properties" tofile="${dist.binary.zip}/conf/ldappc.properties" />
-  	<copy file="${dist.binary.zip}/conf/ldappc.example.xml" tofile="${dist.binary.zip}/conf/ldappc.example.xml" />
     
     <mkdir dir="${dist.binary.zip}/api"/>
     <mkdir dir="${dist.dir.javadoc}" />
