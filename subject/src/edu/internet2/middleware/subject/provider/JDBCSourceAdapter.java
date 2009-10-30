@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.21 2009-09-02 05:40:10 mchyzer Exp $
-$Date: 2009-09-02 05:40:10 $
+$Id: JDBCSourceAdapter.java,v 1.22 2009-10-30 12:35:29 mchyzer Exp $
+$Date: 2009-10-30 12:35:29 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -31,6 +31,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
@@ -53,6 +54,9 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   /** subject type string */
   protected String subjectTypeString;
 
+  /** if there is a limit to the number of results */
+  protected Integer maxResults;
+  
   /** keep a reference to the object which gets our connections for us */
   protected JdbcConnectionProvider jdbcConnectionProvider = null;
 
@@ -180,6 +184,11 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       while (rs.next()) {
         Subject subject = createSubject(rs, search.getParam("sql"));
         result.add(subject);
+        if (this.maxResults != null && result.size() > this.maxResults) {
+          throw new SubjectTooManyResults(
+              "More results than allowed: " + this.maxResults 
+              + " for search '" + search + "'");
+        }
       }
       jdbcConnectionBean.doneWithConnection();
     } catch (InvalidQueryException nqe) {
@@ -518,6 +527,15 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     if (this.descriptionAttributeName == null) {
       throw new SourceUnavailableException(
           "Description_AttributeType not defined, source: " + this.getId());
+    }
+    
+    String maxResultsString = props.getProperty("maxResults");
+    if (!StringUtils.isBlank(maxResultsString)) {
+      try {
+        this.maxResults = Integer.parseInt(maxResultsString);
+      } catch (NumberFormatException nfe) {
+        throw new RuntimeException("Cant parse maxResults: " + maxActiveString, nfe);
+      }
     }
   }
 

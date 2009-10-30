@@ -17,15 +17,17 @@ package edu.internet2.middleware.subject.provider;
 
 import java.util.Set;
 
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
@@ -123,7 +125,7 @@ public class JDBCSourceAdapterTest extends TestCase {
                 + "like '%'||?||'%') or (lower(loginidt.loginid) like '%'||?||'%') or "
                 + "(lower(desct.description) like '%'||?||'%')");
     this.source.loadSearch(search);
-
+    this.source.addSubjectType(SubjectTypeEnum.PERSON.getName());
     try {
       this.source.init();
     } catch (SourceUnavailableException e) {
@@ -136,8 +138,8 @@ public class JDBCSourceAdapterTest extends TestCase {
    * @param args 
    */
   public static void main(String args[]) {
-    TestRunner.run(JDBCSourceAdapterTest.class);
-    //TestRunner.run(new JDBCSourceAdapterTest("testGenericSearchThread"));
+    //TestRunner.run(JDBCSourceAdapterTest.class);
+    TestRunner.run(new JDBCSourceAdapterTest("testTooManyResults"));
   }
 
   /**
@@ -260,6 +262,39 @@ public class JDBCSourceAdapterTest extends TestCase {
 
   }
 
+  /**
+   * test too many results
+   */
+  public void testTooManyResults() {
+    
+    Set<Subject> set = null;
+    Subject subject = null;
+    
+    this.source.addInitParam("maxResults", "3");
+    
+    try {
+      this.source.init();
+    } catch (SourceUnavailableException e) {
+      fail("JDBCSourceAdapter not available: " + ExceptionUtils.getFullStackTrace(e));
+    }
+
+    try {
+      set = this.source.search("%e%");
+      fail("Should not get here");
+    } catch (SubjectTooManyResults e) {
+      //good
+    }
+    
+    
+    
+    set = this.source.search("babl");
+    assertEquals("Searching value = babl, result size", 1, set
+        .size());
+    subject = set.toArray(new Subject[0])[0];
+    assertEquals("Searching value = babl", "1012", subject
+        .getId());
+  }
+  
   /**
    * A test of Subject search capability.
    * @param jdbcConnectionProvider 
