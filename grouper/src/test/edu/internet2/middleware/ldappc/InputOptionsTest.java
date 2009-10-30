@@ -173,7 +173,7 @@ public class InputOptionsTest extends TestCase {
   }
 
   public void testInputOptionsCalculate() {
-    String[] args = { "-g", "-calc", "filename" };
+    String[] args = { "-groups", "-calc", "filename" };
     try {
       inputOptions = new LdappcOptions(args);
       assertEquals(ProvisioningMode.CALCULATE, inputOptions.getMode());
@@ -184,7 +184,7 @@ public class InputOptionsTest extends TestCase {
   }
 
   public void testInputOptionsDryRun() {
-    String[] args = { "-g", "-n", "filename" };
+    String[] args = { "-groups", "-dryRun", "filename" };
     try {
       inputOptions = new LdappcOptions(args);
       assertEquals(ProvisioningMode.DRYRUN, inputOptions.getMode());
@@ -195,7 +195,7 @@ public class InputOptionsTest extends TestCase {
   }
 
   public void testInputOptionsProvision() {
-    String[] args = { "-g" };
+    String[] args = { "-groups" };
     try {
       inputOptions = new LdappcOptions(args);
       assertEquals(ProvisioningMode.PROVISION, inputOptions.getMode());
@@ -207,7 +207,7 @@ public class InputOptionsTest extends TestCase {
   public void testInputOptionsConfigFile() {
     String path = GrouperUtil.fileFromResourceName(BaseLdappcTestCase.CONFIG_RESOURCE)
         .getAbsolutePath();
-    String[] args = { "-g", "-c", path };
+    String[] args = { "-groups", "-configManager", path };
     try {
       inputOptions = new LdappcOptions(args);
       assertEquals(path, inputOptions.getConfigManagerLocation());
@@ -220,7 +220,7 @@ public class InputOptionsTest extends TestCase {
   public void testInputOptionsPropertiesFile() {
     String path = GrouperUtil
         .fileFromResourceName(BaseLdappcTestCase.PROPERTIES_RESOURCE).getAbsolutePath();
-    String[] args = { "-g", "-p", path };
+    String[] args = { "-groups", "-properties", path };
     try {
       inputOptions = new LdappcOptions(args);
       assertEquals(path, inputOptions.getPropertiesFileLocation());
