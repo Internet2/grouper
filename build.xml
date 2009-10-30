@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.226 2009-10-30 14:53:31 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.227 2009-10-30 15:15:05 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -425,7 +425,6 @@
       </fileset>
     </copy>
 
-  	<copy toDir="${dist.binary.zip}/conf" file="${conf.dir}/ldappc.schema.xsd" />
   	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/ldappc.schema" />
   	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/kitneduperson.schema" />
   	

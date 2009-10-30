@@ -19,6 +19,10 @@
   <!-- 
   <import namespace="urn:oasis:names:tc:SPML:2:0:DSML" schemaLocation="classpath:/schema/pstc_spmlv2_dsml.xsd" />
  -->
+ 
+  <annotation>
+    <documentation>Experimental Schema for the next version of LDAPPC</documentation>
+  </annotation>
 
   <complexType name="ProvisioningServiceProvider">
     <complexContent>
