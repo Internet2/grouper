@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.4 2009-10-11 22:04:17 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.5 2009-10-30 12:41:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -257,7 +257,7 @@ public class SimpleMembershipUpdate {
         members = retrieveMembersNoFilter(guiPaging, group);
         
       } else {
-        members = new SimpleMembershipUpdateFilter().retrieveMembersFilter(guiPaging, group, simpleMembershipFilterMember); 
+        members = new SimpleMembershipUpdateFilter().retrieveMembersFilter(guiPaging, group, simpleMembershipFilterMember, null); 
       }      
         
       GuiMember[] guiMembers = new GuiMember[members.size()];

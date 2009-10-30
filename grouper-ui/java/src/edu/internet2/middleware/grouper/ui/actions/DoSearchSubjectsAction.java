@@ -38,10 +38,12 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -115,7 +117,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.12 2009-04-13 03:18:40 mchyzer Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.13 2009-10-30 12:41:54 mchyzer Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 
@@ -163,20 +165,25 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		
 		String searchTerm = (String) searchForm.get("searchTerm");
 		
-		if ((searchTerm != null) && (!searchTerm.equals(""))) {
-			if("all".equals(sourceId)) {
-				results=SubjectFinder.findAll(searchTerm);
-			}else{
-				
-					Source source = sm.getSource(sourceId);
-					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
-					String processedSearchTerm = processSearchTerm.processSearchTerm(source, searchTerm, request);
-					results = source.search(processedSearchTerm);
-				
-			}
-		} else {
-			results = new LinkedHashSet();
+		results = new LinkedHashSet();
+		
+		try {
+  		if ((searchTerm != null) && (!searchTerm.equals(""))) {
+  			if("all".equals(sourceId)) {
+  				results=SubjectFinder.findAll(searchTerm);
+  			}else{
+  				
+  					Source source = sm.getSource(sourceId);
+  					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
+  					String processedSearchTerm = processSearchTerm.processSearchTerm(source, searchTerm, request);
+  					results = source.search(processedSearchTerm);
+  				
+  			}
+  		}
+		} catch (SubjectTooManyResults stmr) {
+		  session.setAttribute("sessionMessage",new Message("error.too.many.subject.results",true));
 		}
+		
 		Iterator it = results.iterator();
 		Subject subj;
 		

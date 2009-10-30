@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateFilter.java,v 1.4 2009-10-11 22:04:17 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateFilter.java,v 1.5 2009-10-30 12:41:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 
 
 /**
@@ -146,6 +147,7 @@ public class SimpleMembershipUpdateFilter {
       StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
       boolean notEnoughChars = false;
       //minimum input length
+      boolean[] tooManyResults = new boolean[]{false};
       if (StringUtils.defaultString(searchTerm).length() < 3) {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterChars"), null);
         notEnoughChars = true;
@@ -154,7 +156,7 @@ public class SimpleMembershipUpdateFilter {
         guiPaging.setPageNumber(1);
         int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleMembershipUpdate.subjectComboboxResultSize", 50);
         guiPaging.setPageSize(maxSubjectsDropDown);
-        Set<Member> members = retrieveMembersFilter(guiPaging, group, searchTerm);
+        Set<Member> members = retrieveMembersFilter(guiPaging, group, searchTerm, tooManyResults);
         subjects = GrouperUiUtils.convertMembersToSubject(members);
       }
       
@@ -170,7 +172,7 @@ public class SimpleMembershipUpdateFilter {
       int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
       
       //this might not be correct, but probably is
-      if (!notEnoughChars && GrouperUtil.length(subjects) == maxSubjectsSort) {
+      if (tooManyResults[0] || (!notEnoughChars && GrouperUtil.length(subjects) == maxSubjectsSort)) {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
             "bullet_error.png");
       } else if (!notEnoughChars && GrouperUtil.length(subjects) == 0) {
@@ -217,20 +219,24 @@ public class SimpleMembershipUpdateFilter {
       QueryPaging queryPaging = null;
       
       //minimum input length
+      boolean tooManyResults = false;
       if (StringUtils.defaultString(searchTerm).length() < 2) {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughSubjectChars"), null);
       } else {
-        subjects = SubjectFinder.findAll(searchTerm);
+        try {
+          subjects = SubjectFinder.findAll(searchTerm);
+          
+          String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
+          int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
+    
+          queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
         
-        String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
-        int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
-  
-        queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
-        
-        //sort and page the results
-        subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
-        
+          //sort and page the results
+          subjects = GrouperUiUtils.subjectsSortedPaged(subjects, queryPaging);
+        } catch (SubjectTooManyResults stmr) {
+          tooManyResults = true;
+        }
       }
       
       //convert to XML for DHTMLX
@@ -244,7 +250,7 @@ public class SimpleMembershipUpdateFilter {
       }
   
       //maybe add one more if we hit the limit
-      if (queryPaging != null && GrouperUtil.length(subjects) < queryPaging.getTotalRecordCount()) {
+      if (tooManyResults || queryPaging != null && GrouperUtil.length(subjects) < queryPaging.getTotalRecordCount()) {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
             "bullet_error.png");
       } else if (GrouperUtil.length(subjects) == 0) {
@@ -272,11 +278,12 @@ public class SimpleMembershipUpdateFilter {
    * @param guiPaging
    * @param group
    * @param filterString filter by this string (could be sourceId__subjectId
+   * @param tooManyResultsArray array of size one to pass back too many results
    * @return the set of members
    * @throws SchemaException
    */
   @SuppressWarnings("unchecked")
-  Set<Member> retrieveMembersFilter(GuiPaging guiPaging, Group group, String filterString)
+  Set<Member> retrieveMembersFilter(GuiPaging guiPaging, Group group, String filterString, boolean[] tooManyResultsArray)
       throws SchemaException {
     Set<Member> members = new LinkedHashSet<Member>();
     
@@ -312,9 +319,16 @@ public class SimpleMembershipUpdateFilter {
     if (!filterByOneSubject) {
       //show filter string on screen
       simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
-  
-      subjects = SubjectFinder.findAll(filterString);
-      if (GrouperUtil.length(subjects) > TagUtils.mediaResourceInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
+      boolean tooManyResults = false;
+      try {
+        subjects = SubjectFinder.findAll(filterString);
+      } catch (SubjectTooManyResults stmr) {
+        tooManyResults = true;
+      }
+      if (tooManyResults || GrouperUtil.length(subjects) > TagUtils.mediaResourceInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
+        if (GrouperUtil.length(tooManyResultsArray) > 0) {
+          tooManyResultsArray[0] = true;
+        }
         simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
         guiResponseJs.addAction(GuiScreenAction.newAlert(
             GrouperUiUtils.message("simpleMembershipUpdate.errorMemberFilterTooManyResults")));

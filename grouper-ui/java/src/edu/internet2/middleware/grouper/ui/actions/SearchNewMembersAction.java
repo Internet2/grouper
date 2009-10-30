@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
@@ -51,6 +52,7 @@ import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -188,7 +190,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.12 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.13 2009-10-30 12:41:54 mchyzer Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -274,24 +276,28 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			//Do search  + get page worth of results
 			Set results = null;
 			
-			if ((query != null) && (!query.equals(""))) {
-				if("all".equals(subjectSource)) {
-					results = SubjectFinder.findAll(query);
-				}else{
-					SourceManager sm= SourceManager.getInstance();
-					Source personSourceImpl = sm.getSource(subjectSource);
-					
-					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
-					String processedSearchTerm = processSearchTerm.processSearchTerm(personSourceImpl, query, request);
-					
-					results = personSourceImpl.search(processedSearchTerm);
-				}
-			} else {
-				results = new LinkedHashSet();
-			}
-			subjectRes = GrouperHelper.subjects2Maps(results.toArray());
-			resultSize = subjectRes.size();
-		}
+
+      results = new LinkedHashSet();
+      try {
+  			if ((query != null) && (!query.equals(""))) {
+  				if("all".equals(subjectSource)) {
+  					results = SubjectFinder.findAll(query);
+  				}else{
+  					SourceManager sm= SourceManager.getInstance();
+  					Source personSourceImpl = sm.getSource(subjectSource);
+  					
+  					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
+  					String processedSearchTerm = processSearchTerm.processSearchTerm(personSourceImpl, query, request);
+  					
+  					results = personSourceImpl.search(processedSearchTerm);
+  				}
+  		  }
+      } catch (SubjectTooManyResults stmr) {
+        session.setAttribute("sessionMessage",new Message("error.too.many.subject.results",true));
+      }
+      subjectRes = GrouperHelper.subjects2Maps(results.toArray());
+      resultSize = subjectRes.size();
+    }
 		Boolean searchedGroups = Boolean.FALSE;
 		
 		//Did we search for groups
@@ -360,7 +366,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			try {
 				group = GroupFinder.findByUuid(grouperSession, targetId, true);
 			}catch(GroupNotFoundException e) {
-				LOG.error("Error retirving group with id=" + targetId,e);
+				LOG.error("Error retrieving group with id=" + targetId,e);
 				throw new UnrecoverableErrorException("error.search-new-members.bad-group-id",targetId);
 			}
 			 UIGroupPrivilegeResolver resolver = 
