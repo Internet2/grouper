@@ -74,7 +74,7 @@ public class ConfigManager implements LdappcConfig {
   /**
    * Configuration Schema file resource name.
    */
-  public static final String SCHEMA_FILE_RESOURCE = "ldappc.schema.xsd";
+  public static final String SCHEMA_FILE_RESOURCE = "schema/ldappc.schema.xsd";
 
   /**
    * JAXP schema language property name.
