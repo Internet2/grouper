@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: SimpleSubjectSearch.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
+  @version $Id: SimpleSubjectSearch.jsp,v 1.11 2009-10-30 15:06:34 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -28,6 +28,7 @@
 --> <html:form styleId="SearchFormBean" action="/doSearchSubjects" method="post">
     <html:hidden property="searchInNameOrExtension" />
     <html:hidden property="searchInDisplayNameOrExtension" />
+    <input type="hidden" name="callerPageId" value="${thisPageId}"/>
     <fieldset>
 
     <table class="formTable">

@@ -117,7 +117,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.13 2009-10-30 12:41:54 mchyzer Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.14 2009-10-30 15:06:34 isgwb Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 
@@ -133,7 +133,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
-		System.out.println("*********************");
+		
 		DynaActionForm searchForm = (DynaActionForm)form;
 		String browseMode = getBrowseMode(session);
 		if (browseMode == null)
@@ -182,6 +182,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
   		}
 		} catch (SubjectTooManyResults stmr) {
 		  session.setAttribute("sessionMessage",new Message("error.too.many.subject.results",true));
+		  return redirectToCaller((DynaActionForm)form);
 		}
 		
 		Iterator it = results.iterator();

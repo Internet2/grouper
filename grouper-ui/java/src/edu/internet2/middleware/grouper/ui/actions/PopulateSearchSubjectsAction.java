@@ -23,6 +23,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.DynaActionForm;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
@@ -101,7 +103,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSearchSubjectsAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateSearchSubjectsAction.java,v 1.3 2009-10-30 15:06:34 isgwb Exp $
  */
 public class PopulateSearchSubjectsAction extends GrouperCapableAction {
 
@@ -119,6 +121,7 @@ public class PopulateSearchSubjectsAction extends GrouperCapableAction {
 		
 
 		initMode(session);
+		saveAsCallerPage(request, (DynaActionForm)form);
 		return mapping.findForward(FORWARD_SearchForm);
 	}
 	

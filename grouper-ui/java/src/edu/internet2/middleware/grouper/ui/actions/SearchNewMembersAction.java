@@ -190,7 +190,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.13 2009-10-30 12:41:54 mchyzer Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.14 2009-10-30 15:06:34 isgwb Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -294,6 +294,9 @@ public class SearchNewMembersAction extends GrouperCapableAction {
   		  }
       } catch (SubjectTooManyResults stmr) {
         session.setAttribute("sessionMessage",new Message("error.too.many.subject.results",true));
+        if(doRedirectToCaller(searchForm)) {
+        	return redirectToCaller(searchForm);
+        }
       }
       subjectRes = GrouperHelper.subjects2Maps(results.toArray());
       resultSize = subjectRes.size();
