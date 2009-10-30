@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.22 2009-10-30 12:35:29 mchyzer Exp $
-$Date: 2009-10-30 12:35:29 $
+$Id: JDBCSourceAdapter.java,v 1.23 2009-10-30 20:41:41 mchyzer Exp $
+$Date: 2009-10-30 20:41:41 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -534,7 +534,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
       try {
         this.maxResults = Integer.parseInt(maxResultsString);
       } catch (NumberFormatException nfe) {
-        throw new RuntimeException("Cant parse maxResults: " + maxActiveString, nfe);
+        throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
       }
     }
   }

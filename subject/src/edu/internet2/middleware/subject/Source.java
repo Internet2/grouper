@@ -1,4 +1,6 @@
 package edu.internet2.middleware.subject;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -76,6 +78,46 @@ public interface Source {
 	public Subject getSubject(String id, boolean exceptionIfNull)
 		throws SubjectNotFoundException,SubjectNotUniqueException;
 
+  /**
+   * Get subjects by ids.  Note, if the subjects arent found or arent unique, 
+   * they wont be returned.  Duplicates are ok on the input, but will return one output.
+   * @param ids
+   * @return a map of results never null indexed by the id
+   */
+  public Map<String, Subject> getSubjectsByIds(Collection<String> ids);
+
+  /**
+   * Get subjects by identifiers.  Note, if the subjects arent found or arent unique, 
+   * they wont be returned.  Identifiers are unique ways to refer to a subject that
+   * isnt its id (e.g. netid).  Duplicates are ok on the input, but will return one output.
+   * @param identifiers
+   * @return a map of results never null indexed by the identifiers
+   */
+  public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers);
+
+  /**
+   * Get subjects by ids or identifiers.  Note, if the subjects arent found or arent unique, 
+   * they wont be returned.  Identifiers are unique ways to refer to a subject that
+   * isnt its id (e.g. netid).  Duplicates are ok on the input, but will return one output.
+   * 
+   * @param idsOrIdentifiers each string could be a subject id or identifier
+   * @return a map of results never null indexed by the id or identifier that was passed in.
+   * Note, the same subject could be returned twice if looked up by id and identifier (two inputs)
+   */
+  public Map<String, Subject> getSubjectsByIdsOrIdentifiers(Collection<String> idsOrIdentifiers);
+
+  /**
+   * find by id or identifier.  pass in either an id or an identifier
+   * @param idOrIdentifier
+   * @param exceptionIfNull if SubjectNotFoundException or null
+   * @return the subject
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   */
+  public Subject getSubjectByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException;
+
+  
 	/**
 	 * Gets a Subject by other well-known identifiers, aside
 	 * from the subject ID, for example, login ID.

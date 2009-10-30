@@ -1,16 +1,19 @@
 /*--
-$Id: BaseSourceAdapter.java,v 1.7 2009-03-22 02:49:26 mchyzer Exp $
-$Date: 2009-03-22 02:49:26 $
+$Id: BaseSourceAdapter.java,v 1.8 2009-10-30 20:41:41 mchyzer Exp $
+$Date: 2009-10-30 20:41:41 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
  */
 package edu.internet2.middleware.subject.provider;
 
-import java.util.Set;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException; //esluss - added SubjectNotUniqueException
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 
@@ -33,6 +36,95 @@ import edu.internet2.middleware.subject.SubjectType;
  * </pre>
  */
 public abstract class BaseSourceAdapter implements Source {
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectsByIdentifiers(java.util.Collection)
+   */
+  public Map<String, Subject> getSubjectsByIdentifiers(Collection<String> identifiers) {
+    Map<String, Subject> result = new LinkedHashMap<String, Subject>();
+    
+    Subject subject = null;
+    for (String theIdentifier : identifiers) {
+      try {
+        subject = getSubjectByIdentifier(theIdentifier, true);
+        result.put(theIdentifier, subject);
+      } catch (SubjectNotFoundException snfe) {
+        //ignore
+      } catch (SubjectNotUniqueException snue) {
+        //ignore
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectsByIds(java.util.Collection)
+   */
+  public Map<String, Subject> getSubjectsByIds(Collection<String> ids) {
+    Map<String, Subject> result = new LinkedHashMap<String, Subject>();
+    
+    Subject subject = null;
+    for (String theId : ids) {
+      try {
+        subject = getSubject(theId, true);
+        result.put(theId, subject);
+      } catch (SubjectNotFoundException snfe) {
+        //ignore
+      } catch (SubjectNotUniqueException snue) {
+        //ignore
+      }
+    }
+    return result;
+    
+  }
+  
+  /**
+   * find by id or identifier
+   * @param idOrIdentifier
+   * @param exceptionIfNull if SubjectNotFoundException or null
+   * @return the subject
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   */
+  public Subject getSubjectByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subject = null;
+    try {
+      subject = this.getSubject(idOrIdentifier, exceptionIfNull);
+    } catch (SubjectNotFoundException snfe) {
+      try {
+        subject = this.getSubjectByIdentifier(idOrIdentifier, exceptionIfNull);
+      } catch (SubjectNotUniqueException snfe2) {
+        if (exceptionIfNull) {
+          throw snfe2;
+        }
+        return null;
+      }
+    }
+    return subject;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectsByIdsOrIdentifiers(java.util.Collection)
+   */
+  public Map<String, Subject> getSubjectsByIdsOrIdentifiers(
+      Collection<String> idsOrIdentifiers) {
+    Map<String, Subject> result = new LinkedHashMap<String, Subject>();
+    
+    Subject subject = null;
+    for (String theIdOrIdentifier : idsOrIdentifiers) {
+      try {
+        subject = getSubjectByIdOrIdentifier(theIdOrIdentifier, true);
+        result.put(theIdOrIdentifier, subject);
+      } catch (SubjectNotFoundException snfe) {
+        //ignore
+      } catch (SubjectNotUniqueException snue) {
+        //ignore
+      }
+    }
+    return result;
+  }
 
   /**
    * 
