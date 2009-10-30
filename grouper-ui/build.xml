@@ -399,7 +399,7 @@
 		</condition>
 		<antcall target="-copyContent"/>
 		<echo message="Processing web.xml"/>
-		<copy file="${ui.folder}/webapp/WEB-INF/web.error.xml" tofile="${temp.dir}/99.web.error.xml"/>
+		<copy file="${ui.folder}/webapp/WEB-INF/web.core-filters.xml" tofile="${temp.dir}/99.web.core-filters.xml"/>
 		<path id="web.xml.files">
 			<fileset dir="${temp.dir}">
 				<include name="**/*.xml"/>

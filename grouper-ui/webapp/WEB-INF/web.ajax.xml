@@ -5,13 +5,14 @@
     version="2.4">
 	
   <filter-mapping>
-    <filter-name>Error Catcher</filter-name>
-    <url-pattern>/grouperUi/app/*</url-pattern>
-  </filter-mapping>	
-  <filter-mapping>
+    <filter-mapping>
     <filter-name>GrouperUi</filter-name>
     <url-pattern>/grouperUi/app/*</url-pattern>
   </filter-mapping>
+    <filter-name>Error Catcher</filter-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>	
+
 
 
 <servlet>
