@@ -422,4 +422,16 @@ public interface LdappcConfig {
    * @return true if "range" attributes should be incrementally retrieved
    */
   public boolean useRangeSearchResultHandler();
+
+  /**
+   * Returns true if member groups should be provisioned even if they are not in the set
+   * of groups to be provisioned, which reproduces the behavior of LDAPPC prior to 1.5.0.
+   * Defaults to false, which means that member groups are provisioned only if they are in
+   * the set of groups to be provisioned.
+   * 
+   * Ignored unless {@link #getProvisionMemberGroups()} is true.
+   * 
+   * @return true if non-selected member groups should be provisioned
+   */
+  public boolean getProvisionMemberGroupsIgnoreQueries();
 }

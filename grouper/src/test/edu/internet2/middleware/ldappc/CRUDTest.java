@@ -707,4 +707,92 @@ public class CRUDTest extends BaseLdappcTestCase {
     verifyLdif("CRUDTest.testCreateSubjectWhitespace.after.ldif");
   }
 
+  public void testCalculateMemberGroupFollowQueries() throws Exception {
+
+    Stem CODP = StemHelper.addChildStem(this.root, "CODP",
+        "Cramton Obfuscation Design Pattern");
+
+    Group groupC = StemHelper.addChildGroup(CODP, "groupC", "Group C");
+    groupB.addMember(groupC.toSubject());
+
+    setUpLdappc();
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushy.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCalculateMemberGroupIgnoreQueries() throws Exception {
+
+    Stem CODP = StemHelper.addChildStem(this.root, "CODP",
+        "Cramton Obfuscation Design Pattern");
+
+    Group groupC = StemHelper.addChildGroup(CODP, "groupC", "Group C");
+    groupB.addMember(groupC.toSubject());
+
+    setUpLdappc();
+
+    ((ConfigManager) ldappc.getConfig()).setProvisionMemberGroupsIgnoreQueries(true);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    if (useActiveDirectory()) {
+      verifyLdif("CRUDTest.testCalculateBushy.after.ldif", ldif);
+    } else {
+      verifyLdif("CRUDTest.testCalculateMemberGroupIgnoreQueries.after.ldif", ldif);
+    }
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCreateMemberGroupFollowQueries() throws Exception {
+
+    Stem CODP = StemHelper.addChildStem(this.root, "CODP",
+        "Cramton Obfuscation Design Pattern");
+
+    Group groupC = StemHelper.addChildGroup(CODP, "groupC", "Group C");
+    groupB.addMember(groupC.toSubject());
+
+    setUpLdappc();
+
+    loadLdif("CRUDTest.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateBushy.after.ldif");
+  }
+
+  public void testCreateMemberGroupIgnoreQueries() throws Exception {
+
+    Stem CODP = StemHelper.addChildStem(this.root, "CODP",
+        "Cramton Obfuscation Design Pattern");
+
+    Group groupC = StemHelper.addChildGroup(CODP, "groupC", "Group C");
+    groupB.addMember(groupC.toSubject());
+
+    setUpLdappc();
+
+    ((ConfigManager) ldappc.getConfig()).setProvisionMemberGroupsIgnoreQueries(true);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    if (useActiveDirectory()) {
+      verifyLdif("CRUDTest.testCreateBushy.after.ldif");
+    } else {
+      verifyLdif("CRUDTest.testCreateMemberGroupIgnoreQueries.after.ldif");
+    }
+  }
+
 }

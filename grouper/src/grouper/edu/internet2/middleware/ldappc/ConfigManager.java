@@ -317,6 +317,12 @@ public class ConfigManager implements LdappcConfig {
    */
   private boolean useRangeSearchResultHandler = false;
 
+  /**
+   * Boolean indicating if member groups should be provisioned as members even if they are
+   * not selected to be provisioned by group-queries.
+   */
+  private boolean provisionMemberGroupsIgnoreQueries = false;
+
   public ConfigManager() throws ConfigurationException {
 
     this(null);
@@ -479,6 +485,9 @@ public class ConfigManager implements LdappcConfig {
 
     digester.addCallMethod(elementPath, "setProvisionMemberGroups", 1);
     digester.addCallParam(elementPath, 0, "provision-member-groups");
+
+    digester.addCallMethod(elementPath, "setProvisionMemberGroupsIgnoreQueries", 1);
+    digester.addCallParam(elementPath, 0, "provision-member-groups-ignore-queries");
 
     digester.addCallMethod(elementPath, "setProvisionGroupsTwoStep", 1);
     digester.addCallParam(elementPath, 0, "provision-groups-two-step");
@@ -1871,6 +1880,25 @@ public class ConfigManager implements LdappcConfig {
     return useRangeSearchResultHandler;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * edu.internet2.middleware.ldappc.LdappcConfig#getProvisionMemberGroupsIgnoreQueries()
+   */
+  public boolean getProvisionMemberGroupsIgnoreQueries() {
+    return provisionMemberGroupsIgnoreQueries;
+  }
+
+  private void setProvisionMemberGroupsIgnoreQueries(String string) {
+    this.provisionMemberGroupsIgnoreQueries = Boolean.parseBoolean(string);
+  }
+
+  protected void setProvisionMemberGroupsIgnoreQueries(
+      Boolean provisionMemberGroupsIgnoreQueries) {
+    this.provisionMemberGroupsIgnoreQueries = provisionMemberGroupsIgnoreQueries;
+  }
+
   /**
    * This is class allows the Digester processing the configuration file access to all the
    * necessary methods, regardless of visibility, for setting values in the ConfigManager
@@ -2365,6 +2393,10 @@ public class ConfigManager implements LdappcConfig {
      */
     public void setAttributeResolverMappingObjectClass(String objectClass) {
       ConfigManager.this.setAttributeResolverMappingObjectClass(objectClass);
+    }
+
+    public void setProvisionMemberGroupsIgnoreQueries(String string) {
+      ConfigManager.this.setProvisionMemberGroupsIgnoreQueries(string);
     }
   }
 
