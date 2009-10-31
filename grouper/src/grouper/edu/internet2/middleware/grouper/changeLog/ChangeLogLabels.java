@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogLabels.java,v 1.4 2009-06-11 05:47:02 mchyzer Exp $
+ * $Id: ChangeLogLabels.java,v 1.5 2009-10-31 17:46:47 shilen Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -366,5 +366,95 @@ public class ChangeLogLabels {
     
     /** groupName */
     groupName;
+  };
+  
+  /**
+   * labels for privilege add
+   */
+  public static enum PRIVILEGE_ADD implements ChangeLogLabel {
+    
+    /** id of membership */
+    id, 
+    
+    /** privilegeName */
+    privilegeName,
+    
+    /** subjectId */
+    subjectId,
+    
+    /** sourceId */
+    sourceId,
+    
+    /** privilegeType */
+    privilegeType,
+    
+    /** ownerType */
+    ownerType,
+
+    /** ownerId */
+    ownerId,
+    
+    /** ownerName */
+    ownerName;
+  };
+  
+  /**
+   * labels for privilege update
+   */
+  public static enum PRIVILEGE_UPDATE implements ChangeLogLabel {
+    
+    /** id of membership */
+    id, 
+    
+    /** privilegeName */
+    privilegeName,
+    
+    /** subjectId */
+    subjectId,
+    
+    /** sourceId */
+    sourceId,
+    
+    /** privilegeType */
+    privilegeType,
+    
+    /** ownerType */
+    ownerType,
+
+    /** ownerId */
+    ownerId,
+    
+    /** ownerName */
+    ownerName;
+  };
+  
+  /**
+   * labels for privilege delete
+   */
+  public static enum PRIVILEGE_DELETE implements ChangeLogLabel {
+    
+    /** id of membership */
+    id, 
+    
+    /** privilegeName */
+    privilegeName,
+    
+    /** subjectId */
+    subjectId,
+    
+    /** sourceId */
+    sourceId,
+    
+    /** privilegeType */
+    privilegeType,
+    
+    /** ownerType */
+    ownerType,
+
+    /** ownerId */
+    ownerId,
+    
+    /** ownerName */
+    ownerName;
   };
 }
