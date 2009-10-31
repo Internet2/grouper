@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.135 2009-10-15 13:12:08 shilen Exp $
+ * @version $Id: Membership.java,v 1.136 2009-10-31 17:46:47 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -1475,7 +1475,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   
   
   /** we're using this to save effective memberships onPreSave, onPreUpdate and onPreDelete so they can be used onPostSave, onPostUpdate and onPostDelete */
-  private Set<Membership> effectiveMembershipsForHooks;
+  private Set<Membership> effectiveMemberships;
 
   /**
    * 
@@ -1484,7 +1484,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
-    effectiveMembershipsForHooks = new LinkedHashSet<Membership>();
+    effectiveMemberships = new LinkedHashSet<Membership>();
     
     if (this.isImmediate()) {
       
@@ -1546,24 +1546,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
       Iterator<GroupSet> groupSetsIter = groupSets.iterator();
       while (groupSetsIter.hasNext()) {
-        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObjectForHooks(this);
-        effectiveMembershipsForHooks.add(effectiveMembership);
+        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObject(this);
+        effectiveMemberships.add(effectiveMembership);
         GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
             MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
             effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
       }
-    }
-
-    //change log into temp table if a group list membership
-    if ("list".equals(this.getListType())) {
-      new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
-          ChangeLogLabels.MEMBERSHIP_ADD.id.name(), 
-          this.getUuid(), ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), 
-          this.getField().getName(), ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), this.getMember().getSubjectId(),
-          ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
-          ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), this.getType(),
-          ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), this.getOwnerGroupId(),
-          ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName()).save();
     }
   }
     
@@ -1632,7 +1620,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   
   public void setMember(Member member) {
     this.member = member;
-  
+    this.memberUUID = member.getUuid();
   }
 
   /**
@@ -1641,6 +1629,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   public void setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
   
+    if (this.member != null) {
+      if (memberUUID == null || !memberUUID.equals(this.member.getUuid())) {
+        this.member = null;
+      }
+    }
   }
 
   /**
@@ -1727,6 +1720,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       processPostMembershipDelete(this.getMember());
     }
     
+    // take care of the changelog
+    if (this.dbVersion().enabled) {
+      addMembershipDeleteChangeLog(this.getMember());
+      addMembershipDeleteChangeLogs(effectiveMemberships, null);
+    }
+    
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_DELETE, HooksMembershipBean.class, 
         this, Membership.class);
@@ -1737,7 +1736,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     
     // hooks for effective memberships
     // note that effective membership hooks are also fired on pre and post events on GroupSet
-    Iterator<Membership> effectiveMembershipsIter = this.effectiveMembershipsForHooks.iterator();
+    Iterator<Membership> effectiveMembershipsIter = this.effectiveMemberships.iterator();
     while (effectiveMembershipsIter.hasNext()) {
       Membership effectiveMembership = effectiveMembershipsIter.next();
       
@@ -1750,7 +1749,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE, false, true);
     }
     
-    this.effectiveMembershipsForHooks = null;
+    this.effectiveMemberships = null;
     
     if (this.isImmediate()) {
       // high level membership hooks
@@ -1777,6 +1776,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       processPostMembershipSaveOrUpdate();
     }
     
+    // take care of the changelog
+    if (this.enabled) {
+      addMembershipAddChangeLog();
+      addMembershipAddChangeLogs(effectiveMemberships);
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
@@ -1788,7 +1793,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     
     // hooks for effective memberships
     // note that effective membership hooks are also fired on pre and post events on GroupSet
-    Iterator<Membership> effectiveMembershipsIter = this.effectiveMembershipsForHooks.iterator();
+    Iterator<Membership> effectiveMembershipsIter = this.effectiveMemberships.iterator();
     while (effectiveMembershipsIter.hasNext()) {
       Membership effectiveMembership = effectiveMembershipsIter.next();
       
@@ -1802,7 +1807,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           effectiveMembership, Membership.class);
     }
     
-    this.effectiveMembershipsForHooks = null;
+    this.effectiveMemberships = null;
 
     if (this.isImmediate()) {      
       // high level membership hooks
@@ -1823,7 +1828,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   private void processPostMembershipDelete(Member member) {
     // if the member is a group, delete the immediate group set.
-    if (this.getMember().getSubjectTypeId().equals("group")) {
+    if (member.getSubjectTypeId().equals("group")) {
 
       // get the immediate group set (depth = 1)
       GroupSet immediateGroupSet = null;
@@ -2082,9 +2087,17 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         if (!oldValue && newValue) {
           // the membership is becoming enabled...
           this.processPostMembershipSaveOrUpdate();
+          
+          // change log
+          addMembershipAddChangeLog();
+          addMembershipAddChangeLogs(effectiveMemberships);
         } else if (oldValue && !newValue) {
           // the membership is becoming disabled...
           this.processPostMembershipDelete(this.dbVersion().getMember());
+          
+          // change log
+          dbVersion().addMembershipDeleteChangeLog(this.dbVersion().getMember());
+          addMembershipDeleteChangeLogs(effectiveMemberships, this.dbVersion().getMember());
         }
       } else if (this.dbVersionDifferentFields().contains(FIELD_MEMBER_UUID) && this.enabled) {
         // set member to null
@@ -2093,6 +2106,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         // if member column is changing, we may have to adjust composites and/or groupSets
         this.processPostMembershipDelete(this.dbVersion().getMember());
         this.processPostMembershipSaveOrUpdate();
+        
+        // change log
+        dbVersion().addMembershipDeleteChangeLog(this.dbVersion().getMember());
+        addMembershipDeleteChangeLogs(effectiveMemberships, this.dbVersion().getMember());
+        addMembershipAddChangeLog();
+        addMembershipAddChangeLogs(effectiveMemberships);
       }
     }
     
@@ -2106,7 +2125,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     
     // hooks for effective memberships
     // note that effective membership hooks are also fired on pre and post events on GroupSet
-    Iterator<Membership> effectiveMembershipsIter = this.effectiveMembershipsForHooks.iterator();
+    Iterator<Membership> effectiveMembershipsIter = this.effectiveMemberships.iterator();
     while (effectiveMembershipsIter.hasNext()) {
       Membership effectiveMembership = effectiveMembershipsIter.next();
       
@@ -2119,7 +2138,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_UPDATE, true, false);
     }
     
-    this.effectiveMembershipsForHooks = null;
+    this.effectiveMemberships = null;
   }
 
   /**
@@ -2128,7 +2147,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   @Override
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
-    effectiveMembershipsForHooks = new LinkedHashSet<Membership>();
+    effectiveMemberships = new LinkedHashSet<Membership>();
     
     if (this.isImmediate()) {
       // high level membership hooks
@@ -2148,24 +2167,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
       Iterator<GroupSet> groupSetsIter = groupSets.iterator();
       while (groupSetsIter.hasNext()) {
-        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObjectForHooks(this);
-        effectiveMembershipsForHooks.add(effectiveMembership);
+        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObject(this);
+        effectiveMemberships.add(effectiveMembership);
         GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
             MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipBean.class, 
             effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE, false, false);
       }
-    }
-    
-    //change log into temp table if a group list membership
-    if ("list".equals(this.getListType())) {
-      new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
-          ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), 
-          this.getUuid(), ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), 
-          this.getField().getName(), ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), this.getMember().getSubjectId(),
-          ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), this.getMember().getSubjectSourceId(),
-          ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
-          ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), this.getOwnerGroupId(),
-          ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName()).save();
     }
   }
 
@@ -2175,7 +2182,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
-    effectiveMembershipsForHooks = new LinkedHashSet<Membership>();
+    effectiveMemberships = new LinkedHashSet<Membership>();
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
@@ -2187,14 +2194,20 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
       Iterator<GroupSet> groupSetsIter = groupSets.iterator();
       while (groupSetsIter.hasNext()) {
-        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObjectForHooks(this);
-        effectiveMembershipsForHooks.add(effectiveMembership);
+        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObject(this);
+        effectiveMemberships.add(effectiveMembership);
         GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
             MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
             effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE, false, false);
       }
     }
     
+    /*
+     
+     MEMBERSHIP_UPDATE is not needed right now because the only updates to memberships that
+     happen right now that would be of concern to the changelog are updates to enabled and 
+     memberId.  Both of these are treated as a DELETE + ADD rather than an UPDATE.
+     
     //change log into temp table if a group list membership
     if ("list".equals(this.getListType())) {
       ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.MEMBERSHIP_UPDATE, 
@@ -2213,6 +2226,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
               ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId.name(),
               ChangeLogLabels.MEMBERSHIP_UPDATE.groupName.name()));    
     }
+    */
     
   }
 
@@ -2548,4 +2562,100 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       throw new MemberDeleteAlreadyDeletedException(eMSNF.getMessage(), eMSNF);
     }
   } // public static void internal_delImmediateMembership(s, ns, subj, f)
+  
+  /**
+   * add a change log entry for a membership add
+   */
+  public void addMembershipAddChangeLog() {
+    
+    if (!GrouperConfig.getPropertyBoolean("changeLog.enabled", true)) {
+      return;
+    }
+    
+    if (this.getListType().equals(FieldType.LIST.getType())) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
+          ChangeLogLabels.MEMBERSHIP_ADD.id.name(), this.getUuid(), 
+          ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), this.getField().getName(), 
+          ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), this.getMember().getSubjectId(),
+          ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
+          ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), this.getType(),
+          ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName()).save();
+    } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
+          ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getUuid(),
+          ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), this.getField().getName(), 
+          ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), this.getMember().getSubjectId(),
+          ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
+          ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), this.getType(),
+          ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), "group",
+          ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getGroup().getName()).save();
+    } else {
+      // we're not doing changelog entries for naming and attributeDef memberships.
+    }
+  }
+  
+  /**
+   * add a change log entry for a membership delete
+   * @param member
+   */
+  public void addMembershipDeleteChangeLog(Member member) {
+    
+    if (!GrouperConfig.getPropertyBoolean("changeLog.enabled", true)) {
+      return;
+    }
+
+    if (member == null) {
+      member = this.getMember();
+    }
+    
+    if (this.getListType().equals(FieldType.LIST.getType())) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
+          ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), this.getUuid(), 
+          ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), this.getField().getName(), 
+          ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), member.getSubjectId(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), member.getSubjectSourceId(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName()).save();
+    } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
+          ChangeLogLabels.PRIVILEGE_DELETE.id.name(), this.getUuid(),
+          ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), this.getField().getName(), 
+          ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), member.getSubjectId(),
+          ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), member.getSubjectSourceId(),
+          ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), this.getType(),
+          ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), "group",
+          ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getGroup().getName()).save();
+    } else {
+      // we're not doing changelog entries for naming and attributeDef memberships.
+    }
+  }
+  
+  /**
+   * add change log entries for membership adds
+   * @param memberships
+   */
+  public static void addMembershipAddChangeLogs(Set<Membership> memberships) {
+    Iterator<Membership> iter = memberships.iterator();
+    while (iter.hasNext()) {
+      Membership ms = iter.next();
+      ms.addMembershipAddChangeLog();
+    }
+  }
+  
+  /**
+   * add change log entries for membership deletes
+   * @param memberships
+   * @param member
+   */
+  public static void addMembershipDeleteChangeLogs(Set<Membership> memberships, Member member) {
+    Iterator<Membership> iter = memberships.iterator();
+    while (iter.hasNext()) {
+      Membership ms = iter.next();
+      ms.addMembershipDeleteChangeLog(member);
+    }
+  }
 }

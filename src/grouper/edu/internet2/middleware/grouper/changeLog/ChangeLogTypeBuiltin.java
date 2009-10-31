@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTypeBuiltin.java,v 1.8 2009-07-16 20:11:21 mchyzer Exp $
+ * $Id: ChangeLogTypeBuiltin.java,v 1.9 2009-10-31 17:46:47 shilen Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -97,46 +97,79 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * add membership
    */
   MEMBERSHIP_ADD(new ChangeLogType("membership", "addMembership", 
-      ChangeLogLabels.MEMBERSHIP_ADD.id, ChangeLogLabels.MEMBERSHIP_ADD.fieldName,  
+      ChangeLogLabels.MEMBERSHIP_ADD.id, 
+      ChangeLogLabels.MEMBERSHIP_ADD.fieldName,  
       ChangeLogLabels.MEMBERSHIP_ADD.subjectId, 
-      ChangeLogLabels.MEMBERSHIP_ADD.sourceId, ChangeLogLabels.MEMBERSHIP_ADD.membershipType, 
-      ChangeLogLabels.MEMBERSHIP_ADD.groupId, ChangeLogLabels.MEMBERSHIP_ADD.groupName)),
+      ChangeLogLabels.MEMBERSHIP_ADD.sourceId, 
+      ChangeLogLabels.MEMBERSHIP_ADD.membershipType, 
+      ChangeLogLabels.MEMBERSHIP_ADD.groupId, 
+      ChangeLogLabels.MEMBERSHIP_ADD.groupName)),
   
   /**
    * update membership
    */
   MEMBERSHIP_UPDATE(new ChangeLogType("membership", "updateMembership", 
-      ChangeLogLabels.MEMBERSHIP_UPDATE.id, ChangeLogLabels.MEMBERSHIP_UPDATE.fieldName,  
+      ChangeLogLabels.MEMBERSHIP_UPDATE.id, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.fieldName,  
       ChangeLogLabels.MEMBERSHIP_UPDATE.subjectId, 
-      ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId, ChangeLogLabels.MEMBERSHIP_UPDATE.membershipType, 
-      ChangeLogLabels.MEMBERSHIP_UPDATE.groupId, ChangeLogLabels.MEMBERSHIP_UPDATE.groupName,
-      ChangeLogLabels.MEMBERSHIP_UPDATE.propertyChanged, ChangeLogLabels.MEMBERSHIP_UPDATE.propertyOldValue, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.membershipType, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.groupId, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.groupName,
+      ChangeLogLabels.MEMBERSHIP_UPDATE.propertyChanged, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.propertyOldValue, 
       ChangeLogLabels.MEMBERSHIP_UPDATE.propertyNewValue)),
 
   /**
    * delete membership
    */
   MEMBERSHIP_DELETE(new ChangeLogType("membership", "deleteMembership", 
-      ChangeLogLabels.MEMBERSHIP_DELETE.id, ChangeLogLabels.MEMBERSHIP_DELETE.fieldName,  
+      ChangeLogLabels.MEMBERSHIP_DELETE.id, 
+      ChangeLogLabels.MEMBERSHIP_DELETE.fieldName,  
       ChangeLogLabels.MEMBERSHIP_DELETE.subjectId, 
-      ChangeLogLabels.MEMBERSHIP_DELETE.sourceId, ChangeLogLabels.MEMBERSHIP_DELETE.membershipType, 
-      ChangeLogLabels.MEMBERSHIP_DELETE.groupId, ChangeLogLabels.MEMBERSHIP_DELETE.groupName)),
+      ChangeLogLabels.MEMBERSHIP_DELETE.sourceId, 
+      ChangeLogLabels.MEMBERSHIP_DELETE.membershipType, 
+      ChangeLogLabels.MEMBERSHIP_DELETE.groupId, 
+      ChangeLogLabels.MEMBERSHIP_DELETE.groupName)),
 
   /**
    * add privilege
    */
-  PRIVILEGE_ADD(new ChangeLogType("privilege", "addPrivilege", "privilegeName", "memberId", "privilegeType", "ownerType", "ownerId", "ownerName")),
+  PRIVILEGE_ADD(new ChangeLogType("privilege", "addPrivilege", 
+      ChangeLogLabels.PRIVILEGE_ADD.id, 
+      ChangeLogLabels.PRIVILEGE_ADD.privilegeName, 
+      ChangeLogLabels.PRIVILEGE_ADD.subjectId, 
+      ChangeLogLabels.PRIVILEGE_ADD.sourceId, 
+      ChangeLogLabels.PRIVILEGE_ADD.privilegeType, 
+      ChangeLogLabels.PRIVILEGE_ADD.ownerType, 
+      ChangeLogLabels.PRIVILEGE_ADD.ownerId, 
+      ChangeLogLabels.PRIVILEGE_ADD.ownerName)),
   
   /**
    * update privilege
    */
-  PRIVILEGE_UPDATE(new ChangeLogType("privilege", "updatePrivilege", null,"privilegeName", "memberId", "privilegeType", "ownerType", "ownerId", "ownerName")),
-
+  PRIVILEGE_UPDATE(new ChangeLogType("privilege", "updatePrivilege",
+      ChangeLogLabels.PRIVILEGE_UPDATE.id, 
+      ChangeLogLabels.PRIVILEGE_UPDATE.privilegeName, 
+      ChangeLogLabels.PRIVILEGE_UPDATE.subjectId, 
+      ChangeLogLabels.PRIVILEGE_UPDATE.sourceId, 
+      ChangeLogLabels.PRIVILEGE_UPDATE.privilegeType, 
+      ChangeLogLabels.PRIVILEGE_UPDATE.ownerType, 
+      ChangeLogLabels.PRIVILEGE_UPDATE.ownerId, 
+      ChangeLogLabels.PRIVILEGE_UPDATE.ownerName)),
+      
   /**
    * delete privilege
    */
-  PRIVILEGE_DELETE(new ChangeLogType("privilege", "deletePrivilege", "privilegeName", "memberId", "privilegeType", "ownerType", "ownerId", "ownerName")),
-
+  PRIVILEGE_DELETE(new ChangeLogType("privilege", "deletePrivilege",
+      ChangeLogLabels.PRIVILEGE_DELETE.id, 
+      ChangeLogLabels.PRIVILEGE_DELETE.privilegeName, 
+      ChangeLogLabels.PRIVILEGE_DELETE.subjectId, 
+      ChangeLogLabels.PRIVILEGE_DELETE.sourceId, 
+      ChangeLogLabels.PRIVILEGE_DELETE.privilegeType, 
+      ChangeLogLabels.PRIVILEGE_DELETE.ownerType, 
+      ChangeLogLabels.PRIVILEGE_DELETE.ownerId, 
+      ChangeLogLabels.PRIVILEGE_DELETE.ownerName)),
   /**
    * add group
    */
