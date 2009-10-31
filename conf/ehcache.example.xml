@@ -289,6 +289,14 @@
           overflowToDisk="false"
     />
 
+  <cache  name="edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSetView"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="0"
+          timeToLiveSeconds="0"
+          overflowToDisk="false"
+    />
+
   <cache  name="edu.internet2.middleware.grouper.attr.AttributeDef"
           maxElementsInMemory="1000"
           eternal="false"

@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.subject.LazySource;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -37,7 +38,7 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.10 2009-09-02 05:57:26 mchyzer Exp $
+ * @version $Id: LazySubject.java,v 1.11 2009-10-31 16:27:12 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class LazySubject implements Subject {
@@ -76,7 +77,7 @@ public class LazySubject implements Subject {
   /**
    * 
    */
-  private Source subjectSource = new LazySource();
+  private Source subjectSource = null;
 
   /**
    * 
@@ -167,6 +168,9 @@ public class LazySubject implements Subject {
    * @see edu.internet2.middleware.subject.Subject#getSource()
    */
   public Source getSource() {
+    if (this.subjectSource == null) {
+      this.subjectSource = new LazySource(this.member.getSubjectSourceId());
+    }
     return subjectSource;
   }
 
@@ -244,154 +248,6 @@ public class LazySubject implements Subject {
    */
   public Membership getMembership() {
     return this.membership;
-  }
-
-  /**
-   * Circumvent the need to instantiate a Subject to get a source id
-   * @since 1.3.1
-   *
-   */
-  @SuppressWarnings("serial")
-  class LazySource implements Source {
-
-    /**
-     * 
-     */
-    private Source source;
-
-    /**
-     * 
-     */
-    LazySource() {
-
-    }
-
-    /**
-     * 
-     * @return source
-     */
-    private Source getSource() {
-      if (this.source != null)
-        return this.source;
-      try {
-        this.source = SubjectFinder.getSource(getId());
-      } catch (SourceUnavailableException e) {
-        throw new GrouperException(e);
-      }
-      return this.source;
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#getId()
-     */
-    public String getId() {
-      return LazySubject.this.member.getSubjectSourceId();
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#getName()
-     */
-    public String getName() {
-      return this.getSource().getName();
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#getSubject(java.lang.String)
-     */
-    @Deprecated
-    public Subject getSubject(String id) throws SubjectNotFoundException,
-        SubjectNotUniqueException {
-      return getSource().getSubject(id, true);
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#getSubjectByIdentifier(java.lang.String)
-     */
-    @Deprecated
-    public Subject getSubjectByIdentifier(String id) throws SubjectNotFoundException,
-        SubjectNotUniqueException {
-      return getSource().getSubjectByIdentifier(id, true);
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#getSubject(java.lang.String, boolean)
-     */
-    public Subject getSubject(String id, boolean exceptionIfNull)
-        throws SubjectNotFoundException, SubjectNotUniqueException {
-      return getSource().getSubject(id, exceptionIfNull);
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#getSubjectByIdentifier(java.lang.String, boolean)
-     */
-    public Subject getSubjectByIdentifier(String id, boolean exceptionIfNull)
-        throws SubjectNotFoundException, SubjectNotUniqueException {
-      return getSource().getSubjectByIdentifier(id, exceptionIfNull);
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#getSubjectTypes()
-     */
-    public Set getSubjectTypes() {
-      return getSource().getSubjectTypes();
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#init()
-     */
-    public void init() throws SourceUnavailableException {
-      getSource().init();
-
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#search(java.lang.String)
-     */
-    public Set search(String query) {
-      return getSource().search(query);
-    }
-    
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#setId(java.lang.String)
-     */
-    public void setId(String id) {
-      getSource().setId(id);
-
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.subject.Source#setName(java.lang.String)
-     */
-    public void setName(String name) {
-      getSource().setName(name);
-
-    }
-
-    /**
-     * @see edu.internet2.middleware.subject.Source#checkConfig()
-     */
-    public void checkConfig() {
-    }
-
-    /**
-     * @see edu.internet2.middleware.subject.Source#printConfig()
-     */
-    public String printConfig() {
-      String message = "sources.xml lazy source id:   " + this.getId();
-      return message;
-    }
-
   }
 
   /**
