@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.2 2009-11-01 20:49:03 shilen Exp $
  */
 public class TestPrivSTEM extends GrouperTest {
 
@@ -222,12 +222,18 @@ public class TestPrivSTEM extends GrouperTest {
   // Modify stem attrs without STEM
   public void testModifyAttrsFail() {
     LOG.info("testModifyAttrsFail");
+    
+    Stem root = StemHelper.findRootStem(SessionHelper.getRootSession());
+    root.addChildStem("test", "test");
+    
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
+    Stem nonRoot = StemHelper.findByName(nrs, "test");
     // Now fail to modify stem attrs
     StemHelper.setAttrFail(nrroot, "description", "foo");
-    StemHelper.setAttrFail(nrroot, "displayExtension", "foo");
+    StemHelper.setAttrFail(nonRoot, "description", "foo");
+    StemHelper.setAttrFail(nonRoot, "displayExtension", "foo");
   } // public void testModifyAttrsFail()
 
   // Modify stem attrs with STEM
@@ -237,14 +243,20 @@ public class TestPrivSTEM extends GrouperTest {
       // Get root and !root sessions
       GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
       GrouperSession  s       = SessionHelper.getRootSession();
-      // Get root stem and grant STEM on it to !root subject
+      // Get root and non-root stem and grant STEM on it to !root subject
       Stem            root    = StemHelper.findRootStem(s);
       PrivHelper.grantPriv(s, root, nrs.getSubject(), PRIV);
-      // Now get root as !root subject 
+      
+      Stem nonRoot = root.addChildStem("test", "test");
+      PrivHelper.grantPriv(s, nonRoot, nrs.getSubject(), PRIV);
+      
+      // Now get root and nonRoot as !root subject 
       Stem            nrroot  = StemHelper.findRootStem(nrs);
+      nonRoot = StemHelper.findByName(nrs, "test");
       // Now modify stem attrs
       StemHelper.setAttr(nrroot, "description", "foo");
-      StemHelper.setAttr(nrroot, "displayExtension", "foo");
+      StemHelper.setAttr(nonRoot, "description", "foo");
+      StemHelper.setAttr(nonRoot, "displayExtension", "foo");
     }
     catch (Exception e) {
       T.e(e);
