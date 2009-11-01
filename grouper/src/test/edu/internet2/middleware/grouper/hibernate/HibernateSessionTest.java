@@ -1,9 +1,11 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.6 2009-07-10 14:53:07 shilen Exp $
+ * $Id: HibernateSessionTest.java,v 1.7 2009-11-01 14:57:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +15,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -34,7 +37,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testPagingSorting"));
+    TestRunner.run(new HibernateSessionTest("testEnabledDisabled"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -46,6 +49,115 @@ public class HibernateSessionTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * test paging/sorting
+   * @throws Exception 
+   */
+  public void testResultSort() throws Exception {
+    //lets add some members
+    GrouperSession grouperSession = SessionHelper.getRootSession();
+    Stem root = StemHelper.findRootStem(grouperSession);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group i2 = StemHelper.addChildGroup(edu, "i2", "internet2");
+    i2.addMember(SubjectTestHelper.SUBJ2);
+    i2.addMember(SubjectTestHelper.SUBJ0);
+    i2.addMember(SubjectTestHelper.SUBJ5);
+    i2.addMember(SubjectTestHelper.SUBJ1);
+    QueryOptions queryOptions = new QueryOptions().sortAsc("subject_id");
+    Set<Member> members = i2.getMembers(Group.getDefaultList(), queryOptions);
+    List<Member> memberList = new ArrayList<Member>(members);
+    assertEquals(SubjectTestHelper.SUBJ0_ID, memberList.get(0).getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, memberList.get(1).getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ2_ID, memberList.get(2).getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ5_ID, memberList.get(3).getSubjectId());
+  }
+  
+  /**
+   * test paging/sorting
+   * @throws Exception 
+   */
+  public void testEnabledDisabled() throws Exception {
+    //lets add some members
+    GrouperSession grouperSession = SessionHelper.getRootSession();
+    Stem root = StemHelper.findRootStem(grouperSession);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group parent = StemHelper.addChildGroup(edu, "parent", "parent");
+    Group child = StemHelper.addChildGroup(edu, "child", "child");
+    
+    //lets count the memberships (all view)
+    int initialCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    int initialCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+
+    //##################################################
+    parent.addMember(child.toSubject());
+    child.addMember(SubjectTestHelper.SUBJ1);
+    
+    int currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    int currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("3 memberships, 1 for subj1 in child, 1 for subj1 in parent, and 1 for child in parent", 
+        initialCountMembershipsAllV + 3, currentGroupCountMembershipsAllV);
+    assertEquals("1 more group set for child in parent", 
+        initialCountGroupSet + 1, currentGroupCountGroupSet);
+    
+    //####################################################
+    //disable
+    Membership membership = parent.getImmediateMembership(Group.getDefaultList(), child.toSubject(), true);
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() - 10000));
+    membership.deleteAndStore();
+    
+    //####################################################
+    //delete the membership (should be 2 less)
+    //ByObjectStatic.java.save() line 435, Hib3ChangeLogEntryDAO.java.save() line 29, 
+    //ChangeLogEntry.java.save() line 286, Membership.java.addMembershipDeleteChangeLog() line 2621, 
+    //Membership.java.addMembershipDeleteChangeLogs() line 2658, GroupSet.java.onPostDelete() line 413, 
+    //Hib3GroupSetDAO.java.callback() line 76, Hib3GroupSetDAO.java.delete() line 57, 
+    //Membership.java.processPostMembershipDelete() line 1853, Membership.java.onPostDelete() line 1720, 
+    //Hib3MembershipDAO.java.delete() line 1255, Membership.java.internal_delImmediateMembership() line 1117, 
+    //Group.java.callback() line 1631, Group.java.deleteMember() line 1608, Group.java.deleteMember() line 1525, 
+    //Group.java.deleteMember() line 1489
+    parent.deleteMember(child.toSubject());
+
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("1 memberships, 1 for subj1 in child", 
+        initialCountMembershipsAllV + 1, currentGroupCountMembershipsAllV);
+    assertEquals("same as original group sets", 
+        initialCountGroupSet, currentGroupCountGroupSet);
+    
+    //disable the group membership
+    
+    //count the memberships (should be 1 less)
+    
+    //enabled the membership (should be 1 more)
+    
+
+    //set the disabled date in future (few millis)
+    
+    //run daemon
+    
+    //see disabled (count memberships)
+    
+    //clear disabled and set enabled (few millis)
+    
+    //run daemon
+    
+    //count the memberships (should be original number)
+    
+    
+    
+  }
+  
   /**
    * test paging/sorting
    * @throws Exception 
