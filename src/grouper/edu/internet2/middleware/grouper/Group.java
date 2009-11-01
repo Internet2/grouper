@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedExce
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
+import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -132,7 +133,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.263 2009-10-02 05:57:58 mchyzer Exp $
+ * @version $Id: Group.java,v 1.264 2009-11-01 14:57:22 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2633,6 +2634,64 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
           .findAllByGroupOwnerAndFieldAndMembersAndType(this.getUuid(), f, members, "immediate", true)
       );
+  }
+
+  /**
+   * Get membership of this group, for a certain member
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Membership membership = g.getMembership(f, m, true);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @param subject
+   * @param exceptionIfNotFound true if MembershipNotFoundException should be thrown if not found, otherwise null
+   * @return A set of {@link Membership} objects.
+   * @throws SchemaException
+   * @throws MembershipNotFoundException if none found and exceptionIfNotFound
+   */
+  public Membership getImmediateMembership(Field f, Subject subject, boolean exceptionIfNotFound) 
+      throws  SchemaException, MembershipNotFoundException {
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+    return getImmediateMembership(f, member, exceptionIfNotFound);
+  }
+
+  /**
+   * Get membership of this group, for a certain member
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Membership membership = g.getMembership(f, m, true);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @param member
+   * @param exceptionIfNotFound true if MembershipNotFoundException should be thrown if not found, otherwise null
+   * @return A set of {@link Membership} objects.
+   * @throws SchemaException
+   * @throws MembershipNotFoundException if none found and exceptionIfNotFound
+   */
+  public Membership getImmediateMembership(Field f, Member member, boolean exceptionIfNotFound) 
+      throws  SchemaException, MembershipNotFoundException {
+    Set<Membership> memberships = this.getImmediateMemberships(f, GrouperUtil.toSet(member));
+    if (memberships.size() == 0) {
+      if (exceptionIfNotFound) {
+        throw new MembershipNotFoundException("Cant find memberships for group: " + this + ", and member: " + member
+            + ", and field: " + f);
+      }
+      return null;
+    }
+    if (memberships.size() > 1) {
+      throw new RuntimeException("There are more than one memberships: " + memberships.size()
+          + " for group: " + this + ", and member: " + member
+            + ", and field: " + f);
+    }
+    return memberships.iterator().next();
   }
 
   /**

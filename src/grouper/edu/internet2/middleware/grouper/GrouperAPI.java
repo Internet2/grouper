@@ -39,10 +39,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil.FieldValuable;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.22 2009-06-24 06:22:24 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.23 2009-11-01 14:57:22 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
+
+  /**
+   * 
+   */
+  public static final long INITIAL_VERSION_NUMBER = -1L;
+
 
   /** column */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
@@ -200,7 +206,7 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
    * hibernate increments with each insert/update (-1 means insert, 0+ means update, null means 0)
    */
   @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
-  private Long hibernateVersionNumber = -1L;
+  private Long hibernateVersionNumber = INITIAL_VERSION_NUMBER;
 
   /** constant name of field (and javabean property) for hibernateVersion */
   public static final String FIELD_HIBERNATE_VERSION_NUMBER = "hibernateVersionNumber";

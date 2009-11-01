@@ -70,10 +70,6 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
@@ -81,7 +77,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sun.misc.BASE64Encoder;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -1723,6 +1718,11 @@ public class GrouperUtil {
   public static final String DATE_FORMAT = "yyyyMMdd";
 
   /**
+   * string format of dates
+   */
+  public static final String DATE_FORMAT2 = "yyyy/MM/dd";
+
+  /**
    * format including minutes and seconds: yyyy/MM/dd HH:mm:ss
    */
   public static final String DATE_MINUTES_SECONDS_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -1746,6 +1746,11 @@ public class GrouperUtil {
    * date format, make sure to synchronize
    */
   final static SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
+  /**
+   * date format, make sure to synchronize
+   */
+  final static SimpleDateFormat dateFormat2 = new SimpleDateFormat(DATE_FORMAT2);
 
   /**
    * synchronize code that uses this standard formatter for dates with minutes and seconds
@@ -3152,8 +3157,8 @@ public class GrouperUtil {
    * @param keyPropertyName name of the javabeans property for the key in the map
    * @return the ordered set or the empty set if not found (never null)
    */
-  public static <K, V> Map<K, V> listToMap(List<V> list, final Class<K> keyClass, 
-      final Class<V> valueClass, String keyPropertyName)  {
+  public static <K, V> Map<K, V> listToMap(List<V> list, @SuppressWarnings("unused") final Class<K> keyClass, 
+      @SuppressWarnings("unused") final Class<V> valueClass, String keyPropertyName)  {
     Map<K,V> result = new LinkedHashMap<K, V>();
     for (V value : nonNull(list)) {
       K key = (K)GrouperUtil.propertyValue(value, keyPropertyName);
@@ -4623,7 +4628,7 @@ public class GrouperUtil {
    * @return the list
    */
   public static <T> List<T> propertyList(Collection<?> collection, 
-      String propertyName, Class<T> fieldType) {
+      String propertyName, @SuppressWarnings("unused") Class<T> fieldType) {
     
     if (collection == null) {
       return null;
@@ -4966,6 +4971,8 @@ public class GrouperUtil {
    * <pre>
    * Convert a string or object to a timestamp (could be string, date, timestamp, etc)
    * yyyymmdd
+   * or 
+   * yyyy/MM/dd
    * or
    * yyyy/MM/dd HH:mm:ss
    * or
@@ -5053,6 +5060,15 @@ public class GrouperUtil {
   }
 
   /**
+   * get the timestamp format for this thread
+   * if you call this make sure to synchronize on FastDateUtils.class
+   * @return the timestamp format
+   */
+  synchronized static SimpleDateFormat dateFormat2() {
+    return dateFormat2;
+  }
+
+  /**
    * convert a date to the standard string yyyymmdd
    * @param date 
    * @return the string value
@@ -5072,6 +5088,7 @@ public class GrouperUtil {
   /**
    * <pre>convert a string to timestamp based on the following formats:
    * yyyyMMdd
+   * yyyy/MM/dd
    * yyyy/MM/dd HH:mm:ss
    * yyyy/MM/dd HH:mm:ss.SSS
    * yyyy/MM/dd HH:mm:ss.SSSSSS
@@ -5095,6 +5112,7 @@ public class GrouperUtil {
    * return a date based on input, null safe.  Allow any of the three 
    * formats:
    * yyyyMMdd
+   * yyyy/MM/dd
    * yyyy/MM/dd HH:mm:ss
    * yyyy/MM/dd HH:mm:ss.SSS
    * yyyy/MM/dd HH:mm:ss.SSSSSS
@@ -5107,7 +5125,7 @@ public class GrouperUtil {
     if (isBlank(input)) {
       return null;
     }
-  
+    input = input.trim();
     try {
       //convert mainframe
       if (equals("99999999", input)
@@ -5117,6 +5135,10 @@ public class GrouperUtil {
       if (input.length() == 8) {
         
         return dateFormat().parse(input);
+      }
+      if (input.length() == 10) {
+        
+        return dateFormat2().parse(input);
       }
       if (!contains(input, '.')) {
         if (contains(input, '/')) {

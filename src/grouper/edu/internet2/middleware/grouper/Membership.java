@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.136 2009-10-31 17:46:47 shilen Exp $
+ * @version $Id: Membership.java,v 1.137 2009-11-01 14:57:22 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -387,6 +387,30 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       return false;
     }
     return true;
+  }
+  
+  /**
+   * e.g. if enabled or disabled is switching, delete this membership (and child objects)
+   * and recommit it (which will not have the child objects or will have this time)
+   */
+  public void deleteAndStore() {
+    //TODO add auditing
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+          
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            //set enabled temporarily to clean out what is there
+            Membership.this.enabled = true;
+            GrouperDAOFactory.getFactory().getMembership().delete(Membership.this);
+            //recalculate
+            Membership.this.enabled = Membership.this.isEnabled();
+            //insert this again
+            Membership.this.setHibernateVersionNumber(GrouperAPI.INITIAL_VERSION_NUMBER);
+            GrouperDAOFactory.getFactory().getMembership().save(Membership.this);
+            return null;
+          }
+        });
   }
   
   /**
@@ -1521,13 +1545,14 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       if (ms != null && ms.isEnabled() == false) {
         GrouperDAOFactory.getFactory().getMembership().delete(ms);
       }
-
-      // high level membership hook
-      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-          MembershipHooks.METHOD_MEMBERSHIP_PRE_ADD_MEMBER,
-          HooksMembershipChangeBean.class, this, Membership.class, 
-          VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER);
       
+      if (this.enabled) {
+        // high level membership hook
+        GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_PRE_ADD_MEMBER,
+            HooksMembershipChangeBean.class, this, Membership.class, 
+            VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER);
+      }      
     } else if (this.isComposite()) {
       // validate the composite membership
       GrouperValidator v = CompositeMembershipValidator.validate(this);
@@ -1536,21 +1561,23 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       }
     }
       
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
-    
-    // now we need to take care of firing hooks for effective memberships
-    // note that effective membership hooks are also fired on pre and post events on GroupSet
-    if (this.getFieldId().equals(Group.getDefaultList().getUuid())) {
-      Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
-      Iterator<GroupSet> groupSetsIter = groupSets.iterator();
-      while (groupSetsIter.hasNext()) {
-        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObject(this);
-        effectiveMemberships.add(effectiveMembership);
-        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
-            MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
-            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
+    if (this.enabled) {
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
+          this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
+      
+      // now we need to take care of firing hooks for effective memberships
+      // note that effective membership hooks are also fired on pre and post events on GroupSet
+      if (this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+        Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
+        Iterator<GroupSet> groupSetsIter = groupSets.iterator();
+        while (groupSetsIter.hasNext()) {
+          Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObject(this);
+          effectiveMemberships.add(effectiveMembership);
+          GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+              MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
+              effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
+        }
       }
     }
   }
@@ -1782,43 +1809,47 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       addMembershipAddChangeLogs(effectiveMemberships);
     }
     
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
-
-    //do these second so the right object version is set, and dbVersion is ok
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
-        this, Membership.class);
-    
-    // hooks for effective memberships
-    // note that effective membership hooks are also fired on pre and post events on GroupSet
-    Iterator<Membership> effectiveMembershipsIter = this.effectiveMemberships.iterator();
-    while (effectiveMembershipsIter.hasNext()) {
-      Membership effectiveMembership = effectiveMembershipsIter.next();
-      
+    if (this.enabled) {
       GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
           MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
-          effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
-
+          this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
+  
       //do these second so the right object version is set, and dbVersion is ok
       GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
           MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
-          effectiveMembership, Membership.class);
+          this, Membership.class);
+      
+      // hooks for effective memberships
+      // note that effective membership hooks are also fired on pre and post events on GroupSet
+      Iterator<Membership> effectiveMembershipsIter = this.effectiveMemberships.iterator();
+      while (effectiveMembershipsIter.hasNext()) {
+        Membership effectiveMembership = effectiveMembershipsIter.next();
+        
+        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
+            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
+  
+        //do these second so the right object version is set, and dbVersion is ok
+        GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
+            effectiveMembership, Membership.class);
+      }
     }
     
     this.effectiveMemberships = null;
 
-    if (this.isImmediate()) {      
-      // high level membership hooks
-      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_ADD_MEMBER, HooksMembershipChangeBean.class, 
-          this, Membership.class);
-  
-      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-          MembershipHooks.METHOD_MEMBERSHIP_POST_ADD_MEMBER,
-          HooksMembershipChangeBean.class, this, Membership.class, 
-          VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER);
+    if (this.enabled) {
+      if (this.isImmediate()) {      
+        // high level membership hooks
+        GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_ADD_MEMBER, HooksMembershipChangeBean.class, 
+            this, Membership.class);
+    
+        GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_POST_ADD_MEMBER,
+            HooksMembershipChangeBean.class, this, Membership.class, 
+            VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER);
+      }
     }
   }
 
@@ -2328,7 +2359,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * This is for internal use only.
    * @param owner
    */
-  public void setOwnerId(String owner) {
+  public void setOwnerId(@SuppressWarnings("unused") String owner) {
     // not used
   }
 
