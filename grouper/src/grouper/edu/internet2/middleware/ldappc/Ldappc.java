@@ -374,9 +374,8 @@ public final class Ldappc extends TimerTask {
 
     File file = new File(options.getOutputFileLocation());
 
-    if (!file.createNewFile()) {
-      throw new LdappcException("File '" + options.getOutputFileLocation()
-          + "' already exists.");
+    if (!file.exists()) {
+      file.createNewFile();
     }
 
     writer = LdapUtil.openWriter(file);
@@ -403,9 +402,8 @@ public final class Ldappc extends TimerTask {
 
     File file = new File(options.getOutputFileLocation());
 
-    if (!file.createNewFile()) {
-      throw new LdappcException("File '" + options.getOutputFileLocation()
-          + "' already exists.");
+    if (!file.exists()) {
+      file.createNewFile();
     }
 
     BufferedWriter writer = LdapUtil.openWriter(file);
