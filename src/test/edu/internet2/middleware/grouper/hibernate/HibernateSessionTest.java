@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.8 2009-11-02 03:50:51 mchyzer Exp $
+ * $Id: HibernateSessionTest.java,v 1.9 2009-11-02 08:50:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -22,10 +22,8 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
