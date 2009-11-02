@@ -51,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.47 2009-10-15 13:12:08 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.48 2009-11-02 03:50:51 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -1648,5 +1648,31 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
     return _getMembershipsFromMembershipAndMemberQuery(mships);
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllEnabledDisabledMismatch()
+   */
+  public Set<Membership> findAllEnabledDisabledMismatch() {
+    long now = System.currentTimeMillis();
+
+    StringBuilder sql = new StringBuilder(
+        "select ms from ImmediateMembershipEntry as ms where  "
+          + "(ms.enabledDb = 'F' and ms.enabledTimeDb is null and ms.disabledTimeDb is null) "  
+          + " or (ms.enabledDb = 'F' and ms.enabledTimeDb is null and ms.disabledTimeDb > :now) "
+          + " or (ms.enabledDb = 'F' and ms.enabledTimeDb < :now and ms.disabledTimeDb is null) "
+          + " or (ms.enabledDb = 'F' and ms.enabledTimeDb < :now and ms.disabledTimeDb > :now) "
+          + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
+          + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :now) "
+          + " or (ms.enabledDb <> 'T' and ms.enabledDb <> 'F') "
+          + " or (ms.enabledDb is null) "
+     );
+
+    Set<Membership> memberships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setLong( "now",  now )
+      .listSet(Membership.class);
+    return memberships;
   }
 }

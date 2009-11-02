@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.7 2009-11-01 14:57:22 mchyzer Exp $
+ * $Id: HibernateSessionTest.java,v 1.8 2009-11-02 03:50:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -22,8 +22,10 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -37,7 +39,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testEnabledDisabled"));
+    TestRunner.run(new HibernateSessionTest("testEnabledDisabledInline"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -70,6 +72,58 @@ public class HibernateSessionTest extends GrouperTest {
     assertEquals(SubjectTestHelper.SUBJ1_ID, memberList.get(1).getSubjectId());
     assertEquals(SubjectTestHelper.SUBJ2_ID, memberList.get(2).getSubjectId());
     assertEquals(SubjectTestHelper.SUBJ5_ID, memberList.get(3).getSubjectId());
+  }
+  
+  /**
+   * test enabled/disabled inline
+   * @throws Exception 
+   */
+  public void testEnabledDisabledInline() throws Exception {
+    //lets add some members
+    GrouperSession grouperSession = SessionHelper.getRootSession();
+    Stem root = StemHelper.findRootStem(grouperSession);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group parent = StemHelper.addChildGroup(edu, "parent", "parent");
+    Group child = StemHelper.addChildGroup(edu, "child", "child");
+    
+    //lets count the memberships (all view)
+    int initialCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    int initialCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+
+    //##################################################
+    parent.addMember(child.toSubject());
+    child.addMember(SubjectTestHelper.SUBJ1);
+    
+    int currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    int currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("3 memberships, 1 for subj1 in child, 1 for subj1 in parent, and 1 for child in parent", 
+        initialCountMembershipsAllV + 3, currentGroupCountMembershipsAllV);
+    assertEquals("1 more group set for child in parent", 
+        initialCountGroupSet + 1, currentGroupCountGroupSet);
+    
+    //####################################################
+    //disable
+    Membership membership = parent.getImmediateMembership(Group.getDefaultList(), child.toSubject(), true, true);
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() - 10000));
+    membership.update();
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("2 memberships, 1 for subj1 in child, 1 for disabled child in parent, none for subj1 in parent", 
+        initialCountMembershipsAllV + 2, currentGroupCountMembershipsAllV);
+    assertEquals("same as original group sets", 
+        initialCountGroupSet, currentGroupCountGroupSet);
   }
   
   /**
@@ -108,9 +162,73 @@ public class HibernateSessionTest extends GrouperTest {
     
     //####################################################
     //disable
-    Membership membership = parent.getImmediateMembership(Group.getDefaultList(), child.toSubject(), true);
+    Membership membership = parent.getImmediateMembership(Group.getDefaultList(), child.toSubject(), true, true);
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() - 10000));
     membership.deleteAndStore();
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("2 memberships, 1 for subj1 in child, 1 for disabled child in parent, none for subj1 in parent", 
+        initialCountMembershipsAllV + 2, currentGroupCountMembershipsAllV);
+    assertEquals("same as original group sets", 
+        initialCountGroupSet, currentGroupCountGroupSet);
+    
+    
+    //####################################################
+    //disable in future
+    membership = parent.getImmediateMembership(Group.getDefaultList(), child.toSubject(), false, true);
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + 10000));
+    membership.deleteAndStore();
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("3 memberships, 1 for subj1 in child, 1 for disabled child in parent, 1 for subj1 in parent", 
+        initialCountMembershipsAllV + 3, currentGroupCountMembershipsAllV);
+    assertEquals("1 more group set for parent in child", 
+        initialCountGroupSet + 1, currentGroupCountGroupSet);
+    
+    //####################################################
+    //not enabled
+    membership.setDisabledTime(null);
+    membership.setEnabledTime(new Timestamp(System.currentTimeMillis() + 10000));
+    membership.deleteAndStore();
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("2 memberships, 1 for subj1 in child, 1 for disabled child in parent, none for subj1 in parent", 
+        initialCountMembershipsAllV + 2, currentGroupCountMembershipsAllV);
+    assertEquals("same as original group sets", 
+        initialCountGroupSet, currentGroupCountGroupSet);
+    
+    
+    //####################################################
+    //enable in past
+    membership.setEnabledTime(new Timestamp(System.currentTimeMillis() - 10000));
+    membership.deleteAndStore();
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("3 memberships, 1 for subj1 in child, 1 for disabled child in parent, 1 for subj1 in parent", 
+        initialCountMembershipsAllV + 3, currentGroupCountMembershipsAllV);
+    assertEquals("1 more group set for parent in child", 
+        initialCountGroupSet + 1, currentGroupCountGroupSet);
+    
     
     //####################################################
     //delete the membership (should be 2 less)
@@ -135,25 +253,214 @@ public class HibernateSessionTest extends GrouperTest {
     assertEquals("same as original group sets", 
         initialCountGroupSet, currentGroupCountGroupSet);
     
-    //disable the group membership
-    
-    //count the memberships (should be 1 less)
-    
-    //enabled the membership (should be 1 more)
-    
+  }
 
-    //set the disabled date in future (few millis)
+  /**
+   * test paging/sorting
+   * @throws Exception 
+   */
+  public void testEnabledDisabledDaemon() throws Exception {
+
+    //lets add some members
+    GrouperSession grouperSession = SessionHelper.getRootSession();
+    Stem root = StemHelper.findRootStem(grouperSession);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group parent = StemHelper.addChildGroup(edu, "parent", "parent");
+    Group child = StemHelper.addChildGroup(edu, "child", "child");
+    
+    //lets count the memberships (all view)
+    int initialCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    int initialCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+
+    //##################################################
+    parent.addMember(child.toSubject());
+    child.addMember(SubjectTestHelper.SUBJ1);
+    
+    int currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    int currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("3 memberships, 1 for subj1 in child, 1 for subj1 in parent, and 1 for child in parent", 
+        initialCountMembershipsAllV + 3, currentGroupCountMembershipsAllV);
+    assertEquals("1 more group set for child in parent", 
+        initialCountGroupSet + 1, currentGroupCountGroupSet);
+    
+    //####################################################
+    //disable
+    Membership membership = parent.getImmediateMembership(Group.getDefaultList(), child.toSubject(), true, true);
+    
+    //disabled 1 ms in the past
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry " +
+    		"set disabledTimeDb = :disabledTime where immediateMembershipId = :theId")
+      .setLong("disabledTime", System.currentTimeMillis()-1)
+      .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
+    int fixed = Membership.internal_fixEnabledDisabled();
     
-    //see disabled (count memberships)
+    assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     
-    //clear disabled and set enabled (few millis)
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("2 memberships, 1 for subj1 in child, 1 for disabled child in parent, none for subj1 in parent", 
+        initialCountMembershipsAllV + 2, currentGroupCountMembershipsAllV);
+    assertEquals("same as original group sets", 
+        initialCountGroupSet, currentGroupCountGroupSet);
+
+    assertFalse(parent.hasMember(child.toSubject()));
+    assertFalse(parent.hasMember(SubjectTestHelper.SUBJ1));
+    
+    //###########################################
+    //run with nothing to do
+    fixed = Membership.internal_fixEnabledDisabled();
+    
+    assertEquals("Should have fixed no records", 0, fixed);
+    
+    //###########################################
+    //disabled in the future, should be enabled
+    
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry " +
+        "set disabledTimeDb = :disabledTime where immediateMembershipId = :theId")
+      .setLong("disabledTime", System.currentTimeMillis()+10000)
+      .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
+    fixed = Membership.internal_fixEnabledDisabled();
     
-    //count the memberships (should be original number)
+    assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+    
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("3 memberships, 1 for subj1 in child, 1 for enabled child in parent, 1 for subj1 in parent", 
+        initialCountMembershipsAllV + 3, currentGroupCountMembershipsAllV);
+    assertEquals("1 more group set for child in parent", 
+        initialCountGroupSet + 1, currentGroupCountGroupSet);
+    
+    assertTrue(parent.hasMember(child.toSubject()));
+    assertTrue(parent.hasMember(SubjectTestHelper.SUBJ1));
+    
+    
+    //###########################################
+    //enabled in future and disabled in the future, should be disabled
+    
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry " +
+        "set enabledTimeDb = :enabledTime where immediateMembershipId = :theId")
+      .setLong("enabledTime", System.currentTimeMillis()+10000)
+      .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
+    
+    //run daemon
+    fixed = Membership.internal_fixEnabledDisabled();
+    
+    assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+    
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("2 memberships, 1 for subj1 in child, 1 for disabled child in parent", 
+        initialCountMembershipsAllV + 2, currentGroupCountMembershipsAllV);
+    assertEquals("same group sets as original", 
+        initialCountGroupSet, currentGroupCountGroupSet);
+    
+    assertFalse(parent.hasMember(child.toSubject()));
+    assertFalse(parent.hasMember(SubjectTestHelper.SUBJ1));
+    
+    //###########################################
+    //enabled in past and disabled in the future, should be enabled
+    
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry " +
+        "set enabledTimeDb = :enabledTime where immediateMembershipId = :theId")
+      .setLong("enabledTime", System.currentTimeMillis()-10000)
+      .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
+    
+    //run daemon
+    fixed = Membership.internal_fixEnabledDisabled();
+    
+    assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+    
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("3 memberships, 1 for subj1 in child, 1 for disabled child in parent, 1 for subj1 in parent", 
+        initialCountMembershipsAllV + 3, currentGroupCountMembershipsAllV);
+    assertEquals("1 more group set for child in parent", 
+        initialCountGroupSet + 1, currentGroupCountGroupSet);
+    
+    assertTrue(parent.hasMember(child.toSubject()));
+    assertTrue(parent.hasMember(SubjectTestHelper.SUBJ1));
+    
+    //###########################################
+    //enabled in future and disabled null, should be disabled
+    
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry " +
+        "set enabledTimeDb = :enabledTime, disabledTimeDb = null where immediateMembershipId = :theId")
+      .setLong("enabledTime", System.currentTimeMillis()+10000)
+      .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
+    
+    //run daemon
+    fixed = Membership.internal_fixEnabledDisabled();
+    
+    assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+    
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("2 memberships, 1 for subj1 in child, 1 for disabled child in parent", 
+        initialCountMembershipsAllV + 2, currentGroupCountMembershipsAllV);
+    assertEquals("same group sets as original", 
+        initialCountGroupSet, currentGroupCountGroupSet);
+    
+    assertFalse(parent.hasMember(child.toSubject()));
+    assertFalse(parent.hasMember(SubjectTestHelper.SUBJ1));
+    
+    
+    //###########################################
+    //enabled in past and disabled null, should be enabled
+    
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry " +
+        "set enabledTimeDb = :enabledTime, disabledTimeDb = null where immediateMembershipId = :theId")
+      .setLong("enabledTime", System.currentTimeMillis()-10000)
+      .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
+    
+    //run daemon
+    fixed = Membership.internal_fixEnabledDisabled();
+    
+    assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
+    
+    currentGroupCountMembershipsAllV = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_memberships_all_v");
+    
+    currentGroupCountGroupSet = HibernateSession.bySqlStatic().select(
+        int.class, "select count(1) from grouper_group_set");
+    
+    assertEquals("3 memberships, 1 for subj1 in child, 1 for disabled child in parent, 1 for subj1 in parent", 
+        initialCountMembershipsAllV + 3, currentGroupCountMembershipsAllV);
+    assertEquals("1 more group set for child leads to parent", 
+        initialCountGroupSet + 1, currentGroupCountGroupSet);
+    
+    assertTrue(parent.hasMember(child.toSubject()));
+    assertTrue(parent.hasMember(SubjectTestHelper.SUBJ1));
     
     
   }

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: JDBCSourceAdapter2.java,v 1.5 2009-10-30 12:54:06 mchyzer Exp $
+ * @author mchyzer $Id: JDBCSourceAdapter2.java,v 1.6 2009-11-02 03:50:51 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
@@ -648,7 +648,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
           query, resultSetMetaData);
     }
     Map attributes = loadAttributes(resultSet, query, resultSetMetaData);
-    subject = new SubjectImpl(subjectID, name, description, this.getSubjectTypeString(), this.getId(),
+    subject = new SubjectImpl(subjectID, name, description, this.getSubjectType().getName(), this.getId(),
         attributes);
     return subject;
   }

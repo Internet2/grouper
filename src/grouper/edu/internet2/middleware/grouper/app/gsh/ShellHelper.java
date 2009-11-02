@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.3 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: ShellHelper.java,v 1.4 2009-11-02 03:50:51 mchyzer Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -81,6 +81,7 @@ class ShellHelper {
 	    		t=t.getCause();
 	    	}
     	}
+    	//note, full stack isnt useful here, as the cause isnt there...
       interpreter.error(GshErrorMessages.BSH_EVAL + err.toString());
             
     }

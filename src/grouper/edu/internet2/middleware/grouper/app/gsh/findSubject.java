@@ -19,7 +19,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Find a {@link Subject}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: findSubject.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: findSubject.java,v 1.4 2009-11-02 03:50:51 mchyzer Exp $
  * @since   0.0.1
  */
 public class findSubject {
@@ -43,7 +43,7 @@ public class findSubject {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      return SubjectFinder.findById(id, true);
+      return SubjectFinder.findByIdOrIdentifier(id, true);
     }
     catch (SubjectNotFoundException eSNF) {
       GrouperShell.error(i, eSNF);
@@ -75,7 +75,11 @@ public class findSubject {
       return SubjectFinder.findById(id, type, true);
     }
     catch (SubjectNotFoundException eSNF) {
-      GrouperShell.error(i, eSNF);
+      try {
+        return SubjectFinder.findByIdentifier(id, type, true);
+      } catch (SubjectNotFoundException snfe) {
+        GrouperShell.error(i, eSNF);
+      }
     }
     catch (SubjectNotUniqueException eSNU) {
       GrouperShell.error(i, eSNU);
@@ -108,7 +112,11 @@ public class findSubject {
       GrouperShell.error(i, eSNA);
     }
     catch (SubjectNotFoundException eSNF) {
-      GrouperShell.error(i, eSNF);
+      try {
+        return SubjectFinder.findByIdentifier(id, type, source, true);
+      } catch (SubjectNotFoundException snfe) {
+        GrouperShell.error(i, eSNF);
+      }
     }
     catch (SubjectNotUniqueException eSNU) {
       GrouperShell.error(i, eSNU);

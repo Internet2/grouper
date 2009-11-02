@@ -30,11 +30,17 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.31 2009-10-03 13:47:12 shilen Exp $
+ * @version $Id: MembershipDAO.java,v 1.32 2009-11-02 03:50:51 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
 
+  /**
+   * find records which are disabled which shouldnt be, and enabled which shouldnt be
+   * @return the memberships
+   */
+  public Set<Membership> findAllEnabledDisabledMismatch();
+  
   /**
    * get all memberships
    * @param enabledOnly 

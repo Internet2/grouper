@@ -26,7 +26,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Delete a member.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delMember.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: delMember.java,v 1.5 2009-11-02 03:50:51 mchyzer Exp $
  * @since   0.0.1
  */
 public class delMember {
@@ -53,7 +53,7 @@ public class delMember {
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
       Group           g     = GroupFinder.findByName(s, group, true);
-      Subject         subj  = SubjectFinder.findById(subjId, true);
+      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
       g.deleteMember(subj);
       return true;
     }
@@ -96,7 +96,7 @@ public class delMember {
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
       Group           g     = GroupFinder.findByName(s, group, true);
-      Subject         subj  = SubjectFinder.findById(subjId, true);
+      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
       g.deleteMember(subj, field);
       return true;
     }
