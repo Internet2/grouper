@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.137 2009-11-01 14:57:22 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.138 2009-11-02 03:50:51 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -102,6 +102,13 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * update this record to the DB
+   */
+  public void update() {
+    GrouperDAOFactory.getFactory().getMembership().update(this);
+  }
+  
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
   
@@ -394,7 +401,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * and recommit it (which will not have the child objects or will have this time)
    */
   public void deleteAndStore() {
-    //TODO add auditing
+    //TODO add auditing, maybe try to maintain context id, or create a new one
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
           
@@ -408,6 +415,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
             //insert this again
             Membership.this.setHibernateVersionNumber(GrouperAPI.INITIAL_VERSION_NUMBER);
             GrouperDAOFactory.getFactory().getMembership().save(Membership.this);
+            Membership.this.dbVersionReset();            
             return null;
           }
         });
@@ -1748,7 +1756,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     }
     
     // take care of the changelog
-    if (this.dbVersion().enabled) {
+    if (this.dbVersion() != null && this.dbVersion().enabled) {
       addMembershipDeleteChangeLog(this.getMember());
       addMembershipDeleteChangeLogs(effectiveMemberships, null);
     }
@@ -2295,6 +2303,18 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
   }
 
+  /**
+   * fix enabled and disabled memberships, and return the count of how many were fixed
+   * @return the number of records affected
+   */
+  public static int internal_fixEnabledDisabled() {
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllEnabledDisabledMismatch();
+    for (Membership membership : memberships) {
+      membership.deleteAndStore();
+    }
+    return memberships.size();
+  }
+  
   /**
    * deep clone the fields in this object
    */

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.23 2009-10-18 16:30:51 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.24 2009-11-02 03:50:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
@@ -228,6 +229,14 @@ public enum GrouperLoaderType {
           
           hib3GrouploaderLog.setJobMessage("Ran the grouper report, isRunUnresolvable: " 
               + isRunUsdu + ", isRunBadMembershipFinder: " + isRunBadMember + ", sent to: " + emailTo);
+          
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        } else if (StringUtils.equals(GROUPER_ENABLED_DISABLED, hib3GrouploaderLog.getJobName())) {
+
+          int records = Membership.internal_fixEnabledDisabled();
+          hib3GrouploaderLog.setUpdateCount(records);
+
+          hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else {
@@ -857,11 +866,15 @@ public enum GrouperLoaderType {
   public static final String GROUPER_REPORT = "MAINTENANCE__grouperReport";
 
   /**
+   * maintenance enabledDisabled name
+   */
+  public static final String GROUPER_ENABLED_DISABLED = "MAINTENANCE__enabledDisabled";
+
+  /**
    * change log temp to change log
    */
   public static final String GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG = "CHANGE_LOG_changeLogTempToChangeLog";
 
-  
   /**
    * change log consumer prefix
    */

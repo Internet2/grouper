@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Check if subject has privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: hasPriv.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: hasPriv.java,v 1.4 2009-11-02 03:50:51 mchyzer Exp $
  * @since   0.0.1
  */
 public class hasPriv {
@@ -54,7 +54,7 @@ public class hasPriv {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Subject         subj  = SubjectFinder.findById(subjId, true);
+      Subject         subj  = SubjectFinder.findByIdOrIdentifier(subjId, true);
       if (Privilege.isAccess(priv)) {
         Group g = GroupFinder.findByName(s, name, true);
         if      (priv.equals( AccessPrivilege.ADMIN  )) {

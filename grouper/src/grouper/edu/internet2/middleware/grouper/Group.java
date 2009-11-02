@@ -133,7 +133,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.264 2009-11-01 14:57:22 mchyzer Exp $
+ * @version $Id: Group.java,v 1.265 2009-11-02 03:50:51 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2614,7 +2614,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
 
   /**
-   * Get memberships of this group, for a certain collection of members
+   * Get memberships of this group, for a certain collection of members, must be enabled
    * 
    * A membership is the object which represents a join of member
    * and group.  Has metadata like type and creator,
@@ -2630,9 +2630,30 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public Set<Membership> getImmediateMemberships(Field f, Collection<Member> members) 
     throws  SchemaException {
+    return getImmediateMemberships(f, members, true);
+  }
+
+  /**
+   * Get memberships of this group, for a certain collection of members
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set memberships = g.getMemberships(f);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @param members 
+   * @param enabledOnly
+   * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
+   */
+  public Set<Membership> getImmediateMemberships(Field f, Collection<Member> members, boolean enabledOnly) 
+    throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMembersAndType(this.getUuid(), f, members, "immediate", true)
+          .findAllByGroupOwnerAndFieldAndMembersAndType(this.getUuid(), f, members, "immediate", enabledOnly)
       );
   }
 
@@ -2648,15 +2669,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * </pre>
    * @param   f Get memberships in this list field.
    * @param subject
+   * @param enabledOnly 
    * @param exceptionIfNotFound true if MembershipNotFoundException should be thrown if not found, otherwise null
    * @return A set of {@link Membership} objects.
    * @throws SchemaException
    * @throws MembershipNotFoundException if none found and exceptionIfNotFound
    */
-  public Membership getImmediateMembership(Field f, Subject subject, boolean exceptionIfNotFound) 
+  public Membership getImmediateMembership(Field f, Subject subject, boolean enabledOnly, boolean exceptionIfNotFound) 
       throws  SchemaException, MembershipNotFoundException {
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
-    return getImmediateMembership(f, member, exceptionIfNotFound);
+    return getImmediateMembership(f, member, enabledOnly, exceptionIfNotFound);
   }
 
   /**
@@ -2671,14 +2693,15 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * </pre>
    * @param   f Get memberships in this list field.
    * @param member
+   * @param enabledOnly 
    * @param exceptionIfNotFound true if MembershipNotFoundException should be thrown if not found, otherwise null
    * @return A set of {@link Membership} objects.
    * @throws SchemaException
    * @throws MembershipNotFoundException if none found and exceptionIfNotFound
    */
-  public Membership getImmediateMembership(Field f, Member member, boolean exceptionIfNotFound) 
+  public Membership getImmediateMembership(Field f, Member member, boolean enabledOnly, boolean exceptionIfNotFound) 
       throws  SchemaException, MembershipNotFoundException {
-    Set<Membership> memberships = this.getImmediateMemberships(f, GrouperUtil.toSet(member));
+    Set<Membership> memberships = this.getImmediateMemberships(f, GrouperUtil.toSet(member), enabledOnly);
     if (memberships.size() == 0) {
       if (exceptionIfNotFound) {
         throw new MembershipNotFoundException("Cant find memberships for group: " + this + ", and member: " + member
