@@ -5,16 +5,16 @@
     version="2.4">
 <!--Processing context-param-->
 <!--Processing filter-->
-<!--Inserting tag from merge file-->
-<filter>
-  	<filter-name>Error Catcher</filter-name>
-  	<filter-class>edu.internet2.middleware.grouper.ui.ErrorFilter</filter-class>
-  </filter>
 <!--Inserting tag from base file-->
 <filter>
     <filter-name>GrouperUi</filter-name>
     <filter-class>edu.internet2.middleware.grouper.ui.GrouperUiFilter</filter-class>
 </filter>
+<!--Inserting tag from merge file-->
+<filter>
+    <filter-name>Error Catcher</filter-name>
+    <filter-class>edu.internet2.middleware.grouper.ui.ErrorFilter</filter-class>
+  </filter>
 <!--Inserting tag from base file-->
 <filter>
   	<filter-name>Login check</filter-name>
@@ -44,6 +44,17 @@
     <url-pattern>/grouperUi/app/*</url-pattern>
   </filter-mapping>
 
+<!--Inserting tag from base file-->
+<filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>*.do</url-pattern>
+  </filter-mapping>
+<!--Inserting tag from base file-->
+<filter-mapping>
+    <filter-name>GrouperUi</filter-name>
+    <url-pattern>*.jsp</url-pattern>
+  </filter-mapping>
+
   <filter-mapping>
     <filter-name>Error Catcher</filter-name>
     <url-pattern>/grouperUi/app/*</url-pattern>
@@ -59,16 +70,6 @@
 <filter-mapping>
   	<filter-name>Error Catcher</filter-name>
   	<url-pattern>/gotoCallerPage</url-pattern>
-  </filter-mapping>
-<!--Inserting tag from base file-->
-<filter-mapping>
-    <filter-name>GrouperUi</filter-name>
-    <url-pattern>*.do</url-pattern>
-  </filter-mapping>
-<!--Inserting tag from base file-->
-<filter-mapping>
-    <filter-name>GrouperUi</filter-name>
-    <url-pattern>*.jsp</url-pattern>
   </filter-mapping>
 <!--Inserting tag from base file-->
 <filter-mapping>

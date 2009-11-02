@@ -21,7 +21,11 @@
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): grouper.role" unless="grouper.role" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): ui.make.jar" unless="ui.make.jar" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): should.copy.context.xml.to.metainf" unless="should.copy.context.xml.to.metainf" />
-  
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): web.xml.overwrite" unless="web.xml.overwrite" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): login.ui-lite.show-link" unless="login.ui-lite.show-link" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): ui-lite.link-from-admin-ui" unless="ui-lite.link-from-admin-ui" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): browser.debug.enable" unless="browser.debug.enable" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): browser.debug.group.enable-html-editor" unless="browser.debug.group.enable-html-editor" />
   
 	<if><not><available file="tomcat-context.xml" /></not>
     <then><copy file="template-tomcat-context.xml" 

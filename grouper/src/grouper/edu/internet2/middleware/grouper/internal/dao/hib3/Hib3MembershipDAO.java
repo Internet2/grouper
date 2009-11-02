@@ -51,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.48 2009-11-02 03:50:51 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.49 2009-11-02 08:50:44 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -395,7 +395,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException {
     
-    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
+    StringBuilder sql = new StringBuilder("select distinct ms, m from MembershipEntry as ms, Member as m, Field as field where  "
         + "     ms.ownerGroupId   = :owner            "  
         + "and  ms.memberUuid  = :member           "
         + "and  ms.fieldId = :fuuid "

@@ -1,12 +1,16 @@
 /*
  * @author mchyzer
- * $Id: GuiMember.java,v 1.2 2009-09-09 15:20:21 mchyzer Exp $
+ * $Id: GuiMember.java,v 1.3 2009-11-02 08:50:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
@@ -23,8 +27,20 @@ public class GuiMember implements Serializable {
     
   }
   
+  
+  /**
+   * get membership if here
+   * @return the membership
+   */
+  public Membership getMembership() {
+    return this.membership;
+  }
+
   /** member */
   private Member member;
+  
+  /** immediate membership */
+  private Membership membership;
   
   /**
    * construct from member
@@ -38,6 +54,75 @@ public class GuiMember implements Serializable {
     }
     this.setGuiSubject(this.guiSubject);
     this.member = member1;
+  }
+  
+  /**
+   * 
+   * @param membership1
+   */
+  public void setMembership(Membership membership1) {
+    this.membership = membership1;
+  }
+  
+  /**
+   * format on screen of config for milestone: yyyy/MM/dd (not hh:mm aa)
+   */
+  public static final String TIMESTAMP_FORMAT = "yyyy/MM/dd";
+
+  /**
+   * <pre> format: yyyy/MM/dd HH:mm:ss.SSS synchronize code that uses this standard formatter for timestamps </pre>
+   */
+  final static SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_FORMAT);
+
+  /**
+   * 
+   * @return the disabled date
+   */
+  public boolean isHasDisabledString() {
+    return this.membership != null && this.membership.getDisabledTime() != null;
+  }
+  
+  /**
+   * 
+   * @return the disabled date
+   */
+  public String getDisabledDateString() {
+    String format = this.getDisabledDate();
+    if (format == null) {
+      return null;
+    }
+    return "("+ GrouperUiUtils.message("simpleMembershipUpdate.disabledPrefix", false) 
+      + ": " + format + ")";
+  }
+
+  /**
+   * 
+   * @return the disabled date
+   */
+  public String getDisabledDate() {
+    if (this.membership == null || this.membership.getDisabledTime() == null) {
+      return null;
+    }
+    return formatEnabledDisabled(this.membership.getDisabledTime());
+  }
+
+  /**
+   * 
+   * @return the disabled date
+   */
+  public String getEnabledDate() {
+    if (this.membership == null || this.membership.getEnabledTime() == null) {
+      return null;
+    }
+    return formatEnabledDisabled(this.membership.getEnabledTime());
+  }
+
+  /**
+   * @param timestamp 
+   * @return the string format
+   */
+  public synchronized static String formatEnabledDisabled(Timestamp timestamp) {
+    return timestampFormat.format(timestamp);
   }
   
   /**

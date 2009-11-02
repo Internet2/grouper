@@ -389,11 +389,11 @@ function guiProcessAction(guiScreenAction) {
           var value = options[j].value;
           
           //escape stuff:
-          value = fastReplaceString(value, '"', '&quot;');
-          value = fastReplaceString(value, '<', '&lt;');
-          value = fastReplaceString(value, '>', '&gt;');
-          label = fastReplaceString(label, '<', '&lt;');
-          label = fastReplaceString(label, '>', '&gt;');
+          value = guiReplaceString(value, '"', '&quot;');
+          value = guiReplaceString(value, '<', '&lt;');
+          value = guiReplaceString(value, '>', '&gt;');
+          label = guiReplaceString(label, '<', '&lt;');
+          label = guiReplaceString(label, '>', '&gt;');
           
           optionString += '<option value="' + value + '"';
           if (!fastIsEmpty(css)) {
@@ -1166,6 +1166,442 @@ function guiFormElement(form, elementName) {
   return null;
 }
  
+var guiCalendars = new Array();
+
+/** redefine this function if you want to set current date to something else */
+function guiNewDate() {
+  return new Date();
+}
+
+/**
+ * Return the m/d/yyyy string for the current date
+ */
+function guiNow() {
+  var now = guiNewDate();
+  var x = (now.getMonth()+1) + "/" + now.getDate()+ "/" +  now.getFullYear();
+  return x;
+}
+
+function guiCalendarImageClick(formElementId) {
+  if (guiCalendars[formElementId].parent != null && guiCalendars[formElementId].isVisible()) {
+    guiCalendars[formElementId].hide();
+  } else {
+  
+    var textfield = document.getElementById(formElementId);
+
+    var textfieldDate = textfield.value;
+  
+    //if nothing, default to today  
+    if (guiIsEmpty(textfieldDate)) {
+      textfieldDate = guiNow();
+    }
+
+    //convert to yyyymmdd
+    var yyyymmdd = formatValid_dateformattodb('dateformattodb', null, textfieldDate);
+
+    if (guiValidateDate(yyyymmdd)) {
+      //set the date to the control
+      var year = yyyymmdd.substring(0,4);
+      var month = yyyymmdd.substring(4,6);
+      var day = yyyymmdd.substring(6,8);
+      //guiConvertStringToDateOrTimestamp(yyyymmdd, true)
+      var theDate=new Date();
+      theDate.setFullYear(year);
+      theDate.setMonth(month-1);
+      theDate.setDate(day);
+      guiCalendars[formElementId].setDate(theDate);
+    }
+  
+  
+    guiCalendars[formElementId].show();
+  }
+  return false;
+}
+
+/** format a date from screen to the DB, format will go to ccyymmdd */
+function formatValid_dateformattodb(functionName, args, x) {
+  
+  return guiConvertStringToDateOrTimestamp(x, true); 
+}
+
+/** convert a string to a ccyymmdd or mm/dd/ccyy HH:MM:ss.SSS */
+function guiConvertStringToDateOrTimestamp(input, isDate) {
+  var ret = guiConvertStringToDateOrTimestampHelper(input, isDate);
+  if (isDate) {
+    //dont return an invalid value
+    if (guiValidateDate(ret)) {
+      return ret;
+    }
+    return input;
+  }
+  if (guiValidateTimestamp(ret)) {
+    return ret;
+  }
+  return input;
+}
+
+/** validate a month, day, year, give a helpful error message or null if no error */
+function guiValidateDateHelper(month, day, year, args) {
+  if (month > 12 || month < 1 || day < 1) {
+    return guiBuildErrorArgs("dateValidInvalidMonth", args);
+  }
+  var isValid = day <= 31 && (month == 1 || month == 3 || month == 5 || month == 7 || month == 8
+   || month == 10 || month == 12);
+  isValid = isValid || (day <= 30 && (month == 4 || month == 6 || month == 9 || month == 11));
+  if (isValid) { return null; }
+  if (month != 2) {
+    return guiBuildErrorArgs("dateValidInvalidDay", args);
+  }
+  //now month == 2, make sure the days is right
+  // century years are only leap years if divisible by 400
+  var isLeap=(year%4==0 && (year%100!=0 || year%400==0));
+  if (day > 29 || (day == 29 && !isLeap)) {
+    return guiBuildErrorArgs("dateValidLeapYear", args);
+  }
+ 
+  return null;
+
+}
+function guiValidateDate(x) {
+  return formatValid_datevalid("dateValid", null, x) == null;
+}
+/** validate that the date is valid */
+function formatValid_datevalid(functionName, args, x) {
+  //if x is blank, thats ok.
+  if (fastIsEmpty(x)) {
+    return null;
+  }
+  var re = new RegExp("^(\\d{4})(\\d{2})(\\d{2})$");
+  var matches = x.match(re);
+  if (!matches) {
+    //this is a formatting problem
+    return guiBuildErrorArgs(functionName, args);
+  }
+    
+  //check for valid days, get the month number (int)
+  var month = fastParseInt(matches[2]);
+  var day = fastParseInt(matches[3]);
+  var year = fastParseInt(matches[1]);
+  
+  return guiValidateDateHelper(month, day, year, args);
+}
+
+
+/** convert a string to a ccyymmdd or mm/dd/ccyy HH:MM:ss.SSS */
+function guiConvertStringToDateOrTimestampHelper(input, isDate) {
+  //empty ok
+  if (guiIsEmpty(input)) {
+    return input;
+  }
+  //if the date is valid, we are done
+  if (isDate) {
+    //if timestamp, convert to date
+    input = guiConvertDateFromTimestamp(input);
+  
+    //if we are already valid we are all set
+    if (guiValidateDate(input)) {
+      return input;
+    }
+  }
+  
+  //if the timestamp is valid, we are done
+  if (!isDate) {
+
+    //if we are already valid we are all set
+    if (fastValidateTimestamp(input)) {
+      return input;
+    }
+  }
+   
+  //if its not ccyymmdd, then it has delimiters
+  var origInput = input;
+  input = fastTrim(input);
+  
+  //if today, we know the answer
+  if (fastStrEqIgCase(input,"d")) {
+    var now = fastNewDate();
+    if (isDate) {
+      return fastConvertStringToDateOrTimestamp(
+        (1+now.getMonth()) + "/" + now.getDate() + "/" + now.getFullYear(), isDate);
+    } 
+    return fastConvertStringToDateOrTimestamp(
+       (now.getMonth()+1) + "/" + now.getDate() + "/" + now.getFullYear()  
+      + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds()
+      + "." + now.getMilliseconds(), isDate);
+  }
+  
+  var monthString=null; //2 padded month
+  var yearString=null; //4 padded year
+  var dayString=null; //2 padded day
+  var re;
+  var m;
+  var theTime="";
+  var foundMatch=false;
+  var hourString=null;
+  var minuteString=null;
+  var secondString=null;
+  var millisString=null;
+  
+  //allow a 8 digit date yyyymmdd
+  re = new RegExp("^([0-9]{4})([0-9]{2})([0-9]{2})(.*)$");
+  m = input.match(re);
+  if (m) {
+    yearString = m[1];
+    monthString = m[2];
+    dayString = m[3];
+    theTime = m[4];
+    foundMatch = true;
+  }
+  if (!foundMatch) {
+    //allow a 6 digit date mmddyy
+    re = new RegExp("^([0-9]{2})([0-9]{2})([0-9]{2})(.*)$");
+    m = input.match(re);
+    if (m) {
+      monthString = m[1];
+      dayString = m[2];
+      yearString = m[3];
+      theTime = m[4];
+      foundMatch = true;
+    }
+  }
+  //see if there is the month by text
+  if (!foundMatch) {
+    //try with 2 or 4 digit year
+    //see if there is the date by text Jan 1 2004 or february 4, 2005
+    re = new RegExp("^([a-zA-Z]+)\\D*([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
+    m = input.match(re);
+    if (m) {
+      monthString = m[1].toLowerCase();
+      monthString = fastMonthsNumber[monthString];
+      if (monthString == null) {
+        return origInput;
+      }
+      dayString = m[2];
+      yearString = m[3];
+      theTime = m[4];
+      foundMatch = true;
+    }
+  }
+  //see if there is the month by text
+  if (!foundMatch) {
+    //try with 2 or 4 digit year
+    //see if there is the date by text 1 Jan 2004 or 4 february, 2005
+    re = new RegExp("^([0-9]{1,2})\\W+([a-zA-Z]+)\\W*([0-9]{1,4})(.*)$");
+    m = input.match(re);
+    if (m) {
+      dayString = m[1];
+      monthString = m[2].toLowerCase();
+      monthString = fastMonthsNumber[monthString];
+      if (monthString == null) {
+        return origInput;
+      }
+      yearString = m[3];
+      theTime = m[4];
+      foundMatch = true;
+    }
+  }
+  //see if there is the year first, 4 digit only
+  if (!foundMatch) {
+    //try with 2 or 4 digit year
+    re = new RegExp("^([0-9]{4})\\D+([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
+    m = input.match(re);
+    if (m) {
+      yearString = m[1];
+      monthString = m[2];
+      dayString = m[3];
+      theTime = m[4];
+      foundMatch = true;
+    }
+  }
+  //see if there is the month first, any digit year
+  if (!foundMatch) {
+    re = new RegExp("^([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
+    m = input.match(re);
+    if (m) {
+      monthString = m[1];
+      dayString = m[2];
+      yearString = m[3];
+      theTime = m[4];
+      foundMatch = true;
+    }
+  }
+  //see if there is the month first, any digit year
+  if (!foundMatch) {
+    re = new RegExp("^([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
+    m = input.match(re);
+    if (m) {
+      monthString = m[1];
+      dayString = "01";
+      yearString = m[2];
+      theTime = m[3];
+      foundMatch = true;
+    }
+  }
+  //see if we havent found the date yet
+  if (!foundMatch) {
+    return origInput;
+  }
+  //make sure no neglected numbers
+  if (isDate) {
+    if (fastHasDigits(theTime)) {
+      return origInput;
+    }
+  } 
+  monthString = fastPadIntString(monthString, 2);
+  dayString = fastPadIntString(dayString, 2);
+
+  if (yearString.length < 4) {
+  
+    var year = fastParseInt(yearString);
+    yearString = fastPadIntString(yearString, 2);
+    if (year == 99) {
+      yearString = "9999";
+    } else if (year < 40) {
+      yearString = "20" + yearString;
+    } else {
+      yearString = "19" + yearString;
+    }
+  }
+  //mainframe conversion
+  if (fastStrEq(yearString, "9999") && fastStrEq(monthString, "99") && fastStrEq(dayString, "99")) {
+    yearString = "2099";
+    monthString = "12";
+    dayString = "31";
+  }
+  var ret;
+  if (isDate) {
+    ret = yearString + monthString + dayString;
+    return ret;
+  }
+
+  foundMatch = false;
+  var theRest = "";
+  if (fastIsEmpty(theTime)) {
+    hourString = "00";
+    minuteString = "00";
+    secondString = "00";
+    millisString = "000";
+    foundMatch = true;
+  }
+  if (!foundMatch) {
+    //timestamp, try millis, 1 to 3 of them
+    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,3})(.*)$");
+    m = theTime.match(re);
+    if (m) {
+      hourString = m[1];
+      minuteString = m[2];
+      secondString = m[3];
+      millisString = m[4];
+      theRest = m[5];
+      foundMatch = true;
+    }
+  }
+  if (!foundMatch) {
+    //timestamp, no millis
+    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
+    m = theTime.match(re);
+    if (m) {
+      hourString = m[1];
+      minuteString = m[2];
+      secondString = m[3];
+      theRest = m[4];
+      millisString = "000";
+      foundMatch = true;
+    }
+  }
+  if (!foundMatch) {
+    //timestamp, no seconds or millis
+    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
+    m = theTime.match(re);
+    if (m) {
+      hourString = m[1];
+      minuteString = m[2];
+      secondString = "00";
+      theRest = m[3];
+      millisString = "000";
+      foundMatch = true;
+    }
+  }
+  if (!foundMatch || fastHasDigits(theRest)) {
+    return origInput;
+  }
+  //see if there is an AM or PM in the timeString
+  re = new RegExp("([aApP][mM])");
+  theTime = fastDefaultString(theTime);
+  m = theTime.match(re);
+  var amPm = null;
+  var hasAmPm = false;
+  var isAm = true;
+  if (m) {
+    amPm = m[1].toLowerCase();
+    hasAmPm = true;
+    if (fastStrEq(amPm,"am")) {
+      isAm = true;
+    } else if (fastStrEq(amPm,"pm")) {
+      isAm = false;
+    } else {
+      fastAlert("Illegal AM/PM: " + amPm, false, 5);
+      return origInput;
+    }
+  } 
+  if (hasAmPm) {
+    var hour = fastParseInt(hourString);
+    if (hour <= 12 && hour > 0) {
+      hour = hour == 12 ? 0 : hour;
+      if (!isAm) {
+        hour+=12;
+      }
+      hourString = "" + hour;
+    }
+  }
+  hourString = fastPadIntString(hourString, 2);
+  minuteString = fastPadIntString(minuteString, 2);
+  secondString = fastPadIntString(secondString, 2);
+  millisString = fastPadIntString(millisString, 3);    
+  
+  ret = yearString + "/" + monthString + "/" + dayString + " " + hourString
+    + ":" + minuteString + ":" + secondString + "." + millisString;
+  return ret;
+}
+
+function guiCalendarInit(formElementId) {
+
+  //mCal = new dhtmlxCalendarObject("caltext6", false, {isWinHeader: true, isWinDrag: true});
+  //mCal.draw();
+  //mCal.hide();
+  //mCal.attachEvent("onClick", function(date){
+  //  var theDate = mCal.getFormatedDate('%Y%m%d', date);
+  //  document.getElementById("text6").value = theDate;
+  //  document.getElementById("text6").onblur();
+  //  
+  //  mCal.close();
+  //
+  //}) 
+  
+  //  <a href="#" onclick="return guiCalendarImageClick2('text6');"><img 
+  //src="../gui/images/calendar.gif" border="0" alt="Pick a date" height="16" 
+  //width="16" id="PZE8OLPL_image" /></a><span id="text6_theCalendar2" style="position: absolute;"></span>
+  //<script>
+  //  guiCalendarInit2("text6");
+  //</script>
+
+  var imageElementId = formElementId + "_theCalendar";
+  var theCalendar = new dhtmlxCalendarObject(imageElementId, false, 
+    {isWinHeader: true, isWinDrag: true});
+  theCalendar.draw();
+  theCalendar.hide();
+  
+  guiCalendars[formElementId] = theCalendar;
+
+  theCalendar.attachEvent("onClick", function(date){
+    var theDate = guiCalendars[formElementId].getFormatedDate('%Y%m%d', date);
+    document.getElementById(formElementId).value = theDate;
+    document.getElementById(formElementId).onblur();
+    guiCalendars[formElementId].close();
+
+  });   
+}
+
 /**
  * 
  * @param event

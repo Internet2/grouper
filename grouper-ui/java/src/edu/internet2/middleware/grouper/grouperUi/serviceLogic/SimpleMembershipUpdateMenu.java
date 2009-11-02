@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateMenu.java,v 1.4 2009-10-22 14:01:06 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateMenu.java,v 1.5 2009-11-02 08:50:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -13,9 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -172,6 +175,8 @@ public class SimpleMembershipUpdateMenu {
   //        guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
   //            + ", menuHtmlId: " + menuHtmlId));
         this.memberMenuSubjectDetails();
+      } else if (StringUtils.equals(menuItemId, "enabledDisabled")) {
+        this.memberMenuEnabledDisabled();
       } else {
         throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
       }
@@ -192,6 +197,10 @@ public class SimpleMembershipUpdateMenu {
         + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuDetailsLabel"), true) 
         + "\"><tooltip>" 
         + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuDetailsTooltip"), true) + "</tooltip></item>\n"
+        + "  <item id=\"enabledDisabled\" text=\"" 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuEnabledDisabled"), true) 
+        + "\"><tooltip>" 
+        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuEnabledDisabledTooltip"), true) + "</tooltip></item>\n"
         + "</menu>", HttpContentType.TEXT_XML, false, false);
     throw new ControllerDone();
   }
@@ -223,7 +232,7 @@ public class SimpleMembershipUpdateMenu {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      Member member = MemberFinder.findByUuid(grouperSession, memberId);
+      Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
       Subject subject = member.getSubject();
       String order = null;
       
@@ -282,4 +291,59 @@ public class SimpleMembershipUpdateMenu {
   
   }
 
+  /**
+   * edit the enabled disabled
+   */
+  @SuppressWarnings("unchecked")
+  public void memberMenuEnabledDisabled() {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    //lets see which subject we are dealing with:
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
+    if (StringUtils.isBlank(menuIdOfMenuTarget)) {
+      throw new RuntimeException("Missing id of menu target");
+    }
+    if (!menuIdOfMenuTarget.startsWith("memberMenuButton_")) {
+      throw new RuntimeException("Invalid id of menu target: '" + menuIdOfMenuTarget + "'");
+    }
+    String memberId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "memberMenuButton_", false);
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    Group group = null;
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
+      
+      group = new SimpleMembershipUpdate().retrieveGroup(grouperSession);  
+      
+      Membership membership = group.getImmediateMembership(Group.getDefaultList(), member, false, true);
+      
+      SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+      
+      GuiMember guiMember = new GuiMember(member);
+      simpleMembershipUpdateContainer.setEnabledDisabledMember(guiMember);
+      
+      guiMember.setMembership(membership);
+      
+      guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
+        "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateEnabledDisabled.jsp"));
+  
+    } catch (ControllerDone cd) {
+      throw cd;
+    } catch (NoSessionException nse) {
+      throw nse;
+    } catch (Exception se) {
+      throw new RuntimeException("Error listing member details: " + menuIdOfMenuTarget 
+          + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+  }
 }

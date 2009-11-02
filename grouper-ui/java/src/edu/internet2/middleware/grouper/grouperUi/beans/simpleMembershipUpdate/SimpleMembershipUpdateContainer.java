@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.3 2009-10-11 22:04:17 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.4 2009-11-02 08:50:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
@@ -25,6 +25,26 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class SimpleMembershipUpdateContainer implements Serializable {
 
+  /** member we are editing */
+  private GuiMember enabledDisabledMember = null;
+  
+  
+  /**
+   * member we are editing
+   * @return the enabledDisabledMembers
+   */
+  public GuiMember getEnabledDisabledMember() {
+    return this.enabledDisabledMember;
+  }
+  
+  /**
+   * member we are editing
+   * @param enabledDisabledMember1 the enabledDisabledMembers to set
+   */
+  public void setEnabledDisabledMember(GuiMember enabledDisabledMember1) {
+    this.enabledDisabledMember = enabledDisabledMember1;
+  }
+  
   /**
    * store to session scope
    */

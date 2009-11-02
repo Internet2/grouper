@@ -67,6 +67,7 @@ public class GrouperComboboxTag extends SimpleTagSupport {
     
     result.append("<div id=\"").append(this.id).append("\"");
     if (this.width != -1) {
+      //TODO this width doesnt work since the width: part isnt there, or px
       result.append(" style=\"").append(this.width).append("\"");
     }
     result.append("></div>\n");

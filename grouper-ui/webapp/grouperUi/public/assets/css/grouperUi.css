@@ -255,6 +255,11 @@ a.smallLink {
   padding-bottom: 10px;
 }
 
+.simpleMembershipUpdateDisabled {
+  font-size: 80%;
+  color: #555555;  
+}
+
 /*************** GROUPER STYLES **************/
 #title {
   color: #007994;

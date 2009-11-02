@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp" %>
-<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.2 2009-10-11 22:04:17 mchyzer Exp $ -->
+<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.3 2009-11-02 08:50:40 mchyzer Exp $ -->
 <%-- this is the section of the screen which shows a box and the member list inside --%>
 <div class="section">
   <grouper:subtitle key="simpleMembershipUpdate.membershipListSubtitle"/>
@@ -88,7 +88,11 @@
         <%-- show an icon for the subject --%>
         <grouper:subjectIcon guiSubject="${guiMember.guiSubject}" /> 
         <%-- the screen representation of the subject --%>
-        <span class="simpleMembershipUpdateMemberDescription">${fn:escapeXml(guiMember.guiSubject.screenLabel)}</span>
+        <span class="simpleMembershipUpdateMemberDescription">${fn:escapeXml(guiMember.guiSubject.screenLabel)}
+          <c:if test="${guiMember.hasDisabledString}">
+            <span class="simpleMembershipUpdateDisabled">${guiMember.disabledDateString}</span>
+          </c:if>
+        </span>
         <%-- show the triangle next to the member for more operations --%>
         <a class="memberMenuButton" href="#"
             ><img src="../public/assets/images/bullet_arrow_down.png" border="0" id="memberMenuButton_${guiMember.member.uuid}"
@@ -125,4 +129,4 @@
 <br />
 </div>
 </div>
-<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.2 2009-10-11 22:04:17 mchyzer Exp $ -->
+<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.3 2009-11-02 08:50:40 mchyzer Exp $ -->

@@ -1,9 +1,12 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.5 2009-10-30 12:41:54 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.6 2009-11-02 08:50:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +21,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -50,6 +54,49 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class SimpleMembershipUpdate {
 
+  /**
+   * submit the enabled / disabled dates popup
+   * @param request
+   * @param response
+   */
+  public void enabledDisabledSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    String enabledDate = request.getParameter("enabledDate");
+    String disabledDate = request.getParameter("disabledDate");
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+    
+    Membership membership = simpleMembershipUpdateContainer.getEnabledDisabledMember().getMembership();
+    
+    if (StringUtils.isBlank(enabledDate) ) {
+      membership.setEnabledTime(null);
+    } else {
+      //must be yyyy/mm/dd
+      Timestamp enabledTimestamp = GrouperUtil.toTimestamp(enabledDate);
+      membership.setEnabledTime(enabledTimestamp);
+    }
+    
+    if (StringUtils.isBlank(disabledDate) ) {
+      membership.setDisabledTime(null);
+    } else {
+      //must be yyyy/mm/dd
+      Timestamp disabledTimestamp = GrouperUtil.toTimestamp(disabledDate);
+      membership.setDisabledTime(disabledTimestamp);
+    }
+    
+    membership.update();
+    
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+    guiResponseJs.addAction(GuiScreenAction.newAlert(
+        GrouperUiUtils.message("simpleMembershipUpdate.enabledDisabledSuccess", false)));
+
+    //refresh this list
+    retrieveMembers(request, response);
+
+
+  }
+  
   /**
    * index page of application
    * @param request
@@ -260,12 +307,27 @@ public class SimpleMembershipUpdate {
         members = new SimpleMembershipUpdateFilter().retrieveMembersFilter(guiPaging, group, simpleMembershipFilterMember, null); 
       }      
         
+      Set<Membership> memberships = group.getImmediateMemberships(Group.getDefaultList(), members, true);
+      Map<String, Membership> membershipMapByMemberId = new HashMap<String, Membership>();
+      for (Membership membership : memberships) {
+        //only add due to disabled date
+        if (membership.getDisabledTime() != null ) {
+          membershipMapByMemberId.put(membership.getMemberUuid(), membership);
+        }
+      }
+      
       GuiMember[] guiMembers = new GuiMember[members.size()];
       int i=0;
+      Membership membership = null;
       for (Member member : members) {
         guiMembers[i] = new GuiMember(member);
         //TODO update this
         guiMembers[i].setDeletable(true);
+        membership = membershipMapByMemberId.get(member.getUuid());
+        if (membership != null) {
+          guiMembers[i].setMembership(membership);
+        }
+        
         i++;
         
       }
