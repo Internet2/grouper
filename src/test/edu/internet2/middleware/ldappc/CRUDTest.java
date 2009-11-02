@@ -73,6 +73,21 @@ public class CRUDTest extends BaseLdappcTestCase {
     }
   }
 
+  public void testCalculateBushyPartial() throws Exception {
+
+    setUpLdappc();
+
+    loadLdif("CRUDTest.beforePartial.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateBushy.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
   public void testCalculateChildStems() throws Exception {
 
     setUpLdappc();
@@ -794,5 +809,4 @@ public class CRUDTest extends BaseLdappcTestCase {
       verifyLdif("CRUDTest.testCreateMemberGroupIgnoreQueries.after.ldif");
     }
   }
-
 }

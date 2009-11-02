@@ -142,18 +142,17 @@ public class StringMembershipSynchronizer {
 
   public String calculateLdif(Set<String> groupNames) throws LdappcException,
       NamingException {
-    //
-    // Initialize the process
-    //
-    initialize();
 
+    String stringObjectClass = ldappc.getConfig().getMemberGroupsListObjectClass();
+    if (stringObjectClass != null) {
+      objectClassMods.store(stringObjectClass);
+      objectClassMods.retainAll();   
+    }
+    
     //
     // Iterate over the set of membership group names.
     //
     for (String groupNameString : groupNames) {
-      //
-      // Process the group
-      //
       membershipMods.store(groupNameString);
     }
 
