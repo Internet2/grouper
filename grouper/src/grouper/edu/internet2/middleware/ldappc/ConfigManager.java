@@ -576,33 +576,6 @@ public class ConfigManager implements LdappcConfig {
     digester.addCallParam(elementPath, 0, "ldap-attribute");
     digester.addCallParam(elementPath, 1, "ldap-attribute-empty-value");
 
-    // Save the Permission Listing parameters
-    elementPath = "ldappc/signet/permissions-listing";
-    digester.addCallMethod(elementPath, "setPermissionsListingStoredAs", 1);
-    digester.addCallParam(elementPath, 0, "stored-as");
-
-    digester.addCallMethod(elementPath, "setPermissionsListingStringObjectClass", 1);
-    digester.addCallParam(elementPath, 0, "string-object-class");
-
-    digester.addCallMethod(elementPath, "setPermissionsListingStringAttribute", 1);
-    digester.addCallParam(elementPath, 0, "string-attribute");
-
-    digester.addCallMethod(elementPath, "setPermissionsListingStringPrefix", 1);
-    digester.addCallParam(elementPath, 0, "string-prefix");
-
-    digester.addCallMethod(elementPath, "setPermissionsListingStringEmptyValue", 1);
-    digester.addCallParam(elementPath, 0, "string-list-empty-value");
-
-    // Save the Permissions Subsystem Queries
-    elementPath = "ldappc/signet/permissions-queries/subsystem-queries/subsystem-list/subsystem";
-    digester.addCallMethod(elementPath, "addPermissionsSubsystemQuery", 1);
-    digester.addCallParam(elementPath, 0, "id");
-
-    // Save the Permissions Function Queries
-    elementPath = "ldappc/signet/permissions-queries/function-queries/function-list/function";
-    digester.addCallMethod(elementPath, "addPermissionsFunctionQuery", 1);
-    digester.addCallParam(elementPath, 0, "id");
-
     //
     // Parse the config file
     //
