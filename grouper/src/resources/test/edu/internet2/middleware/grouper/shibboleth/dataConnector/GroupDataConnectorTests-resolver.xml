@@ -84,4 +84,11 @@
     </grouper:GroupFilter>
   </resolver:DataConnector>
   
+  <resolver:DataConnector id="testFilterMinus" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:Minus">
+      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
+      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />      
+    </grouper:GroupFilter>
+  </resolver:DataConnector>
+  
 </AttributeResolver>

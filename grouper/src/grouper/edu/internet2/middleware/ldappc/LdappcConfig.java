@@ -64,6 +64,14 @@ public interface LdappcConfig {
    * @return Set of Group stem strings.
    */
   public Set getGroupSubordinateStemQueries();
+  
+  /**
+   * This method returns a possibly empty {@link java.util.Set} of the attribute resolver
+   * data connector ids for returning the groups to be provisioned.
+   * 
+   * @return Set of Group stem strings.
+   */
+  public Set<String> getResolverQueries();
 
   /**
    * This returns the defined Group DN structure.

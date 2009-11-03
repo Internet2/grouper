@@ -122,6 +122,11 @@ public class ConfigManager implements LdappcConfig {
   private Map groupAttrMatchingQueries = new Hashtable();
 
   /**
+   * Set of the data connector ids to return the groups to be provisioned.
+   */
+  private Set<String> groupResolverQueries = new HashSet<String>();
+
+  /**
    * Group DN Structure.
    */
   private GroupDNStructure groupDnStructure;
@@ -435,6 +440,11 @@ public class ConfigManager implements LdappcConfig {
     digester.addCallMethod(elementPath, "addGroupAttrMatchQuery", 2);
     digester.addCallParam(elementPath, 0, "name");
     digester.addCallParam(elementPath, 1, "value");
+    
+    // Save the Group resolver data connector queries
+    elementPath = "ldappc/grouper/group-queries/resolver-matching-queries/data-connector-list/data-connector";
+    digester.addCallMethod(elementPath, "addResolverQuery", 1);
+    digester.addCallParam(elementPath, 0, "id");
 
     // Save the Source Subject Identifier naming attribute
     elementPath = "ldappc/source-subject-identifiers/source-subject-identifier";
@@ -1872,6 +1882,26 @@ public class ConfigManager implements LdappcConfig {
     this.provisionMemberGroupsIgnoreQueries = provisionMemberGroupsIgnoreQueries;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see edu.internet2.middleware.ldappc.LdappcConfig#getResolverDataConnectorIds()
+   */
+  public Set<String> getResolverQueries() {
+    return this.groupResolverQueries;
+  }
+  
+  /**
+   * This method adds a data connector id to the Group resolver data connector id queries
+   * set.
+   * 
+   * @param id
+   *          data connector id
+   */
+  private void addResolverQuery(String id) {
+    this.groupResolverQueries.add(id);
+  }
+
   /**
    * This is class allows the Digester processing the configuration file access to all the
    * necessary methods, regardless of visibility, for setting values in the ConfigManager
@@ -2370,6 +2400,10 @@ public class ConfigManager implements LdappcConfig {
 
     public void setProvisionMemberGroupsIgnoreQueries(String string) {
       ConfigManager.this.setProvisionMemberGroupsIgnoreQueries(string);
+    }
+    
+    public void addResolverQuery(String id) {
+      ConfigManager.this.addResolverQuery(id);
     }
   }
 

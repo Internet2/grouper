@@ -92,6 +92,9 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   /** possibly empty list of embedded servers which need to be shutdown */
   private List<EmbeddedApacheDS> embeddedADSServers = new ArrayList<EmbeddedApacheDS>();
+  
+  /** delete all entries from ldap context after each test */
+  private boolean tearDownContext = false;
 
   public BaseLdappcTestCase(String name) {
     super(name);
@@ -129,6 +132,8 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   public void setUpLdapContext() throws Exception {
 
+    tearDownContext = true;
+    
     Ldap ldap;
 
     if (useEmbedded()) {
@@ -202,12 +207,22 @@ public class BaseLdappcTestCase extends GrouperTest {
 
     ldappc = new Ldappc(options, configuration, null);
   }
+  
+  public void setUpLdappc(String configResource) throws Exception {
+
+    File file = GrouperUtil.fileFromResourceName(TEST_PATH + configResource);
+    if (file == null) {
+      throw new LdappcException("Unable to find resource '" + configResource + "'");
+    }
+
+    setUpLdappc(file.getAbsolutePath(), pathToProperties);
+  }
 
   public void tearDown() {
     super.tearDown();
 
     try {
-      if (ldappc != null) {
+      if (ldappc != null && tearDownContext) {
         Ldap ldap = ldappc.getContext();
         LdappcTestHelper.deleteChildren(base, ldap);
         ldap.close();

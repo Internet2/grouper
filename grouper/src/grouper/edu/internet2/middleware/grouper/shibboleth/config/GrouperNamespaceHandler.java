@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.SPMLData
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.StemDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.AndGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.ExactAttributeGroupQueryFilterBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.filter.provider.MinusGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemNameGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
@@ -82,5 +83,7 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
     registerBeanDefinitionParser(SourceIdentifierBeanDefinitionParser.TYPE_NAME,
         new SourceIdentifierBeanDefinitionParser());
 
+    registerBeanDefinitionParser(MinusGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
+        new MinusGroupQueryFilterBeanDefinitionParser());
   }
 }

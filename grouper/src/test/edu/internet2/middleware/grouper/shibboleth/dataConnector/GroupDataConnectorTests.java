@@ -256,6 +256,29 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
       throw new RuntimeException(e);
     }
   }
+  
+  public void testFilterMinus() {
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinus");
+
+      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+
+      Set<Group> groups = filter.getResults(grouperSession);
+
+      assertEquals(1, groups.size());
+
+      assertTrue(groups.contains(groupA));
+      assertFalse(groups.contains(groupB));
+      assertFalse(groups.contains(groupC));
+
+      assertTrue(filter.matchesGroup(groupA));
+      assertFalse(filter.matchesGroup(groupB));
+      assertFalse(filter.matchesGroup(groupC));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   public void testFilterMatchExactAttribute() {
 
@@ -319,6 +342,19 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
       assertTrue("map should be empty", gdc.resolve(getShibContext(groupA.getName())).isEmpty());
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupB.getName())).isEmpty());
       assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupC.getName())).isEmpty());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
+  public void testMatchFilterMinus() {
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinus");
+
+      assertTrue("map should not be empty", !gdc.resolve(getShibContext(groupA.getName())).isEmpty());
+      assertTrue("map should be empty", gdc.resolve(getShibContext(groupB.getName())).isEmpty());
+      assertTrue("map should be empty", gdc.resolve(getShibContext(groupC.getName())).isEmpty());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

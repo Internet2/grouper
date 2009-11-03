@@ -14,10 +14,12 @@
                               urn:mace:shibboleth:2.0:resource classpath:/schema/shibboleth-2.0-resource.xsd
                               http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
 
-  <Service id="grouper.Resolver" xsi:type="attribute-resolver:ShibbolethAttributeResolver">
+  <!-- the attribute resolver id must be grouper.AttributeResolver -->
+  <Service id="grouper.AttributeResolver" xsi:type="attribute-resolver:ShibbolethAttributeResolver">
     <ConfigurationResource file="ldappc-resolver.xml" xsi:type="resource:ClasspathResource" />
   </Service>
 
-  <Service id="grouper.AttributeAuthority" xsi:type="grouper:SimpleAttributeAuthority" depends-on="grouper.Resolver" resolver="grouper.Resolver" />
+  <!-- the attribute authority id must be grouper.AttributeAuthority -->
+  <Service id="grouper.AttributeAuthority" xsi:type="grouper:SimpleAttributeAuthority" depends-on="grouper.AttributeResolver" resolver="grouper.AttributeResolver" />
  
 </Services>

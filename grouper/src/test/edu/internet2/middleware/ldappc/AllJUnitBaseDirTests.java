@@ -44,6 +44,7 @@ public class AllJUnitBaseDirTests extends TestCase {
     TestSuite suite = new TestSuite();
     suite.addTest(new TestSuite(InputOptionsTest.class));
     suite.addTest(new TestSuite(CRUDTest.class));
+    suite.addTest(new TestSuite(LdappcShibbolethTest.class));
     return suite;
   }
 
