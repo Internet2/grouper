@@ -211,6 +211,7 @@
                         minOccurs="0" maxOccurs="1" />
                 </xs:sequence>
                 <xs:element ref="attribute-matching-queries" />
+                <xs:element ref="resolver-matching-queries" />
             </xs:choice>
         </xs:complexType>
     </xs:element>
@@ -246,6 +247,28 @@
                 type="grouper-attribute-name-type" />
             <xs:attribute name="value" use="required"
                 type="grouper-attribute-value-type" />
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="resolver-matching-queries">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="data-connector-list" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="data-connector-list">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="data-connector" minOccurs="1" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="data-connector">
+        <xs:complexType>
+            <xs:attribute name="id" use="required" type="xs:string" />           
         </xs:complexType>
     </xs:element>
 

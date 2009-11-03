@@ -389,6 +389,22 @@
     </complexContent>
   </complexType>
 
+  <complexType name="Minus">
+    <annotation>
+      <documentation>
+        Filter by the complement of two filters.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGroupFilterType">
+        <sequence>
+          <element ref="grouper:GroupFilter" />
+          <element ref="grouper:GroupFilter" />
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
   <complexType name="SimpleAttributeAuthority">
     <annotation>
       <documentation>

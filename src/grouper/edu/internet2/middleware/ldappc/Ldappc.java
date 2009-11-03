@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +72,7 @@ import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnector;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
@@ -84,6 +86,7 @@ import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.RangeSearchResultHandler;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.shibboleth.common.attribute.AttributeAuthority;
+import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethAttributeResolver;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.vt.middleware.ldap.Ldap;
@@ -147,9 +150,14 @@ public final class Ldappc extends TimerTask {
   private GenericApplicationContext gContext;
 
   /**
-   * The Shibboleth Attribute Authority
+   * The Shibboleth Attribute Authority.
    */
   private AttributeAuthority attributeAuthority;
+
+  /**
+   * The Shibboleth Attribute Resolver.
+   */
+  private ShibbolethAttributeResolver attributeResolver;
 
   public Ldappc(LdappcOptions options) {
     this(options, null, null);
@@ -331,6 +339,13 @@ public final class Ldappc extends TimerTask {
     if (!configuration.getAttributeResolverMapping().isEmpty()) {
       initAttributeAuthority();
     }
+
+    //
+    // initialize the attribute resolver if we are using resolver queries
+    //
+    if (!configuration.getResolverQueries().isEmpty()) {
+      initAttributeResolver();
+    }
   }
 
   /**
@@ -456,7 +471,9 @@ public final class Ldappc extends TimerTask {
    * 
    * @return {@link java.util.Set} of Groups, possibly empty, to be provisioned.
    */
-  private Set<Group> buildGroupSet() {
+  protected Set<Group> buildGroupSet() {
+
+    Set<Group> groups = new LinkedHashSet<Group>();
 
     //
     // Find the root stem for building filters
@@ -501,7 +518,19 @@ public final class Ldappc extends TimerTask {
     //
     GrouperQuery query = GrouperQuery.createQuery(getGrouperSession(), groupFilter);
 
-    return query.getGroups();
+    groups.addAll(query.getGroups());
+
+    Set<String> dataConnectorIds = configuration.getResolverQueries();
+    if (!dataConnectorIds.isEmpty()) {
+      for (String dataConnectorId : dataConnectorIds) {
+        GroupDataConnector groupDataConnector = (GroupDataConnector) getAttributeResolver()
+            .getServiceContext().getBean(dataConnectorId);
+        groups.addAll(groupDataConnector.getGroupQueryFilter().getResults(
+            getGrouperSession()));
+      }
+    }
+
+    return groups;
   }
 
   /**
@@ -1383,6 +1412,83 @@ public final class Ldappc extends TimerTask {
     timer.schedule(this, 0, 1000 * options.getInterval());
   }
 
+  private GenericApplicationContext getApplicationContext() {
+    if (gContext == null) {
+      try {
+        gContext = new GenericApplicationContext();
+        SpringConfigurationUtils.populateRegistry(gContext, getResources());
+        gContext.refresh();
+        gContext.registerShutdownHook();
+      } catch (ResourceException e) {
+        LOG.error("Unable to initialize resources", e);
+        throw new LdappcException("Unable to initialize resources", e);
+      }
+    }
+
+    return gContext;
+  }
+
+  private List<Resource> getResources() throws ResourceException {
+
+    ArrayList<Resource> resources = new ArrayList<Resource>();
+
+    if (options.getAttributeResolverLocation() != null) {
+
+      LOG.debug("loading attribute resolver configuration from '{}'", options
+          .getAttributeResolverLocation());
+
+      String internalPath = options.getAttributeResolverLocation()
+          + System.getProperty("file.separator")
+          + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL;
+
+      String servicesPath = options.getAttributeResolverLocation()
+          + System.getProperty("file.separator")
+          + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES;
+
+      File internal = new File(internalPath);
+      if (!internal.exists()) {
+        LOG.error("Unable to read attribute resolver configuration file " + internalPath);
+        throw new LdappcException("Unable to read attribute resolver configuration file "
+            + internalPath);
+      }
+
+      File services = new File(servicesPath);
+      if (!services.exists()) {
+        LOG.error("Unable to read attribute resolver configuration file " + servicesPath);
+        throw new LdappcException("Unable to read attribute resolver configuration file "
+            + servicesPath);
+      }
+
+      resources.add(new FilesystemResource(internalPath));
+      resources.add(new FilesystemResource(servicesPath));
+
+    } else {
+      File internal = GrouperUtil
+          .fileFromResourceName(LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL);
+      if (internal == null) {
+        LOG.error("Unable to read attribute resolver configuration file "
+            + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL);
+        throw new LdappcException("Unable to read attribute resolver configuration file "
+            + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL);
+      }
+
+      File services = GrouperUtil
+          .fileFromResourceName(LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES);
+      if (services == null) {
+        LOG.error("Unable to read attribute resolver configuration file "
+            + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES);
+        throw new LdappcException("Unable to read attribute resolver configuration file "
+            + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES);
+      }
+
+      resources.add(new FilesystemResource(internal.getAbsolutePath()));
+      resources.add(new FilesystemResource(services.getAbsolutePath()));
+    }
+
+    return resources;
+
+  }
+
   /**
    * Instantiate the AttributeAuthority from configuration files specified at runtime or
    * from the classpath.
@@ -1390,76 +1496,15 @@ public final class Ldappc extends TimerTask {
   private void initAttributeAuthority() {
 
     try {
-      ArrayList<Resource> resources = new ArrayList<Resource>();
 
-      if (options.getAttributeResolverLocation() != null) {
+      // make sure grouper session is started
+      getGrouperSession();
 
-        LOG.debug("loading attribute resolver configuration from '{}'", options
-            .getAttributeResolverLocation());
-
-        String internalPath = options.getAttributeResolverLocation()
-            + System.getProperty("file.separator")
-            + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL;
-
-        String servicesPath = options.getAttributeResolverLocation()
-            + System.getProperty("file.separator")
-            + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES;
-
-        File internal = new File(internalPath);
-        if (!internal.exists()) {
-          LOG.error("Unable to read attribute resolver configuration file "
-              + internalPath);
-          throw new LdappcException(
-              "Unable to read attribute resolver configuration file " + internalPath);
-        }
-
-        File services = new File(servicesPath);
-        if (!services.exists()) {
-          LOG.error("Unable to read attribute resolver configuration file "
-              + servicesPath);
-          throw new LdappcException(
-              "Unable to read attribute resolver configuration file " + servicesPath);
-        }
-
-        resources.add(new FilesystemResource(internalPath));
-        resources.add(new FilesystemResource(servicesPath));
-
-      } else {
-        File internal = GrouperUtil
-            .fileFromResourceName(LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL);
-        if (internal == null) {
-          LOG.error("Unable to read attribute resolver configuration file "
-              + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL);
-          throw new LdappcException(
-              "Unable to read attribute resolver configuration file "
-                  + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_INTERNAL);
-        }
-
-        File services = GrouperUtil
-            .fileFromResourceName(LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES);
-        if (services == null) {
-          LOG.error("Unable to read attribute resolver configuration file "
-              + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES);
-          throw new LdappcException(
-              "Unable to read attribute resolver configuration file "
-                  + LdappcOptions.ATTRIBUTE_RESOLVER_FILE_NAME_SERVICES);
-        }
-
-        resources.add(new FilesystemResource(internal.getAbsolutePath()));
-        resources.add(new FilesystemResource(services.getAbsolutePath()));
-      }
-
-      gContext = new GenericApplicationContext();
-      SpringConfigurationUtils.populateRegistry(gContext, resources);
-      gContext.refresh();
-      gContext.registerShutdownHook();
+      gContext = getApplicationContext();
 
       attributeAuthority = (AttributeAuthority) gContext
           .getBean(LdappcOptions.ATTRIBUTE_AUTHORITY_NAME);
 
-    } catch (ResourceException e) {
-      LOG.error("Unable to initialize the attribute authority", e);
-      throw new LdappcException("Unable to initialize the attribute authority", e);
     } catch (NoSuchBeanDefinitionException e) {
       LOG.error("Unable to initialize the attribute authority", e);
       throw new LdappcException("Unable to initialize the attribute authority", e);
@@ -1474,5 +1519,36 @@ public final class Ldappc extends TimerTask {
    */
   public AttributeAuthority getAttributeAuthority() {
     return attributeAuthority;
+  }
+
+  /**
+   * Instantiate the AttributeResolver from configuration files specified at runtime or
+   * from the classpath.
+   */
+  private void initAttributeResolver() {
+
+    try {
+
+      // make sure grouper session is started
+      getGrouperSession();
+
+      gContext = getApplicationContext();
+
+      attributeResolver = (ShibbolethAttributeResolver) gContext
+          .getBean(LdappcOptions.ATTRIBUTE_RESOLVER_NAME);
+
+    } catch (NoSuchBeanDefinitionException e) {
+      LOG.error("Unable to initialize the attribute authority", e);
+      throw new LdappcException("Unable to initialize the attribute authority", e);
+    }
+  }
+
+  /**
+   * Returns the ShibbolethAttributeResolver if configured to do so, otherwise null.
+   * 
+   * @return the attribute resolver or null.
+   */
+  public ShibbolethAttributeResolver getAttributeResolver() {
+    return attributeResolver;
   }
 }

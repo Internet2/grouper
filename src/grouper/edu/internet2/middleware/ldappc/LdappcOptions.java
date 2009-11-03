@@ -107,6 +107,11 @@ public class LdappcOptions {
    * The name of the Attribute Authority service.
    */
   public static final String ATTRIBUTE_AUTHORITY_NAME = "grouper.AttributeAuthority";
+  
+  /**
+   * The name of the Attribute Resolver service.
+   */
+  public static final String ATTRIBUTE_RESOLVER_NAME = "grouper.AttributeResolver";
 
   /**
    * Modes of operation.

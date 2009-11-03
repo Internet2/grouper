@@ -6,7 +6,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
@@ -46,16 +45,6 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   private void setUpLdappc() throws Exception {
     setUpLdappc(pathToConfig, pathToProperties);
-  }
-
-  private void setUpLdappc(String configResource) throws Exception {
-
-    File file = GrouperUtil.fileFromResourceName(TEST_PATH + configResource);
-    if (file == null) {
-      throw new LdappcException("Unable to find resource '" + configResource + "'");
-    }
-
-    setUpLdappc(file.getAbsolutePath(), pathToProperties);
   }
 
   public void testCalculateBushy() throws Exception {
