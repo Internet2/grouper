@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.89 2009-10-27 15:15:08 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.90 2009-11-03 14:18:59 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -5536,6 +5536,9 @@ public enum GrouperDdl implements DdlVersionable {
     {
       Table grouperChangeLogTempEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "id", Types.VARCHAR, ID_SIZE, true, true); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
           "change_log_type_id", Types.VARCHAR, ID_SIZE, false, true); 
