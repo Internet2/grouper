@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.9 2009-06-10 05:31:35 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.10 2009-11-03 14:18:59 shilen Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -172,6 +173,9 @@ public class ChangeLogEntry extends GrouperAPI {
   /** constant for field name for: changeLogTypeId */
   public static final String FIELD_CHANGE_LOG_TYPE_ID = "changeLogTypeId";
 
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+  
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
 
@@ -408,6 +412,11 @@ public class ChangeLogEntry extends GrouperAPI {
   private String changeLogTypeId;
 
   /**
+   * uuid for temp object
+   */
+  private String id;
+  
+  /**
    * context id ties multiple db changes  
    */
   private String contextId;
@@ -496,6 +505,22 @@ public class ChangeLogEntry extends GrouperAPI {
    */
   public void setSequenceNumber(Long sequenceNumber1) {
     this.sequenceNumber = sequenceNumber1;
+  }
+  
+  /**
+   * uuid for temp object
+   * @return uuid for temp object
+   */
+  public String getId() {
+    return this.id;
+  }
+  
+  /**
+   * set uuid for temp object
+   * @param id
+   */
+  public void setId(String id) {
+    this.id = id;
   }
 
   /**
@@ -744,6 +769,11 @@ public class ChangeLogEntry extends GrouperAPI {
       }
       if (StringUtils.isBlank(this.contextId)) {
         this.contextId = GrouperContext.retrieveContextId(true);
+      }
+      
+      //assign id if not there
+      if (StringUtils.isBlank(this.getId())) {
+        this.setId(GrouperUuid.getUuid());
       }
     }
     if (!this.tempObject) {
