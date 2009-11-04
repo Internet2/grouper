@@ -532,7 +532,7 @@ dhtmlxCalendarObject.prototype.createStructure = function(){
 			display = 'none';
 			top = atop+'px';
 			left = this.con.offsetWidth+aleft+'px';
-			zIndex = "99";
+			zIndex = "9999";
 		}
 		this.setParent(div);
 		//this.con.parentNode.insertBefore(div, this.con);
@@ -570,7 +570,7 @@ dhtmlxCalendarObject.prototype.createStructure = function(){
 	if(_isIE){//add iframe under calendard in IE (IE 6 issue with select box fix)
 
 		if(this.parent.style.zIndex==0){
-			this.parent.style.zIndex = 100;
+			this.parent.style.zIndex = 9999;
 		}
 		if(this.ifr == undefined && this._dblC == undefined){
 			this.ifr = document.createElement("IFRAME");
