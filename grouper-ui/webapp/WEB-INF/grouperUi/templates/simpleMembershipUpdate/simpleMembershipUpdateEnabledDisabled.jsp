@@ -4,7 +4,7 @@
 
   <div class="section">
   
-    <grouper:subtitle key="simpleMembershipUpdate.memberDetailsSubtitle" />
+    <grouper:subtitle key="simpleMembershipUpdate.enabledDisableSubtitle" />
   
     <div class="sectionBody">
     <form id="simpleMembershipEnableDisableForm" name="simpleMembershipEnableDisableForm">
