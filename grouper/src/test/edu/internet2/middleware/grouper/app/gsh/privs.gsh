@@ -1,6 +1,6 @@
 #
 # GrouperShell Composite Tests
-# $Id: privs.gsh,v 1.4 2009-11-05 17:40:30 shilen Exp $
+# $Id: privs.gsh,v 1.5 2009-11-05 17:59:40 mchyzer Exp $
 #
 
 #
@@ -23,9 +23,9 @@ assertTrue( "revoke ALL CREATE" , revokePriv(ns.getName() , subj.getId(), Naming
 assertTrue( "ALL !ADMIN"        , !hasPriv(g.getName()    , subj.getId(), AccessPrivilege.ADMIN)  )
 assertTrue( "ALL !OPTIN"        , !hasPriv(g.getName()    , subj.getId(), AccessPrivilege.OPTIN)  )
 assertTrue( "ALL !OPTOUT"       , !hasPriv(g.getName()    , subj.getId(), AccessPrivilege.OPTOUT) )
-assertTrue( "ALL !READ"         , !hasPriv(g.getName()    , subj.getId(), AccessPrivilege.READ)    )
+assertTrue( "ALL READ"          , hasPriv(g.getName()    , subj.getId(), AccessPrivilege.READ)    )
 assertTrue( "ALL !UPDATE"       , !hasPriv(g.getName()    , subj.getId(), AccessPrivilege.UPDATE) )
-assertTrue( "ALL !VIEW"         , !hasPriv(g.getName()    , subj.getId(), AccessPrivilege.VIEW)    )
+assertTrue( "ALL VIEW"          , hasPriv(g.getName()    , subj.getId(), AccessPrivilege.VIEW)    )
 assertTrue( "grant ALL ADMIN"   , grantPriv(g.getName()   , subj.getId(), AccessPrivilege.ADMIN)  )
 assertTrue( "ALL now ADMIN"     , hasPriv(g.getName()     , subj.getId(), AccessPrivilege.ADMIN)  )
 assertTrue( "revoke ALL ADMIN"  , revokePriv(g.getName()  , subj.getId(), AccessPrivilege.ADMIN)  )
