@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestAddMember.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestAddMember.java,v 1.2 2009-11-05 13:44:48 shilen Exp $
  */
 public class TestAddMember extends GrouperTest {
 
@@ -140,24 +140,23 @@ public class TestAddMember extends GrouperTest {
 
   public void testNoListRecursion() {
     LOG.info("testNoListRecursion");
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            ns    = StemHelper.addChildStem(root  , "ns_a", "stem a");
+    Group           g     = StemHelper.addChildGroup(ns   , "g_a" , "group a");
     try {
-      GrouperSession  s     = SessionHelper.getRootSession();
-      Stem            root  = StemHelper.findRootStem(s);
-      Stem            ns    = StemHelper.addChildStem(root  , "ns_a", "stem a");
-      Group           g     = StemHelper.addChildGroup(ns   , "g_a" , "group a");
-      try {
-        g.addMember(g.toSubject());
-        Assert.fail("fail: MemberAddException not thrown");
-      }
-      catch (MemberAddException eMA) {
+      g.addMember(g.toSubject());
+      Assert.fail("fail: MemberAddException not thrown");
+    }
+    catch (RuntimeException e) {
+      if (e.getCause() instanceof MemberAddException) {
         Assert.assertTrue("pass: MemberAddException thrown", true);
-      }
-      finally {
-        s.stop();
+      } else {
+        throw e;
       }
     }
-    catch (Exception e) {
-      Assert.fail("fail: " + e.getMessage());
+    finally {
+      s.stop();
     }
   } // public void testNoListRecursion()
 
