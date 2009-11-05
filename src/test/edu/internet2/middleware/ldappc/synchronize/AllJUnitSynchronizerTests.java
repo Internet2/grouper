@@ -40,8 +40,12 @@ public class AllJUnitSynchronizerTests extends TestCase {
 
   public static Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest(new TestSuite(AttributeModifierTest.class));
-    suite.addTest(new TestSuite(DnAttributeModifierTest.class));
+    //$JUnit-BEGIN$
+    suite.addTestSuite(DnAttributeModifierTest.class);
+    suite.addTestSuite(GrouperSynchronizerTest.class);
+    suite.addTestSuite(AttributeModifierTest.class);
+    //$JUnit-END$
+
     return suite;
   }
 }

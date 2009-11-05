@@ -15,6 +15,9 @@
 
 package edu.internet2.middleware.ldappc.util;
 
+import edu.internet2.middleware.ldappc.synchronize.AttributeModifierTest;
+import edu.internet2.middleware.ldappc.synchronize.DnAttributeModifierTest;
+import edu.internet2.middleware.ldappc.synchronize.GrouperSynchronizerTest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -42,8 +45,10 @@ public class AllJUnitUtilTests extends TestCase {
 
   public static Test suite() {
     TestSuite suite = new TestSuite();
+    //$JUnit-BEGIN$
     suite.addTest(new TestSuite(ResourceBundleUtilTest.class));
     suite.addTest(new TestSuite(LdapUtilTest.class));
+    //$JUnit-END$
     return suite;
   }
 }

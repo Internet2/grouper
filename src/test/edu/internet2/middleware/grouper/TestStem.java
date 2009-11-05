@@ -63,7 +63,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.32 2009-10-20 14:55:50 shilen Exp $
+ * @version $Id: TestStem.java,v 1.33 2009-11-05 06:10:51 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -75,7 +75,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testDeleteEmptyStem"));
+    TestRunner.run(new TestStem("testCache"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -1514,6 +1514,13 @@ public class TestStem extends GrouperTest {
    * @throws Exception
    */
   public void testCache() throws Exception {
+    
+    if (!GrouperUtil.propertiesValueBoolean(
+        GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties"), "hibernate.cache.use_query_cache", false)) {
+      System.out.println("Not testing query cache since hibernate.cache.use_query_cache is false!");
+      return;
+    }
+    
     LOG.info("testSetBadStemDisplayExtension");
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemFinder.findRootStem(s);

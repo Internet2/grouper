@@ -1,14 +1,12 @@
 #
 # GrouperShell Composite Tests
-# $Id: groups.gsh,v 1.3 2009-01-02 06:57:12 mchyzer Exp $
+# $Id: groups.gsh,v 1.4 2009-11-05 06:10:51 mchyzer Exp $
 #
 
 #
 # SETUP
 #
 GSH_DEVEL = true
-resetRegistry()
-GrouperCheckConfig.checkGroups();
 
 root      = addRootStem("uchicago", "uchicago")
 ns        = addStem(root.getName(), "nsit", "nsit")

@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.net.URL;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.filter.ChildGroupFilter;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -32,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test {@link ChildGroupFilter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestGsh.java,v 1.10 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: TestGsh.java,v 1.11 2009-11-05 06:10:51 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestGsh extends GrouperTest {
@@ -53,12 +54,23 @@ public class TestGsh extends GrouperTest {
 
 
   /**
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
+   */
+  @Override
+  protected void setUp() {
+    super.setUp();
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+
+  }
+
+  /**
    * Method main.
    * @param args String[]
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new TestGsh("testGshGroups"));
+    TestRunner.run(new TestGsh("testGshPrivs"));
 
     //TestRunner.run(TestGsh.class);
   }

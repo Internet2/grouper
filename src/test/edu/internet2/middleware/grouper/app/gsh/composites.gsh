@@ -1,13 +1,12 @@
 #
 # GrouperShell Composite Tests
-# $Id: composites.gsh,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+# $Id: composites.gsh,v 1.2 2009-11-05 06:10:51 mchyzer Exp $
 #
 
 #
 # SETUP
 #
 GSH_DEVEL = true
-resetRegistry()
 root      = addRootStem("uchicago", "uchicago")
 ns        = addStem(root.getName(), "nsit", "nsit")
 gA        = addGroup(ns.getName(), "nbs", "nbs")

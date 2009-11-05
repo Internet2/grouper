@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.shibboleth;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.AllShibDataConnectorTests;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnectorTests;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.MemberDataConnectorTests;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.StemDataConnectorTests;
@@ -18,10 +19,8 @@ public class AllShibbolethTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.shibboleth");
     //$JUnit-BEGIN$
-    suite.addTestSuite(GroupDataConnectorTests.class);
-    suite.addTestSuite(MemberDataConnectorTests.class);
-    suite.addTestSuite(StemDataConnectorTests.class);
     //$JUnit-END$
+    suite.addTest(AllShibDataConnectorTests.suite());
     return suite;
   }
 
