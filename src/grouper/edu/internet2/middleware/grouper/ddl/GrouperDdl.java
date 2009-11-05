@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.90 2009-11-03 14:18:59 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.91 2009-11-05 15:36:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -4552,7 +4552,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gadn2.attribute_def_id = gad2.id "
           + "and gaa1.enabled = 'T' " 
           + "and gad.id = gaa1.owner_attribute_def_id "
-          + "and gaa1.attribute_assign_action_id = gaaa1 .id and gaa2.attribute_assign_action_id = gaaa2.id ");
+          + "and gaa1.attribute_assign_action_id = gaaa1.id and gaa2.attribute_assign_action_id = gaaa2.id ");
 
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_def_priv_v", 
