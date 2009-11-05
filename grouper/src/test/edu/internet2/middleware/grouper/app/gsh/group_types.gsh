@@ -1,13 +1,12 @@
 #
 # GrouperShell Group Type Tests
-# $Id: group_types.gsh,v 1.2 2008-11-09 22:13:58 shilen Exp $
+# $Id: group_types.gsh,v 1.3 2009-11-05 06:10:51 mchyzer Exp $
 #
 
 #
 # SETUP
 #
 GSH_DEVEL = true
-resetRegistry()
 root      = addRootStem("uchicago", "uchicago")
 ns        = addStem(root.getName(), "nsit", "nsit")
 g         = addGroup(ns.getName(), "nas", "nas")

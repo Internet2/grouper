@@ -20,6 +20,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.ldappc.configuration.AllJUnitConfigurationTests;
+import edu.internet2.middleware.ldappc.spml.AllLdappcSpmlTests;
 import edu.internet2.middleware.ldappc.synchronize.AllJUnitSynchronizerTests;
 import edu.internet2.middleware.ldappc.util.AllJUnitUtilTests;
 
@@ -48,6 +49,7 @@ public class AllLdappcJunitTests extends TestCase {
     suite.addTest(AllJUnitConfigurationTests.suite());
     suite.addTest(AllJUnitSynchronizerTests.suite());
     suite.addTest(AllJUnitUtilTests.suite());
+    suite.addTest(AllLdappcSpmlTests.suite());
 
     return new TestSetup(suite);
   }

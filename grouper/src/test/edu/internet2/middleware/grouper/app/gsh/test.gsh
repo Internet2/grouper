@@ -1,6 +1,6 @@
 #
 # GrouperShell Tests
-# $Id: test.gsh,v 1.5 2009-01-28 15:27:00 shilen Exp $
+# $Id: test.gsh,v 1.6 2009-11-05 06:10:51 mchyzer Exp $
 #
 
 #
@@ -11,6 +11,7 @@
 # SETUP
 #
 GSH_DEVEL = true
+GSH_DEBUG = true
 # TODO 20070402 this is fragile
 rootExtn  = "uchicago"
 nsExtn    = "nsit"
@@ -27,7 +28,7 @@ subjNameA = "subject a"
 #
 assertTrue("resetRegistry is not null", resetRegistry() != null);
 assertTrue("registryInstall is not null", registryInstall() != null);
-assertTrue( "3 sources"                 , getSources().size() == 3                )
+assertTrue( "3 sources at least"                 , getSources().size() >= 3                )
 subjGS    = findSubject(subjIdGS)
 assertTrue( "subjGS !null"              , subjGS != null                          )
 assertTrue( "found GrouperSystem"       , subjGS.getId().equals(subjIdGS)         )
@@ -78,8 +79,8 @@ assertTrue( "there are now 0 stems"     , getStems("").size() == 0              
 root      = addRootStem(rootExtn, rootExtn)
 assertTrue( "there is now 1 stem"       , getStems("").size() == 1                )
 assertTrue( "run sqlRun() to delete memberships", sqlRun("delete from grouper_memberships") == 1 )
-assertTrue( "run sqlRun() to delete stems", sqlRun("delete from grouper_stems where name not like ':'") == 1 )
-assertTrue( "there are now 0 stems"     , getStems("").size() == 0                )
+#assertTrue( "run sqlRun() to delete stems", sqlRun("delete from grouper_stems where name not like ':'") == 1 )
+assertTrue( "there are now 1 stems"     , getStems("").size() == 1                )
 # TODO assertTrue( "history()"                 , history()                               )
 # TODO assertTrue( "history(1)"                , history(1)                              )
 # TODO assertTrue( "last()"                    , last()                                  )

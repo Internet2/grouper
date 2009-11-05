@@ -87,7 +87,7 @@ public class BySqlStatic {
           return result;
 
         } catch (Exception e) {
-          throw new RuntimeException("Problem with query: " + sql, e);
+          throw new RuntimeException("Problem with query in bysqlstatic: " + sql, e);
         } finally {
           GrouperUtil.closeQuietly(preparedStatement);
         }
@@ -173,7 +173,7 @@ public class BySqlStatic {
           return result;
   
         } catch (Exception e) {
-          throw new RuntimeException("Problem with query: " + sql, e);
+          throw new RuntimeException("Problem with query in select: " + sql, e);
         } finally {
           GrouperUtil.closeQuietly(preparedStatement);
         }
@@ -243,7 +243,7 @@ public class BySqlStatic {
           return resultList;
 
         } catch (Exception e) {
-          throw new RuntimeException("Problem with query: " + sql, e);
+          throw new RuntimeException("Problem with query in listSelect: " + sql, e);
         } finally {
           GrouperUtil.closeQuietly(preparedStatement);
         }

@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
-  Copyright (C) 2004-2007 The University Of Chicago
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/
+ * Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2004-2007 The University Of Chicago
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+ * file except in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 
 package edu.internet2.middleware.grouper;
 
@@ -44,7 +42,9 @@ import edu.internet2.middleware.grouper.internal.dao.AllInternalDaoTests;
 import edu.internet2.middleware.grouper.member.AllMemberTests;
 import edu.internet2.middleware.grouper.membership.AllMembershipTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
+import edu.internet2.middleware.grouper.permissions.AllPermissionsTests;
 import edu.internet2.middleware.grouper.privs.AllPrivsTests;
+import edu.internet2.middleware.grouper.shibboleth.AllShibbolethTests;
 import edu.internet2.middleware.grouper.subj.AllSubjectTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -55,7 +55,7 @@ import edu.internet2.middleware.ldappc.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.10 2009-09-15 06:08:44 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.11 2009-11-05 06:10:51 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 
@@ -69,9 +69,9 @@ public class AllTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    
+
     GrouperTest.testing = true;
-    
+
     Test test = null;
     boolean noPrompt = false;
 
@@ -149,7 +149,7 @@ public class AllTests extends GrouperTest {
   public static Test suite() {
 
     GrouperTest.testing = true;
-    
+
     //set this and leave it...
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
 
@@ -158,28 +158,28 @@ public class AllTests extends GrouperTest {
     TestSuite suite = new TestSuite();
 
     //$JUnit-BEGIN$
-    suite.addTestSuite(TestGroupTypeIncludeExclude.class);
-    suite.addTestSuite(GrouperVersionTest.class);
-    suite.addTestSuite(TestCompositeU.class);
-    suite.addTestSuite(TestStemIntegration.class);
-    suite.addTestSuite(TestStemApi.class);
-    suite.addTestSuite(TestSession.class);
-    suite.addTestSuite(TestGrouperSession.class);
     suite.addTestSuite(TestStemFinder.class);
-    suite.addTestSuite(TestStem.class);
-    suite.addTestSuite(TestCompositeModel.class);
-    suite.addTestSuite(TestGroupType.class);
+    suite.addTestSuite(TestStemIntegration.class);
+    suite.addTestSuite(TestGrouperSession.class);
+    suite.addTestSuite(TestSession.class);
+    suite.addTestSuite(TestGroupTypeIncludeExclude.class);
     suite.addTestSuite(TestCompositeI.class);
     suite.addTestSuite(TestField.class);
+    suite.addTestSuite(TestStemApi.class);
+    suite.addTestSuite(TestStem.class);
+    suite.addTestSuite(TestGrouperVersion.class);
+    suite.addTestSuite(TestCompositeModel.class);
+    suite.addTestSuite(TestCompositeU.class);
     suite.addTestSuite(TestComposite.class);
+    suite.addTestSuite(TestGroupType.class);
     //$JUnit-END$
 
     //////////////////////////////////////////
     // All manual suites from packages in alphabetical order
 
     suite.addTest(AllAppTests.suite());
-    suite.addTest(AllAuditTests.suite());
     suite.addTest(AllAttributeTests.suite());
+    suite.addTest(AllAuditTests.suite());
     suite.addTest(AllChangeLogTests.suite());
     suite.addTest(AllConfigTests.suite());
 
@@ -190,13 +190,15 @@ public class AllTests extends GrouperTest {
 
     suite.addTest(AllFilterTests.suite());
     suite.addTest(AllGroupTests.suite());
-    suite.addTest(AllHooksTests.suite());
     suite.addTest(AllHibernateTests.suite());
+    suite.addTest(AllHooksTests.suite());
     suite.addTest(AllInternalDaoTests.suite());
     suite.addTest(AllMemberTests.suite());
     suite.addTest(AllMembershipTests.suite());
     suite.addTest(AllMiscTests.suite());
+    suite.addTest(AllPermissionsTests.suite());
     suite.addTest(AllPrivsTests.suite());
+    suite.addTest(AllShibbolethTests.suite());
     suite.addTest(AllSubjectTests.suite());
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllValidatorTests.suite());
@@ -217,7 +219,7 @@ public class AllTests extends GrouperTest {
     return "Usage:" + GrouperConfig.NL + "args: -h,            Prints this message"
         + GrouperConfig.NL + "args: (-all | testName [-noprompt]" + GrouperConfig.NL
 
-        + "  -all,              Run all JUnit tests" + GrouperConfig.NL
+    + "  -all,              Run all JUnit tests" + GrouperConfig.NL
         + "  testName,          Run specific test - omit package name" + GrouperConfig.NL
         + "                     Grouper data e.g. root stem and fields"
         + GrouperConfig.NL + "  -noprompt,         Do not prompt user about data loss"

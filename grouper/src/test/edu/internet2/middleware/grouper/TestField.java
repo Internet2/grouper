@@ -25,6 +25,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.FieldHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -33,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.13 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.14 2009-11-05 06:10:51 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
@@ -42,7 +43,8 @@ public class TestField extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestField("testFields"));
+    //TestRunner.run(new TestField("testFields"));
+    TestRunner.run(TestField.class);
   }
   
   /**
@@ -66,13 +68,43 @@ public class TestField extends TestCase {
 
   public void testFields() {
     Set       fields  = FieldFinder.findAll();
-    Assert.assertEquals("fields: 9", 9, fields.size());
+    Assert.assertEquals("fields", 15, fields.size());
     Iterator  iter    = fields.iterator();
     FieldHelper.testField( 
       (Field) iter.next()   , 
       "admins"              , FieldType.ACCESS,
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        "attrAdmins"              , FieldType.ATTRIBUTE_DEF,
+        AttributeDefPrivilege.ATTR_ADMIN , AttributeDefPrivilege.ATTR_ADMIN
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        "attrOptins"              , FieldType.ATTRIBUTE_DEF,
+        AttributeDefPrivilege.ATTR_UPDATE , AttributeDefPrivilege.ATTR_UPDATE
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        "attrOptouts"              , FieldType.ATTRIBUTE_DEF,
+        AttributeDefPrivilege.ATTR_UPDATE , AttributeDefPrivilege.ATTR_UPDATE
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        "attrReaders"              , FieldType.ATTRIBUTE_DEF,
+        AttributeDefPrivilege.ATTR_ADMIN , AttributeDefPrivilege.ATTR_ADMIN
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        "attrUpdaters"              , FieldType.ATTRIBUTE_DEF,
+        AttributeDefPrivilege.ATTR_ADMIN , AttributeDefPrivilege.ATTR_ADMIN
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        "attrViewers"              , FieldType.ATTRIBUTE_DEF,
+        AttributeDefPrivilege.ATTR_ADMIN , AttributeDefPrivilege.ATTR_ADMIN
+      );
     FieldHelper.testField( 
       (Field) iter.next()   , 
       "creators"            , FieldType.NAMING,

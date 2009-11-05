@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperVersionTest.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
+ * $Id: TestGrouperVersion.java,v 1.1 2009-11-05 06:10:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 /**
  *
  */
-public class GrouperVersionTest extends TestCase {
+public class TestGrouperVersion extends TestCase {
 
   /**
    * 
@@ -22,13 +22,13 @@ public class GrouperVersionTest extends TestCase {
    */
   public static void main(String[] args) throws Exception {
     //TestRunner.run(new GrouperVersionTest("testIndentJson"));
-    TestRunner.run(GrouperVersionTest.class);
+    TestRunner.run(TestGrouperVersion.class);
   }
 
   /**
    * @param name
    */
-  public GrouperVersionTest(String name) {
+  public TestGrouperVersion(String name) {
     super(name);
   }
 
