@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.100 2009-09-21 06:14:27 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.101 2009-11-05 20:06:42 isgwb Exp $
  */
 @SuppressWarnings("serial")
 public class GrouperSession implements Serializable {
@@ -189,7 +189,7 @@ public class GrouperSession implements Serializable {
    * do not alternate.  If you need to, use the callback inverse of control.
    * <pre class="eg">
    * // Start a Grouper API session.
-   * GrouperSession s = GrouperSession.start(subject);
+   * GrouperSession s = GrouperSession.subject);
    * </pre>
    * @param   subject   Start session as this {@link Subject}.
    * @return  A Grouper API session.
