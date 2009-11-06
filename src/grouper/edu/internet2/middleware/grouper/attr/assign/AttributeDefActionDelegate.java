@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeDefActionDelegate.java,v 1.1 2009-10-26 02:26:07 mchyzer Exp $
+ * $Id: AttributeDefActionDelegate.java,v 1.2 2009-11-06 13:39:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -78,6 +78,7 @@ public class AttributeDefActionDelegate {
    * @return the action
    */
   public AttributeAssignAction allowedAction(String action, boolean exceptionWhenNotFound) {
+    action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
     Set<AttributeAssignAction> actions = this.allowedActions();
     for (AttributeAssignAction attributeAssignAction : actions) {
       if (StringUtils.equals(action, attributeAssignAction.getName())) {

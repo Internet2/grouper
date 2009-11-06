@@ -117,7 +117,11 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
     
     this.attributeDef1 = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+    this.attributeDef1.setAssignToEffMembership(true);
+    this.attributeDef1.store();
     this.attributeDef2 = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
+    this.attributeDef2.setAssignToEffMembership(true);
+    this.attributeDef2.store();
   
     this.attributeDefName1_1 = this.top.addChildAttributeDefName(attributeDef1, "testName1_1", "test name1_1");
     this.attributeDefName1_2 = this.top.addChildAttributeDefName(attributeDef1, "testName1_2", "test name1_2");
@@ -190,6 +194,9 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     assertEquals(1, attributeDelegate.retrieveAssignments(attributeDefName2_2).size());
     
     assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1));
+    
+    assertFalse(attributeDelegate.hasAttribute(attributeDefName1_1));
+    
     assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2));
     assertTrue(attributeDelegate.removeAttribute(attributeDefName2_1));
     assertTrue(attributeDelegate.removeAttribute(attributeDefName2_2));

@@ -394,24 +394,24 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     //validate if allowed
     if (StringUtils.isNotEmpty(this.ownerGroupId) && StringUtils.isEmpty(this.ownerMemberId) && !attributeDef.isAssignToGroup()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to group: " + attributeDef + ", " + this.ownerGroupId);
+      throw new AttributeAssignNotAllowed("Not allowed to assign to group: " + attributeDef + ", " + this.ownerGroupId + ", to allow this, make sure the attributeDef has setAssignToGroup(true)");
     }
     if (StringUtils.isNotEmpty(this.ownerStemId) && !attributeDef.isAssignToStem()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to stem: " + attributeDef + ", " + this.ownerStemId);
+      throw new AttributeAssignNotAllowed("Not allowed to assign to stem: " + attributeDef + ", " + this.ownerStemId + ", to allow this, make sure the attributeDef has setAssignToStem(true)");
     }
     if (StringUtils.isNotEmpty(this.ownerMemberId) && StringUtils.isEmpty(this.ownerGroupId) && !attributeDef.isAssignToMember()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to member: " + attributeDef + ", " + this.ownerMemberId);
+      throw new AttributeAssignNotAllowed("Not allowed to assign to member: " + attributeDef + ", " + this.ownerMemberId + ", to allow this, make sure the attributeDef has setAssignToMember(true)");
     }
     if (StringUtils.isNotEmpty(this.ownerMembershipId) && !attributeDef.isAssignToImmMembership()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to immediate membership: " + attributeDef + ", " + this.ownerMembershipId);
+      throw new AttributeAssignNotAllowed("Not allowed to assign to immediate membership: " + attributeDef + ", " + this.ownerMembershipId + ", to allow this, make sure the attributeDef has setAssignToImmMembership(true)");
     }
     if (StringUtils.isNotEmpty(this.ownerAttributeDefId) && !attributeDef.isAssignToAttributeDef()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to attribute def: " + attributeDef + ", " + this.ownerAttributeDefId);
+      throw new AttributeAssignNotAllowed("Not allowed to assign to attribute def: " + attributeDef + ", " + this.ownerAttributeDefId + ", to allow this, make sure the attributeDef has setAssignToAttributeDef(true)");
     }
     if (StringUtils.isNotEmpty(this.ownerMemberId) && StringUtils.isNotEmpty(this.ownerGroupId) && !attributeDef.isAssignToEffMembership()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to effective membership: " + attributeDef + ", " + this.ownerGroupId + ", " + this.ownerMemberId);
+      throw new AttributeAssignNotAllowed("Not allowed to assign to effective membership: " + attributeDef + ", " + this.ownerGroupId + ", " + this.ownerMemberId + ", to allow this, make sure the attributeDef has setAssignToEffMembership(true)");
     }
-    //TODO check for assignments
+    //TODO check for assignments (6 cases?)
     GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(this);
   }
   

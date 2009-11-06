@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.46 2009-10-26 17:20:57 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.47 2009-11-06 13:39:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -356,7 +356,7 @@ public class GrouperDdlUtils {
         connection = grouperDb.connection();
   
         List<String> objectNames = retrieveObjectNames();
-        
+        //System.err.println(GrouperUtil.toStringForLog(objectNames));
         for (String objectName : objectNames) {
   
           if (StringUtils.equals("GrouperLoader", objectName)) {
