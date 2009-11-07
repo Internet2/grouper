@@ -3,6 +3,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -15,7 +16,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.7 2009-09-17 22:40:07 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.8 2009-11-07 14:13:09 shilen Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -30,7 +31,13 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("update AttributeDefNameSet set parentAttrDefNameSetId = null").executeUpdate();
+    
+    if (GrouperDdlUtils.isMysql()) {
+      //do this since mysql cant handle self-referential foreign keys
+      // restrict this only to mysql since in oracle this might cause unique constraint violations
+      hibernateSession.byHql().createQuery("update AttributeDefNameSet set parentAttrDefNameSetId = null").executeUpdate();
+    }
+    
     hibernateSession.byHql().createQuery("delete from AttributeDefNameSet").executeUpdate();
   }
 
@@ -106,11 +113,15 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            //set parent to null so mysql doest get mad
-            //http://bugs.mysql.com/bug.php?id=15746
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-                "update AttributeDefNameSet set parentAttrDefNameSetId = null where id = :id")
-                .setString("id", attributeDefNameSet.getId()).executeUpdate();
+            
+            if (GrouperDdlUtils.isMysql()) {
+              //set parent to null so mysql doest get mad
+              //http://bugs.mysql.com/bug.php?id=15746
+              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+                  "update AttributeDefNameSet set parentAttrDefNameSetId = null where id = :id")
+                  .setString("id", attributeDefNameSet.getId()).executeUpdate();
+            }
+            
             hibernateHandlerBean.getHibernateSession().byObject().delete(attributeDefNameSet);
             return null;
           }
@@ -146,11 +157,15 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
           
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            //do this since mysql cant handle self-referential foreign keys
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "update AttributeDefNameSet set parentAttrDefNameSetId = null where ifHasAttributeDefNameId = :id")
-              .setString("id", attributeDefName.getId())
-              .executeUpdate();    
+            
+            if (GrouperDdlUtils.isMysql()) {
+              //do this since mysql cant handle self-referential foreign keys
+              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+                "update AttributeDefNameSet set parentAttrDefNameSetId = null where ifHasAttributeDefNameId = :id")
+                .setString("id", attributeDefName.getId())
+                .executeUpdate();    
+            }
+            
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
               "delete from AttributeDefNameSet where ifHasAttributeDefNameId = :id")
               .setString("id", attributeDefName.getId())
