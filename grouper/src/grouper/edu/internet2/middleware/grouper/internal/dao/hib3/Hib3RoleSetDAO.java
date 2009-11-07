@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
 import edu.internet2.middleware.grouper.exception.RoleSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -17,7 +18,7 @@ import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 /**
  * Data Access Object for role set
  * @author  mchyzer
- * @version $Id: Hib3RoleSetDAO.java,v 1.4 2009-10-02 05:57:58 mchyzer Exp $
+ * @version $Id: Hib3RoleSetDAO.java,v 1.5 2009-11-07 13:21:36 shilen Exp $
  */
 public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
   
@@ -32,7 +33,13 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("update RoleSet set parentRoleSetId = null").executeUpdate();
+    
+    if (GrouperDdlUtils.isMysql()) {
+      //do this since mysql cant handle self-referential foreign keys
+      // restrict this only to mysql since in oracle this might cause unique constraint violations
+      hibernateSession.byHql().createQuery("update RoleSet set parentRoleSetId = null").executeUpdate();
+    }
+    
     hibernateSession.byHql().createQuery("delete from RoleSet").executeUpdate();
   }
 
@@ -68,11 +75,15 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            //set parent to null so mysql doest get mad
-            //http://bugs.mysql.com/bug.php?id=15746
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-                "update RoleSet set parentRoleSetId = null where id = :id")
-                .setString("id", roleSet.getId()).executeUpdate();
+            
+            if (GrouperDdlUtils.isMysql()) {
+              //set parent to null so mysql doest get mad
+              //http://bugs.mysql.com/bug.php?id=15746
+              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+                  "update RoleSet set parentRoleSetId = null where id = :id")
+                  .setString("id", roleSet.getId()).executeUpdate();
+            }
+            
             hibernateHandlerBean.getHibernateSession().byObject().delete(roleSet);
             return null;
           }
@@ -157,11 +168,15 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
           
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            //do this since mysql cant handle self-referential foreign keys
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "update RoleSet set parentRoleSetId = null where ifHasRoleId = :id")
-              .setString("id", role.getId())
-              .executeUpdate();    
+            
+            if (GrouperDdlUtils.isMysql()) {
+              //do this since mysql cant handle self-referential foreign keys
+              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+                "update RoleSet set parentRoleSetId = null where ifHasRoleId = :id")
+                .setString("id", role.getId())
+                .executeUpdate();    
+            }
+            
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
               "delete from RoleSet where ifHasRoleId = :id")
               .setString("id", role.getId())
