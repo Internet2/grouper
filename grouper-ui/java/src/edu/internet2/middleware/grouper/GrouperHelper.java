@@ -84,7 +84,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.63 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.64 2009-11-07 12:20:32 isgwb Exp $
  */
 
 
@@ -2752,6 +2752,16 @@ public class GrouperHelper {
 	public static  List getSearchableFields(ResourceBundle bundle) throws SchemaException{
 		List res = new ArrayList();
 		List<String> names=new ArrayList();
+		
+		for (int i=0;i<searchableGroupFields.length;i++) {
+			Map map = new HashMap();
+			map.put("name",searchableGroupFields[i]);
+			map.put("displayName",bundle.getString("field.displayName." + searchableGroupFields[i]));
+			res.add(map);
+			names.add(searchableGroupFields[i]);
+		}
+		
+		
 		Set fields = FieldFinder.findAllByType(FieldType.ATTRIBUTE);
 		Iterator it = fields.iterator();
 		Field field;
@@ -2881,6 +2891,7 @@ public class GrouperHelper {
 	}
 	
 	private static String[] searchableStemFields=new String[] {"displayExtension","extension","displayName","name"};
+	private static String[] searchableGroupFields=new String[] {"displayExtension","extension","displayName","name"};
 	
 	/**
 	 * Returns a list of Maps representing name / displayNames for stem fields
