@@ -3,6 +3,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeAssignActionSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -15,7 +16,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Data Access Object for attribute assign action set
  * @author  mchyzer
- * @version $Id: Hib3AttributeAssignActionSetDAO.java,v 1.1 2009-10-26 02:26:07 mchyzer Exp $
+ * @version $Id: Hib3AttributeAssignActionSetDAO.java,v 1.2 2009-11-07 14:13:09 shilen Exp $
  */
 public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements AttributeAssignActionSetDAO {
   
@@ -30,7 +31,13 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("update AttributeAssignActionSet set parentAttrAssignActionSetId = null").executeUpdate();
+    
+    if (GrouperDdlUtils.isMysql()) {
+      //do this since mysql cant handle self-referential foreign keys
+      // restrict this only to mysql since in oracle this might cause unique constraint violations
+      hibernateSession.byHql().createQuery("update AttributeAssignActionSet set parentAttrAssignActionSetId = null").executeUpdate();
+    }
+    
     hibernateSession.byHql().createQuery("delete from AttributeAssignActionSet").executeUpdate();
   }
 
@@ -107,11 +114,15 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            //set parent to null so mysql doest get mad
-            //http://bugs.mysql.com/bug.php?id=15746
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-                "update AttributeAssignActionSet set parentAttrAssignActionSetId = null where id = :id")
-                .setString("id", attributeAssignActionSet.getId()).executeUpdate();
+            
+            if (GrouperDdlUtils.isMysql()) {
+              //set parent to null so mysql doest get mad
+              //http://bugs.mysql.com/bug.php?id=15746
+              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+                  "update AttributeAssignActionSet set parentAttrAssignActionSetId = null where id = :id")
+                  .setString("id", attributeAssignActionSet.getId()).executeUpdate();
+            }
+            
             hibernateHandlerBean.getHibernateSession().byObject().delete(attributeAssignActionSet);
             return null;
           }
@@ -148,11 +159,15 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
           
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            //do this since mysql cant handle self-referential foreign keys
-            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
-              "update AttributeAssignActionSet set parentAttrAssignActionSetId = null where ifHasAttrAssignActionId = :id")
-              .setString("id", attributeAssignAction.getId())
-              .executeUpdate();    
+            
+            if (GrouperDdlUtils.isMysql()) {
+              //do this since mysql cant handle self-referential foreign keys
+              hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+                "update AttributeAssignActionSet set parentAttrAssignActionSetId = null where ifHasAttrAssignActionId = :id")
+                .setString("id", attributeAssignAction.getId())
+                .executeUpdate();    
+            }
+            
             hibernateHandlerBean.getHibernateSession().byHql().createQuery(
               "delete from AttributeAssignActionSet where ifHasAttrAssignActionId = :id")
               .setString("id", attributeAssignAction.getId())
