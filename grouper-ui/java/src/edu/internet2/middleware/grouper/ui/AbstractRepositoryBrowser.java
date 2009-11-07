@@ -140,7 +140,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.24 2009-10-20 12:46:47 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.25 2009-11-07 14:46:34 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -317,7 +317,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
           resultSize = resultSizeArray[0];  
         }
         
-        if (!sortedQuery()){  
+        if (sortedQuery()){  
           listOfMaps = LowLevelGrouperCapableAction.sort(listOfMaps,request,context, -1);
 				}
         

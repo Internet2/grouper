@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupComparatorHelper.java,v 1.3 2009-03-24 17:31:45 mchyzer Exp $
+ * @version $Id: GroupComparatorHelper.java,v 1.4 2009-11-07 14:46:34 isgwb Exp $
  */
 
 public class GroupComparatorHelper implements GrouperComparatorHelper{
@@ -93,11 +93,23 @@ public class GroupComparatorHelper implements GrouperComparatorHelper{
 		String[] parts=attrStr.split(" ");
 		StringBuffer sb=new StringBuffer();
 		String val="";
+		String attrName;
 		for(int i=0;i<parts.length;i++) {
 			val="";
-			try {
-				val=group.getAttributeValue(parts[i], false, false);
-			}catch(Exception e){}
+			attrName=parts[i];
+			if(attrName.equals("extension")) {
+				val=group.getExtension();
+			}else if(attrName.equals("displayExtension")) {
+				val=group.getDisplayExtension();
+			}else if(attrName.equals("name")) {
+				val=group.getName();
+			}else if(attrName.equals("displayName")) {
+				val=group.getDisplayName();
+			}else {
+				try {
+					val=group.getAttributeValue(attrName, false, false);
+				}catch(Exception e){}
+			}
 			sb.append(val);
 		}
 		boolean sortLowercase = true;
