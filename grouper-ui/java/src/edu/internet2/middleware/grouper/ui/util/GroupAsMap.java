@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.16 2009-04-10 19:29:16 shilen Exp $
+ * @version $Id: GroupAsMap.java,v 1.17 2009-11-07 15:34:54 isgwb Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -88,7 +88,7 @@ public class GroupAsMap extends ObjectAsMap {
 		
 		if(obj==null) {
 			//No value, so check the wrapped group
-			if("composite".equals(key)) {
+			if("hasComposite".equals(key)) {
 				obj = new Boolean(group.hasComposite());
 				put(key,obj);
 			}else if("stem".equals(key)) {

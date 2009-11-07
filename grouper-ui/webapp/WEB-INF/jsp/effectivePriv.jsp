@@ -2,7 +2,7 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePriv.jsp,v 1.9 2009-09-09 15:10:03 mchyzer Exp $
+  @version $Id: effectivePriv.jsp,v 1.10 2009-11-07 15:34:54 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -33,7 +33,7 @@
 				</grouper:message></c:set>
 			
 			<c:choose>
-				<c:when test="${group.composite}">
+				<c:when test="${group.hasComposite}">
 					<c:set var="memberOfView" value="isIndirectMemberOf"/>
 				</c:when>
 				<c:otherwise>
