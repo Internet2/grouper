@@ -20,7 +20,7 @@
   </tiles:insert>
  </div>
  	<c:choose>
-		<c:when test="${!empty viewObject[0].owner && viewObject[0].owner.composite}">
+		<c:when test="${!empty viewObject[0].owner && viewObject[0].owner.hasComposite}">
 			<tiles:insert definition="dynamicTileDef" flush="false">
 				<tiles:put name="viewObject" beanName="currentSubject"/>
 				<tiles:put name="view" value="isIndirectMemberOf"/>

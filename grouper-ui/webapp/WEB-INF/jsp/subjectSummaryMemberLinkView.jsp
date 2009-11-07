@@ -3,7 +3,7 @@
 		  render memberships from Subject perspective
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectSummaryMemberLinkView.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
+  @version $Id: subjectSummaryMemberLinkView.jsp,v 1.11 2009-11-07 15:50:38 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -15,7 +15,7 @@
 		 </grouper:message></html:link> <c:out value="${linkSeparator}" escapeXml="false"/>
 		
 	</c:when>
-  	<c:when test="${!empty viewObject.viaGroup || viewObject.group.composite}">
+  	<c:when test="${!empty viewObject.viaGroup || viewObject.group.hasComposite}">
 		<html:link page="/populateChains.do" name="linkParams" title="${navMap['groups.membership.chain.title']} ${viewObject.subject.desc}">
 		 <grouper:message key="groups.membership.chain.indirect-member-of"/></html:link> <c:out value="${linkSeparator}" escapeXml="false"/>
 		
