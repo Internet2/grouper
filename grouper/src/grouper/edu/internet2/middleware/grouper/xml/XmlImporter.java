@@ -111,7 +111,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.22 2009-10-16 08:10:39 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.23 2009-11-07 12:18:47 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -274,11 +274,15 @@ public class XmlImporter {
               );
               _handleArgs(importer[0], rc);
               
+              GrouperSession staticSession = GrouperSession.staticGrouperSession(false);
+              if(staticSession==null) {
+            	  staticSession = GrouperSession.start(SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true));  
+              }
               AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.XML_IMPORT, "fileName", 
                   rc.getProperty(XmlArgs.RC_IFILE), "subjectId", rc.getProperty(XmlArgs.RC_SUBJ));
               auditEntry.setDescription("Imported xml: " + GrouperUtil.toStringForLog(args));
               auditEntry.saveOrUpdate(true);
-
+              staticSession.stop();
               
             } catch (Exception e) {
               LOG.fatal("unable to import from xml: " + e.getMessage(), e);
