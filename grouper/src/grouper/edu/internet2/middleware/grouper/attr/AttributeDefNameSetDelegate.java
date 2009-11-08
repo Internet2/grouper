@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeDefNameSetDelegate.java,v 1.2 2009-10-26 02:26:07 mchyzer Exp $
+ * $Id: AttributeDefNameSetDelegate.java,v 1.3 2009-11-08 13:07:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr;
 
@@ -73,7 +73,7 @@ public class AttributeDefNameSetDelegate implements Serializable {
    * @return true if added, false if already there
    */
   public boolean addToAttributeDefNameSet(AttributeDefName newAttributeDefName) {
-    return GrouperSetEnum.ATTRIBUTE_ASSIGN_ACTION_SET.addToGrouperSet(this.attributeDefName, newAttributeDefName);
+    return GrouperSetEnum.ATTRIBUTE_SET.addToGrouperSet(this.attributeDefName, newAttributeDefName);
   }
 
   /**
@@ -82,7 +82,7 @@ public class AttributeDefNameSetDelegate implements Serializable {
    * @return true if removed, false if already removed
    */
   public boolean removeFromAttributeDefNameSet(AttributeDefName attributeDefNameToRemove) {
-    return GrouperSetEnum.ATTRIBUTE_ASSIGN_ACTION_SET.removeFromGrouperSet(this.attributeDefName, attributeDefNameToRemove);
+    return GrouperSetEnum.ATTRIBUTE_SET.removeFromGrouperSet(this.attributeDefName, attributeDefNameToRemove);
   }
 
 }

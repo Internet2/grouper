@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignAction.java,v 1.1 2009-10-26 02:26:07 mchyzer Exp $
+ * $Id: AttributeAssignAction.java,v 1.2 2009-11-08 13:07:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -372,7 +372,7 @@ public class AttributeAssignAction extends GrouperAPI
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
       .append( "name", this.name)
-      .append( "uuid", this.getId() )
+      .append( "id", this.getId() )
       .toString();
   }
 

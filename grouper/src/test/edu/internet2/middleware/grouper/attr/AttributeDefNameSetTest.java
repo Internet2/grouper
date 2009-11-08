@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouper.attr;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -28,7 +29,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameSetTest("testHibernate"));
+    TestRunner.run(new AttributeDefNameSetTest("testComplexRemoveBfromA"));
   }
 
   /**
@@ -1153,6 +1154,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
 
     // A -> B
     assertTrue(orgA.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgB));
+    Set<AttributeDefName> attributeDefNamesImpliedByThisImmediate = orgA.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThisImmediate();
+    assertTrue(attributeDefNamesImpliedByThisImmediate.contains(orgB));
     assertFalse(orgA.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(orgB));
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
