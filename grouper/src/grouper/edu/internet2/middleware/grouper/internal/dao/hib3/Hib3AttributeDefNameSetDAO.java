@@ -16,7 +16,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.9 2009-11-08 13:07:04 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.10 2009-11-08 13:16:53 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -114,7 +114,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             
-            if (GrouperDdlUtils.isMysql()) {
+            if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
               //set parent to null so mysql doest get mad
               //http://bugs.mysql.com/bug.php?id=15746
               hibernateHandlerBean.getHibernateSession().byHql().createQuery(
@@ -158,7 +158,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             
-            if (GrouperDdlUtils.isMysql()) {
+            if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
               //do this since mysql cant handle self-referential foreign keys
               hibernateHandlerBean.getHibernateSession().byHql().createQuery(
                 "update AttributeDefNameSet set parentAttrDefNameSetId = null where ifHasAttributeDefNameId = :id")
