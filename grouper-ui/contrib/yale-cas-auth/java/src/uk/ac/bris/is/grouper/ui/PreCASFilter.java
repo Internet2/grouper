@@ -35,7 +35,7 @@ import edu.yale.its.tp.cas.client.filter.CASFilter;
 /**
  * Integrates CAS with Grouper ui
  * @author Gary Brown.
- * @version $Id: PreCASFilter.java,v 1.2 2006-03-01 16:19:04 isgwb Exp $
+ * @version $Id: PreCASFilter.java,v 1.3 2009-11-08 12:27:20 isgwb Exp $
  */
 public class PreCASFilter implements Filter {
 	private String failureUrl = "/";
@@ -92,6 +92,9 @@ public class PreCASFilter implements Filter {
 	  	}
 	  	
 		String authUser = (String) session.getAttribute("authUser");
+		if(authUser==null) {
+			authUser=(String)session.getAttribute(CASFilter.CAS_FILTER_USER);
+		}
 		
 		//Convince CAS to work properly with populateIndex.do
 		if (!request.getServletPath().endsWith("/populateIndex.do") && session.getAttribute("edu.yale.its.tp.cas.client.filter.didGateway")!=null) {

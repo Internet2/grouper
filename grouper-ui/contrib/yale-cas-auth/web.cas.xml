@@ -97,9 +97,47 @@
   	<filter-name>Caller page</filter-name>
   	<url-pattern>/gotoCallerPage</url-pattern>
   </filter-mapping>
+    <filter-mapping>
+  	<filter-name>PreCASFilter</filter-name>
+  	<url-pattern>/grouperUi/appHtml/*</url-pattern>
+  </filter-mapping>
   <filter-mapping>
+  	<filter-name>PreCASFilter</filter-name>
+  	<url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>
+<filter-mapping>
+  	<filter-name>CAS Filter</filter-name>
+  	<url-pattern>/grouperUi/appHtml/*</url-pattern>
+  </filter-mapping>
+  
+<filter-mapping>
+  	<filter-name>CAS Filter</filter-name>
+  	<url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>
+  
+   <filter-mapping>
   	<filter-name>Login check</filter-name>
   	<url-pattern>*.do</url-pattern>
   </filter-mapping>
+  
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/app/*</url-pattern>
+    </web-resource-collection>
+	<user-data-constraint>NONE</user-data-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/appHtml/*</url-pattern>
+    </web-resource-collection>
+	<user-data-constraint>NONE</user-data-constraint>
+
+  </security-constraint>
+
+
+
 
   </web-app>
