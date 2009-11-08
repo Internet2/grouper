@@ -106,7 +106,11 @@ public class MemberAttributeSecurityTest extends GrouperTest {
     ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
     
     this.attributeDef1 = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+    this.attributeDef1.setAssignToMember(true);
+    this.attributeDef1.store();
     this.attributeDef2 = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
+    this.attributeDef2.setAssignToMember(true);
+    this.attributeDef2.store();
   
     this.attributeDefName1_1 = this.top.addChildAttributeDefName(attributeDef1, "testName1_1", "test name1_1");
     this.attributeDefName1_2 = this.top.addChildAttributeDefName(attributeDef1, "testName1_2", "test name1_2");

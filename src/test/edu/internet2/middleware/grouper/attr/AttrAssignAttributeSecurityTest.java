@@ -30,7 +30,8 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttrAssignAttributeSecurityTest("testSecuritySubj7"));
+    //TestRunner.run(new AttrAssignAttributeSecurityTest("testSecuritySubj7"));
+    TestRunner.run(AttrAssignAttributeSecurityTest.class);
   }
 
   /** grouper sesion */
@@ -87,6 +88,8 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     Group group = StemHelper.addChildGroup(this.edu, "group", "the group");
     this.top = this.root.addChildStem("top", "top display name");
     AttributeDef metaAttributeDef = this.top.addChildAttributeDef("testGroup", AttributeDefType.attr);
+    metaAttributeDef.setAssignToGroup(true);
+    metaAttributeDef.store();
     AttributeDefName metaAttributeDefName = this.top.addChildAttributeDefName(
         metaAttributeDef, "testGroupName", "test group name");
     
@@ -115,6 +118,7 @@ public class AttrAssignAttributeSecurityTest extends GrouperTest {
     ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
     
     this.attributeDef1 = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+    
     this.attributeDef2 = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
   
     this.attributeDefName1_1 = this.top.addChildAttributeDefName(attributeDef1, "testName1_1", "test name1_1");

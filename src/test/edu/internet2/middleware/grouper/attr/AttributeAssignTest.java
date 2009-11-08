@@ -32,7 +32,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testHibernate"));
+    TestRunner.run(new AttributeAssignTest("testDelegation"));
   }
   
   /**
@@ -95,11 +95,6 @@ public class AttributeAssignTest extends GrouperTest {
       //good
     }
     
-    attributeDef.setAssignToStem(true);
-    attributeDef.store();
-    
-    //should work now
-    attributeAssign.saveOrUpdate();
   }
 
   /**
@@ -123,7 +118,8 @@ public class AttributeAssignTest extends GrouperTest {
    */
   public void testDelegation() {
     AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.perm);
-
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.store();
     AttributeDefName attributeDefName0 = this.top.addChildAttributeDefName(attributeDef, "testName0", "test name0");
     AttributeDefName attributeDefName1 = this.top.addChildAttributeDefName(attributeDef, "testName1", "test name1");
     AttributeDefName attributeDefName2 = this.top.addChildAttributeDefName(attributeDef, "testName2", "test name2");
@@ -217,7 +213,8 @@ public class AttributeAssignTest extends GrouperTest {
    */
   public void testHibernateDelegate() {
     AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
-
+    attributeDef.setAssignToStem(true);
+    attributeDef.store();
     AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
     
     AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName);

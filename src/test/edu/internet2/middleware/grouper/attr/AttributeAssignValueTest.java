@@ -66,7 +66,9 @@ public class AttributeAssignValueTest extends GrouperTest {
    */
   public void testHibernate() {
     AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
-
+    attributeDef.setAssignToStem(true);
+    attributeDef.store();
+    
     AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
 
     AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName);

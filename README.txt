@@ -122,6 +122,11 @@ Run from the GROUPER_HOME directory:
 
 Note, you either need to run that command in the background, or use a terminal window that will wait for the server to exit.
 
+If you want to start the hsql database manager, run this command in a new terminal:
+ 
+    % java -cp lib/jdbcSamples/hsqldb.jar org.hsqldb.util.DatabaseManager -url jdbc:hsqldb:hsql://localhost/grouper
+    
+
 ## 4.b Initializing The Database
 
     % bin/gsh.sh -registry -runscript

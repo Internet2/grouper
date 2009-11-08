@@ -6,9 +6,12 @@ package edu.internet2.middleware.grouper.attr;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
@@ -520,5 +523,29 @@ public class AttributeDefName extends GrouperAPI
       .append( "uuid", this.getId() )
       .toString();
   }
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof AttributeDefName)) {
+      return false;
+    }
+    return StringUtils.equals(this.getName(), ( (AttributeDefName) other ).getName() );
+  } // public boolean equals(other)
+
+  /**
+   * @return hashcode
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getName() )
+      .toHashCode();
+  } // public int hashCode()
 
 }

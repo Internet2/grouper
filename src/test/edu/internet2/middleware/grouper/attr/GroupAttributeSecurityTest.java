@@ -30,7 +30,8 @@ public class GroupAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GroupAttributeSecurityTest("assignPrivilegeToGroup"));
+    //TestRunner.run(new GroupAttributeSecurityTest("assignPrivilegeToGroup"));
+    TestRunner.run(GroupAttributeSecurityTest.class);
   }
 
   /** grouper sesion */
@@ -107,7 +108,11 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
     
     this.attributeDef1 = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+    this.attributeDef1.setAssignToGroup(true);
+    this.attributeDef1.store();
     this.attributeDef2 = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
+    this.attributeDef2.setAssignToGroup(true);
+    this.attributeDef2.store();
   
     this.attributeDefName1_1 = this.top.addChildAttributeDefName(attributeDef1, "testName1_1", "test name1_1");
     this.attributeDefName1_2 = this.top.addChildAttributeDefName(attributeDef1, "testName1_2", "test name1_2");

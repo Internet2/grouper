@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignActionSetTest.java,v 1.2 2009-11-06 13:39:58 mchyzer Exp $
+ * $Id: AttributeAssignActionSetTest.java,v 1.3 2009-11-08 13:07:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -14410,7 +14410,8 @@ public class AttributeAssignActionSetTest extends GrouperTest {
   
     AttributeDef attributeDef = this.top.addChildAttributeDef("orgs",
         AttributeDefType.attr);
-    AttributeAssignAction org1 = attributeDef.getAttributeDefActionDelegate().addAction("org1");
+    attributeDef.getAttributeDefActionDelegate().configureActionList("org1");
+    AttributeAssignAction org1 = attributeDef.getAttributeDefActionDelegate().allowedAction("org1", true);
   
     int attrAssignActionSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_assn_action_set_v");

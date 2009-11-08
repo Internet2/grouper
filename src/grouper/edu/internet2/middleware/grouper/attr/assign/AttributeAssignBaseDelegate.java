@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignBaseDelegate.java,v 1.6 2009-10-26 02:26:07 mchyzer Exp $
+ * $Id: AttributeAssignBaseDelegate.java,v 1.7 2009-11-08 13:07:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -478,7 +478,7 @@ public abstract class AttributeAssignBaseDelegate {
     Set<AttributeAssign> attributeAssigns = retrieveAssignments(attributeDefName);
     action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
     for (AttributeAssign attributeAssign : attributeAssigns) {
-      String currentAttributeAction = attributeAssign.getAttributeAssignAction().getId();
+      String currentAttributeAction = attributeAssign.getAttributeAssignAction().getName();
       if (StringUtils.equals(action, currentAttributeAction)) {
         return true;
       }
@@ -518,7 +518,7 @@ public abstract class AttributeAssignBaseDelegate {
     action = StringUtils.defaultIfEmpty(action, AttributeDef.ACTION_DEFAULT);
     Set<AttributeAssign> attributeAssigns = retrieveAttributeAssignsByOwnerAndAttributeDefNameId(attributeDefName.getId());
     for (AttributeAssign attributeAssign : attributeAssigns) {
-      String currentAttributeAction = attributeAssign.getAttributeAssignAction().getId();
+      String currentAttributeAction = attributeAssign.getAttributeAssignAction().getName();
       if (StringUtils.equals(action, currentAttributeAction)) {
         attributeAssign.delete();
       }
@@ -580,7 +580,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @param attributeAssignDelegateOptions if there are more options, null if not
    * @return the result including if added or already there
    */
-  public AttributeAssignResult delegateAttribute(String action, AttributeDefName attributeDefName, boolean assign, 
+  public AttributeAssignResult delegateAttribute(final String action, final AttributeDefName attributeDefName, final boolean assign, 
       final AttributeAssignDelegateOptions attributeAssignDelegateOptions) {
     this.assertCanDelegateAttributeDefName(action, attributeDefName);
     
@@ -593,14 +593,18 @@ public abstract class AttributeAssignBaseDelegate {
     
     if (assign) {
     
-      //do the same thing that an assign would do
-      final AttributeAssignResult attributeAssignResult = this.assignAttributeHelper(action, attributeDefName, false);
-      
-      if (attributeAssignDelegateOptions != null) {
+      AttributeAssignResult attributeAssignResult = (AttributeAssignResult)GrouperSession
+        .callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
         
-        GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          //do the same thing that an assign would do
+          //do this as root since the user who can delegate might not be able to assign...
+          AttributeAssignResult attributeAssignResult = AttributeAssignBaseDelegate
+          .this.assignAttributeHelper(action, attributeDefName, false);
           
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          if (attributeAssignDelegateOptions != null) {
+            
+
             AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
             if (attributeAssignDelegateOptions.isAssignAttributeAssignDelegatable()) {
               attributeAssign.setAttributeAssignDelegatable(attributeAssignDelegateOptions.getAttributeAssignDelegatable());
@@ -612,12 +616,11 @@ public abstract class AttributeAssignBaseDelegate {
               attributeAssign.setDisabledTime(attributeAssignDelegateOptions.getEnabledTime());
             }
             attributeAssign.saveOrUpdate();
-            return null;
           }
-        });
+          return attributeAssignResult;
+        }
+      });
         
-      }
-      
       return attributeAssignResult;
       
     }

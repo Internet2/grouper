@@ -16,7 +16,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.8 2009-11-07 14:13:09 shilen Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.9 2009-11-08 13:07:04 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -32,7 +32,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
    */
   static void reset(HibernateSession hibernateSession) {
     
-    if (GrouperDdlUtils.isMysql()) {
+    if (GrouperDdlUtils.isMysql() || GrouperDdlUtils.isHsql()) {
       //do this since mysql cant handle self-referential foreign keys
       // restrict this only to mysql since in oracle this might cause unique constraint violations
       hibernateSession.byHql().createQuery("update AttributeDefNameSet set parentAttrDefNameSetId = null").executeUpdate();
@@ -181,8 +181,8 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
   public Set<AttributeDefName> attributeDefNamesImpliedByThis(String attributeDefNameId) {
     Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic().createQuery(
         "select distinct adn from AttributeDefNameSet as adns, AttributeDefName as adn " +
-        "where adn.ifHasAttributeDefNameId = :theId and adn.id = adns.thenHasAttributeDefNameId " +
-        "and adn.id != :theId order by adn.name")
+        "where adns.ifHasAttributeDefNameId = :theId and adn.id = adns.thenHasAttributeDefNameId " +
+        "and adn.id != :theId order by adn.nameDb")
         .setString("theId", attributeDefNameId).listSet(AttributeDefName.class);
       return attributeDefNames;
   }
@@ -193,8 +193,8 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
   public Set<AttributeDefName> attributeDefNamesImpliedByThisImmediate(String attributeDefNameId) {
     Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic().createQuery(
         "select distinct adn from AttributeDefNameSet as adns, AttributeDefName as adn " +
-        "where adn.ifHasAttributeDefNameId = :theId and adn.id = adns.thenHasAttributeDefNameId " +
-        "and adn.id != :theId and adn.typeDb = 'immediate' order by adn.name")
+        "where adns.ifHasAttributeDefNameId = :theId and adn.id = adns.thenHasAttributeDefNameId " +
+        "and adn.id != :theId and adns.typeDb = 'immediate' order by adn.nameDb")
         .setString("theId", attributeDefNameId).listSet(AttributeDefName.class);
       return attributeDefNames;
   }
@@ -205,8 +205,8 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
   public Set<AttributeDefName> attributeDefNamesThatImplyThis(String attributeDefNameId) {
     Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic().createQuery(
         "select distinct adn from AttributeDefNameSet as adns, AttributeDefName as adn " +
-        "where adn.thenHasAttributeDefNameId = :theId and adn.id = adns.ifHasAttributeDefNameId " +
-        "and adn.id != :theId order by adn.name")
+        "where adns.thenHasAttributeDefNameId = :theId and adn.id = adns.ifHasAttributeDefNameId " +
+        "and adn.id != :theId order by adn.nameDb")
         .setString("theId", attributeDefNameId).listSet(AttributeDefName.class);
       return attributeDefNames;
   }
@@ -217,8 +217,8 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
   public Set<AttributeDefName> attributeDefNamesThatImplyThisImmediate(String attributeDefNameId) {
     Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic().createQuery(
         "select distinct adn from AttributeDefNameSet as adns, AttributeDefName as adn " +
-        "where adn.thenHasAttributeDefNameId = :theId and adn.id = adns.ifHasAttributeDefNameId " +
-        "and adn.id != :theId and adn.typeDb = 'immediate' order by adn.name")
+        "where adns.thenHasAttributeDefNameId = :theId and adn.id = adns.ifHasAttributeDefNameId " +
+        "and adn.id != :theId and adns.typeDb = 'immediate' order by adn.nameDb")
         .setString("theId", attributeDefNameId).listSet(AttributeDefName.class);
       return attributeDefNames;
   }
