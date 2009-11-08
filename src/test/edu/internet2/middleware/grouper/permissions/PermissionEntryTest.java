@@ -1,6 +1,6 @@
 /**
  * @author Kate
- * $Id: PermissionEntryTest.java,v 1.2 2009-10-02 20:21:33 mchyzer Exp $
+ * $Id: PermissionEntryTest.java,v 1.3 2009-11-08 13:16:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions;
 
@@ -88,7 +88,8 @@ public class PermissionEntryTest extends GrouperTest {
     ((Group)role).addMember(SubjectTestHelper.SUBJ5);
     
     AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.perm);
-    
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
     AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
     
     role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
