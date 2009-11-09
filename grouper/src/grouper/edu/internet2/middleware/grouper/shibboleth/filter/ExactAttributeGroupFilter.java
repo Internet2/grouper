@@ -16,6 +16,7 @@ package edu.internet2.middleware.grouper.shibboleth.filter;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
 
 /**
@@ -46,6 +47,10 @@ public class ExactAttributeGroupFilter extends BaseGroupQueryFilter {
 
   /** {@inheritDoc} */
   public boolean matchesGroup(Group group) {
-    return value.equals(group.getAttributeOrFieldValue(name, true, false));
+    try {
+      return value.equals(group.getAttributeOrFieldValue(name, true, false));
+    } catch (AttributeNotFoundException e) {
+      return false;
+    }
   }
 }
