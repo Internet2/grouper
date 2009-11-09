@@ -87,6 +87,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -133,7 +134,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.265 2009-11-02 03:50:51 mchyzer Exp $
+ * @version $Id: Group.java,v 1.266 2009-11-09 03:12:18 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -790,6 +791,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   throw new MemberAddAlreadyExistsException(membershipAlreadyExistsException);
                 }
                 doesntExist = false;
+              } catch (HookVeto hookVeto) {
+                //pass this through
+                throw hookVeto;
               } catch (Exception exception) {
                 throw new RuntimeException(exception);
               }

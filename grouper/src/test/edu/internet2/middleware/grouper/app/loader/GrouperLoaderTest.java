@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderTest.java,v 1.11 2009-10-18 16:30:51 mchyzer Exp $
+ * $Id: GrouperLoaderTest.java,v 1.12 2009-11-09 03:12:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -55,7 +55,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderTypes"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderTypesGroupMeta"));
   }
 
   /**
@@ -222,15 +222,47 @@ public class GrouperLoaderTest extends GrouperTest {
     assertNotNull(optouts);
     
     //make sure they have the privilege
-    overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4");
+    overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4", true);
     assertTrue(overallGroup4.hasRead(readers.toSubject()));
     assertFalse(overallGroup4.hasAdmin(viewers.toSubject()));
     assertTrue(overallGroup4.hasView(viewers.toSubject()));
-    assertTrue(overallGroup4.hasUpdate(updaters.toSubject()));
+    //note, on include/exclude groups, shouldnt have update on overall group...
+    assertFalse(overallGroup4.hasUpdate(updaters.toSubject()));
     assertTrue(overallGroup4.hasOptin(optins.toSubject()));
     assertTrue(overallGroup4.hasOptout(optouts.toSubject()));
     assertTrue(overallGroup4.hasAdmin(admins.toSubject()));
     
+    Group includesGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_includes", true);
+    assertTrue(includesGroup4.hasRead(readers.toSubject()));
+    assertFalse(includesGroup4.hasAdmin(viewers.toSubject()));
+    assertTrue(includesGroup4.hasView(viewers.toSubject()));
+    //note, on include/exclude groups, should have update on overall group...
+    assertTrue(includesGroup4.hasUpdate(updaters.toSubject()));
+    assertTrue(includesGroup4.hasOptin(optins.toSubject()));
+    assertTrue(includesGroup4.hasOptout(optouts.toSubject()));
+    assertTrue(includesGroup4.hasAdmin(admins.toSubject()));
+
+    Group excludesGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_excludes", true);
+    assertTrue(excludesGroup4.hasRead(readers.toSubject()));
+    assertFalse(excludesGroup4.hasAdmin(viewers.toSubject()));
+    assertTrue(excludesGroup4.hasView(viewers.toSubject()));
+    //note, on include/exclude groups, should have update on overall group...
+    assertTrue(excludesGroup4.hasUpdate(updaters.toSubject()));
+    assertTrue(excludesGroup4.hasOptin(optins.toSubject()));
+    assertTrue(excludesGroup4.hasOptout(optouts.toSubject()));
+    assertTrue(excludesGroup4.hasAdmin(admins.toSubject()));
+
+    systemOfRecordGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_systemOfRecord", true);
+    assertTrue(systemOfRecordGroup4.hasRead(readers.toSubject()));
+    assertFalse(systemOfRecordGroup4.hasAdmin(viewers.toSubject()));
+    assertTrue(systemOfRecordGroup4.hasView(viewers.toSubject()));
+    //note, on include/exclude groups, shouldnt have update on overall group...
+    assertFalse(systemOfRecordGroup4.hasUpdate(updaters.toSubject()));
+    assertTrue(systemOfRecordGroup4.hasOptin(optins.toSubject()));
+    assertTrue(systemOfRecordGroup4.hasOptout(optouts.toSubject()));
+    assertTrue(systemOfRecordGroup4.hasAdmin(admins.toSubject()));
+
+  
   }
   /**
    * test the loader
@@ -569,7 +601,7 @@ public class GrouperLoaderTest extends GrouperTest {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
    */
   @Override
   protected void tearDown() {

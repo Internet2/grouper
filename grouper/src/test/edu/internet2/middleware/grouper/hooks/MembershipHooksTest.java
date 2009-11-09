@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksTest.java,v 1.12 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: MembershipHooksTest.java,v 1.13 2009-11-09 03:12:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -38,7 +38,7 @@ public class MembershipHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new MembershipHooksTest("testMemberPreAddMemberAsync"));
+    //TestRunner.run(new MembershipHooksTest("testMemberPreAddMember"));
     TestRunner.run(MembershipHooksTest.class);
   }
   

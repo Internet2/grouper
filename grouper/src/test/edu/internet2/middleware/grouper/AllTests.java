@@ -55,7 +55,7 @@ import edu.internet2.middleware.ldappc.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.11 2009-11-05 06:10:51 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.12 2009-11-09 03:12:18 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 
@@ -198,7 +198,9 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllMiscTests.suite());
     suite.addTest(AllPermissionsTests.suite());
     suite.addTest(AllPrivsTests.suite());
-    suite.addTest(AllShibbolethTests.suite());
+    if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
+      suite.addTest(AllShibbolethTests.suite());
+    }
     suite.addTest(AllSubjectTests.suite());
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllValidatorTests.suite());
