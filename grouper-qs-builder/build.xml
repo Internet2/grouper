@@ -98,11 +98,13 @@
 					<include name="libAnt/**/*"/>
 					<include name="bin/**/*"/>
 					<include name="dist/**/*"/>
-					<!--<include name="ext/**/*"/>-->
+					<include name="ext/**/*"/>
+					<include name="misc/**/*"/>
 					<include name="LICENSE"/>
 					<include name="README"/>
 					<include name="build.xml"/>
 					<include name="buildGrouper.properties"/>
+					<include name="build.example.properties"/>
 					<include name="*.txt"/>
 					<exclude name="src"/>
 					<exclude name="lib"/>
