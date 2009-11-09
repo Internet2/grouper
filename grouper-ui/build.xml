@@ -26,6 +26,8 @@
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): ui-lite.link-from-admin-ui" unless="ui-lite.link-from-admin-ui" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): browser.debug.enable" unless="browser.debug.enable" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): browser.debug.group.enable-html-editor" unless="browser.debug.group.enable-html-editor" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): copy.grouper.jdbc.sample.drivers" unless="copy.grouper.jdbc.sample.drivers" />
+  
   
 	<if><not><available file="tomcat-context.xml" /></not>
     <then><copy file="template-tomcat-context.xml" 
@@ -397,6 +399,17 @@
 				<exclude name="servlet.jar"/>
 			</fileset>
 		</copy>
+    <if>
+       <equals arg1="true" arg2="${copy.grouper.jdbc.sample.drivers}"/>
+       <then>
+         <copy todir="${webapp.folder}/WEB-INF/lib" overwrite="${overwiteLib}">
+           <fileset dir="${grouper.folder}/lib/jdbcSamples">
+             <include name="**/*.jar"/>
+           </fileset>
+         </copy>
+       </then>
+    </if>
+	  
 		<!-- If working on core Grouper UI would expect developers to build in situ - so no need to copy web content! -->
 		<condition property="webapp-folder-is-build-folder">
 			<equals arg1="${webapp.folder}" arg2="${ui.folder}/webapp"/>
@@ -497,8 +510,8 @@
 	  </if> 
     
 		<fail if="failed">Something went wrong processing web.xmls - check output for details</fail>
-			  <copy file="webapp/WEB-INF/web.xml" 
-	          tofile="${webapp.folder}/WEB-INF/web.xml" />
+			  <!-- copy file="webapp/WEB-INF/web.xml" 
+	          tofile="${webapp.folder}/WEB-INF/web.xml" /-->
 		
 	</target>
 	
