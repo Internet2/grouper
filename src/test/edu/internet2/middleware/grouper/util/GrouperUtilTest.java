@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.15 2009-10-18 16:30:51 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.16 2009-11-09 03:12:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -31,9 +31,16 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testStringSuffix"));
+    TestRunner.run(new GrouperUtilTest("testEncryptSha"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * test encrypt sha
+   */
+  public void testEncryptSha() {
+    assertEquals("9yAXSF+/ZCNJm6+bJA2qFPXwlaE=", GrouperUtil.encryptSha("This is a string"));
   }
   
   /**

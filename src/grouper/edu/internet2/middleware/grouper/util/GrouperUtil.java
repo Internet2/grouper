@@ -59,6 +59,7 @@ import java.util.Set;
 import net.sf.cglib.proxy.Enhancer;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -76,7 +77,6 @@ import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.misc.BASE64Encoder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -91,7 +91,6 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  *
  */
-@SuppressWarnings("serial")
 public class GrouperUtil {
 
   /**
@@ -687,7 +686,9 @@ public class GrouperUtil {
       throw new RuntimeException(e);
   }
     byte raw[] = md.digest(); //step 4
-    String hash = (new BASE64Encoder()).encode(raw); //step 5
+    byte[] encoded = Base64.encodeBase64(raw); //step 5
+    String hash = new String(encoded);
+    //String hash = (new BASE64Encoder()).encode(raw); //step 5
     return hash; //step 6
   }
   
@@ -3050,7 +3051,6 @@ public class GrouperUtil {
    * @param theClass
    * @return the declared methods
    */
-  @SuppressWarnings("unused")
   private static Method[] retrieveDeclaredMethods(Class theClass) {
     Method[] methods = declaredMethodsCache().get(theClass);
     // get from cache if we can

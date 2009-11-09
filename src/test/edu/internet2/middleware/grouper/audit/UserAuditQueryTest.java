@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: UserAuditQueryTest.java,v 1.4 2009-07-16 20:25:06 mchyzer Exp $
+ * $Id: UserAuditQueryTest.java,v 1.5 2009-11-09 03:12:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.subject.Subject;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -44,9 +45,9 @@ public class UserAuditQueryTest extends TestCase {
     result = new UserAuditQuery().executeReportExtended();
     System.out.println(result);
     
-    System.out.println("\n\n\n(query for mchyzer)\n\n");
+    System.out.println("\n\n\n(query for test subject)\n\n");
     GrouperSession grouperSession = GrouperSession.startRootSession(false);
-    Subject subject = SubjectFinder.findByIdOrIdentifier("mchyzer", true);
+    Subject subject = SubjectFinder.findByIdOrIdentifier(SubjectTestHelper.SUBJ0_ID, true);
     Member member = MemberFinder.findBySubject(grouperSession,subject, true);
     
     result = new UserAuditQuery().loggedInMember(member).executeReport();

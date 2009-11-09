@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XmlUserAuditExportTest.java,v 1.2 2009-07-16 19:51:05 mchyzer Exp $
+ * $Id: XmlUserAuditExportTest.java,v 1.3 2009-11-09 03:12:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.xml.userAudit;
 
@@ -72,7 +72,8 @@ public class XmlUserAuditExportTest extends GrouperTest {
       int abcRecords = (Integer)HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_audit_entry where logged_in_member_id = 'abc'");
       
-      assertTrue("Need to find some abc's: " + abcRecords, abcRecords > 5);
+      //2 at least, one for add stem, one for add group
+      assertTrue("Need to find some abc's: " + abcRecords, abcRecords >= 2);
       
     } finally {
       GrouperUtil.deleteFile(file);
