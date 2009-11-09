@@ -15,7 +15,6 @@
 
 package edu.internet2.middleware.ldappc;
 
-import edu.internet2.middleware.grouper.xml.userAudit.XmlUserAuditExportTest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -44,10 +43,10 @@ public class AllJUnitBaseDirTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite();
     //$JUnit-BEGIN$
-    suite.addTestSuite(CRUDTest.class);
     suite.addTestSuite(InputOptionsTest.class);
-    suite.addTestSuite(CRUDRangeTest.class);
-    suite.addTestSuite(BaseLdappcTestCase.class);
+    suite.addTestSuite(CRUDTest.class);    
+    // potentially expensive, only for Active Directory
+    //suite.addTestSuite(CRUDRangeTest.class);
     suite.addTestSuite(LdappcShibbolethTest.class);
     //$JUnit-END$
     return suite;

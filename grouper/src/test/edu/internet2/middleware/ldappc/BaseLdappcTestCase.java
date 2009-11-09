@@ -39,7 +39,7 @@ import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.vt.middleware.ldap.Ldap;
 
-public class BaseLdappcTestCase extends GrouperTest {
+public abstract class BaseLdappcTestCase extends GrouperTest {
 
   /** logger */
   private static final Logger LOG = GrouperUtil.getLogger(CRUDTest.class);

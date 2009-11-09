@@ -3,9 +3,6 @@ package edu.internet2.middleware.grouper.shibboleth;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.AllShibDataConnectorTests;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnectorTests;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.MemberDataConnectorTests;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.StemDataConnectorTests;
 
 /**
  * All shibboleth attribute resolver tests
