@@ -2,7 +2,7 @@
 		 Standard tile used in baseDef which renders the menu. Use css to change position 
 --%><%--
   @author Gary Brown.
-  @version $Id: menu.jsp,v 1.1 2008-04-18 07:43:14 isgwb Exp $
+  @version $Id: menu.jsp,v 1.2 2009-11-09 11:31:32 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -16,7 +16,7 @@
 <c:forEach var="menuItem" items="${menuItems}">
 	<div class="actionbox">
 		<html:link styleClass="${tabStyle[menuItem.functionalArea]}" page="${menuItem.action}" title="${navMap[menuItem.titlekey]}">
-			<fmt:message bundle="${nav}" key="${menuItem.linkKey}"/>
+			<grouper:message key="${menuItem.linkKey}"/>
 		</html:link>
 	</div>
  </c:forEach>       
