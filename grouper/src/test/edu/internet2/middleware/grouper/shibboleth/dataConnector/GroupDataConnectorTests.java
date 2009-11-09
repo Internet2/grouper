@@ -279,6 +279,29 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
       throw new RuntimeException(e);
     }
   }
+  
+  public void testFilterMinusNotFound() {
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(RESOLVER_CONFIG);
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("testFilterMinusAttributeNotFound");
+
+      GroupQueryFilter filter = gdc.getGroupQueryFilter();
+
+      Set<Group> groups = filter.getResults(grouperSession);
+
+      assertEquals(2, groups.size());
+
+      assertTrue(groups.contains(groupA));
+      assertTrue(groups.contains(groupB));
+      assertFalse(groups.contains(groupC));
+
+      assertTrue(filter.matchesGroup(groupA));
+      assertTrue(filter.matchesGroup(groupB));
+      assertFalse(filter.matchesGroup(groupC));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   public void testFilterMatchExactAttribute() {
 
