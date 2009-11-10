@@ -5,11 +5,13 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<xsl:output indent="yes"/>
 	<xsl:preserve-space elements="*"/>
-	<xsl:param name="mergeXmlFile">C:/projects/GrouperI2MI_1-5-x/grouper-ui/temp/60.web.ajax.xml</xsl:param>
+
+	<xsl:param name="mergeXmlFile">C:/projects/GrouperI2MI_1-5-x/grouper-ui/temp/70.web.cas.filtered.xml</xsl:param>
 	<xsl:param name="mergeTagsXmlFile">C:\projects\GrouperI2MI_1-5-x\grouper-ui/web-xml-merge-tags.xml</xsl:param>
 	<xsl:variable name="mergeXml" select="document($mergeXmlFile)"/>
 	<xsl:variable name="mergeTagsXml" select="document($mergeTagsXmlFile)"/>
 	<xsl:variable name="docRoot" select="/web-app"/>
+
 	<xsl:template match="/">
 		<web-app xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
 
@@ -106,21 +108,26 @@
 				
 				<xsl:choose>
 					<xsl:when test="$tagname='security-constraint'">
-					
+		
+
+
+
+					  
+
 						<xsl:variable name="curDocKey">
 							<xsl:value-of select="./web-resource-collection/url-pattern/child::text()"/>
 						</xsl:variable>
 						<xsl:variable name="mergeDocKey">
-							<xsl:value-of select="$mergeXml/web-app/security-constraint/web-resource-collection/url-pattern/child::text()"/>
+							<xsl:value-of select="$mergeXml/web-app/security-constraint/web-resource-collection/url-pattern[child::text()=$curDocKey]/child::text()"/>
 						</xsl:variable>
 						
 						<xsl:if test="not($curDocKey=$mergeDocKey)">
-							<xsl:comment>Inserting tag from base file</xsl:comment>
+							<xsl:comment>Inserting tag from base file. Merge file was <xsl:value-of select="$mergeXmlFile"/></xsl:comment>
 							<xsl:copy-of select="."/>
 						</xsl:if>
 					</xsl:when>
 					<xsl:when test="$tagname='filter-mapping'">
-					  <xsl:comment>Inserting tag from base file</xsl:comment>
+					  <xsl:comment>Inserting tag from base file. Merge file was <xsl:value-of select="$mergeXmlFile"/></xsl:comment>
 							<xsl:copy-of select="."/>
 					  </xsl:when>
 					<xsl:otherwise>
@@ -137,7 +144,7 @@
 						</xsl:if>
 						<!-- If tag with same key didn't exist in merge file, insert here -->
 						<xsl:if test="not(boolean($mergeXml/web-app/*[name()=$tagname]/*[name()=$key and child::text()=$curDocKey]))">
-						<xsl:comment>Inserting tag from base file</xsl:comment>
+						<xsl:comment>Inserting tag from base file. Merge file was <xsl:value-of select="$mergeXmlFile"/></xsl:comment>
 							<xsl:copy-of select="."/>
 						</xsl:if>
 					  </xsl:if>
