@@ -1,17 +1,13 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignMembershipDelegate.java,v 1.3 2009-10-12 09:46:34 mchyzer Exp $
+ * $Id: AttributeAssignMembershipDelegate.java,v 1.4 2009-11-10 03:35:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
-import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -40,6 +36,9 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
    * @param membership1
    */
   public AttributeAssignMembershipDelegate(Membership membership1) {
+    if (!membership1.isImmediate()) {
+      throw new RuntimeException("Membership must be immediate! " + membership1.getUuid());
+    }
     this.membership = membership1;
   }
 
@@ -132,7 +131,7 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
   Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefNameId(
       String attributeDefNameId) {
     return GrouperDAOFactory.getFactory().getAttributeAssign()
-      .findByMembershipIdAndAttributeDefNameId(this.membership.getUuid(), attributeDefNameId);
+      .findByMembershipIdAndAttributeDefNameId(this.membership.getImmediateMembershipId(), attributeDefNameId);
   }
 
   /**
@@ -142,7 +141,7 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
   Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefId(
       String attributeDefId) {
     return GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByMembershipIdAndAttributeDefId(this.membership.getUuid(), attributeDefId);
+      .getAttributeAssign().findByMembershipIdAndAttributeDefId(this.membership.getImmediateMembershipId(), attributeDefId);
   }
 
   /**
@@ -152,7 +151,7 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
   Set<AttributeDefName> retrieveAttributeDefNamesByOwnerAndAttributeDefId(
       String attributeDefId) {
     return GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findAttributeDefNamesByMembershipIdAndAttributeDefId(this.membership.getUuid(), attributeDefId);
+      .getAttributeAssign().findAttributeDefNamesByMembershipIdAndAttributeDefId(this.membership.getImmediateMembershipId(), attributeDefId);
   }
 
   /**

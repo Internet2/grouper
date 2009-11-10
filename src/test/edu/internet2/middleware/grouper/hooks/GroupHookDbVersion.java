@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHookDbVersion.java,v 1.3 2009-03-21 13:35:50 mchyzer Exp $
+ * $Id: GroupHookDbVersion.java,v 1.4 2009-11-10 03:35:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -56,7 +56,7 @@ public class GroupHookDbVersion extends GroupHooks {
       return false;
     }
 
-    System.out.println(group.dbVersion().getExtension());
+    //System.out.println(group.dbVersion().getExtension());
     
     final String currentExtension = group.getExtension();
     

@@ -1,6 +1,6 @@
 /**
  * @author Kate
- * $Id: PermissionEntryTest.java,v 1.4 2009-11-09 03:12:18 mchyzer Exp $
+ * $Id: PermissionEntryTest.java,v 1.5 2009-11-10 03:35:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.permissions;
 
@@ -76,7 +76,8 @@ public class PermissionEntryTest extends GrouperTest {
     Member member = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ5, true); 
     Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member.getUuid());
     for (PermissionEntry permissionEntry : permissionEntries) {
-      System.out.println(permissionEntry);
+      //System.out.println(permissionEntry);
+      assertNotNull(permissionEntry);
     }
   }
   

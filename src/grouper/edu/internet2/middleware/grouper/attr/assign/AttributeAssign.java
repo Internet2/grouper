@@ -353,11 +353,11 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     if (!Group.getDefaultList().equals(ownerMembership.getList())) {
       throw new RuntimeException("Memberships which have attributes must be list type: " 
-          + ownerMembership.getList() + ", " + ownerMembership.getUuid());
+          + ownerMembership.getList() + ", " + ownerMembership.getImmediateMembershipId());
       
     }
     
-    this.setOwnerMembershipId(ownerMembership.getUuid());
+    this.setOwnerMembershipId(ownerMembership.getImmediateMembershipId());
 
     AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
