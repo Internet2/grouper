@@ -59,7 +59,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.19 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.20 2009-11-10 16:43:08 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -144,6 +144,9 @@ public class LoginCheckFilter implements Filter {
 		}
 		String authUser = (String) session.getAttribute("authUser");
 		boolean noCheck = ignore.indexOf(":" + actionStr + ":") > -1;
+		if(Boolean.TRUE.equals(request.getAttribute("forceNewLogin"))) {
+			noCheck=false;
+		}
 		if (noCheck || authUser != null || loggedOut) {
 			if (authUser != null
 					&& (session.getAttribute("sessionInited") == null || session.getAttribute("sessionInited").equals(Boolean.FALSE))) {

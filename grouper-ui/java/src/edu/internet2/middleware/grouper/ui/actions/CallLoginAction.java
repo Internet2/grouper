@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.hamcrest.core.IsEqual;
 
 /**
  * Top level Strut's action which forwards to a URL which is a login screen, 
@@ -44,7 +45,10 @@ public class CallLoginAction extends org.apache.struts.action.Action {
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-
+		String redirect = (String)request.getAttribute("forceRedirect");
+		if(redirect !=null && !"".equals(redirect)) {
+			return new ActionForward(redirect);
+		}
 		return mapping.findForward(FORWARD_callLogin);
 	}
 }
