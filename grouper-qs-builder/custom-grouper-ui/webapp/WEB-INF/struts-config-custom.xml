@@ -11,14 +11,14 @@
             type="edu.internet2.middleware.grouper.ui.actions.CallLoginAction"
             unknown="false" validate="false">
 		<!--Example of overriding a forward for an existing action-->
-      <forward name="callLogin" path="/easyLogin.do" redirect="true"/>
+      <forward name="callLogin" path="/easyLogin.do" redirect="false"/>
     </action>
 	<!--Example of adding a completely new action-->
      <action path="/easyLogin" scope="request"
             type="edu.internet2.middleware.grouper.customqs.ui.actions.EasyLoginAction"
             unknown="false" validate="false">
 
-      <forward name="easyLoginForm" path="EasyLoginFormDef" redirect="true"/>
+      <forward name="easyLoginForm" path="EasyLoginFormDef" redirect="false"/>
     </action>
 
 <action path="/home" scope="request"

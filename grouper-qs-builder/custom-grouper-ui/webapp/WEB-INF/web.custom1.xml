@@ -3,30 +3,8 @@
           "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
           "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
-    <filter>
-  	<filter-name>EasyLogin Filter</filter-name>
-  	<filter-class>edu.internet2.middleware.grouper.customqs.ui.EasyLoginFilter</filter-class>
-  </filter>
-  <filter>
-  	<filter-name>Login check</filter-name>
-  	<filter-class>edu.internet2.middleware.grouper.ui.LoginCheckFilter</filter-class>
-  	<init-param>    
-  		<param-name>failureUrl</param-name>    
-  		<param-value>/</param-value>  
-  	</init-param>
-	 	<init-param>    
-  	<param-name>ignore</param-name>    
-  		<param-value>:/populateIndex.do:/callLogin.do:/easyLogin.do:</param-value>  
-  	</init-param>
-  </filter>
-  
-  <!--Example of adding a filter which controls authentication.-->
-   <filter-mapping>
-  	<filter-name>EasyLogin Filter</filter-name>
-  	<url-pattern>*.do</url-pattern>
-  </filter-mapping>
 
-  <!--Example of adding custom struts configuration to override or supplement that from the standard Grouper Ui-->  
+   <!--Example of adding custom struts configuration to override or supplement that from the standard Grouper Ui-->  
  <servlet>
     <servlet-name>action</servlet-name>
     <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
@@ -41,6 +19,23 @@
     <load-on-startup>2</load-on-startup>
   </servlet>
   
+   <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/app/*</url-pattern>
+    </web-resource-collection>
+	<user-data-constraint>NONE</user-data-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/appHtml/*</url-pattern>
+    </web-resource-collection>
+	<user-data-constraint>NONE</user-data-constraint>
+
+  </security-constraint>
+  
  <!--ensure that Basic HTTP authentication used for standard UI-->
    <security-constraint>
     <web-resource-collection>
@@ -49,7 +44,7 @@
     </web-resource-collection>
     <auth-constraint>
        <!-- NOTE:  This role is not present in the default users file -->
-       <role-name>grouper_user</role-name>
+       <role-name>*</role-name>
     </auth-constraint>
   </security-constraint>
   </web-app>

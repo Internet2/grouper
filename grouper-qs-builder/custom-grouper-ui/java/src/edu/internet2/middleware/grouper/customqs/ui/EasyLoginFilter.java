@@ -30,8 +30,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUtils;
+
 import java.io.*;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.subject.Source;
 
 /**
@@ -41,7 +44,7 @@ import edu.internet2.middleware.subject.Source;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: EasyLoginFilter.java,v 1.1 2005-12-14 15:24:11 isgwb Exp $
+ * @version $Id: EasyLoginFilter.java,v 1.2 2009-11-10 16:41:04 isgwb Exp $
  */
 
 public class EasyLoginFilter implements Filter {
@@ -54,7 +57,7 @@ public class EasyLoginFilter implements Filter {
 
 	}
 	private String failureUrl = "/";
-	private String ignore="";
+	private String[] ignore;
 	/**
 	 * 
 	 */
@@ -67,7 +70,7 @@ public class EasyLoginFilter implements Filter {
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	public void init(FilterConfig config) throws ServletException {
-	
+		ignore=config.getInitParameter("ignore").split(":");
 	}
 
 	/* (non-Javadoc)
@@ -78,39 +81,70 @@ public class EasyLoginFilter implements Filter {
 		HttpServletRequest request  = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)res;
 		HttpSession session = request.getSession();
-	
-		edu.internet2.middleware.subject.Subject subj = null;
-		Source source=null;
-		String remoteUser = request.getRemoteUser();
-		if(remoteUser ==null || remoteUser.length()==0) remoteUser=request.getParameter("username");
-		if(remoteUser!=null && remoteUser.length()!=0) {
-			//we've got a name so try and use it
-			try{
-				subj = SubjectFinder.findByIdentifier(remoteUser);
-				
-				//This is what EasyLoginHttpServletRequest looks for
-				session.setAttribute("easyAuthUser",remoteUser);
-				
-				//We want to initialise a new session later
-				session.removeAttribute("sessionInited");
-				Cookie[] cookies = request.getCookies();
-				
-	  			if(cookies !=null) {
-		  			for(int i=0;i<cookies.length;i++) {
-		  				//we've logged in - but still need to do some initialisation
-		  				// and removal of Cookie later on
-		  				if(cookies[i].getName().equals("_grouper_loggedOut")) cookies[i].setValue("pending");
-		  			}
-		  		}
-	  		
-			}catch(Exception e) {
-				//Couldn't derive a Subject from the username
-				//so effectively log the user out
-				e.getMessage();
-				session.removeAttribute("easyAuthUser");
-	
+		String url=	request.getRequestURI();
+		boolean ignoreThisRequest=false;
+		String reqUsername = request.getParameter("username");
+		String authUser = (String)session.getAttribute("authUser");
+		if((reqUsername==null || "".equals(reqUsername)) && authUser !=null) {
+		}else{
+			if(reqUsername==null || "".equals(reqUsername)) {
+				for(String toIgnore : ignore) {
+					if(!"".equals(toIgnore) && url.endsWith(toIgnore)) {
+						ignoreThisRequest=true;
+						break;
+					}
+				}
 			}
 			
+			if(!ignoreThisRequest) {
+				edu.internet2.middleware.subject.Subject subj = null;
+				Source source=null;
+				String remoteUser = request.getRemoteUser();
+				if(remoteUser ==null || remoteUser.length()==0) remoteUser=request.getParameter("username");
+				if(remoteUser!=null && remoteUser.length()!=0) {
+					//we've got a name so try and use it
+					try{
+						subj = SubjectFinder.findByIdentifier(remoteUser,true);
+						
+						//This is what EasyLoginHttpServletRequest looks for
+						session.setAttribute("easyAuthUser",remoteUser);
+						request.setAttribute("forceNewLogin",Boolean.TRUE);
+						//We want to initialise a new session later
+						session.removeAttribute("sessionInited");
+						Cookie[] cookies = request.getCookies();
+						
+			  			if(cookies !=null) {
+				  			for(int i=0;i<cookies.length;i++) {
+				  				//we've logged in - but still need to do some initialisation
+				  				// and removal of Cookie later on
+				  				if(cookies[i].getName().equals("_grouper_loggedOut")) cookies[i].setValue("pending");
+				  			}
+				  		}
+			  			if(remoteUser != null && url.endsWith("/callLogin.do")) {
+			  				request.setAttribute("forceRedirect", "/home.do");
+							
+			  			}
+					}catch(Exception e) {
+						//Couldn't derive a Subject from the username
+						//so effectively log the user out
+						e.getMessage();
+						session.removeAttribute("easyAuthUser");
+						remoteUser=null;
+			
+					}
+					
+				}
+				if(remoteUser==null) {
+					try {
+						SessionInitialiser.init(request);
+					} catch (Exception e) {
+						throw new ServletException(e);
+					}
+					SessionInitialiser.initThread(session);
+					request.getRequestDispatcher("/callLogin.do").forward(request, response);
+					return;
+				}
+			}
 		}
 		//Ensure that request.getRemoteUser() returns 'username'
 		//if easyAuthUser set
