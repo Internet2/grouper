@@ -152,8 +152,6 @@ font-size:9px;
 }
 tr.groupInfo {
 	border-bottom-color:#cccccc;
-	#border-bottom-width:1px;
-	#border-bottom-style:solid;
 	clear:both;
 }
 
