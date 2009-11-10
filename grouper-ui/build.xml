@@ -381,6 +381,7 @@
 		  	     local Subject implementations etc -->
 		<antcall target="-additional-build">
 			<param name="target" value="webapp"/>
+						<reference refid="ui.class.path.for.run"/>
 		</antcall>
 		
 		<!-- Make all necessary jar files available to the webapp itself -->
@@ -556,7 +557,7 @@
 		<echo message="Calling site specific build script - '${additional.build}' - target=${target}"/>
 		<dirname property="additional.build.dir" file="${additional.build}"/>
 		<!-- In trying to debug why ui.class.path was not inherited the problem went away when the line below was added for debugging!-->
-		<property name="uicp" refid="ui.class.path"/>
+		<property name="uicp" refid="ui.class.path.for.run"/>
 		<ant antfile="${additional.build}" target="${target}" inheritrefs="true" dir="${additional.build.dir}"/>
 	</target>
 	

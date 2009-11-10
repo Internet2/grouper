@@ -16,7 +16,7 @@
 		  	  <javac 
 			    srcdir="java/src"
                 destdir="${webapp.class.folder}"
-                classpathref="ui.class.path"
+                classpathref="ui.class.path.for.run"
                 debuglevel="${debug.level}"
                 debug="true" 
               />
