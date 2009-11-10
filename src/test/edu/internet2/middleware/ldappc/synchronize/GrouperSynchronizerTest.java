@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
@@ -168,7 +169,8 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
     group.addMember(SubjectTestHelper.SUBJ0);
 
     // workaround Group.getLastMembershipChange() test environment nuance
-    Group g = GroupFinder.findByName(grouperSession, group.getName(), true);
+    Group g = GroupFinder.findByUuid(grouperSession, group.getUuid(), true,
+        new QueryOptions().secondLevelCache(false));
 
     assertEquals(
         "Status should be MODIFIED when InputOptions.getLastModifyTime() is after Group.getCreateTime() and before Group.getLastMembershipChange().",
