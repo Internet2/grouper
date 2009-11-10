@@ -168,7 +168,7 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
     group.addMember(SubjectTestHelper.SUBJ0);
 
     // workaround Group.getLastMembershipChange() test environment nuance
-    Group g = GroupFinder.findByUuid(grouperSession, group.getUuid(), true);
+    Group g = GroupFinder.findByName(grouperSession, group.getName(), true);
 
     assertEquals(
         "Status should be MODIFIED when InputOptions.getLastModifyTime() is after Group.getCreateTime() and before Group.getLastMembershipChange().",
