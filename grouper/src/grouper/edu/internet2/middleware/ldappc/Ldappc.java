@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -225,6 +226,8 @@ public final class Ldappc extends TimerTask {
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LDAPPC, false, true);
 
     LOG.info("***** Starting Provisioning *****");
+    
+    long begin = System.currentTimeMillis();
 
     getGrouperSession();
 
@@ -264,12 +267,14 @@ public final class Ldappc extends TimerTask {
       if (LOG.isInfoEnabled()) {
         int subjectIDLookups = getSubjectCache().getSubjectIdLookups();
         int subjectIDTableHits = getSubjectCache().getSubjectIdTableHits();
-        LOG.info("Subject ID Lookups: {}", subjectIDLookups);
-        LOG.info("Subject Table Hits: {}", subjectIDTableHits);
+        LOG.info("Subject ID Lookups : {}", subjectIDLookups);
+        LOG.info("Subject Table Hits : {}", subjectIDTableHits);
         // Compute hit ratio percent, rounded to nearest tenth percent.
         double ratio = Math.round(((double) subjectIDTableHits) / subjectIDLookups
             * 1000.0) / 10.0;
-        LOG.info("Subject hit ratio: {} %", ratio);
+        LOG.info("Subject Hit Ratio  : {} %", ratio);
+        long diff = System.currentTimeMillis() - begin;
+        LOG.info("Time (seconds)     : {}", DecimalFormat.getInstance().format(diff / 1000.));
       }
 
     } catch (Exception e) {
@@ -530,6 +535,7 @@ public final class Ldappc extends TimerTask {
       }
     }
 
+    LOG.debug("provisioning {} groups", groups.size());
     return groups;
   }
 
