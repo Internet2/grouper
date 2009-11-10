@@ -41,6 +41,9 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
     
     try {
+      if (this.useEmbedded()) {
+        this.setUpLdapContext();
+      }
       setUpLdappc(pathToConfig, pathToProperties);
     } catch (Exception e) {
       e.printStackTrace();
