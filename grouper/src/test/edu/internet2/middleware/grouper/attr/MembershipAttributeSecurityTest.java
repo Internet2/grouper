@@ -32,7 +32,9 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new MembershipAttributeSecurityTest("testSecuritySubj7"));
+    //TestRunner.run(new MembershipAttributeSecurityTest("testGrouperSystem"));
+    TestRunner.run(MembershipAttributeSecurityTest.class);
+
   }
 
   /** grouper sesion */

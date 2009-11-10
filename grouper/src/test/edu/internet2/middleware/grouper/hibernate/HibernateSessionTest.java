@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.9 2009-11-02 08:50:43 mchyzer Exp $
+ * $Id: HibernateSessionTest.java,v 1.10 2009-11-10 03:35:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -37,8 +37,8 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testEnabledDisabledInline"));
-    //TestRunner.run(HibernateSessionTest.class);
+    //TestRunner.run(new HibernateSessionTest("testEnabledDisabledInline"));
+    TestRunner.run(HibernateSessionTest.class);
   }
   
 
