@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperSessionTest.java,v 1.2 2009-08-11 20:34:18 mchyzer Exp $
+ * $Id: GrouperSessionTest.java,v 1.3 2009-11-11 15:34:46 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -52,6 +53,7 @@ public class GrouperSessionTest extends GrouperTest {
    */
   public void testCaches() throws Exception {
     
+    GrouperCacheUtils.clearAllCaches();
     int cacheSize = CacheManager.ALL_CACHE_MANAGERS.size();
     Subject subject = SubjectTestHelper.SUBJ0;
     GrouperSession grouperSession = GrouperSession.start(subject);
