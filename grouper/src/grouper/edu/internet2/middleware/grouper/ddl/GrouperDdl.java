@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.93 2009-11-06 13:39:59 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.94 2009-11-11 06:08:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -6188,6 +6188,100 @@ public enum GrouperDdl implements DdlVersionable {
           RoleSet.COLUMN_IF_HAS_ROLE_ID, RoleSet.COLUMN_THEN_HAS_ROLE_ID);
 
     }
+    
+    //see if the table is there
+    boolean tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_types");
+    String typeUuid = null;
+    if (tableThere) {
+      try {
+        //first, see if tables are there
+        int count = HibernateSession.bySqlStatic().select(int.class, 
+            "select count(*) from grouper_types where name = 'attributeDef'");
+        if (count == 0) {
+          ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_types(id, name, creator_uuid, " +
+          		"create_time, is_assignable, is_internal, hibernate_version_number, context_id) " +
+          		"values ('62ce0c2110894798b72eee1afda49e2a', 'attributeDef', " +
+          		"'9acb80d4850f413094e455d71eb3287d', 1257821230081, 0, 1, 0, " +
+          		"'cbc1f722b1864629b83d266f8cf3e11d');\ncommit;\n\n");
+          typeUuid = "62ce0c2110894798b72eee1afda49e2a";
+        }
+        
+      } catch (RuntimeException e) {
+        //dont worry if exception, the table probably isnt there, and will get initted in good time
+      }
+    }
+
+    //see if the table is there
+    tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_fields");
+    if (tableThere) {
+      try {
+        typeUuid = typeUuid != null ? typeUuid : HibernateSession.bySqlStatic().select(String.class, 
+          "select id from grouper_types where name = 'attributeDef'");
+        //first, see if tables are there
+        int count = HibernateSession.bySqlStatic().select(int.class, 
+            "select count(*) from grouper_fields where name = 'attrOptins'");
+        if (count == 0) {
+          ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+          		"is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+          		"values ('00b4148eaf454aabb7435ced0e91277d', '" + typeUuid + "', 1, 'attrOptins', " +
+          		"'attrUpdate', 'attributeDef', 'attrUpdate', 0, '39c69826e3114f0db38794185e63af3b');\ncommit;\n\n");
+        }
+        count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_fields where name = 'attrAdmins'");
+        if (count == 0) {
+          ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+          		"is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+          		"values ('3b1da4ed18d64ae88de85a5071dfe6d8', '" + typeUuid + "', 1, " +
+          		"'attrAdmins', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '86c25c1ab89741afa70210cb44a5b0a0');\ncommit;\n\n");
+        }
+        count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_fields where name = 'attrViewers'");
+        if (count == 0) {
+          ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, is_nullable, " +
+          		"name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+          		"values ('4ab55239369e409e859e1b4a9b3251c5', '" + typeUuid + "', 1, " +
+          		"'attrViewers', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '3ff484c5a5744131a82bf3bedf3cd4d5');\ncommit;\n\n");
+        }
+        count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_fields where name = 'attrOptouts'");
+        if (count == 0) {
+          ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+          		"is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+          		"values ('6774afba333c4d5187bd814a7faa92e8', '" + typeUuid + "', 1, " +
+          		"'attrOptouts', 'attrUpdate', 'attributeDef', 'attrUpdate', 0, '4e3799ef8b254013b25f8a4abdf1bc9d');\ncommit;\n\n");
+        }
+        count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_fields where name = 'attrUpdaters'");
+        if (count == 0) {
+          ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, is_nullable, " +
+          		"name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+          		"values ('a4900e37f50d4c9b8e96f6c467b3ac7b', '" + typeUuid + "', 1, " +
+          		"'attrUpdaters', 'attrAdmin', 'attributeDef', 'attrAdmin', 0, '1d330d859f664cd8b1b86f03c1812f21');\ncommit;\n\n");
+        }
+        count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_fields where name = 'attrReaders'");
+        if (count == 0) {
+          ddlVersionBean.appendAdditionalScriptUnique("\ninsert into grouper_fields (id, grouptype_uuid, " +
+          		"is_nullable, name, read_privilege, type, write_privilege, hibernate_version_number, context_id) " +
+          		"values ('fe16c65b4030428d812c2bc021b5c834', '" + typeUuid + "', 1, 'attrReaders', " +
+          		"'attrAdmin', 'attributeDef', 'attrAdmin', 0, '6f7243f690274dcdaf8215a13b6d3a93');\ncommit;\n\n");
+        }
+        
+      } catch (RuntimeException e) {
+        //dont worry if exception, the table probably isnt there,and will get initted in good time
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+
+
+    
+    
 
   }
 }
