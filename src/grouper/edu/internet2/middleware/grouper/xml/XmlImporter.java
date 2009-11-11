@@ -111,7 +111,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.23 2009-11-07 12:18:47 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.24 2009-11-11 16:48:11 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1005,7 +1005,7 @@ public class XmlImporter {
     		  return;
       }
       if ( !XmlUtils.internal_hasImmediatePrivilege( subj, g, p.getName() ) ) {
-        g.grantPriv(subj, p);
+        g.grantPriv(subj, p, false);
       }
     }
   } // private void _processAccessPrivListGrantPriv(g, p, el)
@@ -1584,7 +1584,7 @@ public class XmlImporter {
       }
       
       if ( !XmlUtils.internal_hasImmediatePrivilege( subj, ns, p.getName() ) ) {
-        ns.grantPriv(subj, p);
+        ns.grantPriv(subj, p, false);
       }
     }
   } // private void _processNamingPrivListGrantPriv(ns, p, el)
