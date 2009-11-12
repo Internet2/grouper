@@ -390,13 +390,14 @@ public class ConfigManager implements LdappcConfig {
   }
 
   /**
-   * Initializes the ConfigManager instance from the configuration file XML identified by
-   * the URI.
+   * Initializes the ConfigManager instance from a configuration file and a properties
+   * file.
    * 
-   * @param uri
-   *          URI containing the configuration file XML.
+   * @param config
+   *          the configuration File
+   * @param properties
+   *          the properties File
    * @throws ConfigurationException
-   *           thrown if an error occurs parsing the configuration file.
    */
   private void init(File config, File properties) throws ConfigurationException {
     LOG.debug("reading configuration from '{}' and properties from '{}'", config,
@@ -591,14 +592,17 @@ public class ConfigManager implements LdappcConfig {
     //
     try {
       //
-      // Parse the config file
+      // Only expand macros if the properties file is not empty
       //
-      // digester.parse(uri);
-
-      // property replacement filter
-      PropertyReplacementResourceFilter prf = new PropertyReplacementResourceFilter(
-          properties);
-      digester.parse(prf.applyFilter(new FileInputStream(config)));
+      Properties props = new Properties();
+      props.load(new FileInputStream(properties));
+      if (props.isEmpty()) {
+        digester.parse(config);
+      } else {
+        PropertyReplacementResourceFilter prf = new PropertyReplacementResourceFilter(
+            properties);
+        digester.parse(prf.applyFilter(new FileInputStream(config)));
+      }
 
     } catch (SAXException se) {
       // 
