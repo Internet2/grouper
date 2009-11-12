@@ -101,6 +101,12 @@ public class ConfigManagerTest extends TestCase {
       + "ldappcLdapSearchFilter.xml";
 
   /**
+   * Empty properties file
+   */
+  public static String LDAPPC_EMPTY_PROPERTY_RESOURCE = RELATIVE_RESOURCE_PATH
+      + "ldappcEmpty.properties";
+
+  /**
    * Class constructor
    * 
    * @param name
@@ -132,11 +138,11 @@ public class ConfigManagerTest extends TestCase {
       //
       // Get the configuration manager and validate all of the entries
       //
-      ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
-          VALID_ALL_CONFIG_FILE_RESOURCE, true).getPath());
-      // ConfigManager cm =
-      // ConfigManager.load(ConfigManager.getSystemResourceURL(VALID_ALL_CONFIG_FILE_RESOURCE,
-      // true).to);
+      String configPath = ConfigManager.getSystemResourceURL(
+          VALID_ALL_CONFIG_FILE_RESOURCE, true).getPath();
+      String propsPath = ConfigManager.getSystemResourceURL(
+          LDAPPC_EMPTY_PROPERTY_RESOURCE, true).getPath();
+      ConfigManager cm = new ConfigManager(configPath, propsPath);
 
       //
       // Once loaded, validate all of the data
@@ -255,10 +261,11 @@ public class ConfigManagerTest extends TestCase {
       //
       // Get the configuration manager and validate all of the entries
       //
-      ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
-          VALID_NO_OPTIONAL_ATTRIBUTES_CONFIG_FILE_RESOURCE, true).getPath());
-      // ConfigManager cm =
-      // ConfigManager.load(VALID_NO_OPTIONAL_ATTRIBUTES_CONFIG_FILE_RESOURCE);
+      String configPath = ConfigManager.getSystemResourceURL(
+          VALID_NO_OPTIONAL_ATTRIBUTES_CONFIG_FILE_RESOURCE, true).getPath();
+      String propsPath = ConfigManager.getSystemResourceURL(
+          LDAPPC_EMPTY_PROPERTY_RESOURCE, true).getPath();
+      ConfigManager cm = new ConfigManager(configPath, propsPath);
 
       //
       // Once loaded, validate all of the data
@@ -358,11 +365,12 @@ public class ConfigManagerTest extends TestCase {
     try {
       //
       // Get the configuration manager and validate all of the entries
-      //      
-      ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
-          VALID_GROUPER_GROUP_MINIMAL_CONFIG_FILE_RESOURCE, true).getPath());
-      // ConfigManager cm =
-      // ConfigManager.load(VALID_GROUPER_GROUP_MINIMAL_CONFIG_FILE_RESOURCE);
+      //
+      String configPath = ConfigManager.getSystemResourceURL(
+          VALID_GROUPER_GROUP_MINIMAL_CONFIG_FILE_RESOURCE, true).getPath();
+      String propsPath = ConfigManager.getSystemResourceURL(
+          LDAPPC_EMPTY_PROPERTY_RESOURCE, true).getPath();
+      ConfigManager cm = new ConfigManager(configPath, propsPath);
 
       //
       // Once loaded, validate all of the data
@@ -437,10 +445,11 @@ public class ConfigManagerTest extends TestCase {
       //
       // Get the configuration manager and validate all of the entries
       //
-      ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
-          VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE, true).getPath());
-      // ConfigManager cm =
-      // ConfigManager.load(VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE);
+      String configPath = ConfigManager.getSystemResourceURL(
+          VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE, true).getPath();
+      String propsPath = ConfigManager.getSystemResourceURL(
+          LDAPPC_EMPTY_PROPERTY_RESOURCE, true).getPath();
+      ConfigManager cm = new ConfigManager(configPath, propsPath);
 
       //
       // Once loaded, validate all of the data
@@ -509,10 +518,11 @@ public class ConfigManagerTest extends TestCase {
       //
       // Get the configuration manager and validate all of the entries
       //
-      new ConfigManager(ConfigManager.getSystemResourceURL(
-          INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE, true).getPath());
-      // ConfigManager cm =
-      // ConfigManager.load(INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE);
+      String configPath = ConfigManager.getSystemResourceURL(
+          INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE, true).getPath();
+      String propsPath = ConfigManager.getSystemResourceURL(
+          LDAPPC_EMPTY_PROPERTY_RESOURCE, true).getPath();
+      new ConfigManager(configPath, propsPath);
       fail("Test failed : File without ldappc element parsed without error.");
     } catch (ConfigurationException lce) {
       assertTrue(lce.getCause() == null);
@@ -525,8 +535,11 @@ public class ConfigManagerTest extends TestCase {
   public void testProvisionMemberGroupsGGSASource() {
 
     try {
-      new ConfigManager(ConfigManager.getSystemResourceURL(
-          PROVISION_MEMBER_GROUPS_CONFIG_FILE_RESOURCE, true).getPath());
+      String configPath = ConfigManager.getSystemResourceURL(
+          PROVISION_MEMBER_GROUPS_CONFIG_FILE_RESOURCE, true).getPath();
+      String propsPath = ConfigManager.getSystemResourceURL(
+          LDAPPC_EMPTY_PROPERTY_RESOURCE, true).getPath();
+      new ConfigManager(configPath, propsPath);
       fail("Should throw ConfigurationException.");
     } catch (ConfigurationException e) {
       // ok
