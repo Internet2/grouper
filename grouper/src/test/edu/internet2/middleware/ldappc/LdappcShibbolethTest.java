@@ -32,6 +32,13 @@ public class LdappcShibbolethTest extends BaseLdappcTestCase {
     groupB.addMember(SubjectTestHelper.SUBJ1);
 
     groupD = StemHelper.addChildGroup(edu, "groupD", "Group D");
+
+    try {
+      setUpLdapContext();
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("An error occurred : " + e);
+    }
   }
 
   public void testResolverQueries() throws Exception {
