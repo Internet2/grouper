@@ -102,7 +102,7 @@ default.webapp.folder.cleanable=true
 
 
 #add an additonal build file to incorporate site specific changes
-#additional.build=${basedir}/custom-grouper-ui/additional-build.xml
+#additional.build=${basedir}/../custom-grouper-ui/additional-build.xml
 
 #For development keep these if you want to be able to debug the UI Java source
 debug.level=lines,vars,source
