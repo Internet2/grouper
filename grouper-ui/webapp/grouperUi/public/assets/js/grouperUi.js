@@ -463,7 +463,7 @@ function guiFormElementAssignValue(name, values) {
   
   for (var i=0;i<values.length;i++) {
     var value = guiToString(guiDefaultString(values[i]));
-    var theElements = document.getElementsByName(name);
+    var theElements = guiGetElementsByName(name);
     if (theElements == null) {
       
       alert('Error: cant find element with name: ' + name);
@@ -840,7 +840,7 @@ function guiFieldValues(theField) {
      && (theField.type.toUpperCase() == "RADIO"
      || theField.type.toUpperCase() == "CHECKBOX")) {
      var result = new Array();
-     var elements = document.getElementsByName(theField.name);
+     var elements = guiGetElementsByName(theField.name);
      var index = 0;
      for (var i=0;i<elements.length;i++) {
         if (elements[i].checked) {
@@ -884,7 +884,7 @@ function guiFieldValue(theField) {
         && theField.innerText && fastIsEmpty(theField.value)) {
      return theField.innerText;
    } else if (theField.type.toUpperCase() == "CHECKBOX") {      
-     var checkboxes = document.getElementsByName(theField.name);
+     var checkboxes = guiGetElementsByName(theField.name);
      for (var i=0;i<checkboxes.length;i++) {
         if (checkboxes[i].checked) {
            //just set one, good enough for required valid
@@ -896,14 +896,47 @@ function guiFieldValue(theField) {
    return theField.value;
 }
 
+/** get elements by name, filter due to ie8 which returns elements by id or name */
+function guiGetElementsByName(theName) {
+  var theElements = document.getElementsByName(theName);
+  if (theElements != null) {
+    
+    var theElementsTemp = theElements;
+    theElements = new Array();
+    for (var i=0;i<theElementsTemp.length;i++) {
+      if (theElementsTemp[i].name == theName) {
+        theElements[theElements.length] = theElementsTemp[i];
+      }
+    }
+  }  
+  return theElements;
+  
+}
+
+
 /** get an element from the document object by name.  if no elements, null, if multiple, then alert */
 function guiGetElementByName(theName) {
-   var theElements = document.getElementsByName(theName);
+   var theElements = guiGetElementsByName(theName);
    if (theElements != null) {
+     
       if (theElements.length == 1) {
          return theElements[0];
       } else if (theElements.length > 1) {
          alert("Elements should be 1 for element " + theName + " but instead it is " + theElements.length);
+         for (var i=0;i<theElements.length;i++ ) {
+           alert(theElements[i]); 
+           var objectText = '';
+           var fieldIndex = 0;
+           for (theField in  theElements[i]) {
+             objectText += theField + ": " + theElements[i][theField] + "\n";  
+             if (fieldIndex++ > 20) {
+               alert(objectText);
+               objectText = '';
+               fieldIndex = 0;
+             }
+           }
+           alert(objectText);
+         }
       }
    }
    return null;
