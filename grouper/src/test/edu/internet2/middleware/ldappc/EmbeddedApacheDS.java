@@ -213,10 +213,10 @@ public class EmbeddedApacheDS {
    * @return the temporary properties file
    * @throws IOException
    */
-  public File getNewPropertiesFile() throws IOException {
+  public File getNewPropertiesFile(Properties properties) throws IOException {
     File tmpPropertiesFile = File.createTempFile("EmbeddedApacheDSProps", null);
     tmpPropertiesFile.deleteOnExit();
-    getProperties().store(new FileOutputStream(tmpPropertiesFile), null);
+    properties.store(new FileOutputStream(tmpPropertiesFile), null);
     return tmpPropertiesFile;
   }
 }

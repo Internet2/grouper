@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.naming.Binding;
 import javax.naming.Name;
@@ -147,6 +149,16 @@ public final class LdapUtil {
   static final char NUL = '\u0000';
 
   /**
+   * Pattern matching the JNDI special forward slash character.
+   */
+  private static Pattern forwardSlashPattern = Pattern.compile("([^\\\\])/");
+
+  /**
+   * Pattern matching an escaped JNDI special forward slash character.
+   */
+  private static Pattern escapedforwardSlashPattern = Pattern.compile("\\\\/");
+
+  /**
    * Prevent instantiation.
    */
   private LdapUtil() {
@@ -177,7 +189,7 @@ public final class LdapUtil {
           msg += "\n\n" + getLdifDelete(new LdapDN(childDN));
         }
         LOG.debug(msg);
-        ldappc.getContext().delete(childDN);
+        ldappc.getContext().delete(LdapUtil.escapeForwardSlash(childDN));
       }
     }
 
@@ -190,7 +202,7 @@ public final class LdapUtil {
 
     if (ldappc.getOptions().getMode().equals(ProvisioningMode.PROVISION)) {
       LOG.debug("delete '{}'", dn);
-      ldappc.getContext().delete(dn.toString());
+      ldappc.getContext().delete(LdapUtil.escapeForwardSlash(dn.toString()));
     }
   }
 
@@ -575,7 +587,7 @@ public final class LdapUtil {
 
     ArrayList<String> tree = new ArrayList<String>();
 
-    Iterator<Binding> bindings = ldap.listBindings(dn);
+    Iterator<Binding> bindings = ldap.listBindings(LdapUtil.escapeForwardSlash(dn));
     while (bindings.hasNext()) {
       Binding binding = bindings.next();
       tree.addAll(getChildDNs(binding.getNameInNamespace(), ldap));
@@ -664,5 +676,39 @@ public final class LdapUtil {
     }
 
     return result.getAttributes();
+  }
+
+  /**
+   * Escape all forward slashes "/" with "\/".
+   * 
+   * @param dn
+   * @return the resultant string with / replaced with \/
+   */
+  public static String escapeForwardSlash(String dn) {
+
+    Matcher matcher = forwardSlashPattern.matcher(dn);
+
+    if (matcher.find()) {
+      dn = matcher.replaceAll("$1\\\\/");
+    }
+
+    return dn;
+  }
+
+  /**
+   * Remove the escape character "\" from all escaped forward slashes "\/", returning "/".
+   * 
+   * @param dn
+   * @return the resultant string
+   */
+  public static String unescapeForwardSlash(String dn) {
+
+    Matcher matcher = escapedforwardSlashPattern.matcher(dn);
+
+    if (matcher.find()) {
+      dn = matcher.replaceAll("/");
+    }
+
+    return dn;
   }
 }

@@ -28,9 +28,24 @@
     <Script><![CDATA[
       // Import Shibboleth attribute provider
       importPackage(Packages.edu.internet2.middleware.shibboleth.common.attribute.provider);
-
+      
+      value = name.getValues().get(0); 
+      
+      value = value.replaceAll("\\/", "_");
+      value = value.replaceAll("\\/", "_");
+      value = value.replaceAll("\\[", "_");
+      value = value.replaceAll("\\]", "_");
+      value = value.replaceAll("\\:", "_");
+      value = value.replaceAll("\\;", "_");
+      value = value.replaceAll("\\|", "_");
+      value = value.replaceAll("\\=", "_");
+      value = value.replaceAll("\\,", "_");
+      value = value.replaceAll("\\+", "_");
+      value = value.replaceAll("\\*", "_");
+      value = value.replaceAll("\\?", "_");
+      
       sAMAccountName = new BasicAttribute("sAMAccountName");
-      sAMAccountName.getValues().add(name.getValues().get(0).replaceAll(":","_"));
+      sAMAccountName.getValues().add(value);
       ]]></Script>
   </resolver:AttributeDefinition>
 

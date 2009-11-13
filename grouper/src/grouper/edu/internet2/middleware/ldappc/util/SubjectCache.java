@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.14 2009-10-22 16:42:06 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.15 2009-11-13 13:38:32 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -286,7 +286,8 @@ public class SubjectCache {
     try {
       SearchFilter searchFilter = new SearchFilter(filterExpr);
       searchFilter.setFilterArgs(filterArgs);
-      searchResults = ldappc.getContext().search(baseName, searchFilter, searchControls);
+      searchResults = ldappc.getContext().search(LdapUtil.escapeForwardSlash(baseName),
+          searchFilter, searchControls);
     } catch (NameNotFoundException e) {
       if (filter.getOnNotFound().equals(OnNotFound.fail)) {
         LOG.error("Subject not found using " + msg, e);
@@ -301,7 +302,6 @@ public class SubjectCache {
     // If no entries where found, throw an exception - no return null
     //
     if (!searchResults.hasNext()) {
-      // throw new LdappcException("Subject not found using " + msg);
       if (filter.getOnNotFound().equals(OnNotFound.fail)) {
         LOG.error("Subject not found using " + msg);
         throw new LdappcException("Subject not found using " + msg);
@@ -337,8 +337,9 @@ public class SubjectCache {
 
       //
       // Build the subject's DN
-      //     
-      Name subjectDn = new LdapName(searchResult.getName());
+      //
+      LOG.trace("found {}", searchResult.getName());
+      Name subjectDn = new LdapName(LdapUtil.unescapeForwardSlash(searchResult.getName()));
       subjectDns.add(subjectDn);
     }
 

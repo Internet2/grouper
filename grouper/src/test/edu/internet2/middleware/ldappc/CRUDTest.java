@@ -64,6 +64,10 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCalculateBushyPartial() throws Exception {
 
+    if (useActiveDirectory()) {
+      return;
+    }
+
     setUpLdappc();
 
     loadLdif("CRUDTest.beforePartial.ldif");
@@ -317,9 +321,9 @@ public class CRUDTest extends BaseLdappcTestCase {
     File ldif = dryRun(GroupDNStructure.bushy);
 
     if (ldappc.getConfig().getBundleModifications()) {
-      verifyLdif("CRUDTest.testModifyMembersBushyDryRun.ldif", ldif);
+      verifyLdif("CRUDTest.testModifyMemberBushyDryRun.ldif", ldif);
     } else {
-      verifyLdif("CRUDTest.testModifyMembersBushyDryRun.unbundled.ldif", ldif);
+      verifyLdif("CRUDTest.testModifyMemberBushyDryRun.unbundled.ldif", ldif);
     }
 
     if (!ldif.delete()) {
@@ -796,6 +800,110 @@ public class CRUDTest extends BaseLdappcTestCase {
       verifyLdif("CRUDTest.testCreateBushy.after.ldif");
     } else {
       verifyLdif("CRUDTest.testCreateMemberGroupIgnoreQueries.after.ldif");
+    }
+  }
+
+  public void testCalculateForwardSlash() throws Exception {
+
+    Group groupF = StemHelper.addChildGroup(this.edu, "group/F", "Group/F");
+    groupF.addMember(SubjectTestHelper.SUBJ1);
+    groupB.addMember(groupF.toSubject());
+
+    setUpLdappc();
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCalculateForwardSlash.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
+  public void testCreateForwardSlash() throws Exception {
+
+    Group groupF = StemHelper.addChildGroup(this.edu, "group/F", "Group/F");
+    groupF.addMember(SubjectTestHelper.SUBJ1);
+    groupB.addMember(groupF.toSubject());
+
+    setUpLdappc();
+
+    loadLdif("CRUDTest.before.ldif");
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testCreateForwardSlash.after.ldif");
+  }
+
+  public void testDeleteGroupsForwardSlash() throws Exception {
+
+    Group groupF = StemHelper.addChildGroup(this.edu, "group/F", "Group/F");
+    groupF.addMember(SubjectTestHelper.SUBJ1);
+    groupB.addMember(groupF.toSubject());
+
+    setUpLdappc();
+
+    if (useActiveDirectory()) {
+      loadLdif("CRUDTest.before.ldif");
+      loadLdif("CRUDTest.testForwardSlash.before.ldif");
+    } else {
+      loadLdif("CRUDTest.testCreateForwardSlash.after.ldif");
+    }
+
+    groupA.delete();
+    groupB.delete();
+    groupF.delete();
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testDeleteGroupsBushy.after.ldif");
+  }
+
+  public void testModifyMemberForwardSlash() throws Exception {
+
+    Group groupF = StemHelper.addChildGroup(this.edu, "group/F", "Group/F");
+    groupF.addMember(SubjectTestHelper.SUBJ0);
+
+    setUpLdappc();
+
+    if (useActiveDirectory()) {
+      loadLdif("CRUDTest.before.ldif");
+      loadLdif("CRUDTest.testForwardSlash.before.ldif");
+    } else {
+      loadLdif("CRUDTest.testCreateForwardSlash.after.ldif");
+    }
+
+    provision(GroupDNStructure.bushy);
+
+    verifyLdif("CRUDTest.testModifyMemberForwardSlash.after.ldif");
+  }
+
+  public void testModifyMemberForwardSlashDryRun() throws Exception {
+
+    Group groupF = StemHelper.addChildGroup(this.edu, "group/F", "Group/F");
+    groupF.addMember(SubjectTestHelper.SUBJ0);
+
+    setUpLdappc();
+
+    if (useActiveDirectory()) {
+      loadLdif("CRUDTest.before.ldif");
+      loadLdif("CRUDTest.testForwardSlash.before.ldif");
+    } else {
+      loadLdif("CRUDTest.testCreateForwardSlash.after.ldif");
+    }
+
+    File ldif = dryRun(GroupDNStructure.bushy);
+
+    if (ldappc.getConfig().getBundleModifications()) {
+      verifyLdif("CRUDTest.testModifyMemberForwardSlashDryRun.ldif", ldif);
+    } else {
+      verifyLdif("CRUDTest.testModifyMemberForwardSlashDryRun.unbundled.ldif", ldif);
+    }
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
     }
   }
 }

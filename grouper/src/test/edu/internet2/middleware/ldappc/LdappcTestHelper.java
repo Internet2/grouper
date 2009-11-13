@@ -40,16 +40,21 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
 import junit.framework.Assert;
 
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.ldif.LdifEntry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.DifferenceListener;
@@ -163,7 +168,7 @@ public class LdappcTestHelper {
     List<String> toDelete = LdapUtil.getChildDNs(baseDn, ldap);
     for (String dn : toDelete) {
       LOG.info("delete '{}'", dn);
-      ldap.delete(dn);
+      ldap.delete(LdapUtil.escapeForwardSlash(dn));
     }
   }
 
@@ -244,7 +249,8 @@ public class LdappcTestHelper {
 
     for (String currentDn : currentDns) {
       ldif.append("dn: " + currentDn + "\n");
-      Attributes attributes = LdapUtil.searchAttributes(ldap, currentDn, attrIds);
+      Attributes attributes = LdapUtil.searchAttributes(ldap, LdapUtil
+          .escapeForwardSlash(currentDn), attrIds);
       ldif.append(LdapUtil.getLdif(attributes));
       ldif.append("\n");
     }
@@ -381,16 +387,40 @@ public class LdappcTestHelper {
 
     for (LdifEntry entry : ldifReader) {
       Attributes attributes = new BasicAttributes(true);
-      for (EntryAttribute entryAttribute : entry.getEntry()) {
-        BasicAttribute attribute = new BasicAttribute(entryAttribute.getId());
-        Iterator<Value<?>> values = entryAttribute.getAll();
-        while (values.hasNext()) {
-          attribute.add(values.next().get());
+      if (entry.isChangeAdd()) {
+        for (EntryAttribute entryAttribute : entry.getEntry()) {
+          BasicAttribute attribute = new BasicAttribute(entryAttribute.getId());
+          Iterator<Value<?>> values = entryAttribute.getAll();
+          while (values.hasNext()) {
+            attribute.add(values.next().get());
+          }
+          attributes.put(attribute);
         }
-        attributes.put(attribute);
+        LOG.debug("creating '" + entry.getDn().toString() + " " + attributes);
+        ldap.create(LdapUtil.escapeForwardSlash(entry.getDn().toString()), attributes);
+      } else if (entry.isChangeModify()) {
+        // nice, ApacheDS really makes this easy, maybe 0 == 0 next time.
+        List<ModificationItem> mods = new ArrayList<ModificationItem>();
+        for (Modification modification : entry.getModificationItems()) {
+          if (modification.getOperation().equals(ModificationOperation.ADD_ATTRIBUTE)) {
+            mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, AttributeUtils
+                .toAttribute(modification.getAttribute())));
+          } else if (modification.getOperation().equals(
+              ModificationOperation.REMOVE_ATTRIBUTE)) {
+            mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, AttributeUtils
+                .toAttribute(modification.getAttribute())));
+          } else if (modification.getOperation().equals(
+              ModificationOperation.REPLACE_ATTRIBUTE)) {
+            mods.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, AttributeUtils
+                .toAttribute(modification.getAttribute())));
+          }
+        }
+        LOG.debug("modifying '" + entry.getDn().toString() + " " + mods);
+        ldap.modifyAttributes(LdapUtil.escapeForwardSlash(entry.getDn().toString()), mods
+            .toArray(new ModificationItem[] {}));
+      } else {
+        throw new RuntimeException("Unhandled entry type : " + entry.getChangeType());
       }
-      LOG.debug("creating '" + entry.getDn().toString() + " " + attributes);
-      ldap.create(entry.getDn().toString(), attributes);
     }
   }
 
@@ -727,6 +757,8 @@ public class LdappcTestHelper {
 
     List<LdifEntry> correctList = LdappcTestHelper.sortLdif(correctEntries);
     List<LdifEntry> currentList = LdappcTestHelper.sortLdif(currentEntries);
+
+    Assert.assertEquals(correctList.size(), currentList.size());
 
     for (int i = 0; i < correctList.size(); i++) {
       Assert.assertEquals(correctList.get(i), currentList.get(i));
