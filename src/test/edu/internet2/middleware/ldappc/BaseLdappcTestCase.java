@@ -92,7 +92,7 @@ public abstract class BaseLdappcTestCase extends GrouperTest {
 
   /** possibly empty list of embedded servers which need to be shutdown */
   private List<EmbeddedApacheDS> embeddedADSServers = new ArrayList<EmbeddedApacheDS>();
-  
+
   /** delete all entries from ldap context after each test */
   private boolean tearDownContext = false;
 
@@ -133,7 +133,7 @@ public abstract class BaseLdappcTestCase extends GrouperTest {
   public void setUpLdapContext() throws Exception {
 
     tearDownContext = true;
-    
+
     Ldap ldap;
 
     if (useEmbedded()) {
@@ -142,8 +142,13 @@ public abstract class BaseLdappcTestCase extends GrouperTest {
       embeddedADSServers.add(embeddedApacheDS);
 
       // override properties
-      properties = embeddedApacheDS.getProperties();
-      pathToProperties = embeddedApacheDS.getNewPropertiesFile().getPath();
+      // properties = embeddedApacheDS.getProperties();
+      Properties embeddedApacheDSProperties = embeddedApacheDS.getProperties();
+      for (Object key : embeddedApacheDSProperties.keySet()) {
+        properties.setProperty(key.toString(), embeddedApacheDSProperties.get(key)
+            .toString());
+      }
+      pathToProperties = embeddedApacheDS.getNewPropertiesFile(properties).getPath();
       propertiesFile = new File(pathToProperties);
 
       LOG.debug("overriding properties for the embbeded ApacheDS server '{} '{}'",
@@ -207,7 +212,7 @@ public abstract class BaseLdappcTestCase extends GrouperTest {
 
     ldappc = new Ldappc(options, configuration, null);
   }
-  
+
   public void setUpLdappc(String configResource) throws Exception {
 
     File file = GrouperUtil.fileFromResourceName(TEST_PATH + configResource);

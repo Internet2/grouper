@@ -86,6 +86,7 @@ import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.RangeSearchResultHandler;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
+import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
 import edu.internet2.middleware.shibboleth.common.attribute.AttributeAuthority;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethAttributeResolver;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
@@ -226,7 +227,7 @@ public final class Ldappc extends TimerTask {
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LDAPPC, false, true);
 
     LOG.info("***** Starting Provisioning *****");
-    
+
     long begin = System.currentTimeMillis();
 
     getGrouperSession();
@@ -869,6 +870,7 @@ public final class Ldappc extends TimerTask {
       StringMembershipSynchronizer synchronizer = getMembershipSynchronizer(objectDN);
       synchronizer.synchronize(groups);
     } catch (Exception e) {
+      // TODO really ? swallow Exception ?
       LOG.error("An error occurred ", e);
     }
   }
@@ -921,6 +923,16 @@ public final class Ldappc extends TimerTask {
       // Add the subjectDns for this source
       //
       addSubjectDnSet(subjectDns, filter);
+
+      //
+      // internal g:gsa
+      //
+      if (this.getConfig().getProvisionMemberGroups()) {
+        addSubjectDnSet(subjectDns, new LdapSearchFilter(this.getConfig()
+            .getGroupDnRoot(), SearchControls.SUBTREE_SCOPE, "(&(objectclass="
+            + this.getConfig().getGroupDnObjectClass() + ")("
+            + this.getConfig().getGroupDnRdnAttribute() + "=*))", OnNotFound.fail, false));
+      }
     }
   }
 
@@ -988,8 +1000,9 @@ public final class Ldappc extends TimerTask {
     //
     LOG.debug("search base '" + baseDn + "' filter '" + filter + "' attrs "
         + Arrays.asList(searchControls.getReturningAttributes()));
-    Iterator<SearchResult> searchResults = getContext().search(baseDn,
-        new SearchFilter(filterExpr), searchControls);
+    Iterator<SearchResult> searchResults = getContext()
+        .search(LdapUtil.escapeForwardSlash(baseDn), new SearchFilter(filterExpr),
+            searchControls);
 
     //
     // Process the search results

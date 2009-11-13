@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
@@ -367,7 +368,8 @@ public class GroupEntrySynchronizer {
    * @throws LdappcException
    * @throws NamingException
    */
-  public String calculateLdif(Group group, Set<Group> groups) throws LdappcException, NamingException {
+  public String calculateLdif(Group group, Set<Group> groups) throws LdappcException,
+      NamingException {
 
     initializeInclude(group);
 
@@ -427,9 +429,9 @@ public class GroupEntrySynchronizer {
    * @throws LdappcException
    *           thrown if an error occurs
    */
-  protected void performInclude(Group group, int status, Set<Group> groups) throws NamingException,
-      LdappcException {
-    // DebugLog.info("Starting include of group " + group.getName());
+  protected void performInclude(Group group, int status, Set<Group> groups)
+      throws NamingException, LdappcException {
+    LOG.debug("Starting include of group {}", group.getName());
 
     //
     // Initialize for the perform include
@@ -495,7 +497,8 @@ public class GroupEntrySynchronizer {
    * @throws NamingException
    *           thrown if a Naming exception occurs
    */
-  protected void updateGroupEntry(Name groupDn, Group group, Set<Group> groups) throws NamingException {
+  protected void updateGroupEntry(Name groupDn, Group group, Set<Group> groups)
+      throws NamingException {
     //
     // Store the values from the current entry
     //
@@ -585,7 +588,8 @@ public class GroupEntrySynchronizer {
                 + LdapUtil.getLdifModify(new LdapDN(groupDn), modificationItems);
           }
           LOG.info(msg);
-          ldappc.getContext().modifyAttributes(groupDn.toString(), modificationItems);
+          ldappc.getContext().modifyAttributes(
+              LdapUtil.escapeForwardSlash(groupDn.toString()), modificationItems);
         } else {
           for (ModificationItem modificationItem : modificationItems) {
             ModificationItem[] unbundledMod = new ModificationItem[] { modificationItem };
@@ -594,7 +598,8 @@ public class GroupEntrySynchronizer {
               msg += "\n\n" + LdapUtil.getLdifModify(new LdapDN(groupDn), unbundledMod);
             }
             LOG.info(msg);
-            ldappc.getContext().modifyAttributes(groupDn.toString(), unbundledMod);
+            ldappc.getContext().modifyAttributes(
+                LdapUtil.escapeForwardSlash(groupDn.toString()), unbundledMod);
           }
         }
       }
@@ -638,8 +643,9 @@ public class GroupEntrySynchronizer {
     // Get the existing attributes defined for the entry
     //
     LOG.debug("get group attributes '" + groupDn + "' attrs " + wantedAttr);
-    Attributes attributes = LdapUtil.searchAttributes(ldappc.getContext(), groupDn
-        .toString(), (String[]) wantedAttr.toArray(new String[0]));
+    Attributes attributes = LdapUtil.searchAttributes(ldappc.getContext(), LdapUtil
+        .escapeForwardSlash(groupDn.toString()), (String[]) wantedAttr
+        .toArray(new String[0]));
 
     //
     // Populate the rdn attribute
@@ -709,7 +715,8 @@ public class GroupEntrySynchronizer {
    * @throws NamingException
    *           thrown if a naming error occurs
    */
-  protected void storeGroupData(Group group, Set<Group> groups) throws NamingException, LdappcException {
+  protected void storeGroupData(Group group, Set<Group> groups) throws NamingException,
+      LdappcException {
     //
     // Store the object class data for the group entry.
     //
@@ -743,7 +750,7 @@ public class GroupEntrySynchronizer {
           LOG.warn("Subject not found", snfe);
           continue;
         }
-        
+
         //
         // If we are not ignoring group-queries (the default) and the member is a group,
         // don't include the member group if that group is not included in the set of
@@ -844,8 +851,13 @@ public class GroupEntrySynchronizer {
       //
       // Get the attribute value from the group
       //
-      String groupAttributeValue = group.getAttributeOrFieldValue(groupAttribute, false,
-          false);
+      String groupAttributeValue = null;
+      try {
+        groupAttributeValue = group
+            .getAttributeOrFieldValue(groupAttribute, false, false);
+      } catch (AttributeNotFoundException e) {
+        groupAttributeValue = null;
+      }
 
       //
       // Get the next key (i.e., grouper attribute name) and the
@@ -886,7 +898,7 @@ public class GroupEntrySynchronizer {
         if (LOG.isDebugEnabled()) {
           for (String key : attributes.keySet()) {
             for (Object value : attributes.get(key).getValues()) {
-              LOG.debug("resolver returned '{}' : {}", key, PSPUtil.getString(value));
+              LOG.trace("resolver returned '{}' : {}", key, PSPUtil.getString(value));
             }
           }
         }
@@ -897,7 +909,7 @@ public class GroupEntrySynchronizer {
           //
           BaseAttribute baseAttribute = attributes.get(resolverAttribute);
           if (baseAttribute == null) {
-            LOG.debug("No attribute was returned from the resolver for '{}'",
+            LOG.trace("No attribute was returned from the resolver for '{}'",
                 resolverAttribute);
             continue;
           }
@@ -1012,7 +1024,8 @@ public class GroupEntrySynchronizer {
    * @throws NamingException
    *           Thrown if a naming exception occurs.
    */
-  protected void addGroupEntry(Name groupDn, Group group, Set<Group> groups) throws NamingException {
+  protected void addGroupEntry(Name groupDn, Group group, Set<Group> groups)
+      throws NamingException {
     //
     // Get the group data
     //
@@ -1130,7 +1143,8 @@ public class GroupEntrySynchronizer {
         msg += "\n\n" + LdapUtil.getLdifAdd(new LdapDN(groupDn), attributes);
       }
       LOG.info(msg);
-      ldappc.getContext().create(groupDn.toString(), attributes);
+      ldappc.getContext().create(LdapUtil.escapeForwardSlash(groupDn.toString()),
+          attributes);
     }
 
     //
@@ -1166,7 +1180,8 @@ public class GroupEntrySynchronizer {
                     .toArray(new ModificationItem[] {}));
           }
           LOG.info(msg);
-          ldappc.getContext().modifyAttributes(groupDn.toString(),
+          ldappc.getContext().modifyAttributes(
+              LdapUtil.escapeForwardSlash(groupDn.toString()),
               modifications.toArray(new ModificationItem[] {}));
         }
       }
@@ -1249,7 +1264,8 @@ public class GroupEntrySynchronizer {
               msg += "\n\n" + LdapUtil.getLdifAdd(new LdapDN(stemDn), attributes);
             }
             LOG.info(msg);
-            ldappc.getContext().create(stemDn.toString(), attributes);
+            ldappc.getContext().create(LdapUtil.escapeForwardSlash(stemDn.toString()),
+                attributes);
           }
 
           //
@@ -1344,7 +1360,8 @@ public class GroupEntrySynchronizer {
     //
     LOG.debug("search base '" + ldappc.getRootDn() + "' filter '" + filter + "'");
     Iterator<SearchResult> searchResults = ldappc.getContext().search(
-        ldappc.getRootDn().toString(), new SearchFilter(filter), searchControls);
+        LdapUtil.escapeForwardSlash(ldappc.getRootDn().toString()),
+        new SearchFilter(filter), searchControls);
 
     //
     // Delete anything found here and it's children.
@@ -1379,7 +1396,7 @@ public class GroupEntrySynchronizer {
         // just continue
         //
         try {
-          ldappc.getContext().list(entryDn.toString());
+          ldappc.getContext().list(LdapUtil.escapeForwardSlash(entryDn.toString()));
         } catch (NamingException ne) {
           //
           // Assume it couldn't be found, so just continue
@@ -1459,7 +1476,8 @@ public class GroupEntrySynchronizer {
     //
     LOG.debug("search base '{}' filter '{}'", ldappc.getRootDn(), filter);
     Iterator<SearchResult> searchResults = ldappc.getContext().search(
-        ldappc.getRootDn().toString(), new SearchFilter(filter), searchControls);
+        LdapUtil.escapeForwardSlash(ldappc.getRootDn().toString()),
+        new SearchFilter(filter), searchControls);
 
     //
     // Populate dns with DNs of existing objects. The root dn is excluded.
@@ -1558,7 +1576,7 @@ public class GroupEntrySynchronizer {
       // Try to find it. If not found, just continue
       //
       try {
-        ldappc.getContext().list(dn.toString());
+        ldappc.getContext().list(LdapUtil.escapeForwardSlash(dn.toString()));
       } catch (NamingException ne) {
         //
         // Assume it couldn't be found, so just continue

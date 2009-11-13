@@ -146,9 +146,9 @@ public class StringMembershipSynchronizer {
     String stringObjectClass = ldappc.getConfig().getMemberGroupsListObjectClass();
     if (stringObjectClass != null) {
       objectClassMods.store(stringObjectClass);
-      objectClassMods.retainAll();   
+      objectClassMods.retainAll();
     }
-    
+
     //
     // Iterate over the set of membership group names.
     //
@@ -203,9 +203,9 @@ public class StringMembershipSynchronizer {
     //
     LOG.debug("get attributes for '{}' attrs '{}' '{}'", new Object[] { getSubject(),
         membershipMods.getAttributeName(), objectClassMods.getAttributeName() });
-    Attributes attributes = LdapUtil.searchAttributes(ldappc.getContext(), getSubject(),
-        new String[] { membershipMods.getAttributeName(),
-            objectClassMods.getAttributeName() });
+    Attributes attributes = LdapUtil.searchAttributes(ldappc.getContext(), LdapUtil
+        .escapeForwardSlash(getSubject()), new String[] {
+        membershipMods.getAttributeName(), objectClassMods.getAttributeName() });
 
     //
     // Initialize the membership listing attribute modifier
@@ -282,7 +282,8 @@ public class StringMembershipSynchronizer {
           msg += "\n\n" + LdapUtil.getLdifModify(new LdapDN(getSubject()), mods);
         }
         LOG.info(msg);
-        ldappc.getContext().modifyAttributes(getSubject(), mods);
+        ldappc.getContext().modifyAttributes(LdapUtil.escapeForwardSlash(getSubject()),
+            mods);
       }
     }
   }

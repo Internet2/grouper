@@ -142,4 +142,19 @@ public class LdapUtilTest extends TestCase {
     String safeLdapFilterValue = "\\28\\2anothing \\5cTo Escape\\00\\29";
     assertEquals(LdapUtil.makeLdapFilterValueSafe(ldapFilterValue), safeLdapFilterValue);
   }
+
+  /**
+   * Test forward slashes
+   */
+  public void testForwardSlash() {
+
+    String ldapName = "group/C";
+    String safeLdapName = "group\\/C";
+
+    assertEquals(safeLdapName, LdapUtil.escapeForwardSlash(ldapName));
+    assertEquals(safeLdapName, LdapUtil.escapeForwardSlash(safeLdapName));
+
+    assertEquals(ldapName, LdapUtil.unescapeForwardSlash(safeLdapName));
+    assertEquals(ldapName, LdapUtil.unescapeForwardSlash(ldapName));
+  }
 }
