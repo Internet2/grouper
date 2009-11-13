@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.6 2009-11-02 08:50:40 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.7 2009-11-13 14:56:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -365,7 +365,7 @@ public class SimpleMembershipUpdate {
     //get the size
     QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
     group.getImmediateMembers(Group.getDefaultList(), queryOptions);
-    int totalSize = queryOptions.getCount().intValue();
+    int totalSize = queryOptions.getCount() == null ? 0 : queryOptions.getCount().intValue();
     
     int pageSize = guiPaging.getPageSize();
     

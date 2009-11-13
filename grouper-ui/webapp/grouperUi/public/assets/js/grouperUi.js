@@ -430,7 +430,11 @@ function guiFormElementAssignValue(name, values) {
       values = guiConvertToArray(values, true);
       //assign a value
       if (values.length == 1) {
-        allComboboxes[name].setComboValue(values[0]);
+        if (guiIsEmpty(values[0])) {
+          allComboboxes[name].clearAll(true);
+        } else {
+          allComboboxes[name].setComboValue(values[0]);
+        }
       } else {
         alert("Cant have length more than 1");
       }
