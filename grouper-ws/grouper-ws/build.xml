@@ -6,42 +6,9 @@
 			<pathelement location="${basedir}/lib/ant/ant-contrib.jar" />
 		</classpath>
 	</taskdef>
-
-  <if><not><available file="resources/ehcache.xml" /></not>
-    <then><copy file="resources/ehcache.example.xml" 
-      tofile="resources/ehcache.xml" /></then>
-  </if> 
-  <if><not><available file="resources/grouper.ehcache.xml" /></not>
-    <then><copy file="resources/grouper.ehcache.example.xml" 
-      tofile="resources/grouper.ehcache.xml" /></then>
-  </if> 
-    <if><not><available file="resources/grouper.properties" /></not>
-      <then><copy file="resources/grouper.example.properties" 
-        tofile="resources/grouper.properties" /></then>
-    </if> 
-    <if><not><available file="resources/grouper.hibernate.properties" /></not>
-      <then><copy file="resources/grouper.hibernate.example.properties" 
-        tofile="resources/grouper.hibernate.properties" /></then>
-    </if> 
-    <if><not><available file="resources/grouper-ws.properties" /></not>
-      <then><copy file="resources/grouper-ws.example.properties" 
-        tofile="resources/grouper-ws.properties" /></then>
-    </if> 
-  <if><not><available file="resources/log4j.properties" /></not>
-    <then><copy file="resources/log4j.example.properties" 
-      tofile="resources/log4j.properties" /></then>
-  </if> 
-    <if><not><available file="resources/morphString.properties" /></not>
-      <then><copy file="resources/morphString.example.properties" 
-        tofile="resources/morphString.properties" /></then>
-    </if> 
-    <if><not><available file="resources/sources.xml" /></not>
-      <then><copy file="resources/sources.example.xml" 
-        tofile="resources/sources.xml" /></then>
-    </if> 
-    <if><not><available file="resources/spy.properties" /></not>
-      <then><copy file="resources/spy.example.properties" 
-        tofile="resources/spy.properties" /></then>
+    <if><not><available file="conf/grouper-ws.properties" /></not>
+      <then><copy file="conf/grouper-ws.example.properties" 
+        tofile="conf/grouper-ws.properties" /></then>
     </if> 
 
 	<!-- 
@@ -71,16 +38,51 @@
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.buildGeneratedClientJarOnDist" unless="dist.buildGeneratedClientJarOnDist" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): deploy.context.path" unless="deploy.context.path" />
 	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): generated.client.project.dir" unless="generated.client.project.dir" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.dir" unless="grouper.dir" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.dir" unless="grouper.dir" />
 	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.dist.dir" unless="grouper.dist.dir" />
 	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): stop.tomcat.on.quick.or.dist" unless="stop.tomcat.on.quick.or.dist" />
 	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): tomcat.dir" unless="tomcat.dir" />
 	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): tomcat.port" unless="tomcat.port" />
 	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): cvs.branch" unless="cvs.branch" />
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.lib.dir" unless="grouper.lib.dir" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): copy.grouper.jdbc.sample.drivers" unless="copy.grouper.jdbc.sample.drivers" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.jar.name" unless="grouper.jar.name" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.lib.dir" unless="grouper.lib.dir" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.conf.dir" unless="grouper.conf.dir" />
   
+  <available file="${grouper.jar.name}" property="grouper.file.exists" value="true" />
+
+  <if>
+    <not>
+      <isset property="grouper.file.exists" />
+    </not>      
+    <then>
+      <fail message="Cant find grouper.jar from build.properties entry grouper.jar.name: ${grouper.jar.name}!" /> 
+    </then>
+  </if>
+
+  <available file="${grouper.lib.dir}/commons-lang.jar" property="grouper.lib.dir.exists" value="true" />
+
+  <if>
+    <not>
+      <isset property="grouper.lib.dir.exists" />
+    </not>      
+    <then>
+      <fail message="Cant find grouper lib dir jars (e.g. commons-lang.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
+    </then>
+  </if>
+
+  <available file="${grouper.conf.dir}/grouper.properties" property="grouper.properties.file.exists" value="true" />
+
+  <if>
+    <not>
+      <isset property="grouper.properties.file.exists" />
+    </not>      
+    <then>
+      <fail message="Cant find grouper conf dir (e.g. grouper.properties) from build.properties entry grouper.conf.dir: ${grouper.conf.dir}!" /> 
+    </then>
+  </if>
+
+
   
 	<property name="webapp.folder" value="${dist.home}/${webapp.name}" />
 
@@ -98,8 +100,12 @@
 		<fileset dir="${basedir}/lib">
 			<include name="**/*.jar" />
 		</fileset>
+    <fileset dir="${grouper.lib.dir}">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset file="${grouper.jar.name}" />
 
-		<!-- make available any classes / resources already placed in the build folder -->
+		<!-- make available any classes / conf already placed in the build folder -->
 		<pathelement location="${build.dir.grouper-ws}" />
 	</path>
 
@@ -375,23 +381,12 @@
 		<!-- Make all necessary jar files available to the webapp itself -->
 		<!-- we are doing the classes and source with a jar -->
 		<copy todir="${webapp.folder}/WEB-INF/classes">
-			<fileset dir="${basedir}/resources" />
+			<fileset dir="${basedir}/conf" />
 		</copy>
     <copy todir="${webapp.folder}/WEB-INF/classes" overwrite="true" verbose="true">
       <fileset dir="${grouper.conf.dir}" />
     </copy>
 	  
-	  <available file="${grouper.jar.name}" property="grouper.file.exists" value="true" />
-
-	  <if>
-	    <not>
-	      <isset property="grouper.file.exists" />
-  	  </not>      
-  	  <then>
-  	    <fail message="Cant find grouper.jar from build.properties entry grouper.jar.name: ${grouper.jar.name}!" /> 
-  	  </then>
-	  </if>
-
 	  <copy todir="${webapp.folder}/WEB-INF/lib">
 			<fileset dir="${basedir}/lib/axis" includes="*.jar" />
       <fileset dir="${basedir}/lib/rampart" includes="*.jar" />
@@ -404,6 +399,18 @@
       <fileset dir="${basedir}/lib/custom" includes="*.jar" />
 			<fileset dir="${dist.home}" includes="grouper-ws.jar" />
 		</copy>
+	  
+    <if>
+       <equals arg1="true" arg2="${copy.grouper.jdbc.sample.drivers}"/>
+       <then>
+         <copy todir="${webapp.folder}/WEB-INF/lib">
+           <fileset dir="${grouper.dir}/lib/jdbcSamples">
+             <include name="*.jar"/>
+           </fileset>
+         </copy>
+       </then>
+    </if>
+
 
 		<!-- all the webapp axis stuff like services dir and conf dir -->
 		<copy todir="${webapp.folder}">
@@ -453,10 +460,10 @@
 	         classpathref="generated.client.class.path" debug="true">
 	         <!-- compilerarg value="-Xlint:deprecation" / -->
         </javac>
-        <!-- copy over resources -->
+        <!-- copy over conf -->
 	      <copy toDir="${build.dir.grouper-ws-soap-client}" failonerror="false">
           <fileset dir="${generated.client.project.dir}/src" includes="**"/>
-	        <fileset dir="${generated.client.project.dir}/resources" includes="**"/>
+	        <fileset dir="${generated.client.project.dir}/conf" includes="**"/>
 	      </copy>
 
 	      <jar destfile="${dist.home}/grouper-ws-soap-client.jar">
@@ -494,14 +501,6 @@
 		<echo>     Build the grouper jar from build.properties</echo>
 		<echo>
 		</echo>
-	</target>
-	<target name="grouper" description="build the grouper jar and copy to the lib dir">
-	  <echo message="Building grouper from: ${grouper.dir}, target is dist, dist dir is: ${grouper.dist.dir}" />
-		<ant dir="${grouper.dir}" inheritall="false" target="dist" />
-		<!-- now the grouper jar is in   -->
-		<!-- copy it to ws, and rename -->
-		<copy file="${grouper.dist.dir}/lib/grouper-${DSTAMP}.jar" 
-	     tofile="${basedir}/lib/grouper/grouper.jar" failonerror="true"/>
 	</target>
 	<target name="javadoc" description="generate public api docs to doc/api">
 		<!-- Let's be sure we clear out old cruft first... -->

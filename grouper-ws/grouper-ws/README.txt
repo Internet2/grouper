@@ -1,25 +1,21 @@
 - the .project and .classpath is for Eclipse 3.3 with web tools.  This is recommended for development
+- checkout i2mi/grouper
 - checkout i2mi/grouper-ws/grouper-ws
 - run an ant quick
-- customize the configs in the resources dir
+- customize the configs in the conf dir
 
-C:\mchyzer\isc\dev\grouper\grouper-ws\resources>ls
-CVS                                   grouper.hibernate.properties
-ehcache.example.xml                   grouper.properties
-ehcache.xml                           log4j.example.properties
-grouper.ehcache.example.xml           log4j.properties
-grouper.ehcache.xml                   sources.example.xml
-grouper.example.properties            sources.xml
-grouper.hibernate.example.properties
+C:\mchyzer\isc\dev\grouper\grouper-ws\conf>ls
+grouper.ws.properties
 
-- customize the build.properties, and customize.  Shouldnt be much to do.
+- customize the build.properties.  Shouldnt be much to do, but make sure the grouper.dir is set correctly (and grouper jar, conf, lib)
 
 - for tomcat, add something like this in the server.xml in the <Host> tag:
 
 <Context docBase="C:\mchyzer\isc\dev\grouper\grouper-ws\build\dist\grouper-ws" 
 path="/grouper-ws" reloadable="false"/>
 
-- manage your db driver.  Some db drivers are included with grouper-ws.  Delete/add to the lib/custom dir as appropriate.
+- manage your db driver.  By default they will be added from grouper home.  If you dont want that, tell build.properties to not
+copy drivers, and delete/add to the lib/custom dir as appropriate.
 - edit your web.xml appropriately.  If you arent doing container auth (e.g. for apache auth, or rampart, or kerberos), take out the section at bottom:
 
   <security-constraint>
