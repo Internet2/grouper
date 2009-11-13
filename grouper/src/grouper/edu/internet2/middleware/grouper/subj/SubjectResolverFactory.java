@@ -17,13 +17,14 @@
 
 package edu.internet2.middleware.grouper.subj;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import  edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /** 
  * Factory for returning a <code>SubjectResolver</code>.
  * @author  blair christensen.
- * @version $Id: SubjectResolverFactory.java,v 1.5 2009-08-12 04:52:21 mchyzer Exp $
+ * @version $Id: SubjectResolverFactory.java,v 1.6 2009-11-13 04:09:17 mchyzer Exp $
  * @since   1.2.1
  */
 public class SubjectResolverFactory {
@@ -38,8 +39,8 @@ public class SubjectResolverFactory {
    * @since   1.2.1
    */
   public static SubjectResolver getInstance() 
-    throws  GrouperException
-  {
+    throws  GrouperException {
+    GrouperStartup.startup();
     try {
       return new ValidatingResolver(
         new CachingResolver( 
