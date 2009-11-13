@@ -53,10 +53,11 @@ public class GrouperComboboxTag extends SimpleTagSupport {
 
     StringBuilder result = new StringBuilder();
     
-    //<div id="simpleMembershipUpdatePickGroup" style="width:400px;"></div>
+    //<div id="simpleMembershipUpdatePickGroupDiv" style="width:400px;"></div>
     //
     //<script> 
-    //    guiRegisterDhtmlxCombo('simpleMembershipUpdatePickGroup', 400, 
+    //    guiRegisterDhtmlxCombo('simpleMembershipUpdatePickGroupDiv', 
+    //       'simpleMembershipUpdatePickGroup', 400, 
     //        true, "../app/SimpleMembershipUpdate.filterGroups" );    
     //</script> 
     
@@ -65,14 +66,15 @@ public class GrouperComboboxTag extends SimpleTagSupport {
       this.filterOperation = "../app/" + this.filterOperation;
     }
     
-    result.append("<div id=\"").append(this.id).append("\"");
+    result.append("<div id=\"").append(this.id + "Div").append("\"");
     if (this.width != -1) {
       //TODO this width doesnt work since the width: part isnt there, or px
       result.append(" style=\"").append(this.width).append("\"");
     }
     result.append("></div>\n");
     result.append("<script type=\"text/javascript\"> \n");
-    result.append("guiRegisterDhtmlxCombo('").append(this.id).append("', ")
+    result.append("guiRegisterDhtmlxCombo('").append(this.id).append("Div', '")
+       .append(this.id).append("', ")
       .append(this.width == -1 ? null : this.width).append(", true, \"");
     result.append(this.filterOperation).append("\" );\n");
     result.append("</script>\n");

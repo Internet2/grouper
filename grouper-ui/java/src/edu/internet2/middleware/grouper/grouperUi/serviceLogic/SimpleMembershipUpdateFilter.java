@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateFilter.java,v 1.5 2009-10-30 12:41:54 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateFilter.java,v 1.6 2009-11-13 07:32:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -343,10 +343,13 @@ public class SimpleMembershipUpdateFilter {
     GrouperSession grouperSession = null;
   
     String groupName = null;
-  
+    boolean startedSession = false;
     try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
+      grouperSession = GrouperSession.staticGrouperSession();
+      if (grouperSession == null) {
+        startedSession = true;
+        grouperSession = GrouperSession.start(loggedInSubject);
+      }
   
       groupName = group.getName();
       
@@ -356,7 +359,9 @@ public class SimpleMembershipUpdateFilter {
       throw new RuntimeException("Error searching for members: '" + filterString 
           + "', " + groupName + ", " + se.getMessage(), se);
     } finally {
-      GrouperSession.stopQuietly(grouperSession); 
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
     } 
       
     int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);

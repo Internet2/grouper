@@ -8,7 +8,7 @@
   <grouper:subtitle key="simpleMembershipUpdate.indexSectionHeader" />
 
   <div class="sectionBody">
-    <form id="simpleMembershipUpdatePickGroupForm" name="simpleMembershipUpdatePickGroupForm">
+    <form id="simpleMembershipUpdatePickGroupForm" name="simpleMembershipUpdatePickGroupForm" onsubmit="return false;" >
     <div class="combohint"><grouper:message key="simpleMembershipUpdate.selectGroupCombohint"/></div>
     <table width="900" cellpadding="0" cellspacing="0">
       <tr valign="top">
@@ -19,7 +19,7 @@
         </td>
         <td>
           <input class="blueButton" type="submit" 
-          onclick="location.href = 'grouper.html#operation=SimpleMembershipUpdate.init&groupId=' + guiFieldValue(guiGetElementByName('simpleMembershipUpdatePickGroup')); return false;" 
+          onclick="location.href = 'grouper.html?operation=SimpleMembershipUpdate.init&groupId=' + guiFieldValue($('input[name=simpleMembershipUpdatePickGroup]')[0]); return false;" 
           value="${grouper:message('simpleMembershipUpdate.selectGroupButton', true, false) }" style="margin-top: 2px" />
         </td>
       </tr>

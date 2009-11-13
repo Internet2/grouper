@@ -9,49 +9,27 @@ function guiRoundCorners() {
   }  
 }
 
-/**
- * function called onload page
- */
-function guiOnload() {
-  guiRoundCorners();
-  
+$(document).ready(function(){
+
   var theJavascriptMessage = document.getElementById('javascriptMessage');
   
   if (!guiIsEmpty(theJavascriptMessage)) {
     theJavascriptMessage.style.display = 'none'; 
   }
-  
-}
-
-$(document).ready(function(){
 
   guiRoundCorners();
   
   // Initialize history plugin.
   // The callback is called at once by present location.hash. 
 
+  processUrl();  
   var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
   if (typeof urlArgObjectMap.operation == 'undefined') {
-    location.href = "grouper.html#operation=Misc.index";
-    //dont return since in FF document.ready will not be called again
+    //alert('going back to index');
+    location.href = "grouper.html?operation=Misc.index";
+    return;
   }
-  
-  $.historyInit(pageload, "grouper.html");
-
 });
-
-/** init is called when app starts */
-function init() {
-
-  //skip that step
-  processUrl();
-}
-
-/** when the history button is pressed, just init for now I guess */
-function pageload(hash) {
- init();
-}
-
 
 /** replace html in an element with a template (substituted).  
   jqueryKey e.g. #topDiv
@@ -79,7 +57,7 @@ function processUrl() {
   
   if (typeof urlArgObjectMap.operation == 'undefined') {
     $("#bodyDiv").html = "";
-    alert("invalid URL, no operation");
+    //alert("invalid URL, no operation");
   } else {
     var ajaxUrl = '../app/' + urlArgObjectMap.operation;
     ajax(ajaxUrl);
@@ -117,9 +95,12 @@ function AppState() {
 
     //lets get url
     var url = location.href;
-    var poundIndex = url.indexOf("#");
+    var poundIndex = url.indexOf("?");
     if (poundIndex == -1) {
-      return allObjects.appState.urlArgObjects;
+      poundIndex = url.indexOf("#");
+      if (poundIndex == -1) {
+        return allObjects.appState.urlArgObjects;
+      }
     }
     var poundString = url.substring(poundIndex + 1, url.length);
     poundString = URLDecode(poundString);
@@ -148,22 +129,22 @@ var allComboboxes = new Object();
 
 /**
  * register a combobox div
- * @param divId
+ * @param divId is comboname plus "Id"
  * @param width
  * @param useImages true or false, if images are in the combobox
  * @param filterUrl
  */
-function guiRegisterDhtmlxCombo(divId, width, useImages, filterUrl ) {
+function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl ) {
   /* long hand...
    var simpleMembershipUpdateAddMemberSelect=new dhtmlXCombo(
-      "simpleMembershipUpdateAddMember","simpleMembershipUpdateAddMember",200, 'image');
+      "simpleMembershipUpdateAddMemberDiv","simpleMembershipUpdateAddMember",200, 'image');
     simpleMembershipUpdateAddMemberSelect.enableFilteringMode(
        true,"../app/SimpleMembershipUpdate.filterUsers",false); */
   var theCombo=new dhtmlXCombo(
-      divId,divId,width, useImages ? 'image' : undefined);
+      divId,comboName,width, useImages ? 'image' : undefined);
   theCombo.enableFilteringMode(true,filterUrl,false);
   //keep this so we can control it later
-  allComboboxes[divId] = theCombo;
+  allComboboxes[comboName] = theCombo;
 }
 
 
@@ -556,11 +537,6 @@ function guiToString(input) {
   return ""+input;
 }
 
-
-function guiX(x) {
-  alert(x);
-}
-
 /** when a javascript link click happens, dont let the a href click happen */
 function eventCancelBubble(event) {
   if (!event) var event = window.event;
@@ -896,6 +872,29 @@ function guiFieldValue(theField) {
    return theField.value;
 }
 
+/** print an object */
+function guiPrintObject(object) {
+  var theString = 'Start object ' + object + "\n";
+  var j = 0;
+  for (var theField in object) {
+    try {
+      var fieldObject = object[theField];
+      if (typeof fieldObject != 'function') {
+        theString += theField + ": " + fieldObject + "\n";
+      }
+    } catch(err) {
+      theString += theField + ": errorHappened\n";
+    }
+     if (j++ > 15) {
+       alert(theString);
+       j = 0;
+       theString = '';
+     }
+  }
+  alert(theString + "end object " + object);
+
+}
+
 /** get elements by name, filter due to ie8 which returns elements by id or name */
 function guiGetElementsByName(theName) {
   var theElements = document.getElementsByName(theName);
@@ -904,15 +903,18 @@ function guiGetElementsByName(theName) {
     var theElementsTemp = theElements;
     theElements = new Array();
     for (var i=0;i<theElementsTemp.length;i++) {
+      //guiPrintObject(theElementsTemp[i]);
       if (theElementsTemp[i].name == theName) {
+        //alert('keeping ' + theElementsTemp[i]);
         theElements[theElements.length] = theElementsTemp[i];
+      } else {
+        //alert('removing ' + theElementsTemp[i] + ", " + theElementsTemp[i].name + ", " + theName);
       }
     }
   }  
   return theElements;
   
 }
-
 
 /** get an element from the document object by name.  if no elements, null, if multiple, then alert */
 function guiGetElementByName(theName) {
@@ -923,20 +925,6 @@ function guiGetElementByName(theName) {
          return theElements[0];
       } else if (theElements.length > 1) {
          alert("Elements should be 1 for element " + theName + " but instead it is " + theElements.length);
-         for (var i=0;i<theElements.length;i++ ) {
-           alert(theElements[i]); 
-           var objectText = '';
-           var fieldIndex = 0;
-           for (theField in  theElements[i]) {
-             objectText += theField + ": " + theElements[i][theField] + "\n";  
-             if (fieldIndex++ > 20) {
-               alert(objectText);
-               objectText = '';
-               fieldIndex = 0;
-             }
-           }
-           alert(objectText);
-         }
       }
    }
    return null;
@@ -1128,30 +1116,33 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
     
     menu.attachEvent("onClick", function(id, zoneId, casState){
       menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuItemId: id };
+      var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuEvent: 'onClick' };
       //if there is the same menu multiple places on the screen, we might want to know about it
       if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
         requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
       }
+      //alert('menu.onClick()');
       ajax(operation, {requestParams: requestParams});
     });
     menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
       menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state };
+      var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state, menuEvent: 'onCheckboxClick' };
       //if there is the same menu multiple places on the screen, we might want to know about it
       if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
         requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
       }
+      //alert('menu.onCheckboxClick()');
       ajax(operation, {requestParams: requestParams});
       return true;
     });
     menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
       menu.hideContextMenu();
-      var requestParams = {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked };
+      var requestParams = {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked, menuEvent: 'onRadioClick' };
       //if there is the same menu multiple places on the screen, we might want to know about it
       if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
         requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
       }
+      //alert('menu.onRadioClick()');
       ajax(operation, {requestParams: requestParams});
       return true;
     });

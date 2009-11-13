@@ -8,6 +8,7 @@
     <script type="text/javascript" src="../public/assets/dhtmlx/dhtmlxcalendar.js"></script>
 
     <script type="text/javascript" src="../public/assets/dhtmlx/dhtmlxmenu.js"></script>
+    <script type="text/javascript" src="../public/assets/dhtmlx/menu/ext/dhtmlxmenu_ext.js"></script>
     <link rel="stylesheet" type="text/css" href="../public/assets/dhtmlx/menu/skins/dhtmlxmenu_dhx_blue.css" />
 
     <script type="text/javascript" src="../public/assets/dhtmlx/ext/dhtmlxcombo_extra.js"></script>
@@ -15,7 +16,6 @@
     
     <script type="text/javascript" src="../public/assets/js/jquery.js"></script>
     <script type="text/javascript" src="../public/assets/js/jquery.form.js"></script>
-    <script type="text/javascript" src="../public/assets/js/jquery.history.js"></script>
     <script type="text/javascript" src="../public/assets/js/json.js"></script>
     <script type="text/javascript" src="../public/assets/js/jquery.blockUI.js"></script>
     <script type="text/javascript">
@@ -45,7 +45,7 @@
     <title></title>
   </head>
 
-  <body onload="guiOnload()">
+  <body>
     <script type="text/javascript" src="../public/assets/js/wz_tooltip.js"></script>
 
     <div id="topDiv">
@@ -55,7 +55,7 @@
     <div id="bodyDiv">
       <!-- this is the body of the current operation, via template -->
       <div style="padding: 10px">
-      Loading...    <span id="javascriptMessage">Javascipt is required...</span>    
+      <img src="../public/assets/images/busy.gif" alt="loading..." />   <span id="javascriptMessage">Javascipt is required...</span>    
       </div>
     </div>
 

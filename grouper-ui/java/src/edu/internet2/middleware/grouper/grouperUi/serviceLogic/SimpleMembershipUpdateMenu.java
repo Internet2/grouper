@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateMenu.java,v 1.5 2009-11-02 08:50:40 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateMenu.java,v 1.6 2009-11-13 07:32:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -47,6 +47,8 @@ public class SimpleMembershipUpdateMenu {
     public void advancedMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       String menuItemId = httpServletRequest.getParameter("menuItemId");
+      String menuEvent = httpServletRequest.getParameter("menuEvent");
+      boolean isOnClick = StringUtils.equals("onClick", menuEvent);
       //String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
       //String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
       String menuCheckboxChecked  = httpServletRequest.getParameter("menuCheckboxChecked");
@@ -57,22 +59,28 @@ public class SimpleMembershipUpdateMenu {
   //        + menuRadioGroup + ", menuCheckboxChecked: " + menuCheckboxChecked));
       
       if (StringUtils.equals(menuItemId, "showGroupDetails")) {
-        if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
-          guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateGroupDetails"));
-        } else {
-          guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateGroupDetails"));
+        if (!isOnClick) {
+          if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
+            guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateGroupDetails"));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateGroupDetails"));
+          }
         }
       } else if (StringUtils.equals(menuItemId, "multiDelete")) {
-        if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
-          guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateDeleteMultiple"));
-        } else {
-          guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateDeleteMultiple"));
+        if (!isOnClick) {
+          if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
+            guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateDeleteMultiple"));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateDeleteMultiple"));
+          }
         }
       } else if (StringUtils.equals(menuItemId, "showMemberFilter")) {
-        if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
-          guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateMemberFilter"));
-        } else {
-          guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateMemberFilter"));
+        if (!isOnClick) {
+          if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
+            guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateMemberFilter"));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateMemberFilter"));
+          }
         }
       } else if (StringUtils.equals(menuItemId, "exportSubjectIds")) {
         guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(

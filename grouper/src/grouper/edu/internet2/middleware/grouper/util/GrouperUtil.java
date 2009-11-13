@@ -1435,6 +1435,10 @@ public class GrouperUtil {
    * @return the number of batches
    */
   public static int batchNumberOfBatches(int count, int batchSize) {
+    //not sure why this would be 0...
+    if (batchSize == 0) {
+      return 0;
+    }
     int batches = 1 + ((count - 1) / batchSize);
     return batches;
 

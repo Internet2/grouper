@@ -15,7 +15,7 @@
     <%-- Breadcrumbs of the folder hierarchy, and change location button --%>
 <grouper:groupBreadcrumb
   groupName="${simpleMembershipUpdateContainer.guiGroup.group.displayName}"
-/></td><td> &nbsp; &nbsp; &nbsp; <a class="smallLink" href="#operation=SimpleMembershipUpdate.index"
+/></td><td> &nbsp; &nbsp; &nbsp; <a class="smallLink" href="grouper.html?operation=SimpleMembershipUpdate.index"
   ><grouper:message key="simpleMembershipUpdate.changeLocation" /></a>
   <c:if test="${mediaMap['ui-lite.link-from-admin-ui']=='true'}">
   &nbsp; &nbsp; &nbsp; <a class="smallLink" href="../../populateGroupSummary.do?groupId=${simpleMembershipUpdateContainer.guiGroup.group.id}"

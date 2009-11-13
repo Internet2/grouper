@@ -360,3 +360,14 @@ h1 .infodotImage {
   font-size:85%;
   padding-bottom: 5px;
 }
+
+/* dont show pulldown on comboboxes */
+div#simpleMembershipUpdateAddMemberDiv img.dhx_combo_img {
+  display: none;
+} 
+div#simpleMembershipFilterMemberDiv img.dhx_combo_img {
+  display: none;
+} 
+div#simpleMembershipUpdatePickGroupDiv img.dhx_combo_img {
+  display: none;
+} 

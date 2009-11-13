@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: QueryPaging.java,v 1.3 2009-10-07 14:38:43 mchyzer Exp $
+ * $Id: QueryPaging.java,v 1.4 2009-11-13 07:32:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -130,6 +130,10 @@ public class QueryPaging {
    * @param _pageSize is the data to set
    */
   public void setPageSize(int _pageSize) {
+    //cant be 0 or negative...
+    if (_pageSize < 1) {
+      _pageSize = 1;
+    }
     this.pageSize = _pageSize;
   }
   
