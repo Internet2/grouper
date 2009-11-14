@@ -73,6 +73,15 @@ set JAVA=java
 
 if not "%JAVA_HOME%" == "" set JAVA="%JAVA_HOME%/bin/java"
 
+rem Preserve the user's $CLASSPATH
+set GROUPER_CP=%CLASSPATH%
+
+rem Append Grouper's configuration
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/classes
+
+rem Append third party .jars
+set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/*
+
 rem ----- Execute The Requested Command ---------------------------------------
 
 echo Using GROUPER_HOME:           %GROUPER_HOME%
@@ -82,7 +91,9 @@ echo using MEMORY:                 %MEM_START%-%MEM_MAX%
 
 set GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShell
 
-%JAVA%  -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" %GSH_JVMARGS% -jar %GROUPER_HOME%/lib/invoker.jar -cpdir %GROUPER_CONF% -cpalljars %GROUPER_HOME%/lib %GSH% %*
+rem %JAVA%  -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" %GSH_JVMARGS% -jar %GROUPER_HOME%/lib/grouper/invoker.jar -cpdir %GROUPER_CONF% -cpalljars %GROUPER_HOME%/lib -cpjar %GROUPER_HOME%/dist/lib/grouper.jar  -cpjar %GROUPER_HOME%/dist/lib/test/grouper-test.jar %GSH% %*
+
+%JAVA% -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" %GSH_JVMARGS% -classpath %GROUPER_CP% %GSH% %*
 
 :end
 set GROUPER_HOME=%GROUPER_HOME_SAFE%
@@ -90,3 +101,4 @@ set GROUPER_HOME=%GROUPER_HOME_SAFE%
 :endInitEnv
 set GROUPER_CUR_DIR=
 set GROUPER_HOME_SAFE=
+set GROUPER_CP=

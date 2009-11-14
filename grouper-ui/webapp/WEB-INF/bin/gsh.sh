@@ -96,6 +96,15 @@ if [ -n "$JAVA_HOME" ]; then
  JAVA="$JAVA_HOME/bin/java"
 fi
 
+# Preserve the user's $CLASSPATH
+GROUPER_CP=${CLASSPATH}
+
+# Append Grouper's configuration
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/classes
+
+# Append third party .jars
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/*
+
 if [ "$arg1" != "-initEnv" ]; then
     # ----- Execute The Requested Command ---------------------------------------
 
@@ -106,7 +115,12 @@ if [ "$arg1" != "-initEnv" ]; then
 
 
     GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShell
-     $JAVA -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -jar $GROUPER_HOME/lib/invoker.jar -cpdir $GROUPER_CONF -cpalljars $GROUPER_HOME/lib $GSH $*
+
+	# invoker doesn't appear to properly handle the shibboleth or grouper jars with Spring META-INF resources
+	# $JAVA  -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -jar $GROUPER_HOME/lib/grouper/invoker.jar -cpdir $GROUPER_CONF -cpalljars $GROUPER_HOME/lib -cpjar $GROUPER_HOME/dist/lib/grouper.jar  -cpalljars $GROUPER_HOME/dist/lib/test $GSH $*
+
+	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -classpath ${GROUPER_CP} $GSH $*
+	
 fi
 #:end
 if [ "$arg1" != "-initEnv" ]; then
@@ -116,3 +130,4 @@ fi
 #:endInitEnv
 GROUPER_CUR_DIR=
 GROUPER_HOME_SAFE=
+GROUPER_CP=
