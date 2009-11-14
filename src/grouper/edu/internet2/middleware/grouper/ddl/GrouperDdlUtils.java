@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.47 2009-11-06 13:39:59 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.48 2009-11-14 16:44:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -459,7 +459,7 @@ public class GrouperDdlUtils {
             ddlVersionable.dropAllViews(tempDdlVersionBean);
   
             //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-            dropAllForeignKeysScript(tempDdlVersionBean);
+            dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
           }
           
           // if deleting all, lets delete all:
@@ -903,7 +903,7 @@ public class GrouperDdlUtils {
           ddlVersionable.dropAllViews(tempDdlVersionBean);
   
           //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-          dropAllForeignKeysScript(tempDdlVersionBean);
+          dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
         }
         
         //it needs a name, just use "grouper"
@@ -1029,9 +1029,10 @@ public class GrouperDdlUtils {
 
   /**
    * drop all foreign keys (database dependent), and generate the script
+   * @param ddlVersionable 
    * @param ddlVersionBean
    */
-  public static void dropAllForeignKeysScript(DdlVersionBean ddlVersionBean) {
+  public static void dropAllForeignKeysScript(DbMetadataBean dbMetadataBean, DdlVersionBean ddlVersionBean) {
     
     Connection connection = ddlVersionBean.getConnection();
     
@@ -1075,15 +1076,37 @@ public class GrouperDdlUtils {
         
         //for postgres, get the foreign keys from information_schema, and drop check constraints while we are at it
         String sql = "SELECT * FROM information_schema.table_constraints where constraint_type = '" + type 
-          + "' and lower(table_name) like ? and lower(table_schema) like ? and lower(table_catalog) like ?";
+          + "' and lower(table_name) like ?";
           
+        boolean hasSchema = !StringUtils.isBlank(dbMetadataBean.getSchema());
+        if (hasSchema) {
+          sql += " and lower(table_schema) like ? ";
+        }
+        boolean hasPlatform = !StringUtils.isBlank(platform.getModelReader().getDefaultCatalogPattern());
+        if (hasPlatform) {
+          sql += " and lower(table_catalog) like ? ";
+        }
+        
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
           statement = connection.prepareStatement(sql);
           statement.setString(1, StringUtils.lowerCase(platform.getModelReader().getDefaultTablePattern()));
-          statement.setString(2, StringUtils.lowerCase(platform.getModelReader().getDefaultSchemaPattern()));
-          statement.setString(3, StringUtils.lowerCase(platform.getModelReader().getDefaultTablePattern()));
+          
+          int currentIndex = 2;
+          if (hasSchema) {
+            statement.setString(currentIndex++, StringUtils.lowerCase(dbMetadataBean.getSchema()));
+          }
+          if (hasPlatform) {
+            statement.setString(currentIndex++, StringUtils.lowerCase(platform.getModelReader().getDefaultCatalogPattern()));
+
+          }
+          
+          String sqlLogMessage = "Constraint SQL: " + sql + ", params: " + platform.getModelReader().getDefaultTablePattern()
+              + ", " + dbMetadataBean.getSchema()
+              + ", " + platform.getModelReader().getDefaultCatalogPattern();
+          LOG.info(sqlLogMessage);
+          
           resultSet = statement.executeQuery();
           
           while (resultSet.next()) {
