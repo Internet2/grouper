@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.21 2009-11-07 16:33:36 shilen Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.22 2009-11-14 16:44:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -54,7 +54,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testGroupAttributeUpgrade"));
+    TestRunner.run(new GrouperDdlUtilsTest("testIdUpgrade"));
   }
 
   /**
@@ -135,7 +135,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //doesnt work on this db
     //TODO MCH 20090202 make this work for postgres... what is the problem?
-    if (GrouperDdlUtils.isHsql() || GrouperDdlUtils.isPostgres()) {
+    if (GrouperDdlUtils.isHsql()) {
       return;
     }
     
@@ -347,7 +347,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //doesnt work on this db
     //TODO MCH 20090202 make this work for postgres... what is the problem?
-    if (GrouperDdlUtils.isHsql() || GrouperDdlUtils.isPostgres()) {
+    if (GrouperDdlUtils.isHsql()) {
       return;
     }
     

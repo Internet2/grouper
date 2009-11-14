@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.95 2009-11-11 15:34:46 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.96 2009-11-14 16:44:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -271,8 +271,19 @@ public enum GrouperDdl implements DdlVersionable {
           DdlVersionBean ddlVersionBean) {
         
         // there shouldn't be any effective memberships
-        ddlVersionBean.appendAdditionalScriptUnique("\ndelete from grouper_memberships where mship_type = 'effective';\ncommit;\n");
-  
+        int count = 0;
+        
+        try {
+          count = HibernateSession.bySqlStatic().select(int.class, 
+            "select count(*) from grouper_memberships where mship_type = 'effective'");
+        } catch (Exception e) {
+          LOG.info("Problem getting effective membership count");
+        }
+        if (count > 0) {        
+          ddlVersionBean.appendAdditionalScriptUnique(
+              "\ndelete from grouper_memberships where mship_type = 'effective';\ncommit;\n");
+        }
+    
         // check if we need to upgrade to use group set
         boolean needsUpgrade = needsMembershipAndGroupSetConversion(database);
         
