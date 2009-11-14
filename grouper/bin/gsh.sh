@@ -97,25 +97,25 @@ if [ -n "$JAVA_HOME" ]; then
 fi
 
 # Preserve the user's $CLASSPATH
-CP=${CLASSPATH}
+GROUPER_CP=${CLASSPATH}
 
 # Append Grouper's configuration
-CP=${CP}:${GROUPER_HOME}/conf
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/conf
 
 # Append Grouper .jar
-CP=${CP}:${GROUPER_HOME}/dist/lib/grouper.jar
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/grouper.jar
 
 # Append third party .jars
-CP=${CP}:${GROUPER_HOME}/lib/grouper/*
-CP=${CP}:${GROUPER_HOME}/lib/custom/*
-CP=${CP}:${GROUPER_HOME}/lib/jdbcSamples/*
-CP=${CP}:${GROUPER_HOME}/lib/shibboleth/*
-CP=${CP}:${GROUPER_HOME}/lib/ldappc/*
-CP=${CP}:${GROUPER_HOME}/lib/vt-ldap/*
-CP=${CP}:${GROUPER_HOME}/lib/apacheds/*
-CP=${CP}:${GROUPER_HOME}/lib/ant/*
-CP=${CP}:${GROUPER_HOME}/lib/test/*
-CP=${CP}:${GROUPER_HOME}/dist/lib/test/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/grouper/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/custom/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/jdbcSamples/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/shibboleth/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/ldappc/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/vt-ldap/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/apacheds/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/ant/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/test/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/test/*
 
 if [ "$arg1" != "-initEnv" ]; then
 	# ----- Execute The Requested Command ---------------------------------------
@@ -131,7 +131,7 @@ if [ "$arg1" != "-initEnv" ]; then
 	# invoker doesn't appear to properly handle the shibboleth or grouper jars with Spring META-INF resources
 	# $JAVA  -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -jar $GROUPER_HOME/lib/grouper/invoker.jar -cpdir $GROUPER_CONF -cpalljars $GROUPER_HOME/lib -cpjar $GROUPER_HOME/dist/lib/grouper.jar  -cpalljars $GROUPER_HOME/dist/lib/test $GSH $*
 
-	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -classpath ${CP} $GSH $*
+	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -classpath ${GROUPER_CP} $GSH $*
 	
 fi
 #:end
@@ -142,3 +142,4 @@ fi
 #:endInitEnv
 GROUPER_CUR_DIR=
 GROUPER_HOME_SAFE=
+GROUPER_CP=
