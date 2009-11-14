@@ -115,6 +115,7 @@ CP=${CP}:${GROUPER_HOME}/lib/vt-ldap/*
 CP=${CP}:${GROUPER_HOME}/lib/apacheds/*
 CP=${CP}:${GROUPER_HOME}/lib/ant/*
 CP=${CP}:${GROUPER_HOME}/lib/test/*
+CP=${CP}:${GROUPER_HOME}/dist/lib/test/*
 
 if [ "$arg1" != "-initEnv" ]; then
 	# ----- Execute The Requested Command ---------------------------------------
