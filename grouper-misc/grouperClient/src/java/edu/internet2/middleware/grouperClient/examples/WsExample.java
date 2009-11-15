@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsExample.java,v 1.1 2008-11-30 10:57:31 mchyzer Exp $
+ * $Id: WsExample.java,v 1.2 2009-11-15 18:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.examples;
 
@@ -69,7 +69,7 @@ public class WsExample {
     //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
     //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
     PostMethod method = new PostMethod(
-        "http://localhost:8092/grouperWs/servicesRest" + "/" + "v1_4_000"  
+        "http://localhost:8092/grouper-ws/servicesRest" + "/" + "v1_4_000"  
           + "/groups/aStem%3AaGroup/members");
 
     //no keep alive so response if easier to indent for tests
