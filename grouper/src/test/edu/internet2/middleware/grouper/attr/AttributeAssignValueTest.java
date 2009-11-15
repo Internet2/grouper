@@ -3,6 +3,11 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.sql.BatchUpdateException;
+import java.sql.SQLException;
+
+import org.hibernate.exception.SQLGrammarException;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -78,7 +83,24 @@ public class AttributeAssignValueTest extends GrouperTest {
     attributeAssignValue.setAttributeAssignId(attributeAssign.getId());
     attributeAssignValue.setValueString("hello");
     attributeAssignValue.setId(GrouperUuid.getUuid());
-    attributeAssignValue.saveOrUpdate();
+    try {
+      attributeAssignValue.saveOrUpdate();
+    } catch (RuntimeException e) {
+      
+      Throwable cause = e.getCause();
+      if (cause instanceof SQLGrammarException) {
+        cause = cause.getCause();
+      }
+      if (cause instanceof BatchUpdateException) {
+        SQLException sqlException = ((BatchUpdateException)cause).getNextException();
+        if (sqlException != null) {
+          sqlException.printStackTrace();
+        }
+      }
+      
+      throw e;
+      
+    }
     
     
     
