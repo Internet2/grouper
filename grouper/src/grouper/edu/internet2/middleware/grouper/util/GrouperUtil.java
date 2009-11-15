@@ -399,7 +399,7 @@ public class GrouperUtil {
     try {
       return file.getCanonicalPath();
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      throw new RuntimeException("Problem with file: " + file.getAbsolutePath(), ioe);
     }
   }
   
