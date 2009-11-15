@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.13 2009-03-15 08:15:38 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.14 2009-11-15 18:54:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -133,27 +133,27 @@ public class RestClientSettings {
         
         Stem aStem = Stem.saveStem(grouperSession, "aStem", null, "aStem", null, null, null, true);
 
-        aStem.grantPriv(subject0, NamingPrivilege.CREATE);
-        aStem.grantPriv(userSubject, NamingPrivilege.CREATE);
-        aStem.grantPriv(subject0, NamingPrivilege.STEM);
-        aStem.grantPriv(userSubject, NamingPrivilege.STEM);
+        aStem.grantPriv(subject0, NamingPrivilege.CREATE, false);
+        aStem.grantPriv(userSubject, NamingPrivilege.CREATE, false);
+        aStem.grantPriv(subject0, NamingPrivilege.STEM, false);
+        aStem.grantPriv(userSubject, NamingPrivilege.STEM, false);
 
         Stem aStem0 = Stem.saveStem(grouperSession, "aStem:aStem0", null, "aStem:aStem0", null, null, null, true);
 
-        aStem0.grantPriv(subject0, NamingPrivilege.CREATE);
-        aStem0.grantPriv(userSubject, NamingPrivilege.CREATE);
-        aStem0.grantPriv(subject0, NamingPrivilege.STEM);
-        aStem0.grantPriv(userSubject, NamingPrivilege.STEM);
+        aStem0.grantPriv(subject0, NamingPrivilege.CREATE, false);
+        aStem0.grantPriv(userSubject, NamingPrivilege.CREATE, false);
+        aStem0.grantPriv(subject0, NamingPrivilege.STEM, false);
+        aStem0.grantPriv(userSubject, NamingPrivilege.STEM, false);
         
         Group aGroup = Group.saveGroup(grouperSession, "aStem:aGroup", null, "aStem:aGroup", null, null, null, true);
         
         //grant a priv
-        aGroup.grantPriv(subject0, AccessPrivilege.ADMIN);
-        aGroup.grantPriv(userSubject, AccessPrivilege.ADMIN);
-        aGroup.grantPriv(subject0, AccessPrivilege.READ);
-        aGroup.grantPriv(userSubject, AccessPrivilege.READ);
-        aGroup.grantPriv(subject0, AccessPrivilege.VIEW);
-        aGroup.grantPriv(userSubject, AccessPrivilege.VIEW);
+        aGroup.grantPriv(subject0, AccessPrivilege.ADMIN, false);
+        aGroup.grantPriv(userSubject, AccessPrivilege.ADMIN, false);
+        aGroup.grantPriv(subject0, AccessPrivilege.READ, false);
+        aGroup.grantPriv(userSubject, AccessPrivilege.READ, false);
+        aGroup.grantPriv(subject0, AccessPrivilege.VIEW, false);
+        aGroup.grantPriv(userSubject, AccessPrivilege.VIEW, false);
         
         //add some types and attributes
         GroupType groupType = GroupType.createType(grouperSession, "aType", false);

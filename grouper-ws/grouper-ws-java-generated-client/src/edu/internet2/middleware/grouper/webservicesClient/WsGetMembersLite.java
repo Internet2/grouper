@@ -28,7 +28,7 @@ public class WsGetMembersLite {
    */
   public static void main(String[] args) throws Exception {
     
-    //URL, e.g. http://localhost:8091/grouperWs/services/GrouperService
+    //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
     GrouperServiceStub stub = new GrouperServiceStub(
         GeneratedClientSettings.URL);
     Options options = stub._getServiceClient().getOptions();

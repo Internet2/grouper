@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsXhtmlInputConverter.java,v 1.2 2009-03-15 08:15:37 mchyzer Exp $
+ * @author mchyzer $Id: WsXhtmlInputConverter.java,v 1.3 2009-11-15 18:54:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -13,6 +13,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Attribute;
@@ -52,19 +54,41 @@ public class WsXhtmlInputConverter {
   /** namespace of html element */
   private Namespace htmlNamespace = null;
 
+  /** xml pattern */
+  private static Pattern xmlHeader = Pattern.compile("^<\\?xml[^>]+>\\s*(.*)$", Pattern.DOTALL | Pattern.MULTILINE);
+
+  /** doctype pattern */
+  private static Pattern doctypeHeader = Pattern.compile("<!DOCTYPE [^>]+>\\s*(.*)$", Pattern.DOTALL | Pattern.MULTILINE);
+
   /**
    * parse a string to object 
    * @param string
    * @param requireHtmlHeader means that the html and body tags are required
-   * @return
+   * @return object
    */
   public Object parseXhtmlString(String string) {
     try {
+      // process xml
+      //getting this error, cant get rid of it
+      //Server returned HTTP response code: 503 for URL: http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd
+      //strip headers
+      //<?xml version='1.0' encoding='iso-8859-1'?>
+      Matcher matcher = xmlHeader.matcher(string);
+      if (matcher.matches()) {
+        string = matcher.group(1);
+      }
+      //<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+      matcher = doctypeHeader.matcher(string);
+      if (matcher.matches()) {
+        string = matcher.group(1);
+      }
+      
       //lets load this into jdom, since it is xml
       StringReader xmlReader = new StringReader(string);
 
-      // process xml
-      Document document = new SAXBuilder().build(xmlReader);
+      SAXBuilder saxBuilder = new SAXBuilder();
+
+      Document document = saxBuilder.build(xmlReader);
       return parseDocument(document);
     } catch (Exception e) {
       throw new RuntimeException("Problems parsing string: " + string, e);

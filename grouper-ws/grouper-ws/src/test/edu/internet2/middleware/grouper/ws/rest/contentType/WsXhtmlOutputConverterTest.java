@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsXhtmlOutputConverterTest.java,v 1.1 2008-03-25 05:15:09 mchyzer Exp $
+ * $Id: WsXhtmlOutputConverterTest.java,v 1.2 2009-11-15 18:54:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -34,7 +34,7 @@ public class WsXhtmlOutputConverterTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new WsXhtmlOutputConverterTest("testMarshal"));
+    TestRunner.run(new WsXhtmlOutputConverterTest("testMarshal2"));
   }
   
   /**
