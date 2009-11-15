@@ -85,6 +85,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   /**
    * fields which are included in db version
    */
+  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTE_ASSIGN_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_ID, 
       FIELD_LAST_UPDATED_DB, FIELD_VALUE_INTEGER, FIELD_VALUE_MEMBER_ID, FIELD_VALUE_STRING);
@@ -117,7 +118,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   private String valueString;
 
   /** integer value */
-  private String valueInteger;
+  private Long valueInteger;
 
   /** member id value */
   private String valueMemberId;
@@ -300,7 +301,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * integer value
    * @return the valueInteger
    */
-  public String getValueInteger() {
+  public Long getValueInteger() {
     return this.valueInteger;
   }
 
@@ -309,7 +310,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * integer value
    * @param valueInteger1 the valueInteger to set
    */
-  public void setValueInteger(String valueInteger1) {
+  public void setValueInteger(Long valueInteger1) {
     this.valueInteger = valueInteger1;
   }
 

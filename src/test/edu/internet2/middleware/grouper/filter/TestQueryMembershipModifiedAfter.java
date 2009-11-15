@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.filter;
 import java.util.Date;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -36,10 +37,18 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author shilen
  * 
- * @version $Id: TestQueryMembershipModifiedAfter.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestQueryMembershipModifiedAfter.java,v 1.5 2009-11-15 05:17:17 mchyzer Exp $
  */
 public class TestQueryMembershipModifiedAfter extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestQueryMembershipModifiedAfter("testFindNothing"));
+  }
+  
   private static final Log LOG = GrouperUtil
       .getLog(TestQueryMembershipModifiedAfter.class);
 
@@ -193,12 +202,16 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
       
       ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
 
+      GrouperUtil.sleep(100);
+      long now = System.currentTimeMillis();
+      GrouperUtil.sleep(100);
+      
       Stem top = r.root.addChildStem("top", "top");
       top.addChildGroup("child", "child");
       
       // verify that nulls don't get returned.
       gq = GrouperQuery.createQuery(r.rs,
-          new GroupMembershipModifiedAfterFilter(new Date(0), r.root));
+          new GroupMembershipModifiedAfterFilter(new Date(now), r.root));
       T.amount("groups", 0, gq.getGroups().size());
       T.amount("members", 0, gq.getMembers().size());
       T.amount("mships", 0, gq.getMemberships().size());
