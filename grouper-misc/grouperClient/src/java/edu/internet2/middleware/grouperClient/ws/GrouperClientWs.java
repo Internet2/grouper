@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.8.2.4 2009-07-27 09:06:48 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.10 2009-11-15 18:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -297,7 +297,7 @@ public class GrouperClientWs {
       passPrefix = "WebService pass: reading encrypted value from file: " + wsPass;
 
       String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
-      encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
+      
       wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
       
     } else {
@@ -407,7 +407,7 @@ public class GrouperClientWs {
       }
 
       StringBuilder headers = new StringBuilder();
-//      POST /grouperWs/servicesRest/v1_4_000/subjects HTTP/1.1
+//      POST /grouper-ws/servicesRest/v1_4_000/subjects HTTP/1.1
 //      Connection: close
 //      Authorization: Basic bWNoeXplcjpEaxxxxxxxxxx==
 //      User-Agent: Jakarta Commons-HttpClient/3.1

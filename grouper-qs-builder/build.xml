@@ -4,6 +4,8 @@
 	
 	<target name="start" description="Depending on whether grouper.folder is set, uses defined folder, or checks out Grouper from CVS">
 		<fail unless="quickstart.dir">quickstart.dir must be set in build.properties</fail>
+		<ant dir="${grouper.folder}" target="dist"/>
+		<delete dir="${grouper.folder}/dist/build"/>
 		<antcall target="-make-quickstart-grouper"/>
 		<antcall target="-export-grouper-from-cvs"/>
 		<antcall target="-make-quickstart-grouper-ui"/>
@@ -69,8 +71,6 @@
 		</target>
 
 	 <target name="-make-quickstart-grouper" description="Builds QuickStart. Assumes that database is OK in grouper.folder/dist/run" if="grouper.folder">
-			<ant dir="${grouper.folder}" target="dist"/>
-			<delete dir="${grouper.folder}/dist/build"/>
 			<antcall target="copydb"/>
 			 <delete dir="${quickstart.dir}"/>
 			 <mkdir dir="${quickstart.dir}"/>
@@ -251,11 +251,11 @@
 	     <condition property="grouper.folder.for.javadoc" value="${grouper.with-java.folder}">
 			<isset property="grouper.with-java.folder"/>
 		 </condition>
-		  <condition property="grouper.folder.for.javadoc" value="${basedir}/temp/grouper">
+		  <condition property="grouper.folder.for.javadoc" value="temp/grouper">
 				<and>
 					<not><isset property="grouper.with-java.folder"/></not>
 					<not><isset property="grouper.folder"/></not>
-					<available file="temp/grouper/src/grouper"/>
+					<available file="temp/grouper/java/src"/>
 				</and>
 		 </condition>
 		 <fail unless="grouper.folder.for.javadoc">Cannot determine a grouper folder to generate Javadoc</fail>

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SslPoc.java,v 1.1.2.1 2009-01-22 14:47:22 mchyzer Exp $
+ * $Id: SslPoc.java,v 1.2 2009-03-15 08:16:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 

@@ -385,16 +385,9 @@ public class GrouperClientCommonUtils  {
       return null;
     }
 
-    try {
-      String fileName = URLDecoder.decode(url.getFile(), "UTF-8");
-  
-      File configFile = new File(fileName);
-  
-      return configFile;
-    } catch (UnsupportedEncodingException uee) {
-      throw new RuntimeException(uee);
-    }
+    File configFile = new File(url.getFile());
 
+    return configFile;
   }
   
 
@@ -7288,8 +7281,7 @@ public class GrouperClientCommonUtils  {
    */
   public static void copy(InputStream input, Writer output)
           throws IOException {
-      String charsetName = GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true);
-      InputStreamReader in = new InputStreamReader(input, charsetName);
+      InputStreamReader in = new InputStreamReader(input);
       copy(in, output);
   }
   
@@ -7302,8 +7294,7 @@ public class GrouperClientCommonUtils  {
     try {
       CodeSource codeSource = sampleClass.getProtectionDomain().getCodeSource();
       if (codeSource != null && codeSource.getLocation() != null) {
-        String fileName = URLDecoder.decode(codeSource.getLocation().getFile(), "UTF-8");
-        return new File(fileName);
+        return new File(codeSource.getLocation().getFile());
       }
       String resourcePath = sampleClass.getName();
       resourcePath = resourcePath.replace('.', '/') + ".class";
@@ -7317,13 +7308,7 @@ public class GrouperClientCommonUtils  {
         urlPath = urlPath.substring(5);
       }
       urlPath = prefixOrSuffix(urlPath, "!", true); 
-      
-      System.out.println("urlPathBefore: " + urlPath);
-      
-      urlPath = URLDecoder.decode(urlPath, "UTF-8");
-
-      System.out.println("urlPathAfter: " + urlPath);
-      
+  
       File file = new File(urlPath);
       if (urlPath.endsWith(".jar") && file.exists() && file.isFile()) {
         return file;

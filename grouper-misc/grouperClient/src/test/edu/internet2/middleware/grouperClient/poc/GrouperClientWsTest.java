@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.1.2.8 2009-09-15 16:21:55 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.3 2009-04-13 03:21:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 
@@ -19,9 +19,9 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.GrouperClient;
@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.subject.Subject;
 
-/**
+/**O
  * 
  */
 public class GrouperClientWsTest extends GrouperTest {
@@ -46,14 +46,14 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGroupSave"));
+    TestRunner.run(new GrouperClientWsTest("testGetMembers"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
    */
   @Override
   protected void setUp() {
@@ -168,7 +168,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
    */
   @Override
   protected void tearDown() {
@@ -1737,76 +1737,6 @@ public class GrouperClientWsTest extends GrouperTest {
   }
   
   /**
-   * update a group to an existing name
-   * @throws Exception
-   */
-  public void testGroupSaveUpdateExistingName() throws Exception {
-    
-    {
-      WsGroupToSave wsGroupToSave = new WsGroupToSave();
-      wsGroupToSave.setSaveMode("INSERT");
-      wsGroupToSave.setWsGroupLookup(new WsGroupLookup(null, null));
-      WsGroup wsGroup = new WsGroup();
-      wsGroup.setDisplayExtension("a group4");
-      wsGroup.setExtension("aGroup4");
-      wsGroup.setName("aStem:aGroup4");
-      wsGroupToSave.setWsGroup(wsGroup);
-      WsGroupSaveResults wsGroupSaveResults = new GcGroupSave().addGroupToSave(wsGroupToSave).execute();
-      
-      //prints SUCCESS_INSERTED when it works
-      String resultCode = wsGroupSaveResults.getResults()[0].getResultMetadata().getResultCode();
-      
-      assertEquals("SUCCESS_INSERTED", resultCode);
-    }
-    String uuid = null;
-    {
-      WsGroupToSave wsGroupToSave = new WsGroupToSave();
-      wsGroupToSave.setSaveMode("INSERT");
-      wsGroupToSave.setWsGroupLookup(new WsGroupLookup(null, null));
-      WsGroup wsGroup = new WsGroup();
-      wsGroup.setDisplayExtension("a group5");
-      wsGroup.setExtension("aGroup5");
-      wsGroup.setName("aStem:aGroup5");
-      wsGroupToSave.setWsGroup(wsGroup);
-      WsGroupSaveResults wsGroupSaveResults = new GcGroupSave().addGroupToSave(wsGroupToSave).execute();
-      
-      uuid = wsGroupSaveResults.getResults()[0].getWsGroup().getUuid();
-      
-      //prints SUCCESS_INSERTED when it works
-      String resultCode = wsGroupSaveResults.getResults()[0].getResultMetadata().getResultCode();
-      
-      assertEquals("SUCCESS_INSERTED", resultCode);
-    
-    }
-    
-    {
-      WsGroupToSave wsGroupToSave = new WsGroupToSave();
-      wsGroupToSave.setSaveMode("UPDATE");
-      wsGroupToSave.setWsGroupLookup(new WsGroupLookup(null, uuid));
-      WsGroup wsGroup = new WsGroup();
-      wsGroup.setDisplayExtension("a group4");
-      wsGroup.setExtension("aGroup4");
-      wsGroup.setName("aStem:aGroup4");
-      wsGroupToSave.setWsGroup(wsGroup);
-      try {
-        @SuppressWarnings("unused")
-        WsGroupSaveResults wsGroupSaveResults = new GcGroupSave().addGroupToSave(wsGroupToSave).execute();
-        
-        fail("Should not update to existing name");
-  
-        //System.out.println(resultCode);
-      } catch (GcWebServiceError gwse) {
-        WsGroupSaveResults wsGroupSaveResults = (WsGroupSaveResults)gwse.getContainerResponseObject();
-  
-        String resultCode = wsGroupSaveResults.getResults()[0].getResultMetadata().getResultCode();
-        
-        assertEquals("EXCEPTION", resultCode);
-      }
-    }    
-      
-  }
-  
-  /**
    * @throws Exception
    */
   public void testGroupSave() throws Exception {
@@ -1815,53 +1745,21 @@ public class GrouperClientWsTest extends GrouperTest {
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     System.setOut(new PrintStream(baos));
-    String output = null;
-    String[] outputLines = null;
-    Pattern pattern = null;
-    Matcher matcher = null;
+
     try {
-      systemOut.println("Umlaut: ä");
+
       //try with name with slash
-      GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=groupSaveWs --name=aStem:newGroup0ä", " "));
-      System.out.flush();
-      output = new String(baos.toByteArray());
-      
-      systemOut.println(output);
-      
-      System.setOut(systemOut);
-
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
-//ä
-      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
-      matcher = pattern.matcher(outputLines[0]);
-
-      assertTrue(outputLines[0], matcher.matches());
-
-      assertEquals("SUCCESS_INSERTED", matcher.group(1));
-      assertEquals("aStem:newGroup0ä", matcher.group(2));
-      if (true) {
-        //TODO take out
-        return;
-      }
-      
-      // ##########################
-      // try with name with slash
-
-      baos = new ByteArrayOutputStream();
-      System.setOut(new PrintStream(baos));
-
       GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0/1", " "));
       System.out.flush();
-      output = new String(baos.toByteArray());
+      String output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
-      matcher = pattern.matcher(outputLines[0]);
+      Pattern pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
+      Matcher matcher = pattern.matcher(outputLines[0]);
 
       assertTrue(outputLines[0], matcher.matches());
 
@@ -4663,7 +4561,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
   }
 
-  /** 
+  /**
    * try get members with a slash
    * @throws Exception
    */

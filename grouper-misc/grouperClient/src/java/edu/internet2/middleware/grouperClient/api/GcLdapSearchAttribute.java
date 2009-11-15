@@ -144,34 +144,28 @@ public class GcLdapSearchAttribute {
     
     DirContext context = GrouperClientLdapUtils.retrieveContext();
     
+    LOG.debug("LDAP search name: '" + this.ldapName + "'");
+    
+    Attributes searchAttributes = new BasicAttributes();
+    for (String key : this.matchingAttributes.keySet()) {
+      String value = this.matchingAttributes.get(key);
+      searchAttributes.put(new BasicAttribute(key, value));
+      LOG.debug("LDAP search attribute: '" + key + "' = '" + value + "'");
+    }
+
+    String[] returningAttributesArray = GrouperClientUtils.toArray(this.returningAttributes, String.class);
+
+    for (String returningAttribute : returningAttributesArray) {
+      LOG.debug("LDAP search returning attribute: '" + returningAttribute + "'");
+    }
+    
     try {
-      LOG.debug("LDAP search name: '" + this.ldapName + "'");
-      
-      Attributes searchAttributes = new BasicAttributes();
-      for (String key : this.matchingAttributes.keySet()) {
-        String value = this.matchingAttributes.get(key);
-        searchAttributes.put(new BasicAttribute(key, value));
-        LOG.debug("LDAP search attribute: '" + key + "' = '" + value + "'");
-      }
-  
-      String[] returningAttributesArray = GrouperClientUtils.toArray(this.returningAttributes, String.class);
-  
-      for (String returningAttribute : returningAttributesArray) {
-        LOG.debug("LDAP search returning attribute: '" + returningAttribute + "'");
-      }
-      
-      try {
-  
-        this.namingEnumeration = context.search(this.ldapName, searchAttributes, returningAttributesArray);
-      } catch (Exception e) {
-        throw new RuntimeException("Error querying ldap for name: '" + this.ldapName + "', searchAttributes: " + 
-            GrouperClientUtils.toStringForLog(this.matchingAttributes) + ", returning attributes: "
-            + GrouperClientUtils.toStringForLog(this.returningAttributes), e);
-      }
-    } finally {
-      try {
-        context.close();
-      } catch (Exception e) {}
+
+      this.namingEnumeration = context.search(this.ldapName, searchAttributes, returningAttributesArray);
+    } catch (Exception e) {
+      throw new RuntimeException("Error querying ldap for name: '" + this.ldapName + "', searchAttributes: " + 
+          GrouperClientUtils.toStringForLog(this.matchingAttributes) + ", returning attributes: "
+          + GrouperClientUtils.toStringForLog(this.returningAttributes), e);
     }
   }
 

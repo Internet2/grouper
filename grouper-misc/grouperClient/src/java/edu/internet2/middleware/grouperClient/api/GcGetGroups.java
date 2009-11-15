@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGetGroups.java,v 1.4.2.1 2009-02-17 04:39:51 mchyzer Exp $
+ * $Id: GcGetGroups.java,v 1.5 2009-03-15 08:16:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 

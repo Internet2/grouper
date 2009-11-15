@@ -111,7 +111,7 @@ public class GrouperClientLdapUtils {
       DirContext context = new InitialDirContext(env);
       return context;
     } catch (NamingException ne) {
-      throw new RuntimeException("Problem connecting to ldap: url: " + ldapUrl + ", user: " + ldapUser, ne );
+      throw new RuntimeException("Problem connecting to ldap: url: " + ldapUrl + ", user: " + ldapUser );
     }
 
   }

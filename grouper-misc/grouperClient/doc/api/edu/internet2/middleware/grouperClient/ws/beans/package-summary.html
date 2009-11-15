@@ -84,16 +84,16 @@ Package edu.internet2.middleware.grouperClient.ws.beans
 <B>Interface Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouperClient.ws.beans">ResultMetadataHolder</A></B></TD>
-<TD>has result metadata</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRequestBean.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouperClient.ws.beans">WsRequestBean</A></B></TD>
 <TD>Bean (used in Rest) as a request for web service</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouperClient.ws.beans">WsResponseBean</A></B></TD>
 <TD>bean (used in Rest) which is a response from web service</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouperClient.ws.beans">WsResultCode</A></B></TD>
+<TD>result code enum</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -115,10 +115,6 @@ Package edu.internet2.middleware.grouperClient.ws.beans
  results for the add member call.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsAssignGrouperPrivilegesLiteResult</A></B></TD>
-<TD>Result of assigning or removing a privilege</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsDeleteMemberResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsDeleteMemberResult</A></B></TD>
 <TD>Result of one subject being deleted from a group.</TD>
 </TR>
@@ -126,30 +122,6 @@ Package edu.internet2.middleware.grouperClient.ws.beans
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsDeleteMemberResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsDeleteMemberResults</A></B></TD>
 <TD>
  results for the delete member call.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsFindGroupsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsFindGroupsResults</A></B></TD>
-<TD>returned from the group find query</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsFindStemsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsFindStemsResults</A></B></TD>
-<TD>returned from the stem find query, if none found, return none</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGetGrouperPrivilegesLiteResult</A></B></TD>
-<TD>Result of retrieving privileges for a user/group combo (and perhaps 
- filtered by type), will
- return a list of permissions</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetGroupsResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGetGroupsResult</A></B></TD>
-<TD>
- results for the get groups call.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetGroupsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGetGroupsResults</A></B></TD>
-<TD>
- results for the get groups call.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGetMembersResult</A></B></TD>
@@ -166,21 +138,8 @@ Package edu.internet2.middleware.grouperClient.ws.beans
 <TD>Result of one group being retrieved since a user is a member of it.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupDeleteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroupDeleteResult</A></B></TD>
-<TD>Result of one group being deleted.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupDeleteResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroupDeleteResults</A></B></TD>
-<TD>
- results for the groups delete call.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupDetail.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroupDetail</A></B></TD>
 <TD>Result for finding a group</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGrouperPrivilegeResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGrouperPrivilegeResult</A></B></TD>
-<TD>Query for one privilege.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroupLookup</A></B></TD>
@@ -188,20 +147,6 @@ Package edu.internet2.middleware.grouperClient.ws.beans
  Class to lookup a group via web service
  
  developers make sure each setter calls this.clearGroup();</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupSaveResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroupSaveResult</A></B></TD>
-<TD>Result of one group being saved.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupSaveResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroupSaveResults</A></B></TD>
-<TD>
- results for the groups save call.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroupToSave.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroupToSave</A></B></TD>
-<TD>
- Class to save a group via web service</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsHasMemberResult</A></B></TD>
@@ -213,26 +158,8 @@ Package edu.internet2.middleware.grouperClient.ws.beans
  results for the has member call.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsMemberChangeSubject.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsMemberChangeSubject</A></B></TD>
-<TD>
- Class with data about a member who's subject needs to change</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsMemberChangeSubjectResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsMemberChangeSubjectResult</A></B></TD>
-<TD>Result of one member changing its subject</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsMemberChangeSubjectResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsMemberChangeSubjectResults</A></B></TD>
-<TD>
- results for the member change subject call.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsParam</A></B></TD>
 <TD>param for a web service operation</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsQueryFilter</A></B></TD>
-<TD>this represents a query which can be and'ed or or'ed</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseMeta.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResponseMeta</A></B></TD>
@@ -243,31 +170,7 @@ Package edu.internet2.middleware.grouperClient.ws.beans
 <TD>bean that will be the data from rest request</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestAssignGrouperPrivilegesLiteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestAssignGrouperPrivilegesLiteRequest</A></B></TD>
-<TD>
- Class with data about assigning privileges for a subject and group</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestDeleteMemberRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestDeleteMemberRequest</A></B></TD>
-<TD>bean that will be the data from rest request
- for method</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestFindGroupsRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestFindGroupsRequest</A></B></TD>
-<TD>bean that will be the data from rest request
- for method</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestFindStemsRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestFindStemsRequest</A></B></TD>
-<TD>bean that will be the data from rest request</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestGetGrouperPrivilegesLiteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestGetGrouperPrivilegesLiteRequest</A></B></TD>
-<TD>
- Class with data about retrieving privileges for a subject and group</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestGetGroupsRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestGetGroupsRequest</A></B></TD>
 <TD>bean that will be the data from rest request
  for method</TD>
 </TR>
@@ -277,75 +180,18 @@ Package edu.internet2.middleware.grouperClient.ws.beans
  for method</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestGroupDeleteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestGroupDeleteRequest</A></B></TD>
-<TD>bean that will be the data from rest request</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestGroupSaveRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestGroupSaveRequest</A></B></TD>
-<TD>bean that will be the data from rest request</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestHasMemberRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestHasMemberRequest</A></B></TD>
 <TD>bean that will be the data from rest request
  for method</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestMemberChangeSubjectRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestMemberChangeSubjectRequest</A></B></TD>
-<TD>request bean for rest member change subject lite</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestResultProblem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestResultProblem</A></B></TD>
 <TD>&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestStemDeleteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestStemDeleteRequest</A></B></TD>
-<TD>bean that will be the data from rest request
- for method</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsRestStemSaveRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsRestStemSaveRequest</A></B></TD>
-<TD>bean that will be the data from rest request</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResultMeta</A></B></TD>
 <TD>result metadata (if success, result code, etc) for one result
  (each ws call can have one or many result metadatas)</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsStem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsStem</A></B></TD>
-<TD>Result for finding a stem</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsStemDeleteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsStemDeleteResult</A></B></TD>
-<TD>Result of one stem being deleted.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsStemDeleteResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsStemDeleteResults</A></B></TD>
-<TD>
- results for the stems delete call.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsStemLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsStemLookup</A></B></TD>
-<TD>
- Class to lookup a stem via web service</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsStemQueryFilter.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsStemQueryFilter</A></B></TD>
-<TD>this represents a query which can be and'ed or or'ed</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsStemSaveResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsStemSaveResult</A></B></TD>
-<TD>Result of one save being saved.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsStemSaveResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsStemSaveResults</A></B></TD>
-<TD>
- results for the stems save call.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsStemToSave.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsStemToSave</A></B></TD>
-<TD>
- Class to save a stem via web service</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubject.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsSubject</A></B></TD>

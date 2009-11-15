@@ -1975,11 +1975,10 @@ E</CODE></FONT></TD>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Properties.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">Properties</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientCommonUtils.html?root=I2MI&view=co&pathrev=HEAD#propertiesFromResourceName(java.lang.String, boolean, boolean, java.lang.Class, java.lang.StringBuilder)">propertiesFromResourceName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resourceName,
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientCommonUtils.html?root=I2MI&view=co&pathrev=HEAD#propertiesFromResourceName(java.lang.String, boolean, boolean, java.lang.Class)">propertiesFromResourceName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resourceName,
                            boolean&nbsp;useCache,
                            boolean&nbsp;exceptionIfNotExist,
-                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;classInJar,
-                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">StringBuilder</A>&nbsp;callingLog)</CODE>
+                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;classInJar)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;read properties from a resource, dont modify the properties returned since they are cached</TD>
@@ -2186,15 +2185,6 @@ E</CODE></FONT></TD>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientCommonUtils.html?root=I2MI&view=co&pathrev=HEAD#readResourceIntoString(java.lang.String, java.lang.Class)">readResourceIntoString</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resourceName,
-                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;classInJar)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;read resource into string</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -2695,42 +2685,6 @@ E</CODE></FONT></TD>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;substitute common vars like $space$ and $newline$</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientCommonUtils.html?root=I2MI&view=co&pathrev=HEAD#substringAfter(java.lang.String, java.lang.String)">substringAfter</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;str,
-               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;separator)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the substring after the first occurrence of a separator.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientCommonUtils.html?root=I2MI&view=co&pathrev=HEAD#substringAfterLast(java.lang.String, java.lang.String)">substringAfterLast</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;str,
-                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;separator)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the substring after the last occurrence of a separator.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientCommonUtils.html?root=I2MI&view=co&pathrev=HEAD#substringBefore(java.lang.String, java.lang.String)">substringBefore</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;str,
-                <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;separator)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the substring before the first occurrence of a separator.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/util/GrouperClientCommonUtils.html?root=I2MI&view=co&pathrev=HEAD#substringBeforeLast(java.lang.String, java.lang.String)">substringBeforeLast</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;str,
-                    <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;separator)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the substring before the last occurrence of a separator.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -5779,21 +5733,6 @@ public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.
 </DL>
 <HR>
 
-<A NAME="readResourceIntoString(java.lang.String, java.lang.Class)"><!-- --></A><H3>
-readResourceIntoString</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>readResourceIntoString</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resourceName,
-                                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;classInJar)</PRE>
-<DL>
-<DD>read resource into string
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>resourceName</CODE> - <DD><CODE>classInJar</CODE> - if not null, then look for the jar where this file is, and look in the same dir
-<DT><B>Returns:</B><DD>the properties or null if not exist</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="readFileToString(java.io.File, java.lang.String)"><!-- --></A><H3>
 readFileToString</H3>
 <PRE>
@@ -6050,19 +5989,18 @@ public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Propert
 </DL>
 <HR>
 
-<A NAME="propertiesFromResourceName(java.lang.String, boolean, boolean, java.lang.Class, java.lang.StringBuilder)"><!-- --></A><H3>
+<A NAME="propertiesFromResourceName(java.lang.String, boolean, boolean, java.lang.Class)"><!-- --></A><H3>
 propertiesFromResourceName</H3>
 <PRE>
 public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Properties.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">Properties</A> <B>propertiesFromResourceName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resourceName,
                                                     boolean&nbsp;useCache,
                                                     boolean&nbsp;exceptionIfNotExist,
-                                                    <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;classInJar,
-                                                    <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">StringBuilder</A>&nbsp;callingLog)</PRE>
+                                                    <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Class</A>&lt;?&gt;&nbsp;classInJar)</PRE>
 <DL>
 <DD>read properties from a resource, dont modify the properties returned since they are cached
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>resourceName</CODE> - <DD><CODE>useCache</CODE> - <DD><CODE>exceptionIfNotExist</CODE> - <DD><CODE>classInJar</CODE> - if not null, then look for the jar where this file is, and look in the same dir<DD><CODE>callingLog</CODE> - 
+<DT><B>Parameters:</B><DD><CODE>resourceName</CODE> - <DD><CODE>useCache</CODE> - <DD><CODE>exceptionIfNotExist</CODE> - <DD><CODE>classInJar</CODE> - if not null, then look for the jar where this file is, and look in the same dir
 <DT><B>Returns:</B><DD>the properties or null if not exist</DL>
 </DD>
 </DL>
@@ -7984,145 +7922,6 @@ public static void <B>convertToRuntimeException</B>(<A HREF="http://java.sun.com
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>e</CODE> - </DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="substringBefore(java.lang.String, java.lang.String)"><!-- --></A><H3>
-substringBefore</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>substringBefore</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;str,
-                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;separator)</PRE>
-<DL>
-<DD><p>Gets the substring before the first occurrence of a separator.
- The separator is not returned.</p>
-
- <p>A <code>null</code> string input will return <code>null</code>.
- An empty ("") string input will return the empty string.
- A <code>null</code> separator will return the input string.</p>
-
- <pre>
- StringUtils.substringBefore(null, *)      = null
- StringUtils.substringBefore("", *)        = ""
- StringUtils.substringBefore("abc", "a")   = ""
- StringUtils.substringBefore("abcba", "b") = "a"
- StringUtils.substringBefore("abc", "c")   = "ab"
- StringUtils.substringBefore("abc", "d")   = "abc"
- StringUtils.substringBefore("abc", "")    = ""
- StringUtils.substringBefore("abc", null)  = "abc"
- </pre>
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>str</CODE> - the String to get a substring from, may be null<DD><CODE>separator</CODE> - the String to search for, may be null
-<DT><B>Returns:</B><DD>the substring before the first occurrence of the separator,
-  <code>null</code> if null String input<DT><B>Since:</B></DT>
-  <DD>2.0</DD>
-</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="substringAfter(java.lang.String, java.lang.String)"><!-- --></A><H3>
-substringAfter</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>substringAfter</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;str,
-                                    <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;separator)</PRE>
-<DL>
-<DD><p>Gets the substring after the first occurrence of a separator.
- The separator is not returned.</p>
-
- <p>A <code>null</code> string input will return <code>null</code>.
- An empty ("") string input will return the empty string.
- A <code>null</code> separator will return the empty string if the
- input string is not <code>null</code>.</p>
-
- <pre>
- StringUtils.substringAfter(null, *)      = null
- StringUtils.substringAfter("", *)        = ""
- StringUtils.substringAfter(*, null)      = ""
- StringUtils.substringAfter("abc", "a")   = "bc"
- StringUtils.substringAfter("abcba", "b") = "cba"
- StringUtils.substringAfter("abc", "c")   = ""
- StringUtils.substringAfter("abc", "d")   = ""
- StringUtils.substringAfter("abc", "")    = "abc"
- </pre>
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>str</CODE> - the String to get a substring from, may be null<DD><CODE>separator</CODE> - the String to search for, may be null
-<DT><B>Returns:</B><DD>the substring after the first occurrence of the separator,
-  <code>null</code> if null String input<DT><B>Since:</B></DT>
-  <DD>2.0</DD>
-</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="substringBeforeLast(java.lang.String, java.lang.String)"><!-- --></A><H3>
-substringBeforeLast</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>substringBeforeLast</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;str,
-                                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;separator)</PRE>
-<DL>
-<DD><p>Gets the substring before the last occurrence of a separator.
- The separator is not returned.</p>
-
- <p>A <code>null</code> string input will return <code>null</code>.
- An empty ("") string input will return the empty string.
- An empty or <code>null</code> separator will return the input string.</p>
-
- <pre>
- StringUtils.substringBeforeLast(null, *)      = null
- StringUtils.substringBeforeLast("", *)        = ""
- StringUtils.substringBeforeLast("abcba", "b") = "abc"
- StringUtils.substringBeforeLast("abc", "c")   = "ab"
- StringUtils.substringBeforeLast("a", "a")     = ""
- StringUtils.substringBeforeLast("a", "z")     = "a"
- StringUtils.substringBeforeLast("a", null)    = "a"
- StringUtils.substringBeforeLast("a", "")      = "a"
- </pre>
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>str</CODE> - the String to get a substring from, may be null<DD><CODE>separator</CODE> - the String to search for, may be null
-<DT><B>Returns:</B><DD>the substring before the last occurrence of the separator,
-  <code>null</code> if null String input<DT><B>Since:</B></DT>
-  <DD>2.0</DD>
-</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="substringAfterLast(java.lang.String, java.lang.String)"><!-- --></A><H3>
-substringAfterLast</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>substringAfterLast</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;str,
-                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;separator)</PRE>
-<DL>
-<DD><p>Gets the substring after the last occurrence of a separator.
- The separator is not returned.</p>
-
- <p>A <code>null</code> string input will return <code>null</code>.
- An empty ("") string input will return the empty string.
- An empty or <code>null</code> separator will return the empty string if
- the input string is not <code>null</code>.</p>
-
- <pre>
- StringUtils.substringAfterLast(null, *)      = null
- StringUtils.substringAfterLast("", *)        = ""
- StringUtils.substringAfterLast(*, "")        = ""
- StringUtils.substringAfterLast(*, null)      = ""
- StringUtils.substringAfterLast("abc", "a")   = "bc"
- StringUtils.substringAfterLast("abcba", "b") = "a"
- StringUtils.substringAfterLast("abc", "c")   = ""
- StringUtils.substringAfterLast("a", "a")     = ""
- StringUtils.substringAfterLast("a", "z")     = ""
- </pre>
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>str</CODE> - the String to get a substring from, may be null<DD><CODE>separator</CODE> - the String to search for, may be null
-<DT><B>Returns:</B><DD>the substring after the last occurrence of the separator,
-  <code>null</code> if null String input<DT><B>Since:</B></DT>
-  <DD>2.0</DD>
-</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

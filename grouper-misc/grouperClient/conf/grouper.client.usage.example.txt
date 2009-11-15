@@ -122,8 +122,8 @@ findGroupsWs web service usage
   or use trial and error
 
 findStemsWs web service usage
-  java -jar grouperClient.jar --operation=findStemsWs --stemQueryFilterType=AND|MINUS|OR|FIND_BY_APPROXIMATE_ATTRIBUTE|FIND_BY_PARENT_STEM_NAME|FIND_BY_STEM_NAME|FIND_BY_STEM_NAME_APPROXIMATE|FIND_BY_STEM_UUID|etc [--stemName=a:b:c] [--stemUuid=12as-1234gjth] [--parentStemName=aStem:someStem] [--parentStemNameScope=ONE_LEVEL|ALL_IN_SUBTREE] [--stemAttributeName=someName] [--stemAttributeValue=someValue] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
-  e.g.: java -jar grouperClient.jar --operation=findGroupsWs --stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE --stemName=aStem:aGroup
+  java -jar grouperClient.jar --operation=findStemsWs --queryFilterType=AND|MINUS|OR|FIND_BY_APPROXIMATE_ATTRIBUTE|FIND_BY_PARENT_STEM_NAME|FIND_BY_STEM_NAME|FIND_BY_STEM_NAME_APPROXIMATE|FIND_BY_STEM_UUID|etc [--stemName=a:b:c] [--stemUuid=12as-1234gjth] [--parentStemName=aStem:someStem] [--parentStemNameScope=ONE_LEVEL|ALL_IN_SUBTREE] [--stemAttributeName=someName] [--stemAttributeValue=someValue] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  e.g.: java -jar grouperClient.jar --operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup
   output: Index 0: name: aStem:aStem0, displayName: A stem:A Stem 0
 
   Note: to specify group math, use stemQueryFilterType of AND|OR|MINUS, and then specify attribute for the left stem with a 0 after attribute name, and 1 for the right stem. 

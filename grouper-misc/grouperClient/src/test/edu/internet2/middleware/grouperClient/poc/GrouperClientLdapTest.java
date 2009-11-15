@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientLdapTest.java,v 1.1.2.1 2009-01-22 14:47:22 mchyzer Exp $
+ * $Id: GrouperClientLdapTest.java,v 1.2 2009-03-15 08:16:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 

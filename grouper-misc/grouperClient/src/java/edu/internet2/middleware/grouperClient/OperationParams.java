@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: OperationParams.java,v 1.1.2.1 2009-01-26 02:56:09 mchyzer Exp $
+ * $Id: OperationParams.java,v 1.2 2009-03-15 08:16:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
