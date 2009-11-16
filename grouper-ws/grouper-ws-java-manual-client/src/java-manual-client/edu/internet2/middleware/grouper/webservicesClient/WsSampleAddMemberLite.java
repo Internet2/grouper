@@ -26,7 +26,7 @@ public class WsSampleAddMemberLite implements WsSampleManualXmlHttp {
       
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
-          "http://localhost:8093/grouper-ws/servicesRest/v1_3_000/group/aStem%3AaGroup/members");
+          ManualClientSettings.URL + "/servicesRest/v1_5_000/groups/aStem%3AaGroup/members/GrouperSystem");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
