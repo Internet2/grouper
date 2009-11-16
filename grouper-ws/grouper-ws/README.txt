@@ -66,3 +66,7 @@ configuration.autocreate.group.name.0 = etc:webServiceClientUsers
 configuration.autocreate.group.description.0 = users allowed to log in to the WS
 configuration.autocreate.group.subjects.0 = GrouperSystem
 
+- probably want a login in your tomcat-users.xml if not doing authentication some other way
+
+  <role rolename="grouper_user"/>
+  <user password="********" roles="grouper_user" username="GrouperSystem"/>
