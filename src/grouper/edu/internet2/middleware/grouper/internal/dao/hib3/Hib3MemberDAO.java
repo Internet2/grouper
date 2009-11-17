@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -40,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.18 2009-07-10 14:53:07 shilen Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.19 2009-11-17 06:26:17 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -153,20 +154,41 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
   /**
    * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findBySubject(java.lang.String, java.lang.String, java.lang.String, boolean)
    */
   public Member findBySubject(String id, String src, String type, boolean exceptionIfNull)
       throws GrouperDAOException, MemberNotFoundException {
-    Member member = HibernateSession.byHqlStatic()
+    return findBySubject(id, src, type, exceptionIfNull, null);
+  }
+
+  /**
+   * 
+   * @param id
+   * @param src
+   * @param type
+   * @param exceptionIfNull
+   * @param queryOptions
+   * @return member
+   * @throws GrouperDAOException
+   * @throws MemberNotFoundException
+   */
+  public Member findBySubject(String id, String src, String type, boolean exceptionIfNull, QueryOptions queryOptions)
+      throws GrouperDAOException, MemberNotFoundException {
+    Member member = null;
+    
+    member = HibernateSession.byHqlStatic()
       .createQuery("from Member as m where "
         + "     m.subjectIdDb       = :sid    "  
         + "and  m.subjectSourceIdDb = :source "
         + "and  m.subjectTypeId   = :type")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindBySubject")
+        .options(queryOptions)
         .setString( "sid",    id   )
         .setString( "type",   type )
         .setString( "source", src  )
         .uniqueResult(Member.class);
+      
     if (member == null) {
       throw new MemberNotFoundException();
     }

@@ -55,7 +55,7 @@ public enum SaveMode {
     @Override
     public void validateNameToEdit(String nameToEdit, String name) {
       GrouperUtil.assertion((StringUtils.equals(nameToEdit, name)) 
-          || StringUtils.isBlank(nameToEdit), "Must not pass in a lookup name for an insert");
+          || StringUtils.isBlank(nameToEdit), "Must not pass in a lookup name for an insert: " + nameToEdit + ", " + name);
     }
     
     /**
