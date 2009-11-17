@@ -52,7 +52,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.10 2009-10-20 16:50:56 shilen Exp $
+ * @version $Id: TestStemApi.java,v 1.11 2009-11-17 05:33:43 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -84,7 +84,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_group_privs_only"));
+    TestRunner.run(new TestStemApi("test_copy_insufficient_privilege_listGroupAsMember"));
     //TestRunner.run(Test_api_Stem.class);
   }
 
@@ -1771,6 +1771,7 @@ public class TestStemApi extends GrouperTest {
 
     nrs = GrouperSession.start(c);
     try {
+      System.out.println("start: test_copy_insufficient_privilege_listGroupAsMember");
       StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
       stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
           .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
@@ -1779,7 +1780,7 @@ public class TestStemApi extends GrouperTest {
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
     }
-        
+    System.out.println("end: test_copy_insufficient_privilege_listGroupAsMember");
     nrs.stop();
     
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());

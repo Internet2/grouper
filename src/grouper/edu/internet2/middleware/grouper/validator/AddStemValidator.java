@@ -23,7 +23,7 @@ import  edu.internet2.middleware.grouper.internal.util.U;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddStemValidator.java,v 1.3 2009-03-15 20:20:46 mchyzer Exp $
+ * @version $Id: AddStemValidator.java,v 1.4 2009-11-17 05:33:43 mchyzer Exp $
  * @since   1.2.0
  */
 public class AddStemValidator extends GrouperValidator {
@@ -50,10 +50,10 @@ public class AddStemValidator extends GrouperValidator {
     }
     try {
       // TODO 20070531 what do i need to do to just make a direct DAO call?
-      StemFinder.internal_findByName( U.constructName( parent.getName(), extn), true );
-      v.setErrorMessage(STEM_ALREADY_EXISTS_ERROR_MESSAGE);
-    }
-    catch (StemNotFoundException eSNF) {
+      String stemName = U.constructName( parent.getName(), extn);
+      StemFinder.internal_findByName( stemName, true);
+      v.setErrorMessage(STEM_ALREADY_EXISTS_ERROR_MESSAGE + ": " + stemName);
+    } catch (StemNotFoundException eSNF) {
       v.setIsValid(true); // stem does not exist, which is what we want
     }
     return v;
