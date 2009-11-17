@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeAssignAction.java,v 1.2 2009-11-08 13:07:03 mchyzer Exp $
+ * $Id: AttributeAssignAction.java,v 1.3 2009-11-17 02:52:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
@@ -177,6 +177,8 @@ public class AttributeAssignAction extends GrouperAPI
                 throws GrouperDAOException {
               
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+
+              hibernateSession.setCachingEnabled(false);
               
               //we need to find all sets related to this node, and delete them (in reverse order since
               //parents might point back)
@@ -393,6 +395,8 @@ public class AttributeAssignAction extends GrouperAPI
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+
+              hibernateSession.setCachingEnabled(false);
 
               GrouperDAOFactory.getFactory().getAttributeAssignAction().saveOrUpdate(AttributeAssignAction.this);
               

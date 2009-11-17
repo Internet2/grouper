@@ -134,7 +134,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.266 2009-11-09 03:12:18 mchyzer Exp $
+ * @version $Id: Group.java,v 1.267 2009-11-17 02:52:29 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -540,6 +540,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   throws GrouperDAOException {
                 
                 try {
+
+                  hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
                   Group.this.deleteCompositeMember();
                   Group.this.addCompositeMember(type, left, right);
                   
@@ -761,6 +764,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               throws GrouperDAOException {
 
             try {
+
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
               if ( !FieldType.LIST.equals( f.getType() ) ) {
                 throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
               }
@@ -887,7 +893,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
         
-  
+        hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
         StopWatch sw = new StopWatch();
         sw.start();
         if ( Group.this.hasType(type ) ) {
@@ -1072,6 +1079,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             StopWatch sw = new StopWatch();
             sw.start();
             GrouperSession.validate( GrouperSession.staticGrouperSession() );
@@ -1164,6 +1173,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             try {
+
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
               StopWatch sw = new StopWatch();
               sw.start();
               NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(attrName);
@@ -1259,6 +1271,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           throws GrouperDAOException {
             try {
     
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
               StopWatch sw  = new StopWatch();
               sw.start();
 
@@ -1620,6 +1634,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           boolean notAlreadyDeleted = true;
           try {
 
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             if ( !FieldType.LIST.equals( f.getType() ) ) {
               throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
             }
@@ -1705,6 +1721,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           throws GrouperDAOException {
         
         try {
+
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
           StopWatch sw = new StopWatch();
           sw.start();
           if ( !Group.this.hasType(type) ) {
@@ -3084,6 +3103,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           boolean assignedPrivilege = false;
           try {
             
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(Group.this, subj, priv);
             assignedPrivilege = true;
 
@@ -3572,7 +3593,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
     
-    
+        hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
         boolean wasntAlreadyRevoked = true;
         try {
           if ( Privilege.isNaming(priv) ) {
@@ -3676,6 +3698,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             try {
+
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
               StopWatch sw = new StopWatch();
               sw.start();
               Field f = FieldFinder.find(attributeName, false);
@@ -3805,6 +3830,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
     
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
               Subject subject = GrouperSession.staticGrouperSession().getSubject();
               if (!Group.this.hasAdmin(subject)) {
                 throw new InsufficientPrivilegeException(GrouperUtil
@@ -4182,6 +4209,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
         throws GrouperDAOException {
           try {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             StopWatch sw = new StopWatch();
             sw.start();
       
@@ -5033,7 +5063,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
-    
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             GrouperSession.validate(GrouperSession.staticGrouperSession());
             
             // cannot move to the root stem
@@ -5128,6 +5159,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
             if (checkSecurity) {
               // verify that the subject has read privileges to the group

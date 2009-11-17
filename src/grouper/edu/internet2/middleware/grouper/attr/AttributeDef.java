@@ -324,6 +324,8 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             //make sure subject is allowed to do this
             Subject subject = GrouperSession.staticGrouperSession().getSubject();
             if (!AttributeDef.this.getPrivilegeDelegate().canAttrAdmin(subject)) {

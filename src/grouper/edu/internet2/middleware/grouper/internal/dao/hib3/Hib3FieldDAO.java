@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.15 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.16 2009-11-17 02:52:29 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -168,6 +168,7 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
         HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         hibernateSession.byObject().saveOrUpdate(field);    
         return null;

@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.14 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.15 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
@@ -159,6 +159,8 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             ByObject byObject = hibernateSession.byObject();

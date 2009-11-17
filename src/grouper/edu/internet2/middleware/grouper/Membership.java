@@ -93,7 +93,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.138 2009-11-02 03:50:51 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.139 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -407,6 +407,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
             //set enabled temporarily to clean out what is there
             Membership.this.enabled = true;
             GrouperDAOFactory.getFactory().getMembership().delete(Membership.this);
@@ -1214,6 +1215,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
           try {          
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
             Membership    ms;
             MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
   
@@ -1273,6 +1275,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           throws GrouperDAOException {
         try {
 
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
           Membership    ms;
           MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
@@ -2538,6 +2541,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           throws GrouperDAOException {
         try {
   
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
           Membership    ms;
           MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
   

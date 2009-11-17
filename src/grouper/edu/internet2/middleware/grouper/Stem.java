@@ -116,7 +116,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.207 2009-10-26 17:20:57 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.208 2009-11-17 02:52:29 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -432,6 +432,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
             StopWatch sw = new StopWatch();
             sw.start();
@@ -960,6 +962,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     
           boolean didNotExist = true;
           try {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             GrouperSession.staticGrouperSession().getNamingResolver().grantPrivilege(Stem.this, subj, priv);
             
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
@@ -1210,6 +1215,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
 
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
           boolean wasntAlreadyRevoked = true;
           StopWatch sw = new StopWatch();
           sw.start();
@@ -1302,6 +1309,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
             String differences = GrouperUtil.dbVersionDescribeDifferences(Stem.this.dbVersion(), 
                 Stem.this, Stem.this.dbVersion() != null ? Stem.this.dbVersionDifferentFields() : Stem.CLONE_FIELDS);
@@ -1659,7 +1668,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+            
             try {
+
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
               StopWatch sw = new StopWatch();
               sw.start();
               if (!PrivilegeHelper.canCreate(session, 
@@ -1762,6 +1775,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             try {
+
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
               StopWatch sw = new StopWatch();
               sw.start();
               if (!PrivilegeHelper.canCreate(session,
@@ -1843,6 +1859,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             try {
+
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
               StopWatch sw = new StopWatch();
               sw.start();
               if (!PrivilegeHelper.canCreate(session, 
@@ -1933,6 +1952,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
             StopWatch sw = new StopWatch();
             sw.start();
@@ -2344,6 +2365,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   
             public Object callback(GrouperSession grouperSession)
                 throws GrouperSessionException {
+
               try {
                 Stem.this.revokePriv(NamingPrivilege.CREATE);
                 Stem.this.revokePriv(NamingPrivilege.STEM);
@@ -2953,7 +2975,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
-    
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
             GrouperSession.validate(GrouperSession.staticGrouperSession());
             
             String oldName = Stem.this.getName();
@@ -3057,6 +3080,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+            
             // cannot copy the root stem
             if (Stem.this.isRootStem()) {
               throw new StemAddException("Cannot copy the root stem.");
@@ -3268,6 +3293,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     return (Group)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+
+        hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
         //note, roles are modeled as groups
         Group group = Stem.this.addChildGroup(extension, displayExtension);
         group.setTypeOfGroup(TypeOfGroup.role);

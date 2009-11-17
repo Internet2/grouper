@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: AttributeDefPrivilegeDelegate.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
+ * $Id: AttributeDefPrivilegeDelegate.java,v 1.3 2009-11-17 02:52:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr;
 
@@ -194,6 +194,8 @@ public class AttributeDefPrivilegeDelegate {
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
   
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
           boolean assignedPrivilege = false;
           try {
             //note, this will validate the inputs
@@ -254,6 +256,7 @@ public class AttributeDefPrivilegeDelegate {
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
     
+        hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
     
         boolean wasntAlreadyRevoked = true;
         try {
