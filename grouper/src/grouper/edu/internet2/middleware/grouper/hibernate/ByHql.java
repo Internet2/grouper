@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -230,13 +231,25 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * @return the object or null if none found
    * @throws GrouperDAOException
    */
-  public <T> T uniqueResult(Class<T> returnType) throws GrouperDAOException {
+  public <T> T uniqueResult(@SuppressWarnings("unused") Class<T> returnType) throws GrouperDAOException {
 
     GrouperContext.incrementQueryCount();
     HibernateSession hibernateSession = this.getHibernateSession();
     Session session  = hibernateSession.getSession();
     Query query = ByHql.this.attachQueryInfo(session);
-    T object = (T) query.uniqueResult();
+    T object = null;
+    try {
+      object = (T) query.uniqueResult();
+    } catch (ObjectNotFoundException onfe) {
+      //hibernate error when it couldnt find what was in cache perhaps, run the query again without caching
+      if (this.cacheable != null && this.cacheable) {
+        this.cacheable = false;
+        query = ByHql.this.attachQueryInfo(session);
+        object = (T) query.uniqueResult();
+        //set this back
+        this.cacheable = true;
+      }
+    }
     HibUtils.evict(hibernateSession, object, true);
     return object;
     

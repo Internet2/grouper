@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
 
 /**
@@ -183,9 +184,9 @@ public class WsStemLookup {
       }
 
       if (hasName) {
-        this.stem = StemFinder.findByName(grouperSession, this.stemName, true);
+        this.stem = StemFinder.findByName(grouperSession, this.stemName, true, new QueryOptions().secondLevelCache(false));
       } else if (hasUuid) {
-        this.stem = StemFinder.findByUuid(grouperSession, this.uuid, true);
+        this.stem = StemFinder.findByUuid(grouperSession, this.uuid, true, new QueryOptions().secondLevelCache(false));
       }
 
     } catch (StemNotFoundException gnf) {

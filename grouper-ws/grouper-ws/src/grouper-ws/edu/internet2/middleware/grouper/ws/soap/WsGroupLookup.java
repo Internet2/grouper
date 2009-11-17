@@ -285,7 +285,7 @@ public class WsGroupLookup {
         this.group = theGroup;
 
       } else if (hasUuid) {
-        this.group = GroupFinder.findByUuid(grouperSession, this.uuid, true);
+        this.group = GroupFinder.findByUuid(grouperSession, this.uuid, true, new QueryOptions().secondLevelCache(false));
       }
       //assume success (set otherwise if there is a problem)
       this.groupFindResult = GroupFindResult.SUCCESS;
