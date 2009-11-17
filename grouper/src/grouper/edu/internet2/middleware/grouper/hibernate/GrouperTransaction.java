@@ -16,6 +16,24 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 public class GrouperTransaction {
   
   /**
+   * provide ability to turn off all caching for this session
+   * @return the enabledCaching
+   */
+  public boolean isCachingEnabled() {
+    //not sure why this would ever be null or not a hibernate session... hmmm
+    return ((HibernateSession)this.payload).isCachingEnabled();
+  }
+  
+  /**
+   * provide ability to turn off all caching for this session
+   * @param enabledCaching1 the enabledCaching to set
+   */
+  public void setCachingEnabled(boolean enabledCaching1) {
+    //not sure why this would ever be null or not a hibernate session... hmmm
+    ((HibernateSession)this.payload).setCachingEnabled(enabledCaching1);
+  }
+
+  /**
    * the dao can store some state here
    */
   private Object payload;

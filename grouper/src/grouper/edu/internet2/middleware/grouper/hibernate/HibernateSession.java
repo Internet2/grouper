@@ -73,6 +73,13 @@ public class HibernateSession {
     this.immediateGrouperTransactionTypeDeclared = grouperTransactionType;
     
     //if parent is none, then make sure this is a new transaction (not dependent on none)
+    if (parentHibernateSession != null) {
+      
+      this.cachingEnabled = parentHibernateSession.cachingEnabled;
+
+    }
+
+    //if parent is none, then make sure this is a new transaction (not dependent on none)
     if (parentHibernateSession != null && !grouperTransactionType.isNewAutonomous() && 
         parentHibernateSession.activeHibernateSession().immediateGrouperTransactionTypeUsed.isTransactional()) {
 
@@ -131,8 +138,28 @@ public class HibernateSession {
    * the transaction type this was setup as. this is the one declared in
    * callback
    */
-  @SuppressWarnings("unused")
   private GrouperTransactionType immediateGrouperTransactionTypeDeclared = null;
+
+  /**
+   * provide ability to turn off all caching for this session
+   */
+  private boolean cachingEnabled = true;
+  
+  /**
+   * provide ability to turn off all caching for this session
+   * @return the enabledCaching
+   */
+  public boolean isCachingEnabled() {
+    return this.cachingEnabled;
+  }
+  
+  /**
+   * provide ability to turn off all caching for this session
+   * @param enabledCaching1 the enabledCaching to set
+   */
+  public void setCachingEnabled(boolean enabledCaching1) {
+    this.cachingEnabled = enabledCaching1;
+  }
 
   /**
    * store the hib2 connection in thread local so other classes can get it
@@ -378,7 +405,6 @@ public class HibernateSession {
    *           if there is a problem, will preserve runtime exceptions so they are
    *           thrown to the caller
    */
-  @SuppressWarnings("deprecation")
   public static Object callbackHibernateSession(
       GrouperTransactionType grouperTransactionType, AuditControl auditControl, HibernateHandler hibernateHandler)
       throws GrouperDAOException {

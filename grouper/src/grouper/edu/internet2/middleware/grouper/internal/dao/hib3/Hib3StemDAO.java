@@ -62,7 +62,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.37 2009-10-20 14:55:50 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.38 2009-11-17 02:52:29 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -752,23 +752,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Stem findByName(String name, boolean exceptionIfNull) 
     throws  GrouperDAOException,
             StemNotFoundException {
-    try {
-      Stem stemDto = HibernateSession.byHqlStatic()
-        .createQuery("from Stem as ns where ns.nameDb = :name")
-        .setCacheable(true)
-        .setCacheRegion(KLASS + ".FindByName")
-        .setString("name", name)
-        .uniqueResult(Stem.class);
-      if (stemDto == null && exceptionIfNull) {
-        throw new StemNotFoundException("Can't find stem by name: '" + name + "'");
-      }
-      return stemDto;
-    }
-    catch (GrouperDAOException e) {
-      String error = "Problem find stem by name: '" 
-        + name + "', " + e.getMessage();
-      throw new GrouperDAOException( error, e );
-    }
+    return findByName(name, exceptionIfNull, null);
   } 
 
   /**
@@ -795,23 +779,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Stem findByUuid(String uuid, boolean exceptionIfNull)
     throws  GrouperDAOException,
             StemNotFoundException {
-    try {
-      Stem stemDto = HibernateSession.byHqlStatic()
-        .createQuery("from Stem as ns where ns.uuid = :uuid")
-        .setCacheable(true)
-        .setCacheRegion(KLASS + ".FindByUuid")
-        .setString("uuid", uuid)
-        .uniqueResult(Stem.class);
-      if (stemDto == null && exceptionIfNull) {
-        throw new StemNotFoundException("Can't find stem by uuid: '" + uuid + "'");
-      }
-      return stemDto;
-    }
-    catch (GrouperDAOException e) {
-      String error = "Problem find stem by uuid: '" 
-        + uuid + "', " + e.getMessage();
-      throw new GrouperDAOException( error, e );
-    }
+    return findByUuid(uuid, exceptionIfNull, null);
   } 
 
 
@@ -1207,6 +1175,67 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       
       String queryInClause = HibUtils.convertToInClauseForSqlStatic(stemIdsInBatch);
       HibernateSession.bySqlStatic().executeSql(queryPrefix + " in (" + queryInClause + ")", params);    
+    }
+  }
+
+  /**
+   * @param name
+   * @param exceptionIfNull
+   * @return stem
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
+   */
+  public Stem findByName(String name, boolean exceptionIfNull, QueryOptions queryOptions) 
+    throws  GrouperDAOException,
+            StemNotFoundException {
+    try {
+      Stem stemDto = HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where ns.nameDb = :name")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByName")
+        .options(queryOptions)
+        .setString("name", name)
+        .uniqueResult(Stem.class);
+      if (stemDto == null && exceptionIfNull) {
+        throw new StemNotFoundException("Can't find stem by name: '" + name + "'");
+      }
+      return stemDto;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find stem by name: '" 
+        + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @param uuid
+   * @param exceptionIfNull
+   * @param queryOptions 
+   * @return stem
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
+   */
+  public Stem findByUuid(String uuid, boolean exceptionIfNull, QueryOptions queryOptions)
+    throws  GrouperDAOException,
+            StemNotFoundException {
+    try {
+      Stem stemDto = HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where ns.uuid = :uuid")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuid")
+        .options(queryOptions)
+        .setString("uuid", uuid)
+        .uniqueResult(Stem.class);
+      if (stemDto == null && exceptionIfNull) {
+        throw new StemNotFoundException("Can't find stem by uuid: '" + uuid + "'");
+      }
+      return stemDto;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find stem by uuid: '" 
+        + uuid + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
     }
   }
 } 

@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /**
  * Data Access Object for attribute def name
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameDAO.java,v 1.5 2009-10-20 14:55:50 shilen Exp $
+ * @version $Id: Hib3AttributeDefNameDAO.java,v 1.6 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefNameDAO {
   
@@ -124,6 +124,8 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
             //set parent to null so mysql doest get mad
             //http://bugs.mysql.com/bug.php?id=15746

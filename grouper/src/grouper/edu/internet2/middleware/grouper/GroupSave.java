@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.9 2009-08-11 20:18:08 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.10 2009-11-17 02:52:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -231,7 +231,9 @@ public class GroupSave {
   
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
-
+          
+          grouperTransaction.setCachingEnabled(false);
+          
           return (Group)GrouperSession.callbackGrouperSession(GroupSave.this.grouperSession, new GrouperSessionHandler() {
 
               public Object callback(GrouperSession grouperSession)

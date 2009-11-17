@@ -45,6 +45,13 @@ public class HibUtils {
    */
   public static boolean secondLevelCaching(Boolean cacheable, QueryOptions queryOptions) {
 
+    HibernateSession hibernateSession = HibernateSession._internal_hibernateSession();
+    
+    //if hibernate session says no, then no
+    if (hibernateSession != null && !hibernateSession.isCachingEnabled()) {
+      return false;
+    }
+    
     //cant find answer
     if (cacheable == null && (queryOptions == null || queryOptions.getSecondLevelCache() == null)) {
       return false;
@@ -108,7 +115,6 @@ public class HibUtils {
   /**
    * logger 
    */
-  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(HibUtils.class);
 
   /**

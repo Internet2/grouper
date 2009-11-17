@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -34,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.52 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: StemFinder.java,v 1.53 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class StemFinder {
 
@@ -72,13 +73,31 @@ public class StemFinder {
    */
   public static Stem findByName(GrouperSession s, String name, boolean exceptionOnNotFound)
       throws StemNotFoundException {
+    return findByName(s, name, exceptionOnNotFound, null);
+  }
+
+  
+  /**
+   * Find stem by name.
+   * <pre class="eg">
+   *   Stem stem = StemFinder.findByName(s, name, false);
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   name  Find stem with this name.
+   * @param exceptionOnNotFound
+   * @param queryOptions
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByName(GrouperSession s, String name, boolean exceptionOnNotFound, QueryOptions queryOptions)
+      throws StemNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     // TODO 20070314 bah.  should be in dao if it exists at all.
     if ( name.equals(Stem.ROOT_NAME) ) {
       name = Stem.ROOT_INT;
     }
-    Stem ns = GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionOnNotFound) ;
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionOnNotFound, queryOptions) ;
     return ns;
   }
 

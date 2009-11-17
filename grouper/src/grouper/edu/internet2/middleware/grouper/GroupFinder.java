@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.61 2009-09-28 05:06:46 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.62 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -195,11 +195,34 @@ public class GroupFinder {
    */
   public static Group findByName(GrouperSession s, String name, boolean exceptionIfNotFound) 
     throws GroupNotFoundException {
+    return findByName(s, name, exceptionIfNotFound, null);
+  }
+
+  
+  /**
+   * Find a group within the registry by name.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByName(name);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   name  Name of group to find.
+   * @param exceptionIfNotFound 
+   * @param queryOptions paging, sorting, caching options
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByName(GrouperSession s, String name, boolean exceptionIfNotFound, QueryOptions queryOptions) 
+    throws GroupNotFoundException {
     
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Group g = null;
-    g = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNotFound) ;
+    g = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNotFound, queryOptions) ;
     
     if (g == null) {
       return g;

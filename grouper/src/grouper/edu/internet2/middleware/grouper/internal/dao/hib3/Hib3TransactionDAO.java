@@ -44,7 +44,7 @@ public class Hib3TransactionDAO implements TransactionDAO {
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
         HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-        
+
         //set the session object
         grouperTransaction._internal_setPayload(hibernateSession);
         try {

@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.23 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: StemDAO.java,v 1.24 2009-11-17 02:52:29 mchyzer Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -255,6 +255,16 @@ public interface StemDAO extends GrouperDAO {
    */
   @Deprecated
   Stem findByUuid(String uuid) throws GrouperDAOException, StemNotFoundException;
+
+  /**
+   * @since   1.2.0
+   */
+  Stem findByName(String name, boolean exceptionIfNull, QueryOptions queryOptions) throws GrouperDAOException, StemNotFoundException;
+
+  /**
+   * @since   1.2.0
+   */
+  Stem findByUuid(String uuid, boolean exceptionIfNull, QueryOptions queryOptions) throws GrouperDAOException, StemNotFoundException;
 
   /**
    * @since   1.2.0

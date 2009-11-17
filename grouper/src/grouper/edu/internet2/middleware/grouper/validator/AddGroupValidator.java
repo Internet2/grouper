@@ -18,12 +18,13 @@
 package edu.internet2.middleware.grouper.validator;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import  edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddGroupValidator.java,v 1.4 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: AddGroupValidator.java,v 1.5 2009-11-17 02:52:29 mchyzer Exp $
  * @since   1.2.0
  */
 public class AddGroupValidator extends GrouperValidator {
@@ -56,7 +57,7 @@ public class AddGroupValidator extends GrouperValidator {
     else {
       try {
         String groupName = U.constructName( parent.getName(), extn );
-        GrouperDAOFactory.getFactory().getGroup().findByName( groupName, true, false );
+        GrouperDAOFactory.getFactory().getGroup().findByName( groupName, true, new QueryOptions().secondLevelCache(false) );
         v.setErrorMessage(GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX + groupName + "'");
       }
       catch (GroupNotFoundException eGNF) {

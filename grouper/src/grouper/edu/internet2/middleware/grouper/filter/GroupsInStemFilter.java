@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -34,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Query by stem name exact, and get all children, or just immediate
  * <p/>
  * @author  mchyzer
- * @version $Id: GroupsInStemFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: GroupsInStemFilter.java,v 1.3 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class GroupsInStemFilter extends BaseQueryFilter {
   
@@ -76,7 +77,7 @@ public class GroupsInStemFilter extends BaseQueryFilter {
     //first find the stem.
     final Stem stem;
     try {
-      stem = StemFinder.findByName(s, this.stemName, true);
+      stem = StemFinder.findByName(s, this.stemName, true, new QueryOptions().secondLevelCache(false));
     } catch (StemNotFoundException stfe) {
       if (this.failOnStemNotFound) {
         throw new QueryException("Stem not found: '" + this.stemName + "'");

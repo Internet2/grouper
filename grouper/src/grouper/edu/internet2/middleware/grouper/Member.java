@@ -88,7 +88,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.131 2009-09-28 16:05:54 mchyzer Exp $
+ * @version $Id: Member.java,v 1.132 2009-11-17 02:52:29 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -352,6 +352,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
           throws GrouperDAOException {
         HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         try {
+          hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
           //hooks bean
           HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean = new HooksMemberChangeSubjectBean(
               Member.this, newSubject, thisSubjectId, thisSourceId, deleteOldMember, memberDidntExist);

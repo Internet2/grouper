@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemSave.java,v 1.4 2009-03-15 08:18:10 mchyzer Exp $
+ * $Id: StemSave.java,v 1.5 2009-11-17 02:52:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -209,6 +209,7 @@ public class StemSave {
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
           
+          grouperTransaction.setCachingEnabled(false);
           return (Stem)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
     
             public Object callback(GrouperSession grouperSession)

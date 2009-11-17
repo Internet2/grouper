@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.10 2009-11-10 03:35:21 mchyzer Exp $
+ * $Id: HibernateSessionTest.java,v 1.11 2009-11-17 02:52:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -37,8 +38,8 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new HibernateSessionTest("testEnabledDisabledInline"));
-    TestRunner.run(HibernateSessionTest.class);
+    TestRunner.run(new HibernateSessionTest("testCachingPropagateGrouperTransaction"));
+    //TestRunner.run(HibernateSessionTest.class);
   }
   
 
@@ -49,6 +50,108 @@ public class HibernateSessionTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * make sure the caching flag propagates appropriately
+   */
+  public void testCachingPropagate() {
+    
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        
+        HibernateSession hibernateSession1 = hibernateHandlerBean.getHibernateSession();
+        
+        assertTrue("Should default to true", hibernateSession1.isCachingEnabled());
+
+        //do an inner callback, see that it is false, set to true
+        HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+            AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+              
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                
+                HibernateSession hibernateSession2 = hibernateHandlerBean.getHibernateSession();
+                assertTrue(hibernateSession2.isCachingEnabled());
+                hibernateSession2.setCachingEnabled(false);
+                
+                //see that it propagates to inner
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW,
+                    AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                      
+                      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                          throws GrouperDAOException {
+                        HibernateSession hibernateSession3 = hibernateHandlerBean.getHibernateSession();
+                        
+                        assertFalse("should propagate from parent", hibernateSession3.isCachingEnabled());
+
+                        //set to false should not affect parent
+                        hibernateSession3.setCachingEnabled(true);
+
+                        return null;
+                      }
+                    });
+                
+                assertFalse("child setting should not affect this", hibernateSession2.isCachingEnabled());
+                return null;
+              }
+            });
+        
+        assertTrue("make sure the inner doesnt affect this", hibernateSession1.isCachingEnabled());
+        return null;
+      }
+    });
+    
+  }
+  
+  /**
+   * make sure the caching flag propagates appropriately
+   */
+  public void testCachingPropagateGrouperTransaction() {
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction1)
+          throws GrouperDAOException {
+        
+        assertTrue("Should default to true", grouperTransaction1.isCachingEnabled());
+        
+        GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction2)
+              throws GrouperDAOException {
+            assertTrue("Should default to true", grouperTransaction2.isCachingEnabled());
+            grouperTransaction2.setCachingEnabled(false);
+
+            GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+              
+              public Object callback(GrouperTransaction grouperTransaction3)
+                  throws GrouperDAOException {
+                
+                assertFalse("Should inherit from parent", grouperTransaction3.isCachingEnabled());
+                
+                //make sure this doesnt make it back up the chain
+                grouperTransaction3.setCachingEnabled(true);
+                
+                return null;
+              }
+            });
+            
+            assertFalse("Should not inherit from child", grouperTransaction2.isCachingEnabled());
+            
+            return null;
+          }
+        });
+        
+        assertTrue("Should default to true", grouperTransaction1.isCachingEnabled());
+        
+        return null;
+      }
+    });
+    
+  }
+  
   /**
    * test paging/sorting
    * @throws Exception 
