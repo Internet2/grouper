@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllGcTests.java,v 1.3 2009-03-15 08:16:36 mchyzer Exp $
+ * $Id: AllGcTests.java,v 1.4 2009-11-17 06:25:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -23,7 +23,7 @@ public class AllGcTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouperClient");
     //$JUnit-BEGIN$
-    suite.addTestSuite(GrouperClientLdapTest.class);
+    //suite.addTestSuite(GrouperClientLdapTest.class);
     suite.addTestSuite(GrouperClientWsTest.class);
     //$JUnit-END$
     
