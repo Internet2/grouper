@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_4_002
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_002/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -34,33 +34,34 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Thu, 05 Mar 2009 06:27:25 GMT
+Content-Type: text/xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:35:54 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+    <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null</resultMessage>
     <success>T</success>
-  </resultMetadata>
-  <responseMetadata>
-    <millis>94</millis>
-    <serverVersion>v1_4_002</serverVersion>
-  </responseMetadata>
-  <wsSubject>
     <resultCode>SUCCESS</resultCode>
+  </resultMetadata>
+  <wsSubject>
     <success>T</success>
+    <name>my name is test.subject.0</name>
     <id>test.subject.0</id>
     <sourceId>jdbc</sourceId>
+    <resultCode>SUCCESS</resultCode>
   </wsSubject>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>125</millis>
+  </responseMetadata>
 </WsGetGroupsLiteResult>
 
 
@@ -221,7 +222,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

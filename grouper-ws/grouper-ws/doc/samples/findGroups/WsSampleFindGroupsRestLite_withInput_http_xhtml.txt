@@ -1,4 +1,4 @@
-Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_4_000
+Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, m
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 120
 
-wsLiteObjectType=WsRestFindGroupsLiteRequest&groupName=aGr&stemName=aStem&queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE
+wsLiteObjectType=WsRestFindGroupsLiteRequest&groupName=aGr&queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE&stemName=aStem
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestFindGroupsLiteRequest&groupName=aGr&stemName=aStem&queryF
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:06:25 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 21:10:14 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -45,39 +45,39 @@ Connection: close
   </head>
   <body>
     <div title="WsFindGroupsResults">
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
-, includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames:
-, params: null</p>
-        <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">547</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
-      </div>
       <ul class="groupResults">
         <li title="WsGroup">
-          <p class="name">aStem:aGroup2</p>
-          <p class="displayName">a stem:a group2</p>
-          <p class="description">a group description2</p>
+          <p class="displayExtension">a group</p>
+          <p class="uuid">01f21cf788b8469f9d52f7a215e01ff1</p>
+          <p class="displayName">a stem:a group</p>
+          <p class="extension">aGroup</p>
+          <p class="description">a group description</p>
+          <p class="name">aStem:aGroup</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="extension">aGroup2</p>
-          <p class="uuid">25919bf1-1d8b-438b-8d6c-517b587a7893</p>
-          <p class="displayExtension">a group2</p>
         </li>
         <li title="WsGroup">
-          <p class="name">aStem:aGroup</p>
-          <p class="displayName">a stem:a group</p>
-          <p class="description">a group description</p>
+          <p class="displayExtension">a group2</p>
+          <p class="uuid">67fa8446beda467c80f66150e45daaed</p>
+          <p class="displayName">a stem:a group2</p>
+          <p class="extension">aGroup2</p>
+          <p class="description">a group description2</p>
+          <p class="name">aStem:aGroup2</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="extension">aGroup</p>
-          <p class="uuid">d8987a22-b84a-407d-bd60-b09434acb235</p>
-          <p class="displayExtension">a group</p>
         </li>
       </ul>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">156</p>
+        <p class="resultWarnings" />
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr]
+, includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames:
+, params: null</p>
+        <p class="success">T</p>
+        <p class="resultCode2" />
+        <p class="resultCode">SUCCESS</p>
+      </div>
     </div>
   </body>
 </html>
@@ -239,6 +239,6 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr]
 , includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames: 
 , params: null

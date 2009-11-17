@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: json, for version: v1_4_002
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLit
 #########################################
 
 
-POST /grouperWs/servicesRest/json/v1_4_002/subjects/10021368/groups HTTP/1.1
+POST /grouper-ws/servicesRest/json/v1_5_000/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -38,30 +38,31 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Thu, 05 Mar 2009 06:26:44 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:35:12 GMT
 Connection: close
 
 {
   "WsGetGroupsLiteResult":{
     "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n, field: admins",
-      "success":"T"
-    },
-    "responseMetadata":{
-      "millis":"78",
-      "serverVersion":"v1_4_002"
+      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n, field: admins",
+      "success":"T",
+      "resultCode":"SUCCESS"
     },
     "wsSubject":{
-      "resultCode":"SUCCESS",
       "success":"T",
+      "name":"10021368",
       "id":"10021368",
-      "sourceId":"pennperson"
+      "sourceId":"jdbc",
+      "resultCode":"SUCCESS"
+    },
+    "responseMetadata":{
+      "serverVersion":"v1_5_000",
+      "millis":"94"
     }
   }
 }
@@ -227,7 +228,7 @@ public class WsSampleGetGroupsAdminsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]

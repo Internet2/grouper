@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: addMember, WsSampleAddMemberRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite2, ma
 #########################################
 
 
-PUT /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 832
+Content-Length: 856
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -25,23 +25,23 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAddMemberLiteRequest">
+      <p class="fieldName" />
       <p class="subjectSourceId" />
-      <p class="subjectId" />
+      <p class="subjectId">10021368</p>
       <p class="groupUuid" />
-      <p class="groupName" />
+      <p class="groupName">aStem:aGroup</p>
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
+      <p class="subjectAttributeNames" />
       <p class="subjectIdentifier" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
-      <p class="includeSubjectDetail" />
-      <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="fieldName" />
     </div>
   </body>
 </html>
@@ -57,12 +57,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:01:43 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 20:47:37 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -73,36 +73,36 @@ Connection: close
   </head>
   <body>
     <div title="WsAddMemberLiteResult">
+      <div class="wsGroupAssigned" title="WsGroup">
+        <p class="displayExtension">a group</p>
+        <p class="uuid">a2a093dfcb9443c582b3f2197e4e8df5</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
+        <div class="detail" title="WsGroupDetail" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">156</p>
+        <p class="resultWarnings" />
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">828</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
-      </div>
-      <div class="wsGroupAssigned" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="description">a group description</p>
-        <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
-        <p class="uuid">cc1b53c6-aa3a-4862-9a8e-615cc012fb17</p>
-        <p class="displayExtension">a group</p>
+        <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
       </div>
       <div class="wsSubject" title="WsSubject">
-        <p class="name" />
-        <p class="id">10021368</p>
-        <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="id">10021368</p>
         <p class="identifierLookup" />
-        <p class="sourceId">pennperson</p>
+        <p class="sourceId">jdbc</p>
+        <p class="name">10021368</p>
+        <p class="resultCode">SUCCESS</p>
       </div>
     </div>
   </body>
@@ -127,7 +127,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
@@ -160,9 +160,9 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      PutMethod method = new PutMethod(
+      PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/members/10021368");
+            + "/groups/aStem%3AaGroup/members");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -182,6 +182,9 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
       // set the act as id
       addMemberLite.setActAsSubjectId("GrouperSystem");
 
+      addMemberLite.setGroupName("aStem:aGroup");
+      addMemberLite.setSubjectId("10021368");
+      
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberLite);
       
@@ -236,7 +239,7 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    addMemberLite(WsSampleRestType.xml);
   }
 
   /**
@@ -263,7 +266,7 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_ALREADY_EXISTED, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS_ALREADY_EXISTED, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

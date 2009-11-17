@@ -1,4 +1,4 @@
-Grouper web service sample of service: findStems, WsSampleFindStems, code generated classes, format: soap, for version: v1_4_000
+Grouper web service sample of service: findStems, WsSampleFindStems, code generated classes, format: soap, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: findStems, WsSampleFindStems, code genera
 #########################################
 
 
-POST /grouperWs/services/GrouperService HTTP/1.1
+POST /grouper-ws/services/GrouperService HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:findStems"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -21,7 +21,7 @@ Transfer-Encoding: chunked
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:findStems xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v1_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v1_5_000</ns1:clientVersion>
       <ns1:wsStemQueryFilter>
         <ns1:stemName>ste</ns1:stemName>
         <ns1:stemQueryFilterType>FIND_BY_STEM_NAME_APPROXIMATE</ns1:stemQueryFilterType>
@@ -42,30 +42,30 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findStemsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 15 Dec 2008 09:06:31 GMT
+Date: Mon, 16 Nov 2009 18:38:38 GMT
 
-5eb
+5e7
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:findStemsResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>516</ns:millis>
+          <ns:millis>156</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>v1_4_000</ns:serverVersion>
+          <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_4_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=ste], actAsSubject: null
+          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=ste], actAsSubject: null
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -75,7 +75,7 @@ Date: Mon, 15 Dec 2008 09:06:31 GMT
           <ns:displayName>a stem</ns:displayName>
           <ns:extension>aStem</ns:extension>
           <ns:name>aStem</ns:name>
-          <ns:uuid>6f0095b7-b292-47e0-b78f-9c98ab502f6f</ns:uuid>
+          <ns:uuid>51f579c5447144adae9e289108f510d2</ns:uuid>
         </ns:stemResults>
       </ns:return>
     </ns:findStemsResponse>
@@ -203,7 +203,7 @@ public class WsSampleFindStems implements WsSampleGenerated {
 
 
 WsFindStemsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@940b3,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@176de28,localResultMetadataTracker=true,
-  localStemResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@16434ac},localStemResultsTracker=true]
-WsStem[localDescription=a stem description,localDescriptionTracker=true,localDisplayExtension=a stem,localDisplayExtensionTracker=true,localDisplayName=a stem,localDisplayNameTracker=true,localExtension=aStem,localExtensionTracker=true,localName=aStem,localNameTracker=true,localUuid=6f0095b7-b292-47e0-b78f-9c98ab502f6f,localUuidTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@569e58,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@b5add6,localResultMetadataTracker=true,
+  localStemResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@157ea7},localStemResultsTracker=true]
+WsStem[localDescription=a stem description,localDescriptionTracker=true,localDisplayExtension=a stem,localDisplayExtensionTracker=true,localDisplayName=a stem,localDisplayNameTracker=true,localExtension=aStem,localExtensionTracker=true,localName=aStem,localNameTracker=true,localUuid=51f579c5447144adae9e289108f510d2,localUuidTracker=true]

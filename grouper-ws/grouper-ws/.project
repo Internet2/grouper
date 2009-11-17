@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>grouper-ws_HEAD</name>
+	<name>grouper-ws_HEAD_20091115</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -14,4 +14,16 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>GROUPER_HEAD_CONF</name>
+			<type>2</type>
+			<locationURI>GROUPER_HEAD_CONF</locationURI>
+		</link>
+		<link>
+			<name>GROUPER_HEAD_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_HEAD_SOURCE</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

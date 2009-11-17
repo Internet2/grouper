@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, manually written lite/rest, format: json, for version: v1_4_000
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, m
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -47,62 +47,63 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:02:14 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:30:43 GMT
 Connection: close
 
 {
   "WsDeleteMemberResults":{
+    "resultMetadata":{
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
+      "success":"T",
+      "resultCode":"SUCCESS"
+    },
+    "responseMetadata":{
+      "serverVersion":"v1_5_000",
+      "millis":"499"
+    },
+    "wsGroup":{
+      "extension":"aGroup",
+      "uuid":"e85c16ce84db4bcaa6fb9defaba6775a",
+      "displayExtension":"a group",
+      "description":"a group description",
+      "displayName":"a stem:a group",
+      "name":"aStem:aGroup"
+    },
     "results":{
       "WsDeleteMemberResult":[
         {
           "wsSubject":{
-            "resultCode":"SUCCESS",
             "success":"T",
+            "name":"10021368",
             "id":"10021368",
-            "sourceId":"pennperson"
+            "sourceId":"jdbc",
+            "resultCode":"SUCCESS"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "success":"T"
+            "success":"T",
+            "resultCode":"SUCCESS"
           }
           
         },
         {
           "wsSubject":{
-            "resultCode":"SUCCESS",
             "success":"T",
+            "name":"10039438",
             "id":"10039438",
-            "sourceId":"pennperson"
+            "sourceId":"jdbc",
+            "resultCode":"SUCCESS"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "success":"T"
+            "success":"T",
+            "resultCode":"SUCCESS"
           }
         }
       ]
-      
-    },
-    "wsGroup":{
-      "extension":"aGroup",
-      "displayExtension":"a group",
-      "description":"a group description",
-      "displayName":"a stem:a group",
-      "name":"aStem:aGroup",
-      "uuid":"e85b8d8e-b6ef-4160-9558-c280dafe7702"
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
-      "success":"T"
-    },
-    "responseMetadata":{
-      "millis":"578",
-      "serverVersion":"v1_4_000"
     }
   }
 }
@@ -272,7 +273,7 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE

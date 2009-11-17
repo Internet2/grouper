@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
@@ -262,7 +263,10 @@ public class WsGroupLookup {
       }
 
       if (hasName) {
-        Group theGroup = GroupFinder.findByName(grouperSession, this.groupName, true);
+        
+        //TODO make this more efficient
+        Group theGroup = GroupFinder.findByName(grouperSession, this.groupName, 
+            true, new QueryOptions().secondLevelCache(false));
 
         //make sure uuid matches 
         if (hasUuid && !StringUtils.equals(this.uuid, theGroup.getUuid())) {

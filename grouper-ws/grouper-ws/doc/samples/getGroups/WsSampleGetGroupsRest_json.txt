@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: json, for version: v1_4_002
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_002/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -47,126 +47,118 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Thu, 05 Mar 2009 06:25:30 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:34:01 GMT
 Connection: close
 
 {
   "WsGetGroupsResults":{
-    "results":{
-      "WsGetGroupsResult":[
-        {
-          "wsGroups":{
-            "WsGroup":[
-              {
-                "extension":"aGroup2",
-                "displayExtension":"a group2",
-                "description":"a group description2",
-                "displayName":"a stem:a group2",
-                "name":"aStem:aGroup2",
-                "uuid":"51648793-528b-44f6-a6a9-a58c9d6127bd"
-              },
-              {
-                "extension":"aGroup",
-                "displayExtension":"a group",
-                "description":"a group description",
-                "displayName":"a stem:a group",
-                "name":"aStem:aGroup",
-                "uuid":"08223bd6-94fe-45fe-a946-89dd9205fff8"
-              },
-              {
-                "extension":"webServiceActAsGroup",
-                "displayExtension":"webServiceActAsGroup",
-                "displayName":"etc:webServiceActAsGroup",
-                "name":"etc:webServiceActAsGroup",
-                "uuid":"10043cd6-e073-4df9-8a9d-31e434a63105"
-              },
-              {
-                "extension":"webServiceClientUsers",
-                "displayExtension":"webServiceClientUsers",
-                "displayName":"etc:webServiceClientUsers",
-                "name":"etc:webServiceClientUsers",
-                "uuid":"e69286e1-f451-4451-b657-0aa263ef81cb"
-              },
-              {
-                "extension":"sysadmingroup",
-                "displayExtension":"sysadmingroup",
-                "displayName":"etc:sysadmingroup",
-                "name":"etc:sysadmingroup",
-                "uuid":"ea055e7a-33cd-4c22-ba6a-96981a8524e3"
-              }
-            ]
-            
-          },
-          "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "success":"T"
-          },
-          "wsSubject":{
-            "resultCode":"SUCCESS",
-            "success":"T",
-            "id":"10021368",
-            "sourceId":"pennperson",
-            "attributeValues":{
-              "string":"Chris Hyzer"
-            }
-          }
-          
-        },
-        {
-          "wsGroups":{
-            "WsGroup":[
-              {
-                "extension":"aGroup2",
-                "displayExtension":"a group2",
-                "description":"a group description2",
-                "displayName":"a stem:a group2",
-                "name":"aStem:aGroup2",
-                "uuid":"51648793-528b-44f6-a6a9-a58c9d6127bd"
-              },
-              {
-                "extension":"aGroup",
-                "displayExtension":"a group",
-                "description":"a group description",
-                "displayName":"a stem:a group",
-                "name":"aStem:aGroup",
-                "uuid":"08223bd6-94fe-45fe-a946-89dd9205fff8"
-              }
-            ]
-            
-          },
-          "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "success":"T"
-          },
-          "wsSubject":{
-            "resultCode":"SUCCESS",
-            "success":"T",
-            "id":"10039438",
-            "sourceId":"pennperson",
-            "attributeValues":{
-              "string":"John Smith"
-            }
-          }
-        }
-      ]
-      
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null",
-      "success":"T"
+    "responseMetadata":{
+      "serverVersion":"v1_5_000",
+      "millis":"156"
     },
     "subjectAttributeNames":{
       "string":"description"
     },
-    "responseMetadata":{
-      "millis":"546",
-      "serverVersion":"v1_4_002"
+    "resultMetadata":{
+      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null",
+      "success":"T",
+      "resultCode":"SUCCESS"
+    },
+    "results":{
+      "WsGetGroupsResult":[
+        {
+          "wsSubject":{
+            "attributeValues":{
+              "string":""
+            },
+            "success":"T",
+            "name":"10021368",
+            "id":"10021368",
+            "sourceId":"jdbc",
+            "resultCode":"SUCCESS"
+          },
+          "resultMetadata":{
+            "success":"T",
+            "resultCode":"SUCCESS"
+          },
+          "wsGroups":{
+            "WsGroup":[
+              {
+                "extension":"sysadmingroup",
+                "uuid":"7ca1c0860f6448749b4160008fe549a5",
+                "displayExtension":"sysadmingroup",
+                "displayName":"etc:sysadmingroup",
+                "name":"etc:sysadmingroup"
+              },
+              {
+                "extension":"aGroup",
+                "uuid":"d5be84b4476241518616e32036b82bdb",
+                "displayExtension":"a group",
+                "description":"a group description",
+                "displayName":"a stem:a group",
+                "name":"aStem:aGroup"
+              },
+              {
+                "extension":"aGroup2",
+                "uuid":"ba91e26ee2b4490fa3144788f1b91a96",
+                "displayExtension":"a group2",
+                "description":"a group description2",
+                "displayName":"a stem:a group2",
+                "name":"aStem:aGroup2"
+              },
+              {
+                "extension":"webServiceActAsGroup",
+                "uuid":"3af08a74302b4e258b32f966a3b0941f",
+                "displayExtension":"webServiceActAsGroup",
+                "displayName":"etc:webServiceActAsGroup",
+                "name":"etc:webServiceActAsGroup"
+              }
+            ]
+          }
+          
+        },
+        {
+          "wsSubject":{
+            "attributeValues":{
+              "string":""
+            },
+            "success":"T",
+            "name":"10039438",
+            "id":"10039438",
+            "sourceId":"jdbc",
+            "resultCode":"SUCCESS"
+          },
+          "resultMetadata":{
+            "success":"T",
+            "resultCode":"SUCCESS"
+          },
+          "wsGroups":{
+            "WsGroup":[
+              {
+                "extension":"aGroup",
+                "uuid":"d5be84b4476241518616e32036b82bdb",
+                "displayExtension":"a group",
+                "description":"a group description",
+                "displayName":"a stem:a group",
+                "name":"aStem:aGroup"
+              },
+              {
+                "extension":"aGroup2",
+                "uuid":"ba91e26ee2b4490fa3144788f1b91a96",
+                "displayExtension":"a group2",
+                "description":"a group description2",
+                "displayName":"a stem:a group2",
+                "name":"aStem:aGroup2"
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 }
@@ -335,7 +327,7 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null

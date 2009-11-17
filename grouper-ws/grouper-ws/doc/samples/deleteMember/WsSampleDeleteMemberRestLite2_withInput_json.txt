@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite2, manually written lite/rest, type: _withInput, format: json, for version: v1_4_000
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite2, manually written lite/rest, type: _withInput, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -34,38 +34,39 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:02:38 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:31:33 GMT
 Connection: close
 
 {
   "WsDeleteMemberLiteResult":{
-    "resultMetadata":{
-      "resultCode":"SUCCESS_WASNT_IMMEDIATE",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
-      "success":"T"
-    },
-    "wsSubject":{
-      "resultCode":"SUCCESS",
-      "success":"T",
-      "id":"test.subject.0",
-      "sourceId":"jdbc"
-    },
     "responseMetadata":{
-      "millis":"516",
-      "serverVersion":"v1_4_000"
+      "serverVersion":"v1_5_000",
+      "millis":"140"
+    },
+    "resultMetadata":{
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
+      "success":"T",
+      "resultCode":"SUCCESS_WASNT_IMMEDIATE"
     },
     "wsGroup":{
       "extension":"aGroup",
+      "uuid":"6bc42fd16ba6475c97ba1b2ff44da062",
       "displayExtension":"a group",
       "description":"a group description",
       "displayName":"a stem:a group",
-      "name":"aStem:aGroup",
-      "uuid":"b78bd3c2-c2b3-4659-8edf-35bc7e1d6b5b"
+      "name":"aStem:aGroup"
+    },
+    "wsSubject":{
+      "success":"T",
+      "name":"my name is test.subject.0",
+      "id":"test.subject.0",
+      "sourceId":"jdbc",
+      "resultCode":"SUCCESS"
     }
   }
 }
@@ -225,7 +226,7 @@ public class WsSampleDeleteMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: v1_5_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null

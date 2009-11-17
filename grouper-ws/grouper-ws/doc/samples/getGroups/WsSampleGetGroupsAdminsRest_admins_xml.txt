@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: xml, for version: v1_4_002
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: xml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, m
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_002/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -48,64 +48,66 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Thu, 05 Mar 2009 06:26:26 GMT
+Content-Type: text/xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:34:58 GMT
 Connection: close
 
 <WsGetGroupsResults>
-  <results>
-    <WsGetGroupsResult>
-      <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-      </resultMetadata>
-      <wsSubject>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-        <id>10021368</id>
-        <sourceId>pennperson</sourceId>
-        <attributeValues>
-          <string>Chris Hyzer</string>
-        </attributeValues>
-      </wsSubject>
-    </WsGetGroupsResult>
-    <WsGetGroupsResult>
-      <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-      </resultMetadata>
-      <wsSubject>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-        <id>10039438</id>
-        <sourceId>pennperson</sourceId>
-        <attributeValues>
-          <string>John Smith</string>
-        </attributeValues>
-      </wsSubject>
-    </WsGetGroupsResult>
-  </results>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>109</millis>
+  </responseMetadata>
+  <subjectAttributeNames>
+    <string>description</string>
+  </subjectAttributeNames>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
 , field: admins</resultMessage>
     <success>T</success>
+    <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <subjectAttributeNames>
-    <string>description</string>
-  </subjectAttributeNames>
-  <responseMetadata>
-    <millis>140</millis>
-    <serverVersion>v1_4_002</serverVersion>
-  </responseMetadata>
+  <results>
+    <WsGetGroupsResult>
+      <wsSubject>
+        <attributeValues>
+          <string></string>
+        </attributeValues>
+        <success>T</success>
+        <name>10021368</name>
+        <id>10021368</id>
+        <sourceId>jdbc</sourceId>
+        <resultCode>SUCCESS</resultCode>
+      </wsSubject>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+      </resultMetadata>
+    </WsGetGroupsResult>
+    <WsGetGroupsResult>
+      <wsSubject>
+        <attributeValues>
+          <string></string>
+        </attributeValues>
+        <success>T</success>
+        <name>10039438</name>
+        <id>10039438</id>
+        <sourceId>jdbc</sourceId>
+        <resultCode>SUCCESS</resultCode>
+      </wsSubject>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+      </resultMetadata>
+    </WsGetGroupsResult>
+  </results>
 </WsGetGroupsResults>
 
 
@@ -275,7 +277,7 @@ public class WsSampleGetGroupsAdminsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null

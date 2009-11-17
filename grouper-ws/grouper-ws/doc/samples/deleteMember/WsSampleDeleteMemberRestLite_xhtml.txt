@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite, manually written lite/rest, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite, manually written lite/rest, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 #########################################
 
 
-DELETE /grouperWs/servicesRest/xhtml/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+DELETE /grouper-ws/servicesRest/xhtml/v1_5_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -26,12 +26,15 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:02:20 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:30:58 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -42,36 +45,36 @@ Connection: close
   </head>
   <body>
     <div title="WsDeleteMemberLiteResult">
+      <div class="wsGroup" title="WsGroup">
+        <p class="displayExtension">a group</p>
+        <p class="uuid">4113402153254d9dba8a396104f4701d</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
+        <div class="detail" title="WsGroupDetail" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">249</p>
+        <p class="resultWarnings" />
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE
 , params: null</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">563</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
-      </div>
-      <div class="wsGroup" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="description">a group description</p>
-        <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
-        <p class="uuid">7d84c1e8-0d8e-441f-810e-426d0b66ffe1</p>
-        <p class="displayExtension">a group</p>
+        <p class="resultCode">SUCCESS</p>
       </div>
       <div class="wsSubject" title="WsSubject">
-        <p class="name" />
-        <p class="id">10021368</p>
-        <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="id">10021368</p>
         <p class="identifierLookup" />
-        <p class="sourceId">pennperson</p>
+        <p class="sourceId">jdbc</p>
+        <p class="name">10021368</p>
+        <p class="resultCode">SUCCESS</p>
       </div>
     </div>
   </body>
@@ -208,7 +211,7 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE
 , params: null

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestRequestContentType.java,v 1.4 2009-10-13 16:13:05 mchyzer Exp $
+ * @author mchyzer $Id: WsRestRequestContentType.java,v 1.5 2009-11-17 02:55:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -9,6 +9,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -175,8 +177,14 @@ public enum WsRestRequestContentType {
     @Override
     public Object parseString(String input, StringBuilder warnings) {
       XStream xStream = WsRestResponseContentType.xstream(true);
-      Object object = xStream.fromXML(input);
-      return object;
+      try {
+        Object object = xStream.fromXML(input);
+        return object;
+      } catch (RuntimeException re) {
+        LOG.error("Error unparsing string:\n" + input);
+        throw new RuntimeException("Problem unparsing string: " 
+            + GrouperUtil.indent(input, false), re);
+      }
     }
 
     /**
@@ -242,6 +250,11 @@ public enum WsRestRequestContentType {
     return this.contentType;
   }
   
+  /**
+   * logger 
+   */
+  private static final Log LOG = LogFactory.getLog(WsRestRequestContentType.class);
+
   /**
    * friendly content type error
    * @param contentTypeInRequest 

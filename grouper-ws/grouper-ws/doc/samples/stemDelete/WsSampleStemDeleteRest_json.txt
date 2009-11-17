@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manually written lite/rest, format: json, for version: v1_4_000
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manua
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -43,12 +43,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:07:26 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:40:03 GMT
 Connection: close
 
 {
@@ -61,9 +61,9 @@ Connection: close
             "name":"aStem:whateverStem"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS_STEM_NOT_FOUND",
             "resultMessage":"Cant find stem: 'WsStemLookup[stemName=aStem:whateverStem,\n  stemFindResult=STEM_NOT_FOUND]'.  ",
-            "success":"T"
+            "success":"T",
+            "resultCode":"SUCCESS_STEM_NOT_FOUND"
           }
           
         },
@@ -73,22 +73,22 @@ Connection: close
             "name":"aStem:whateverStem2"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS_STEM_NOT_FOUND",
             "resultMessage":"Cant find stem: 'WsStemLookup[stemName=aStem:whateverStem2,\n  stemFindResult=STEM_NOT_FOUND]'.  ",
-            "success":"T"
+            "success":"T",
+            "resultCode":"SUCCESS_STEM_NOT_FOUND"
           }
         }
       ]
       
     },
     "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]\n[1]: WsStemLookup[stemName=aStem:whateverStem2]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]\n[1]: WsStemLookup[stemName=aStem:whateverStem2]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "success":"T",
+      "resultCode":"SUCCESS"
     },
     "responseMetadata":{
-      "millis":"656",
-      "serverVersion":"v1_4_000"
+      "serverVersion":"v1_5_000",
+      "millis":"94"
     }
   }
 }
@@ -252,7 +252,7 @@ public class WsSampleStemDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]
 [1]: WsStemLookup[stemName=aStem:whateverStem2]
 
 , actAsSubject: null, txType: NONE, paramNames: 

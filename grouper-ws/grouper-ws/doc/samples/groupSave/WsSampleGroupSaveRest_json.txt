@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: json, for version: v1_4_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -60,12 +60,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:10:27 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:44:54 GMT
 Connection: close
 
 {
@@ -75,43 +75,43 @@ Connection: close
         {
           "wsGroup":{
             "extension":"whateverGroup",
+            "uuid":"c10bdce4a8494a1eac8b04e99319574f",
             "displayExtension":"disp1",
             "description":"desc1",
             "displayName":"a stem:disp1",
-            "name":"aStem:whateverGroup",
-            "uuid":"744e6a3f-7ad3-457a-8f4c-e55e638ca198"
+            "name":"aStem:whateverGroup"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS_INSERTED",
-            "success":"T"
+            "success":"T",
+            "resultCode":"SUCCESS_INSERTED"
           }
           
         },
         {
           "wsGroup":{
             "extension":"whateverGroup2",
+            "uuid":"45272ac962bd472390b17fbc7f079896",
             "displayExtension":"disp2",
             "description":"descs",
             "displayName":"a stem:disp2",
-            "name":"aStem:whateverGroup2",
-            "uuid":"5c8b4a04-c8bd-422d-935e-29b6af881a1d"
+            "name":"aStem:whateverGroup2"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS_INSERTED",
-            "success":"T"
+            "success":"T",
+            "resultCode":"SUCCESS_INSERTED"
           }
         }
       ]
       
     },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],\n  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T"
-    },
     "responseMetadata":{
-      "millis":"578",
-      "serverVersion":"v1_4_000"
+      "serverVersion":"v1_5_000",
+      "millis":"748"
+    },
+    "resultMetadata":{
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],\n  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "success":"T",
+      "resultCode":"SUCCESS"
     }
   }
 }
@@ -161,7 +161,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   @SuppressWarnings("deprecation")
-  public static void groupSaveLite(WsSampleRestType wsSampleRestType) {
+  public static void groupSave(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -267,14 +267,14 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSaveLite(WsSampleRestType.xhtml);
+    groupSave(WsSampleRestType.xml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    groupSaveLite(wsSampleRestType);
+    groupSave(wsSampleRestType);
   }
 
   /**
@@ -294,7 +294,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
   wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames: 

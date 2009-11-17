@@ -74,11 +74,14 @@ public class WsSampleAddMember implements WsSampleGenerated {
             WsSubjectLookup[] subjectLookups = (WsSubjectLookup[]) Array.newInstance(WsSubjectLookup.class,
                     2);
             subjectLookups[0] = WsSubjectLookup.class.newInstance();
-            subjectLookups[0].setSubjectId("10021368");
-            subjectLookups[0].setSubjectSourceId("pennperson");
+            subjectLookups[0].setSubjectId("test.subject.0");
+            subjectLookups[0].setSubjectSourceId("jdbc");
+            subjectLookups[0].setSubjectIdentifier("");
 
             subjectLookups[1] = WsSubjectLookup.class.newInstance();
-            subjectLookups[1].setSubjectIdentifier("10039438");
+            subjectLookups[1].setSubjectId("");
+            subjectLookups[1].setSubjectSourceId("");
+            subjectLookups[1].setSubjectIdentifier("id.test.subject.1");
 
             addMember.setSubjectLookups(subjectLookups);
 

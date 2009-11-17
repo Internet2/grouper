@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest, manuall
 #########################################
 
 
-PUT /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
+PUT /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -25,15 +25,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAddMemberRequest">
+      <p class="fieldName" />
       <p class="clientVersion" />
-      <p class="includeSubjectDetail" />
-      <p class="includeGroupDetail" />
-      <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
-        <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-      </div>
-      <p class="txType" />
       <div class="wsGroupLookup" title="WsGroupLookup" />
       <ul class="subjectLookups">
         <li title="WsSubjectLookup">
@@ -48,7 +41,14 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         </li>
       </ul>
       <p class="replaceAllExisting">F</p>
-      <p class="fieldName" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup">
+        <p class="subjectSourceId" />
+        <p class="subjectId">GrouperSystem</p>
+        <p class="subjectIdentifier" />
+      </div>
+      <p class="txType" />
+      <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
     </div>
   </body>
 </html>
@@ -64,12 +64,15 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:01:16 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 20:52:52 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -80,64 +83,64 @@ Connection: close
   </head>
   <body>
     <div title="WsAddMemberResults">
-      <ul class="results">
-        <li title="WsAddMemberResult">
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
-            <p class="success">T</p>
-            <p class="resultMessage" />
-            <p class="resultCode2" />
-          </div>
-          <div class="wsSubject" title="WsSubject">
-            <p class="name" />
-            <p class="id">10021368</p>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="identifierLookup" />
-            <p class="sourceId">pennperson</p>
-          </div>
-        </li>
-        <li title="WsAddMemberResult">
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
-            <p class="success">T</p>
-            <p class="resultMessage" />
-            <p class="resultCode2" />
-          </div>
-          <div class="wsSubject" title="WsSubject">
-            <p class="name" />
-            <p class="id">10039438</p>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="identifierLookup" />
-            <p class="sourceId">pennperson</p>
-          </div>
-        </li>
-      </ul>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">187</p>
+        <p class="resultWarnings" />
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4203</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
+        <p class="resultCode">SUCCESS</p>
       </div>
       <div class="wsGroupAssigned" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="description">a group description</p>
-        <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
-        <p class="uuid">509bc441-76ee-4340-93a5-20538e3bb267</p>
         <p class="displayExtension">a group</p>
+        <p class="uuid">e0bac8bfa91f417996174da2c01beec9</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
+        <div class="detail" title="WsGroupDetail" />
       </div>
+      <ul class="results">
+        <li title="WsAddMemberResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultMessage" />
+            <p class="success">T</p>
+            <p class="resultCode2" />
+            <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
+          </div>
+          <div class="wsSubject" title="WsSubject">
+            <p class="success">T</p>
+            <p class="id">10021368</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">jdbc</p>
+            <p class="name">10021368</p>
+            <p class="resultCode">SUCCESS</p>
+          </div>
+        </li>
+        <li title="WsAddMemberResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultMessage" />
+            <p class="success">T</p>
+            <p class="resultCode2" />
+            <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
+          </div>
+          <div class="wsSubject" title="WsSubject">
+            <p class="success">T</p>
+            <p class="id">10039438</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">jdbc</p>
+            <p class="name">10039438</p>
+            <p class="resultCode">SUCCESS</p>
+          </div>
+        </li>
+      </ul>
     </div>
   </body>
 </html>
@@ -315,7 +318,7 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/axis/commons-io-1.4.jar"/>
 	<classpathentry kind="src" path="src/grouper-ws"/>
+	<classpathentry kind="src" path="GROUPER_HEAD_CONF"/>
+	<classpathentry kind="src" path="GROUPER_HEAD_SOURCE"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="lib/axis/commons-io-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/jdom-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/joda-time-1.5.1.jar"/>
@@ -68,6 +70,87 @@
 	<classpathentry exported="true" kind="lib" path="lib/axis/XmlSchema-1.4.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/commons-codec-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/junit.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper_HEAD"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/ant.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/antlr.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/asm-attrs.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/asm-util.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/asm.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/backport-util-concurrent.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/bsh.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/c3p0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/cglib.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-beanutils.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-betwixt.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-cli.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-collections.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-digester.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-discovery.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-io.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-lang.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-logging.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/commons-math.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/DdlUtils.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/dom4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/ehcache.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/hibernate.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/invoker.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/jakarta-oro.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/jamon.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/jsr107cache.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/jta.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/jug.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/log4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/mailapi.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/morphString.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/odmg.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/p6spy.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/quartz.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/smtp.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/subject.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/grouper/xstream.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/jdbcSamples/hsqldb.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/jdbcSamples/mysql-connector-java-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/jdbcSamples/ojdbc14.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/jdbcSamples/postgresql.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/jgrapht-jdk1.5-0.7.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/joda-time-1.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/opensaml-2.3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/openws-1.3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/shibboleth-common-1.1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/spring-beans-2.5.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/spring-context-2.5.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/spring-context-support-2.5.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/spring-core-2.5.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/svnkit-1.3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/velocity-1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/shibboleth/xmltooling-1.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/ldappc/openspml2-toolkit.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/ldappc/slf4j-api-1.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/ldappc/slf4j-log4j12-1.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-bootstrap-extract-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-bootstrap-partition-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-core-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-core-avl-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-core-constants-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-core-entry-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-core-shared-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-jdbm-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-jdbm-store-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-protocol-ldap-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-protocol-shared-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-schema-bootstrap-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-schema-registries-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-utils-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-xdbm-base-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/apacheds-xdbm-search-1.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/bcprov-jdk15-140.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/mina-core-2.0.0-M6.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/shared-asn1-0.9.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/shared-asn1-codec-0.9.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/shared-cursor-0.9.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/shared-ldap-0.9.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/shared-ldap-constants-0.9.15.jar"/>
+	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/vt-ldap/vt-ldap-3.2.jar"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xml, for version: v1_4_000
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -55,58 +55,58 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Mon, 15 Dec 2008 09:08:33 GMT
+Content-Type: text/xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:41:44 GMT
 Connection: close
 
 <WsStemSaveResults>
-  <results>
-    <WsStemSaveResult>
-      <wsStem>
-        <extension>whateverStem</extension>
-        <displayExtension>disp1</displayExtension>
-        <description>desc1</description>
-        <displayName>a stem:disp1</displayName>
-        <name>aStem:whateverStem</name>
-        <uuid>4c833919-d65d-4c0d-a22a-c4b84a728351</uuid>
-      </wsStem>
-      <resultMetadata>
-        <resultCode>SUCCESS_INSERTED</resultCode>
-        <success>T</success>
-      </resultMetadata>
-    </WsStemSaveResult>
-    <WsStemSaveResult>
-      <wsStem>
-        <extension>whateverStem2</extension>
-        <displayExtension>disp2</displayExtension>
-        <description>descs</description>
-        <displayName>a stem:disp2</displayName>
-        <name>aStem:whateverStem2</name>
-        <uuid>23d427c3-42f8-41eb-a076-19280c0bc9fb</uuid>
-      </wsStem>
-      <resultMetadata>
-        <resultCode>SUCCESS_INSERTED</resultCode>
-        <success>T</success>
-      </resultMetadata>
-    </WsStemSaveResult>
-  </results>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
-wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
-wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
+    <resultMessage>Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+wsStem=WsStem[extension=whateverStem,description=desc1,name=aStem:whateverStem,displayExtension=disp1],
+wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
     <success>T</success>
+    <resultCode>SUCCESS</resultCode>
   </resultMetadata>
   <responseMetadata>
-    <millis>562</millis>
-    <serverVersion>v1_4_000</serverVersion>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>702</millis>
   </responseMetadata>
+  <results>
+    <WsStemSaveResult>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_INSERTED</resultCode>
+      </resultMetadata>
+      <wsStem>
+        <uuid>a6b1915b01ca491890e254f6950159fb</uuid>
+        <extension>whateverStem</extension>
+        <displayName>a stem:disp1</displayName>
+        <description>desc1</description>
+        <name>aStem:whateverStem</name>
+        <displayExtension>disp1</displayExtension>
+      </wsStem>
+    </WsStemSaveResult>
+    <WsStemSaveResult>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_INSERTED</resultCode>
+      </resultMetadata>
+      <wsStem>
+        <uuid>50fdcc52a24548fa8f3795f7fa03a362</uuid>
+        <extension>whateverStem2</extension>
+        <displayName>a stem:disp2</displayName>
+        <description>descs</description>
+        <name>aStem:whateverStem2</name>
+        <displayExtension>disp2</displayExtension>
+      </wsStem>
+    </WsStemSaveResult>
+  </results>
 </WsStemSaveResults>
 
 
@@ -287,8 +287,8 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
-  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
-  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+  wsStem=WsStem[extension=whateverStem,description=desc1,name=aStem:whateverStem,displayExtension=disp1],
+  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

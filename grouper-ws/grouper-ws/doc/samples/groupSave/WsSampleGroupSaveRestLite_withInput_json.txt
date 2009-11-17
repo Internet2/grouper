@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: json, for version: v1_4_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, type: _withInput, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,19 +9,19 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroupToSave HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 147
+Content-Length: 141
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGroupSaveLiteRequest":{
     "description":"desc1",
     "displayExtension":"disp1",
-    "groupName":"aStem:aGroupToSave",
+    "groupName":"aStem:aGroup",
     "actAsSubjectId":"GrouperSystem"
   }
 }
@@ -37,32 +37,32 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS_INSERTED
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:11:17 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:46:07 GMT
 Connection: close
 
 {
   "WsGroupSaveLiteResult":{
     "resultMetadata":{
-      "resultCode":"SUCCESS_INSERTED",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroupToSave],\n  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
-      "success":"T"
-    },
-    "responseMetadata":{
-      "millis":"547",
-      "serverVersion":"v1_4_000"
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup],\n  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
+      "success":"T",
+      "resultCode":"SUCCESS_UPDATED"
     },
     "wsGroup":{
-      "extension":"aGroupToSave",
+      "extension":"aGroup",
+      "uuid":"5735c0e315f741209515674a28186e78",
       "displayExtension":"disp1",
       "description":"desc1",
       "displayName":"a stem:disp1",
-      "name":"aStem:aGroupToSave",
-      "uuid":"9d0d5c0b-6409-4938-bb8d-efecd20eba48"
+      "name":"aStem:aGroup"
+    },
+    "responseMetadata":{
+      "serverVersion":"v1_5_000",
+      "millis":"203"
     }
   }
 }
@@ -121,7 +121,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroupToSave");
+            + "/groups/aStem%3AaGroup");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -140,7 +140,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 
       // set the act as id
       groupSaveLite.setActAsSubjectId("GrouperSystem");
-      groupSaveLite.setGroupName("aStem:aGroupToSave");
+      groupSaveLite.setGroupName("aStem:aGroup");
       groupSaveLite.setDescription("desc1");
       groupSaveLite.setDisplayExtension("disp1");
 
@@ -198,7 +198,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSaveLite(WsSampleRestType.xhtml);
+    groupSaveLite(WsSampleRestType.xml);
   }
 
   /**
@@ -225,9 +225,9 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroupToSave],
-  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave]]
+Server version: v1_5_000, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup],
+  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

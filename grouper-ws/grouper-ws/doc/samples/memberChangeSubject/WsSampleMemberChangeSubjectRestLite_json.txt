@@ -1,4 +1,4 @@
-Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRestLite, manually written lite/rest, format: json, for version: v1_4_000
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRestLite, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/members HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -36,36 +36,37 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:12:05 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:47:12 GMT
 Connection: close
 
 {
   "WsMemberChangeSubjectLiteResult":{
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE\n, params: null",
-      "success":"T"
+    "responseMetadata":{
+      "serverVersion":"v1_5_000",
+      "millis":"219"
     },
     "wsSubjectNew":{
-      "resultCode":"SUCCESS",
       "success":"T",
+      "name":"my name is test.subject.1",
       "id":"test.subject.1",
-      "sourceId":"jdbc"
-    },
-    "responseMetadata":{
-      "millis":"375",
-      "serverVersion":"v1_4_000"
+      "sourceId":"jdbc",
+      "resultCode":"SUCCESS"
     },
     "wsSubjectOld":{
-      "resultCode":"SUCCESS",
       "success":"T",
       "id":"test.subject.0",
-      "sourceId":"jdbc"
+      "sourceId":"jdbc",
+      "resultCode":"SUCCESS"
+    },
+    "resultMetadata":{
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],deleteOldMember=T,\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE\n, params: null",
+      "success":"T",
+      "resultCode":"SUCCESS"
     }
   }
 }
@@ -235,9 +236,9 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
-  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
-  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],deleteOldMember=T,
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null

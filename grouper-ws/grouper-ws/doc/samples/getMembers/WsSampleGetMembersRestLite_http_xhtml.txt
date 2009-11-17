@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: http_xhtml, for version: v1_4_000
+Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: http_xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, m
 #########################################
 
 
-GET /grouperWs/servicesRest/xhtml/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
+GET /grouper-ws/servicesRest/xhtml/v1_5_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -26,12 +26,15 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:05:31 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 21:24:33 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -42,56 +45,56 @@ Connection: close
   </head>
   <body>
     <div title="WsGetMembersLiteResult">
+      <ul class="wsSubjects">
+        <li title="WsSubject">
+          <p class="success">T</p>
+          <p class="id">GrouperSystem</p>
+          <p class="identifierLookup" />
+          <p class="sourceId">g:isa</p>
+          <p class="name" />
+          <p class="resultCode">SUCCESS</p>
+        </li>
+        <li title="WsSubject">
+          <p class="success">T</p>
+          <p class="id">10039438</p>
+          <p class="identifierLookup" />
+          <p class="sourceId">jdbc</p>
+          <p class="name" />
+          <p class="resultCode">SUCCESS</p>
+        </li>
+        <li title="WsSubject">
+          <p class="success">T</p>
+          <p class="id">10021368</p>
+          <p class="identifierLookup" />
+          <p class="sourceId">jdbc</p>
+          <p class="name" />
+          <p class="resultCode">SUCCESS</p>
+        </li>
+      </ul>
+      <div class="wsGroup" title="WsGroup">
+        <p class="displayExtension">a group</p>
+        <p class="uuid">5cc57ee7dc6f478e9f034634e0a480d1</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
+        <div class="detail" title="WsGroupDetail" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">109</p>
+        <p class="resultWarnings" />
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[], fieldName: null, subjectAttributeNames: null
 , paramNames:
 , params: null</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
+        <p class="resultCode">SUCCESS</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">547</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
-      </div>
-      <div class="wsGroup" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="description">a group description</p>
-        <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
-        <p class="uuid">6913d385-79dd-4bae-9fe8-b6a7f4f218ad</p>
-        <p class="displayExtension">a group</p>
-      </div>
-      <ul class="wsSubjects">
-        <li title="WsSubject">
-          <p class="name" />
-          <p class="id">10021368</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
-          <p class="identifierLookup" />
-          <p class="sourceId">pennperson</p>
-        </li>
-        <li title="WsSubject">
-          <p class="name" />
-          <p class="id">GrouperSystem</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
-          <p class="identifierLookup" />
-          <p class="sourceId">g:isa</p>
-        </li>
-        <li title="WsSubject">
-          <p class="name" />
-          <p class="id">10039438</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
-          <p class="identifierLookup" />
-          <p class="sourceId">pennperson</p>
-        </li>
-      </ul>
     </div>
   </body>
 </html>
@@ -201,7 +204,7 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getMembersLite(WsSampleRestType.xhtml);
+    getMembersLite(WsSampleRestType.xml);
   }
 
   /**
@@ -227,7 +230,7 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[], fieldName: null, subjectAttributeNames: null
 , paramNames: 

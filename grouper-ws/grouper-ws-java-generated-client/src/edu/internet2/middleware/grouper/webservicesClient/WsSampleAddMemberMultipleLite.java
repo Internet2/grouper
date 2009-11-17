@@ -55,7 +55,7 @@ public class WsSampleAddMemberMultipleLite {
       addMemberLite.setGroupUuid("");
 
       addMemberLite.setSubjectId(subjectId);
-      addMemberLite.setSubjectSourceId("pennperson");
+      addMemberLite.setSubjectSourceId("jdbc");
       addMemberLite.setSubjectIdentifier("");
 
       // set the act as id
@@ -112,16 +112,16 @@ public class WsSampleAddMemberMultipleLite {
     //select '"' || penn_id || '", ' from person_source where penn_id like '%56%' and rownum < 100;
     
     String[] subjectIds = new String[]{
-        "10000078",             
-        "10000178",             
-        "10000278",             
-        "10000378",             
-        "10000478",             
-        "10000578",             
-        "10000678",             
-        "10000778",             
-        "10000780",             
-        "10000781",             
+        "test.subject.0",
+        "test.subject.1",
+        "test.subject.2",
+        "test.subject.3",
+        "test.subject.4",
+        "test.subject.5",
+        "test.subject.6",
+        "test.subject.7",
+        "test.subject.8",
+        "test.subject.9",
         "10000782",             
         "10000784",             
         "10000785",             

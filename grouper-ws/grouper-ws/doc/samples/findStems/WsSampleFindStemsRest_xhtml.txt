@@ -1,4 +1,4 @@
-Grouper web service sample of service: findStems, WsSampleFindStemsRest, manually written lite/rest, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: findStems, WsSampleFindStemsRest, manually written lite/rest, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -32,11 +32,11 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <p class="subjectIdentifier" />
       </div>
       <div class="wsStemQueryFilter" title="WsStemQueryFilter">
+        <p class="parentStemName" />
         <p class="stemName">aSte</p>
         <p class="stemUuid" />
         <p class="queryTerm" />
         <p class="stemQueryFilterType">FIND_BY_STEM_NAME_APPROXIMATE</p>
-        <p class="parentStemName" />
         <p class="parentStemNameScope" />
         <p class="stemAttributeName" />
         <div class="stemQueryFilter0" title="WsStemQueryFilter" />
@@ -58,12 +58,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:06:41 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:38:53 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -74,28 +74,28 @@ Connection: close
   </head>
   <body>
     <div title="WsFindStemsResults">
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
-, params: null</p>
-        <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4047</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
-      </div>
       <ul class="stemResults">
         <li title="WsStem">
-          <p class="name">aStem</p>
-          <p class="displayName">a stem</p>
-          <p class="description">a stem description</p>
-          <p class="extension">aStem</p>
-          <p class="uuid">80bae55b-a66a-413a-bed1-df666434a2ac</p>
           <p class="displayExtension">a stem</p>
+          <p class="uuid">ca103ee944bd48baad76b771251e8088</p>
+          <p class="displayName">a stem</p>
+          <p class="extension">aStem</p>
+          <p class="description">a stem description</p>
+          <p class="name">aStem</p>
         </li>
       </ul>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">141</p>
+        <p class="resultWarnings" />
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, params: null</p>
+        <p class="success">T</p>
+        <p class="resultCode2" />
+        <p class="resultCode">SUCCESS</p>
+      </div>
     </div>
   </body>
 </html>
@@ -266,5 +266,5 @@ public class WsSampleFindStemsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

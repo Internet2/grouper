@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite, manually written lite/rest, format: json, for version: v1_4_000
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite,
 #########################################
 
 
-DELETE /grouperWs/servicesRest/json/v1_4_000/groups/aStem%3AaGroup123 HTTP/1.1
+DELETE /grouper-ws/servicesRest/json/v1_5_000/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -26,24 +26,27 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:09:41 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:43:35 GMT
 Connection: close
 
 {
   "WsGroupDeleteLiteResult":{
     "resultMetadata":{
-      "resultCode":"SUCCESS_GROUP_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[], txType: NONE, includeGroupDetail: false, paramNames: \n, params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'.",
-      "success":"T"
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[], txType: NONE, includeGroupDetail: false, paramNames: \n, params: nullCant find group: 'WsGroupLookup[\n  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123]'.",
+      "success":"T",
+      "resultCode":"SUCCESS_GROUP_NOT_FOUND"
     },
     "responseMetadata":{
-      "millis":"422",
-      "serverVersion":"v1_4_000"
+      "serverVersion":"v1_5_000",
+      "millis":"94"
     },
     "wsGroup":{
       "extension":"aGroup123",
@@ -183,8 +186,8 @@ public class WsSampleGroupDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]
+Server version: v1_5_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]
 
 , actAsSubject: WsSubjectLookup[], txType: NONE, includeGroupDetail: false, paramNames: 
-, params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,
-  groupFindResult=GROUP_NOT_FOUND]'.
+, params: nullCant find group: 'WsGroupLookup[
+  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123]'.

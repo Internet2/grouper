@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: xhtml, for version: v1_4_002
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, m
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_002/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -25,7 +25,19 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGetGroupsRequest">
+      <ul class="params">
+        <li title="WsParam">
+          <p class="paramName">fieldName</p>
+          <p class="paramValue">admins</p>
+        </li>
+      </ul>
       <p class="clientVersion" />
+      <p class="includeSubjectDetail" />
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+      </ul>
+      <p class="includeGroupDetail" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
       <ul class="subjectLookups">
         <li title="WsSubjectLookup">
           <p class="subjectSourceId" />
@@ -39,18 +51,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         </li>
       </ul>
       <p class="memberFilter" />
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
-      <ul class="subjectAttributeNames">
-        <li>description</li>
-      </ul>
-      <ul class="params">
-        <li title="WsParam">
-          <p class="paramName">fieldName</p>
-          <p class="paramValue">admins</p>
-        </li>
-      </ul>
     </div>
   </body>
 </html>
@@ -66,12 +66,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Thu, 05 Mar 2009 06:26:13 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:34:44 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -82,65 +82,65 @@ Connection: close
   </head>
   <body>
     <div title="WsGetGroupsResults">
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+      </ul>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">156</p>
+        <p class="resultWarnings" />
+      </div>
       <ul class="results">
         <li title="WsGetGroupsResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
             <p class="resultMessage" />
+            <p class="success">T</p>
             <p class="resultCode2" />
+            <p class="resultCode">SUCCESS</p>
           </div>
           <div class="wsSubject" title="WsSubject">
-            <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
-            <p class="identifierLookup" />
-            <p class="sourceId">pennperson</p>
-            <p class="name" />
             <p class="id">10021368</p>
             <ul class="attributeValues">
-              <li>Chris Hyzer</li>
+              <li />
             </ul>
+            <p class="identifierLookup" />
+            <p class="sourceId">jdbc</p>
+            <p class="name">10021368</p>
+            <p class="resultCode">SUCCESS</p>
           </div>
         </li>
         <li title="WsGetGroupsResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
             <p class="resultMessage" />
+            <p class="success">T</p>
             <p class="resultCode2" />
+            <p class="resultCode">SUCCESS</p>
           </div>
           <div class="wsSubject" title="WsSubject">
-            <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
-            <p class="identifierLookup" />
-            <p class="sourceId">pennperson</p>
-            <p class="name" />
             <p class="id">10039438</p>
             <ul class="attributeValues">
-              <li>John Smith</li>
+              <li />
             </ul>
+            <p class="identifierLookup" />
+            <p class="sourceId">jdbc</p>
+            <p class="name">10039438</p>
+            <p class="resultCode">SUCCESS</p>
           </div>
         </li>
       </ul>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
 , field: admins</p>
+        <p class="success">T</p>
         <p class="resultCode2" />
+        <p class="resultCode">SUCCESS</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_002</p>
-        <p class="millis">3900</p>
-      </div>
-      <ul class="subjectAttributeNames">
-        <li>description</li>
-      </ul>
     </div>
   </body>
 </html>
@@ -312,7 +312,7 @@ public class WsSampleGetGroupsAdminsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null

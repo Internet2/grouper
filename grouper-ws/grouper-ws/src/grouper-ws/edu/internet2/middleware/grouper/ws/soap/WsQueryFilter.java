@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsQueryFilter.java,v 1.5 2009-03-15 06:41:44 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilter.java,v 1.6 2009-11-17 02:55:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
@@ -495,7 +496,7 @@ public class WsQueryFilter {
       return null;
     }
     try {
-      Stem stem = StemFinder.findByName(this.grouperSession, this.stemName, true);
+      Stem stem = StemFinder.findByName(this.grouperSession, this.stemName, true, new QueryOptions().secondLevelCache(false));
       return stem;
     } catch (StemNotFoundException snfe) {
       throw new WsInvalidQueryException("Cant find stem: '" + this.stemName + "'");

@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, manually written lite/rest, format: xml, for version: v1_4_000
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, manually written lite/rest, format: xml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, man
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -39,12 +39,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Mon, 15 Dec 2008 09:09:34 GMT
+Content-Type: text/xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:43:21 GMT
 Connection: close
 
 <WsGroupDeleteResults>
@@ -55,10 +55,10 @@ Connection: close
         <name>aStem:whatever</name>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
-        <resultMessage>Cant find group: &apos;WsGroupLookup[groupName=aStem:whatever,
-groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
+        <resultMessage>Cant find group: &apos;WsGroupLookup[
+groupFindResult=GROUP_NOT_FOUND,groupName=aStem:whatever]&apos;.  </resultMessage>
         <success>T</success>
+        <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
       </resultMetadata>
     </WsGroupDeleteResult>
     <WsGroupDeleteResult>
@@ -67,25 +67,25 @@ groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
         <name>aStem:whatever2</name>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
-        <resultMessage>Cant find group: &apos;WsGroupLookup[groupName=aStem:whatever2,
-groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
+        <resultMessage>Cant find group: &apos;WsGroupLookup[
+groupFindResult=GROUP_NOT_FOUND,groupName=aStem:whatever2]&apos;.  </resultMessage>
         <success>T</success>
+        <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
       </resultMetadata>
     </WsGroupDeleteResult>
   </results>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
+    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
 [1]: WsGroupLookup[groupName=aStem:whatever2]
 
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames:
 , params: null</resultMessage>
     <success>T</success>
+    <resultCode>SUCCESS</resultCode>
   </resultMetadata>
   <responseMetadata>
-    <millis>469</millis>
-    <serverVersion>v1_4_000</serverVersion>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>140</millis>
   </responseMetadata>
 </WsGroupDeleteResults>
 
@@ -247,7 +247,7 @@ public class WsSampleGroupDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
 [1]: WsGroupLookup[groupName=aStem:whatever2]
 
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: 

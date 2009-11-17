@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: json, for version: v1_4_000
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -60,58 +60,57 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:08:29 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:41:37 GMT
 Connection: close
 
 {
   "WsStemSaveResults":{
+    "resultMetadata":{
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStem=WsStem[extension=whateverStem,description=desc1,name=aStem:whateverStem,displayExtension=disp1],\n  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "success":"T",
+      "resultCode":"SUCCESS"
+    },
+    "responseMetadata":{
+      "serverVersion":"v1_5_000",
+      "millis":"733"
+    },
     "results":{
       "WsStemSaveResult":[
         {
-          "wsStem":{
-            "extension":"whateverStem",
-            "displayExtension":"disp1",
-            "description":"desc1",
-            "displayName":"a stem:disp1",
-            "name":"aStem:whateverStem",
-            "uuid":"719bd79a-fb5c-4bb1-934d-d94695d0cb2a"
-          },
           "resultMetadata":{
-            "resultCode":"SUCCESS_INSERTED",
-            "success":"T"
+            "success":"T",
+            "resultCode":"SUCCESS_INSERTED"
+          },
+          "wsStem":{
+            "uuid":"89ae6e7430c84f4ba223e2e3203d3227",
+            "extension":"whateverStem",
+            "displayName":"a stem:disp1",
+            "description":"desc1",
+            "name":"aStem:whateverStem",
+            "displayExtension":"disp1"
           }
           
         },
         {
-          "wsStem":{
-            "extension":"whateverStem2",
-            "displayExtension":"disp2",
-            "description":"descs",
-            "displayName":"a stem:disp2",
-            "name":"aStem:whateverStem2",
-            "uuid":"46d69eab-7616-4ae6-b86f-a6bfb6aa22d0"
-          },
           "resultMetadata":{
-            "resultCode":"SUCCESS_INSERTED",
-            "success":"T"
+            "success":"T",
+            "resultCode":"SUCCESS_INSERTED"
+          },
+          "wsStem":{
+            "uuid":"2d9c950304354c89956f0b79470714b0",
+            "extension":"whateverStem2",
+            "displayName":"a stem:disp2",
+            "description":"descs",
+            "name":"aStem:whateverStem2",
+            "displayExtension":"disp2"
           }
         }
       ]
-      
-    },
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],\n  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T"
-    },
-    "responseMetadata":{
-      "millis":"610",
-      "serverVersion":"v1_4_000"
     }
   }
 }
@@ -294,8 +293,8 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
-  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
-  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+  wsStem=WsStem[extension=whateverStem,description=desc1,name=aStem:whateverStem,displayExtension=disp1],
+  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

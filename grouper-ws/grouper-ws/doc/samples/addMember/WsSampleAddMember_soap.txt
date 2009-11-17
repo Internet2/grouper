@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMember, code generated classes, format: soap, for version: v1_4_000
+Grouper web service sample of service: addMember, WsSampleAddMember, code generated classes, format: soap, for version: v1_5_000
 
 
 #########################################
@@ -9,28 +9,31 @@ Grouper web service sample of service: addMember, WsSampleAddMember, code genera
 #########################################
 
 
-POST /grouperWs/services/GrouperService HTTP/1.1
+POST /grouper-ws/services/GrouperService HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:addMember"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-2f4
+376
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:addMember xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v1_4_000</ns1:clientVersion>
+      <ns1:clientVersion>v1_5_000</ns1:clientVersion>
       <ns1:wsGroupLookup>
         <ns1:groupName>aStem:aGroup</ns1:groupName>
       </ns1:wsGroupLookup>
       <ns1:subjectLookups>
-        <ns1:subjectId>10021368</ns1:subjectId>
-        <ns1:subjectSourceId>pennperson</ns1:subjectSourceId>
+        <ns1:subjectId>test.subject.0</ns1:subjectId>
+        <ns1:subjectIdentifier></ns1:subjectIdentifier>
+        <ns1:subjectSourceId>jdbc</ns1:subjectSourceId>
       </ns1:subjectLookups>
       <ns1:subjectLookups>
-        <ns1:subjectIdentifier>10039438</ns1:subjectIdentifier>
+        <ns1:subjectId></ns1:subjectId>
+        <ns1:subjectIdentifier>id.test.subject.1</ns1:subjectIdentifier>
+        <ns1:subjectSourceId></ns1:subjectSourceId>
       </ns1:subjectLookups>
       <ns1:replaceAllExisting>F</ns1:replaceAllExisting>
       <ns1:actAsSubjectLookup>
@@ -52,31 +55,30 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:addMemberResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 15 Dec 2008 09:01:06 GMT
+Date: Mon, 16 Nov 2009 20:52:33 GMT
 
-f67
+f04
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:addMemberResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>531</ns:millis>
+          <ns:millis>484</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:serverVersion>v1_4_000</ns:serverVersion>
+          <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368,subjectSourceId=pennperson]
-[1]: WsSubject...
+          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectIdentifier=,subjectId=test.subjec...
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: Empty array
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
@@ -84,36 +86,36 @@ f67
         <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult">
           <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:resultCode>SUCCESS_ALREADY_EXISTED</ns:resultCode>
+            <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
             <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:id>10021368</ns:id>
+            <ns:id>test.subject.0</ns:id>
             <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:name>my name is test.subject.0</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
-            <ns:sourceId>pennperson</ns:sourceId>
+            <ns:sourceId>jdbc</ns:sourceId>
             <ns:success>T</ns:success>
           </ns:wsSubject>
         </ns:results>
         <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult">
           <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:resultCode>SUCCESS_ALREADY_EXISTED</ns:resultCode>
+            <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
             <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:id>10039438</ns:id>
-            <ns:identifierLookup>10039438</ns:identifierLookup>
-            <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:id>test.subject.1</ns:id>
+            <ns:identifierLookup>id.test.subject.1</ns:identifierLookup>
+            <ns:name>my name is test.subject.1</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
-            <ns:sourceId>pennperson</ns:sourceId>
+            <ns:sourceId>jdbc</ns:sourceId>
             <ns:success>T</ns:success>
           </ns:wsSubject>
         </ns:results>
@@ -125,7 +127,7 @@ f67
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>b927a828-c68f-4305-a284-55f4e883b60f</ns:uuid>
+          <ns:uuid>ef441572b2334d2aae1c6162ea1c525f</ns:uuid>
         </ns:wsGroupAssigned>
       </ns:return>
     </ns:addMemberResponse>
@@ -220,11 +222,14 @@ public class WsSampleAddMember implements WsSampleGenerated {
             WsSubjectLookup[] subjectLookups = (WsSubjectLookup[]) Array.newInstance(WsSubjectLookup.class,
                     2);
             subjectLookups[0] = WsSubjectLookup.class.newInstance();
-            subjectLookups[0].setSubjectId("10021368");
-            subjectLookups[0].setSubjectSourceId("pennperson");
+            subjectLookups[0].setSubjectId("test.subject.0");
+            subjectLookups[0].setSubjectSourceId("jdbc");
+            subjectLookups[0].setSubjectIdentifier("");
 
             subjectLookups[1] = WsSubjectLookup.class.newInstance();
-            subjectLookups[1].setSubjectIdentifier("10039438");
+            subjectLookups[1].setSubjectId("");
+            subjectLookups[1].setSubjectSourceId("");
+            subjectLookups[1].setSubjectIdentifier("id.test.subject.1");
 
             addMember.setSubjectLookups(subjectLookups);
 
@@ -272,43 +277,42 @@ public class WsSampleAddMember implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResults@69ee4e[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@18ca189
+edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResults@1f5ba55[
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@15ae101
   localResponseMetadataTracker=true
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1c1325f
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@16a16ae
   localResultMetadataTracker=true
-  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@eea109,edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@8e7833}
+  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@197cf78,edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@1b5d53a}
   localResultsTracker=true
   localSubjectAttributeNames={<null>}
   localSubjectAttributeNamesTracker=true
-  localWsGroupAssigned=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@7a90f4
+  localWsGroupAssigned=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@9dfb04
   localWsGroupAssignedTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1c1325f[
+edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@16a16ae[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS
   localResultCodeTracker=true
   localResultCode2=<null>
   localResultCode2Tracker=false
-  localResultMessage=Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368,subjectSourceId=pennperson]
-[1]: WsSubject...
+  localResultMessage=Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectIdentifier=,subjectId=test.subjec...
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: Empty array
 , params: Empty array
   localResultMessageTracker=true
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@eea109[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@fdf528
+edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@197cf78[
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@10f3bd7
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@ea3046
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@121cef5
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@fdf528[
+edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@10f3bd7[
   localParams={<null>}
   localParamsTracker=true
-  localResultCode=SUCCESS_ALREADY_EXISTED
+  localResultCode=SUCCESS
   localResultCodeTracker=true
   localResultCode2=<null>
   localResultCode2Tracker=false
@@ -317,16 +321,16 @@ edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@fdf528[
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@8e7833[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@19e3169
+edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@1b5d53a[
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@19d44df
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@be1fcc
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@149895
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@19e3169[
+edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@19d44df[
   localParams={<null>}
   localParamsTracker=true
-  localResultCode=SUCCESS_ALREADY_EXISTED
+  localResultCode=SUCCESS
   localResultCodeTracker=true
   localResultCode2=<null>
   localResultCode2Tracker=false

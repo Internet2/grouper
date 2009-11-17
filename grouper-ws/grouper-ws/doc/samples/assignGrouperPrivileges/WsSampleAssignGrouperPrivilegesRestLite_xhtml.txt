@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -35,6 +35,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="stemUuid" />
       <p class="privilegeType">access</p>
       <p class="privilegeName">optin</p>
+      <p class="allowed">T</p>
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -45,7 +46,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="allowed">T</p>
     </div>
   </body>
 </html>
@@ -61,12 +61,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:00:53 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:28:14 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -77,38 +77,38 @@ Connection: close
   </head>
   <body>
     <div title="WsAssignGrouperPrivilegesLiteResult">
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS_ALLOWED</p>
-        <p class="success">T</p>
-        <p class="resultMessage" />
-        <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">844</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
-      </div>
+      <p class="privilegeType">access</p>
       <p class="privilegeName">optin</p>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">405</p>
+        <p class="resultWarnings" />
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultMessage" />
+        <p class="success">T</p>
+        <p class="resultCode2" />
+        <p class="resultCode">SUCCESS_ALLOWED</p>
+      </div>
+      <p class="allowed" />
       <div class="wsGroup" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="description">a group description</p>
-        <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
-        <p class="uuid">8f3a1314-5063-43f2-923d-67551ba3c980</p>
         <p class="displayExtension">a group</p>
+        <p class="uuid">8a6a081ae97148658d9f36c0ae8bcd43</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
+        <div class="detail" title="WsGroupDetail" />
       </div>
       <div class="wsStem" title="WsStem" />
       <div class="wsSubject" title="WsSubject">
-        <p class="name" />
-        <p class="id">test.subject.0</p>
-        <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="id">test.subject.0</p>
         <p class="identifierLookup" />
         <p class="sourceId">jdbc</p>
+        <p class="name">my name is test.subject.0</p>
+        <p class="resultCode">SUCCESS</p>
       </div>
-      <p class="allowed" />
-      <p class="privilegeType">access</p>
     </div>
   </body>
 </html>
@@ -273,4 +273,4 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_ALLOWED, result message: null
+Server version: v1_5_000, result code: SUCCESS_ALLOWED, result message: null

@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: xml, for version: v1_4_000
+Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: xml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, m
 #########################################
 
 
-GET /grouperWs/servicesRest/xml/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
+GET /grouper-ws/servicesRest/xml/v1_5_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -26,54 +26,57 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Mon, 15 Dec 2008 09:05:36 GMT
+Content-Type: text/xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 21:24:41 GMT
 Connection: close
 
 <WsGetMembersLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[], fieldName: null, subjectAttributeNames: null
 , paramNames:
 , params: null</resultMessage>
     <success>T</success>
   </resultMetadata>
-  <responseMetadata>
-    <millis>500</millis>
-    <serverVersion>v1_4_000</serverVersion>
-  </responseMetadata>
   <wsGroup>
+    <name>aStem:aGroup</name>
     <extension>aGroup</extension>
     <displayExtension>a group</displayExtension>
-    <description>a group description</description>
     <displayName>a stem:a group</displayName>
-    <name>aStem:aGroup</name>
-    <uuid>f6112312-9436-4e58-babf-a849371ee9d8</uuid>
+    <uuid>86c9828486b745ad86bc567416e07f98</uuid>
+    <description>a group description</description>
   </wsGroup>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>78</millis>
+  </responseMetadata>
   <wsSubjects>
     <WsSubject>
-      <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>10021368</id>
-      <sourceId>pennperson</sourceId>
-    </WsSubject>
-    <WsSubject>
       <resultCode>SUCCESS</resultCode>
-      <success>T</success>
-      <id>GrouperSystem</id>
       <sourceId>g:isa</sourceId>
+      <id>GrouperSystem</id>
     </WsSubject>
     <WsSubject>
-      <resultCode>SUCCESS</resultCode>
       <success>T</success>
+      <resultCode>SUCCESS</resultCode>
+      <sourceId>jdbc</sourceId>
       <id>10039438</id>
-      <sourceId>pennperson</sourceId>
+    </WsSubject>
+    <WsSubject>
+      <success>T</success>
+      <resultCode>SUCCESS</resultCode>
+      <sourceId>jdbc</sourceId>
+      <id>10021368</id>
     </WsSubject>
   </wsSubjects>
 </WsGetMembersLiteResult>
@@ -183,7 +186,7 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getMembersLite(WsSampleRestType.xhtml);
+    getMembersLite(WsSampleRestType.xml);
   }
 
   /**
@@ -209,7 +212,7 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[], fieldName: null, subjectAttributeNames: null
 , paramNames: 

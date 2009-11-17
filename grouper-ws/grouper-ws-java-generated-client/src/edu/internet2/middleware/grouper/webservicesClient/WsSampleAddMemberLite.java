@@ -52,8 +52,8 @@ public class WsSampleAddMemberLite implements WsSampleGenerated {
             addMemberLite.setGroupUuid("");
 
             addMemberLite.setSubjectId("");
-            addMemberLite.setSubjectSourceId("pennperson");
-            addMemberLite.setSubjectIdentifier("mchyzer");
+            addMemberLite.setSubjectSourceId("jdbc");
+            addMemberLite.setSubjectIdentifier("id.test.subject.0");
 
             // set the act as id
             addMemberLite.setActAsSubjectId("GrouperSystem");

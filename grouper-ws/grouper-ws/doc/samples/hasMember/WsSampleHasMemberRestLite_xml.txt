@@ -1,4 +1,4 @@
-Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, manually written lite/rest, format: xml, for version: v1_4_000
+Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, manually written lite/rest, format: xml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, man
 #########################################
 
 
-GET /grouperWs/servicesRest/xml/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+GET /grouper-ws/servicesRest/xml/v1_5_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -26,41 +26,45 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: IS_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Mon, 15 Dec 2008 09:03:20 GMT
+Content-Type: text/xml;charset=UTF-8
+Date: Mon, 16 Nov 2009 18:32:50 GMT
 Connection: close
 
 <WsHasMemberLiteResult>
-  <wsGroup>
-    <extension>aGroup</extension>
-    <displayExtension>a group</displayExtension>
-    <description>a group description</description>
-    <displayName>a stem:a group</displayName>
-    <name>aStem:aGroup</name>
-    <uuid>0037047b-1d95-4a9a-b0cb-3d22e8ebada5</uuid>
-  </wsGroup>
+  <wsSubject>
+    <success>T</success>
+    <name>10021368</name>
+    <id>10021368</id>
+    <sourceId>jdbc</sourceId>
+    <resultCode>SUCCESS</resultCode>
+  </wsSubject>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>109</millis>
+  </responseMetadata>
   <resultMetadata>
-    <resultCode>IS_MEMBER</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null</resultMessage>
     <success>T</success>
+    <resultCode>IS_MEMBER</resultCode>
   </resultMetadata>
-  <responseMetadata>
-    <millis>469</millis>
-    <serverVersion>v1_4_000</serverVersion>
-  </responseMetadata>
-  <wsSubject>
-    <resultCode>SUCCESS</resultCode>
-    <success>T</success>
-    <id>10021368</id>
-    <sourceId>pennperson</sourceId>
-  </wsSubject>
+  <wsGroup>
+    <extension>aGroup</extension>
+    <uuid>e0ed4df555c34563b5ccc81fec5ea51a</uuid>
+    <displayExtension>a group</displayExtension>
+    <description>a group description</description>
+    <displayName>a stem:a group</displayName>
+    <name>aStem:aGroup</name>
+  </wsGroup>
 </WsHasMemberLiteResult>
 
 
@@ -194,7 +198,7 @@ public class WsSampleHasMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: IS_MEMBER, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: IS_MEMBER, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
  memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null

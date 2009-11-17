@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, manually written lite/rest, format: json, for version: v1_4_000
+Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, man
 #########################################
 
 
-PUT /grouperWs/servicesRest/json/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+PUT /grouper-ws/servicesRest/json/v1_5_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -27,38 +27,42 @@ Content-Length: 0
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:01:33 GMT
+Content-Type: text/x-json;charset=UTF-8
+Date: Mon, 16 Nov 2009 20:47:13 GMT
 Connection: close
 
 {
   "WsAddMemberLiteResult":{
+    "wsSubject":{
+      "success":"T",
+      "name":"10021368",
+      "resultCode":"SUCCESS",
+      "sourceId":"jdbc",
+      "id":"10021368"
+    },
+    "responseMetadata":{
+      "serverVersion":"v1_5_000",
+      "millis":"172"
+    },
     "resultMetadata":{
       "resultCode":"SUCCESS_ALREADY_EXISTED",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
       "success":"T"
     },
     "wsGroupAssigned":{
+      "name":"aStem:aGroup",
       "extension":"aGroup",
       "displayExtension":"a group",
-      "description":"a group description",
       "displayName":"a stem:a group",
-      "name":"aStem:aGroup",
-      "uuid":"9e7bdc71-8848-4bb6-8b8c-82bc832d3ced"
-    },
-    "wsSubject":{
-      "resultCode":"SUCCESS",
-      "success":"T",
-      "id":"10021368",
-      "sourceId":"pennperson"
-    },
-    "responseMetadata":{
-      "millis":"515",
-      "serverVersion":"v1_4_000"
+      "uuid":"06c472c798564b72b15f6f49049c283b",
+      "description":"a group description"
     }
   }
 }
@@ -168,7 +172,7 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    addMemberLite(WsSampleRestType.xml);
   }
 
   /**
@@ -195,7 +199,7 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_ALREADY_EXISTED, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS_ALREADY_EXISTED, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null
