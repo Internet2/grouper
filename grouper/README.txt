@@ -118,7 +118,7 @@ start the hsqldb server (since hsqldb in file mode does not work well).
 
 Run from the GROUPER_HOME directory:
 
-    % java -cp lib/jdbcSamples/hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper
+    % java -cp lib/jdbcSamples/hsqldb.jar org.hsqldb.Server -database.0 file:grouperHSQL -dbname.0 grouper
 
 Note, you either need to run that command in the background, or use a terminal window that will wait for the server to exit.
 
