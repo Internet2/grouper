@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperVersion.java,v 1.8 2009-11-10 02:26:05 mchyzer Exp $
+ * $Id: GrouperVersion.java,v 1.9 2009-11-18 17:03:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -21,7 +21,7 @@ public class GrouperVersion {
    * this must be three integers separated by dots for major version, minor version, and build number.
    * update this before each
    * non-release-candidate release (e.g. in preparation for it)
-   * e.g. 1.5.0-rc1
+   * e.g. 1.5.0
    */
   public static final String GROUPER_VERSION = "1.5.0";
   
