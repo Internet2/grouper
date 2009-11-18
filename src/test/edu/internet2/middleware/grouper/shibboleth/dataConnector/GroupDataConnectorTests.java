@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 import java.util.Map;
 import java.util.Set;
 
+import junit.textui.TestRunner;
+
 import org.opensaml.util.resource.ResourceException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.GenericApplicationContext;
@@ -22,7 +24,8 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
   }
 
   public static void main(String[] args) {
-    //TestRunner.run(new GroupDataConnectorTests("testAllA"));
+    TestRunner.run(GroupDataConnectorTests.class);
+    // TestRunner.run(new GroupDataConnectorTests("testAllA"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Group group, AttributeMap correctMap) {

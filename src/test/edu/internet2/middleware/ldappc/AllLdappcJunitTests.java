@@ -19,6 +19,7 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.ldappc.configuration.AllJUnitConfigurationTests;
 import edu.internet2.middleware.ldappc.synchronize.AllJUnitSynchronizerTests;
 import edu.internet2.middleware.ldappc.util.AllJUnitUtilTests;
@@ -30,6 +31,10 @@ import edu.internet2.middleware.ldappc.util.AllJUnitUtilTests;
  */
 public class AllLdappcJunitTests extends TestCase {
 
+  public static void main(String[] args) {
+    TestRunner.run(AllLdappcJunitTests.suite());
+  }
+  
   /**
    * Constructor
    */

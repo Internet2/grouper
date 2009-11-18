@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Map;
 
+import junit.textui.TestRunner;
+
 import org.opensaml.util.resource.ResourceException;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.BeanCreationException;
@@ -25,6 +27,7 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
   }
 
   public static void main(String[] args) {
+    TestRunner.run(MemberDataConnectorTests.class);
     //TestRunner.run(new MemberDataConnectorTests("testUnknownSource"));
   }
 
