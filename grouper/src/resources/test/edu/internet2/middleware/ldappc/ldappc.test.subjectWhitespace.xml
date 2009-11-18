@@ -19,7 +19,7 @@
    
       <group-members-name-list list-object-class="eduMember" list-attribute="hasMember" >
         <source-subject-name-mapping>
-          <source-subject-name-map source="jdbc" subject-attribute="lfname" />
+          <source-subject-name-map source="jdbc" subject-attribute="name" />
           <source-subject-name-map source="g:gsa" subject-attribute="name" />
         </source-subject-name-mapping>
       </group-members-name-list>

@@ -13,7 +13,7 @@ member: cn=test.subject.0,ou=testpeople,${base}
 dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: modify
 delete: hasmember
-hasmember: name.test.subject.0
+hasmember: my name is test.subject.0
 -
 
 dn: cn=test.subject.0,ou=testpeople,${base}

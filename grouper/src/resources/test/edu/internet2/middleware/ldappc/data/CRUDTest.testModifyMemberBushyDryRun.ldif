@@ -6,7 +6,7 @@ member: cn=groupA,ou=edu,ou=testgroups,${base}
 -
 add: hasmember
 hasmember: edu:groupA
-hasmember: name.test.subject.0
+hasmember: my name is test.subject.0
 -
 
 dn: cn=groupA,ou=edu,ou=testgroups,${base}

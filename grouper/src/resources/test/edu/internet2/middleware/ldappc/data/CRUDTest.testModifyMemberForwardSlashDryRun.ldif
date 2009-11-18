@@ -16,10 +16,10 @@ delete: member
 member: cn=test.subject.1,ou=testpeople,${base}
 -
 add: hasmember
-hasmember: name.test.subject.0
+hasmember: my name is test.subject.0
 -
 delete: hasmember
-hasmember: name.test.subject.1
+hasmember: my name is test.subject.1
 -
 
 dn: cn=test.subject.0,ou=testpeople,${base}
