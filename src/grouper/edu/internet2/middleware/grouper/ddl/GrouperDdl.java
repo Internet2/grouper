@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.96 2009-11-14 16:44:01 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.97 2009-11-18 00:20:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -167,7 +167,7 @@ public enum GrouperDdl implements DdlVersionable {
         if (!dropAttributeBackupTableFromGroupUpgrade) {
           
           //make a backup
-          GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "GROUPER_ATTRIBUTES", BAK_GROUPER_ATTRIBUTES);
+          GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES, BAK_GROUPER_ATTRIBUTES);
           
         }
         
@@ -1706,7 +1706,7 @@ public enum GrouperDdl implements DdlVersionable {
   /**
    * 
    */
-  public static final String BAK_GROUPER_ATTRIBUTES = "BAK_GROUPER_ATTRIBUTES";
+  public static final String BAK_GROUPER_ATTRIBUTES = "bak_grouper_attributes";
 
   /**
    * size of id cols
