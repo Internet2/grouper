@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Map;
 
+import junit.textui.TestRunner;
+
 import org.slf4j.Logger;
 import org.springframework.context.support.GenericApplicationContext;
 
@@ -21,6 +23,7 @@ public class StemDataConnectorTests extends BaseDataConnectorTest {
   }
 
   public static void main(String[] args) {
+    TestRunner.run(StemDataConnectorTests.class);
     // TestRunner.run(new StemDataConnectorTests("testRootStem"));
   }
   

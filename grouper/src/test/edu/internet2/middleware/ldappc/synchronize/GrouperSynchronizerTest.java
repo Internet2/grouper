@@ -19,6 +19,7 @@ import java.util.Date;
 
 import javax.naming.NamingException;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
@@ -31,6 +32,11 @@ import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 
 public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
+  public static void main(String[] args) {
+    //TestRunner.run(GrouperSynchronizerTest.class);
+    TestRunner.run(new GrouperSynchronizerTest("testStatusUnknown"));
+  }
+  
   public GrouperSynchronizerTest(String name) {
     super(name);
   }

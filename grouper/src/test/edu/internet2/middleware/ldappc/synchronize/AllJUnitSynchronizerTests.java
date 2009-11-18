@@ -18,6 +18,7 @@ package edu.internet2.middleware.ldappc.synchronize;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 /**
  * This class builds a TestSuite out of the individual test classes. It assembles all of
@@ -26,10 +27,13 @@ import junit.framework.TestSuite;
 
 public class AllJUnitSynchronizerTests extends TestCase {
 
+  public static void main(String[] args) {
+    TestRunner.run(AllJUnitSynchronizerTests.suite());
+  }
+  
   /**
    * Class for running all of the synchronizer test cases.
    */
-
   public AllJUnitSynchronizerTests(String name) {
     super(name);
   }

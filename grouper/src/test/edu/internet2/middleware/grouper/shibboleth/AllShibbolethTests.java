@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.shibboleth;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.AllShibDataConnectorTests;
 
 /**
@@ -9,6 +10,10 @@ import edu.internet2.middleware.grouper.shibboleth.dataConnector.AllShibDataConn
  */
 public class AllShibbolethTests {
 
+  public static void main(String[] args) {
+    TestRunner.run(AllShibbolethTests.suite());
+  }
+  
   /**
    * 
    * @return the test
