@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.53 2009-11-17 02:52:29 mchyzer Exp $
+ * @version $Id: StemFinder.java,v 1.54 2009-11-18 17:03:50 mchyzer Exp $
  */
 public class StemFinder {
 
@@ -163,9 +163,31 @@ public class StemFinder {
    */
   public static Stem findByUuid(GrouperSession s, String uuid, boolean exceptionIfNull) 
     throws StemNotFoundException {
+    return findByUuid(s, uuid, exceptionIfNull, null);
+  }
+  /**
+   * Get stem by uuid.
+   * <pre class="eg">
+   * // Get the specified stem by uuid.
+   * try {
+   *   Stem stem = StemFinder.findByUuid(s, uuid);
+   * }
+   * catch (StemNotFoundException e) {
+   *   // Stem not found
+   * }
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   uuid  Get stem with this UUID.
+   * @param exceptionIfNull
+   * @param queryOptions
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByUuid(GrouperSession s, String uuid, boolean exceptionIfNull, QueryOptions queryOptions) 
+    throws StemNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Stem ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, exceptionIfNull) ;
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, exceptionIfNull, queryOptions) ;
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
