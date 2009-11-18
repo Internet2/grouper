@@ -49,24 +49,20 @@ public class HibUtils {
     
     //if hibernate session says no, then no
     if (hibernateSession != null && !hibernateSession.isCachingEnabled()) {
-      System.out.println("Caching: " + false);
       return false;
     }
     
     //cant find answer
     if (cacheable == null && (queryOptions == null || queryOptions.getSecondLevelCache() == null)) {
-      System.out.println("Caching: " + false);
       return false;
     }
     
     //if no options, but has cacheable
     if (queryOptions == null || queryOptions.getSecondLevelCache() == null) {
-      System.out.println("Caching: " + cacheable);
       return cacheable;
     }
 
     //this one trumps all if not null
-    System.out.println("Caching: " + queryOptions.getSecondLevelCache());
     return queryOptions.getSecondLevelCache();
   }
 
