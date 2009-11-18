@@ -115,7 +115,11 @@ GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/vt-ldap/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/apacheds/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/ant/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/test/*
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/test/shibboleth/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/test/*
+
+# Append resources
+GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/src/resources
 
 if [ "$arg1" != "-initEnv" ]; then
 	# ----- Execute The Requested Command ---------------------------------------
