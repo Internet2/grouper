@@ -130,8 +130,6 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
     correct.setAttribute("id", SubjectTestHelper.SUBJ0_ID);
     correct.setAttribute("name", SubjectTestHelper.SUBJ0_NAME);
     correct.setAttribute("description", "description." + SubjectTestHelper.SUBJ0_ID);
-    correct.setAttribute("loginid", "id." + SubjectTestHelper.SUBJ0_ID);
-    correct.setAttribute("lfname", "name." + SubjectTestHelper.SUBJ0_ID);
 
     runResolveTest("testAttributesOnly", SubjectTestHelper.SUBJ0, correct);
   }

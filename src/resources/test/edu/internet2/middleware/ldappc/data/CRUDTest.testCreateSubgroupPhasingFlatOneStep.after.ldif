@@ -6,8 +6,8 @@ dn: cn=edu:groupA,ou=testgroups,${base}
 objectClass: eduMember
 objectClass: groupOfNames
 cn: edu:groupA
-hasMember: name.test.subject.0
-hasMember: name.test.subject.1
+hasMember: my name is test.subject.0
+hasMember: my name is test.subject.1
 hasMember: edu:groupB
 member: cn=test.subject.0,ou=testpeople,${base}
 member: cn=test.subject.1,ou=testpeople,${base}
@@ -17,7 +17,7 @@ dn: cn=edu:groupB,ou=testgroups,${base}
 objectClass: eduMember
 objectClass: groupOfNames
 cn: edu:groupB
-hasMember: name.test.subject.1
+hasMember: my name is test.subject.1
 isMemberOf: edu:groupA
 member: cn=test.subject.1,ou=testpeople,${base}
 description: descriptionB

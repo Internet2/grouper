@@ -6,7 +6,7 @@ objectclass: organizationalUnit
 dn: cn=groupA,ou=edu,ou=testgroups,${base}
 changetype: add
 member: cn=test.subject.0,ou=testpeople,${base}
-hasmember: name.test.subject.0
+hasmember: my name is test.subject.0
 cn: groupA
 objectclass: eduMember
 objectclass: groupOfNames
@@ -14,7 +14,7 @@ objectclass: groupOfNames
 dn: cn=groupB,ou=edu,ou=testgroups,${base}
 changetype: add
 member: cn=test.subject.1,ou=testpeople,${base}
-hasmember: name.test.subject.1
+hasmember: my name is test.subject.1
 cn: groupB
 description: descriptionB
 objectclass: eduMember

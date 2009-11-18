@@ -107,7 +107,7 @@
 
   <resolver:AttributeDefinition id="hasMember" xsi:type="grouper:Member" sourceAttributeID="members">
     <resolver:Dependency ref="group" />
-    <grouper:Attribute id="lfname" source="jdbc" />
+    <grouper:Attribute id="name" source="jdbc" />
     <grouper:Attribute id="name" />
   </resolver:AttributeDefinition>
 

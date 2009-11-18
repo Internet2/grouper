@@ -19,8 +19,6 @@
   <resolver:DataConnector id="testAttributesOnly" xsi:type="grouper:MemberDataConnector">
     <grouper:Attribute id="name" source="jdbc" />
     <grouper:Attribute id="description" source="jdbc" />
-    <grouper:Attribute id="loginid" source="jdbc" />
-    <grouper:Attribute id="lfname" source="jdbc" />
     <grouper:Attribute id="unknown" source="jdbc" />
   </resolver:DataConnector>
 

@@ -13,7 +13,7 @@ objectclass: top
 objectClass: eduMember
 objectClass: groupOfNames
 cn: groupA
-hasMember: name.test.subject.0
+hasMember: my name is test.subject.0
 member: cn=test.subject.0,ou=testpeople,${base}
 
 dn: cn=groupB,ou=edu,ou=testgroups,${base}
@@ -21,7 +21,7 @@ objectclass: top
 objectClass: eduMember
 objectClass: groupOfNames
 cn: groupB
-hasMember: name.test.subject.1
+hasMember: my name is test.subject.1
 member: cn=test.subject.1,ou=testpeople,${base}
 description: descriptionB
 

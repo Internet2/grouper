@@ -40,5 +40,5 @@ objectclass: eduMember
 objectclass: groupOfNames
 cn: groupB
 description: descriptionB
-hasMember: name.test.subject.1
+hasMember: my name is test.subject.1
 member: cn=test.subject.1,ou=testpeople,${base}
