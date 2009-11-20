@@ -55,8 +55,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -1098,7 +1101,7 @@ public class GrouperUtil {
    *   &lt;/b&gt;
    * &lt;/a&gt;
    * 
-   * For json, if the input is: {"a":{"b\"b":{"c\\":"d"},"e":"f","g":["h":"i"]}}
+   * For , if the input is: {"a":{"b\"b":{"c\\":"d"},"e":"f","g":["h":"i"]}}
    * It would output:
    * {
    *   "a":{
@@ -1138,6 +1141,105 @@ public class GrouperUtil {
     
     
   }
+  
+  /**
+   * convert an object to json.  note this wraps the gson with the object simple name so it can be revived
+   * @param object
+   * @return the string of json
+   */
+  public static String jsonConvertTo(Object object) {
+    if (object == null) {
+      throw new NullPointerException();
+    }
+//    Gson gson = new GsonBuilder().create();
+//    String json = gson.toJson(object);
+    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( object );  
+    String json = jsonObject.toString();
+
+    return "{\"" + object.getClass().getSimpleName() + "\":" + json + "}";
+  }
+
+  /**
+   * convert an object to json.  note this wraps the gson with the object simple name so it can be revived
+   * @param object
+   * @param writer 
+   */
+  public static void jsonConvertTo(Object object, Writer writer) {
+    String json = jsonConvertTo(object);
+    try {
+      writer.write(json);
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  /**
+   * <pre>
+   * detects the front of a json string, pops off the first field, and gives the body as the matcher
+   * ^\s*\{\s*\"([^"]+)\"\s*:\s*\{(.*)}$
+   * Example matching text:
+   * {
+   *  "XstreamPocGroup":{
+   *    "somethingNotMarshaled":"whatever",
+   *    "name":"myGroup",
+   *    "someInt":5,
+   *    "someBool":true,
+   *    "members":[
+   *      {
+   *        "name":"John",
+   *        "description":"John Smith - Employee"
+   *      },
+   *      {
+   *        "name":"Mary",
+   *        "description":"Mary Johnson - Student"
+   *      }
+   *    ]
+   *  }
+   * }
+   * 
+   * ^\s*          front of string and optional space
+   * \{\s*         open bracket and optional space
+   * \"([^"]+)\"   quote, simple name of class, quote
+   * \s*:\s*       optional space, colon, optional space
+   * \{(.*)}$      open bracket, the class info, close bracket, end of string
+   * 
+   * 
+   * </pre>
+   */
+  private static Pattern gsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}$", Pattern.DOTALL);
+  
+  /**
+   * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
+   * @param conversionMap is the class simple name to class of objects which are allowed to be brought back.
+   * Note: only the top level object needs to be registered
+   * @param json
+   * @return the object
+   */
+  public static Object jsonConvertFrom(Map<String, Class<?>> conversionMap, String json) {
+    
+    //gson does not put the type of the object in the json, but we need that.  so when we convert,
+    //put the type in there.  So we need to extract the type out when unmarshaling
+    Matcher matcher = gsonPattern.matcher(json);
+    
+    if (!matcher.matches()) {
+      throw new RuntimeException("Cant match this json, should start with simple class name: " + json);
+    }
+    
+    String simpleClassName = matcher.group(1);
+    String jsonBody = matcher.group(2);
+    
+    Class<?> theClass = conversionMap.get(simpleClassName);
+    if (theClass == null) {
+      throw new RuntimeException("Not allowed to unmarshal json: " + simpleClassName + ", " + json);
+    }
+//    Gson gson = new GsonBuilder().create();
+//    Object object = gson.fromJson(jsonBody, theClass);
+    JSONObject jsonObject = JSONObject.fromObject( jsonBody );
+    Object object = JSONObject.toBean( jsonObject, theClass );  
+
+    return object;
+  }
+  
   
   /**
    * get the extension from name.  if name is a:b:c, name is c
