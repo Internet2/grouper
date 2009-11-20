@@ -318,6 +318,9 @@
     not, grouper and grouper-ws libs should not be there, note that if you set your local 
     tomcat to grouper-ws-home/webapp is should run locally.  Note this should only need 
     to be done once (unless non grouper jars change)">
+    <mkdir dir="${basedir}/webapp/WEB-INF/lib" />
+    <delete dir="${basedir}/webapp/WEB-INF/lib" />
+    <mkdir dir="${basedir}/webapp/WEB-INF/lib" />
     <copy todir="${basedir}/webapp/WEB-INF/lib">
       <fileset dir="${basedir}/lib/axis" includes="*.jar" />
       <fileset dir="${basedir}/lib/rampart" includes="*.jar" />
