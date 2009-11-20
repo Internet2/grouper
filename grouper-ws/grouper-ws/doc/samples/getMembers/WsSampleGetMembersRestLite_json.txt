@@ -34,50 +34,73 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 21:24:25 GMT
+Content-Length: 1122
+Date: Fri, 20 Nov 2009 06:52:10 GMT
 Connection: close
 
 {
   "WsGetMembersLiteResult":{
+    "responseMetadata":{
+      "millis":"122",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
     "resultMetadata":{
+      "params":[
+      ]
+      ,
       "resultCode":"SUCCESS",
+      "resultCode2":"",
       "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[], fieldName: null, subjectAttributeNames: null\n, paramNames: \n, params: null",
       "success":"T"
     },
+    "subjectAttributeNames":[
+    ]
+    ,
     "wsGroup":{
-      "name":"aStem:aGroup",
-      "extension":"aGroup",
+      "description":"a group description",
+      "detail":null,
       "displayExtension":"a group",
       "displayName":"a stem:a group",
-      "uuid":"8ae5a6979f324f80975ef869d551d44f",
-      "description":"a group description"
+      "extension":"aGroup",
+      "name":"aStem:aGroup",
+      "uuid":"dfea57c7d41c46ecb47a413a15f3499e"
     },
-    "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"125"
-    },
-    "wsSubjects":{
-      "WsSubject":[
-        {
-          "success":"T",
-          "resultCode":"SUCCESS",
-          "sourceId":"g:isa",
-          "id":"GrouperSystem"
-        },
-        {
-          "success":"T",
-          "resultCode":"SUCCESS",
-          "sourceId":"jdbc",
-          "id":"10039438"
-        },
-        {
-          "success":"T",
-          "resultCode":"SUCCESS",
-          "sourceId":"jdbc",
-          "id":"10021368"
-        }
-      ]
-    }
+    "wsSubjects":[
+      {
+        "attributeValues":[
+        ]
+        ,
+        "id":"GrouperSystem",
+        "identifierLookup":"",
+        "name":"",
+        "resultCode":"SUCCESS",
+        "sourceId":"g:isa",
+        "success":"T"
+      },
+      {
+        "attributeValues":[
+        ]
+        ,
+        "id":"10021368",
+        "identifierLookup":"",
+        "name":"",
+        "resultCode":"SUCCESS",
+        "sourceId":"jdbc",
+        "success":"T"
+      },
+      {
+        "attributeValues":[
+        ]
+        ,
+        "id":"10039438",
+        "identifierLookup":"",
+        "name":"",
+        "resultCode":"SUCCESS",
+        "sourceId":"jdbc",
+        "success":"T"
+      }
+    ]
   }
 }
 

@@ -14,15 +14,31 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 157
+Content-Length: 479
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGetGrouperPrivilegesLiteRequest":{
-    "subjectId":"test.subject.0",
+    "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
     "groupName":"aStem:aGroup",
+    "groupUuid":"",
+    "includeGroupDetail":"",
+    "includeSubjectDetail":"",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
+    "privilegeName":"",
     "privilegeType":"access",
-    "actAsSubjectId":"GrouperSystem"
+    "stemName":"",
+    "stemUuid":"",
+    "subjectAttributeNames":"",
+    "subjectId":"test.subject.0",
+    "subjectIdentifier":"",
+    "subjectSourceId":""
   }
 }
 
@@ -42,80 +58,111 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:17:49 GMT
+Content-Length: 1535
+Date: Fri, 20 Nov 2009 06:44:56 GMT
 Connection: close
 
 {
   "WsGetGrouperPrivilegesLiteResult":{
+    "params":[
+    ]
+    ,
+    "privilegeResults":[
+      {
+        "allowed":"T",
+        "ownerSubject":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"GrouperAll",
+          "identifierLookup":"",
+          "name":"EveryEntity",
+          "resultCode":"SUCCESS",
+          "sourceId":"g:isa",
+          "success":"T"
+        },
+        "privilegeName":"read",
+        "privilegeType":"access",
+        "revokable":"F",
+        "wsGroup":{
+          "description":"a group description",
+          "detail":null,
+          "displayExtension":"a group",
+          "displayName":"a stem:a group",
+          "extension":"aGroup",
+          "name":"aStem:aGroup",
+          "uuid":"b00330d45b94417b8df9000417fda90d"
+        },
+        "wsStem":null,
+        "wsSubject":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"test.subject.0",
+          "identifierLookup":"",
+          "name":"my name is test.subject.0",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+        
+      },
+      {
+        "allowed":"T",
+        "ownerSubject":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"GrouperAll",
+          "identifierLookup":"",
+          "name":"EveryEntity",
+          "resultCode":"SUCCESS",
+          "sourceId":"g:isa",
+          "success":"T"
+        },
+        "privilegeName":"view",
+        "privilegeType":"access",
+        "revokable":"F",
+        "wsGroup":{
+          "description":"a group description",
+          "detail":null,
+          "displayExtension":"a group",
+          "displayName":"a stem:a group",
+          "extension":"aGroup",
+          "name":"aStem:aGroup",
+          "uuid":"b00330d45b94417b8df9000417fda90d"
+        },
+        "wsStem":null,
+        "wsSubject":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"test.subject.0",
+          "identifierLookup":"",
+          "name":"my name is test.subject.0",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+      }
+    ]
+    ,
+    "responseMetadata":{
+      "millis":"154",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
     "resultMetadata":{
+      "params":[
+      ]
+      ,
       "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"",
       "success":"T"
     },
-    "privilegeResults":{
-      "WsGrouperPrivilegeResult":[
-        {
-          "wsSubject":{
-            "name":"my name is test.subject.0",
-            "success":"T",
-            "sourceId":"jdbc",
-            "id":"test.subject.0",
-            "resultCode":"SUCCESS"
-          },
-          "privilegeType":"access",
-          "allowed":"T",
-          "ownerSubject":{
-            "name":"EveryEntity",
-            "success":"T",
-            "sourceId":"g:isa",
-            "id":"GrouperAll",
-            "resultCode":"SUCCESS"
-          },
-          "privilegeName":"read",
-          "wsGroup":{
-            "uuid":"23d8f38f54244f189a0ba73f702ea008",
-            "extension":"aGroup",
-            "displayExtension":"a group",
-            "description":"a group description",
-            "displayName":"a stem:a group",
-            "name":"aStem:aGroup"
-          },
-          "revokable":"F"
-        },
-        {
-          "wsSubject":{
-            "name":"my name is test.subject.0",
-            "success":"T",
-            "sourceId":"jdbc",
-            "id":"test.subject.0",
-            "resultCode":"SUCCESS"
-          },
-          "privilegeType":"access",
-          "allowed":"T",
-          "ownerSubject":{
-            "name":"EveryEntity",
-            "success":"T",
-            "sourceId":"g:isa",
-            "id":"GrouperAll",
-            "resultCode":"SUCCESS"
-          },
-          "privilegeName":"view",
-          "wsGroup":{
-            "uuid":"23d8f38f54244f189a0ba73f702ea008",
-            "extension":"aGroup",
-            "displayExtension":"a group",
-            "description":"a group description",
-            "displayName":"a stem:a group",
-            "name":"aStem:aGroup"
-          },
-          "revokable":"F"
-        }
-      ]
-      
-    },
-    "responseMetadata":{
-      "millis":"203",
-      "serverVersion":"v1_5_000"
-    }
+    "subjectAttributeNames":[
+    ]
   }
 }
 
@@ -307,12 +354,19 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 
 Server version: v1_5_000, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
-  resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=0],
+  resultMetadata=WsResultMeta[
+  params={},resultCode=SUCCESS,resultCode2=,success=T,httpStatusCode=500],
+  subjectAttributeNames={},
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
-  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=read,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=23d8f38f54244f189a0ba73f702ea008],
-  wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]],WsGrouperPrivilegeResult[allowed=T,
-  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=view,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=23d8f38f54244f189a0ba73f702ea008],
-  wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[millis=203,millisStart=0,serverVersion=v1_5_000]]
+  ownerSubject=WsSubject[identifierLookup=,resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa,
+  attributeValues={}],privilegeName=read,privilegeType=access,revokable=F,
+  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=b00330d45b94417b8df9000417fda90d],
+  wsSubject=WsSubject[identifierLookup=,resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc,
+  attributeValues={}]],WsGrouperPrivilegeResult[allowed=T,
+  ownerSubject=WsSubject[identifierLookup=,resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa,
+  attributeValues={}],privilegeName=view,privilegeType=access,revokable=F,
+  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=b00330d45b94417b8df9000417fda90d],
+  wsSubject=WsSubject[identifierLookup=,resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc,
+  attributeValues={}]]},
+  responseMetadata=WsResponseMeta[millis=154,millisStart=0,serverVersion=v1_5_000],
+  params={}]

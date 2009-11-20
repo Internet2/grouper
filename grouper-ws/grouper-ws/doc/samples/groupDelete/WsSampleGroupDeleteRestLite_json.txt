@@ -34,23 +34,34 @@ X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:43:35 GMT
+Content-Length: 690
+Date: Fri, 20 Nov 2009 06:58:21 GMT
 Connection: close
 
 {
   "WsGroupDeleteLiteResult":{
-    "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[], txType: NONE, includeGroupDetail: false, paramNames: \n, params: nullCant find group: 'WsGroupLookup[\n  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123]'.",
-      "success":"T",
-      "resultCode":"SUCCESS_GROUP_NOT_FOUND"
-    },
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"94"
+      "millis":"51",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
+    "resultMetadata":{
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS_GROUP_NOT_FOUND",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[], txType: NONE, includeGroupDetail: false, paramNames: \n, params: nullCant find group: 'WsGroupLookup[\n  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123]'.",
+      "success":"T"
     },
     "wsGroup":{
+      "description":"",
+      "detail":null,
+      "displayExtension":"",
+      "displayName":"",
       "extension":"aGroup123",
-      "name":"aStem:aGroup123"
+      "name":"aStem:aGroup123",
+      "uuid":""
     }
   }
 }

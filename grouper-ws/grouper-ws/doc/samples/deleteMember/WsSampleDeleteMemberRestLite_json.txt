@@ -34,34 +34,48 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:31:05 GMT
+Content-Length: 844
+Date: Fri, 20 Nov 2009 06:47:42 GMT
 Connection: close
 
 {
   "WsDeleteMemberLiteResult":{
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"265"
+      "millis":"227",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
       "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\n, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE\n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS"
+      "success":"T"
     },
+    "subjectAttributeNames":[
+    ]
+    ,
     "wsGroup":{
-      "extension":"aGroup",
-      "uuid":"a5d5727edbd747e68c09418df3ac0c78",
-      "displayExtension":"a group",
       "description":"a group description",
+      "detail":null,
+      "displayExtension":"a group",
       "displayName":"a stem:a group",
-      "name":"aStem:aGroup"
+      "extension":"aGroup",
+      "name":"aStem:aGroup",
+      "uuid":"a899d7fab77040a9ba3a0043f6660a1a"
     },
     "wsSubject":{
-      "success":"T",
-      "name":"10021368",
+      "attributeValues":[
+      ]
+      ,
       "id":"10021368",
+      "identifierLookup":"",
+      "name":"10021368",
+      "resultCode":"SUCCESS",
       "sourceId":"jdbc",
-      "resultCode":"SUCCESS"
+      "success":"T"
     }
   }
 }

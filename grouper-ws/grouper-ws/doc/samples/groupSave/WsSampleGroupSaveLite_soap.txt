@@ -55,7 +55,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 16 Nov 2009 18:44:40 GMT
+Date: Fri, 20 Nov 2009 07:01:44 GMT
 
 723
 <?xml version='1.0' encoding='UTF-8'?>
@@ -64,7 +64,7 @@ Date: Mon, 16 Nov 2009 18:44:40 GMT
     <ns:groupSaveLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>484</ns:millis>
+          <ns:millis>515</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -73,10 +73,10 @@ Date: Mon, 16 Nov 2009 18:44:40 GMT
           <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultMessage>Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-wsGroupLookup=WsGroupLookup[uuid=,groupName=aGroup:test],
-wsGroup=WsGroup[uuid=,displayExtension=the test group,description=test group,name=aStem:test]]
+wsGroup=WsGroup[name=aStem:test,description=test group,displayExtension=the test group,uuid=],
+wsGroupLookup=WsGroupLookup[groupName=aGroup:test,uuid=]]
 
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: NONE, paramNames:
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=,subjectIdentifier=], txType: NONE, paramNames:
 , params: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -87,7 +87,7 @@ wsGroup=WsGroup[uuid=,displayExtension=the test group,description=test group,nam
           <ns:displayName>a stem:the test group</ns:displayName>
           <ns:extension>test</ns:extension>
           <ns:name>aStem:test</ns:name>
-          <ns:uuid>5405157c09d649f2ba625bd4560c8d35</ns:uuid>
+          <ns:uuid>de77772081e148019ca0725dc589b6a0</ns:uuid>
         </ns:wsGroup>
       </ns:return>
     </ns:groupSaveLiteResponse>
@@ -206,6 +206,6 @@ public class WsSampleGroupSaveLite implements WsSampleGenerated {
 
 
 WsGroupSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@c1f09d,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@9bf7b5,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1a3c0b4,localWsGroupTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@d82aff,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1ef032c,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@b970f5,localWsGroupTracker=true]

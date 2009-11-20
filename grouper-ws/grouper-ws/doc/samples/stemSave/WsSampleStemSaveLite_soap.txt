@@ -54,7 +54,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 16 Nov 2009 18:41:22 GMT
+Date: Fri, 20 Nov 2009 06:55:48 GMT
 
 6be
 <?xml version='1.0' encoding='UTF-8'?>
@@ -63,7 +63,7 @@ Date: Mon, 16 Nov 2009 18:41:22 GMT
     <ns:stemSaveLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>344</ns:millis>
+          <ns:millis>286</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -72,10 +72,10 @@ Date: Mon, 16 Nov 2009 18:41:22 GMT
           <ns:resultCode>SUCCESS_INSERTED</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultMessage>Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
-wsStem=WsStem[uuid=,description=test stem,name=aStem:test,displayExtension=the test stem],
-wsStemLookup=WsStemLookup[uuid=,stemName=aStem:test]]
+wsStem=WsStem[uuid=,name=aStem:test,displayExtension=the test stem,description=test stem],
+wsStemLookup=WsStemLookup[stemName=aStem:test,uuid=]]
 
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: NONE, paramNames:
+, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -85,7 +85,7 @@ wsStemLookup=WsStemLookup[uuid=,stemName=aStem:test]]
           <ns:displayName>a stem:the test stem</ns:displayName>
           <ns:extension>test</ns:extension>
           <ns:name>aStem:test</ns:name>
-          <ns:uuid>2f185f65d8114977aa556fbe603bbb11</ns:uuid>
+          <ns:uuid>8e20115230a1402dbd873e32a2dd78fb</ns:uuid>
         </ns:wsStem>
       </ns:return>
     </ns:stemSaveLiteResponse>
@@ -201,6 +201,6 @@ public class WsSampleStemSaveLite implements WsSampleGenerated {
 
 
 WsStemSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1d3e28,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1dbb52d,localResultMetadataTracker=true,
-  localWsStem=edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@153c54a,localWsStemTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@c143c5,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@484d5d,localResultMetadataTracker=true,
+  localWsStem=edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@cf1af7,localWsStemTracker=true]

@@ -14,12 +14,29 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 65
+Content-Length: 403
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestHasMemberLiteRequest":{
-    "actAsSubjectId":"GrouperSystem"
+    "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
+    "fieldName":"",
+    "groupName":"",
+    "groupUuid":"",
+    "includeGroupDetail":"",
+    "includeSubjectDetail":"",
+    "memberFilter":"",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
+    "subjectAttributeNames":"",
+    "subjectId":"",
+    "subjectIdentifier":"",
+    "subjectSourceId":""
   }
 }
 
@@ -39,34 +56,51 @@ X-Grouper-resultCode: IS_NOT_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:33:04 GMT
+Content-Length: 1081
+Date: Fri, 20 Nov 2009 06:49:16 GMT
 Connection: close
 
 {
   "WsHasMemberLiteResult":{
-    "wsSubject":{
-      "success":"T",
-      "name":"my name is test.subject.0",
-      "id":"test.subject.0",
-      "sourceId":"jdbc",
-      "resultCode":"SUCCESS"
-    },
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"140"
+      "millis":"84",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\n memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null",
-      "success":"T",
-      "resultCode":"IS_NOT_MEMBER"
+      "params":[
+      ]
+      ,
+      "resultCode":"IS_NOT_MEMBER",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup,uuid=], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectIdentifier=,subjectId=test.subject.0]\n\n memberFilter: All, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null",
+      "success":"T"
     },
+    "results":[
+    ]
+    ,
+    "subjectAttributeNames":[
+    ]
+    ,
     "wsGroup":{
-      "extension":"aGroup",
-      "uuid":"998f3c4d5aee4ce6981c9d9214c2fce3",
-      "displayExtension":"a group",
       "description":"a group description",
+      "detail":null,
+      "displayExtension":"a group",
       "displayName":"a stem:a group",
-      "name":"aStem:aGroup"
+      "extension":"aGroup",
+      "name":"aStem:aGroup",
+      "uuid":"37d284d87798460f990acd64a1de1b5b"
+    },
+    "wsSubject":{
+      "attributeValues":[
+      ]
+      ,
+      "id":"test.subject.0",
+      "identifierLookup":"",
+      "name":"my name is test.subject.0",
+      "resultCode":"SUCCESS",
+      "sourceId":"jdbc",
+      "success":"T"
     }
   }
 }
@@ -226,7 +260,7 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: v1_5_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup,uuid=], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectIdentifier=,subjectId=test.subject.0]
 
- memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+ memberFilter: All, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null

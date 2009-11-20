@@ -14,13 +14,22 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 92
+Content-Length: 261
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGroupDeleteLiteRequest":{
+    "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
+    "groupName":"",
+    "groupUuid":"",
     "includeGroupDetail":"T",
-    "actAsSubjectId":"GrouperSystem"
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":""
   }
 }
 
@@ -40,23 +49,34 @@ X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:44:03 GMT
+Content-Length: 760
+Date: Fri, 20 Nov 2009 06:58:43 GMT
 Connection: close
 
 {
   "WsGroupDeleteLiteResult":{
-    "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'WsGroupLookup[\n  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123]'.",
-      "success":"T",
-      "resultCode":"SUCCESS_GROUP_NOT_FOUND"
-    },
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"78"
+      "millis":"92",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
+    "resultMetadata":{
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS_GROUP_NOT_FOUND",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123,uuid=]\n\n, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'WsGroupLookup[\n  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123,uuid=]'.",
+      "success":"T"
     },
     "wsGroup":{
+      "description":"",
+      "detail":null,
+      "displayExtension":"",
+      "displayName":"",
       "extension":"aGroup123",
-      "name":"aStem:aGroup123"
+      "name":"aStem:aGroup123",
+      "uuid":""
     }
   }
 }
@@ -218,8 +238,8 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]
+Server version: v1_5_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123,uuid=]
 
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: 
+, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: 
 , params: nullCant find group: 'WsGroupLookup[
-  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123]'.
+  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123,uuid=]'.

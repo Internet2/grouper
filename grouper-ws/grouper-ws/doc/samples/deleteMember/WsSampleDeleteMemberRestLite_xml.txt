@@ -34,37 +34,37 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:31:20 GMT
+Date: Fri, 20 Nov 2009 06:47:55 GMT
 Connection: close
 
 <WsDeleteMemberLiteResult>
+  <wsGroup>
+    <name>aStem:aGroup</name>
+    <displayName>a stem:a group</displayName>
+    <description>a group description</description>
+    <extension>aGroup</extension>
+    <displayExtension>a group</displayExtension>
+    <uuid>46357e72c69e4e5b8d0a6158d2b3649a</uuid>
+  </wsGroup>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <sourceId>jdbc</sourceId>
+    <name>10021368</name>
+    <id>10021368</id>
+    <success>T</success>
+  </wsSubject>
   <responseMetadata>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>483</millis>
+    <millis>374</millis>
   </responseMetadata>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE
 , params: null</resultMessage>
-    <success>T</success>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <wsGroup>
-    <extension>aGroup</extension>
-    <uuid>8b2a56b7c1844433bcab781f26175ba5</uuid>
-    <displayExtension>a group</displayExtension>
-    <description>a group description</description>
-    <displayName>a stem:a group</displayName>
-    <name>aStem:aGroup</name>
-  </wsGroup>
-  <wsSubject>
-    <success>T</success>
-    <name>10021368</name>
-    <id>10021368</id>
-    <sourceId>jdbc</sourceId>
-    <resultCode>SUCCESS</resultCode>
-  </wsSubject>
 </WsDeleteMemberLiteResult>
 
 

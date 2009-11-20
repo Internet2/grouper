@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:34:30 GMT
+Date: Fri, 20 Nov 2009 06:50:23 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -45,65 +45,65 @@ Connection: close
   </head>
   <body>
     <div title="WsGetGroupsLiteResult">
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="millis">172</p>
-        <p class="resultWarnings" />
-      </div>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
-
-memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
-, params: null</p>
-        <p class="success">T</p>
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS</p>
-      </div>
       <ul class="wsGroups">
         <li title="WsGroup">
-          <p class="displayExtension">sysadmingroup</p>
-          <p class="uuid">fdf4362edca346a2a9e6fd5df6e49d33</p>
-          <p class="displayName">etc:sysadmingroup</p>
-          <p class="extension">sysadmingroup</p>
-          <p class="description" />
-          <p class="name">etc:sysadmingroup</p>
           <div class="detail" title="WsGroupDetail" />
-        </li>
-        <li title="WsGroup">
-          <p class="displayExtension">webServiceActAsGroup</p>
-          <p class="uuid">14f0291e0cb54b83b8b9f64cb4ced9f2</p>
-          <p class="displayName">etc:webServiceActAsGroup</p>
-          <p class="extension">webServiceActAsGroup</p>
-          <p class="description" />
-          <p class="name">etc:webServiceActAsGroup</p>
-          <div class="detail" title="WsGroupDetail" />
-        </li>
-        <li title="WsGroup">
           <p class="displayExtension">a group2</p>
-          <p class="uuid">919e18f7c672415086b9a6ba89215da1</p>
+          <p class="uuid">dbc7522ea7fe474da35264cde9592cb2</p>
           <p class="displayName">a stem:a group2</p>
           <p class="extension">aGroup2</p>
           <p class="description">a group description2</p>
           <p class="name">aStem:aGroup2</p>
-          <div class="detail" title="WsGroupDetail" />
         </li>
         <li title="WsGroup">
+          <div class="detail" title="WsGroupDetail" />
+          <p class="displayExtension">webServiceActAsGroup</p>
+          <p class="uuid">d2e7862a4eef4892a952b1f07422899f</p>
+          <p class="displayName">etc:webServiceActAsGroup</p>
+          <p class="extension">webServiceActAsGroup</p>
+          <p class="description" />
+          <p class="name">etc:webServiceActAsGroup</p>
+        </li>
+        <li title="WsGroup">
+          <div class="detail" title="WsGroupDetail" />
+          <p class="displayExtension">sysadmingroup</p>
+          <p class="uuid">4d627a5c2c75425189681a2da5b28feb</p>
+          <p class="displayName">etc:sysadmingroup</p>
+          <p class="extension">sysadmingroup</p>
+          <p class="description" />
+          <p class="name">etc:sysadmingroup</p>
+        </li>
+        <li title="WsGroup">
+          <div class="detail" title="WsGroupDetail" />
           <p class="displayExtension">a group</p>
-          <p class="uuid">7ed8463c71e74ebfa4acfb7a3ed3801e</p>
+          <p class="uuid">fa59b805185f45af8feffe40491ded8a</p>
           <p class="displayName">a stem:a group</p>
           <p class="extension">aGroup</p>
           <p class="description">a group description</p>
           <p class="name">aStem:aGroup</p>
-          <div class="detail" title="WsGroupDetail" />
         </li>
       </ul>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="resultWarnings" />
+        <p class="millis">116</p>
+      </div>
       <div class="wsSubject" title="WsSubject">
-        <p class="success">T</p>
         <p class="id">10021368</p>
         <p class="identifierLookup" />
+        <p class="resultCode">SUCCESS</p>
         <p class="sourceId">jdbc</p>
         <p class="name">10021368</p>
+        <p class="success">T</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode2" />
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+
+memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
+, params: null</p>
       </div>
     </div>
   </body>

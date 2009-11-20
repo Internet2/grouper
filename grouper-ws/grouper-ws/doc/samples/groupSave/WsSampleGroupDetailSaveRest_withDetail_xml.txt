@@ -99,67 +99,67 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:45:25 GMT
+Date: Fri, 20 Nov 2009 07:02:22 GMT
 Connection: close
 
 <WsGroupSaveResults>
   <results>
     <WsGroupSaveResult>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_INSERTED</resultCode>
+      </resultMetadata>
       <wsGroup>
+        <name>aStem:whateverGroupLeft</name>
         <extension>whateverGroupLeft</extension>
-        <uuid>9c83747225724c47bb9692a364771b29</uuid>
-        <displayExtension>whateverGroupLeftDispExt</displayExtension>
         <description>whateverGroupLeftDesc</description>
         <displayName>a stem:whateverGroupLeftDispExt</displayName>
-        <name>aStem:whateverGroupLeft</name>
+        <displayExtension>whateverGroupLeftDispExt</displayExtension>
+        <uuid>c13007c850954842abb862ebeb2fe616</uuid>
       </wsGroup>
+    </WsGroupSaveResult>
+    <WsGroupSaveResult>
       <resultMetadata>
         <success>T</success>
         <resultCode>SUCCESS_INSERTED</resultCode>
       </resultMetadata>
-    </WsGroupSaveResult>
-    <WsGroupSaveResult>
       <wsGroup>
+        <name>aStem:whateverGroupRight</name>
         <extension>whateverGroupRight</extension>
-        <uuid>baa99762e1d64037a3384c4926e12107</uuid>
-        <displayExtension>whateverGroupRightDispExt</displayExtension>
         <description>whateverGroupRightDesc</description>
         <displayName>a stem:whateverGroupRightDispExt</displayName>
-        <name>aStem:whateverGroupRight</name>
+        <displayExtension>whateverGroupRightDispExt</displayExtension>
+        <uuid>25b89c8fa2564063819af30dfaec2c1f</uuid>
       </wsGroup>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS_INSERTED</resultCode>
-      </resultMetadata>
     </WsGroupSaveResult>
     <WsGroupSaveResult>
-      <wsGroup>
-        <extension>whateverGroup</extension>
-        <uuid>c195f2a440204bd6a294a796522dbcaf</uuid>
-        <displayExtension>disp1</displayExtension>
-        <description>desc1</description>
-        <displayName>a stem:disp1</displayName>
-        <name>aStem:whateverGroup</name>
-      </wsGroup>
       <resultMetadata>
         <success>T</success>
         <resultCode>SUCCESS_INSERTED</resultCode>
       </resultMetadata>
+      <wsGroup>
+        <name>aStem:whateverGroup</name>
+        <extension>whateverGroup</extension>
+        <description>desc1</description>
+        <displayName>a stem:disp1</displayName>
+        <displayExtension>disp1</displayExtension>
+        <uuid>da11141a4e3e4337a1b1344d0fbb09cd</uuid>
+      </wsGroup>
     </WsGroupSaveResult>
   </results>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>1622</millis>
-  </responseMetadata>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
-wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroupLeft],
-wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDispExt,descript...
+wsGroup=WsGroup[name=aStem:whateverGroupLeft,extension=whateverGroupLeft,description=whateverGroupLeftDesc,displayExtension=whateverGroupLeftDispExt],
+wsGroup...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
-    <success>T</success>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>1261</millis>
+  </responseMetadata>
 </WsGroupSaveResults>
 
 
@@ -361,7 +361,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
-  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroupLeft],
-  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDispExt,descript...
+  wsGroup=WsGroup[name=aStem:whateverGroupLeft,extension=whateverGroupLeft,description=whateverGroupLeftDesc,displayExtension=whateverGroupLeftDispExt],
+  wsGroup...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

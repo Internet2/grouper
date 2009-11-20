@@ -14,38 +14,53 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 412
+Content-Length: 617
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGroupSaveRequest":{
-    "wsGroupToSaves":{
-      "WsGroupToSave":[
-        {
-          "wsGroupLookup":{
-            "groupName":"aStem:whateverGroup"
-          },
-          "wsGroup":{
-            "extension":"whateverGroup",
-            "displayExtension":"disp1",
-            "description":"desc1",
-            "name":"aStem:whateverGroup"
-          }
-          
+    "actAsSubjectLookup":null,
+    "clientVersion":"",
+    "includeGroupDetail":"",
+    "params":[
+    ]
+    ,
+    "txType":"",
+    "wsGroupToSaves":[
+      {
+        "saveMode":"",
+        "wsGroup":{
+          "description":"desc1",
+          "detail":null,
+          "displayExtension":"disp1",
+          "displayName":"",
+          "extension":"whateverGroup",
+          "name":"aStem:whateverGroup",
+          "uuid":""
         },
-        {
-          "wsGroupLookup":{
-            "groupName":"aStem:whateverGroup2"
-          },
-          "wsGroup":{
-            "extension":"whateverGroup2",
-            "displayExtension":"disp2",
-            "description":"descs",
-            "name":"aStem:whateverGroup2"
-          }
+        "wsGroupLookup":{
+          "groupName":"aStem:whateverGroup",
+          "uuid":""
         }
-      ]
-    }
+        
+      },
+      {
+        "saveMode":"",
+        "wsGroup":{
+          "description":"descs",
+          "detail":null,
+          "displayExtension":"disp2",
+          "displayName":"",
+          "extension":"whateverGroup2",
+          "name":"aStem:whateverGroup2",
+          "uuid":""
+        },
+        "wsGroupLookup":{
+          "groupName":"aStem:whateverGroup2",
+          "uuid":""
+        }
+      }
+    ]
   }
 }
 
@@ -65,54 +80,69 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:44:54 GMT
+Content-Length: 1190
+Date: Fri, 20 Nov 2009 07:01:57 GMT
 Connection: close
 
 {
   "WsGroupSaveResults":{
-    "results":{
-      "WsGroupSaveResult":[
-        {
-          "wsGroup":{
-            "extension":"whateverGroup",
-            "uuid":"c10bdce4a8494a1eac8b04e99319574f",
-            "displayExtension":"disp1",
-            "description":"desc1",
-            "displayName":"a stem:disp1",
-            "name":"aStem:whateverGroup"
-          },
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"SUCCESS_INSERTED"
-          }
-          
-        },
-        {
-          "wsGroup":{
-            "extension":"whateverGroup2",
-            "uuid":"45272ac962bd472390b17fbc7f079896",
-            "displayExtension":"disp2",
-            "description":"descs",
-            "displayName":"a stem:disp2",
-            "name":"aStem:whateverGroup2"
-          },
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"SUCCESS_INSERTED"
-          }
-        }
-      ]
-      
-    },
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"748"
+      "millis":"633",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],\n  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS"
-    }
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[saveMode=,\n  wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayName=,displayExtension=disp1,uuid=],\n  wsGroupLookup=WsGroup...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: Empty array",
+      "success":"T"
+    },
+    "results":[
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS_INSERTED",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsGroup":{
+          "description":"desc1",
+          "detail":null,
+          "displayExtension":"disp1",
+          "displayName":"a stem:disp1",
+          "extension":"whateverGroup",
+          "name":"aStem:whateverGroup",
+          "uuid":"733764414f4f4bd896e27577e22630ba"
+        }
+        
+      },
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS_INSERTED",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsGroup":{
+          "description":"descs",
+          "detail":null,
+          "displayExtension":"disp2",
+          "displayName":"a stem:disp2",
+          "extension":"whateverGroup2",
+          "name":"aStem:whateverGroup2",
+          "uuid":"bf7be4df30da41f88fc1a403c0cc4f8b"
+        }
+      }
+    ]
   }
 }
 
@@ -294,8 +324,8 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
-  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[saveMode=,
+  wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayName=,displayExtension=disp1,uuid=],
+  wsGroupLookup=WsGroup...
 , actAsSubject: null, txType: NONE, paramNames: 
-, params: null
+, params: Empty array

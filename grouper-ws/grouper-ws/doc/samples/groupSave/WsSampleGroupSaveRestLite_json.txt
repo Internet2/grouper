@@ -14,15 +14,27 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 141
+Content-Length: 375
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGroupSaveLiteRequest":{
+    "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
     "description":"desc1",
     "displayExtension":"disp1",
+    "groupLookupName":"",
+    "groupLookupUuid":"",
     "groupName":"aStem:aGroup",
-    "actAsSubjectId":"GrouperSystem"
+    "groupUuid":"",
+    "includeGroupDetail":"",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
+    "saveMode":""
   }
 }
 
@@ -42,27 +54,34 @@ X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:45:38 GMT
+Content-Length: 787
+Date: Fri, 20 Nov 2009 07:02:32 GMT
 Connection: close
 
 {
   "WsGroupSaveLiteResult":{
+    "responseMetadata":{
+      "millis":"133",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup],\n  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS_UPDATED"
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS_UPDATED",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[\n  wsGroup=WsGroup[name=aStem:aGroup,description=desc1,displayExtension=disp1,uuid=],\n  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup,uuid=]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=,subjectIdentifier=], txType: NONE, paramNames: \n, params: null",
+      "success":"T"
     },
     "wsGroup":{
-      "extension":"aGroup",
-      "uuid":"417466101efd4d10b0ac4b3d63ceabe7",
-      "displayExtension":"disp1",
       "description":"desc1",
+      "detail":null,
+      "displayExtension":"disp1",
       "displayName":"a stem:disp1",
-      "name":"aStem:aGroup"
-    },
-    "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"281"
+      "extension":"aGroup",
+      "name":"aStem:aGroup",
+      "uuid":"2668eeb065f340efacb0202791cbd67b"
     }
   }
 }
@@ -226,8 +245,8 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup],
-  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroup]]
+  wsGroup=WsGroup[name=aStem:aGroup,description=desc1,displayExtension=disp1,uuid=],
+  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup,uuid=]]
 
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=,subjectIdentifier=], txType: NONE, paramNames: 
 , params: null

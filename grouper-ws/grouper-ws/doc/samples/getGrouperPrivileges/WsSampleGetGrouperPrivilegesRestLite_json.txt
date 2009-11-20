@@ -14,16 +14,31 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 181
+Content-Length: 484
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGetGrouperPrivilegesLiteRequest":{
-    "subjectId":"test.subject.0",
+    "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
     "groupName":"aStem:aGroup",
-    "privilegeType":"access",
+    "groupUuid":"",
+    "includeGroupDetail":"",
+    "includeSubjectDetail":"",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
     "privilegeName":"admin",
-    "actAsSubjectId":"GrouperSystem"
+    "privilegeType":"access",
+    "stemName":"",
+    "stemUuid":"",
+    "subjectAttributeNames":"",
+    "subjectId":"test.subject.0",
+    "subjectIdentifier":"",
+    "subjectSourceId":""
   }
 }
 
@@ -43,19 +58,34 @@ X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:17:17 GMT
+Content-Length: 298
+Date: Fri, 20 Nov 2009 06:44:31 GMT
 Connection: close
 
 {
   "WsGetGrouperPrivilegesLiteResult":{
+    "params":[
+    ]
+    ,
+    "privilegeResults":[
+    ]
+    ,
+    "responseMetadata":{
+      "millis":"132",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
     "resultMetadata":{
+      "params":[
+      ]
+      ,
       "resultCode":"SUCCESS_NOT_ALLOWED",
+      "resultCode2":"",
+      "resultMessage":"",
       "success":"T"
     },
-    "responseMetadata":{
-      "millis":"235",
-      "serverVersion":"v1_5_000"
-    }
+    "subjectAttributeNames":[
+    ]
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestResponseContentType.java,v 1.7 2008-12-06 20:39:33 mchyzer Exp $
+ * @author mchyzer $Id: WsRestResponseContentType.java,v 1.8 2009-11-20 07:15:38 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
+import edu.internet2.middleware.grouper.ws.rest.json.JsonConverter;
 import edu.internet2.middleware.grouper.ws.soap.WsSubject;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -119,8 +120,15 @@ public enum WsRestResponseContentType {
      */
     @Override
     public void writeString(Object object, Writer writer) {
-      XStream xstream = xstream(true);
-      xstream.toXML(object, writer);
+      JsonConverter jsonConverter = WsRestRequestContentType.jsonConverter();
+      try {
+        jsonConverter.convertToJson(object, writer);
+      } catch (RuntimeException re) {
+        LOG.error("Error converting json object with converter: " 
+            + GrouperUtil.className(jsonConverter) + ", " + GrouperUtil.className(object));
+        throw new RuntimeException("Error converting json object with converter: " + GrouperUtil.className(jsonConverter)
+            + ", " + GrouperUtil.className(object), re);
+      }
     }
 
     /**

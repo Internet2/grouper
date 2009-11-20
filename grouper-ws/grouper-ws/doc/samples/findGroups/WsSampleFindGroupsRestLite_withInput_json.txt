@@ -14,14 +14,28 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 121
+Content-Length: 406
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestFindGroupsLiteRequest":{
-    "queryFilterType":"FIND_BY_GROUP_NAME_APPROXIMATE",
+    "actAsSubjectId":"",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
+    "groupAttributeName":"",
+    "groupAttributeValue":"",
     "groupName":"aGr",
-    "stemName":"aStem"
+    "groupTypeName":"",
+    "groupUuid":"",
+    "includeGroupDetail":"",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
+    "queryFilterType":"FIND_BY_GROUP_NAME_APPROXIMATE",
+    "stemName":"aStem",
+    "stemNameScope":""
   }
 }
 
@@ -41,39 +55,46 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 21:10:07 GMT
+Content-Length: 960
+Date: Fri, 20 Nov 2009 06:53:27 GMT
 Connection: close
 
 {
   "WsFindGroupsResults":{
-    "resultMetadata":{
-      "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr]\n, includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames: \n, params: null",
-      "success":"T"
-    },
+    "groupResults":[
+      {
+        "description":"a group description",
+        "detail":null,
+        "displayExtension":"a group",
+        "displayName":"a stem:a group",
+        "extension":"aGroup",
+        "name":"aStem:aGroup",
+        "uuid":"1d8b7019b0ad4445bbb8545a9cb17315"
+      },
+      {
+        "description":"a group description2",
+        "detail":null,
+        "displayExtension":"a group2",
+        "displayName":"a stem:a group2",
+        "extension":"aGroup2",
+        "name":"aStem:aGroup2",
+        "uuid":"13560c661c2840a4ad3fc914026fb650"
+      }
+    ]
+    ,
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"78"
+      "millis":"99",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
-    "groupResults":{
-      "WsGroup":[
-        {
-          "name":"aStem:aGroup2",
-          "extension":"aGroup2",
-          "displayExtension":"a group2",
-          "displayName":"a stem:a group2",
-          "uuid":"8ec7ed84117540e391fd48b7c874aa8d",
-          "description":"a group description2"
-        },
-        {
-          "name":"aStem:aGroup",
-          "extension":"aGroup",
-          "displayExtension":"a group",
-          "displayName":"a stem:a group",
-          "uuid":"e233da2b5a1b428b9f571efa47353d52",
-          "description":"a group description"
-        }
+    "resultMetadata":{
+      "params":[
       ]
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupUuid=,groupAttributeName=,groupAttributeValue=]\n, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=], paramNames: \n, params: null",
+      "success":"T"
     }
   }
 }
@@ -235,6 +256,6 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr]
-, includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames: 
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupUuid=,groupAttributeName=,groupAttributeValue=]
+, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=], paramNames: 
 , params: null

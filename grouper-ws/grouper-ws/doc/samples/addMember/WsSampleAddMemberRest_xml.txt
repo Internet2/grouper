@@ -51,58 +51,58 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 20:46:58 GMT
+Date: Fri, 20 Nov 2009 06:46:08 GMT
 Connection: close
 
 <WsAddMemberResults>
+  <wsGroupAssigned>
+    <name>aStem:aGroup</name>
+    <displayName>a stem:a group</displayName>
+    <description>a group description</description>
+    <extension>aGroup</extension>
+    <displayExtension>a group</displayExtension>
+    <uuid>6f259c584ce346dfb06301210e73b536</uuid>
+  </wsGroupAssigned>
+  <results>
+    <WsAddMemberResult>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
+      </resultMetadata>
+      <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
+        <name>10021368</name>
+        <id>10021368</id>
+        <success>T</success>
+      </wsSubject>
+    </WsAddMemberResult>
+    <WsAddMemberResult>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
+      </resultMetadata>
+      <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
+        <name>10039438</name>
+        <id>10039438</id>
+        <success>T</success>
+      </wsSubject>
+    </WsAddMemberResult>
+  </results>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</resultMessage>
-    <success>T</success>
+    <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <results>
-    <WsAddMemberResult>
-      <resultMetadata>
-        <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
-        <success>T</success>
-      </resultMetadata>
-      <wsSubject>
-        <success>T</success>
-        <name>10021368</name>
-        <resultCode>SUCCESS</resultCode>
-        <sourceId>jdbc</sourceId>
-        <id>10021368</id>
-      </wsSubject>
-    </WsAddMemberResult>
-    <WsAddMemberResult>
-      <resultMetadata>
-        <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
-        <success>T</success>
-      </resultMetadata>
-      <wsSubject>
-        <success>T</success>
-        <name>10039438</name>
-        <resultCode>SUCCESS</resultCode>
-        <sourceId>jdbc</sourceId>
-        <id>10039438</id>
-      </wsSubject>
-    </WsAddMemberResult>
-  </results>
-  <wsGroupAssigned>
-    <name>aStem:aGroup</name>
-    <extension>aGroup</extension>
-    <displayExtension>a group</displayExtension>
-    <displayName>a stem:a group</displayName>
-    <uuid>932adafc66d44daeaf9064701668dbb7</uuid>
-    <description>a group description</description>
-  </wsGroupAssigned>
   <responseMetadata>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>234</millis>
+    <millis>207</millis>
   </responseMetadata>
 </WsAddMemberResults>
 

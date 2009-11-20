@@ -47,10 +47,14 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:32:21 GMT
+Date: Fri, 20 Nov 2009 06:48:42 GMT
 Connection: close
 
 <WsHasMemberResults>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>80</millis>
+  </responseMetadata>
   <results>
     <WsHasMemberResult>
       <resultMetadata>
@@ -58,11 +62,11 @@ Connection: close
         <resultCode>IS_MEMBER</resultCode>
       </resultMetadata>
       <wsSubject>
-        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
         <name>10021368</name>
         <id>10021368</id>
-        <sourceId>jdbc</sourceId>
-        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
       </wsSubject>
     </WsHasMemberResult>
     <WsHasMemberResult>
@@ -71,36 +75,32 @@ Connection: close
         <resultCode>IS_MEMBER</resultCode>
       </resultMetadata>
       <wsSubject>
-        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
         <name>10039438</name>
         <id>10039438</id>
-        <sourceId>jdbc</sourceId>
-        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
       </wsSubject>
     </WsHasMemberResult>
   </results>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>172</millis>
-  </responseMetadata>
+  <wsGroup>
+    <name>aStem:aGroup</name>
+    <displayName>a stem:a group</displayName>
+    <description>a group description</description>
+    <extension>aGroup</extension>
+    <displayExtension>a group</displayExtension>
+    <uuid>d28649fb16544b7bb1f29dd8151fd68b</uuid>
+  </wsGroup>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
 </resultMessage>
-    <success>T</success>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <wsGroup>
-    <extension>aGroup</extension>
-    <uuid>9d7a2d4da49b4cba9c32509670657bbc</uuid>
-    <displayExtension>a group</displayExtension>
-    <description>a group description</description>
-    <displayName>a stem:a group</displayName>
-    <name>aStem:aGroup</name>
-  </wsGroup>
 </WsHasMemberResults>
 
 

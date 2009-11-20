@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: RestConverterTest.java,v 1.2 2009-11-17 02:55:26 mchyzer Exp $
+ * $Id: RestConverterTest.java,v 1.3 2009-11-20 07:15:38 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -53,10 +53,6 @@ public class RestConverterTest extends TestCase {
 
     //System.out.println(object);
     
-    string = "{\"WsGetMembersResults\":{\"responseMetadata\":{\"serverVersion\":\"v1_5_000\",\"millis\":\"858\"},\"subjectAttributeNames\":{\"string\":[\"description\",\"loginid\",\"name\"],\"results\":{\"WsGetMembersResult\":{\"wsGroup\":{\"displayName\":\"a stem:a group\",\"description\":\"a group description\",\"extension\":\"aGroup\",\"name\":\"aStem:aGroup\",\"uuid\":\"ba4a6eea7aae4b899e48e77960105519\",\"displayExtension\":\"a group\"},\"wsSubjects\":{\"WsSubject\":[{\"attributeValues\":{\"string\":[\"GrouperSysAdmin\",{\"string\":\"EveryEntity\"}],\"sourceId\":\"g:isa\",\"success\":\"T\",\"name\":\"GrouperSysAdmin\",\"id\":\"GrouperSystem\",\"resultCode\":\"SUCCESS\"}},{\"attributeValues\":[{\"string\":[\"\",{\"string\":\"10021368\"}],\"sourceId\":\"jdbc\",\"success\":\"T\",\"name\":\"10021368\",\"id\":\"10021368\",\"resultCode\":\"SUCCESS\"},{\"string\":[\"\",{\"string\":\"10039438\"}],\"sourceId\":\"jdbc\",\"success\":\"T\",\"name\":\"10039438\",\"id\":\"10039438\",\"resultCode\":\"SUCCESS\"}],\"WsSubject\":{}}]},\"resultMetadata\":{\"resultCode\":\"SUCCESS\",\"success\":\"T\"}}},\"resultMetadata\":{\"resultMessage\":\"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description\n[1]: loginid\n[2]: name\n\n, paramNames: \n, params: null\",\"resultCode\":\"SUCCESS\",\"success\":\"T\"}}}}";
-    
-    object = WsRestRequestContentType.json.parseString(string, stringBuilder);
-    System.out.println(object);
   }
   
   /**

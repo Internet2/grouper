@@ -14,25 +14,35 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 162
+Content-Length: 350
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGetGroupsRequest":{
-    "subjectLookups":{
-      "WsSubjectLookup":[
-        {
-          "subjectId":10021368
-        },
-        {
-          "subjectId":10039438
-        }
-      ]
-      
-    },
-    "subjectAttributeNames":{
-      "string":"description"
-    }
+    "actAsSubjectLookup":null,
+    "clientVersion":"",
+    "includeGroupDetail":"",
+    "includeSubjectDetail":"",
+    "memberFilter":"",
+    "params":[
+    ]
+    ,
+    "subjectAttributeNames":[
+      "description"
+    ]
+    ,
+    "subjectLookups":[
+      {
+        "subjectId":"10021368",
+        "subjectIdentifier":"",
+        "subjectSourceId":""
+      },
+      {
+        "subjectId":"10039438",
+        "subjectIdentifier":"",
+        "subjectSourceId":""
+      }
+    ]
   }
 }
 
@@ -52,114 +62,139 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:34:01 GMT
+Content-Length: 2335
+Date: Fri, 20 Nov 2009 06:50:02 GMT
 Connection: close
 
 {
   "WsGetGroupsResults":{
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"156"
-    },
-    "subjectAttributeNames":{
-      "string":"description"
+      "millis":"229",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS"
-    },
-    "results":{
-      "WsGetGroupsResult":[
-        {
-          "wsSubject":{
-            "attributeValues":{
-              "string":""
-            },
-            "success":"T",
-            "name":"10021368",
-            "id":"10021368",
-            "sourceId":"jdbc",
-            "resultCode":"SUCCESS"
-          },
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"SUCCESS"
-          },
-          "wsGroups":{
-            "WsGroup":[
-              {
-                "extension":"sysadmingroup",
-                "uuid":"7ca1c0860f6448749b4160008fe549a5",
-                "displayExtension":"sysadmingroup",
-                "displayName":"etc:sysadmingroup",
-                "name":"etc:sysadmingroup"
-              },
-              {
-                "extension":"aGroup",
-                "uuid":"d5be84b4476241518616e32036b82bdb",
-                "displayExtension":"a group",
-                "description":"a group description",
-                "displayName":"a stem:a group",
-                "name":"aStem:aGroup"
-              },
-              {
-                "extension":"aGroup2",
-                "uuid":"ba91e26ee2b4490fa3144788f1b91a96",
-                "displayExtension":"a group2",
-                "description":"a group description2",
-                "displayName":"a stem:a group2",
-                "name":"aStem:aGroup2"
-              },
-              {
-                "extension":"webServiceActAsGroup",
-                "uuid":"3af08a74302b4e258b32f966a3b0941f",
-                "displayExtension":"webServiceActAsGroup",
-                "displayName":"etc:webServiceActAsGroup",
-                "name":"etc:webServiceActAsGroup"
-              }
-            ]
-          }
-          
-        },
-        {
-          "wsSubject":{
-            "attributeValues":{
-              "string":""
-            },
-            "success":"T",
-            "name":"10039438",
-            "id":"10039438",
-            "sourceId":"jdbc",
-            "resultCode":"SUCCESS"
-          },
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"SUCCESS"
-          },
-          "wsGroups":{
-            "WsGroup":[
-              {
-                "extension":"aGroup",
-                "uuid":"d5be84b4476241518616e32036b82bdb",
-                "displayExtension":"a group",
-                "description":"a group description",
-                "displayName":"a stem:a group",
-                "name":"aStem:aGroup"
-              },
-              {
-                "extension":"aGroup2",
-                "uuid":"ba91e26ee2b4490fa3144788f1b91a96",
-                "displayExtension":"a group2",
-                "description":"a group description2",
-                "displayName":"a stem:a group2",
-                "name":"aStem:aGroup2"
-              }
-            ]
-          }
-        }
+      "params":[
       ]
-    }
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10021368]\n[1]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: Empty array",
+      "success":"T"
+    },
+    "results":[
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsGroups":[
+          {
+            "description":"a group description2",
+            "detail":null,
+            "displayExtension":"a group2",
+            "displayName":"a stem:a group2",
+            "extension":"aGroup2",
+            "name":"aStem:aGroup2",
+            "uuid":"2d10bea6e1b14808955a96d35c159669"
+          },
+          {
+            "description":"",
+            "detail":null,
+            "displayExtension":"webServiceActAsGroup",
+            "displayName":"etc:webServiceActAsGroup",
+            "extension":"webServiceActAsGroup",
+            "name":"etc:webServiceActAsGroup",
+            "uuid":"33768854e2494487aa1e3d6a649f7096"
+          },
+          {
+            "description":"a group description",
+            "detail":null,
+            "displayExtension":"a group",
+            "displayName":"a stem:a group",
+            "extension":"aGroup",
+            "name":"aStem:aGroup",
+            "uuid":"f8b136d797504f5186d8a5b26aa5ec2d"
+          },
+          {
+            "description":"",
+            "detail":null,
+            "displayExtension":"sysadmingroup",
+            "displayName":"etc:sysadmingroup",
+            "extension":"sysadmingroup",
+            "name":"etc:sysadmingroup",
+            "uuid":"1c4566f9ad52425fab4e78aa9d4a8c31"
+          }
+        ]
+        ,
+        "wsSubject":{
+          "attributeValues":[
+            ""
+          ]
+          ,
+          "id":"10021368",
+          "identifierLookup":"",
+          "name":"10021368",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+        
+      },
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsGroups":[
+          {
+            "description":"a group description2",
+            "detail":null,
+            "displayExtension":"a group2",
+            "displayName":"a stem:a group2",
+            "extension":"aGroup2",
+            "name":"aStem:aGroup2",
+            "uuid":"2d10bea6e1b14808955a96d35c159669"
+          },
+          {
+            "description":"a group description",
+            "detail":null,
+            "displayExtension":"a group",
+            "displayName":"a stem:a group",
+            "extension":"aGroup",
+            "name":"aStem:aGroup",
+            "uuid":"f8b136d797504f5186d8a5b26aa5ec2d"
+          }
+        ]
+        ,
+        "wsSubject":{
+          "attributeValues":[
+            ""
+          ]
+          ,
+          "id":"10039438",
+          "identifierLookup":"",
+          "name":"10039438",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+      }
+    ]
+    ,
+    "subjectAttributeNames":[
+      "description"
+    ]
   }
 }
 
@@ -327,8 +362,8 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
-[1]: WsSubjectLookup[subjectId=10039438]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10021368]
+[1]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
-, params: null
+, params: Empty array

@@ -14,25 +14,41 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 164
+Content-Length: 442
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestHasMemberRequest":{
-    "subjectLookups":{
-      "WsSubjectLookup":[
-        {
-          "subjectId":10021368
-        },
-        {
-          "subjectId":10039438
-        }
-      ]
-      
-    },
     "actAsSubjectLookup":{
-      "subjectId":"GrouperSystem"
-    }
+      "subjectId":"GrouperSystem",
+      "subjectIdentifier":"",
+      "subjectSourceId":""
+    },
+    "clientVersion":"",
+    "fieldName":"",
+    "includeGroupDetail":"",
+    "includeSubjectDetail":"",
+    "memberFilter":"",
+    "params":[
+    ]
+    ,
+    "subjectAttributeNames":[
+    ]
+    ,
+    "subjectLookups":[
+      {
+        "subjectId":"10021368",
+        "subjectIdentifier":"",
+        "subjectSourceId":""
+      },
+      {
+        "subjectId":"10039438",
+        "subjectIdentifier":"",
+        "subjectSourceId":""
+      }
+    ]
+    ,
+    "wsGroupLookup":null
   }
 }
 
@@ -52,59 +68,85 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:32:14 GMT
+Content-Length: 1487
+Date: Fri, 20 Nov 2009 06:48:37 GMT
 Connection: close
 
 {
   "WsHasMemberResults":{
-    "results":{
-      "WsHasMemberResult":[
-        {
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"IS_MEMBER"
-          },
-          "wsSubject":{
-            "success":"T",
-            "name":"10021368",
-            "id":"10021368",
-            "sourceId":"jdbc",
-            "resultCode":"SUCCESS"
-          }
-          
-        },
-        {
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"IS_MEMBER"
-          },
-          "wsSubject":{
-            "success":"T",
-            "name":"10039438",
-            "id":"10039438",
-            "sourceId":"jdbc",
-            "resultCode":"SUCCESS"
-          }
-        }
-      ]
-      
-    },
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"125"
+      "millis":"166",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null\n",
-      "success":"T",
-      "resultCode":"SUCCESS"
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10021368]\n[1]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10039438]\n\n memberFilter: All, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: Empty array\n,params: Empty array",
+      "success":"T"
     },
+    "results":[
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"IS_MEMBER",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsSubject":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"10021368",
+          "identifierLookup":"",
+          "name":"10021368",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+        
+      },
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"IS_MEMBER",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsSubject":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"10039438",
+          "identifierLookup":"",
+          "name":"10039438",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+      }
+    ]
+    ,
+    "subjectAttributeNames":[
+    ]
+    ,
     "wsGroup":{
-      "extension":"aGroup",
-      "uuid":"46c55fa7f23a4ea7b88ee245d5191ead",
-      "displayExtension":"a group",
       "description":"a group description",
+      "detail":null,
+      "displayExtension":"a group",
       "displayName":"a stem:a group",
-      "name":"aStem:aGroup"
+      "extension":"aGroup",
+      "name":"aStem:aGroup",
+      "uuid":"a87ed8309f354805a2f5caa18d0681a7"
     }
   }
 }
@@ -275,8 +317,8 @@ public class WsSampleHasMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
-[1]: WsSubjectLookup[subjectId=10039438]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10021368]
+[1]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10039438]
 
- memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-,params: null
+ memberFilter: All, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: Empty array
+,params: Empty array

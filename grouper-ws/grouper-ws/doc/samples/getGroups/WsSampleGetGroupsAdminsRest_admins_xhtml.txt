@@ -71,7 +71,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:34:44 GMT
+Date: Fri, 20 Nov 2009 06:50:34 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -82,65 +82,65 @@ Connection: close
   </head>
   <body>
     <div title="WsGetGroupsResults">
-      <ul class="subjectAttributeNames">
-        <li>description</li>
-      </ul>
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="serverVersion">v1_5_000</p>
-        <p class="millis">156</p>
         <p class="resultWarnings" />
+        <p class="millis">106</p>
       </div>
       <ul class="results">
         <li title="WsGetGroupsResult">
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultMessage" />
-            <p class="success">T</p>
-            <p class="resultCode2" />
-            <p class="resultCode">SUCCESS</p>
-          </div>
           <div class="wsSubject" title="WsSubject">
-            <p class="success">T</p>
             <p class="id">10021368</p>
             <ul class="attributeValues">
               <li />
             </ul>
             <p class="identifierLookup" />
+            <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
             <p class="name">10021368</p>
+            <p class="success">T</p>
+          </div>
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode2" />
             <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="resultMessage" />
           </div>
         </li>
         <li title="WsGetGroupsResult">
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultMessage" />
-            <p class="success">T</p>
-            <p class="resultCode2" />
-            <p class="resultCode">SUCCESS</p>
-          </div>
           <div class="wsSubject" title="WsSubject">
-            <p class="success">T</p>
             <p class="id">10039438</p>
             <ul class="attributeValues">
               <li />
             </ul>
             <p class="identifierLookup" />
+            <p class="resultCode">SUCCESS</p>
             <p class="sourceId">jdbc</p>
             <p class="name">10039438</p>
+            <p class="success">T</p>
+          </div>
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode2" />
             <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="resultMessage" />
           </div>
         </li>
       </ul>
       <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode2" />
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
-, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]
 , field: admins</p>
-        <p class="success">T</p>
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS</p>
       </div>
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+      </ul>
     </div>
   </body>
 </html>
@@ -316,5 +316,5 @@ Server version: v1_5_000, result code: SUCCESS, result message: Success for: cli
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
-, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]
 , field: admins

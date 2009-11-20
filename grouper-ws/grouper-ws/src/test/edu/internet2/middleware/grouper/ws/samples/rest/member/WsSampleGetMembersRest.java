@@ -29,7 +29,6 @@ public class WsSampleGetMembersRest implements WsSampleRest {
    * get member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  @SuppressWarnings("deprecation")
   public static void getMembersLite(WsSampleRestType wsSampleRestType) {
 
     try {
@@ -120,9 +119,8 @@ public class WsSampleGetMembersRest implements WsSampleRest {
   /**
    * @param args
    */
-  @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getMembersLite(WsSampleRestType.xml);
+    getMembersLite(WsSampleRestType.json);
   }
 
   /**

@@ -14,16 +14,26 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 165
+Content-Length: 375
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGetGroupsLiteRequest":{
     "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
     "includeGroupDetail":"T",
     "includeSubjectDetail":"T",
+    "memberFilter":"",
     "paramName0":"fieldName",
-    "paramValue0":"admins"
+    "paramName1":"",
+    "paramValue0":"admins",
+    "paramValue1":"",
+    "subjectAttributeNames":"",
+    "subjectId":"",
+    "subjectIdentifier":"",
+    "subjectSourceId":""
   }
 }
 
@@ -43,26 +53,42 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:35:12 GMT
+Content-Length: 762
+Date: Fri, 20 Nov 2009 06:50:55 GMT
 Connection: close
 
 {
   "WsGetGroupsLiteResult":{
-    "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n, field: admins",
-      "success":"T",
-      "resultCode":"SUCCESS"
-    },
-    "wsSubject":{
-      "success":"T",
-      "name":"10021368",
-      "id":"10021368",
-      "sourceId":"jdbc",
-      "resultCode":"SUCCESS"
-    },
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"94"
+      "millis":"65",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
+    "resultMetadata":{
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectIdentifier=,subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem]\n, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]\n, field: admins",
+      "success":"T"
+    },
+    "subjectAttributeNames":[
+    ]
+    ,
+    "wsGroups":[
+    ]
+    ,
+    "wsSubject":{
+      "attributeValues":[
+      ]
+      ,
+      "id":"10021368",
+      "identifierLookup":"",
+      "name":"10021368",
+      "resultCode":"SUCCESS",
+      "sourceId":"jdbc",
+      "success":"T"
     }
   }
 }
@@ -228,8 +254,8 @@ public class WsSampleGetGroupsAdminsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectIdentifier=,subjectId=10021368]
 
-memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
-, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem]
+, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]
 , field: admins

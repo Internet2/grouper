@@ -39,37 +39,37 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:47:27 GMT
+Date: Fri, 20 Nov 2009 07:03:54 GMT
 Connection: close
 
 <WsMemberChangeSubjectLiteResult>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>187</millis>
-  </responseMetadata>
   <wsSubjectNew>
-    <success>T</success>
-    <name>my name is test.subject.1</name>
     <id>test.subject.1</id>
-    <sourceId>jdbc</sourceId>
-    <resultCode>SUCCESS</resultCode>
-  </wsSubjectNew>
-  <wsSubjectOld>
     <success>T</success>
-    <id>test.subject.0</id>
-    <sourceId>jdbc</sourceId>
     <resultCode>SUCCESS</resultCode>
-  </wsSubjectOld>
+    <sourceId>jdbc</sourceId>
+    <name>my name is test.subject.1</name>
+  </wsSubjectNew>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
-oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],deleteOldMember=T,
-newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null</resultMessage>
-    <success>T</success>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
+  <wsSubjectOld>
+    <id>test.subject.0</id>
+    <success>T</success>
+    <resultCode>SUCCESS</resultCode>
+    <sourceId>jdbc</sourceId>
+  </wsSubjectOld>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>123</millis>
+  </responseMetadata>
 </WsMemberChangeSubjectLiteResult>
 
 
@@ -238,8 +238,8 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
-  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],deleteOldMember=T,
-  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null

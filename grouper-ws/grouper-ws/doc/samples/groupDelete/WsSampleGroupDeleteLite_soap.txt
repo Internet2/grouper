@@ -50,7 +50,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 16 Nov 2009 18:42:59 GMT
+Date: Fri, 20 Nov 2009 06:57:45 GMT
 
 778
 <?xml version='1.0' encoding='UTF-8'?>
@@ -59,7 +59,7 @@ Date: Mon, 16 Nov 2009 18:42:59 GMT
     <ns:groupDeleteLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>140</ns:millis>
+          <ns:millis>112</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -67,11 +67,11 @@ Date: Mon, 16 Nov 2009 18:42:59 GMT
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS_GROUP_NOT_FOUND</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[uuid=,groupName=aStem:test]
+          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:test,uuid=]
 
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: NONE, includeGroupDetail: true, paramNames:
-, params: nullCant find group: 'WsGroupLookup[uuid=,
-groupFindResult=GROUP_NOT_FOUND,groupName=aStem:test]'.</ns:resultMessage>
+, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames:
+, params: nullCant find group: 'WsGroupLookup[
+groupFindResult=GROUP_NOT_FOUND,groupName=aStem:test,uuid=]'.</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
@@ -192,6 +192,6 @@ public class WsSampleGroupDeleteLite implements WsSampleGenerated {
 
 
 WsGroupDeleteLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@2d9450,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@641047,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@168be22,localWsGroupTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@147e06b,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1dea806,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@e947cd,localWsGroupTracker=true]

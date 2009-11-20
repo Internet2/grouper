@@ -41,18 +41,18 @@ X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:17:34 GMT
+Date: Fri, 20 Nov 2009 06:44:44 GMT
 Connection: close
 
 <WsGetGrouperPrivilegesLiteResult>
-  <resultMetadata>
-    <resultCode>SUCCESS_NOT_ALLOWED</resultCode>
-    <success>T</success>
-  </resultMetadata>
   <responseMetadata>
-    <millis>173</millis>
     <serverVersion>v1_5_000</serverVersion>
+    <millis>920</millis>
   </responseMetadata>
+  <resultMetadata>
+    <success>T</success>
+    <resultCode>SUCCESS_NOT_ALLOWED</resultCode>
+  </resultMetadata>
 </WsGetGrouperPrivilegesLiteResult>
 
 

@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, manually written lite/rest, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroupToSave HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups/aStem%3AaGroup HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 826
+Content-Length: 820
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -26,21 +26,21 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGroupSaveLiteRequest">
       <p class="displayExtension">disp1</p>
+      <p class="description">desc1</p>
       <p class="groupUuid" />
-      <p class="groupName">aStem:aGroupToSave</p>
+      <p class="groupName">aStem:aGroup</p>
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
+      <p class="saveMode" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
-      <p class="includeGroupDetail" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="saveMode" />
       <p class="groupLookupUuid" />
       <p class="groupLookupName" />
-      <p class="description">desc1</p>
     </div>
   </body>
 </html>
@@ -56,12 +56,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS_INSERTED
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS_UPDATED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:10:54 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Fri, 20 Nov 2009 07:02:27 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -72,30 +72,30 @@ Connection: close
   </head>
   <body>
     <div title="WsGroupSaveLiteResult">
+      <div class="wsGroup" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">disp1</p>
+        <p class="uuid">0d1e120cf41e4d139183434b74f6be61</p>
+        <p class="displayName">a stem:disp1</p>
+        <p class="extension">aGroup</p>
+        <p class="description">desc1</p>
+        <p class="name">aStem:aGroup</p>
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="resultWarnings" />
+        <p class="millis">304</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS_INSERTED</p>
+        <p class="resultCode2" />
+        <p class="resultCode">SUCCESS_UPDATED</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-wsGroupLookup=WsGroupLookup[groupName=aStem:aGroupToSave],
-wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave]]
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+wsGroup=WsGroup[name=aStem:aGroup,description=desc1,displayExtension=disp1],
+wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</p>
-        <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4172</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
-      </div>
-      <div class="wsGroup" title="WsGroup">
-        <p class="name">aStem:aGroupToSave</p>
-        <p class="displayName">a stem:disp1</p>
-        <p class="description">desc1</p>
-        <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroupToSave</p>
-        <p class="uuid">e5f98bfb-6d61-4a2a-82c4-6954d0afac9b</p>
-        <p class="displayExtension">disp1</p>
       </div>
     </div>
   </body>
@@ -155,7 +155,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroupToSave");
+            + "/groups/aStem%3AaGroup");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -174,7 +174,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 
       // set the act as id
       groupSaveLite.setActAsSubjectId("GrouperSystem");
-      groupSaveLite.setGroupName("aStem:aGroupToSave");
+      groupSaveLite.setGroupName("aStem:aGroup");
       groupSaveLite.setDescription("desc1");
       groupSaveLite.setDisplayExtension("disp1");
 
@@ -232,7 +232,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSaveLite(WsSampleRestType.xhtml);
+    groupSaveLite(WsSampleRestType.xml);
   }
 
   /**
@@ -259,9 +259,9 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
-  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroupToSave],
-  wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave]]
+Server version: v1_5_000, result code: SUCCESS_UPDATED, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+  wsGroup=WsGroup[name=aStem:aGroup,description=desc1,displayExtension=disp1],
+  wsGroupLookup=WsGroupLookup[groupName=aStem:aGroup]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

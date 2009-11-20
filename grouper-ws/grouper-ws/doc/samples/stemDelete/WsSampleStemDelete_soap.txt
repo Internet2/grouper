@@ -50,7 +50,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemDeleteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 16 Nov 2009 18:39:41 GMT
+Date: Fri, 20 Nov 2009 06:54:30 GMT
 
 8f4
 <?xml version='1.0' encoding='UTF-8'?>
@@ -59,7 +59,7 @@ Date: Mon, 16 Nov 2009 18:39:41 GMT
     <ns:stemDeleteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>109</ns:millis>
+          <ns:millis>116</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -78,8 +78,8 @@ Date: Mon, 16 Nov 2009 18:39:41 GMT
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS_STEM_NOT_FOUND</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:resultMessage>Cant find stem: 'WsStemLookup[stemName=aStem:stemNotExist,
-stemFindResult=STEM_NOT_FOUND]'.</ns:resultMessage>
+            <ns:resultMessage>Cant find stem: 'WsStemLookup[
+stemFindResult=STEM_NOT_FOUND,stemName=aStem:stemNotExist]'.</ns:resultMessage>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
           <ns:wsStem type="edu.internet2.middleware.grouper.ws.soap.WsStem">
@@ -215,9 +215,9 @@ public class WsSampleStemDelete implements WsSampleGenerated {
 
 
 WsStemDeleteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1261d21,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@142738e,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsStemDeleteResult@6e2c6},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1c5fef9,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1e6c2a8,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsStemDeleteResult@8cd580},localResultsTracker=true]
 WsStemDeleteResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@384837,localResultMetadataTracker=true,
-  localWsStem=edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@10d1404,localWsStemTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@c1f778,localResultMetadataTracker=true,
+  localWsStem=edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@5e1af5,localWsStemTracker=true]

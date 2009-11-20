@@ -58,69 +58,69 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:46:58 GMT
+Date: Fri, 20 Nov 2009 07:03:31 GMT
 Connection: close
 
 <WsMemberChangeSubjectResults>
-  <results>
-    <WsMemberChangeSubjectResult>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS</resultCode>
-      </resultMetadata>
-      <wsSubjectNew>
-        <success>T</success>
-        <name>my name is test.subject.1</name>
-        <id>test.subject.1</id>
-        <sourceId>jdbc</sourceId>
-        <resultCode>SUCCESS</resultCode>
-      </wsSubjectNew>
-      <wsSubjectOld>
-        <success>T</success>
-        <identifierLookup>id.test.subject.0</identifierLookup>
-        <id>test.subject.0</id>
-        <sourceId>jdbc</sourceId>
-        <resultCode>SUCCESS</resultCode>
-      </wsSubjectOld>
-    </WsMemberChangeSubjectResult>
-    <WsMemberChangeSubjectResult>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS</resultCode>
-      </resultMetadata>
-      <wsSubjectNew>
-        <success>T</success>
-        <name>my name is test.subject.3</name>
-        <id>test.subject.3</id>
-        <sourceId>jdbc</sourceId>
-        <resultCode>SUCCESS</resultCode>
-      </wsSubjectNew>
-      <wsSubjectOld>
-        <success>T</success>
-        <identifierLookup>id.test.subject.2</identifierLookup>
-        <id>test.subject.2</id>
-        <sourceId>jdbc</sourceId>
-        <resultCode>SUCCESS</resultCode>
-      </wsSubjectOld>
-    </WsMemberChangeSubjectResult>
-  </results>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>437</millis>
-  </responseMetadata>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
 oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
 newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
-oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,
-newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3]]
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null</resultMessage>
-    <success>T</success>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>249</millis>
+  </responseMetadata>
+  <results>
+    <WsMemberChangeSubjectResult>
+      <wsSubjectNew>
+        <id>test.subject.1</id>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
+        <name>my name is test.subject.1</name>
+      </wsSubjectNew>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+      </resultMetadata>
+      <wsSubjectOld>
+        <id>test.subject.0</id>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
+        <identifierLookup>id.test.subject.0</identifierLookup>
+      </wsSubjectOld>
+    </WsMemberChangeSubjectResult>
+    <WsMemberChangeSubjectResult>
+      <wsSubjectNew>
+        <id>test.subject.3</id>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
+        <name>my name is test.subject.3</name>
+      </wsSubjectNew>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+      </resultMetadata>
+      <wsSubjectOld>
+        <id>test.subject.2</id>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
+        <identifierLookup>id.test.subject.2</identifierLookup>
+      </wsSubjectOld>
+    </WsMemberChangeSubjectResult>
+  </results>
 </WsMemberChangeSubjectResults>
 
 
@@ -311,8 +311,8 @@ Server version: v1_5_000, result code: SUCCESS, result message: Success for: cli
   oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
-  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,
-  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3]]
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null

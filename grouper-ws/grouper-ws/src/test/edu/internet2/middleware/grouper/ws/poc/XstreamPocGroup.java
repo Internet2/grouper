@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XstreamPocGroup.java,v 1.3 2009-04-13 20:24:22 mchyzer Exp $
+ * $Id: XstreamPocGroup.java,v 1.4 2009-11-20 07:15:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.poc;
 
@@ -15,6 +15,27 @@ public class XstreamPocGroup {
    */
   @SuppressWarnings("unused")
   private String somethingNotMarshaled = "whatever";
+  
+  /**
+   * get an int by getter
+   * @return the int by getter
+   */
+  public int getSomeIntByGetter() {
+    return this.dontSerializeInt;
+  }
+
+  /**
+   * dont marhsal this
+   */
+  private transient int dontSerializeInt;
+  
+  /**
+   * get an int by getter
+   * @param someIntByGetter
+   */
+  public void setSomeIntByGetter(int someIntByGetter) {
+    this.dontSerializeInt = someIntByGetter;
+  }
   
   /**
    * 
@@ -35,7 +56,44 @@ public class XstreamPocGroup {
   
   /** */
   private String name;
+  /** some int */
+  private int someInt = 5;
   
+  /** some bool */
+  private boolean someBool = true;
+  
+  
+  /**
+   * @return the someInt
+   */
+  public int getSomeInt() {
+    return this.someInt;
+  }
+
+  
+  /**
+   * @param someInt1 the someInt to set
+   */
+  public void setSomeInt(int someInt1) {
+    this.someInt = someInt1;
+  }
+
+  
+  /**
+   * @return the someBool
+   */
+  public boolean isSomeBool() {
+    return this.someBool;
+  }
+
+  
+  /**
+   * @param someBool1 the someBool to set
+   */
+  public void setSomeBool(boolean someBool1) {
+    this.someBool = someBool1;
+  }
+
   /** */
   private XstreamPocMember[] members;
 

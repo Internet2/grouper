@@ -34,37 +34,37 @@ X-Grouper-resultCode: IS_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:32:50 GMT
+Date: Fri, 20 Nov 2009 06:49:05 GMT
 Connection: close
 
 <WsHasMemberLiteResult>
-  <wsSubject>
-    <success>T</success>
-    <name>10021368</name>
-    <id>10021368</id>
-    <sourceId>jdbc</sourceId>
-    <resultCode>SUCCESS</resultCode>
-  </wsSubject>
   <responseMetadata>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>109</millis>
+    <millis>103</millis>
   </responseMetadata>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <sourceId>jdbc</sourceId>
+    <name>10021368</name>
+    <id>10021368</id>
+    <success>T</success>
+  </wsSubject>
+  <wsGroup>
+    <name>aStem:aGroup</name>
+    <displayName>a stem:a group</displayName>
+    <description>a group description</description>
+    <extension>aGroup</extension>
+    <displayExtension>a group</displayExtension>
+    <uuid>42121145f8d1417eb309e31f09c0112c</uuid>
+  </wsGroup>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null</resultMessage>
-    <success>T</success>
     <resultCode>IS_MEMBER</resultCode>
   </resultMetadata>
-  <wsGroup>
-    <extension>aGroup</extension>
-    <uuid>e0ed4df555c34563b5ccc81fec5ea51a</uuid>
-    <displayExtension>a group</displayExtension>
-    <description>a group description</description>
-    <displayName>a stem:a group</displayName>
-    <name>aStem:aGroup</name>
-  </wsGroup>
 </WsHasMemberLiteResult>
 
 

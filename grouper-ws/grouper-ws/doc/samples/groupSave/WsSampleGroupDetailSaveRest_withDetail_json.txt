@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: json, for version: v1_4_000
+Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,92 +9,120 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 1211
+Content-Length: 1643
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGroupSaveRequest":{
-    "wsGroupToSaves":{
-      "WsGroupToSave":[
-        {
-          "wsGroupLookup":{
-            "groupName":"aStem:whateverGroupLeft"
-          },
-          "wsGroup":{
-            "extension":"whateverGroupLeft",
-            "displayExtension":"whateverGroupLeftDispExt",
-            "description":"whateverGroupLeftDesc",
-            "name":"aStem:whateverGroupLeft"
-          }
-          
+    "actAsSubjectLookup":null,
+    "clientVersion":"",
+    "includeGroupDetail":"",
+    "params":[
+    ]
+    ,
+    "txType":"",
+    "wsGroupToSaves":[
+      {
+        "saveMode":"",
+        "wsGroup":{
+          "description":"whateverGroupLeftDesc",
+          "detail":null,
+          "displayExtension":"whateverGroupLeftDispExt",
+          "displayName":"",
+          "extension":"whateverGroupLeft",
+          "name":"aStem:whateverGroupLeft",
+          "uuid":""
         },
-        {
-          "wsGroupLookup":{
-            "groupName":"aStem:whateverGroupRight"
-          },
-          "wsGroup":{
-            "extension":"whateverGroupRight",
-            "displayExtension":"whateverGroupRightDispExt",
-            "description":"whateverGroupRightDesc",
-            "name":"aStem:whateverGroupRight"
-          }
-          
-        },
-        {
-          "wsGroupLookup":{
-            "groupName":"aStem:whateverGroup"
-          },
-          "wsGroup":{
-            "extension":"whateverGroup",
-            "displayExtension":"disp1",
-            "description":"desc1",
-            "name":"aStem:whateverGroup",
-            "detail":{
-              "hasComposite":"T",
-              "leftGroup":{
-                "extension":"whateverGroupLeft",
-                "displayExtension":"whateverGroupLeftDispExt",
-                "description":"whateverGroupLeftDesc",
-                "name":"aStem:whateverGroupLeft"
-              },
-              "rightGroup":{
-                "extension":"whateverGroupRight",
-                "displayExtension":"whateverGroupRightDispExt",
-                "description":"whateverGroupRightDesc",
-                "name":"aStem:whateverGroupRight"
-              },
-              "typeNames":{
-                "string":[
-                  "aType",
-                  "aType2"
-                ]
-                
-              },
-              "attributeNames":{
-                "string":[
-                  "attr_1",
-                  "attr2_1"
-                ]
-                
-              },
-              "attributeValues":{
-                "string":[
-                  "val_1",
-                  "val2_1"
-                ]
-                
-              },
-              "compositeType":"intersection"
-            }
-          }
+        "wsGroupLookup":{
+          "groupName":"aStem:whateverGroupLeft",
+          "uuid":""
         }
-      ]
-    }
+        
+      },
+      {
+        "saveMode":"",
+        "wsGroup":{
+          "description":"whateverGroupRightDesc",
+          "detail":null,
+          "displayExtension":"whateverGroupRightDispExt",
+          "displayName":"",
+          "extension":"whateverGroupRight",
+          "name":"aStem:whateverGroupRight",
+          "uuid":""
+        },
+        "wsGroupLookup":{
+          "groupName":"aStem:whateverGroupRight",
+          "uuid":""
+        }
+        
+      },
+      {
+        "saveMode":"",
+        "wsGroup":{
+          "description":"desc1",
+          "detail":{
+            "attributeNames":[
+              "attr_1",
+              "attr2_1"
+            ]
+            ,
+            "attributeValues":[
+              "val_1",
+              "val2_1"
+            ]
+            ,
+            "compositeType":"intersection",
+            "createSubjectId":"",
+            "createTime":"",
+            "hasComposite":"T",
+            "isCompositeFactor":"",
+            "leftGroup":{
+              "description":"whateverGroupLeftDesc",
+              "detail":null,
+              "displayExtension":"whateverGroupLeftDispExt",
+              "displayName":"",
+              "extension":"whateverGroupLeft",
+              "name":"aStem:whateverGroupLeft",
+              "uuid":""
+            },
+            "modifySource":"",
+            "modifySubjectId":"",
+            "modifyTime":"",
+            "params":[
+            ]
+            ,
+            "rightGroup":{
+              "description":"whateverGroupRightDesc",
+              "detail":null,
+              "displayExtension":"whateverGroupRightDispExt",
+              "displayName":"",
+              "extension":"whateverGroupRight",
+              "name":"aStem:whateverGroupRight",
+              "uuid":""
+            },
+            "typeNames":[
+              "aType",
+              "aType2"
+            ]
+            
+          },
+          "displayExtension":"disp1",
+          "displayName":"",
+          "extension":"whateverGroup",
+          "name":"aStem:whateverGroup",
+          "uuid":""
+        },
+        "wsGroupLookup":{
+          "groupName":"aStem:whateverGroup",
+          "uuid":""
+        }
+      }
+    ]
   }
 }
 
@@ -109,74 +137,95 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:10:44 GMT
+Content-Type: text/x-json;charset=UTF-8
+Content-Length: 1635
+Date: Fri, 20 Nov 2009 07:02:16 GMT
 Connection: close
 
 {
   "WsGroupSaveResults":{
-    "results":{
-      "WsGroupSaveResult":[
-        {
-          "wsGroup":{
-            "extension":"whateverGroupLeft",
-            "displayExtension":"whateverGroupLeftDispExt",
-            "description":"whateverGroupLeftDesc",
-            "displayName":"a stem:whateverGroupLeftDispExt",
-            "name":"aStem:whateverGroupLeft",
-            "uuid":"78813948-6c87-4305-8eb4-775c0cb4227d"
-          },
-          "resultMetadata":{
-            "resultCode":"SUCCESS_INSERTED",
-            "success":"T"
-          }
-          
-        },
-        {
-          "wsGroup":{
-            "extension":"whateverGroupRight",
-            "displayExtension":"whateverGroupRightDispExt",
-            "description":"whateverGroupRightDesc",
-            "displayName":"a stem:whateverGroupRightDispExt",
-            "name":"aStem:whateverGroupRight",
-            "uuid":"c5ef6541-896d-491f-8d74-444516635b4d"
-          },
-          "resultMetadata":{
-            "resultCode":"SUCCESS_INSERTED",
-            "success":"T"
-          }
-          
-        },
-        {
-          "wsGroup":{
-            "extension":"whateverGroup",
-            "displayExtension":"disp1",
-            "description":"desc1",
-            "displayName":"a stem:disp1",
-            "name":"aStem:whateverGroup",
-            "uuid":"ea3ccc88-4efd-4312-84a9-d5ea137bc4e9"
-          },
-          "resultMetadata":{
-            "resultCode":"SUCCESS_INSERTED",
-            "success":"T"
-          }
-        }
-      ]
-      
+    "responseMetadata":{
+      "millis":"1155",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
+      "params":[
+      ]
+      ,
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroupLeft],\n  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDispExt,descript...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[saveMode=,\n  wsGroup=WsGroup[name=aStem:whateverGroupLeft,extension=whateverGroupLeft,description=whateverGroupLeftDesc,displayName=,displayExtension=whateverGroup...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: Empty array",
       "success":"T"
     },
-    "responseMetadata":{
-      "millis":"656",
-      "serverVersion":"v1_4_000"
-    }
+    "results":[
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS_INSERTED",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsGroup":{
+          "description":"whateverGroupLeftDesc",
+          "detail":null,
+          "displayExtension":"whateverGroupLeftDispExt",
+          "displayName":"a stem:whateverGroupLeftDispExt",
+          "extension":"whateverGroupLeft",
+          "name":"aStem:whateverGroupLeft",
+          "uuid":"b187a5b24b4b45598add66f327f19660"
+        }
+        
+      },
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS_INSERTED",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsGroup":{
+          "description":"whateverGroupRightDesc",
+          "detail":null,
+          "displayExtension":"whateverGroupRightDispExt",
+          "displayName":"a stem:whateverGroupRightDispExt",
+          "extension":"whateverGroupRight",
+          "name":"aStem:whateverGroupRight",
+          "uuid":"f24dc71de6f14d67b01c7ba768f69e65"
+        }
+        
+      },
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS_INSERTED",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsGroup":{
+          "description":"desc1",
+          "detail":null,
+          "displayExtension":"disp1",
+          "displayName":"a stem:disp1",
+          "extension":"whateverGroup",
+          "name":"aStem:whateverGroup",
+          "uuid":"76e87985b34847ce9cf47007d21b7132"
+        }
+      }
+    ]
   }
 }
 
@@ -378,8 +427,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
-  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroupLeft],
-  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDispExt,descript...
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[saveMode=,
+  wsGroup=WsGroup[name=aStem:whateverGroupLeft,extension=whateverGroupLeft,description=whateverGroupLeftDesc,displayName=,displayExtension=whateverGroup...
 , actAsSubject: null, txType: NONE, paramNames: 
-, params: null
+, params: Empty array

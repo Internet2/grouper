@@ -14,12 +14,28 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 68
+Content-Length: 388
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestDeleteMemberLiteRequest":{
-    "actAsSubjectId":"GrouperSystem"
+    "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
+    "fieldName":"",
+    "groupName":"",
+    "groupUuid":"",
+    "includeGroupDetail":"",
+    "includeSubjectDetail":"",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
+    "subjectAttributeNames":"",
+    "subjectId":"",
+    "subjectIdentifier":"",
+    "subjectSourceId":""
   }
 }
 
@@ -39,34 +55,48 @@ X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:31:33 GMT
+Content-Length: 991
+Date: Fri, 20 Nov 2009 06:48:05 GMT
 Connection: close
 
 {
   "WsDeleteMemberLiteResult":{
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"140"
+      "millis":"184",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS_WASNT_IMMEDIATE"
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS_WASNT_IMMEDIATE",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup,uuid=], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectIdentifier=,subjectId=test.subjec...\n, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
+      "success":"T"
     },
+    "subjectAttributeNames":[
+    ]
+    ,
     "wsGroup":{
-      "extension":"aGroup",
-      "uuid":"6bc42fd16ba6475c97ba1b2ff44da062",
-      "displayExtension":"a group",
       "description":"a group description",
+      "detail":null,
+      "displayExtension":"a group",
       "displayName":"a stem:a group",
-      "name":"aStem:aGroup"
+      "extension":"aGroup",
+      "name":"aStem:aGroup",
+      "uuid":"6d4c59ca992b44dc95ac141ebd29c9e1"
     },
     "wsSubject":{
-      "success":"T",
-      "name":"my name is test.subject.0",
+      "attributeValues":[
+      ]
+      ,
       "id":"test.subject.0",
+      "identifierLookup":"",
+      "name":"my name is test.subject.0",
+      "resultCode":"SUCCESS",
       "sourceId":"jdbc",
-      "resultCode":"SUCCESS"
+      "success":"T"
     }
   }
 }
@@ -226,7 +256,6 @@ public class WsSampleDeleteMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
-
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
+Server version: v1_5_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup,uuid=], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectIdentifier=,subjectId=test.subjec...
+, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null

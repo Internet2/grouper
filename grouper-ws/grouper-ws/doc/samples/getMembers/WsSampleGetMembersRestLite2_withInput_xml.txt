@@ -37,49 +37,49 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 21:25:18 GMT
+Date: Fri, 20 Nov 2009 06:52:47 GMT
 Connection: close
 
 <WsGetMembersLiteResult>
+  <wsGroup>
+    <name>aStem:aGroup</name>
+    <displayName>a stem:a group</displayName>
+    <description>a group description</description>
+    <extension>aGroup</extension>
+    <displayExtension>a group</displayExtension>
+    <uuid>2e230602ddcf4792a157de907ddcb054</uuid>
+  </wsGroup>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>70</millis>
+  </responseMetadata>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
 , paramNames:
 , params: null</resultMessage>
-    <success>T</success>
+    <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <wsGroup>
-    <name>aStem:aGroup</name>
-    <extension>aGroup</extension>
-    <displayExtension>a group</displayExtension>
-    <displayName>a stem:a group</displayName>
-    <uuid>0971bf6f2ea24ed4ba8ae55d3b8c8be4</uuid>
-    <description>a group description</description>
-  </wsGroup>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>125</millis>
-  </responseMetadata>
   <wsSubjects>
     <WsSubject>
-      <success>T</success>
       <resultCode>SUCCESS</resultCode>
       <sourceId>jdbc</sourceId>
       <id>10039438</id>
+      <success>T</success>
     </WsSubject>
     <WsSubject>
-      <success>T</success>
       <resultCode>SUCCESS</resultCode>
       <sourceId>g:isa</sourceId>
       <id>GrouperSystem</id>
+      <success>T</success>
     </WsSubject>
     <WsSubject>
-      <success>T</success>
       <resultCode>SUCCESS</resultCode>
       <sourceId>jdbc</sourceId>
       <id>10021368</id>
+      <success>T</success>
     </WsSubject>
   </wsSubjects>
 </WsGetMembersLiteResult>

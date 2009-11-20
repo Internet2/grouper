@@ -42,35 +42,35 @@ X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:28:39 GMT
+Date: Fri, 20 Nov 2009 06:45:38 GMT
 Connection: close
 
 <WsAssignGrouperPrivilegesLiteResult>
-  <privilegeName>optin</privilegeName>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>234</millis>
-  </responseMetadata>
-  <wsSubject>
-    <success>T</success>
-    <name>my name is test.subject.0</name>
-    <id>test.subject.0</id>
-    <sourceId>jdbc</sourceId>
-    <resultCode>SUCCESS</resultCode>
-  </wsSubject>
-  <privilegeType>access</privilegeType>
   <resultMetadata>
     <success>T</success>
     <resultCode>SUCCESS_ALLOWED</resultCode>
   </resultMetadata>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>318</millis>
+  </responseMetadata>
+  <privilegeName>optin</privilegeName>
   <wsGroup>
-    <extension>aGroup</extension>
-    <uuid>79e304b489784defb9c6505891ee322a</uuid>
-    <displayExtension>a group</displayExtension>
-    <description>a group description</description>
-    <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
+    <displayName>a stem:a group</displayName>
+    <description>a group description</description>
+    <extension>aGroup</extension>
+    <displayExtension>a group</displayExtension>
+    <uuid>d67edadd5b554a82a0639bc994098338</uuid>
   </wsGroup>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <sourceId>jdbc</sourceId>
+    <name>my name is test.subject.0</name>
+    <id>test.subject.0</id>
+    <success>T</success>
+  </wsSubject>
+  <privilegeType>access</privilegeType>
 </WsAssignGrouperPrivilegesLiteResult>
 
 

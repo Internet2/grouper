@@ -39,37 +39,37 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 21:10:22 GMT
+Date: Fri, 20 Nov 2009 06:53:38 GMT
 Connection: close
 
 <WsFindGroupsResults>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr]
+    <success>T</success>
+    <resultMessage>Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]
 , includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames:
 , params: null</resultMessage>
-    <success>T</success>
+    <resultCode>SUCCESS</resultCode>
   </resultMetadata>
   <responseMetadata>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>125</millis>
+    <millis>76</millis>
   </responseMetadata>
   <groupResults>
     <WsGroup>
       <name>aStem:aGroup</name>
+      <displayName>a stem:a group</displayName>
+      <description>a group description</description>
       <extension>aGroup</extension>
       <displayExtension>a group</displayExtension>
-      <displayName>a stem:a group</displayName>
-      <uuid>9773c26f84ed4059b4424d8d648a626a</uuid>
-      <description>a group description</description>
+      <uuid>4e24193548a44961b2481b1332e1da70</uuid>
     </WsGroup>
     <WsGroup>
       <name>aStem:aGroup2</name>
+      <displayName>a stem:a group2</displayName>
+      <description>a group description2</description>
       <extension>aGroup2</extension>
       <displayExtension>a group2</displayExtension>
-      <displayName>a stem:a group2</displayName>
-      <uuid>c511babe2272400a95e6e98fada982a7</uuid>
-      <description>a group description2</description>
+      <uuid>4f8f9b820119462183b9cc9a2195db03</uuid>
     </WsGroup>
   </groupResults>
 </WsFindGroupsResults>
@@ -231,6 +231,6 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]
 , includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames: 
 , params: null

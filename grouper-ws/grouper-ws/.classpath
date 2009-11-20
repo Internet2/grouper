@@ -152,5 +152,7 @@
 	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/shared-ldap-0.9.15.jar"/>
 	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/apacheds/shared-ldap-constants-0.9.15.jar"/>
 	<classpathentry exported="true" kind="lib" path="/grouper_HEAD15new/lib/vt-ldap/vt-ldap-3.2.jar"/>
+	<classpathentry kind="lib" path="/grouper_HEAD15new/lib/grouper/ezmorph.jar"/>
+	<classpathentry kind="lib" path="/grouper_HEAD15new/lib/grouper/json-lib.jar"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

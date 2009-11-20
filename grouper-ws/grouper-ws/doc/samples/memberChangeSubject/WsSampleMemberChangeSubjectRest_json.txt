@@ -14,36 +14,54 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 390
+Content-Length: 685
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestMemberChangeSubjectRequest":{
     "actAsSubjectLookup":{
-      "subjectId":"GrouperSystem"
+      "subjectId":"GrouperSystem",
+      "subjectIdentifier":"",
+      "subjectSourceId":""
     },
-    "wsMemberChangeSubjects":{
-      "WsMemberChangeSubject":[
-        {
-          "oldSubjectLookup":{
-            "subjectIdentifier":"id.test.subject.0"
-          },
-          "newSubjectLookup":{
-            "subjectId":"test.subject.1"
-          }
-          
+    "clientVersion":"",
+    "includeSubjectDetail":"",
+    "params":[
+    ]
+    ,
+    "subjectAttributeNames":[
+    ]
+    ,
+    "txType":"",
+    "wsMemberChangeSubjects":[
+      {
+        "deleteOldMember":"",
+        "newSubjectLookup":{
+          "subjectId":"test.subject.1",
+          "subjectIdentifier":"",
+          "subjectSourceId":""
         },
-        {
-          "oldSubjectLookup":{
-            "subjectIdentifier":"id.test.subject.2"
-          },
-          "newSubjectLookup":{
-            "subjectId":"test.subject.3"
-          },
-          "deleteOldMember":"F"
+        "oldSubjectLookup":{
+          "subjectId":"",
+          "subjectIdentifier":"id.test.subject.0",
+          "subjectSourceId":""
         }
-      ]
-    }
+        
+      },
+      {
+        "deleteOldMember":"F",
+        "newSubjectLookup":{
+          "subjectId":"test.subject.3",
+          "subjectIdentifier":"",
+          "subjectSourceId":""
+        },
+        "oldSubjectLookup":{
+          "subjectId":"",
+          "subjectIdentifier":"id.test.subject.2",
+          "subjectSourceId":""
+        }
+      }
+    ]
   }
 }
 
@@ -63,66 +81,98 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:46:51 GMT
+Content-Length: 1841
+Date: Fri, 20 Nov 2009 07:03:26 GMT
 Connection: close
 
 {
   "WsMemberChangeSubjectResults":{
-    "results":{
-      "WsMemberChangeSubjectResult":[
-        {
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"SUCCESS"
-          },
-          "wsSubjectNew":{
-            "success":"T",
-            "name":"my name is test.subject.1",
-            "id":"test.subject.1",
-            "sourceId":"jdbc",
-            "resultCode":"SUCCESS"
-          },
-          "wsSubjectOld":{
-            "success":"T",
-            "identifierLookup":"id.test.subject.0",
-            "id":"test.subject.0",
-            "sourceId":"jdbc",
-            "resultCode":"SUCCESS"
-          }
-          
-        },
-        {
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"SUCCESS"
-          },
-          "wsSubjectNew":{
-            "success":"T",
-            "name":"my name is test.subject.3",
-            "id":"test.subject.3",
-            "sourceId":"jdbc",
-            "resultCode":"SUCCESS"
-          },
-          "wsSubjectOld":{
-            "success":"T",
-            "identifierLookup":"id.test.subject.2",
-            "id":"test.subject.2",
-            "sourceId":"jdbc",
-            "resultCode":"SUCCESS"
-          }
-        }
-      ]
-      
-    },
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"390"
+      "millis":"275",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]\n[1]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE\n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS"
-    }
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectId=,subjectSourceId=,subjectIdentifier=id.test.subject.0],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1,subjectSourceId=,subjectIdentifier=],deleteOldMember=]\n[1]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectId=,subjectSourceId=,subjectIdentifier=id.test.subject.2],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3,subjectSourceId=,subjectIdentifier=],deleteOldMem...\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=,subjectIdentifier=], txType: NONE\n, params: Empty array",
+      "success":"T"
+    },
+    "results":[
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsSubjectNew":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"test.subject.1",
+          "identifierLookup":"",
+          "name":"my name is test.subject.1",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        },
+        "wsSubjectOld":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"test.subject.0",
+          "identifierLookup":"id.test.subject.0",
+          "name":"",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+        
+      },
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsSubjectNew":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"test.subject.3",
+          "identifierLookup":"",
+          "name":"my name is test.subject.3",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        },
+        "wsSubjectOld":{
+          "attributeValues":[
+          ]
+          ,
+          "id":"test.subject.2",
+          "identifierLookup":"id.test.subject.2",
+          "name":"",
+          "resultCode":"SUCCESS",
+          "sourceId":"jdbc",
+          "success":"T"
+        }
+      }
+    ]
+    ,
+    "subjectAttributeNames":[
+    ]
   }
 }
 
@@ -311,11 +361,10 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
-  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
-  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+  oldSubjectLookup=WsSubjectLookup[subjectId=,subjectSourceId=,subjectIdentifier=id.test.subject.0],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1,subjectSourceId=,subjectIdentifier=],deleteOldMember=]
 [1]: WsMemberChangeSubject[
-  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,
-  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3]]
-
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
-, params: null
+  oldSubjectLookup=WsSubjectLookup[subjectId=,subjectSourceId=,subjectIdentifier=id.test.subject.2],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3,subjectSourceId=,subjectIdentifier=],deleteOldMem...
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=,subjectIdentifier=], txType: NONE
+, params: Empty array

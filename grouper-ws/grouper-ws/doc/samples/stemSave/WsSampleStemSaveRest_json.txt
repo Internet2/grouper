@@ -14,38 +14,50 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 397
+Content-Length: 551
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestStemSaveRequest":{
-    "wsStemToSaves":{
-      "WsStemToSave":[
-        {
-          "wsStemLookup":{
-            "stemName":"aStem:whateverStem"
-          },
-          "wsStem":{
-            "extension":"whateverStem",
-            "displayExtension":"disp1",
-            "description":"desc1",
-            "name":"aStem:whateverStem"
-          }
-          
+    "actAsSubjectLookup":null,
+    "clientVersion":"",
+    "params":[
+    ]
+    ,
+    "txType":"",
+    "wsStemToSaves":[
+      {
+        "saveMode":"",
+        "wsStem":{
+          "description":"desc1",
+          "displayExtension":"disp1",
+          "displayName":"",
+          "extension":"whateverStem",
+          "name":"aStem:whateverStem",
+          "uuid":""
         },
-        {
-          "wsStemLookup":{
-            "stemName":"aStem:whateverStem2"
-          },
-          "wsStem":{
-            "extension":"whateverStem2",
-            "displayExtension":"disp2",
-            "description":"descs",
-            "name":"aStem:whateverStem2"
-          }
+        "wsStemLookup":{
+          "stemName":"aStem:whateverStem",
+          "uuid":""
         }
-      ]
-    }
+        
+      },
+      {
+        "saveMode":"",
+        "wsStem":{
+          "description":"descs",
+          "displayExtension":"disp2",
+          "displayName":"",
+          "extension":"whateverStem2",
+          "name":"aStem:whateverStem2",
+          "uuid":""
+        },
+        "wsStemLookup":{
+          "stemName":"aStem:whateverStem2",
+          "uuid":""
+        }
+      }
+    ]
   }
 }
 
@@ -65,53 +77,67 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:41:37 GMT
+Content-Length: 1154
+Date: Fri, 20 Nov 2009 06:55:59 GMT
 Connection: close
 
 {
   "WsStemSaveResults":{
-    "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStem=WsStem[extension=whateverStem,description=desc1,name=aStem:whateverStem,displayExtension=disp1],\n  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS"
-    },
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"733"
+      "millis":"504",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
-    "results":{
-      "WsStemSaveResult":[
-        {
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"SUCCESS_INSERTED"
-          },
-          "wsStem":{
-            "uuid":"89ae6e7430c84f4ba223e2e3203d3227",
-            "extension":"whateverStem",
-            "displayName":"a stem:disp1",
-            "description":"desc1",
-            "name":"aStem:whateverStem",
-            "displayExtension":"disp1"
-          }
-          
-        },
-        {
-          "resultMetadata":{
-            "success":"T",
-            "resultCode":"SUCCESS_INSERTED"
-          },
-          "wsStem":{
-            "uuid":"2d9c950304354c89956f0b79470714b0",
-            "extension":"whateverStem2",
-            "displayName":"a stem:disp2",
-            "description":"descs",
-            "name":"aStem:whateverStem2",
-            "displayExtension":"disp2"
-          }
-        }
+    "resultMetadata":{
+      "params":[
       ]
-    }
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStem=WsStem[displayName=,uuid=,name=aStem:whateverStem,displayExtension=disp1,extension=whateverStem,description=desc1],saveMode=,\n  wsStemLookup=WsStemLookup[...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: Empty array",
+      "success":"T"
+    },
+    "results":[
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS_INSERTED",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsStem":{
+          "description":"desc1",
+          "displayExtension":"disp1",
+          "displayName":"a stem:disp1",
+          "extension":"whateverStem",
+          "name":"aStem:whateverStem",
+          "uuid":"6a1d52b5be7e4feea8401036b95ebdd0"
+        }
+        
+      },
+      {
+        "resultMetadata":{
+          "params":[
+          ]
+          ,
+          "resultCode":"SUCCESS_INSERTED",
+          "resultCode2":"",
+          "resultMessage":"",
+          "success":"T"
+        },
+        "wsStem":{
+          "description":"descs",
+          "displayExtension":"disp2",
+          "displayName":"a stem:disp2",
+          "extension":"whateverStem2",
+          "name":"aStem:whateverStem2",
+          "uuid":"3c32681601fb4da69dd767f596a74a2c"
+        }
+      }
+    ]
   }
 }
 
@@ -294,7 +320,7 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
-  wsStem=WsStem[extension=whateverStem,description=desc1,name=aStem:whateverStem,displayExtension=disp1],
-  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
+  wsStem=WsStem[displayName=,uuid=,name=aStem:whateverStem,displayExtension=disp1,extension=whateverStem,description=desc1],saveMode=,
+  wsStemLookup=WsStemLookup[...
 , actAsSubject: null, txType: NONE, paramNames: 
-, params: null
+, params: Empty array

@@ -34,25 +34,25 @@ X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:40:39 GMT
+Date: Fri, 20 Nov 2009 06:55:13 GMT
 Connection: close
 
 <WsStemDeleteLiteResult>
   <wsStem>
-    <extension>aStemToDelete</extension>
     <name>aStem:aStemToDelete</name>
+    <extension>aStemToDelete</extension>
   </wsStem>
   <responseMetadata>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>110</millis>
+    <millis>40</millis>
   </responseMetadata>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: WsSubjectLookup[], txType: NONE, paramNames:
-, params: nullCant find stem: &apos;WsStemLookup[stemName=aStem:aStemToDelete,
-stemFindResult=STEM_NOT_FOUND]&apos;.</resultMessage>
-    <success>T</success>
+, params: nullCant find stem: &apos;WsStemLookup[
+stemFindResult=STEM_NOT_FOUND,stemName=aStem:aStemToDelete]&apos;.</resultMessage>
     <resultCode>SUCCESS_STEM_NOT_FOUND</resultCode>
   </resultMetadata>
 </WsStemDeleteLiteResult>
@@ -191,5 +191,5 @@ public class WsSampleStemDeleteRestLite implements WsSampleRest {
 Server version: v1_5_000, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: WsSubjectLookup[], txType: NONE, paramNames: 
-, params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,
-  stemFindResult=STEM_NOT_FOUND]'.
+, params: nullCant find stem: 'WsStemLookup[
+  stemFindResult=STEM_NOT_FOUND,stemName=aStem:aStemToDelete]'.

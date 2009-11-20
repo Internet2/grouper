@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperServiceAxisServlet.java,v 1.2 2008-10-21 18:12:34 mchyzer Exp $
+ * $Id: GrouperServiceAxisServlet.java,v 1.3 2009-11-20 07:15:38 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.axis2.transport.http.AxisServlet;
 
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication;
 import edu.internet2.middleware.grouper.ws.security.RampartHandlerServer;
 
@@ -31,6 +32,8 @@ public class GrouperServiceAxisServlet extends AxisServlet {
   @Override
   public void service(ServletRequest req, ServletResponse res) throws ServletException,
       IOException {
+    
+    GrouperStartup.startup();
     
     //stash in threadlocal, make sure this is first in this method!
     GrouperServiceJ2ee.assignHttpServlet(this);

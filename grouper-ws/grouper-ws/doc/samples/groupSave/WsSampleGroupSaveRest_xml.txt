@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xml, for version: v1_4_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -55,57 +55,57 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Mon, 15 Dec 2008 09:10:30 GMT
+Content-Type: text/xml;charset=UTF-8
+Date: Fri, 20 Nov 2009 07:02:04 GMT
 Connection: close
 
 <WsGroupSaveResults>
   <results>
     <WsGroupSaveResult>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_INSERTED</resultCode>
+      </resultMetadata>
       <wsGroup>
+        <name>aStem:whateverGroup</name>
         <extension>whateverGroup</extension>
-        <displayExtension>disp1</displayExtension>
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
-        <name>aStem:whateverGroup</name>
-        <uuid>ec8526f9-a08e-41ba-88e5-4f2863612bf0</uuid>
+        <displayExtension>disp1</displayExtension>
+        <uuid>cc383756f8ea48c4aeac7769c76f05c8</uuid>
       </wsGroup>
-      <resultMetadata>
-        <resultCode>SUCCESS_INSERTED</resultCode>
-        <success>T</success>
-      </resultMetadata>
     </WsGroupSaveResult>
     <WsGroupSaveResult>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_INSERTED</resultCode>
+      </resultMetadata>
       <wsGroup>
+        <name>aStem:whateverGroup2</name>
         <extension>whateverGroup2</extension>
-        <displayExtension>disp2</displayExtension>
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
-        <name>aStem:whateverGroup2</name>
-        <uuid>2d865289-4042-4774-97a1-41b8bfc5e719</uuid>
+        <displayExtension>disp2</displayExtension>
+        <uuid>1d99acb525a84c1198ceccd38d5abfa3</uuid>
       </wsGroup>
-      <resultMetadata>
-        <resultCode>SUCCESS_INSERTED</resultCode>
-        <success>T</success>
-      </resultMetadata>
     </WsGroupSaveResult>
   </results>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
-wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
+    <success>T</success>
+    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayExtension=disp1],
+wsGroupLookup=WsGroupLookup[groupName=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
-    <success>T</success>
+    <resultCode>SUCCESS</resultCode>
   </resultMetadata>
   <responseMetadata>
-    <millis>563</millis>
-    <serverVersion>v1_4_000</serverVersion>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>822</millis>
   </responseMetadata>
 </WsGroupSaveResults>
 
@@ -154,7 +154,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   @SuppressWarnings("deprecation")
-  public static void groupSaveLite(WsSampleRestType wsSampleRestType) {
+  public static void groupSave(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -260,14 +260,14 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSaveLite(WsSampleRestType.xhtml);
+    groupSave(WsSampleRestType.xml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    groupSaveLite(wsSampleRestType);
+    groupSave(wsSampleRestType);
   }
 
   /**
@@ -287,8 +287,8 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
-  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+  wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayExtension=disp1],
+  wsGroupLookup=WsGroupLookup[groupName=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

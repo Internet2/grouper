@@ -65,7 +65,7 @@ X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:17:07 GMT
+Date: Fri, 20 Nov 2009 06:44:25 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -78,14 +78,14 @@ Connection: close
     <div title="WsGetGrouperPrivilegesLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="serverVersion">v1_5_000</p>
-        <p class="millis">376</p>
         <p class="resultWarnings" />
+        <p class="millis">287</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultMessage" />
-        <p class="success">T</p>
         <p class="resultCode2" />
         <p class="resultCode">SUCCESS_NOT_ALLOWED</p>
+        <p class="success">T</p>
+        <p class="resultMessage" />
       </div>
     </div>
   </body>

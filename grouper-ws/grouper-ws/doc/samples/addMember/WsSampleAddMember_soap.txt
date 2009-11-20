@@ -61,7 +61,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:addMemberResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 16 Nov 2009 20:52:33 GMT
+Date: Fri, 20 Nov 2009 06:45:45 GMT
 
 f04
 <?xml version='1.0' encoding='UTF-8'?>
@@ -70,7 +70,7 @@ f04
     <ns:addMemberResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>484</ns:millis>
+          <ns:millis>666</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -127,7 +127,7 @@ f04
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>ef441572b2334d2aae1c6162ea1c525f</ns:uuid>
+          <ns:uuid>68fa4c669aba480db020b463b4074c94</ns:uuid>
         </ns:wsGroupAssigned>
       </ns:return>
     </ns:addMemberResponse>
@@ -277,19 +277,19 @@ public class WsSampleAddMember implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResults@1f5ba55[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@15ae101
+edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResults@bd26a4[
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1458f36
   localResponseMetadataTracker=true
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@16a16ae
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1bd5211
   localResultMetadataTracker=true
-  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@197cf78,edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@1b5d53a}
+  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@42af95,edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@1578fa}
   localResultsTracker=true
   localSubjectAttributeNames={<null>}
   localSubjectAttributeNamesTracker=true
-  localWsGroupAssigned=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@9dfb04
+  localWsGroupAssigned=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1fc1432
   localWsGroupAssignedTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@16a16ae[
+edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1bd5211[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS
@@ -303,13 +303,13 @@ edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@16a16ae[
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@197cf78[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@10f3bd7
+edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@42af95[
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1ef1aa4
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@121cef5
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@be3008
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@10f3bd7[
+edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1ef1aa4[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS
@@ -321,13 +321,13 @@ edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@10f3bd7[
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@1b5d53a[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@19d44df
+edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult@1578fa[
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@3b8a2f
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@149895
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@ed1f10
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@19d44df[
+edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@3b8a2f[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS

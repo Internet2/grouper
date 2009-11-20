@@ -14,14 +14,29 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 139
+Content-Length: 479
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestMemberChangeSubjectLiteRequest":{
     "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
+    "deleteOldMember":"",
+    "includeSubjectDetail":"",
+    "newSubjectId":"test.subject.1",
+    "newSubjectIdentifier":"",
+    "newSubjectSourceId":"",
     "oldSubjectId":"test.subject.0",
-    "newSubjectId":"test.subject.1"
+    "oldSubjectIdentifier":"",
+    "oldSubjectSourceId":"",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
+    "retrieveSubjectDetail":"",
+    "subjectAttributeNames":""
   }
 }
 
@@ -41,32 +56,50 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:47:12 GMT
+Content-Length: 998
+Date: Fri, 20 Nov 2009 07:03:43 GMT
 Connection: close
 
 {
   "WsMemberChangeSubjectLiteResult":{
     "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"219"
-    },
-    "wsSubjectNew":{
-      "success":"T",
-      "name":"my name is test.subject.1",
-      "id":"test.subject.1",
-      "sourceId":"jdbc",
-      "resultCode":"SUCCESS"
-    },
-    "wsSubjectOld":{
-      "success":"T",
-      "id":"test.subject.0",
-      "sourceId":"jdbc",
-      "resultCode":"SUCCESS"
+      "millis":"267",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],deleteOldMember=T,\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE\n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS"
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0,subjectIdentifier=],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1,subjectSourceId=,subjectIdentifier=],deleteOldMember=T]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=,subjectIdentifier=], txType: NONE\n, params: null",
+      "success":"T"
+    },
+    "subjectAttributeNames":[
+    ]
+    ,
+    "wsSubjectNew":{
+      "attributeValues":[
+      ]
+      ,
+      "id":"test.subject.1",
+      "identifierLookup":"",
+      "name":"my name is test.subject.1",
+      "resultCode":"SUCCESS",
+      "sourceId":"jdbc",
+      "success":"T"
+    },
+    "wsSubjectOld":{
+      "attributeValues":[
+      ]
+      ,
+      "id":"test.subject.0",
+      "identifierLookup":"",
+      "name":"",
+      "resultCode":"SUCCESS",
+      "sourceId":"jdbc",
+      "success":"T"
     }
   }
 }
@@ -237,8 +270,8 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
-  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],deleteOldMember=T,
-  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0,subjectIdentifier=],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1,subjectSourceId=,subjectIdentifier=],deleteOldMember=T]
 
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=,subjectIdentifier=], txType: NONE
 , params: null

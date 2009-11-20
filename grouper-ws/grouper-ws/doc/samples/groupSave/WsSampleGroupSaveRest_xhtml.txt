@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -26,43 +26,43 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGroupSaveRequest">
       <p class="clientVersion" />
-      <p class="includeGroupDetail" />
       <ul class="wsGroupToSaves">
         <li title="WsGroupToSave">
+          <p class="saveMode" />
+          <div class="wsGroup" title="WsGroup">
+            <p class="name">aStem:whateverGroup</p>
+            <p class="displayName" />
+            <p class="uuid" />
+            <p class="extension">whateverGroup</p>
+            <p class="displayExtension">disp1</p>
+            <p class="description">desc1</p>
+            <div class="detail" title="WsGroupDetail" />
+          </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
             <p class="groupName">aStem:whateverGroup</p>
           </div>
-          <p class="saveMode" />
-          <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">disp1</p>
-            <div class="detail" title="WsGroupDetail" />
-            <p class="name">aStem:whateverGroup</p>
-            <p class="displayName" />
-            <p class="description">desc1</p>
-            <p class="extension">whateverGroup</p>
-          </div>
         </li>
         <li title="WsGroupToSave">
+          <p class="saveMode" />
+          <div class="wsGroup" title="WsGroup">
+            <p class="name">aStem:whateverGroup2</p>
+            <p class="displayName" />
+            <p class="uuid" />
+            <p class="extension">whateverGroup2</p>
+            <p class="displayExtension">disp2</p>
+            <p class="description">descs</p>
+            <div class="detail" title="WsGroupDetail" />
+          </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
             <p class="groupName">aStem:whateverGroup2</p>
-          </div>
-          <p class="saveMode" />
-          <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">disp2</p>
-            <div class="detail" title="WsGroupDetail" />
-            <p class="name">aStem:whateverGroup2</p>
-            <p class="displayName" />
-            <p class="description">descs</p>
-            <p class="extension">whateverGroup2</p>
           </div>
         </li>
       </ul>
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
       <p class="txType" />
+      <p class="includeGroupDetail" />
     </div>
   </body>
 </html>
@@ -78,12 +78,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:10:21 GMT
+Content-Type: application/xhtml+xml;charset=UTF-8
+Date: Fri, 20 Nov 2009 07:01:51 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -96,54 +96,54 @@ Connection: close
     <div title="WsGroupSaveResults">
       <ul class="results">
         <li title="WsGroupSaveResult">
+          <div class="wsGroup" title="WsGroup">
+            <div class="detail" title="WsGroupDetail" />
+            <p class="displayExtension">disp1</p>
+            <p class="uuid">a529c8a965d64a878191d3669d76674c</p>
+            <p class="displayName">a stem:disp1</p>
+            <p class="extension">whateverGroup</p>
+            <p class="description">desc1</p>
+            <p class="name">aStem:whateverGroup</p>
+          </div>
           <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode2" />
             <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
-            <p class="resultCode2" />
-          </div>
-          <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroup</p>
-            <p class="displayName">a stem:disp1</p>
-            <p class="description">desc1</p>
-            <div class="detail" title="WsGroupDetail" />
-            <p class="extension">whateverGroup</p>
-            <p class="uuid">b20c088f-f906-4282-a626-1d5d40400bba</p>
-            <p class="displayExtension">disp1</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
+          <div class="wsGroup" title="WsGroup">
+            <div class="detail" title="WsGroupDetail" />
+            <p class="displayExtension">disp2</p>
+            <p class="uuid">cbf01fa6fdb344999cf9dd21075809e3</p>
+            <p class="displayName">a stem:disp2</p>
+            <p class="extension">whateverGroup2</p>
+            <p class="description">descs</p>
+            <p class="name">aStem:whateverGroup2</p>
+          </div>
           <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode2" />
             <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
-            <p class="resultCode2" />
-          </div>
-          <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroup2</p>
-            <p class="displayName">a stem:disp2</p>
-            <p class="description">descs</p>
-            <div class="detail" title="WsGroupDetail" />
-            <p class="extension">whateverGroup2</p>
-            <p class="uuid">72cd8bca-c0c3-473f-84eb-388da70b1a8f</p>
-            <p class="displayExtension">disp2</p>
           </div>
         </li>
       </ul>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="resultWarnings" />
+        <p class="millis">763</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode2" />
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
-wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayExtension=disp1],
+wsGroupLookup=WsGroupLookup[groupName=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</p>
-        <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4219</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
       </div>
     </div>
   </body>
@@ -194,7 +194,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   @SuppressWarnings("deprecation")
-  public static void groupSaveLite(WsSampleRestType wsSampleRestType) {
+  public static void groupSave(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -300,14 +300,14 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSaveLite(WsSampleRestType.xhtml);
+    groupSave(WsSampleRestType.xml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    groupSaveLite(wsSampleRestType);
+    groupSave(wsSampleRestType);
   }
 
   /**
@@ -327,8 +327,8 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
-  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+  wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayExtension=disp1],
+  wsGroupLookup=WsGroupLookup[groupName=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

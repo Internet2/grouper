@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: json, for version: v1_4_000
+Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manually written lite/rest, format: json, for version: v1_5_000
 
 
 #########################################
@@ -9,25 +9,37 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRest, manua
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v1_5_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 144
+Content-Length: 284
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGetMembersRequest":{
-    "wsGroupLookups":{
-      "WsGroupLookup":{
-        "groupName":"aStem:aGroup"
+    "actAsSubjectLookup":null,
+    "clientVersion":"",
+    "fieldName":"",
+    "includeGroupDetail":"",
+    "includeSubjectDetail":"",
+    "memberFilter":"",
+    "params":[
+    ]
+    ,
+    "subjectAttributeNames":[
+      "description",
+      "loginid",
+      "name"
+    ]
+    ,
+    "wsGroupLookups":[
+      {
+        "groupName":"aStem:aGroup",
+        "uuid":""
       }
-      
-    },
-    "actAsSubjectLookup":{
-      "subjectId":"GrouperSystem"
-    }
+    ]
   }
 }
 
@@ -42,64 +54,103 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 09:05:11 GMT
+Content-Type: text/x-json;charset=UTF-8
+Content-Length: 1418
+Date: Fri, 20 Nov 2009 06:51:52 GMT
 Connection: close
 
 {
   "WsGetMembersResults":{
+    "responseMetadata":{
+      "millis":"158",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
     "resultMetadata":{
+      "params":[
+      ]
+      ,
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null\n, paramNames: \n, params: null",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup,uuid=]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description\n[1]: loginid\n[2]: name\n\n, paramNames: \n, params: Empty array",
       "success":"T"
     },
-    "responseMetadata":{
-      "millis":"484",
-      "serverVersion":"v1_4_000"
-    },
-    "results":{
-      "WsGetMembersResult":{
-        "wsGroup":{
-          "extension":"aGroup",
-          "displayExtension":"a group",
-          "description":"a group description",
-          "displayName":"a stem:a group",
-          "name":"aStem:aGroup",
-          "uuid":"d867b5c3-dbbf-4d45-a93b-8ba89ca9c809"
-        },
-        "wsSubjects":{
-          "WsSubject":[
-            {
-              "resultCode":"SUCCESS",
-              "success":"T",
-              "id":"GrouperSystem",
-              "sourceId":"g:isa"
-            },
-            {
-              "resultCode":"SUCCESS",
-              "success":"T",
-              "id":"10021368",
-              "sourceId":"pennperson"
-            },
-            {
-              "resultCode":"SUCCESS",
-              "success":"T",
-              "id":"10039438",
-              "sourceId":"pennperson"
-            }
-          ]
-          
-        },
+    "results":[
+      {
         "resultMetadata":{
+          "params":[
+          ]
+          ,
           "resultCode":"SUCCESS",
+          "resultCode2":"",
+          "resultMessage":"",
           "success":"T"
-        }
+        },
+        "wsGroup":{
+          "description":"a group description",
+          "detail":null,
+          "displayExtension":"a group",
+          "displayName":"a stem:a group",
+          "extension":"aGroup",
+          "name":"aStem:aGroup",
+          "uuid":"1e350205298545c9a084d107933105de"
+        },
+        "wsSubjects":[
+          {
+            "attributeValues":[
+              "",
+              "",
+              "10021368"
+            ]
+            ,
+            "id":"10021368",
+            "identifierLookup":"",
+            "name":"10021368",
+            "resultCode":"SUCCESS",
+            "sourceId":"jdbc",
+            "success":"T"
+          },
+          {
+            "attributeValues":[
+              "",
+              "",
+              "10039438"
+            ]
+            ,
+            "id":"10039438",
+            "identifierLookup":"",
+            "name":"10039438",
+            "resultCode":"SUCCESS",
+            "sourceId":"jdbc",
+            "success":"T"
+          },
+          {
+            "attributeValues":[
+              "GrouperSysAdmin",
+              "",
+              "EveryEntity"
+            ]
+            ,
+            "id":"GrouperSystem",
+            "identifierLookup":"",
+            "name":"GrouperSysAdmin",
+            "resultCode":"SUCCESS",
+            "sourceId":"g:isa",
+            "success":"T"
+          }
+        ]
       }
-    }
+    ]
+    ,
+    "subjectAttributeNames":[
+      "description",
+      "loginid",
+      "name"
+    ]
   }
 }
 
@@ -134,7 +185,6 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -146,7 +196,6 @@ public class WsSampleGetMembersRest implements WsSampleRest {
    * get member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  @SuppressWarnings("deprecation")
   public static void getMembersLite(WsSampleRestType wsSampleRestType) {
 
     try {
@@ -176,15 +225,13 @@ public class WsSampleGetMembersRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestGetMembersRequest getMembers = new WsRestGetMembersRequest();
 
-      // set the act as id
-      WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      getMembers.setActAsSubjectLookup(actAsSubject);
-
       // seeif two subjects are in the group
       WsGroupLookup[] groupLookups = new WsGroupLookup[1];
       groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
 
       getMembers.setWsGroupLookups(groupLookups);
+
+      getMembers.setSubjectAttributeNames(new String[]{"description", "loginid", "name"});
       
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getMembers);
@@ -239,9 +286,8 @@ public class WsSampleGetMembersRest implements WsSampleRest {
   /**
    * @param args
    */
-  @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getMembersLite(WsSampleRestType.xhtml);
+    getMembersLite(WsSampleRestType.json);
   }
 
   /**
@@ -268,8 +314,11 @@ public class WsSampleGetMembersRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup,uuid=]
 
-, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
+, memberFilter: All, includeSubjectDetail: false, actAsSubject: null, fieldName: null, subjectAttributeNames: Array size: 3: [0]: description
+[1]: loginid
+[2]: name
+
 , paramNames: 
-, params: null
+, params: Empty array

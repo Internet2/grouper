@@ -43,30 +43,30 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:39:06 GMT
+Date: Fri, 20 Nov 2009 06:54:05 GMT
 Connection: close
 
 <WsFindStemsResults>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>44</millis>
+  </responseMetadata>
   <stemResults>
     <WsStem>
-      <uuid>39cece069cd94b20ab755b2dbcb39db5</uuid>
-      <extension>aStem</extension>
       <displayName>a stem</displayName>
-      <description>a stem description</description>
+      <uuid>9bb4e215bf654dceacb89e5a35694337</uuid>
       <name>aStem</name>
       <displayExtension>a stem</displayExtension>
+      <extension>aStem</extension>
+      <description>a stem description</description>
     </WsStem>
   </stemResults>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null</resultMessage>
-    <success>T</success>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>125</millis>
-  </responseMetadata>
 </WsFindStemsResults>
 
 

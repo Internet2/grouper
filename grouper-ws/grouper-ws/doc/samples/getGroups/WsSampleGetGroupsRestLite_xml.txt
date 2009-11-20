@@ -34,61 +34,61 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:34:37 GMT
+Date: Fri, 20 Nov 2009 06:50:29 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
+  <wsGroups>
+    <WsGroup>
+      <name>etc:sysadmingroup</name>
+      <displayName>etc:sysadmingroup</displayName>
+      <extension>sysadmingroup</extension>
+      <displayExtension>sysadmingroup</displayExtension>
+      <uuid>e3c8ff8c3b5e41398a239594331ac833</uuid>
+    </WsGroup>
+    <WsGroup>
+      <name>aStem:aGroup2</name>
+      <displayName>a stem:a group2</displayName>
+      <description>a group description2</description>
+      <extension>aGroup2</extension>
+      <displayExtension>a group2</displayExtension>
+      <uuid>fa92b5ff76984544b65ab4667c62853e</uuid>
+    </WsGroup>
+    <WsGroup>
+      <name>etc:webServiceActAsGroup</name>
+      <displayName>etc:webServiceActAsGroup</displayName>
+      <extension>webServiceActAsGroup</extension>
+      <displayExtension>webServiceActAsGroup</displayExtension>
+      <uuid>cd2c429d86af4e5596a9f25a29f2892c</uuid>
+    </WsGroup>
+    <WsGroup>
+      <name>aStem:aGroup</name>
+      <displayName>a stem:a group</displayName>
+      <description>a group description</description>
+      <extension>aGroup</extension>
+      <displayExtension>a group</displayExtension>
+      <uuid>2bb1e197441f4c6f9bb8310209836b17</uuid>
+    </WsGroup>
+  </wsGroups>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
 , params: null</resultMessage>
-    <success>T</success>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <wsSubject>
-    <success>T</success>
-    <name>10021368</name>
-    <id>10021368</id>
-    <sourceId>jdbc</sourceId>
-    <resultCode>SUCCESS</resultCode>
-  </wsSubject>
   <responseMetadata>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>140</millis>
+    <millis>89</millis>
   </responseMetadata>
-  <wsGroups>
-    <WsGroup>
-      <extension>sysadmingroup</extension>
-      <uuid>cad79fb6203f4be8957373364b91582e</uuid>
-      <displayExtension>sysadmingroup</displayExtension>
-      <displayName>etc:sysadmingroup</displayName>
-      <name>etc:sysadmingroup</name>
-    </WsGroup>
-    <WsGroup>
-      <extension>webServiceActAsGroup</extension>
-      <uuid>b84a7550973549e8b67a759e776d386e</uuid>
-      <displayExtension>webServiceActAsGroup</displayExtension>
-      <displayName>etc:webServiceActAsGroup</displayName>
-      <name>etc:webServiceActAsGroup</name>
-    </WsGroup>
-    <WsGroup>
-      <extension>aGroup</extension>
-      <uuid>a613ff93fb034ba1adafce35da6a3ff9</uuid>
-      <displayExtension>a group</displayExtension>
-      <description>a group description</description>
-      <displayName>a stem:a group</displayName>
-      <name>aStem:aGroup</name>
-    </WsGroup>
-    <WsGroup>
-      <extension>aGroup2</extension>
-      <uuid>7f935bd84c194c4488d8f4c917d768a3</uuid>
-      <displayExtension>a group2</displayExtension>
-      <description>a group description2</description>
-      <displayName>a stem:a group2</displayName>
-      <name>aStem:aGroup2</name>
-    </WsGroup>
-  </wsGroups>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <sourceId>jdbc</sourceId>
+    <name>10021368</name>
+    <id>10021368</id>
+    <success>T</success>
+  </wsSubject>
 </WsGetGroupsLiteResult>
 
 

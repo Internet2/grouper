@@ -44,37 +44,37 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 21:09:53 GMT
+Date: Fri, 20 Nov 2009 06:53:17 GMT
 Connection: close
 
 <WsFindGroupsResults>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr]
+    <success>T</success>
+    <resultMessage>Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]
 , includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
 , params: null</resultMessage>
-    <success>T</success>
+    <resultCode>SUCCESS</resultCode>
   </resultMetadata>
   <responseMetadata>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>156</millis>
+    <millis>140</millis>
   </responseMetadata>
   <groupResults>
     <WsGroup>
       <name>aStem:aGroup</name>
+      <displayName>a stem:a group</displayName>
+      <description>a group description</description>
       <extension>aGroup</extension>
       <displayExtension>a group</displayExtension>
-      <displayName>a stem:a group</displayName>
-      <uuid>2d83761ca7ee4772a6f1bc08e39fc7e0</uuid>
-      <description>a group description</description>
+      <uuid>d5f749c56d1441f8b5dfa833e0cdc26b</uuid>
     </WsGroup>
     <WsGroup>
       <name>aStem:aGroup2</name>
+      <displayName>a stem:a group2</displayName>
+      <description>a group description2</description>
       <extension>aGroup2</extension>
       <displayExtension>a group2</displayExtension>
-      <displayName>a stem:a group2</displayName>
-      <uuid>91212e7eb36142d4b4ad13f78f0c9bc0</uuid>
-      <description>a group description2</description>
+      <uuid>a37be4e5d34d441e92e936816f1d97a2</uuid>
     </WsGroup>
   </groupResults>
 </WsFindGroupsResults>
@@ -246,6 +246,6 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]
 , includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null

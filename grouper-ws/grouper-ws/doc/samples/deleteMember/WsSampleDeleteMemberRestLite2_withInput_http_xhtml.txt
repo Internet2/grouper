@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:31:39 GMT
+Date: Fri, 20 Nov 2009 06:48:11 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -46,35 +46,35 @@ Connection: close
   <body>
     <div title="WsDeleteMemberLiteResult">
       <div class="wsGroup" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
         <p class="displayExtension">a group</p>
-        <p class="uuid">d6b4720514104104add5ac447be0e571</p>
+        <p class="uuid">bdc8edeea4fd4331902361a1b0059fff</p>
         <p class="displayName">a stem:a group</p>
         <p class="extension">aGroup</p>
         <p class="description">a group description</p>
         <p class="name">aStem:aGroup</p>
-        <div class="detail" title="WsGroupDetail" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="serverVersion">v1_5_000</p>
-        <p class="millis">78</p>
         <p class="resultWarnings" />
+        <p class="millis">108</p>
+      </div>
+      <div class="wsSubject" title="WsSubject">
+        <p class="id">test.subject.0</p>
+        <p class="identifierLookup" />
+        <p class="resultCode">SUCCESS</p>
+        <p class="sourceId">jdbc</p>
+        <p class="name">my name is test.subject.0</p>
+        <p class="success">T</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+        <p class="resultCode2" />
+        <p class="resultCode">SUCCESS_WASNT_IMMEDIATE</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectId=test.subject.0]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null</p>
-        <p class="success">T</p>
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS_WASNT_IMMEDIATE</p>
-      </div>
-      <div class="wsSubject" title="WsSubject">
-        <p class="success">T</p>
-        <p class="id">test.subject.0</p>
-        <p class="identifierLookup" />
-        <p class="sourceId">jdbc</p>
-        <p class="name">my name is test.subject.0</p>
-        <p class="resultCode">SUCCESS</p>
       </div>
     </div>
   </body>
@@ -235,7 +235,7 @@ public class WsSampleDeleteMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: v1_5_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectId=test.subject.0]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null

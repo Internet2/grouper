@@ -1,8 +1,9 @@
 /*
- * @author mchyzer $Id: WsRestRequestContentType.java,v 1.5 2009-11-17 02:55:26 mchyzer Exp $
+ * @author mchyzer $Id: WsRestRequestContentType.java,v 1.6 2009-11-20 07:15:38 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
+import edu.internet2.middleware.grouper.ws.rest.json.DefaultJsonConverter;
+import edu.internet2.middleware.grouper.ws.rest.json.JsonConverter;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -163,7 +166,8 @@ public enum WsRestRequestContentType {
       return stringWriter.toString();
     }
   },
-  /** json content type
+  /** 
+   * json content type, uses the pluggable json converter
    * http request content type should be set to text/x-json
    */
   json("text/x-json") {
@@ -176,14 +180,15 @@ public enum WsRestRequestContentType {
      */
     @Override
     public Object parseString(String input, StringBuilder warnings) {
-      XStream xStream = WsRestResponseContentType.xstream(true);
+
+      JsonConverter jsonConverter = jsonConverter();
+      
       try {
-        Object object = xStream.fromXML(input);
-        return object;
+        return jsonConverter.convertFromJson(input, warnings);
       } catch (RuntimeException re) {
-        LOG.error("Error unparsing string:\n" + input);
-        throw new RuntimeException("Problem unparsing string: " 
-            + GrouperUtil.indent(input, false), re);
+        LOG.error("Error unparsing string with converter: " + GrouperUtil.className(jsonConverter) + ", " + input);
+        throw new RuntimeException("Problem unparsing string with converter: " + GrouperUtil.className(jsonConverter)
+            + ", " + GrouperUtil.indent(input, false), re);
       }
     }
 
@@ -203,18 +208,48 @@ public enum WsRestRequestContentType {
      */
     @Override
     public String writeString(Object object) {
-      StringWriter stringWriter = new StringWriter();
-      WsRestResponseContentType.json.writeString(object, stringWriter);
-      return stringWriter.toString();
+      JsonConverter jsonConverter = jsonConverter();
+      
+      try {
+        String jsonString = jsonConverter.convertToJson(object);
+        return jsonString;
+      } catch (RuntimeException re) {
+        LOG.error("Error converting json object with converter: " 
+            + GrouperUtil.className(jsonConverter) + ", " + GrouperUtil.className(object));
+        throw new RuntimeException("Error converting json object with converter: " + GrouperUtil.className(jsonConverter)
+            + ", " + GrouperUtil.className(object), re);
+      }
     }
 
   };
 
   /**
+   * instantiate the json convert configured in the grouper-ws.properties file
+   * @return the json converter
+   */
+  @SuppressWarnings("unchecked")
+  public static JsonConverter jsonConverter() {
+    String jsonConverterClassName = GrouperWsConfig.getPropertyString(
+        "jsonConverter", DefaultJsonConverter.class.getName());
+    Class<? extends JsonConverter> jsonConverterClass = GrouperUtil.forName(jsonConverterClassName);
+    JsonConverter jsonConverter = GrouperUtil.newInstance(jsonConverterClass);
+    return jsonConverter;
+  }
+  
+  /**
    * based on the request type, calculate the response type
    * @return the response type or null if there is not a clear winner
    */
   public abstract WsRestResponseContentType calculateResponseContentType();
+
+  /**
+   * test out a parse
+   * @param args
+   */
+  public static void main(String[] args) {
+    String jsonString = GrouperUtil.readFileIntoString(new File("c:/temp/problem.json"));
+    WsRestRequestContentType.json.parseString(jsonString, new StringBuilder());
+  }
   
   /**
    * parse a string to an object
@@ -283,8 +318,6 @@ public enum WsRestRequestContentType {
    * @return the requestContentType
    */
   public static WsRestRequestContentType findByContentType(String theContentType, String requestBody) {
-    
-    //note, are doing a starts with since charset could be in there too... e.g. Content-Type: text/xml; charset=UTF-8
     
     //if form data, massage to none
     theContentType = StringUtils.trimToEmpty(theContentType).toLowerCase();

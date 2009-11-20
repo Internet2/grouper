@@ -14,12 +14,26 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 66
+Content-Length: 346
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGetMembersLiteRequest":{
-    "actAsSubjectId":"GrouperSystem"
+    "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
+    "fieldName":"",
+    "groupName":"",
+    "groupUuid":"",
+    "includeGroupDetail":"",
+    "memberFilter":"",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
+    "retrieveSubjectDetail":"",
+    "subjectAttributeNames":""
   }
 }
 
@@ -39,50 +53,73 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 21:25:05 GMT
+Content-Length: 1187
+Date: Fri, 20 Nov 2009 06:52:35 GMT
 Connection: close
 
 {
   "WsGetMembersLiteResult":{
+    "responseMetadata":{
+      "millis":"105",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
+    },
     "resultMetadata":{
+      "params":[
+      ]
+      ,
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null\n, paramNames: \n, params: null",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup,uuid=]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null\n, paramNames: \n, params: null",
       "success":"T"
     },
+    "subjectAttributeNames":[
+    ]
+    ,
     "wsGroup":{
-      "name":"aStem:aGroup",
-      "extension":"aGroup",
+      "description":"a group description",
+      "detail":null,
       "displayExtension":"a group",
       "displayName":"a stem:a group",
-      "uuid":"b760c2e93ab44c5c8ff151db20aee7e1",
-      "description":"a group description"
+      "extension":"aGroup",
+      "name":"aStem:aGroup",
+      "uuid":"4e29dde617b041ea9e5a8b7053a1d5c6"
     },
-    "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"9797"
-    },
-    "wsSubjects":{
-      "WsSubject":[
-        {
-          "success":"T",
-          "resultCode":"SUCCESS",
-          "sourceId":"g:isa",
-          "id":"GrouperSystem"
-        },
-        {
-          "success":"T",
-          "resultCode":"SUCCESS",
-          "sourceId":"jdbc",
-          "id":"10039438"
-        },
-        {
-          "success":"T",
-          "resultCode":"SUCCESS",
-          "sourceId":"jdbc",
-          "id":"10021368"
-        }
-      ]
-    }
+    "wsSubjects":[
+      {
+        "attributeValues":[
+        ]
+        ,
+        "id":"10039438",
+        "identifierLookup":"",
+        "name":"",
+        "resultCode":"SUCCESS",
+        "sourceId":"jdbc",
+        "success":"T"
+      },
+      {
+        "attributeValues":[
+        ]
+        ,
+        "id":"GrouperSystem",
+        "identifierLookup":"",
+        "name":"",
+        "resultCode":"SUCCESS",
+        "sourceId":"g:isa",
+        "success":"T"
+      },
+      {
+        "attributeValues":[
+        ]
+        ,
+        "id":"10021368",
+        "identifierLookup":"",
+        "name":"",
+        "resultCode":"SUCCESS",
+        "sourceId":"jdbc",
+        "success":"T"
+      }
+    ]
   }
 }
 
@@ -241,8 +278,8 @@ public class WsSampleGetMembersRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup,uuid=]
 
-, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
+, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
 , paramNames: 
 , params: null

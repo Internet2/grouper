@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:30:58 GMT
+Date: Fri, 20 Nov 2009 06:47:37 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -46,35 +46,35 @@ Connection: close
   <body>
     <div title="WsDeleteMemberLiteResult">
       <div class="wsGroup" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
         <p class="displayExtension">a group</p>
-        <p class="uuid">4113402153254d9dba8a396104f4701d</p>
+        <p class="uuid">b5f64e437cea404dbca27f396254332d</p>
         <p class="displayName">a stem:a group</p>
         <p class="extension">aGroup</p>
         <p class="description">a group description</p>
         <p class="name">aStem:aGroup</p>
-        <div class="detail" title="WsGroupDetail" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="serverVersion">v1_5_000</p>
-        <p class="millis">249</p>
         <p class="resultWarnings" />
+        <p class="millis">226</p>
+      </div>
+      <div class="wsSubject" title="WsSubject">
+        <p class="id">10021368</p>
+        <p class="identifierLookup" />
+        <p class="resultCode">SUCCESS</p>
+        <p class="sourceId">jdbc</p>
+        <p class="name">10021368</p>
+        <p class="success">T</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode2" />
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE
 , params: null</p>
-        <p class="success">T</p>
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS</p>
-      </div>
-      <div class="wsSubject" title="WsSubject">
-        <p class="success">T</p>
-        <p class="id">10021368</p>
-        <p class="identifierLookup" />
-        <p class="sourceId">jdbc</p>
-        <p class="name">10021368</p>
-        <p class="resultCode">SUCCESS</p>
       </div>
     </div>
   </body>

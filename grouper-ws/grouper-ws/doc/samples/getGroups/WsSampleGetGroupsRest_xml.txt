@@ -47,108 +47,108 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:34:08 GMT
+Date: Fri, 20 Nov 2009 06:50:07 GMT
 Connection: close
 
 <WsGetGroupsResults>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>187</millis>
-  </responseMetadata>
-  <subjectAttributeNames>
-    <string>description</string>
-  </subjectAttributeNames>
   <resultMetadata>
+    <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null</resultMessage>
-    <success>T</success>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
+  <responseMetadata>
+    <serverVersion>v1_5_000</serverVersion>
+    <millis>258</millis>
+  </responseMetadata>
+  <subjectAttributeNames>
+    <string>description</string>
+  </subjectAttributeNames>
   <results>
     <WsGetGroupsResult>
+      <wsGroups>
+        <WsGroup>
+          <name>etc:sysadmingroup</name>
+          <displayName>etc:sysadmingroup</displayName>
+          <extension>sysadmingroup</extension>
+          <displayExtension>sysadmingroup</displayExtension>
+          <uuid>30f06497bdd3493c8d1e24ccd28a58e6</uuid>
+        </WsGroup>
+        <WsGroup>
+          <name>aStem:aGroup2</name>
+          <displayName>a stem:a group2</displayName>
+          <description>a group description2</description>
+          <extension>aGroup2</extension>
+          <displayExtension>a group2</displayExtension>
+          <uuid>dce71a30f07f4abfbf45f2502d4f0daf</uuid>
+        </WsGroup>
+        <WsGroup>
+          <name>etc:webServiceActAsGroup</name>
+          <displayName>etc:webServiceActAsGroup</displayName>
+          <extension>webServiceActAsGroup</extension>
+          <displayExtension>webServiceActAsGroup</displayExtension>
+          <uuid>7f89aab361d44aa6aca74788c156849d</uuid>
+        </WsGroup>
+        <WsGroup>
+          <name>aStem:aGroup</name>
+          <displayName>a stem:a group</displayName>
+          <description>a group description</description>
+          <extension>aGroup</extension>
+          <displayExtension>a group</displayExtension>
+          <uuid>4ed65399c68d4e23ada45a968775b75e</uuid>
+        </WsGroup>
+      </wsGroups>
       <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
         <attributeValues>
           <string></string>
         </attributeValues>
-        <success>T</success>
         <name>10021368</name>
         <id>10021368</id>
-        <sourceId>jdbc</sourceId>
-        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
       </wsSubject>
       <resultMetadata>
         <success>T</success>
         <resultCode>SUCCESS</resultCode>
       </resultMetadata>
-      <wsGroups>
-        <WsGroup>
-          <extension>aGroup2</extension>
-          <uuid>2d9a859de1f64778960f24c02887b96f</uuid>
-          <displayExtension>a group2</displayExtension>
-          <description>a group description2</description>
-          <displayName>a stem:a group2</displayName>
-          <name>aStem:aGroup2</name>
-        </WsGroup>
-        <WsGroup>
-          <extension>webServiceActAsGroup</extension>
-          <uuid>9c1a010d2e444a178397fea3f123fdd6</uuid>
-          <displayExtension>webServiceActAsGroup</displayExtension>
-          <displayName>etc:webServiceActAsGroup</displayName>
-          <name>etc:webServiceActAsGroup</name>
-        </WsGroup>
-        <WsGroup>
-          <extension>sysadmingroup</extension>
-          <uuid>3bed10034dab4a478918795f90dfa839</uuid>
-          <displayExtension>sysadmingroup</displayExtension>
-          <displayName>etc:sysadmingroup</displayName>
-          <name>etc:sysadmingroup</name>
-        </WsGroup>
-        <WsGroup>
-          <extension>aGroup</extension>
-          <uuid>560166ecf64443d6a1a6426a76c4e80e</uuid>
-          <displayExtension>a group</displayExtension>
-          <description>a group description</description>
-          <displayName>a stem:a group</displayName>
-          <name>aStem:aGroup</name>
-        </WsGroup>
-      </wsGroups>
     </WsGetGroupsResult>
     <WsGetGroupsResult>
+      <wsGroups>
+        <WsGroup>
+          <name>aStem:aGroup2</name>
+          <displayName>a stem:a group2</displayName>
+          <description>a group description2</description>
+          <extension>aGroup2</extension>
+          <displayExtension>a group2</displayExtension>
+          <uuid>dce71a30f07f4abfbf45f2502d4f0daf</uuid>
+        </WsGroup>
+        <WsGroup>
+          <name>aStem:aGroup</name>
+          <displayName>a stem:a group</displayName>
+          <description>a group description</description>
+          <extension>aGroup</extension>
+          <displayExtension>a group</displayExtension>
+          <uuid>4ed65399c68d4e23ada45a968775b75e</uuid>
+        </WsGroup>
+      </wsGroups>
       <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <sourceId>jdbc</sourceId>
         <attributeValues>
           <string></string>
         </attributeValues>
-        <success>T</success>
         <name>10039438</name>
         <id>10039438</id>
-        <sourceId>jdbc</sourceId>
-        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
       </wsSubject>
       <resultMetadata>
         <success>T</success>
         <resultCode>SUCCESS</resultCode>
       </resultMetadata>
-      <wsGroups>
-        <WsGroup>
-          <extension>aGroup2</extension>
-          <uuid>2d9a859de1f64778960f24c02887b96f</uuid>
-          <displayExtension>a group2</displayExtension>
-          <description>a group description2</description>
-          <displayName>a stem:a group2</displayName>
-          <name>aStem:aGroup2</name>
-        </WsGroup>
-        <WsGroup>
-          <extension>aGroup</extension>
-          <uuid>560166ecf64443d6a1a6426a76c4e80e</uuid>
-          <displayExtension>a group</displayExtension>
-          <description>a group description</description>
-          <displayName>a stem:a group</displayName>
-          <name>aStem:aGroup</name>
-        </WsGroup>
-      </wsGroups>
     </WsGetGroupsResult>
   </results>
 </WsGetGroupsResults>

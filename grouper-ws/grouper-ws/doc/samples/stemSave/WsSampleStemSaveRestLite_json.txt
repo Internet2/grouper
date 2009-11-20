@@ -14,15 +14,26 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 144
+Content-Length: 351
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestStemSaveLiteRequest":{
+    "actAsSubjectId":"GrouperSystem",
+    "actAsSubjectIdentifier":"",
+    "actAsSubjectSourceId":"",
+    "clientVersion":"",
     "description":"desc1",
     "displayExtension":"disp1",
+    "paramName0":"",
+    "paramName1":"",
+    "paramValue0":"",
+    "paramValue1":"",
+    "saveMode":"",
+    "stemLookupName":"",
+    "stemLookupUuid":"",
     "stemName":"aStem:aStemToSave",
-    "actAsSubjectId":"GrouperSystem"
+    "stemUuid":""
   }
 }
 
@@ -42,27 +53,33 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Date: Mon, 16 Nov 2009 18:42:01 GMT
+Content-Length: 785
+Date: Fri, 20 Nov 2009 06:56:15 GMT
 Connection: close
 
 {
   "WsStemSaveLiteResult":{
-    "wsStem":{
-      "uuid":"1a53332b0fc04f8d922313ff80405514",
-      "extension":"aStemToSave",
-      "displayName":"a stem:disp1",
-      "description":"desc1",
-      "name":"aStem:aStemToSave",
-      "displayExtension":"disp1"
+    "responseMetadata":{
+      "millis":"254",
+      "resultWarnings":"",
+      "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[\n  wsStem=WsStem[description=desc1,name=aStem:aStemToSave,displayExtension=disp1],\n  wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave]]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
-      "success":"T",
-      "resultCode":"SUCCESS_INSERTED"
+      "params":[
+      ]
+      ,
+      "resultCode":"SUCCESS_INSERTED",
+      "resultCode2":"",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[\n  wsStem=WsStem[uuid=,name=aStem:aStemToSave,displayExtension=disp1,description=desc1],\n  wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave,uuid=]]\n\n, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
+      "success":"T"
     },
-    "responseMetadata":{
-      "serverVersion":"v1_5_000",
-      "millis":"343"
+    "wsStem":{
+      "description":"desc1",
+      "displayExtension":"disp1",
+      "displayName":"a stem:disp1",
+      "extension":"aStemToSave",
+      "name":"aStem:aStemToSave",
+      "uuid":"d4b35a4e834043aeaecb194f363d529c"
     }
   }
 }
@@ -226,8 +243,8 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
-  wsStem=WsStem[description=desc1,name=aStem:aStemToSave,displayExtension=disp1],
-  wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave]]
+  wsStem=WsStem[uuid=,name=aStem:aStemToSave,displayExtension=disp1,description=desc1],
+  wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave,uuid=]]
 
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
+, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null
