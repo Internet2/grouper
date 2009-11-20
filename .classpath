@@ -93,5 +93,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/apacheds/shared-cursor-0.9.15.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/apacheds/shared-ldap-0.9.15.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/apacheds/shared-ldap-constants-0.9.15.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/ezmorph.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/json-lib.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
