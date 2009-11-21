@@ -60,6 +60,8 @@ import java.util.regex.Pattern;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -1153,9 +1155,19 @@ public class GrouperUtil {
     }
 //    Gson gson = new GsonBuilder().create();
 //    String json = gson.toJson(object);
-    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( object );  
-    String json = jsonObject.toString();
 
+//    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( object );  
+//    String json = jsonObject.toString();
+
+    JsonConfig jsonConfig = new JsonConfig();  
+    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){  
+       public boolean apply( Object source, String name, Object value ) {  
+          return value == null; 
+       }  
+    });  
+    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );  
+    String json = jsonObject.toString();
+    
     return "{\"" + object.getClass().getSimpleName() + "\":" + json + "}";
   }
 
