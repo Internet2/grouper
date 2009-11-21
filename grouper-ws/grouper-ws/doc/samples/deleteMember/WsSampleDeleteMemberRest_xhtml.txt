@@ -68,7 +68,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:47:19 GMT
+Date: Sat, 21 Nov 2009 21:20:23 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -79,22 +79,29 @@ Connection: close
   </head>
   <body>
     <div title="WsDeleteMemberResults">
-      <div class="wsGroup" title="WsGroup">
-        <div class="detail" title="WsGroupDetail" />
-        <p class="displayExtension">a group</p>
-        <p class="uuid">f440cdcc868d44a5870f364f486019c9</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="extension">aGroup</p>
-        <p class="description">a group description</p>
-        <p class="name">aStem:aGroup</p>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
+, params: null</p>
+        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="serverVersion">v1_5_000</p>
+        <p class="millis">412</p>
         <p class="resultWarnings" />
-        <p class="millis">431</p>
       </div>
       <ul class="results">
         <li title="WsDeleteMemberResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="resultMessage" />
+            <p class="resultCode2" />
+          </div>
           <div class="wsSubject" title="WsSubject">
             <p class="id">10021368</p>
             <p class="identifierLookup" />
@@ -103,14 +110,14 @@ Connection: close
             <p class="name">10021368</p>
             <p class="success">T</p>
           </div>
+        </li>
+        <li title="WsDeleteMemberResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode2" />
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
             <p class="resultMessage" />
+            <p class="resultCode2" />
           </div>
-        </li>
-        <li title="WsDeleteMemberResult">
           <div class="wsSubject" title="WsSubject">
             <p class="id">10039438</p>
             <p class="identifierLookup" />
@@ -119,23 +126,16 @@ Connection: close
             <p class="name">10039438</p>
             <p class="success">T</p>
           </div>
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode2" />
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="resultMessage" />
-          </div>
         </li>
       </ul>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
-[1]: WsSubjectLookup[subjectId=10039438]
-
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
-, params: null</p>
+      <div class="wsGroup" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">a group</p>
+        <p class="uuid">ac02274be1ce4aab8a8965708d7b886c</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
       </div>
     </div>
   </body>

@@ -44,36 +44,40 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:58:07 GMT
+Date: Sat, 21 Nov 2009 21:30:22 GMT
 Connection: close
 
 <WsGroupDeleteResults>
   <results>
     <WsGroupDeleteResult>
+      <wsGroup>
+        <extension>whatever</extension>
+        <name>aStem:whatever</name>
+      </wsGroup>
       <resultMetadata>
         <success>T</success>
         <resultMessage>Cant find group: &apos;WsGroupLookup[
 groupFindResult=GROUP_NOT_FOUND,groupName=aStem:whatever]&apos;.  </resultMessage>
         <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
       </resultMetadata>
-      <wsGroup>
-        <name>aStem:whatever</name>
-        <extension>whatever</extension>
-      </wsGroup>
     </WsGroupDeleteResult>
     <WsGroupDeleteResult>
+      <wsGroup>
+        <extension>whatever2</extension>
+        <name>aStem:whatever2</name>
+      </wsGroup>
       <resultMetadata>
         <success>T</success>
         <resultMessage>Cant find group: &apos;WsGroupLookup[
 groupFindResult=GROUP_NOT_FOUND,groupName=aStem:whatever2]&apos;.  </resultMessage>
         <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
       </resultMetadata>
-      <wsGroup>
-        <name>aStem:whatever2</name>
-        <extension>whatever2</extension>
-      </wsGroup>
     </WsGroupDeleteResult>
   </results>
+  <responseMetadata>
+    <millis>144</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
@@ -83,10 +87,6 @@ groupFindResult=GROUP_NOT_FOUND,groupName=aStem:whatever2]&apos;.  </resultMessa
 , params: null</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>52</millis>
-  </responseMetadata>
 </WsGroupDeleteResults>
 
 

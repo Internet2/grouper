@@ -60,7 +60,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:56:04 GMT
+Date: Sat, 21 Nov 2009 21:29:11 GMT
 Connection: close
 
 <WsStemSaveResults>
@@ -75,37 +75,37 @@ wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
   </resultMetadata>
   <results>
     <WsStemSaveResult>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS_INSERTED</resultCode>
-      </resultMetadata>
       <wsStem>
-        <displayName>a stem:disp1</displayName>
-        <uuid>5934fe967d7846f9a92182155f0aff09</uuid>
         <name>aStem:whateverStem</name>
+        <displayName>a stem:disp1</displayName>
         <displayExtension>disp1</displayExtension>
         <extension>whateverStem</extension>
+        <uuid>830f00890b48434eb10a8789f476be6e</uuid>
         <description>desc1</description>
       </wsStem>
-    </WsStemSaveResult>
-    <WsStemSaveResult>
       <resultMetadata>
         <success>T</success>
         <resultCode>SUCCESS_INSERTED</resultCode>
       </resultMetadata>
+    </WsStemSaveResult>
+    <WsStemSaveResult>
       <wsStem>
-        <displayName>a stem:disp2</displayName>
-        <uuid>8e42b002338c41a59948c3b252b44caa</uuid>
         <name>aStem:whateverStem2</name>
+        <displayName>a stem:disp2</displayName>
         <displayExtension>disp2</displayExtension>
         <extension>whateverStem2</extension>
+        <uuid>f34aece83a434a3c8b84b7580898629c</uuid>
         <description>descs</description>
       </wsStem>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_INSERTED</resultCode>
+      </resultMetadata>
     </WsStemSaveResult>
   </results>
   <responseMetadata>
+    <millis>360</millis>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>487</millis>
   </responseMetadata>
 </WsStemSaveResults>
 

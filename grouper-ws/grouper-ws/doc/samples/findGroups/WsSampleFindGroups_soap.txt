@@ -49,7 +49,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findGroupsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 06:52:53 GMT
+Date: Sat, 21 Nov 2009 21:26:03 GMT
 
 83c
 <?xml version='1.0' encoding='UTF-8'?>
@@ -64,7 +64,7 @@ Date: Fri, 20 Nov 2009 06:52:53 GMT
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>8447a28ad918437d9f758ce63593f568</ns:uuid>
+          <ns:uuid>34a76a367af34ad9b828e2928614d913</ns:uuid>
         </ns:groupResults>
         <ns:groupResults type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
           <ns:description>a group description2</ns:description>
@@ -73,10 +73,10 @@ Date: Fri, 20 Nov 2009 06:52:53 GMT
           <ns:displayName>a stem:a group2</ns:displayName>
           <ns:extension>aGroup2</ns:extension>
           <ns:name>aStem:aGroup2</ns:name>
-          <ns:uuid>8bba35bf98d043b8a3ad3969e88667b5</ns:uuid>
+          <ns:uuid>f8d31e327dd9414ead49cdbe0e9904fa</ns:uuid>
         </ns:groupResults>
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>111</ns:millis>
+          <ns:millis>152</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -208,7 +208,7 @@ public class WsSampleFindGroups implements WsSampleGenerated {
 
 
 WsFindGroupsResults[
-  localGroupResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@7be1c7,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1240d9d},localGroupResultsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1f9c528,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@fee2d4,localResultMetadataTracker=true]
-WsGroup[localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=8447a28ad918437d9f758ce63593f568,localUuidTracker=true]
+  localGroupResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@6e64a5,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@191b9fe},localGroupResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@49ef32,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1f6dc97,localResultMetadataTracker=true]
+WsGroup[localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=34a76a367af34ad9b828e2928614d913,localUuidTracker=true]

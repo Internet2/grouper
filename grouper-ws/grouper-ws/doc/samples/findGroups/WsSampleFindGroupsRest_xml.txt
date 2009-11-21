@@ -44,10 +44,32 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:53:17 GMT
+Date: Sat, 21 Nov 2009 21:26:24 GMT
 Connection: close
 
 <WsFindGroupsResults>
+  <groupResults>
+    <WsGroup>
+      <extension>aGroup</extension>
+      <description>a group description</description>
+      <displayExtension>a group</displayExtension>
+      <uuid>a5e25590142b49aa8637553a2c07f655</uuid>
+      <name>aStem:aGroup</name>
+      <displayName>a stem:a group</displayName>
+    </WsGroup>
+    <WsGroup>
+      <extension>aGroup2</extension>
+      <description>a group description2</description>
+      <displayExtension>a group2</displayExtension>
+      <uuid>e07171f7e5fc411da7db270ecf6c3c79</uuid>
+      <name>aStem:aGroup2</name>
+      <displayName>a stem:a group2</displayName>
+    </WsGroup>
+  </groupResults>
+  <responseMetadata>
+    <millis>103</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]
@@ -55,28 +77,6 @@ Connection: close
 , params: null</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>140</millis>
-  </responseMetadata>
-  <groupResults>
-    <WsGroup>
-      <name>aStem:aGroup</name>
-      <displayName>a stem:a group</displayName>
-      <description>a group description</description>
-      <extension>aGroup</extension>
-      <displayExtension>a group</displayExtension>
-      <uuid>d5f749c56d1441f8b5dfa833e0cdc26b</uuid>
-    </WsGroup>
-    <WsGroup>
-      <name>aStem:aGroup2</name>
-      <displayName>a stem:a group2</displayName>
-      <description>a group description2</description>
-      <extension>aGroup2</extension>
-      <displayExtension>a group2</displayExtension>
-      <uuid>a37be4e5d34d441e92e936816f1d97a2</uuid>
-    </WsGroup>
-  </groupResults>
 </WsFindGroupsResults>
 
 

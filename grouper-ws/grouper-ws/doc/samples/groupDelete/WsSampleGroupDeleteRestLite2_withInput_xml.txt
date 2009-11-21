@@ -38,14 +38,18 @@ X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:58:55 GMT
+Date: Sat, 21 Nov 2009 21:31:06 GMT
 Connection: close
 
 <WsGroupDeleteLiteResult>
   <responseMetadata>
+    <millis>68</millis>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>38</millis>
   </responseMetadata>
+  <wsGroup>
+    <extension>aGroup123</extension>
+    <name>aStem:aGroup123</name>
+  </wsGroup>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]
@@ -55,10 +59,6 @@ Connection: close
 groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123]&apos;.</resultMessage>
     <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
   </resultMetadata>
-  <wsGroup>
-    <name>aStem:aGroup123</name>
-    <extension>aGroup123</extension>
-  </wsGroup>
 </WsGroupDeleteLiteResult>
 
 

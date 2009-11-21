@@ -56,7 +56,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getMembersResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 06:51:35 GMT
+Date: Sat, 21 Nov 2009 21:24:53 GMT
 
 e3b
 <?xml version='1.0' encoding='UTF-8'?>
@@ -65,7 +65,7 @@ e3b
     <ns:getMembersResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>125</ns:millis>
+          <ns:millis>164</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -97,18 +97,8 @@ e3b
             <ns:displayName>a stem:a group</ns:displayName>
             <ns:extension>aGroup</ns:extension>
             <ns:name>aStem:aGroup</ns:name>
-            <ns:uuid>837d224f1fb841abbf880cd32bd99c78</ns:uuid>
+            <ns:uuid>44a7f49fb59449eb844f5ee0973f2a18</ns:uuid>
           </ns:wsGroup>
-          <ns:wsSubjects type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
-            <ns:attributeValues></ns:attributeValues>
-            <ns:attributeValues>EveryEntity</ns:attributeValues>
-            <ns:id>GrouperSystem</ns:id>
-            <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:name>GrouperSysAdmin</ns:name>
-            <ns:resultCode>SUCCESS</ns:resultCode>
-            <ns:sourceId>g:isa</ns:sourceId>
-            <ns:success>T</ns:success>
-          </ns:wsSubjects>
           <ns:wsSubjects type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
             <ns:attributeValues></ns:attributeValues>
             <ns:attributeValues>10021368</ns:attributeValues>
@@ -117,6 +107,16 @@ e3b
             <ns:name>10021368</ns:name>
             <ns:resultCode>SUCCESS</ns:resultCode>
             <ns:sourceId>jdbc</ns:sourceId>
+            <ns:success>T</ns:success>
+          </ns:wsSubjects>
+          <ns:wsSubjects type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+            <ns:attributeValues></ns:attributeValues>
+            <ns:attributeValues>EveryEntity</ns:attributeValues>
+            <ns:id>GrouperSystem</ns:id>
+            <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:name>GrouperSysAdmin</ns:name>
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:sourceId>g:isa</ns:sourceId>
             <ns:success>T</ns:success>
           </ns:wsSubjects>
           <ns:wsSubjects type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
@@ -273,14 +273,14 @@ public class WsSampleGetMembers implements WsSampleGenerated {
 
 
 WsGetMembersResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@91656e,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@19a59ac,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembersResult@a98d1a},localResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@66aef5,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@168959a,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembersResult@3690fd},localResultsTracker=true,
   localSubjectAttributeNames={a,name},localSubjectAttributeNamesTracker=true]
 Result: 0: code: SUCCESS
 WsSubject[
-  localAttributeValues={,EveryEntity},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localName=GrouperSysAdmin,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
-WsSubject[
   localAttributeValues={,10021368},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localName=10021368,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+WsSubject[
+  localAttributeValues={,EveryEntity},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localName=GrouperSysAdmin,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
   localAttributeValues={,10039438},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localName=10039438,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]

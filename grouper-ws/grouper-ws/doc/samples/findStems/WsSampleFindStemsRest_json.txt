@@ -14,31 +14,17 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 417
+Content-Length: 173
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestFindStemsRequest":{
     "actAsSubjectLookup":{
-      "subjectId":"GrouperSystem",
-      "subjectIdentifier":"",
-      "subjectSourceId":""
+      "subjectId":"GrouperSystem"
     },
-    "clientVersion":"",
-    "params":[
-    ]
-    ,
     "wsStemQueryFilter":{
-      "parentStemName":"",
-      "parentStemNameScope":"",
-      "queryTerm":"",
-      "stemAttributeName":"",
-      "stemAttributeValue":"",
       "stemName":"aSte",
-      "stemQueryFilter0":null,
-      "stemQueryFilter1":null,
-      "stemQueryFilterType":"FIND_BY_STEM_NAME_APPROXIMATE",
-      "stemUuid":""
+      "stemQueryFilterType":"FIND_BY_STEM_NAME_APPROXIMATE"
     }
   }
 }
@@ -59,24 +45,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 732
-Date: Fri, 20 Nov 2009 06:54:00 GMT
+Content-Length: 553
+Date: Sat, 21 Nov 2009 21:27:08 GMT
 Connection: close
 
 {
   "WsFindStemsResults":{
     "responseMetadata":{
-      "millis":"102",
-      "resultWarnings":"",
+      "millis":"38",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS",
-      "resultCode2":"",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemAttributeValue=,parentStemName=,stemUuid=,parentStemNameScope=,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,stemAttributeName=], actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem]\n, params: Empty array",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null",
       "success":"T"
     },
     "stemResults":[
@@ -86,7 +67,7 @@ Connection: close
         "displayName":"a stem",
         "extension":"aStem",
         "name":"aStem",
-        "uuid":"1ffa812de6f4465886913bb491844f48"
+        "uuid":"a72d8dbf02b64f1799d93e5ef427fa51"
       }
     ]
   }
@@ -258,5 +239,5 @@ public class WsSampleFindStemsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemAttributeValue=,parentStemName=,stemUuid=,parentStemNameScope=,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,stemAttributeName=], actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem]
-, params: Empty array
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, params: null

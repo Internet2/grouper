@@ -41,30 +41,30 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:51:05 GMT
+Date: Sat, 21 Nov 2009 21:24:25 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
+  <responseMetadata>
+    <millis>81</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <success>T</success>
+    <name>10021368</name>
+    <sourceId>jdbc</sourceId>
+    <id>10021368</id>
+  </wsSubject>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
-, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
 , field: admins</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>75</millis>
-  </responseMetadata>
-  <wsSubject>
-    <resultCode>SUCCESS</resultCode>
-    <sourceId>jdbc</sourceId>
-    <name>10021368</name>
-    <id>10021368</id>
-    <success>T</success>
-  </wsSubject>
 </WsGetGroupsLiteResult>
 
 
@@ -231,5 +231,5 @@ public class WsSampleGetGroupsAdminsRestLite implements WsSampleRest {
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
-, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
 , field: admins

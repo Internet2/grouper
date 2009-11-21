@@ -34,74 +34,56 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1431
-Date: Fri, 20 Nov 2009 06:50:17 GMT
+Content-Length: 1221
+Date: Sat, 21 Nov 2009 21:23:36 GMT
 Connection: close
 
 {
   "WsGetGroupsLiteResult":{
     "responseMetadata":{
-      "millis":"100",
-      "resultWarnings":"",
+      "millis":"71",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS",
-      "resultCode2":"",
       "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]\n, params: null",
       "success":"T"
     },
-    "subjectAttributeNames":[
-    ]
-    ,
     "wsGroups":[
       {
-        "description":"a group description2",
-        "detail":null,
-        "displayExtension":"a group2",
-        "displayName":"a stem:a group2",
-        "extension":"aGroup2",
-        "name":"aStem:aGroup2",
-        "uuid":"f6d3c969ac0f475596e903dbdb0f173b"
-      },
-      {
-        "description":"a group description",
-        "detail":null,
-        "displayExtension":"a group",
-        "displayName":"a stem:a group",
-        "extension":"aGroup",
-        "name":"aStem:aGroup",
-        "uuid":"68345861237a4d4f8bded19c66bbca7f"
-      },
-      {
-        "description":"",
-        "detail":null,
-        "displayExtension":"webServiceActAsGroup",
-        "displayName":"etc:webServiceActAsGroup",
-        "extension":"webServiceActAsGroup",
-        "name":"etc:webServiceActAsGroup",
-        "uuid":"64fdba2ef85147e88de91dc0d6d2052f"
-      },
-      {
-        "description":"",
-        "detail":null,
         "displayExtension":"sysadmingroup",
         "displayName":"etc:sysadmingroup",
         "extension":"sysadmingroup",
         "name":"etc:sysadmingroup",
-        "uuid":"8d525ed38a984e058db8ea651848c887"
+        "uuid":"3af40e66bd6a4cd0bd5fca13a57c6871"
+      },
+      {
+        "description":"a group description2",
+        "displayExtension":"a group2",
+        "displayName":"a stem:a group2",
+        "extension":"aGroup2",
+        "name":"aStem:aGroup2",
+        "uuid":"7caea6f0873d406fbe18d3fe7c51dc70"
+      },
+      {
+        "description":"a group description",
+        "displayExtension":"a group",
+        "displayName":"a stem:a group",
+        "extension":"aGroup",
+        "name":"aStem:aGroup",
+        "uuid":"0287ffc2aa53457a8b0dd3be37975f1f"
+      },
+      {
+        "displayExtension":"webServiceActAsGroup",
+        "displayName":"etc:webServiceActAsGroup",
+        "extension":"webServiceActAsGroup",
+        "name":"etc:webServiceActAsGroup",
+        "uuid":"ba6408756c2e4b63834259cf7a5358b3"
       }
     ]
     ,
     "wsSubject":{
-      "attributeValues":[
-      ]
-      ,
       "id":"10021368",
-      "identifierLookup":"",
       "name":"10021368",
       "resultCode":"SUCCESS",
       "sourceId":"jdbc",

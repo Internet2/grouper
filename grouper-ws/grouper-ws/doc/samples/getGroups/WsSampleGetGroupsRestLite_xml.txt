@@ -34,40 +34,51 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:50:29 GMT
+Date: Sat, 21 Nov 2009 21:23:46 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
+  <responseMetadata>
+    <millis>140</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <success>T</success>
+    <name>10021368</name>
+    <sourceId>jdbc</sourceId>
+    <id>10021368</id>
+  </wsSubject>
   <wsGroups>
     <WsGroup>
-      <name>etc:sysadmingroup</name>
-      <displayName>etc:sysadmingroup</displayName>
-      <extension>sysadmingroup</extension>
-      <displayExtension>sysadmingroup</displayExtension>
-      <uuid>e3c8ff8c3b5e41398a239594331ac833</uuid>
-    </WsGroup>
-    <WsGroup>
+      <extension>aGroup2</extension>
+      <description>a group description2</description>
+      <displayExtension>a group2</displayExtension>
+      <uuid>54dab4bf50a24034bcdf9ca490e23159</uuid>
       <name>aStem:aGroup2</name>
       <displayName>a stem:a group2</displayName>
-      <description>a group description2</description>
-      <extension>aGroup2</extension>
-      <displayExtension>a group2</displayExtension>
-      <uuid>fa92b5ff76984544b65ab4667c62853e</uuid>
     </WsGroup>
     <WsGroup>
-      <name>etc:webServiceActAsGroup</name>
-      <displayName>etc:webServiceActAsGroup</displayName>
       <extension>webServiceActAsGroup</extension>
       <displayExtension>webServiceActAsGroup</displayExtension>
-      <uuid>cd2c429d86af4e5596a9f25a29f2892c</uuid>
+      <uuid>68ee7814da754c8ab40641ca319a6ff8</uuid>
+      <name>etc:webServiceActAsGroup</name>
+      <displayName>etc:webServiceActAsGroup</displayName>
     </WsGroup>
     <WsGroup>
+      <extension>sysadmingroup</extension>
+      <displayExtension>sysadmingroup</displayExtension>
+      <uuid>8491b514ee2c4fbab9b5777781aa1977</uuid>
+      <name>etc:sysadmingroup</name>
+      <displayName>etc:sysadmingroup</displayName>
+    </WsGroup>
+    <WsGroup>
+      <extension>aGroup</extension>
+      <description>a group description</description>
+      <displayExtension>a group</displayExtension>
+      <uuid>dd7d5095e13a4a7c8f3ffbb02f74c68d</uuid>
       <name>aStem:aGroup</name>
       <displayName>a stem:a group</displayName>
-      <description>a group description</description>
-      <extension>aGroup</extension>
-      <displayExtension>a group</displayExtension>
-      <uuid>2bb1e197441f4c6f9bb8310209836b17</uuid>
     </WsGroup>
   </wsGroups>
   <resultMetadata>
@@ -78,17 +89,6 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
 , params: null</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>89</millis>
-  </responseMetadata>
-  <wsSubject>
-    <resultCode>SUCCESS</resultCode>
-    <sourceId>jdbc</sourceId>
-    <name>10021368</name>
-    <id>10021368</id>
-    <success>T</success>
-  </wsSubject>
 </WsGetGroupsLiteResult>
 
 

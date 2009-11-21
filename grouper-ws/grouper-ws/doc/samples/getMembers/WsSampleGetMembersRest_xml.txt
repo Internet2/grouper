@@ -46,73 +46,10 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:51:58 GMT
+Date: Sat, 21 Nov 2009 21:25:14 GMT
 Connection: close
 
 <WsGetMembersResults>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>160</millis>
-  </responseMetadata>
-  <results>
-    <WsGetMembersResult>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS</resultCode>
-      </resultMetadata>
-      <wsGroup>
-        <name>aStem:aGroup</name>
-        <displayName>a stem:a group</displayName>
-        <description>a group description</description>
-        <extension>aGroup</extension>
-        <displayExtension>a group</displayExtension>
-        <uuid>03fdc3615a194e1690b70c3594307852</uuid>
-      </wsGroup>
-      <wsSubjects>
-        <WsSubject>
-          <resultCode>SUCCESS</resultCode>
-          <sourceId>g:isa</sourceId>
-          <attributeValues>
-            <string>GrouperSysAdmin</string>
-            <string></string>
-            <string>EveryEntity</string>
-          </attributeValues>
-          <name>GrouperSysAdmin</name>
-          <id>GrouperSystem</id>
-          <success>T</success>
-        </WsSubject>
-        <WsSubject>
-          <resultCode>SUCCESS</resultCode>
-          <sourceId>jdbc</sourceId>
-          <attributeValues>
-            <string></string>
-            <string></string>
-            <string>10039438</string>
-          </attributeValues>
-          <name>10039438</name>
-          <id>10039438</id>
-          <success>T</success>
-        </WsSubject>
-        <WsSubject>
-          <resultCode>SUCCESS</resultCode>
-          <sourceId>jdbc</sourceId>
-          <attributeValues>
-            <string></string>
-            <string></string>
-            <string>10021368</string>
-          </attributeValues>
-          <name>10021368</name>
-          <id>10021368</id>
-          <success>T</success>
-        </WsSubject>
-      </wsSubjects>
-    </WsGetMembersResult>
-  </results>
-  <subjectAttributeNames>
-    <string>description</string>
-    <string>loginid</string>
-    <string>name</string>
-  </subjectAttributeNames>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
@@ -125,6 +62,69 @@ Connection: close
 , params: null</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
+  <results>
+    <WsGetMembersResult>
+      <wsSubjects>
+        <WsSubject>
+          <resultCode>SUCCESS</resultCode>
+          <success>T</success>
+          <name>10039438</name>
+          <sourceId>jdbc</sourceId>
+          <attributeValues>
+            <string></string>
+            <string></string>
+            <string>10039438</string>
+          </attributeValues>
+          <id>10039438</id>
+        </WsSubject>
+        <WsSubject>
+          <resultCode>SUCCESS</resultCode>
+          <success>T</success>
+          <name>10021368</name>
+          <sourceId>jdbc</sourceId>
+          <attributeValues>
+            <string></string>
+            <string></string>
+            <string>10021368</string>
+          </attributeValues>
+          <id>10021368</id>
+        </WsSubject>
+        <WsSubject>
+          <resultCode>SUCCESS</resultCode>
+          <success>T</success>
+          <name>GrouperSysAdmin</name>
+          <sourceId>g:isa</sourceId>
+          <attributeValues>
+            <string>GrouperSysAdmin</string>
+            <string></string>
+            <string>EveryEntity</string>
+          </attributeValues>
+          <id>GrouperSystem</id>
+        </WsSubject>
+      </wsSubjects>
+      <wsGroup>
+        <extension>aGroup</extension>
+        <description>a group description</description>
+        <displayExtension>a group</displayExtension>
+        <uuid>e3242f66c2e1456689920a6cc07bb45f</uuid>
+        <name>aStem:aGroup</name>
+        <displayName>a stem:a group</displayName>
+      </wsGroup>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS</resultCode>
+      </resultMetadata>
+    </WsGetMembersResult>
+  </results>
+  <responseMetadata>
+    <millis>117</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
+  <subjectAttributeNames>
+    <string>description</string>
+    <string>loginid</string>
+    <string>name</string>
+  </subjectAttributeNames>
 </WsGetMembersResults>
 
 

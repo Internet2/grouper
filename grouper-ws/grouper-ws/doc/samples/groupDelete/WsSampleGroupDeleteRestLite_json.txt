@@ -34,34 +34,24 @@ X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 690
-Date: Fri, 20 Nov 2009 06:58:21 GMT
+Content-Length: 561
+Date: Sat, 21 Nov 2009 21:30:33 GMT
 Connection: close
 
 {
   "WsGroupDeleteLiteResult":{
     "responseMetadata":{
-      "millis":"51",
-      "resultWarnings":"",
+      "millis":"61",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS_GROUP_NOT_FOUND",
-      "resultCode2":"",
       "resultMessage":"Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[], txType: NONE, includeGroupDetail: false, paramNames: \n, params: nullCant find group: 'WsGroupLookup[\n  groupFindResult=GROUP_NOT_FOUND,groupName=aStem:aGroup123]'.",
       "success":"T"
     },
     "wsGroup":{
-      "description":"",
-      "detail":null,
-      "displayExtension":"",
-      "displayName":"",
       "extension":"aGroup123",
-      "name":"aStem:aGroup123",
-      "uuid":""
+      "name":"aStem:aGroup123"
     }
   }
 }

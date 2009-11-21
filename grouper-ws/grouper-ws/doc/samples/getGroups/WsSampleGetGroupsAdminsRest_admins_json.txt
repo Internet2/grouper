@@ -14,16 +14,11 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 397
+Content-Length: 196
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGetGroupsRequest":{
-    "actAsSubjectLookup":null,
-    "clientVersion":"",
-    "includeGroupDetail":"",
-    "includeSubjectDetail":"",
-    "memberFilter":"",
     "params":[
       {
         "paramName":"fieldName",
@@ -37,14 +32,10 @@ Content-Type: text/x-json; charset=UTF-8
     ,
     "subjectLookups":[
       {
-        "subjectId":"10021368",
-        "subjectIdentifier":"",
-        "subjectSourceId":""
+        "subjectId":"10021368"
       },
       {
-        "subjectId":"10039438",
-        "subjectIdentifier":"",
-        "subjectSourceId":""
+        "subjectId":"10039438"
       }
     ]
   }
@@ -66,47 +57,33 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1184
-Date: Fri, 20 Nov 2009 06:50:38 GMT
+Content-Length: 895
+Date: Sat, 21 Nov 2009 21:23:58 GMT
 Connection: close
 
 {
   "WsGetGroupsResults":{
     "responseMetadata":{
-      "millis":"84",
-      "resultWarnings":"",
+      "millis":"91",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS",
-      "resultCode2":"",
-      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10021368]\n[1]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]\n, field: admins",
+      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n, field: admins",
       "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
-          "params":[
-          ]
-          ,
           "resultCode":"SUCCESS",
-          "resultCode2":"",
-          "resultMessage":"",
           "success":"T"
         },
-        "wsGroups":[
-        ]
-        ,
         "wsSubject":{
           "attributeValues":[
             ""
           ]
           ,
           "id":"10021368",
-          "identifierLookup":"",
           "name":"10021368",
           "resultCode":"SUCCESS",
           "sourceId":"jdbc",
@@ -116,24 +93,15 @@ Connection: close
       },
       {
         "resultMetadata":{
-          "params":[
-          ]
-          ,
           "resultCode":"SUCCESS",
-          "resultCode2":"",
-          "resultMessage":"",
           "success":"T"
         },
-        "wsGroups":[
-        ]
-        ,
         "wsSubject":{
           "attributeValues":[
             ""
           ]
           ,
           "id":"10039438",
-          "identifierLookup":"",
           "name":"10039438",
           "resultCode":"SUCCESS",
           "sourceId":"jdbc",
@@ -315,9 +283,9 @@ public class WsSampleGetGroupsAdminsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10021368]
-[1]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10039438]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
-, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
 , field: admins

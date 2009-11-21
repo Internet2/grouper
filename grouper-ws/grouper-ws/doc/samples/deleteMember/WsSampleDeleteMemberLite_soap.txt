@@ -56,16 +56,16 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:deleteMemberLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 06:47:12 GMT
+Date: Sat, 21 Nov 2009 21:20:17 GMT
 
-8fe
+8fd
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:deleteMemberLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>1115</ns:millis>
+          <ns:millis>612</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -73,9 +73,9 @@ Date: Fri, 20 Nov 2009 06:47:12 GMT
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup,uuid=], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=10021368]
+          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup,uuid=], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectIdentifier=,subjectId=10021368,subjectSourceId=]
 
-, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], fieldName: null, txType: NONE
+, actAsSubject: WsSubjectLookup[subjectIdentifier=,subjectId=GrouperSystem,subjectSourceId=], fieldName: null, txType: NONE
 , params: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -87,7 +87,7 @@ Date: Fri, 20 Nov 2009 06:47:12 GMT
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>7c732a6538b841c79da62651566e5f41</ns:uuid>
+          <ns:uuid>2967743aac304f72a9cb1b84eb6197d6</ns:uuid>
         </ns:wsGroup>
         <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
           <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -219,8 +219,8 @@ public class WsSampleDeleteMemberLite implements WsSampleGenerated {
 
 
 WsDeleteMemberLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1954e26,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@13db61e,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1221f5d,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1394aa4,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@a66c6f,localWsGroupTracker=true,
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@1912b9,localWsSubjectTracker=true]
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@f04383,localWsGroupTracker=true,
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@1e05417,localWsSubjectTracker=true]

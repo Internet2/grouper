@@ -14,32 +14,17 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 501
+Content-Length: 198
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestAssignGrouperPrivilegesLiteRequest":{
     "actAsSubjectId":"GrouperSystem",
-    "actAsSubjectIdentifier":"",
-    "actAsSubjectSourceId":"",
     "allowed":"T",
-    "clientVersion":"",
     "groupName":"aStem:aGroup",
-    "groupUuid":"",
-    "includeGroupDetail":"",
-    "includeSubjectDetail":"",
-    "paramName0":"",
-    "paramName1":"",
-    "paramValue0":"",
-    "paramValue1":"",
     "privilegeName":"optin",
     "privilegeType":"access",
-    "stemName":"",
-    "stemUuid":"",
-    "subjectAttributeNames":"",
-    "subjectId":"test.subject.0",
-    "subjectIdentifier":"",
-    "subjectSourceId":""
+    "subjectId":"test.subject.0"
   }
 }
 
@@ -59,51 +44,32 @@ X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 727
-Date: Fri, 20 Nov 2009 06:45:27 GMT
+Content-Length: 536
+Date: Sat, 21 Nov 2009 21:18:39 GMT
 Connection: close
 
 {
   "WsAssignGrouperPrivilegesLiteResult":{
-    "allowed":"",
-    "params":[
-    ]
-    ,
     "privilegeName":"optin",
     "privilegeType":"access",
     "responseMetadata":{
-      "millis":"212",
-      "resultWarnings":"",
+      "millis":"215",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS_ALLOWED",
-      "resultCode2":"",
-      "resultMessage":"",
       "success":"T"
     },
-    "subjectAttributeNames":[
-    ]
-    ,
     "wsGroup":{
       "description":"a group description",
-      "detail":null,
       "displayExtension":"a group",
       "displayName":"a stem:a group",
       "extension":"aGroup",
       "name":"aStem:aGroup",
-      "uuid":"421f70d0dce04cccb29047064987c6e1"
+      "uuid":"b8148119f7ba4774a22a818c4ee55c53"
     },
-    "wsStem":null,
     "wsSubject":{
-      "attributeValues":[
-      ]
-      ,
       "id":"test.subject.0",
-      "identifierLookup":"",
       "name":"my name is test.subject.0",
       "resultCode":"SUCCESS",
       "sourceId":"jdbc",

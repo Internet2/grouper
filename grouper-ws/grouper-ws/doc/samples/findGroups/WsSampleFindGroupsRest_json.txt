@@ -14,33 +14,18 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 442
+Content-Length: 186
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestFindGroupsRequest":{
     "actAsSubjectLookup":{
-      "subjectId":"GrouperSystem",
-      "subjectIdentifier":"",
-      "subjectSourceId":""
+      "subjectId":"GrouperSystem"
     },
-    "clientVersion":"",
-    "includeGroupDetail":"",
-    "params":[
-    ]
-    ,
     "wsQueryFilter":{
-      "groupAttributeName":"",
-      "groupAttributeValue":"",
       "groupName":"aGr",
-      "groupTypeName":"",
-      "groupUuid":"",
-      "queryFilter0":null,
-      "queryFilter1":null,
       "queryFilterType":"FIND_BY_GROUP_NAME_APPROXIMATE",
-      "queryTerm":"",
-      "stemName":"aStem",
-      "stemNameScope":""
+      "stemName":"aStem"
     }
   }
 }
@@ -61,8 +46,8 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1010
-Date: Fri, 20 Nov 2009 06:53:10 GMT
+Content-Length: 809
+Date: Sat, 21 Nov 2009 21:26:19 GMT
 Connection: close
 
 {
@@ -70,36 +55,29 @@ Connection: close
     "groupResults":[
       {
         "description":"a group description",
-        "detail":null,
         "displayExtension":"a group",
         "displayName":"a stem:a group",
         "extension":"aGroup",
         "name":"aStem:aGroup",
-        "uuid":"2f71fd2be5e34c5e8fa39cf2fe0fe22d"
+        "uuid":"e1765d14d4144f0fb625cf1be5a28543"
       },
       {
         "description":"a group description2",
-        "detail":null,
         "displayExtension":"a group2",
         "displayName":"a stem:a group2",
         "extension":"aGroup2",
         "name":"aStem:aGroup2",
-        "uuid":"d782c836e15d45b6a6c7b6ce4bbec955"
+        "uuid":"eda1c420a7214e0991b331fb742ea66a"
       }
     ]
     ,
     "responseMetadata":{
-      "millis":"65",
-      "resultWarnings":"",
+      "millis":"125",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS",
-      "resultCode2":"",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupTypeName=,stemNameScope=,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupUuid=,groupAttributeName=,groupAttributeValue=]\n, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], paramNames: \n, params: Empty array",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]\n, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: \n, params: null",
       "success":"T"
     }
   }
@@ -272,6 +250,6 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupTypeName=,stemNameScope=,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupUuid=,groupAttributeName=,groupAttributeValue=]
-, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem], paramNames: 
-, params: Empty array
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsQueryFilter: WsQueryFilter[stemName=aStem,groupName=aGr,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE]
+, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
+, params: null

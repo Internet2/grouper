@@ -35,10 +35,29 @@ X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:46:32 GMT
+Date: Sat, 21 Nov 2009 21:19:44 GMT
 Connection: close
 
 <WsAddMemberLiteResult>
+  <responseMetadata>
+    <millis>77</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
+  <wsGroupAssigned>
+    <extension>aGroup</extension>
+    <description>a group description</description>
+    <displayExtension>a group</displayExtension>
+    <uuid>e4a74b026290428b9c64bc205bef57a5</uuid>
+    <name>aStem:aGroup</name>
+    <displayName>a stem:a group</displayName>
+  </wsGroupAssigned>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <success>T</success>
+    <name>10021368</name>
+    <sourceId>jdbc</sourceId>
+    <id>10021368</id>
+  </wsSubject>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
@@ -47,25 +66,6 @@ Connection: close
 , params: null</resultMessage>
     <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
   </resultMetadata>
-  <wsSubject>
-    <resultCode>SUCCESS</resultCode>
-    <sourceId>jdbc</sourceId>
-    <name>10021368</name>
-    <id>10021368</id>
-    <success>T</success>
-  </wsSubject>
-  <wsGroupAssigned>
-    <name>aStem:aGroup</name>
-    <displayName>a stem:a group</displayName>
-    <description>a group description</description>
-    <extension>aGroup</extension>
-    <displayExtension>a group</displayExtension>
-    <uuid>e790f9c5bfd446ed9d36e24b5bfccc96</uuid>
-  </wsGroupAssigned>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>119</millis>
-  </responseMetadata>
 </WsAddMemberLiteResult>
 
 

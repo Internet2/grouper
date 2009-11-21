@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: RestConverterTest.java,v 1.3 2009-11-20 07:15:38 mchyzer Exp $
+ * $Id: RestConverterTest.java,v 1.4 2009-11-21 21:50:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -34,7 +34,7 @@ public class RestConverterTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RestConverterTest("testMarshal3"));
+    TestRunner.run(new RestConverterTest("testMarshal2"));
   }
   
   /**
@@ -83,13 +83,13 @@ public class RestConverterTest extends TestCase {
         wsLiteResponseContentType.writeString(beanGrandparent, stringWriter);
         String theString = stringWriter.toString();
         
-        System.out.println(theString + "\n");
+        System.out.println(theString + "\n\n");
         
         //see if there is an inputter
         WsRestRequestContentType wsLiteRequestContentType = WsRestRequestContentType
           .valueOfIgnoreCase(wsLiteResponseContentType.name(), true);
         
-        //all responses should hav a request at this point
+        //all responses should have a request at this point
         StringBuilder warnings = new StringBuilder();
         BeanGrandparent beanGrandparent2 = (BeanGrandparent)wsLiteRequestContentType.parseString(theString, warnings);
         
@@ -99,7 +99,7 @@ public class RestConverterTest extends TestCase {
         String theString2 = stringWriter.toString();
 
         if (!StringUtils.equals(theString, theString2)) {
-          System.out.println(theString2 + "\n");
+          System.out.println(theString2 + "\n\n");
         }
         
         assertEquals("Problem with content type: " + wsLiteResponseContentType, theString, theString2);

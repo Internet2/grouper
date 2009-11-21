@@ -34,33 +34,24 @@ X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 654
-Date: Fri, 20 Nov 2009 06:55:01 GMT
+Content-Length: 539
+Date: Sat, 21 Nov 2009 21:28:10 GMT
 Connection: close
 
 {
   "WsStemDeleteLiteResult":{
     "responseMetadata":{
-      "millis":"70",
-      "resultWarnings":"",
+      "millis":"74",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS_STEM_NOT_FOUND",
-      "resultCode2":"",
       "resultMessage":"Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]\n\n, actAsSubject: WsSubjectLookup[], txType: NONE, paramNames: \n, params: nullCant find stem: 'WsStemLookup[\n  stemFindResult=STEM_NOT_FOUND,stemName=aStem:aStemToDelete]'.",
       "success":"T"
     },
     "wsStem":{
-      "description":"",
-      "displayExtension":"",
-      "displayName":"",
       "extension":"aStemToDelete",
-      "name":"aStem:aStemToDelete",
-      "uuid":""
+      "name":"aStem:aStemToDelete"
     }
   }
 }

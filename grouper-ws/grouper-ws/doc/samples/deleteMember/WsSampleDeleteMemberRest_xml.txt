@@ -47,41 +47,49 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:47:31 GMT
+Date: Sat, 21 Nov 2009 21:20:34 GMT
 Connection: close
 
 <WsDeleteMemberResults>
+  <wsGroup>
+    <extension>aGroup</extension>
+    <description>a group description</description>
+    <displayExtension>a group</displayExtension>
+    <uuid>69345232f53a401eb6cb7776ea1d0da3</uuid>
+    <name>aStem:aGroup</name>
+    <displayName>a stem:a group</displayName>
+  </wsGroup>
   <results>
     <WsDeleteMemberResult>
-      <wsSubject>
-        <resultCode>SUCCESS</resultCode>
-        <sourceId>jdbc</sourceId>
-        <name>10021368</name>
-        <id>10021368</id>
-        <success>T</success>
-      </wsSubject>
       <resultMetadata>
         <success>T</success>
         <resultCode>SUCCESS</resultCode>
       </resultMetadata>
+      <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <name>10021368</name>
+        <sourceId>jdbc</sourceId>
+        <id>10021368</id>
+      </wsSubject>
     </WsDeleteMemberResult>
     <WsDeleteMemberResult>
-      <wsSubject>
-        <resultCode>SUCCESS</resultCode>
-        <sourceId>jdbc</sourceId>
-        <name>10039438</name>
-        <id>10039438</id>
-        <success>T</success>
-      </wsSubject>
       <resultMetadata>
         <success>T</success>
         <resultCode>SUCCESS</resultCode>
       </resultMetadata>
+      <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <name>10039438</name>
+        <sourceId>jdbc</sourceId>
+        <id>10039438</id>
+      </wsSubject>
     </WsDeleteMemberResult>
   </results>
   <responseMetadata>
+    <millis>429</millis>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>520</millis>
   </responseMetadata>
   <resultMetadata>
     <success>T</success>
@@ -92,14 +100,6 @@ Connection: close
 , params: null</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <wsGroup>
-    <name>aStem:aGroup</name>
-    <displayName>a stem:a group</displayName>
-    <description>a group description</description>
-    <extension>aGroup</extension>
-    <displayExtension>a group</displayExtension>
-    <uuid>783b0b30a9c84696986df15a9ca151e1</uuid>
-  </wsGroup>
 </WsDeleteMemberResults>
 
 

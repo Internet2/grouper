@@ -81,7 +81,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 07:03:21 GMT
+Date: Sat, 21 Nov 2009 21:12:25 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -92,25 +92,6 @@ Connection: close
   </head>
   <body>
     <div title="WsMemberChangeSubjectResults">
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="resultWarnings" />
-        <p class="millis">216</p>
-      </div>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
-oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
-newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
-[1]: WsMemberChangeSubject[
-oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
-newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
-
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
-, params: null</p>
-      </div>
       <ul class="results">
         <li title="WsMemberChangeSubjectResult">
           <div class="wsSubjectNew" title="WsSubject">
@@ -122,10 +103,10 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
             <p class="success">T</p>
           </div>
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode2" />
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
             <p class="resultMessage" />
+            <p class="resultCode2" />
           </div>
           <div class="wsSubjectOld" title="WsSubject">
             <p class="id">test.subject.0</p>
@@ -146,10 +127,10 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
             <p class="success">T</p>
           </div>
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode2" />
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
             <p class="resultMessage" />
+            <p class="resultCode2" />
           </div>
           <div class="wsSubjectOld" title="WsSubject">
             <p class="id">test.subject.2</p>
@@ -161,6 +142,25 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
           </div>
         </li>
       </ul>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+[1]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3]]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
+, params: null</p>
+        <p class="resultCode2" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">299</p>
+        <p class="resultWarnings" />
+      </div>
     </div>
   </body>
 </html>
@@ -353,8 +353,8 @@ Server version: v1_5_000, result code: SUCCESS, result message: Success for: cli
   oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
   newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
 [1]: WsMemberChangeSubject[
-  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
-  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],deleteOldMember=F,
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null

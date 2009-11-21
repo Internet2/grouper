@@ -80,7 +80,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:55:53 GMT
+Date: Sat, 21 Nov 2009 21:29:01 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -91,13 +91,7 @@ Connection: close
   </head>
   <body>
     <div title="WsStemSaveResults">
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="resultWarnings" />
-        <p class="millis">329</p>
-      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
@@ -105,38 +99,44 @@ wsStem=WsStem[name=aStem:whateverStem,displayExtension=disp1,extension=whateverS
 wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</p>
+        <p class="resultCode2" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">565</p>
+        <p class="resultWarnings" />
       </div>
       <ul class="results">
         <li title="WsStemSaveResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS_INSERTED</p>
+            <p class="success">T</p>
+            <p class="resultMessage" />
+            <p class="resultCode2" />
+          </div>
           <div class="wsStem" title="WsStem">
             <p class="displayExtension">disp1</p>
-            <p class="uuid">561f5f54696949b5906472748d9860ee</p>
+            <p class="uuid">a0c93a4f77844dd396641ef2c17b61d4</p>
             <p class="displayName">a stem:disp1</p>
             <p class="extension">whateverStem</p>
             <p class="description">desc1</p>
             <p class="name">aStem:whateverStem</p>
           </div>
+        </li>
+        <li title="WsStemSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode2" />
             <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
+            <p class="resultCode2" />
           </div>
-        </li>
-        <li title="WsStemSaveResult">
           <div class="wsStem" title="WsStem">
             <p class="displayExtension">disp2</p>
-            <p class="uuid">e976d5d309b54572b655fd4b6084f04d</p>
+            <p class="uuid">8f4d043e60ac4d9ba843e154334d53ab</p>
             <p class="displayName">a stem:disp2</p>
             <p class="extension">whateverStem2</p>
             <p class="description">descs</p>
             <p class="name">aStem:whateverStem2</p>
-          </div>
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode2" />
-            <p class="resultCode">SUCCESS_INSERTED</p>
-            <p class="success">T</p>
-            <p class="resultMessage" />
           </div>
         </li>
       </ul>

@@ -60,7 +60,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:56:40 GMT
+Date: Sat, 21 Nov 2009 21:29:39 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -71,21 +71,7 @@ Connection: close
   </head>
   <body>
     <div title="WsStemSaveLiteResult">
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="resultWarnings" />
-        <p class="millis">455</p>
-      </div>
-      <div class="wsStem" title="WsStem">
-        <p class="displayExtension">disp1</p>
-        <p class="uuid">11616e123bd54bbaa3a8d81fbde63581</p>
-        <p class="displayName">a stem:disp1</p>
-        <p class="extension">aStemToSave</p>
-        <p class="description">desc1</p>
-        <p class="name">aStem:aStemToSave</p>
-      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
         <p class="resultCode">SUCCESS_INSERTED</p>
         <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
@@ -94,6 +80,20 @@ wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave]]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</p>
+        <p class="resultCode2" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">247</p>
+        <p class="resultWarnings" />
+      </div>
+      <div class="wsStem" title="WsStem">
+        <p class="displayExtension">disp1</p>
+        <p class="uuid">88ae5fd50942488eb7839ebc5a0ba38f</p>
+        <p class="displayName">a stem:disp1</p>
+        <p class="extension">aStemToSave</p>
+        <p class="description">desc1</p>
+        <p class="name">aStem:aStemToSave</p>
       </div>
     </div>
   </body>

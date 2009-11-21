@@ -55,7 +55,7 @@ X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:55:20 GMT
+Date: Sat, 21 Nov 2009 21:28:27 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -66,10 +66,20 @@ Connection: close
   </head>
   <body>
     <div title="WsStemDeleteLiteResult">
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS_STEM_NOT_FOUND</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
+, params: nullCant find stem: 'WsStemLookup[
+stemFindResult=STEM_NOT_FOUND,stemName=aStem:aStemToDelete]'.</p>
+        <p class="resultCode2" />
+      </div>
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="serverVersion">v1_5_000</p>
+        <p class="millis">81</p>
         <p class="resultWarnings" />
-        <p class="millis">93</p>
       </div>
       <div class="wsStem" title="WsStem">
         <p class="displayExtension" />
@@ -78,16 +88,6 @@ Connection: close
         <p class="extension">aStemToDelete</p>
         <p class="description" />
         <p class="name">aStem:aStemToDelete</p>
-      </div>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS_STEM_NOT_FOUND</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
-
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
-, params: nullCant find stem: 'WsStemLookup[
-stemFindResult=STEM_NOT_FOUND,stemName=aStem:aStemToDelete]'.</p>
       </div>
     </div>
   </body>

@@ -48,7 +48,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findStemsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 06:53:44 GMT
+Date: Sat, 21 Nov 2009 21:26:52 GMT
 
 5e7
 <?xml version='1.0' encoding='UTF-8'?>
@@ -57,7 +57,7 @@ Date: Fri, 20 Nov 2009 06:53:44 GMT
     <ns:findStemsResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>198</ns:millis>
+          <ns:millis>148</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -75,7 +75,7 @@ Date: Fri, 20 Nov 2009 06:53:44 GMT
           <ns:displayName>a stem</ns:displayName>
           <ns:extension>aStem</ns:extension>
           <ns:name>aStem</ns:name>
-          <ns:uuid>409ace6e87ee4b48b9ac576e33eacc42</ns:uuid>
+          <ns:uuid>c999d55e5f5648348261bdfd1659da57</ns:uuid>
         </ns:stemResults>
       </ns:return>
     </ns:findStemsResponse>
@@ -203,7 +203,7 @@ public class WsSampleFindStems implements WsSampleGenerated {
 
 
 WsFindStemsResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1b5cb99,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@49b0d7,localResultMetadataTracker=true,
-  localStemResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@9f65d0},localStemResultsTracker=true]
-WsStem[localDescription=a stem description,localDescriptionTracker=true,localDisplayExtension=a stem,localDisplayExtensionTracker=true,localDisplayName=a stem,localDisplayNameTracker=true,localExtension=aStem,localExtensionTracker=true,localName=aStem,localNameTracker=true,localUuid=409ace6e87ee4b48b9ac576e33eacc42,localUuidTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1bee591,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1d19796,localResultMetadataTracker=true,
+  localStemResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@1122c2b},localStemResultsTracker=true]
+WsStem[localDescription=a stem description,localDescriptionTracker=true,localDisplayExtension=a stem,localDisplayExtensionTracker=true,localDisplayName=a stem,localDisplayNameTracker=true,localExtension=aStem,localExtensionTracker=true,localName=aStem,localNameTracker=true,localUuid=c999d55e5f5648348261bdfd1659da57,localUuidTracker=true]

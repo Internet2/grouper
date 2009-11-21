@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:52:16 GMT
+Date: Sat, 21 Nov 2009 21:25:30 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -45,18 +45,9 @@ Connection: close
   </head>
   <body>
     <div title="WsGetMembersLiteResult">
-      <div class="wsGroup" title="WsGroup">
-        <div class="detail" title="WsGroupDetail" />
-        <p class="displayExtension">a group</p>
-        <p class="uuid">37127fa4fd574e9cb706fdce8c5927d5</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="extension">aGroup</p>
-        <p class="description">a group description</p>
-        <p class="name">aStem:aGroup</p>
-      </div>
       <ul class="wsSubjects">
         <li title="WsSubject">
-          <p class="id">10021368</p>
+          <p class="id">10039438</p>
           <p class="identifierLookup" />
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -72,7 +63,7 @@ Connection: close
           <p class="success">T</p>
         </li>
         <li title="WsSubject">
-          <p class="id">10039438</p>
+          <p class="id">10021368</p>
           <p class="identifierLookup" />
           <p class="resultCode">SUCCESS</p>
           <p class="sourceId">jdbc</p>
@@ -80,13 +71,7 @@ Connection: close
           <p class="success">T</p>
         </li>
       </ul>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="resultWarnings" />
-        <p class="millis">51</p>
-      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
@@ -94,6 +79,21 @@ Connection: close
 , memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[], fieldName: null, subjectAttributeNames: null
 , paramNames:
 , params: null</p>
+        <p class="resultCode2" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">117</p>
+        <p class="resultWarnings" />
+      </div>
+      <div class="wsGroup" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">a group</p>
+        <p class="uuid">118b1937a15e4f9e97987ed82c8c48ef</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
       </div>
     </div>
   </body>

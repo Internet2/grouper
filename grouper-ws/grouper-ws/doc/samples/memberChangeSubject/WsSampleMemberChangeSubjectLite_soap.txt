@@ -56,7 +56,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:memberChangeSubjectLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 07:03:16 GMT
+Date: Sat, 21 Nov 2009 21:12:18 GMT
 
 9e1
 <?xml version='1.0' encoding='UTF-8'?>
@@ -65,7 +65,7 @@ Date: Fri, 20 Nov 2009 07:03:16 GMT
     <ns:memberChangeSubjectLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>236</ns:millis>
+          <ns:millis>256</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -74,10 +74,10 @@ Date: Fri, 20 Nov 2009 07:03:16 GMT
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultMessage>Success for: clientVersion: v1_5_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
-oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=,subjectIdentifier=],
-newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1,subjectSourceId=,subjectIdentifier=],deleteOldMember=T]
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=,subjectId=test.subject.0,subjectSourceId=],deleteOldMember=T,
+newSubjectLookup=WsSubjectLookup[subjectIdentifier=,subjectId=test.subject.1,subjectSourceId=]]
 
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=,subjectIdentifier=], txType: NONE
+, actAsSubject: WsSubjectLookup[subjectIdentifier=,subjectId=GrouperSystem,subjectSourceId=], txType: NONE
 , params: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -231,8 +231,8 @@ public class WsSampleMemberChangeSubjectLite implements WsSampleGenerated {
 
 
 WsMemberChangeSubjectLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1e25129,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@13e7141,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1782747,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@15ad01a,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsSubjectNew=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@d60d72,localWsSubjectNewTracker=true,
-  localWsSubjectOld=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@10cdbb3,localWsSubjectOldTracker=true]
+  localWsSubjectNew=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@8d0470,localWsSubjectNewTracker=true,
+  localWsSubjectOld=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@1e7318,localWsSubjectOldTracker=true]

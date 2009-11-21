@@ -14,47 +14,33 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 551
+Content-Length: 380
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestStemSaveRequest":{
-    "actAsSubjectLookup":null,
-    "clientVersion":"",
-    "params":[
-    ]
-    ,
-    "txType":"",
     "wsStemToSaves":[
       {
-        "saveMode":"",
         "wsStem":{
           "description":"desc1",
           "displayExtension":"disp1",
-          "displayName":"",
           "extension":"whateverStem",
-          "name":"aStem:whateverStem",
-          "uuid":""
+          "name":"aStem:whateverStem"
         },
         "wsStemLookup":{
-          "stemName":"aStem:whateverStem",
-          "uuid":""
+          "stemName":"aStem:whateverStem"
         }
         
       },
       {
-        "saveMode":"",
         "wsStem":{
           "description":"descs",
           "displayExtension":"disp2",
-          "displayName":"",
           "extension":"whateverStem2",
-          "name":"aStem:whateverStem2",
-          "uuid":""
+          "name":"aStem:whateverStem2"
         },
         "wsStemLookup":{
-          "stemName":"aStem:whateverStem2",
-          "uuid":""
+          "stemName":"aStem:whateverStem2"
         }
       }
     ]
@@ -77,35 +63,25 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1154
-Date: Fri, 20 Nov 2009 06:55:59 GMT
+Content-Length: 1002
+Date: Sat, 21 Nov 2009 21:29:06 GMT
 Connection: close
 
 {
   "WsStemSaveResults":{
     "responseMetadata":{
-      "millis":"504",
-      "resultWarnings":"",
+      "millis":"423",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS",
-      "resultCode2":"",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStem=WsStem[displayName=,uuid=,name=aStem:whateverStem,displayExtension=disp1,extension=whateverStem,description=desc1],saveMode=,\n  wsStemLookup=WsStemLookup[...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: Empty array",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStem=WsStem[name=aStem:whateverStem,displayExtension=disp1,extension=whateverStem,description=desc1],\n  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
-          "params":[
-          ]
-          ,
           "resultCode":"SUCCESS_INSERTED",
-          "resultCode2":"",
-          "resultMessage":"",
           "success":"T"
         },
         "wsStem":{
@@ -114,18 +90,13 @@ Connection: close
           "displayName":"a stem:disp1",
           "extension":"whateverStem",
           "name":"aStem:whateverStem",
-          "uuid":"6a1d52b5be7e4feea8401036b95ebdd0"
+          "uuid":"8b4dfe01de9941d79a3ca39281ef6654"
         }
         
       },
       {
         "resultMetadata":{
-          "params":[
-          ]
-          ,
           "resultCode":"SUCCESS_INSERTED",
-          "resultCode2":"",
-          "resultMessage":"",
           "success":"T"
         },
         "wsStem":{
@@ -134,7 +105,7 @@ Connection: close
           "displayName":"a stem:disp2",
           "extension":"whateverStem2",
           "name":"aStem:whateverStem2",
-          "uuid":"3c32681601fb4da69dd767f596a74a2c"
+          "uuid":"dc0d5e06ed0941f196acb659de2ed87e"
         }
       }
     ]
@@ -320,7 +291,7 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
-  wsStem=WsStem[displayName=,uuid=,name=aStem:whateverStem,displayExtension=disp1,extension=whateverStem,description=desc1],saveMode=,
-  wsStemLookup=WsStemLookup[...
+  wsStem=WsStem[name=aStem:whateverStem,displayExtension=disp1,extension=whateverStem,description=desc1],
+  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 
-, params: Empty array
+, params: null

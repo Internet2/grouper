@@ -60,52 +60,52 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 07:02:04 GMT
+Date: Sat, 21 Nov 2009 21:10:58 GMT
 Connection: close
 
 <WsGroupSaveResults>
-  <results>
-    <WsGroupSaveResult>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS_INSERTED</resultCode>
-      </resultMetadata>
-      <wsGroup>
-        <name>aStem:whateverGroup</name>
-        <extension>whateverGroup</extension>
-        <description>desc1</description>
-        <displayName>a stem:disp1</displayName>
-        <displayExtension>disp1</displayExtension>
-        <uuid>cc383756f8ea48c4aeac7769c76f05c8</uuid>
-      </wsGroup>
-    </WsGroupSaveResult>
-    <WsGroupSaveResult>
-      <resultMetadata>
-        <success>T</success>
-        <resultCode>SUCCESS_INSERTED</resultCode>
-      </resultMetadata>
-      <wsGroup>
-        <name>aStem:whateverGroup2</name>
-        <extension>whateverGroup2</extension>
-        <description>descs</description>
-        <displayName>a stem:disp2</displayName>
-        <displayExtension>disp2</displayExtension>
-        <uuid>1d99acb525a84c1198ceccd38d5abfa3</uuid>
-      </wsGroup>
-    </WsGroupSaveResult>
-  </results>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayExtension=disp1],
+wsGroup=WsGroup[extension=whateverGroup,description=desc1,displayExtension=disp1,name=aStem:whateverGroup],
 wsGroupLookup=WsGroupLookup[groupName=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
+  <results>
+    <WsGroupSaveResult>
+      <wsGroup>
+        <extension>whateverGroup</extension>
+        <description>desc1</description>
+        <displayExtension>disp1</displayExtension>
+        <uuid>b23b350f53e347e395cc81d69800d6b5</uuid>
+        <name>aStem:whateverGroup</name>
+        <displayName>a stem:disp1</displayName>
+      </wsGroup>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_INSERTED</resultCode>
+      </resultMetadata>
+    </WsGroupSaveResult>
+    <WsGroupSaveResult>
+      <wsGroup>
+        <extension>whateverGroup2</extension>
+        <description>descs</description>
+        <displayExtension>disp2</displayExtension>
+        <uuid>4836cb34c4fe4647b7d6a7a04971002e</uuid>
+        <name>aStem:whateverGroup2</name>
+        <displayName>a stem:disp2</displayName>
+      </wsGroup>
+      <resultMetadata>
+        <success>T</success>
+        <resultCode>SUCCESS_INSERTED</resultCode>
+      </resultMetadata>
+    </WsGroupSaveResult>
+  </results>
   <responseMetadata>
+    <millis>1021</millis>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>822</millis>
   </responseMetadata>
 </WsGroupSaveResults>
 
@@ -288,7 +288,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-  wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayExtension=disp1],
+  wsGroup=WsGroup[extension=whateverGroup,description=desc1,displayExtension=disp1,name=aStem:whateverGroup],
   wsGroupLookup=WsGroupLookup[groupName=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

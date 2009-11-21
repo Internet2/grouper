@@ -53,38 +53,21 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:50:44 GMT
+Date: Sat, 21 Nov 2009 21:24:03 GMT
 Connection: close
 
 <WsGetGroupsResults>
-  <resultMetadata>
-    <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
-[1]: WsSubjectLookup[subjectId=10039438]
-
-memberFilter: All, includeGroupDetail: false, actAsSubject: null
-, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]
-, field: admins</resultMessage>
-    <resultCode>SUCCESS</resultCode>
-  </resultMetadata>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>122</millis>
-  </responseMetadata>
-  <subjectAttributeNames>
-    <string>description</string>
-  </subjectAttributeNames>
   <results>
     <WsGetGroupsResult>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <name>10021368</name>
         <sourceId>jdbc</sourceId>
         <attributeValues>
           <string></string>
         </attributeValues>
-        <name>10021368</name>
         <id>10021368</id>
-        <success>T</success>
       </wsSubject>
       <resultMetadata>
         <success>T</success>
@@ -94,13 +77,13 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: null
     <WsGetGroupsResult>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <name>10039438</name>
         <sourceId>jdbc</sourceId>
         <attributeValues>
           <string></string>
         </attributeValues>
-        <name>10039438</name>
         <id>10039438</id>
-        <success>T</success>
       </wsSubject>
       <resultMetadata>
         <success>T</success>
@@ -108,6 +91,23 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: null
       </resultMetadata>
     </WsGetGroupsResult>
   </results>
+  <resultMetadata>
+    <success>T</success>
+    <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
+
+memberFilter: All, includeGroupDetail: false, actAsSubject: null
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, field: admins</resultMessage>
+    <resultCode>SUCCESS</resultCode>
+  </resultMetadata>
+  <responseMetadata>
+    <millis>75</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
+  <subjectAttributeNames>
+    <string>description</string>
+  </subjectAttributeNames>
 </WsGetGroupsResults>
 
 
@@ -281,5 +281,5 @@ Server version: v1_5_000, result code: SUCCESS, result message: Success for: cli
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
-, params: Array size: 1: [0]: WsParam[paramValue=admins,paramName=fieldName]
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
 , field: admins

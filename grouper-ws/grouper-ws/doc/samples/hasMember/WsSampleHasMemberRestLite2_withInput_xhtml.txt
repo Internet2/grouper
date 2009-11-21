@@ -63,7 +63,7 @@ X-Grouper-resultCode: IS_NOT_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:49:10 GMT
+Date: Sat, 21 Nov 2009 21:22:22 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -74,19 +74,14 @@ Connection: close
   </head>
   <body>
     <div title="WsHasMemberLiteResult">
-      <div class="wsGroup" title="WsGroup">
-        <div class="detail" title="WsGroupDetail" />
-        <p class="displayExtension">a group</p>
-        <p class="uuid">b3769e05ab8a4ac4abd6287f88320a13</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="extension">aGroup</p>
-        <p class="description">a group description</p>
-        <p class="name">aStem:aGroup</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="resultWarnings" />
-        <p class="millis">134</p>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">IS_NOT_MEMBER</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+
+memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+,params: null</p>
+        <p class="resultCode2" />
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="id">test.subject.0</p>
@@ -96,14 +91,19 @@ Connection: close
         <p class="name">my name is test.subject.0</p>
         <p class="success">T</p>
       </div>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
-        <p class="resultCode">IS_NOT_MEMBER</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectId=test.subject.0]
-
-memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-,params: null</p>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">72</p>
+        <p class="resultWarnings" />
+      </div>
+      <div class="wsGroup" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">a group</p>
+        <p class="uuid">535542cb1c224f519108bfe2be91afba</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
       </div>
     </div>
   </body>
@@ -264,7 +264,7 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectId=test.subject.0]
+Server version: v1_5_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
  memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null

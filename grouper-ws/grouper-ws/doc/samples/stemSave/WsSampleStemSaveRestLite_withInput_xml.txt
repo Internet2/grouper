@@ -40,22 +40,10 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:57:14 GMT
+Date: Sat, 21 Nov 2009 21:29:56 GMT
 Connection: close
 
 <WsStemSaveLiteResult>
-  <wsStem>
-    <displayName>a stem:disp1</displayName>
-    <uuid>5a48b05dfbf14059aac24d2fd8b5f22e</uuid>
-    <name>aStem:aStemToSave</name>
-    <displayExtension>disp1</displayExtension>
-    <extension>aStemToSave</extension>
-    <description>desc1</description>
-  </wsStem>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>283</millis>
-  </responseMetadata>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
@@ -66,6 +54,18 @@ wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave]]
 , params: null</resultMessage>
     <resultCode>SUCCESS_INSERTED</resultCode>
   </resultMetadata>
+  <responseMetadata>
+    <millis>295</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
+  <wsStem>
+    <name>aStem:aStemToSave</name>
+    <displayName>a stem:disp1</displayName>
+    <displayExtension>disp1</displayExtension>
+    <extension>aStemToSave</extension>
+    <uuid>39d35ae2f42c4272ab97219442cdc9a9</uuid>
+    <description>desc1</description>
+  </wsStem>
 </WsStemSaveLiteResult>
 
 

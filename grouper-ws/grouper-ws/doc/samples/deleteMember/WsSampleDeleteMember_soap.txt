@@ -60,7 +60,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:deleteMemberResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 06:47:05 GMT
+Date: Sat, 21 Nov 2009 21:20:11 GMT
 
 e7b
 <?xml version='1.0' encoding='UTF-8'?>
@@ -69,7 +69,7 @@ e7b
     <ns:deleteMemberResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>711</ns:millis>
+          <ns:millis>497</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -128,7 +128,7 @@ e7b
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>3d0f80b7003f4ed0b795f0fc5e76cbd9</ns:uuid>
+          <ns:uuid>3cb967d0970244909a5f0baa2a13a35e</ns:uuid>
         </ns:wsGroup>
       </ns:return>
     </ns:deleteMemberResponse>
@@ -262,8 +262,8 @@ public class WsSampleDeleteMember implements WsSampleGenerated {
 
 
 WsDeleteMemberResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@188721c,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@fbb301,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsDeleteMemberResult@6a4263,edu.internet2.middleware.grouper.ws.soap.xsd.WsDeleteMemberResult@2cb26b},localResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@8d85a0,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1400100,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsDeleteMemberResult@1df05d,edu.internet2.middleware.grouper.ws.soap.xsd.WsDeleteMemberResult@18f6edb},localResultsTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@f6e256,localWsGroupTracker=true]
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@ff3391,localWsGroupTracker=true]

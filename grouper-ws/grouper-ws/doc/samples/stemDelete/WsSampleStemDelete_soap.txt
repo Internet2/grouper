@@ -50,16 +50,16 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemDeleteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 06:54:30 GMT
+Date: Sat, 21 Nov 2009 21:27:40 GMT
 
-8f4
+8f3
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:stemDeleteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>116</ns:millis>
+          <ns:millis>91</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -215,9 +215,9 @@ public class WsSampleStemDelete implements WsSampleGenerated {
 
 
 WsStemDeleteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1c5fef9,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1e6c2a8,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsStemDeleteResult@8cd580},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@badab9,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@16dbc93,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsStemDeleteResult@5d4900},localResultsTracker=true]
 WsStemDeleteResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@c1f778,localResultMetadataTracker=true,
-  localWsStem=edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@5e1af5,localWsStemTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@596710,localResultMetadataTracker=true,
+  localWsStem=edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@17d78c0,localWsStemTracker=true]

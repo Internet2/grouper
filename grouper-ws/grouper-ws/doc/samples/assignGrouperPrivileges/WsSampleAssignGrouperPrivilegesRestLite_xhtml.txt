@@ -66,7 +66,7 @@ X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:45:20 GMT
+Date: Sat, 21 Nov 2009 21:18:33 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -77,19 +77,16 @@ Connection: close
   </head>
   <body>
     <div title="WsAssignGrouperPrivilegesLiteResult">
-      <div class="wsGroup" title="WsGroup">
-        <div class="detail" title="WsGroupDetail" />
-        <p class="displayExtension">a group</p>
-        <p class="uuid">b378510659504a6c8e45ab68ac55d110</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="extension">aGroup</p>
-        <p class="description">a group description</p>
-        <p class="name">aStem:aGroup</p>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS_ALLOWED</p>
+        <p class="success">T</p>
+        <p class="resultMessage" />
+        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
         <p class="serverVersion">v1_5_000</p>
+        <p class="millis">180</p>
         <p class="resultWarnings" />
-        <p class="millis">267</p>
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="id">test.subject.0</p>
@@ -99,13 +96,16 @@ Connection: close
         <p class="name">my name is test.subject.0</p>
         <p class="success">T</p>
       </div>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS_ALLOWED</p>
-        <p class="success">T</p>
-        <p class="resultMessage" />
-      </div>
       <div class="wsStem" title="WsStem" />
+      <div class="wsGroup" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">a group</p>
+        <p class="uuid">f6b577213921477fbdb57d80bb48b35f</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
+      </div>
       <p class="allowed" />
       <p class="privilegeType">access</p>
       <p class="privilegeName">optin</p>

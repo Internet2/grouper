@@ -44,10 +44,14 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:54:50 GMT
+Date: Sat, 21 Nov 2009 21:28:00 GMT
 Connection: close
 
 <WsStemDeleteResults>
+  <responseMetadata>
+    <millis>119</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]
@@ -83,10 +87,6 @@ stemFindResult=STEM_NOT_FOUND,stemName=aStem:whateverStem2]&apos;.  </resultMess
       </wsStem>
     </WsStemDeleteResult>
   </results>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>49</millis>
-  </responseMetadata>
 </WsStemDeleteResults>
 
 

@@ -14,26 +14,14 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 360
+Content-Length: 117
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestGetGroupsLiteRequest":{
     "actAsSubjectId":"GrouperSystem",
-    "actAsSubjectIdentifier":"",
-    "actAsSubjectSourceId":"",
-    "clientVersion":"",
     "includeGroupDetail":"T",
-    "includeSubjectDetail":"T",
-    "memberFilter":"",
-    "paramName0":"",
-    "paramName1":"",
-    "paramValue0":"",
-    "paramValue1":"",
-    "subjectAttributeNames":"",
-    "subjectId":"",
-    "subjectIdentifier":"",
-    "subjectSourceId":""
+    "includeSubjectDetail":"T"
   }
 }
 
@@ -53,38 +41,23 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 734
-Date: Fri, 20 Nov 2009 06:51:19 GMT
+Content-Length: 546
+Date: Sat, 21 Nov 2009 21:24:36 GMT
 Connection: close
 
 {
   "WsGetGroupsLiteResult":{
     "responseMetadata":{
-      "millis":"142",
-      "resultWarnings":"",
+      "millis":"117",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS",
-      "resultCode2":"",
-      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectIdentifier=,subjectId=test.subject.0]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem]\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\nmemberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null",
       "success":"T"
     },
-    "subjectAttributeNames":[
-    ]
-    ,
-    "wsGroups":[
-    ]
-    ,
     "wsSubject":{
-      "attributeValues":[
-      ]
-      ,
       "id":"test.subject.0",
-      "identifierLookup":"",
       "name":"my name is test.subject.0",
       "resultCode":"SUCCESS",
       "sourceId":"jdbc",
@@ -251,7 +224,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectIdentifier=,subjectId=test.subject.0]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
-memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectIdentifier=,subjectId=GrouperSystem]
+memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

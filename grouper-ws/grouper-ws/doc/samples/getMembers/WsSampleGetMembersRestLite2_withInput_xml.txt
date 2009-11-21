@@ -37,21 +37,41 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:52:47 GMT
+Date: Sat, 21 Nov 2009 21:25:58 GMT
 Connection: close
 
 <WsGetMembersLiteResult>
+  <wsSubjects>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <sourceId>g:isa</sourceId>
+      <id>GrouperSystem</id>
+    </WsSubject>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <sourceId>jdbc</sourceId>
+      <id>10039438</id>
+    </WsSubject>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <sourceId>jdbc</sourceId>
+      <id>10021368</id>
+    </WsSubject>
+  </wsSubjects>
   <wsGroup>
+    <extension>aGroup</extension>
+    <description>a group description</description>
+    <displayExtension>a group</displayExtension>
+    <uuid>b46767dc0e1e4ffe9588800b5dae382f</uuid>
     <name>aStem:aGroup</name>
     <displayName>a stem:a group</displayName>
-    <description>a group description</description>
-    <extension>aGroup</extension>
-    <displayExtension>a group</displayExtension>
-    <uuid>2e230602ddcf4792a157de907ddcb054</uuid>
   </wsGroup>
   <responseMetadata>
+    <millis>160</millis>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>70</millis>
   </responseMetadata>
   <resultMetadata>
     <success>T</success>
@@ -62,26 +82,6 @@ Connection: close
 , params: null</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <wsSubjects>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <sourceId>jdbc</sourceId>
-      <id>10039438</id>
-      <success>T</success>
-    </WsSubject>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <sourceId>g:isa</sourceId>
-      <id>GrouperSystem</id>
-      <success>T</success>
-    </WsSubject>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <sourceId>jdbc</sourceId>
-      <id>10021368</id>
-      <success>T</success>
-    </WsSubject>
-  </wsSubjects>
 </WsGetMembersLiteResult>
 
 

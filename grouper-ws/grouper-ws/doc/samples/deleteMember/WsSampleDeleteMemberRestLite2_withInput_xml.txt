@@ -37,32 +37,32 @@ X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:48:16 GMT
+Date: Sat, 21 Nov 2009 21:21:23 GMT
 Connection: close
 
 <WsDeleteMemberLiteResult>
+  <responseMetadata>
+    <millis>100</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
   <wsGroup>
+    <extension>aGroup</extension>
+    <description>a group description</description>
+    <displayExtension>a group</displayExtension>
+    <uuid>9d67023bb6f04271b3bc4582406d2512</uuid>
     <name>aStem:aGroup</name>
     <displayName>a stem:a group</displayName>
-    <description>a group description</description>
-    <extension>aGroup</extension>
-    <displayExtension>a group</displayExtension>
-    <uuid>dd398e192f5b480d8528a111d47505a1</uuid>
   </wsGroup>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
-    <sourceId>jdbc</sourceId>
-    <name>my name is test.subject.0</name>
-    <id>test.subject.0</id>
     <success>T</success>
+    <name>my name is test.subject.0</name>
+    <sourceId>jdbc</sourceId>
+    <id>test.subject.0</id>
   </wsSubject>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>98</millis>
-  </responseMetadata>
   <resultMetadata>
     <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectId=test.subject.0]
+    <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null</resultMessage>
@@ -225,7 +225,7 @@ public class WsSampleDeleteMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectId=test.subject.0]
+Server version: v1_5_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null

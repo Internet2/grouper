@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:55:13 GMT
+Date: Sat, 21 Nov 2009 21:28:21 GMT
 Connection: close
 
 <WsStemDeleteLiteResult>
@@ -42,10 +42,6 @@ Connection: close
     <name>aStem:aStemToDelete</name>
     <extension>aStemToDelete</extension>
   </wsStem>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>40</millis>
-  </responseMetadata>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
@@ -55,6 +51,10 @@ Connection: close
 stemFindResult=STEM_NOT_FOUND,stemName=aStem:aStemToDelete]&apos;.</resultMessage>
     <resultCode>SUCCESS_STEM_NOT_FOUND</resultCode>
   </resultMetadata>
+  <responseMetadata>
+    <millis>64</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
 </WsStemDeleteLiteResult>
 
 

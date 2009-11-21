@@ -39,21 +39,21 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:54:25 GMT
+Date: Sat, 21 Nov 2009 21:27:35 GMT
 Connection: close
 
 <WsFindStemsResults>
   <responseMetadata>
+    <millis>96</millis>
     <serverVersion>v1_5_000</serverVersion>
-    <millis>98</millis>
   </responseMetadata>
   <stemResults>
     <WsStem>
-      <displayName>a stem</displayName>
-      <uuid>3399b3e6e1ec4e3386669d9970093faf</uuid>
       <name>aStem</name>
+      <displayName>a stem</displayName>
       <displayExtension>a stem</displayExtension>
       <extension>aStem</extension>
+      <uuid>d978798cedf940dfaa81dc53f836bff9</uuid>
       <description>a stem description</description>
     </WsStem>
   </stemResults>

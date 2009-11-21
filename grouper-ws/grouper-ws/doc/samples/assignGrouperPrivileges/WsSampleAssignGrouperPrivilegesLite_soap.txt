@@ -60,7 +60,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignGrouperPrivilegesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 06:45:14 GMT
+Date: Sat, 21 Nov 2009 21:18:28 GMT
 
 9a1
 <?xml version='1.0' encoding='UTF-8'?>
@@ -73,7 +73,7 @@ Date: Fri, 20 Nov 2009 06:45:14 GMT
         <ns:privilegeName>optin</ns:privilegeName>
         <ns:privilegeType>access</ns:privilegeType>
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>550</ns:millis>
+          <ns:millis>259</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -93,7 +93,7 @@ Date: Fri, 20 Nov 2009 06:45:14 GMT
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>9d208c46c4cb4965a57793cf92fbcf6f</ns:uuid>
+          <ns:uuid>00ef48fb754349c0a65356fdbea08811</ns:uuid>
         </ns:wsGroup>
         <ns:wsStem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
@@ -242,8 +242,8 @@ public class WsSampleAssignGrouperPrivilegesLite implements WsSampleGenerated {
 
 WsAssignGrouperPrivilegesLiteResult[localAllowedTracker=false,
   localParams={<null>},localParamsTracker=true,localPrivilegeName=optin,localPrivilegeNameTracker=true,localPrivilegeType=access,localPrivilegeTypeTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@17576df,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@cf357a,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@106820e,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@447d40,localResultMetadataTracker=true,
   localSubjectAttributeNames={loginid,description},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@f7b18,localWsGroupTracker=true,localWsStemTracker=true,
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@5a8897,localWsSubjectTracker=true]
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1700237,localWsGroupTracker=true,localWsStemTracker=true,
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@a174e6,localWsSubjectTracker=true]

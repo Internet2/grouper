@@ -48,7 +48,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 20 Nov 2009 06:54:35 GMT
+Date: Sat, 21 Nov 2009 21:27:45 GMT
 
 709
 <?xml version='1.0' encoding='UTF-8'?>
@@ -57,7 +57,7 @@ Date: Fri, 20 Nov 2009 06:54:35 GMT
     <ns:stemDeleteLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>81</ns:millis>
+          <ns:millis>43</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_5_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -65,11 +65,11 @@ Date: Fri, 20 Nov 2009 06:54:35 GMT
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS_STEM_NOT_FOUND</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:stemNotExist,uuid=]
+          <ns:resultMessage>Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[uuid=,stemName=aStem:stemNotExist]
 
-, actAsSubject: WsSubjectLookup[subjectSourceId=,subjectId=GrouperSystem], txType: NONE, paramNames:
-, params: nullCant find stem: 'WsStemLookup[
-stemFindResult=STEM_NOT_FOUND,stemName=aStem:stemNotExist,uuid=]'.</ns:resultMessage>
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem,subjectSourceId=], txType: NONE, paramNames:
+, params: nullCant find stem: 'WsStemLookup[uuid=,
+stemFindResult=STEM_NOT_FOUND,stemName=aStem:stemNotExist]'.</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:wsStem type="edu.internet2.middleware.grouper.ws.soap.WsStem">
@@ -189,6 +189,6 @@ public class WsSampleStemDeleteLite implements WsSampleGenerated {
 
 
 WsStemDeleteLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1c10c28,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1054213,localResultMetadataTracker=true,
-  localWsStem=edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@35296a,localWsStemTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@6c5c5d,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@23f88e,localResultMetadataTracker=true,
+  localWsStem=edu.internet2.middleware.grouper.ws.soap.xsd.WsStem@1934e66,localWsStemTracker=true]

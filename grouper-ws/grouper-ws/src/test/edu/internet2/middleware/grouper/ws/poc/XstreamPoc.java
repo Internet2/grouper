@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XstreamPoc.java,v 1.4 2009-11-20 07:15:37 mchyzer Exp $
+ * $Id: XstreamPoc.java,v 1.5 2009-11-21 21:50:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.poc;
 
@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
@@ -31,9 +33,9 @@ public class XstreamPoc {
    */
   public static void main(String[] args) {
     //xhtmlConversion();
-    jsonXstream();
+    //jsonXstream();
     //xmlXstream();
-    gson();
+    //gson();
     jsonOrg();
   }
 
@@ -154,10 +156,20 @@ public class XstreamPoc {
            new XstreamPocMember("John", "John Smith - Employee"),
            new XstreamPocMember("Mary", "Mary Johnson - Student")});
 
-      JSONObject jsonObject = net.sf.json.JSONObject.fromObject( group );  
+      group.setName(null);
+      
+//      JSONObject jsonObject = net.sf.json.JSONObject.fromObject( group );  
+//      String json = jsonObject.toString();
+
+      JsonConfig jsonConfig = new JsonConfig();  
+      jsonConfig.setJsonPropertyFilter( new PropertyFilter(){  
+         public boolean apply( Object source, String name, Object value ) {  
+            return value == null; 
+         }  
+      });  
+      JSONObject jsonObject = JSONObject.fromObject( group, jsonConfig );  
       String json = jsonObject.toString();
-
-
+      
       Map<String, Class<?>> conversionMap = new HashMap<String, Class<?>>();
       conversionMap.put("XstreamPocGroup", XstreamPocGroup.class);
 

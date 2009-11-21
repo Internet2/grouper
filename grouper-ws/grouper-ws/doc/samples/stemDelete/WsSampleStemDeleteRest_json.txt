@@ -14,25 +14,17 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 205
+Content-Length: 116
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestStemDeleteRequest":{
-    "actAsSubjectLookup":null,
-    "clientVersion":"",
-    "params":[
-    ]
-    ,
-    "txType":"",
     "wsStemLookups":[
       {
-        "stemName":"aStem:whateverStem",
-        "uuid":""
+        "stemName":"aStem:whateverStem"
       },
       {
-        "stemName":"aStem:whateverStem2",
-        "uuid":""
+        "stemName":"aStem:whateverStem2"
       }
     ]
   }
@@ -54,64 +46,43 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1182
-Date: Fri, 20 Nov 2009 06:54:45 GMT
+Content-Length: 912
+Date: Sat, 21 Nov 2009 21:27:55 GMT
 Connection: close
 
 {
   "WsStemDeleteResults":{
     "responseMetadata":{
-      "millis":"59",
-      "resultWarnings":"",
+      "millis":"36",
       "serverVersion":"v1_5_000"
     },
     "resultMetadata":{
-      "params":[
-      ]
-      ,
       "resultCode":"SUCCESS",
-      "resultCode2":"",
-      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem,uuid=]\n[1]: WsStemLookup[stemName=aStem:whateverStem2,uuid=]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: Empty array",
+      "resultMessage":"Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]\n[1]: WsStemLookup[stemName=aStem:whateverStem2]\n\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "results":[
       {
         "resultMetadata":{
-          "params":[
-          ]
-          ,
           "resultCode":"SUCCESS_STEM_NOT_FOUND",
-          "resultCode2":"",
-          "resultMessage":"Cant find stem: 'WsStemLookup[\n  stemFindResult=STEM_NOT_FOUND,stemName=aStem:whateverStem,uuid=]'.",
+          "resultMessage":"Cant find stem: 'WsStemLookup[\n  stemFindResult=STEM_NOT_FOUND,stemName=aStem:whateverStem]'.",
           "success":"T"
         },
         "wsStem":{
-          "description":"",
-          "displayExtension":"",
-          "displayName":"",
           "extension":"whateverStem",
-          "name":"aStem:whateverStem",
-          "uuid":""
+          "name":"aStem:whateverStem"
         }
         
       },
       {
         "resultMetadata":{
-          "params":[
-          ]
-          ,
           "resultCode":"SUCCESS_STEM_NOT_FOUND",
-          "resultCode2":"",
-          "resultMessage":"Cant find stem: 'WsStemLookup[\n  stemFindResult=STEM_NOT_FOUND,stemName=aStem:whateverStem2,uuid=]'.",
+          "resultMessage":"Cant find stem: 'WsStemLookup[\n  stemFindResult=STEM_NOT_FOUND,stemName=aStem:whateverStem2]'.",
           "success":"T"
         },
         "wsStem":{
-          "description":"",
-          "displayExtension":"",
-          "displayName":"",
           "extension":"whateverStem2",
-          "name":"aStem:whateverStem2",
-          "uuid":""
+          "name":"aStem:whateverStem2"
         }
       }
     ]
@@ -277,8 +248,8 @@ public class WsSampleStemDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem,uuid=]
-[1]: WsStemLookup[stemName=aStem:whateverStem2,uuid=]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]
+[1]: WsStemLookup[stemName=aStem:whateverStem2]
 
 , actAsSubject: null, txType: NONE, paramNames: 
-, params: Empty array
+, params: null

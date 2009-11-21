@@ -83,7 +83,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 07:01:51 GMT
+Date: Sat, 21 Nov 2009 21:10:43 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -96,54 +96,54 @@ Connection: close
     <div title="WsGroupSaveResults">
       <ul class="results">
         <li title="WsGroupSaveResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS_INSERTED</p>
+            <p class="success">T</p>
+            <p class="resultMessage" />
+            <p class="resultCode2" />
+          </div>
           <div class="wsGroup" title="WsGroup">
             <div class="detail" title="WsGroupDetail" />
             <p class="displayExtension">disp1</p>
-            <p class="uuid">a529c8a965d64a878191d3669d76674c</p>
+            <p class="uuid">0f75a3bc720e4600ab2aa4c0b65efca1</p>
             <p class="displayName">a stem:disp1</p>
             <p class="extension">whateverGroup</p>
             <p class="description">desc1</p>
             <p class="name">aStem:whateverGroup</p>
           </div>
+        </li>
+        <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode2" />
             <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
+            <p class="resultCode2" />
           </div>
-        </li>
-        <li title="WsGroupSaveResult">
           <div class="wsGroup" title="WsGroup">
             <div class="detail" title="WsGroupDetail" />
             <p class="displayExtension">disp2</p>
-            <p class="uuid">cbf01fa6fdb344999cf9dd21075809e3</p>
+            <p class="uuid">e4631ee694ca4fada332709f697af495</p>
             <p class="displayName">a stem:disp2</p>
             <p class="extension">whateverGroup2</p>
             <p class="description">descs</p>
             <p class="name">aStem:whateverGroup2</p>
           </div>
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode2" />
-            <p class="resultCode">SUCCESS_INSERTED</p>
-            <p class="success">T</p>
-            <p class="resultMessage" />
-          </div>
         </li>
       </ul>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="resultWarnings" />
-        <p class="millis">763</p>
-      </div>
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayExtension=disp1],
+wsGroup=WsGroup[extension=whateverGroup,description=desc1,displayExtension=disp1,name=aStem:whateverGroup],
 wsGroupLookup=WsGroupLookup[groupName=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</p>
+        <p class="resultCode2" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">713</p>
+        <p class="resultWarnings" />
       </div>
     </div>
   </body>
@@ -328,7 +328,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 
 
 Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-  wsGroup=WsGroup[name=aStem:whateverGroup,extension=whateverGroup,description=desc1,displayExtension=disp1],
+  wsGroup=WsGroup[extension=whateverGroup,description=desc1,displayExtension=disp1,name=aStem:whateverGroup],
   wsGroupLookup=WsGroupLookup[groupName=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

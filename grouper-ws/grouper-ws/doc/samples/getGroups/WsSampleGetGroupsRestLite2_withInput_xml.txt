@@ -39,29 +39,29 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:51:30 GMT
+Date: Sat, 21 Nov 2009 21:24:47 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
+  <responseMetadata>
+    <millis>128</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <success>T</success>
+    <name>my name is test.subject.0</name>
+    <sourceId>jdbc</sourceId>
+    <id>test.subject.0</id>
+  </wsSubject>
   <resultMetadata>
     <success>T</success>
-    <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectId=test.subject.0]
+    <resultMessage>Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null</resultMessage>
     <resultCode>SUCCESS</resultCode>
   </resultMetadata>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>142</millis>
-  </responseMetadata>
-  <wsSubject>
-    <resultCode>SUCCESS</resultCode>
-    <sourceId>jdbc</sourceId>
-    <name>my name is test.subject.0</name>
-    <id>test.subject.0</id>
-    <success>T</success>
-  </wsSubject>
 </WsGetGroupsLiteResult>
 
 
@@ -222,7 +222,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectSourceId=jdbc,subjectId=test.subject.0]
+Server version: v1_5_000, result code: SUCCESS, result message: Success for: clientVersion: v1_5_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

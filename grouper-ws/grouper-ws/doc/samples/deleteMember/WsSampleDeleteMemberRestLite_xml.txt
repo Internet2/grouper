@@ -34,29 +34,29 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:47:55 GMT
+Date: Sat, 21 Nov 2009 21:20:59 GMT
 Connection: close
 
 <WsDeleteMemberLiteResult>
+  <responseMetadata>
+    <millis>236</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
   <wsGroup>
+    <extension>aGroup</extension>
+    <description>a group description</description>
+    <displayExtension>a group</displayExtension>
+    <uuid>1336e3e4e6404a5390eb39db70395e35</uuid>
     <name>aStem:aGroup</name>
     <displayName>a stem:a group</displayName>
-    <description>a group description</description>
-    <extension>aGroup</extension>
-    <displayExtension>a group</displayExtension>
-    <uuid>46357e72c69e4e5b8d0a6158d2b3649a</uuid>
   </wsGroup>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
-    <sourceId>jdbc</sourceId>
-    <name>10021368</name>
-    <id>10021368</id>
     <success>T</success>
+    <name>10021368</name>
+    <sourceId>jdbc</sourceId>
+    <id>10021368</id>
   </wsSubject>
-  <responseMetadata>
-    <serverVersion>v1_5_000</serverVersion>
-    <millis>374</millis>
-  </responseMetadata>
   <resultMetadata>
     <success>T</success>
     <resultMessage>Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]

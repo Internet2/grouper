@@ -35,7 +35,7 @@ X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 20 Nov 2009 06:46:25 GMT
+Date: Sat, 21 Nov 2009 21:19:38 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -46,19 +46,14 @@ Connection: close
   </head>
   <body>
     <div title="WsAddMemberLiteResult">
-      <div class="wsGroupAssigned" title="WsGroup">
-        <div class="detail" title="WsGroupDetail" />
-        <p class="displayExtension">a group</p>
-        <p class="uuid">aa704ab238854b339d75109758a5d60d</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="extension">aGroup</p>
-        <p class="description">a group description</p>
-        <p class="name">aStem:aGroup</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="serverVersion">v1_5_000</p>
-        <p class="resultWarnings" />
-        <p class="millis">123</p>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+
+, replaceAllExisting: false, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null</p>
+        <p class="resultCode2" />
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="id">10021368</p>
@@ -68,14 +63,19 @@ Connection: close
         <p class="name">10021368</p>
         <p class="success">T</p>
       </div>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode2" />
-        <p class="resultCode">SUCCESS_ALREADY_EXISTED</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_5_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
-
-, replaceAllExisting: false, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-, params: null</p>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">143</p>
+        <p class="resultWarnings" />
+      </div>
+      <div class="wsGroupAssigned" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">a group</p>
+        <p class="uuid">bb1e64d5ea014744ac8bad9af018f646</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
       </div>
     </div>
   </body>
