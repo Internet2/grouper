@@ -74,6 +74,16 @@
 		<pathelement location="${build.dir.grouper-ws}" />
 	</path>
 
+  <path id="ws.api.class.path">
+    <!-- Make available jar files that Grouper needs -->
+    <fileset dir="${basedir}/lib">
+      <include name="**/*.jar" />
+    </fileset>
+
+    <!-- make available any classes / conf already placed in the build folder -->
+    <pathelement location="${build.dir.grouper-ws}" />
+  </path>
+
 	<!-- TODO move this out of project -->
 	<property name="webservice.folder" value="${webapp.folder}/../webservices" />
   
@@ -554,7 +564,7 @@
 		<delete dir="doc/api" />
 		<mkdir dir="doc/api" />
 		<!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
-		<javadoc destdir="doc/api" classpathref="ws.class.path" access="public"
+		<javadoc destdir="doc/api" classpathref="ws.api.class.path" access="public"
 			additionalparam="-notimestamp" >
 			<packageset dir="src/grouper-ws" defaultexcludes="yes">
 				<include name="edu/internet2/middleware/grouper/**" />
