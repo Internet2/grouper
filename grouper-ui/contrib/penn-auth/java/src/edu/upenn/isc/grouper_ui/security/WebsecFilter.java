@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WebsecFilter.java,v 1.2 2008-04-24 04:28:29 mchyzer Exp $
+ * $Id: WebsecFilter.java,v 1.3 2009-11-25 20:01:26 mchyzer Exp $
  */
 package edu.upenn.isc.grouper_ui.security;
 
@@ -46,10 +46,8 @@ public class WebsecFilter implements Filter {
     //if no user, redirect to the login page
     if (StringUtils.isBlank(pennWebsecRequestWrapper.getRemoteUser())) {
       
-      //granted this will not take into account local media.properties, but shouldnt
-      //be customized much
       Properties mediaProperties = GrouperUiUtils
-        .propertiesFromResourceName("resources/grouper/media.properties");
+        .propertiesFromResourceName("resources/custom/media.properties");
       
       String loginUrl = StringUtils.defaultIfEmpty((String)mediaProperties.get("pennWebsecLoginUrl"), 
           "https://rosetta.upenn.edu/cgi-bin/websec/websec_authform?app=StudentHome&websec_page=$thisUrl$");
