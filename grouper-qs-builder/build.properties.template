@@ -1,26 +1,28 @@
-qs.version=1-0-RC2
+qs.version=1-5-0
 
 #If grouper.folder is not set to an existing installation
 #the build script will export grouper from CVS
 
-#grouper.folder=${basedir}/../../GrouperI2MI/grouper-2005-25-08
+grouper.folder=${basedir}/../grouper
+
 
 
 #If grouper-ui.folder is not set to an existing installation
 #the build script will export grouper-ui from CVS
 
-#grouper-ui.folder=${basedir}/../../GrouperI2MI/grouper-ui-2005-25-08
+grouper-ui.folder=${basedir}/../grouper-ui
+
 
 
 #The directory where the QuickStart distribution will be created
-qs.dirname=grouper-qs
-quickstart.dir=${basedir}/../${qs.dirname=grouper-qs}
+qs.dirname=grouper-qs-1.5.0
+quickstart.dir=${basedir}/../${qs.dirname}
 
 
 #true=include build.xml and java/src and java/lib
 #false=do not include build.xml and java/src an djava/lib - a binary distribution...
 
-grouper.complete=false
+grouper.complete=true
 
 
 #NB. The QuickStart is best distributed with Javadoc for the Grouper API,
@@ -30,7 +32,7 @@ grouper.complete=false
 #Uncomment to include Subject javadoc and grouper-ui/build.properties
 #does not have subject.folder set
 
-#subject.folder=c:/delete/subject-2005-09-15/subject
+subject.folder=${basedir}/../subject
 
 
 #If Java not included with grouper.folder, set to a Grouper instance with Java
