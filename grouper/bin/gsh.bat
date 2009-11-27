@@ -52,7 +52,7 @@ set GROUPER_HOME=%GROUPER_HOME%
 echo Setting GROUPER_HOME=%GROUPER_HOME%
 if "%2" == "" goto endInitEnv
 
-if exist "%2%\grouper.properties" set GROUPER_CONF=%2
+if exist "%2%\grouper.hibernate.properties" set GROUPER_CONF=%2
 if "%GROUPER_CONF%" == "" goto run
 echo Using GROUPER_CONF=%GROUPER_CONF%
 goto endInitEnv
@@ -73,11 +73,8 @@ set JAVA=java
 
 if not "%JAVA_HOME%" == "" set JAVA="%JAVA_HOME%/bin/java"
 
-rem Preserve the user's $CLASSPATH
-set GROUPER_CP=%CLASSPATH%
-
 rem Append Grouper's configuration
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/conf
+set GROUPER_CP=%GROUPER_HOME%/conf
 
 rem Append Grouper .jar
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/dist/lib/grouper.jar
@@ -93,6 +90,9 @@ set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/apacheds/*
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/ant/*
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/test/*
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/dist/lib/test/*
+
+rem Preserve the user's $CLASSPATH
+set GROUPER_CP=%GROUPER_CP%;%CLASSPATH%
 
 rem ----- Execute The Requested Command ---------------------------------------
 

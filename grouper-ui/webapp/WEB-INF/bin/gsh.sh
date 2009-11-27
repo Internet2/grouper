@@ -63,7 +63,7 @@ if [ "$arg1" = "-initEnv" ]; then
 fi
 
 if [ "$2" != "" ]; then
-    if [ -f "$2/grouper.properties" ]; then
+    if [ -f "$2/grouper.hibernate.properties" ]; then
         GROUPER_CONF=$2
         echo Using GROUPER_CONF=$GROUPER_CONF
         fi
@@ -96,14 +96,14 @@ if [ -n "$JAVA_HOME" ]; then
  JAVA="$JAVA_HOME/bin/java"
 fi
 
-# Preserve the user's $CLASSPATH
-GROUPER_CP=${CLASSPATH}
-
 # Append Grouper's configuration
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/classes
+GROUPER_CP=${GROUPER_HOME}/classes
 
 # Append third party .jars
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/*
+
+# Preserve the user's $CLASSPATH
+GROUPER_CP=${GROUPER_CP}:${CLASSPATH}
 
 if [ "$arg1" != "-initEnv" ]; then
     # ----- Execute The Requested Command ---------------------------------------

@@ -52,7 +52,7 @@ set GROUPER_HOME=%GROUPER_HOME%
 echo Setting GROUPER_HOME=%GROUPER_HOME%
 if "%2" == "" goto endInitEnv
 
-if exist "%2%\grouper.properties" set GROUPER_CONF=%2
+if exist "%2%\grouper.hibernate.properties" set GROUPER_CONF=%2
 if "%GROUPER_CONF%" == "" goto run
 echo Using GROUPER_CONF=%GROUPER_CONF%
 goto endInitEnv
@@ -73,14 +73,14 @@ set JAVA=java
 
 if not "%JAVA_HOME%" == "" set JAVA="%JAVA_HOME%/bin/java"
 
-rem Preserve the user's $CLASSPATH
-set GROUPER_CP=%CLASSPATH%
-
 rem Append Grouper's configuration
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/classes
+set GROUPER_CP=%GROUPER_HOME%/classes
 
 rem Append third party .jars
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/*
+
+rem Preserve the user's $CLASSPATH
+set GROUPER_CP=%CLASSPATH%;%GROUPER_CP%;
 
 rem ----- Execute The Requested Command ---------------------------------------
 
@@ -93,7 +93,7 @@ set GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
 
 rem %JAVA%  -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" %GSH_JVMARGS% -jar %GROUPER_HOME%/lib/grouper/invoker.jar -cpdir %GROUPER_CONF% -cpalljars %GROUPER_HOME%/lib -cpjar %GROUPER_HOME%/dist/lib/grouper.jar  -cpjar %GROUPER_HOME%/dist/lib/test/grouper-test.jar %GSH% %*
 
-%JAVA% -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" %GSH_JVMARGS% -classpath %GROUPER_CP% %GSH% %*
+%JAVA% -Xms%MEM_START% -Xmx%MEM_MAX% -Dgrouper.home="%GROUPER_HOME%\\" %GSH_JVMARGS% -classpath "%GROUPER_CP%" %GSH% %*
 
 :end
 set GROUPER_HOME=%GROUPER_HOME_SAFE%
