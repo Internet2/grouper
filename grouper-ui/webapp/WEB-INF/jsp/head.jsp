@@ -4,7 +4,7 @@
 			overridden
 --%><%--
   @author Gary Brown.
-  @version $Id: head.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
+  @version $Id: head.jsp,v 1.11 2009-11-30 17:14:02 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -54,4 +54,5 @@ base.append("/");
 </c:if>
 </c:if>
 <script type="text/javascript" src="<%=base%>i2mi/signet.js"></script>
+<script type="text/javascript" src="scripts/grouper.js"></script> 
 </grouper:recordTile>

@@ -562,11 +562,11 @@ function eventCancelBubble(event) {
  * @param message
  */
 function grouperTooltip(message) {
+  if (!tooltipsEnabled()) {
+    return;
+  }
   //NOTE, we need to unescape the HTML, since it is in a javascript call...
   message = guiEscapeHtml(message, false);
-//  if (!tooltipsEnabled()) {
-//    return;
-//  }
   Tip(message, WIDTH, 400, FOLLOWMOUSE, false);
 } 
 

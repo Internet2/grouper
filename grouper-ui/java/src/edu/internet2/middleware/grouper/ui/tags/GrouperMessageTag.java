@@ -468,9 +468,11 @@ public class GrouperMessageTag extends MessageTag {
     //tooltipText = tooltipText.replace("'", "\\'");
     //put it in the tooltip code
     //the class="tooltip" is substituted later, so if this is changed, change in other places as well
+    String escapedTooltipText = StringUtils.replace(tooltipText, "'", "&#39;");
+    escapedTooltipText = GrouperUiUtils.escapeHtml(escapedTooltipText, true, true);
     tooltipText = "<span " + (isIgnoreTooltipStyle ? "" : "class=\"tooltip\" ") 
       + "onmouseover=\"grouperTooltip('" 
-      + GrouperUiUtils.escapeHtml(tooltipText, true, true) + "');\" onmouseout=\"UnTip()\">" + term + "</span>";
+      + escapedTooltipText + "');\" onmouseout=\"UnTip()\">" + term + "</span>";
     return tooltipText;
   }
   
