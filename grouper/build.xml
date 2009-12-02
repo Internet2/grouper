@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.227 2009-10-30 15:15:05 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.228 2009-12-02 16:54:51 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -213,7 +213,7 @@
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../grouper-api-${version}.tar.gz" compression="gzip">
+    <tar destfile="${basedir}/../grouper-api-${version}.tar.gz" compression="gzip" longfile="gnu">
       <tarfileset dir="${basedir}/.." >
         <include name="grouper-api-${version}/**"/>
       </tarfileset>
@@ -451,7 +451,7 @@
           </else>
         </if>
       	-->          	
-      	<tar destfile="${dist.binary}/grouper.binary.${version}.tar.gz" compression="gzip">
+      	<tar destfile="${dist.binary}/grouper.binary.${version}.tar.gz" compression="gzip" longfile="gnu">
       		<tarfileset dir="${dist.binary}" mode="755" >
       			<include name="grouper.binary.${version}/bin/**" />
       		</tarfileset>
