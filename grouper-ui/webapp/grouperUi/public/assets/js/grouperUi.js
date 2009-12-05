@@ -84,7 +84,9 @@ function AppState() {
   /** map of pagers by name */
   this.pagers = {};
   
-  /** function to get the map of url args */
+  /** function to get the map of url args
+   * note we need a placeholder for this function in the Java AppState object which gets null and sets an object (JSON function)
+   */
   this.urlArgObjectMap = function() {
     //see if up to date
     if (allObjects.appState.urlInCache == location.href) {

@@ -23,9 +23,7 @@
 	<classpathentry exported="true" kind="lib" path="java/lib/xml-apis.jar"/>
 	<classpathentry kind="lib" path="contrib/penn-auth/java/lib/fastWebsec.jar"/>
 	<classpathentry kind="lib" path="java/lib/commons-jexl.jar"/>
-	<classpathentry kind="lib" path="java/lib/ezmorph.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper_HEAD"/>
-	<classpathentry kind="lib" path="java/lib/json-lib.jar"/>
 	<classpathentry kind="lib" path="java/lib/opencsv.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

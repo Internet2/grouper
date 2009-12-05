@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 /**
  * AppState object comes from javascript on ajax requests
  */
+@SuppressWarnings("serial")
 public class AppState implements Serializable {
 
   /** if simple membership update is initted */
@@ -33,6 +34,19 @@ public class AppState implements Serializable {
    */
   public void setInittedSimpleMembershipUpdate(boolean inittedSimpleMembershipUpdate1) {
     this.inittedSimpleMembershipUpdate = inittedSimpleMembershipUpdate1;
+  }
+  
+  /** placeholder since safari sends back this function
+   * return null */
+  public Object getUrlArgObjectMap() {
+    return null;
+  }
+
+  /** placeholder since safari sends back this function
+   * @param urlArgObjectMap
+   */
+  public void setUrlArgObjectMap(Object urlArgObjectMap) {
+    //no need to do anything here
   }
 
   /** if the javascript is initted */
