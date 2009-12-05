@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.48 2009-11-14 16:44:01 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.49 2009-12-05 06:39:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -643,6 +643,11 @@ public class GrouperDdlUtils {
       }
   
       resultString = result.toString();
+      
+      //if mysql, substitute varchar4000 for text
+      if (isMysql() && !GrouperConfig.getPropertyBoolean("ddlutils.dontSubstituteVarchar4000forTextMysql", false)) {
+        resultString = StringUtils.replace(resultString, "VARCHAR(4000)", "text");
+      }
       
       if (StringUtils.isNotBlank(resultString)) {
   
