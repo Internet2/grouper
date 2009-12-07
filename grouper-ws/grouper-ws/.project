@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>grouper-ws_HEAD</name>
+	<name>grouper-ws_v1_5</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -18,12 +18,12 @@
 		<link>
 			<name>GROUPER_HEAD_CONF</name>
 			<type>2</type>
-			<locationURI>GROUPER_HEAD_CONF</locationURI>
+			<location>C:/mchyzer/grouper/HEAD/grouper/conf</location>
 		</link>
 		<link>
 			<name>GROUPER_HEAD_SOURCE</name>
 			<type>2</type>
-			<locationURI>GROUPER_HEAD_SOURCE</locationURI>
+			<location>C:/mchyzer/grouper/HEAD/grouper/src/grouper</location>
 		</link>
 	</linkedResources>
 </projectDescription>
