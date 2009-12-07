@@ -18,12 +18,13 @@
 package edu.internet2.middleware.grouper.validator;
 
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 
 /** 
  * A member of a group (aka composite member) has either or both of
  * an immediate (direct) membership, or an effective (indirect) membership
  * @author  blair christensen.
- * @version $Id: CompositeMembershipValidator.java,v 1.3 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: CompositeMembershipValidator.java,v 1.4 2009-12-07 07:31:08 mchyzer Exp $
  * @since   1.2.0
  */
 public class CompositeMembershipValidator extends MembershipValidator {
@@ -45,7 +46,7 @@ public class CompositeMembershipValidator extends MembershipValidator {
       v.setErrorMessage( vNull.getErrorMessage() );
     }
     // validate composite membership attributes
-    else if ( !Membership.COMPOSITE.equals( _ms.getType() ) ) { // type must be composite
+    else if ( !MembershipType.COMPOSITE.getTypeString().equals( _ms.getType() ) ) { // type must be composite
       v.setErrorMessage(INVALID_TYPE);
     }
     else if ( _ms.getDepth() != 0 )                           { // depth must be 0

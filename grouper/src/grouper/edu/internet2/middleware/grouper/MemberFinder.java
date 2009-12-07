@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.66 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: MemberFinder.java,v 1.67 2009-12-07 07:31:08 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -90,26 +90,25 @@ public class MemberFinder {
     }
     return members;
   } // public static Set findAll(GrouperSession s)
-
-
   /**
    * make sure allowed to see them, and find the members
    * @param grouperSession
    * @param group
    * @param field
    * @param type
+   * @param sources
    * @param queryOptions 
    * @return the members, dont return null
    */
   public static Set<Member> internal_findMembersByType(GrouperSession grouperSession, Group group, Field field, String type,
-      QueryOptions queryOptions) {
+      Set<Source> sources, QueryOptions queryOptions) {
     GrouperSession.validate(grouperSession);
 
     if (!PrivilegeHelper.canViewMembers(grouperSession, group, field)) {
       return new LinkedHashSet();
     }
     Set<Member> members = GrouperDAOFactory.getFactory().getMembership()
-      .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), field, type, queryOptions, true);
+      .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), field, type, sources, queryOptions, true);
     return members;
   }
 

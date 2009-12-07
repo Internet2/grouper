@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
@@ -202,7 +203,7 @@ public class FindBadMemberships {
       Membership ms = actualMembershipsIter.next();
       
       // this better be a composite membership
-      if (!ms.getType().equals(Membership.COMPOSITE) || ms.getViaCompositeId() == null) {
+      if (!ms.getType().equals(MembershipType.COMPOSITE.getTypeString()) || ms.getViaCompositeId() == null) {
         return false;
       }
       

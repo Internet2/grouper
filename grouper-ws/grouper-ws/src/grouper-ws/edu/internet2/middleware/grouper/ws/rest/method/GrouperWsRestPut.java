@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPut.java,v 1.9 2008-10-27 21:28:15 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPut.java,v 1.10 2009-12-07 07:31:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveLiteRequest;
@@ -66,6 +68,14 @@ public enum GrouperWsRestPut {
       if ((requestObject == null || requestObject instanceof WsRestGroupSaveLiteRequest) 
           && StringUtils.isBlank(operation) ) {
         return GrouperServiceRest.groupSaveLite(clientVersion, groupName, (WsRestGroupSaveLiteRequest)requestObject);
+      }
+      
+      if (requestObject instanceof WsRestAddMemberRequest && StringUtils.isBlank(operation)) {
+        return GrouperServiceRest.addMember(clientVersion, groupName, (WsRestAddMemberRequest)requestObject);
+      }
+      
+      if (requestObject instanceof WsRestAddMemberLiteRequest && StringUtils.isBlank(operation)) {
+        return GrouperServiceRest.addMemberLite(clientVersion, groupName, null, null, (WsRestAddMemberLiteRequest)requestObject);
       }
       
       //validate and get the operation

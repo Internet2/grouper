@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -88,7 +89,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.132 2009-11-17 02:52:29 mchyzer Exp $
+ * @version $Id: Member.java,v 1.133 2009-12-07 07:31:08 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -1006,6 +1007,26 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   } // public Set getImmediateGroups()
 
   /**
+   * Get groups where this member has a non immediate membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   *
+   * <pre class="eg">
+   * // Get groups where this member is a non immediate member.
+   * Set nonImmediates = m.getNonImmediateGroups();
+   * </pre>
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getNonImmediateGroups() {
+    return Membership.retrieveGroups(  this.getNonImmediateMemberships() );
+  } // public Set getImmediateGroups()
+
+  /**
    * Get groups where this member has an immediate membership.
    * 
    * An immediate member is directly assigned to a group.
@@ -1071,6 +1092,40 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   } // public Set getImmediateMemberships()
 
   /**
+   * Get non-immediate memberships.  
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set immediates = m.getNonImmediateMemberships();
+   * </pre>
+   * @return  Set of {@link Membership} objects.
+   * @throws  GrouperException
+   */
+  public Set<Membership> getNonImmediateMemberships() 
+    throws  GrouperException
+  {
+    try {
+      return this.getNonImmediateMemberships(Group.getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      LOG.fatal( msg);
+      throw new GrouperException(msg, eS);
+    }
+  } // public Set getImmediateMemberships()
+
+  /**
    * Get immediate memberships.  
    * 
    * An immediate member is directly assigned to a group.
@@ -1095,6 +1150,32 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllImmediateByMemberAndField( GrouperSession.staticGrouperSession(), this, f );
+  } // public Set getImmediateMemberships(f)
+
+  /**
+   * Get non-immediate memberships.  
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set immediates = m.getNonImmediateMemberships(f);
+   * </pre>
+   * @param   f   Get non-immediate memberships in this list field.
+   * @return  Set of {@link Membership} objects.
+   * @throws  SchemaException
+   */
+  public Set<Membership> getNonImmediateMemberships(Field f) 
+    throws  SchemaException {
+    return MembershipFinder.internal_findAllNonImmediateByMemberAndField( GrouperSession.staticGrouperSession(), this, f );
   } // public Set getImmediateMemberships(f)
 
   /**
@@ -1762,7 +1843,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       catch (MembershipNotFoundException eMNF) {
         try {
           GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-            g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, Membership.IMMEDIATE, true, true
+            g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, true
           );
           rv = true;
         }
@@ -2696,6 +2777,99 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    */
   public boolean hasAttrView(AttributeDef attributeDef) {
     return this._hasPriv(attributeDef, AttributeDefPrivilege.ATTR_VIEW);
+  }
+
+  /**
+   * Test whether a member nonimmediately belongs to a group.  
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * if (m.isNonImmediateMember(g)) {
+   *   // Is an immediate member
+   * }
+   * </pre>
+   * @param   g   Test for membership in this group.
+   * @return  Boolean true if is a member.
+   * @throws  GrouperException
+   */
+  public boolean isNonImmediateMember(Group g) 
+    throws  GrouperException
+  {
+    try {
+      return this.isNonImmediateMember(g, Group.getDefaultList());
+    }
+    catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
+      LOG.fatal( msg);
+      throw new GrouperException(msg, eS);
+    }
+  } // public boolean isImmediateMember(g)
+
+  /**
+   * Test whether a member nonimmediately belongs to a group.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * // Does this member nonimmediately belong to the specified group?
+   * if (m.isNonImmediateMember(g, f)) {
+   *   // Is an immediate member
+   * }
+   * </pre>
+   * @param   g   Test for membership in this group.
+   * @param   f   Test for memberhip in this list field.
+   * @return  Boolean true if is a member.
+   * @throws  SchemaException
+   */
+  public boolean isNonImmediateMember(Group g, Field f) 
+    throws  SchemaException {
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+      .findAllByGroupOwnerAndFieldAndMembersAndType(g.getUuid(), f, 
+        GrouperUtil.toSet(this), MembershipType.NONIMMEDIATE.getTypeString(), true);
+    return memberships.size() > 0;
+  }
+
+  /**
+   * Get groups where this member has an immediate membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   *
+   * <pre class="eg">
+   * // Get groups where this member is an immediate member.
+   * Set immediates = m.getImmediateGroups();
+   * </pre>
+   * @param field 
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getNonImmediateGroups(Field field) {
+    
+    try {
+      return Membership.retrieveGroups( this.getNonImmediateMemberships(field) );
+    } catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String msg = "problem retrieving immediate groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
+        + GrouperUtil.toStringSafe(field);
+      LOG.fatal( msg);
+      throw new GrouperException(msg, eS);
+    }
+  
   } 
 
 } 

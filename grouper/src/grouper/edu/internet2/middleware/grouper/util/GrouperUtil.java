@@ -88,7 +88,9 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -98,6 +100,78 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GrouperUtil {
 
+  /**
+   * e.g. ('g:gsa', 'jdbc')
+   * @param sources is comma separated source id's
+   * @return the set of sources
+   */
+  public static Set<Source> convertSources(String sources) {
+    if (StringUtils.isBlank(sources)) {
+      return null;
+    }
+    String[] sourceStrings = splitTrim(sources, ",");
+        
+    Set<Source> sourceSet = new HashSet<Source>();
+    for (String source : sourceStrings) {
+      sourceSet.add(SourceManager.getInstance().getSource(source));
+    }
+    
+    return sourceSet;
+  }
+  
+
+  /**
+   * e.g. ['g:gsa', 'jdbc']
+   * @param sourceIds is an array of source ids
+   * @return the set of sources
+   */
+  public static Set<Source> convertSources(String[] sourceIds) {
+    if (GrouperUtil.length(sourceIds) == 0) {
+      return null;
+    }
+    Set<Source> sourceSet = new HashSet<Source>();
+    for (String source : sourceIds) {
+      sourceSet.add(SourceManager.getInstance().getSource(source));
+    }
+    
+    return sourceSet;
+  }
+  
+  /**
+   * e.g. ('g:gsa', 'jdbc')
+   * @param sources
+   * @return the in string, of sources sorted alphabetically
+   */
+  public static String convertSourcesToSqlInString(Set<Source> sources) {
+    if (sources == null || sources.size() == 0) {
+      return null;
+    }
+    
+    //simplify if 1
+    if (sources.size() == 1) {
+      return " ('" + sources.iterator().next().getId() + "') ";
+    }
+    
+    List<String> sourcesStrings = new ArrayList<String>();
+    for (Source source : sources) {
+      sourcesStrings.add(source.getId());
+    }
+    
+    //sort 
+    Collections.sort(sourcesStrings);
+    
+    StringBuilder result = new StringBuilder();
+    result.append(" (");
+    for (int i=0;i<sourcesStrings.size();i++) {
+      result.append("'").append(sourcesStrings.get(i)).append("'");
+      if (i != sourcesStrings.size()-1) {
+        result.append(", ");
+      }
+    }
+    result.append(") ");
+    return result.toString();
+  }
+  
   /**
    * turn some strings into a map
    * @param strings
@@ -4179,7 +4253,22 @@ public class GrouperUtil {
         + " of and object: " + arrayOrCollection);
   }
 
-
+  /**
+   * convert a collection of sources to a string
+   * @param sources
+   * @return the string
+   */
+  public static String toString(Collection<Source> sources) {
+    if (length(sources) == 0) {
+      return null;
+    }
+    StringBuilder result = new StringBuilder();
+    for (Source source : sources) {
+      result.append(source.getId()).append(", ");
+    }
+    result.delete(result.length()-2, result.length());
+    return result.toString();
+  }
   
   /**
    * fail safe toString for Exception blocks, and include the stack

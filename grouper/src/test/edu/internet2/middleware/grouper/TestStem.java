@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -63,7 +64,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.33 2009-11-05 06:10:51 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.34 2009-12-07 07:31:09 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -125,7 +126,7 @@ public class TestStem extends GrouperTest {
       GrouperUtil.sleep(100);
 
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find("stemmers", true), Membership.IMMEDIATE, true, true);
+          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find("stemmers", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       
@@ -165,7 +166,7 @@ public class TestStem extends GrouperTest {
       gB.addMember(gC.toSubject());
       
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find("stemmers", true), Membership.IMMEDIATE, true, true);
+          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find("stemmers", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       
@@ -216,7 +217,7 @@ public class TestStem extends GrouperTest {
       GrouperUtil.sleep(100);
 
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gA.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+          gA.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       
@@ -256,7 +257,7 @@ public class TestStem extends GrouperTest {
       gB.addMember(gC.toSubject());
       
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gA.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+          gA.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       
@@ -307,7 +308,7 @@ public class TestStem extends GrouperTest {
       GrouperUtil.sleep(100);
 
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gB.getUuid(), gC.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+          gB.getUuid(), gC.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       
@@ -347,7 +348,7 @@ public class TestStem extends GrouperTest {
       gB.addMember(gC.toSubject());
       
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gB.getUuid(), gC.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+          gB.getUuid(), gC.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       

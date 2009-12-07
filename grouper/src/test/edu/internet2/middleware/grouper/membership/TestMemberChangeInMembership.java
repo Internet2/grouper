@@ -34,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author shilen
- * @version $Id: TestMemberChangeInMembership.java,v 1.1 2009-08-18 23:11:39 shilen Exp $
+ * @version $Id: TestMemberChangeInMembership.java,v 1.2 2009-12-07 07:31:08 mchyzer Exp $
  */
 public class TestMemberChangeInMembership extends TestCase {
 
@@ -104,7 +104,7 @@ public class TestMemberChangeInMembership extends TestCase {
     
     // change member
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        two.getUuid(), MemberFinder.findBySubject(r.rs, c, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+        two.getUuid(), MemberFinder.findBySubject(r.rs, c, true).getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setMemberUuid(MemberFinder.findBySubject(r.rs, d, true).getUuid());
     ms.setMember(MemberFinder.findBySubject(r.rs, d, true));
     GrouperDAOFactory.getFactory().getMembership().update(ms);

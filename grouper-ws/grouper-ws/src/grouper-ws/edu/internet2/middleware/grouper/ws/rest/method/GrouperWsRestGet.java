@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGet.java,v 1.6 2008-10-27 21:28:15 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGet.java,v 1.7 2009-12-07 07:31:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteReques
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
@@ -68,6 +70,18 @@ public enum GrouperWsRestGet {
           //find groups lite
           return GrouperServiceRest.findGroupsLite(clientVersion,
               (WsRestFindGroupsLiteRequest)requestObject);
+        }
+        if (requestObject instanceof WsRestHasMemberRequest) {
+          
+          //has member
+          return GrouperServiceRest.hasMember(clientVersion, null,
+              (WsRestHasMemberRequest)requestObject);
+        }
+        if (requestObject instanceof WsRestHasMemberLiteRequest) {
+          
+          //has member lite
+          return GrouperServiceRest.hasMemberLite(clientVersion,null, null, null,
+              (WsRestHasMemberLiteRequest)requestObject);
         }
       }
       

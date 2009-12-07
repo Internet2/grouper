@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.internal.util.XML;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -92,7 +93,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.16 2009-10-22 14:03:18 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.17 2009-12-07 07:31:09 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -479,7 +480,7 @@ public class XmlExporter {
     sb.append( GrouperConfig.NL );
     sb.append( "  <immediate>" );
     // TODO 20070521 how do composites fit in here?
-    if ( Membership.EFFECTIVE.equals( ms.getType() ) ) {
+    if ( MembershipType.EFFECTIVE.getTypeString().equals( ms.getType() ) ) {
       sb.append( false );
     }
     else {

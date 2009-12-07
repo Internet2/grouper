@@ -23,17 +23,14 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
-import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.5 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.6 2009-12-07 07:31:08 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -78,7 +75,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Group g = r.getGroup("i2mi:grouper", "grouper-dev");
 
       Membership _ms = new Membership();
-      _ms.setType(Membership.IMMEDIATE);
+      _ms.setType(MembershipType.IMMEDIATE.getTypeString());
       _ms.setDepth(0);
       _ms.setFieldId(FieldFinder.findFieldId("members", 
           FieldType.LIST.getType(), true));
@@ -103,7 +100,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Group g = r.getGroup("i2mi:grouper", "grouper-dev");
 
       Membership _ms = new Membership();
-      _ms.setType(Membership.IMMEDIATE);
+      _ms.setType(MembershipType.IMMEDIATE.getTypeString());
       _ms.setDepth(0);
       _ms.setFieldId(FieldFinder.findFieldId("members", 
           FieldType.LIST.getType(), true));
@@ -129,7 +126,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Group g = r.getGroup("i2mi:grouper", "grouper-dev");
 
       Membership _ms = new Membership();
-      _ms.setType(Membership.IMMEDIATE);
+      _ms.setType(MembershipType.IMMEDIATE.getTypeString());
       _ms.setDepth(0);
       _ms.setFieldId(FieldFinder.findFieldId("members", 
           FieldType.LIST.getType(), true));
@@ -152,7 +149,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Member  m = r.getGroup("i2mi:grouper", "grouper-users").toMember();
 
       Membership _ms = new Membership();
-      _ms.setType(Membership.IMMEDIATE);
+      _ms.setType(MembershipType.IMMEDIATE.getTypeString());
       _ms.setDepth(0);
       _ms.setFieldId(FieldFinder.findFieldId("members", 
           FieldType.LIST.getType(), true));

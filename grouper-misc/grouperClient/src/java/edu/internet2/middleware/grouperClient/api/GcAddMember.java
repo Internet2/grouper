@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcAddMember.java,v 1.5 2009-04-13 03:21:51 mchyzer Exp $
+ * $Id: GcAddMember.java,v 1.6 2009-12-07 07:33:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -27,6 +27,9 @@ public class GcAddMember {
   /** group name to add member to */
   private String groupName;
   
+  /** group uuid to add member to */
+  private String groupUuid;
+  
   /**
    * set the group name
    * @param theGroupName
@@ -34,6 +37,16 @@ public class GcAddMember {
    */
   public GcAddMember assignGroupName(String theGroupName) {
     this.groupName = theGroupName;
+    return this;
+  }
+  
+  /**
+   * set the group name
+   * @param theGroupUuid
+   * @return this for chaining
+   */
+  public GcAddMember assignGroupUuid(String theGroupUuid) {
+    this.groupUuid = theGroupUuid;
     return this;
   }
   
@@ -124,8 +137,11 @@ public class GcAddMember {
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.isBlank(this.groupName)) {
-      throw new RuntimeException("Group name is required: " + this);
+    if (GrouperClientUtils.isBlank(this.groupName) && GrouperClientUtils.isBlank(this.groupUuid)) {
+      throw new RuntimeException("Group name or uuid is required: " + this);
+    }
+    if (GrouperClientUtils.isNotBlank(this.groupName) && GrouperClientUtils.isNotBlank(this.groupUuid)) {
+      throw new RuntimeException("Group name and uuid cannot both be filled in at once: " + this);
     }
     if (GrouperClientUtils.length(this.subjectLookups) == 0) {
       throw new RuntimeException("Need at least one subject to add to group: " + this);
@@ -244,6 +260,7 @@ public class GcAddMember {
       
       WsGroupLookup wsGroupLookup = new WsGroupLookup();
       wsGroupLookup.setGroupName(this.groupName);
+      wsGroupLookup.setUuid(this.groupUuid);
       
       addMember.setWsGroupLookup(wsGroupLookup);
       
@@ -264,8 +281,10 @@ public class GcAddMember {
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
-      String urlSuffix = "groups/" 
-          + GrouperClientUtils.escapeUrlEncode(this.groupName) + "/members";
+      //MCH dont fill all this in since could be uuid based
+      //String urlSuffix = "groups/" 
+      //    + GrouperClientUtils.escapeUrlEncode(this.groupName) + "/members";
+      String urlSuffix = "groups";
       wsAddMemberResults = (WsAddMemberResults)
         grouperClientWs.executeService(urlSuffix, addMember, "addMember", this.clientVersion);
       

@@ -25,13 +25,13 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupModifyAttributes.java,v 1.6 2009-08-18 23:11:39 shilen Exp $
+ * @version $Id: TestGroupModifyAttributes.java,v 1.7 2009-12-07 07:31:09 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupModifyAttributes extends GrouperTest {
@@ -670,7 +670,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperUtil.sleep(100);
       
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gC.getUuid(), gD.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+          gC.getUuid(), gD.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
 
@@ -719,7 +719,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       GrouperUtil.sleep(100);
       
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gC.getUuid(), gD.toMember().getUuid(), FieldFinder.find("admins", true), Membership.IMMEDIATE, true, true);
+          gC.getUuid(), gD.toMember().getUuid(), FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
 
@@ -762,7 +762,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gA.addMember(gC.toSubject());
       gB.grantPriv(gC.toSubject(), AccessPrivilege.ADMIN);
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gC.getUuid(), gD.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+          gC.getUuid(), gD.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       
@@ -814,7 +814,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gB.grantPriv(gC.toSubject(), AccessPrivilege.ADMIN);
 
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-          gC.getUuid(), gD.toMember().getUuid(), FieldFinder.find("admins", true), Membership.IMMEDIATE, true, true);
+          gC.getUuid(), gD.toMember().getUuid(), FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
       ms.setEnabled(false);
       GrouperDAOFactory.getFactory().getMembership().update(ms);
       

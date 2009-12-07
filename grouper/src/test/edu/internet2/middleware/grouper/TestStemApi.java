@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -52,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.12 2009-11-18 00:27:02 mchyzer Exp $
+ * @version $Id: TestStemApi.java,v 1.13 2009-12-07 07:31:09 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -488,42 +489,42 @@ public class TestStemApi extends GrouperTest {
     Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
     
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group1.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+        group1.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), Membership.IMMEDIATE, true, true);
+        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        otherGroup.getUuid(), group1.toMember().getUuid(), FieldFinder.find("updaters", true), Membership.IMMEDIATE, true, true);
+        otherGroup.getUuid(), group1.toMember().getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        otherGroup.getUuid(), group1.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+        otherGroup.getUuid(), group1.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-        otherStem.getUuid(), group1.toMember().getUuid(), FieldFinder.find("creators", true), Membership.IMMEDIATE, true, true);
+        otherStem.getUuid(), group1.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-        source.getUuid(), group2.toMember().getUuid(), FieldFinder.find("creators", true), Membership.IMMEDIATE, true, true);
+        source.getUuid(), group2.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);

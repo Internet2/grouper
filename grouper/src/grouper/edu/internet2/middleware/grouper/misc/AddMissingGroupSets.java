@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 
 
 /**
@@ -112,7 +113,7 @@ public class AddMissingGroupSets {
         
         // if the default list and the group is a composite, set the groupSet type to composite
         if (Group.getDefaultList().equals(field) && compositeOwnerIds.contains(group.getUuid())) {
-          groupSet.setType(Membership.COMPOSITE);
+          groupSet.setType(MembershipType.COMPOSITE.getTypeString());
         }
         
         GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
@@ -180,7 +181,7 @@ public class AddMissingGroupSets {
         immediateGroupSet.setDepth(1);
         immediateGroupSet.setFieldId(field.getUuid());
         immediateGroupSet.setMemberGroupId(mship.getMemberSubjectId());
-        immediateGroupSet.setType(Membership.EFFECTIVE);
+        immediateGroupSet.setType(MembershipType.EFFECTIVE.getTypeString());
         immediateGroupSet.setOwnerGroupId(mship.getOwnerGroupId());
         immediateGroupSet.setParentId(GrouperDAOFactory.getFactory().getGroupSet()
             .findSelfGroup(mship.getOwnerGroupId(), mship.getFieldId()).getId());
@@ -213,7 +214,7 @@ public class AddMissingGroupSets {
         immediateGroupSet.setDepth(1);
         immediateGroupSet.setFieldId(field.getUuid());
         immediateGroupSet.setMemberGroupId(mship.getMemberSubjectId());
-        immediateGroupSet.setType(Membership.EFFECTIVE);
+        immediateGroupSet.setType(MembershipType.EFFECTIVE.getTypeString());
         immediateGroupSet.setOwnerStemId(mship.getOwnerStemId());
         immediateGroupSet.setParentId(GrouperDAOFactory.getFactory().getGroupSet()
             .findSelfStem(mship.getOwnerStemId(), mship.getFieldId()).getId());
@@ -253,7 +254,7 @@ public class AddMissingGroupSets {
       immediateGroupSet.setDepth(1);
       immediateGroupSet.setFieldId(field.getUuid());
       immediateGroupSet.setMemberGroupId(mship.getMemberSubjectId());
-      immediateGroupSet.setType(Membership.EFFECTIVE);
+      immediateGroupSet.setType(MembershipType.EFFECTIVE.getTypeString());
       immediateGroupSet.setOwnerAttrDefId(mship.getOwnerAttrDefId());
       immediateGroupSet.setParentId(GrouperDAOFactory.getFactory().getGroupSet()
           .findSelfStem(mship.getOwnerAttrDefId(), mship.getFieldId()).getId());

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.28 2009-10-27 17:16:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.29 2009-12-07 07:31:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -116,7 +116,9 @@ import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteR
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup.StemFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult.WsStemSaveResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Meant to be delegate from GrouperService which has the same params (and names)
@@ -1081,6 +1083,7 @@ public class GrouperServiceLogic {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
+   * @param sourceIds are source ids of members to retrieve
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -1090,7 +1093,7 @@ public class GrouperServiceLogic {
       WsSubjectLookup actAsSubjectLookup, final Field fieldName,
       boolean includeGroupDetail, 
       boolean includeSubjectDetail, String[] subjectAttributeNames,
-      WsParam[] params) {
+      WsParam[] params, String[] sourceIds) {
   
     WsGetMembersResults wsGetMembersResults = new WsGetMembersResults();
   
@@ -1099,6 +1102,8 @@ public class GrouperServiceLogic {
     try {
       GrouperWsVersion.assignCurrentClientVersion(clientVersion);
 
+      boolean hasSources = GrouperUtil.length(sourceIds) > 0;
+
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
           + GrouperUtil.toStringForLog(wsGroupLookups,200) + "\n, memberFilter: " 
           + memberFilter
@@ -1106,7 +1111,8 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup + ", fieldName: " + fieldName
           + ", subjectAttributeNames: "
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + 
+          "\n, sourceIds: " + GrouperUtil.toStringForLog(sourceIds);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -1117,6 +1123,10 @@ public class GrouperServiceLogic {
           params);
 
       int resultIndex = 0;
+      Set<Source> sources = null;
+      if (hasSources) {
+        sources = GrouperUtil.convertSources(sourceIds);
+      }
       
       String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -1148,7 +1158,7 @@ public class GrouperServiceLogic {
           }
           
           // lets get the members, cant be null
-          Set<Member> members = memberFilter.getMembers(group, fieldName);
+          Set<Member> members = memberFilter.getMembers(group, fieldName, sources);
       
           wsGetMembersResult.assignSubjectResult(members, subjectAttributeNamesToRetrieve, includeSubjectDetail);
       
@@ -1352,6 +1362,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param sourceIds comma separated of sources to get members from
    * @return the members, or no members if none found
    */
   public static WsGetMembersLiteResult getMembersLite(
@@ -1363,7 +1374,7 @@ public class GrouperServiceLogic {
       boolean includeGroupDetail, 
       boolean includeSubjectDetail, String subjectAttributeNames,
       String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
+      String paramName1, String paramValue1, String sourceIds) {
   
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
@@ -1374,12 +1385,14 @@ public class GrouperServiceLogic {
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
-  
+
+    String[] sourceIdArray = GrouperUtil.splitTrim(sourceIds, ",");
+    
     // pass through to the more comprehensive method
     WsGetMembersResults wsGetMembersResults = getMembers(clientVersion, wsGroupLookups,
         memberFilter, actAsSubjectLookup, fieldName, 
         includeGroupDetail, includeSubjectDetail,
-        subjectAttributeArray, params);
+        subjectAttributeArray, params, sourceIdArray);
   
     return new WsGetMembersLiteResult(wsGetMembersResults);
   }

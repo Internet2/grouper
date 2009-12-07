@@ -17,8 +17,10 @@
 
 package edu.internet2.middleware.grouper.member;
 import java.util.Iterator;
+import java.util.Set;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -45,6 +47,7 @@ import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -52,15 +55,24 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.2 2009-09-21 06:14:27 mchyzer Exp $
+ * @version $Id: TestMember.java,v 1.3 2009-12-07 07:31:09 mchyzer Exp $
  */
 public class TestMember extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestMember("testNonImmediateMembershipsAndGroups"));
+  }
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(TestMember.class);
 
@@ -103,6 +115,117 @@ public class TestMember extends GrouperTest {
     }
   } // public void testGetSource()
 
+  /**
+   * 
+   */
+  public void testGetMembersBySource() {
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    Group           i2    = edu.addChildGroup("i2", "i2");
+    Group           uofc  = edu.addChildGroup("uofc", "uofc");
+    GroupHelper.addMember(uofc, subj, "members");
+    GroupHelper.addMember(i2, uofc.toSubject(), "members");
+    Member          member = MemberFinder.findBySubject(s, subj, true);
+    Member          groupMember = MemberFinder.findBySubject(s, uofc.toSubject(), true);
+    
+    
+    Set<Member> members = i2.getMembers(Group.getDefaultList(), GrouperUtil.toSet(SourceManager.getInstance().getSource("jdbc")), null);
+    assertEquals(1, members.size());
+    assertEquals(member, members.iterator().next());
+    
+    
+    members = i2.getMembers(Group.getDefaultList(), GrouperUtil.toSet(SourceManager.getInstance().getSource("g:gsa")), null);
+    assertEquals(1, members.size());
+    assertEquals(groupMember, members.iterator().next());
+    
+    members = i2.getMembers(Group.getDefaultList(), GrouperUtil.toSet(SourceManager.getInstance().getSource("g:gsa"),
+        SourceManager.getInstance().getSource("jdbc")), null);
+    assertEquals(2, members.size());
+    
+    members = i2.getMembers(Group.getDefaultList(), GrouperUtil.convertSources("g:gsa, jdbc"), null);
+    assertEquals(2, members.size());
+    
+    members = i2.getImmediateMembers(Group.getDefaultList(), GrouperUtil.toSet(SourceManager.getInstance().getSource("g:gsa")), null);
+    assertEquals(1, members.size());
+    assertEquals(groupMember, members.iterator().next());
+    
+    
+  }
+
+  /**
+   * 
+   */
+  public void testNonImmediateMembershipsAndGroups() {
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    Group           i2    = edu.addChildGroup("i2", "i2");
+    Group           comp1    = edu.addChildGroup("comp1", "comp1");
+    Group           compLeft    = edu.addChildGroup("compLeft", "compRight");
+    Group           compRight    = edu.addChildGroup("compRight", "compRight");
+    
+    comp1.addCompositeMember(CompositeType.INTERSECTION, compLeft, compRight);
+    
+    compLeft.addMember(subj);  
+    compRight.addMember(subj);  
+    
+    Group           uofc  = edu.addChildGroup("uofc", "uofc");
+    GroupHelper.addMember(uofc, subj, "members");
+    GroupHelper.addMember(i2, uofc.toSubject(), "members");
+    Member          member     = MemberFinder.findBySubject(s, subj, true);
+    
+    Set<Member> members = compLeft.getNonImmediateMembers();
+    assertEquals(0, members.size());
+    
+    members = comp1.getNonImmediateMembers();
+    assertEquals(1, members.size());
+    assertEquals(member, members.iterator().next());
+    
+    members = uofc.getNonImmediateMembers();
+    assertEquals(0, members.size());
+    assertFalse(uofc.hasNonImmediateMember(subj));
+    
+    members = i2.getNonImmediateMembers();
+    assertEquals(1, members.size());
+    assertEquals(member, members.iterator().next());
+    assertTrue(i2.hasNonImmediateMember(subj));
+    
+    //########################################
+    
+    Set<Membership> memberships = compLeft.getNonImmediateMemberships();
+    assertEquals(0, memberships.size());
+    
+    memberships = comp1.getNonImmediateMemberships();
+    assertEquals(1, memberships.size());
+    assertEquals(member.getUuid(), memberships.iterator().next().getMemberUuid());
+    
+    memberships = uofc.getNonImmediateMemberships();
+    assertEquals(0, memberships.size());
+    
+    memberships = i2.getNonImmediateMemberships();
+    assertEquals(1, memberships.size());
+    assertEquals(member.getUuid(), memberships.iterator().next().getMemberUuid());
+
+    //########################################
+    assertTrue(member.isNonImmediateMember(comp1));
+    assertTrue(member.isNonImmediateMember(i2));
+    assertFalse(member.isNonImmediateMember(compLeft));
+    assertFalse(member.isNonImmediateMember(uofc));
+    
+    Set<Group> groups = member.getNonImmediateGroups();
+    
+    assertEquals(2, groups.size());
+    assertTrue(groups.contains(comp1));
+    assertTrue(groups.contains(i2));
+    
+    memberships = member.getNonImmediateMemberships();
+    assertEquals(2, memberships.size());
+    
+  }
+  
   public void testGetMembershipsAndGroups() {
     LOG.info("testGetMembershipsAndGroups");
     try {
@@ -205,6 +328,19 @@ public class TestMember extends GrouperTest {
           Assert.fail("unknown imm group: " + g.getName());
         }
       }
+      // Get non immediate groups
+      Assert.assertTrue("nonimm groups == 1", m.getNonImmediateGroups().size() == 1);
+      iterIG = m.getNonImmediateGroups().iterator();
+      while (iterIG.hasNext()) {
+        Group g = (Group) iterIG.next();
+        if (g.equals(i2)) {
+          Assert.assertTrue("imm group: i2", true);
+        }
+        else {
+          Assert.fail("unknown imm group: " + g.getName());
+        }
+      }
+
       // Get effective groups
       Assert.assertTrue("eff groups == 1", m.getEffectiveGroups().size() == 1);
       Iterator iterEG = m.getEffectiveGroups().iterator();

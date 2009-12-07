@@ -1,6 +1,6 @@
 /*
  * @author shilen
- * $Id: EffectiveMembershipHooksTest.java,v 1.1 2009-08-18 23:11:39 shilen Exp $
+ * $Id: EffectiveMembershipHooksTest.java,v 1.2 2009-12-07 07:31:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -130,7 +131,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     // verify gThree -> gOne
     MembershipHooksImpl9.resetVariables();
     two.addMember(three.toSubject());
-    assertEquals(Membership.EFFECTIVE, MembershipHooksImpl9.ms.getType());
+    assertEquals(MembershipType.EFFECTIVE.getTypeString(), MembershipHooksImpl9.ms.getType());
     assertEquals(1, MembershipHooksImpl9.ms.getDepth());
     assertEquals(one.getUuid(), MembershipHooksImpl9.ms.getOwnerGroupId());
     assertEquals(null, MembershipHooksImpl9.ms.getOwnerStemId());
@@ -143,7 +144,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     one.deleteMember(two.toSubject());
     MembershipHooksImpl9.resetVariables();
     one.addMember(two.toSubject());
-    assertEquals(Membership.EFFECTIVE, MembershipHooksImpl9.ms.getType());
+    assertEquals(MembershipType.EFFECTIVE.getTypeString(), MembershipHooksImpl9.ms.getType());
     assertEquals(1, MembershipHooksImpl9.ms.getDepth());
     assertEquals(one.getUuid(), MembershipHooksImpl9.ms.getOwnerGroupId());
     assertEquals(null, MembershipHooksImpl9.ms.getOwnerStemId());
@@ -156,7 +157,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     one.deleteMember(two.toSubject());
     MembershipHooksImpl9.resetVariables();
     one.grantPriv(two.toSubject(), AccessPrivilege.ADMIN);
-    assertEquals(Membership.EFFECTIVE, MembershipHooksImpl9.ms.getType());
+    assertEquals(MembershipType.EFFECTIVE.getTypeString(), MembershipHooksImpl9.ms.getType());
     assertEquals(1, MembershipHooksImpl9.ms.getDepth());
     assertEquals(one.getUuid(), MembershipHooksImpl9.ms.getOwnerGroupId());
     assertEquals(null, MembershipHooksImpl9.ms.getOwnerStemId());
@@ -169,7 +170,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     two.deleteMember(three.toSubject());
     MembershipHooksImpl9.resetVariables();
     two.addMember(three.toSubject());
-    assertEquals(Membership.EFFECTIVE, MembershipHooksImpl9.ms.getType());
+    assertEquals(MembershipType.EFFECTIVE.getTypeString(), MembershipHooksImpl9.ms.getType());
     assertEquals(1, MembershipHooksImpl9.ms.getDepth());
     assertEquals(one.getUuid(), MembershipHooksImpl9.ms.getOwnerGroupId());
     assertEquals(null, MembershipHooksImpl9.ms.getOwnerStemId());
@@ -182,7 +183,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     one.revokePriv(two.toSubject(), AccessPrivilege.ADMIN);
     MembershipHooksImpl9.resetVariables();
     stem.grantPriv(two.toSubject(), NamingPrivilege.STEM);
-    assertEquals(Membership.EFFECTIVE, MembershipHooksImpl9.ms.getType());
+    assertEquals(MembershipType.EFFECTIVE.getTypeString(), MembershipHooksImpl9.ms.getType());
     assertEquals(1, MembershipHooksImpl9.ms.getDepth());
     assertEquals(null, MembershipHooksImpl9.ms.getOwnerGroupId());
     assertEquals(stem.getUuid(), MembershipHooksImpl9.ms.getOwnerStemId());
@@ -195,7 +196,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     two.deleteMember(three.toSubject());
     MembershipHooksImpl9.resetVariables();
     two.addMember(three.toSubject());
-    assertEquals(Membership.EFFECTIVE, MembershipHooksImpl9.ms.getType());
+    assertEquals(MembershipType.EFFECTIVE.getTypeString(), MembershipHooksImpl9.ms.getType());
     assertEquals(1, MembershipHooksImpl9.ms.getDepth());
     assertEquals(null, MembershipHooksImpl9.ms.getOwnerGroupId());
     assertEquals(stem.getUuid(), MembershipHooksImpl9.ms.getOwnerStemId());
@@ -301,7 +302,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     
     // try disabling and re-enabling memberships.
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        top1.getUuid(), one.toMember().getUuid(), FieldFinder.find("admins", true), Membership.IMMEDIATE, true, true);
+        top1.getUuid(), one.toMember().getUuid(), FieldFinder.find("admins", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     verifyandResetNumHookFires(0, 0, 0, 4, 4, 4, 0, 0, 0);
@@ -387,7 +388,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     
     // try disabling and re-enabling memberships.
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        one.getUuid(), two.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+        one.getUuid(), two.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     verifyandResetNumHookFires(0, 0, 0, 8, 8, 8, 1, 1, 1);  // because of the way the grouper_membership_all_v view works, one of the effective memberships is disabled rather than deleted....
@@ -396,7 +397,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     verifyandResetNumHookFires(8, 8, 8, 0, 0, 0, 1, 1, 1);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        left.getUuid(), one.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+        left.getUuid(), one.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setEnabled(false);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     verifyandResetNumHookFires(0, 0, 0, 15, 15, 15, 0, 0, 0);
@@ -406,7 +407,7 @@ public class EffectiveMembershipHooksTest extends GrouperTest {
     
     // try a member rename
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        one.getUuid(), two.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+        one.getUuid(), two.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
     ms.setMemberUuid(two_alt.toMember().getUuid());
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     verifyandResetNumHookFires(3, 3, 3, 8, 8, 8, 1, 1, 1); // when members are changed, effective memberships are deleted and then the appropriate ones are re-added with the new member.  this keeps it simple but probably not best for performance...

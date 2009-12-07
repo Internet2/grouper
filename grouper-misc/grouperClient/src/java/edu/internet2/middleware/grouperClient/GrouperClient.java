@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.23 2009-04-13 03:21:51 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.24 2009-12-07 07:33:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -457,7 +457,9 @@ public class GrouperClient {
     private static String addMember(Map<String, String> argMap,
         Map<String, String> argMapNotUsed) {
       
-      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", true);
+      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", false);
+      String groupUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupUuid", false);
+
       String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
       String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
      
@@ -488,6 +490,7 @@ public class GrouperClient {
       }
       
       gcAddMember.assignGroupName(groupName);
+      gcAddMember.assignGroupUuid(groupUuid);
       
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
@@ -1388,7 +1391,8 @@ public class GrouperClient {
     private static String hasMember(Map<String, String> argMap,
         Map<String, String> argMapNotUsed) {
       
-      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", true);
+      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", false);
+      String groupUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupUuid", false);
       String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
      
       Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
@@ -1418,6 +1422,7 @@ public class GrouperClient {
       }
       
       gcHasMember.assignGroupName(groupName);
+      gcHasMember.assignGroupUuid(groupUuid);
       
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
@@ -1490,7 +1495,8 @@ public class GrouperClient {
     private static String deleteMember(Map<String, String> argMap,
         Map<String, String> argMapNotUsed) {
       
-      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", true);
+      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", false);
+      String groupUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupUuid", false);
       String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
       String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
      
@@ -1519,6 +1525,7 @@ public class GrouperClient {
       }
       
       gcDeleteMember.assignGroupName(groupName);
+      gcDeleteMember.assignGroupUuid(groupUuid);
       
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
@@ -1846,7 +1853,9 @@ public class GrouperClient {
    */
   private static String getMembers(Map<String, String> argMap,
       Map<String, String> argMapNotUsed) {
-    List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", true);
+    List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", false);
+    List<String> groupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupUuids", false);
+
     String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
   
     String memberFilter = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "memberFilter", false);
@@ -1857,13 +1866,23 @@ public class GrouperClient {
   
     Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
   
+    String sourceIds = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "sourceIds", false);
+    
     GcGetMembers gcGetMembers = new GcGetMembers();        
   
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
     gcGetMembers.assignClientVersion(clientVersion);
 
-    for (String groupName: groupNames) {
-      gcGetMembers.addGroupName(groupName);
+    if (GrouperClientUtils.length(groupNames) > 0) {
+      for (String groupName: groupNames) {
+        gcGetMembers.addGroupName(groupName);
+      }
+    }
+    
+    if (GrouperClientUtils.length(groupUuids) > 0) {
+      for (String groupUuid: groupUuids) {
+        gcGetMembers.addGroupUuid(groupUuid);
+      }
     }
     
     WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
@@ -1885,6 +1904,14 @@ public class GrouperClient {
     
     for (WsParam param : params) {
       gcGetMembers.addParam(param);
+    }
+    
+    //add source ids if there
+    if (!GrouperClientUtils.isBlank(sourceIds)) {
+      String[] sourceIdsArray = GrouperClientUtils.splitTrim(sourceIds, ",");
+      for (String sourceId : sourceIdsArray) {
+        gcGetMembers.addSourceId(sourceId);
+      }
     }
     
     //register that we will use this

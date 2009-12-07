@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcHasMember.java,v 1.5 2009-04-13 03:21:51 mchyzer Exp $
+ * $Id: GcHasMember.java,v 1.6 2009-12-07 07:33:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -40,6 +40,9 @@ public class GcHasMember {
   /** group name to add member to */
   private String groupName;
   
+  /** group uuid to add member to */
+  private String groupUuid;
+  
   /**
    * set the group name
    * @param theGroupName
@@ -47,6 +50,16 @@ public class GcHasMember {
    */
   public GcHasMember assignGroupName(String theGroupName) {
     this.groupName = theGroupName;
+    return this;
+  }
+  
+  /**
+   * set the group uuid
+   * @param theGroupUuid
+   * @return this for chaining
+   */
+  public GcHasMember assignGroupUuid(String theGroupUuid) {
+    this.groupUuid = theGroupUuid;
     return this;
   }
   
@@ -124,8 +137,13 @@ public class GcHasMember {
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.isBlank(this.groupName)) {
-      throw new RuntimeException("Group name is required: " + this);
+    if (GrouperClientUtils.isBlank(this.groupName)
+        && GrouperClientUtils.isBlank(this.groupUuid)) {
+      throw new RuntimeException("Group name or uuid is required: " + this);
+    }
+    if (GrouperClientUtils.isNotBlank(this.groupName)
+        && GrouperClientUtils.isNotBlank(this.groupUuid)) {
+      throw new RuntimeException("Group name and uuid cannot both be filled in at once : " + this);
     }
     if (GrouperClientUtils.length(this.subjectLookups) == 0) {
       throw new RuntimeException("Need at least one subject to add to group: " + this);
@@ -218,7 +236,13 @@ public class GcHasMember {
       }
       
       WsGroupLookup wsGroupLookup = new WsGroupLookup();
-      wsGroupLookup.setGroupName(this.groupName);
+      
+      if (!GrouperClientUtils.isBlank(this.groupName)) {
+        wsGroupLookup.setGroupName(this.groupName);
+      }
+      if (!GrouperClientUtils.isBlank(this.groupUuid)) {
+        wsGroupLookup.setUuid(this.groupUuid);
+      }
       
       hasMember.setWsGroupLookup(wsGroupLookup);
       
@@ -239,7 +263,9 @@ public class GcHasMember {
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
-      String urlSuffix = "groups/" + GrouperClientUtils.escapeUrlEncode(this.groupName) + "/members";
+      //String urlSuffix = "groups/" + groupHandle + "/members";
+      //MCH lets switch this to not send group name, so we can do id or name
+      String urlSuffix = "groups";
       wsHasMemberResults = (WsHasMemberResults)
         grouperClientWs.executeService(urlSuffix, hasMember, "hasMember", this.clientVersion);
       

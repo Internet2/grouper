@@ -279,9 +279,9 @@ public class TestFindBadMemberships extends GrouperTest {
     Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjE, true);
     Membership ms3 = MembershipFinder.findCompositeMembership(grouperSession, owner3, subjA, true);
     
-    ms1.setType(Membership.IMMEDIATE);
-    ms2.setType(Membership.IMMEDIATE);
-    ms3.setType(Membership.IMMEDIATE);
+    ms1.setType(MembershipType.IMMEDIATE.getTypeString());
+    ms2.setType(MembershipType.IMMEDIATE.getTypeString());
+    ms3.setType(MembershipType.IMMEDIATE.getTypeString());
     
     ms1.setViaCompositeId(null);
     ms2.setViaCompositeId(null);

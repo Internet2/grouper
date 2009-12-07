@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -93,7 +94,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.139 2009-11-17 02:52:29 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.140 2009-12-07 07:31:08 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -238,11 +239,15 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
-  
   /** A member of a group (aka composite member) has either or both of
-   * an immediate (direct) membership, or an effective (indirect) membership **/
+   * an immediate (direct) membership, or an effective (indirect) membership 
+   * 
+   * use MembershipType.COMPOSITE.getTypeString() instead
+   * 
+   **/
+  @Deprecated
   public static final String COMPOSITE = "composite";
-  
+
   /** 
    * An effective member has an indirect membership to a group
    * (e.g. in a group within a group).  All subjects in a
@@ -253,9 +258,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * 'group within a group' can be nested to any level so long as it does 
    * not become circular.  A group can have potentially unlimited effective 
    * memberships
+   * 
+   * use MembershipType.EFFECTIVE.getTypeString() instead
    */
+  @Deprecated
   public static final String EFFECTIVE = "effective";
-  
+
   /**
    * get the name of the owner (group or stem)
    * @return the name
@@ -283,9 +291,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * to a single group, and 0 to many effective memberships to a group.
    * A group can have potentially unlimited effective 
    * memberships
+   * 
+   * use MembershipType.IMMEDIATE.getTypeString() instead
    */
+  @Deprecated
   public static final String IMMEDIATE = "immediate";
-  
+
   /**
    * separator used in the uuid field to split immediate_membership_id and group_set_id
    */
@@ -344,7 +355,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   private String groupSetParentId;
 
   /** either composite, immediate, effective */
-  private String  type        = Membership.IMMEDIATE;           // reasonable default
+  private String  type        = MembershipType.IMMEDIATE.getTypeString(); // reasonable default
   
   /**
    * If the membership is enabled.  Only applies to immediate memberships.
@@ -561,7 +572,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @return true if composite
    */
   public boolean isComposite() {
-    return StringUtils.equals(this.type, Membership.COMPOSITE);
+    return StringUtils.equals(this.type, MembershipType.COMPOSITE.getTypeString());
   }
   
   /**
@@ -569,7 +580,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @return true if immediate
    */
   public boolean isImmediate() {
-    return StringUtils.equals(this.type, Membership.IMMEDIATE);
+    return StringUtils.equals(this.type, MembershipType.IMMEDIATE.getTypeString());
   }
   
   /**
@@ -577,7 +588,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @return true if effective
    */
   public boolean isEffective() {
-    return StringUtils.equals(this.type, Membership.EFFECTIVE);
+    return StringUtils.equals(this.type, MembershipType.EFFECTIVE.getTypeString());
   }
   
   /** */
@@ -1145,7 +1156,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     try {
       GrouperSession.validate(s); 
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(g.getUuid(), m.getUuid(), f, IMMEDIATE, true, false);
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+          g.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, false);
       
       GrouperDAOFactory.getFactory().getMembership().delete(ms);
       
@@ -1179,7 +1191,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       // Who we're deleting
       //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(ns.getUuid(), m.getUuid(), f, IMMEDIATE , true, false);
+      Membership ms = GrouperDAOFactory.getFactory().getMembership()
+        .findByStemOwnerAndMemberAndFieldAndType(ns.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString() , true, false);
 
       GrouperDAOFactory.getFactory().getMembership().delete(ms);
       
@@ -1227,7 +1240,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
             }
   
             // Deal with group's members
-            Iterator itHas = dao.findAllByGroupOwnerAndFieldAndType(g.getUuid(), f, IMMEDIATE, false).iterator();
+            Iterator itHas = dao.findAllByGroupOwnerAndFieldAndType(g.getUuid(), f, 
+                MembershipType.IMMEDIATE.getTypeString(), false).iterator();
             while (itHas.hasNext()) {
               ms = (Membership)itHas.next() ;
               GrouperDAOFactory.getFactory().getMembership().delete(ms);
@@ -1280,7 +1294,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
           // Deal with stem's members
-          Iterator itHas = dao.findAllByStemOwnerAndFieldAndType(ns.getUuid(), f, IMMEDIATE, false).iterator();
+          Iterator itHas = dao.findAllByStemOwnerAndFieldAndType(ns.getUuid(), f, 
+              MembershipType.IMMEDIATE.getTypeString(), false).iterator();
           while (itHas.hasNext()) {
             ms = (Membership) itHas.next() ;
             GrouperDAOFactory.getFactory().getMembership().delete(ms);
@@ -1534,15 +1549,15 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       if (this.getOwnerGroupId() != null) {
         ms = GrouperDAOFactory.getFactory().getMembership()
             .findByGroupOwnerAndMemberAndFieldAndType(this.getOwnerGroupId(),
-                this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false, false);
+                this.getMemberUuid(), this.getField(), MembershipType.IMMEDIATE.getTypeString(), false, false);
       } else if (this.getOwnerStemId() != null) {
         ms = GrouperDAOFactory.getFactory().getMembership()
             .findByStemOwnerAndMemberAndFieldAndType(this.getOwnerStemId(),
-                this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false, false);
+                this.getMemberUuid(), this.getField(), MembershipType.IMMEDIATE.getTypeString(), false, false);
       } else if (this.getOwnerAttrDefId() != null) {
         ms = GrouperDAOFactory.getFactory().getMembership()
             .findByAttrDefOwnerAndMemberAndFieldAndType(this.getOwnerAttrDefId(),
-                this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false, false);
+                this.getMemberUuid(), this.getField(), MembershipType.IMMEDIATE.getTypeString(), false, false);
       } else {
         throw new NullPointerException("Cant find owner: " + this);
       }
@@ -1942,7 +1957,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       immediateGroupSet.setDepth(1);
       immediateGroupSet.setFieldId(this.getFieldId());
       immediateGroupSet.setMemberGroupId(memberGroup.getUuid());
-      immediateGroupSet.setType(Membership.EFFECTIVE);
+      immediateGroupSet.setType(MembershipType.EFFECTIVE.getTypeString());
 
       GroupSet parent = null;
 
@@ -2077,7 +2092,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           groupIds.add(owner.getUuid());
         } else if (!compositeShouldHaveMember && ownerHasMember) {
           Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-            owner.getUuid(), memberId, Group.getDefaultList(), Membership.COMPOSITE, true, false);
+            owner.getUuid(), memberId, Group.getDefaultList(), MembershipType.COMPOSITE.getTypeString(), true, false);
           GrouperDAOFactory.getFactory().getMembership().delete(ms);
           modifiedMembersList.add(memberId);
           groupIds.add(owner.getUuid());
@@ -2547,7 +2562,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
   
           // Deal with stem's members
-          Iterator itHas = dao.findAllByAttrDefOwnerAndFieldAndType(attributeDef.getUuid(), f, IMMEDIATE, false).iterator();
+          Iterator itHas = dao.findAllByAttrDefOwnerAndFieldAndType(attributeDef.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), false).iterator();
           while (itHas.hasNext()) {
             ms = (Membership) itHas.next() ;
             GrouperDAOFactory.getFactory().getMembership().delete(ms);
@@ -2602,7 +2617,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       // Who we're deleting
       //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByAttrDefOwnerAndMemberAndFieldAndType(attributeDef.getUuid(), m.getUuid(), f, IMMEDIATE , true, false);
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByAttrDefOwnerAndMemberAndFieldAndType(attributeDef.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString() , true, false);
   
       GrouperDAOFactory.getFactory().getMembership().delete(ms);
       

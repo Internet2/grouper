@@ -20,11 +20,12 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.2 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.3 2009-12-07 07:31:08 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_EffectiveMembershipValidator_validate extends GrouperTest {
@@ -65,7 +66,7 @@ public class Test_Unit_API_EffectiveMembershipValidator_validate extends Grouper
     try {
       LOG.info("testValidate_InvalidDepth");
       Membership _ms = new Membership();
-      _ms.setType(Membership.EFFECTIVE);
+      _ms.setType(MembershipType.EFFECTIVE.getTypeString());
       _ms.setDepth(0);
       GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
@@ -80,7 +81,7 @@ public class Test_Unit_API_EffectiveMembershipValidator_validate extends Grouper
     try {
       LOG.info("testValidate_InvalidViaUuid");
       Membership _ms = new Membership();
-      _ms.setType(Membership.EFFECTIVE);
+      _ms.setType(MembershipType.EFFECTIVE.getTypeString());
       _ms.setDepth(1);
       GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );

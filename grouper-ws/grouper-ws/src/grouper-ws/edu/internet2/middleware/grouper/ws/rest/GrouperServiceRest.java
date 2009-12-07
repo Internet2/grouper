@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.10 2009-10-13 16:13:05 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.11 2009-12-07 07:31:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -129,33 +129,34 @@ public class GrouperServiceRest {
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group including stems, e.g. a:b:c
-   * @param wsRestGroupGetMembersRequest is the request body converted to an object
+   * @param wsRestGetMembersLiteRequest is the request body converted to an object
    * @return the results
    */
   public static WsGetMembersLiteResult getMembersLite(GrouperWsVersion clientVersion,
-      String groupName, WsRestGetMembersLiteRequest wsRestGroupGetMembersRequest) {
+      String groupName, WsRestGetMembersLiteRequest wsRestGetMembersLiteRequest) {
 
     //make sure not null
-    wsRestGroupGetMembersRequest = wsRestGroupGetMembersRequest == null ? new WsRestGetMembersLiteRequest()
-        : wsRestGroupGetMembersRequest;
+    wsRestGetMembersLiteRequest = wsRestGetMembersLiteRequest == null ? new WsRestGetMembersLiteRequest()
+        : wsRestGetMembersLiteRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
-        wsRestGroupGetMembersRequest.getClientVersion(), false, "clientVersion");
-    groupName = GrouperServiceUtils.pickOne(groupName, wsRestGroupGetMembersRequest
+        wsRestGetMembersLiteRequest.getClientVersion(), false, "clientVersion");
+    groupName = GrouperServiceUtils.pickOne(groupName, wsRestGetMembersLiteRequest
         .getGroupName(), false, "groupName");
 
     //get the results
     WsGetMembersLiteResult wsGetMembersLiteResult = new GrouperService(false).getMembersLite(
-        clientVersionString, groupName, wsRestGroupGetMembersRequest.getGroupUuid(),
-        wsRestGroupGetMembersRequest.getMemberFilter(), wsRestGroupGetMembersRequest
-            .getActAsSubjectId(), wsRestGroupGetMembersRequest.getActAsSubjectSourceId(),
-        wsRestGroupGetMembersRequest.getActAsSubjectIdentifier(),
-        wsRestGroupGetMembersRequest.getFieldName(), wsRestGroupGetMembersRequest
-            .getIncludeGroupDetail(), wsRestGroupGetMembersRequest
-            .getRetrieveSubjectDetail(), wsRestGroupGetMembersRequest
-            .getSubjectAttributeNames(), wsRestGroupGetMembersRequest.getParamName0(),
-        wsRestGroupGetMembersRequest.getParamValue0(), wsRestGroupGetMembersRequest
-            .getParamName1(), wsRestGroupGetMembersRequest.getParamName1());
+        clientVersionString, groupName, wsRestGetMembersLiteRequest.getGroupUuid(),
+        wsRestGetMembersLiteRequest.getMemberFilter(), wsRestGetMembersLiteRequest
+            .getActAsSubjectId(), wsRestGetMembersLiteRequest.getActAsSubjectSourceId(),
+        wsRestGetMembersLiteRequest.getActAsSubjectIdentifier(),
+        wsRestGetMembersLiteRequest.getFieldName(), wsRestGetMembersLiteRequest
+            .getIncludeGroupDetail(), wsRestGetMembersLiteRequest
+            .getRetrieveSubjectDetail(), wsRestGetMembersLiteRequest
+            .getSubjectAttributeNames(), wsRestGetMembersLiteRequest.getParamName0(),
+        wsRestGetMembersLiteRequest.getParamValue0(), wsRestGetMembersLiteRequest
+            .getParamName1(), wsRestGetMembersLiteRequest.getParamName1(), 
+            wsRestGetMembersLiteRequest.getSourceIds());
 
     //return result
     return wsGetMembersLiteResult;
@@ -185,7 +186,7 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
         wsRestAddMemberLiteRequest.getClientVersion(), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestAddMemberLiteRequest
-        .getGroupName(), false, "groupName");
+        .getGroupName(), true, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestAddMemberLiteRequest
         .getSubjectId(), false, "subjectId");
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestAddMemberLiteRequest
@@ -236,7 +237,7 @@ public class GrouperServiceRest {
     }
 
     groupName = GrouperServiceUtils.pickOne(groupName, wsGroupLookup.getGroupName(),
-        false, "groupName");
+        true, "groupName");
     wsGroupLookup.setGroupName(groupName);
 
     //get the results
@@ -277,7 +278,7 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
         wsRestDeleteMemberLiteRequest.getClientVersion(), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestDeleteMemberLiteRequest
-        .getGroupName(), false, "groupName");
+        .getGroupName(), true, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestDeleteMemberLiteRequest
         .getSubjectId(), false, "subjectId");
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestDeleteMemberLiteRequest
@@ -331,7 +332,7 @@ public class GrouperServiceRest {
     }
   
     groupName = GrouperServiceUtils.pickOne(groupName, wsGroupLookup.getGroupName(),
-        false, "groupName");
+        true, "groupName");
     wsGroupLookup.setGroupName(groupName);
   
     //get the results
@@ -376,7 +377,7 @@ public class GrouperServiceRest {
     }
 
     groupName = GrouperServiceUtils.pickOne(groupName, wsGroupLookup.getGroupName(),
-        false, "groupName");
+        true, "groupName");
     wsGroupLookup.setGroupName(groupName);
 
     //get the results
@@ -423,7 +424,8 @@ public class GrouperServiceRest {
             .getActAsSubjectLookup(), wsRestGetMembersRequest.getFieldName(),
         wsRestGetMembersRequest.getIncludeGroupDetail(), wsRestGetMembersRequest
             .getIncludeSubjectDetail(), wsRestGetMembersRequest
-            .getSubjectAttributeNames(), wsRestGetMembersRequest.getParams());
+            .getSubjectAttributeNames(), wsRestGetMembersRequest.getParams(),
+            wsRestGetMembersRequest.getSourceIds());
 
     //return result
     return wsGetMembersResults;

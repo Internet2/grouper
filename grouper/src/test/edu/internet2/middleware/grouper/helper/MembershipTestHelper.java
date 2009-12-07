@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -48,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.4 2009-08-18 23:11:39 shilen Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.5 2009-12-07 07:31:09 mchyzer Exp $
  */
 public class MembershipTestHelper {
 
@@ -459,7 +460,7 @@ public class MembershipTestHelper {
     try {
       Member m = MemberFinder.findBySubject(s, subj, true);
       mship = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-          stem.getUuid(), m.getUuid(), f, Membership.IMMEDIATE, true, true
+          stem.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, true
         );
     } catch (Exception e) {
       mship = null;

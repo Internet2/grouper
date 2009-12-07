@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -65,7 +66,7 @@ import edu.internet2.middleware.subject.Subject;
  * slower and more explicit than the GrouperAccessAdapter (subclass)
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNonDbAccessAdapter.java,v 1.7 2009-10-15 13:12:08 shilen Exp $
+ * @version $Id: GrouperNonDbAccessAdapter.java,v 1.8 2009-12-07 07:31:09 mchyzer Exp $
  */
 public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements AccessAdapter {
 
@@ -298,7 +299,7 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
     
     Iterator<Membership> membershipsIter = GrouperDAOFactory.getFactory().getMembership()
       .findAllByGroupOwnerAndFieldAndType(g1.getUuid(), f,
-          Membership.IMMEDIATE, false).iterator();
+          MembershipType.IMMEDIATE.getTypeString(), false).iterator();
 
     while (membershipsIter.hasNext()) {
       Membership existingMembership = membershipsIter.next();

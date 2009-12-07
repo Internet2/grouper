@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperNonDbNamingAdapter.java,v 1.7 2009-10-15 13:12:08 shilen Exp $
+ * $Id: GrouperNonDbNamingAdapter.java,v 1.8 2009-12-07 07:31:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.privs;
 
@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -266,7 +267,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     
     Iterator<Membership> membershipsIter = GrouperDAOFactory.getFactory().getMembership()
       .findAllByStemOwnerAndFieldAndType(stem1.getUuid(), f,
-          Membership.IMMEDIATE, false).iterator();
+          MembershipType.IMMEDIATE.getTypeString(), false).iterator();
 
     while (membershipsIter.hasNext()) {
       Membership existingMembership = membershipsIter.next();
