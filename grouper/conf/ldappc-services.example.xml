@@ -16,7 +16,7 @@
 
   <!-- the attribute resolver id must be grouper.AttributeResolver -->
   <Service id="grouper.AttributeResolver" xsi:type="attribute-resolver:ShibbolethAttributeResolver">
-    <ConfigurationResource file="ldappc-resolver.xml" xsi:type="resource:ClasspathResource" />
+    <ConfigurationResource file="/ldappc-resolver.xml" xsi:type="resource:ClasspathResource" />
   </Service>
 
   <!-- the attribute authority id must be grouper.AttributeAuthority -->
