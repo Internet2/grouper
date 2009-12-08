@@ -183,4 +183,18 @@ public class DnAttributeModifierTest extends TestCase {
       fail("Naming exception thrown unexpectedly");
     }
   }
+  
+  public void testComparisonString() {
+    String dn = "CN=foo, DC=tEst,  dc=edu";
+    String normalized = "cn=foo,dc=test,dc=edu";
+    DnAttributeModifier am = new DnAttributeModifier(dn);
+    assertEquals(normalized, am.makeComparisonString(dn));
+  }
+
+  public void testComparisonStringCustomRdn() {
+    String dn = "custom=foo, DC=tEst,  dc=edu";
+    String normalized = "custom=foo,dc=test,dc=edu";
+    DnAttributeModifier am = new DnAttributeModifier(dn);
+    assertEquals(normalized, am.makeComparisonString(dn));
+  }
 }
