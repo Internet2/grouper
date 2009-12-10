@@ -61,7 +61,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AddMissingGroupSetsTest("AddMissingGroupSetsTest"));
+    TestRunner.run(new AddMissingGroupSetsTest("testAddMissingGroupSets"));
   }
   
   /**

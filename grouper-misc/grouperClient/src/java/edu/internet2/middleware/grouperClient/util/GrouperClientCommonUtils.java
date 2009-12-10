@@ -7170,7 +7170,7 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
-   * get the value from the argMap, throw exception if not there and required
+   * get the value from the argMap
    * @param argMap
    * @param argMapNotUsed 
    * @param key
@@ -8251,5 +8251,30 @@ public class GrouperClientCommonUtils  {
       return EMPTY;
     }
     return str.substring(pos + separator.length());
+  }
+
+  /**
+   * get the value from the argMap, throw exception if not there and required
+   * @param argMap
+   * @param argMapNotUsed 
+   * @param key
+   * @param required
+   * @param defaultValue 
+   * @return the value or null or exception
+   */
+  public static Integer argMapInteger(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
+      String key, boolean required, Integer defaultValue) {
+    String argString = argMapString(argMap, argMapNotUsed, key, required);
+  
+    if (isBlank(argString) && required) {
+      throw new RuntimeException("Argument '--" + key + "' is required, but not specified.  e.g. --" + key + "=5");
+    }
+    if (isBlank(argString)) {
+      if (defaultValue != null) {
+        return defaultValue;
+      }
+      return null;
+    }
+    return intValue(argString);
   }
 }

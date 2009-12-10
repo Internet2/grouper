@@ -31,6 +31,7 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -58,6 +59,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
@@ -89,7 +91,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.133 2009-12-07 07:31:08 mchyzer Exp $
+ * @version $Id: Member.java,v 1.134 2009-12-10 08:54:15 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -844,7 +846,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getEffectiveGroups() {
-    return Membership.retrieveGroups( this.getEffectiveMemberships());
+    return this.getEffectiveGroups(Group.getDefaultList());
   } // public Set getEffectiveGroups()
 
   /**
@@ -868,16 +870,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getEffectiveGroups(Field field) {
-    try {
-      return Membership.retrieveGroups(  this.getEffectiveMemberships(field));
-    } catch (SchemaException eS) {
-      // If we don't have "members" we have serious issues
-      String msg = "problem retrieving effective groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
-        + GrouperUtil.toStringSafe(field);
-      LOG.fatal( msg);
-      throw new GrouperException(msg, eS);
-    }
-
+    return this.getEffectiveGroups(field, null, null, null, null, true);
   }
 
   /**
@@ -961,7 +954,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getGroups() {
-    return Membership.retrieveGroups(  this.getMemberships() );
+    return this.getGroups(Group.getDefaultList());
   } // public Set getGroups()
 
   /**
@@ -974,17 +967,101 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getGroups(Field field) {
+    return this.getGroups(field, null, null, null, null, true);
+  } // public Set getGroups()
+
+  /**
+   * Get groups where this member is a member.
+   * <pre class="eg">
+   * // Get groups where this member is a member.
+   * Set groups = m.getGroups();
+   * </pre>
+   * @param field to check, doesnt have to be list field
+   * @param membershipType immediate, effective, non immediate, etc, or null for all
+   * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param stem is the stem to check in, or null if all.  If has stem, must have stemScope
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param queryOptions is what to sort/page to or null for all.  Can sort on name, displayName, extension, displayExtension
+   * @param enabled is null for all, true for enabled only, false for enabled and disabled
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> _internal_getGroupsHelper(Field field, MembershipType membershipType, 
+      String scope, Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     try {
-      return Membership.retrieveGroups(  this.getMemberships(field, false));
+      return GrouperDAOFactory.getFactory().getGroup().getAllGroupsMembershipSecure(
+          scope, grouperSession, this.getSubject(), queryOptions, enabled, membershipType, stem, stemScope);
     } catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = "problem retrieving groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
-        + GrouperUtil.toStringSafe(field);
+        + GrouperUtil.toStringSafe(field) + ", " + membershipType + ", " + scope + ", " + stem + ", " 
+        + stemScope + ", " + queryOptions + ", " + enabled;
       LOG.fatal( msg);
       throw new GrouperException(msg, eS);
     }
       
-  } // public Set getGroups()
+  } // public Set getGroupsHelper()
+
+  /**
+   * Get groups where this member is a member.
+   * @param field to check, doesnt have to be list field
+   * @param scope is a DB pattern that will have % appended to it, or null for all
+   * @param stem is the stem to check in, or null if all
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param queryOptions is what to sort/page to or null for all.  can sort on name, displayName, extension, displayExtension
+   * @param enabled is null for all, true for enabled only, false for enabled and disabled
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getGroups(Field field, 
+      String scope, Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+    return _internal_getGroupsHelper(field, null, scope, stem, stemScope, queryOptions, enabled);
+  } 
+
+  /**
+   * Get groups where this member is an effective member.
+   * @param field to check, doesnt have to be list field
+   * @param scope is a DB pattern that will have % appended to it, or null for all
+   * @param stem is the stem to check in, or null if all
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param queryOptions is what to sort/page to or null for all, can sort on name, displayName, extension, displayExtension
+   * @param enabled is null for all, true for enabled only, false for enabled and disabled
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getEffectiveGroups(Field field, 
+      String scope, Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+    return _internal_getGroupsHelper(field, MembershipType.EFFECTIVE, scope, stem, stemScope, queryOptions, enabled);
+  } 
+
+  /**
+   * Get groups where this member is an immediate member.
+   * @param field to check, doesnt have to be list field
+   * @param scope is a DB pattern that will have % appended to it, or null for all
+   * @param stem is the stem to check in, or null if all
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param queryOptions is what to sort/page to or null for all.  can sort on name, displayName, extension, displayExtension
+   * @param enabled is null for all, true for enabled only, false for enabled and disabled
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getImmediateGroups(Field field, 
+      String scope, Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+    return _internal_getGroupsHelper(field, MembershipType.IMMEDIATE, scope, stem, stemScope, queryOptions, enabled);
+  } 
+
+  /**
+   * Get groups where this member is a nonimmediate member.
+   * @param field to check, doesnt have to be list field
+   * @param scope is a DB pattern that will have % appended to it, or null for all
+   * @param stem is the stem to check in, or null if all
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param queryOptions is what to sort/page to or null for all.  can sort on name, displayName, extension, displayExtension
+   * @param enabled is null for all, true for enabled only, false for enabled and disabled
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getNonImmediateGroups(Field field, 
+      String scope, Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+    return _internal_getGroupsHelper(field, MembershipType.NONIMMEDIATE, scope, stem, stemScope, queryOptions, enabled);
+  } 
+
 
   /**
    * Get groups where this member has an immediate membership.
@@ -1003,7 +1080,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getImmediateGroups() {
-    return Membership.retrieveGroups(  this.getImmediateMemberships() );
+    return this.getImmediateGroups(Group.getDefaultList());
   } // public Set getImmediateGroups()
 
   /**
@@ -1023,7 +1100,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getNonImmediateGroups() {
-    return Membership.retrieveGroups(  this.getNonImmediateMemberships() );
+    return this.getNonImmediateGroups(Group.getDefaultList());
   } // public Set getImmediateGroups()
 
   /**
@@ -1045,15 +1122,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    */
   public Set<Group> getImmediateGroups(Field field) {
     
-    try {
-      return Membership.retrieveGroups( this.getImmediateMemberships(field) );
-    } catch (SchemaException eS) {
-      // If we don't have "members" we have serious issues
-      String msg = "problem retrieving immediate groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
-        + GrouperUtil.toStringSafe(field);
-      LOG.fatal( msg);
-      throw new GrouperException(msg, eS);
-    }
+    return this.getImmediateGroups(field, null, null, null, null, true);
 
   }
 
@@ -2860,16 +2929,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    */
   public Set<Group> getNonImmediateGroups(Field field) {
     
-    try {
-      return Membership.retrieveGroups( this.getNonImmediateMemberships(field) );
-    } catch (SchemaException eS) {
-      // If we don't have "members" we have serious issues
-      String msg = "problem retrieving immediate groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
-        + GrouperUtil.toStringSafe(field);
-      LOG.fatal( msg);
-      throw new GrouperException(msg, eS);
-    }
-  
+    return this.getNonImmediateGroups(field, null, null, null, null, true);
   } 
 
 } 

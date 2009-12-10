@@ -498,6 +498,402 @@
                              }
                              
 
+                        /**
+                        * field for FieldName
+                        */
+
+                        
+                                    protected java.lang.String localFieldName ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localFieldNameTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getFieldName(){
+                               return localFieldName;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param FieldName
+                               */
+                               public void setFieldName(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localFieldNameTracker = true;
+                                       } else {
+                                          localFieldNameTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localFieldName=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for Scope
+                        */
+
+                        
+                                    protected java.lang.String localScope ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localScopeTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getScope(){
+                               return localScope;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Scope
+                               */
+                               public void setScope(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localScopeTracker = true;
+                                       } else {
+                                          localScopeTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localScope=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for WsStemLookup
+                        */
+
+                        
+                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsStemLookup localWsStemLookup ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localWsStemLookupTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsStemLookup
+                           */
+                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsStemLookup getWsStemLookup(){
+                               return localWsStemLookup;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param WsStemLookup
+                               */
+                               public void setWsStemLookup(edu.internet2.middleware.grouper.ws.soap.xsd.WsStemLookup param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localWsStemLookupTracker = true;
+                                       } else {
+                                          localWsStemLookupTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localWsStemLookup=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for StemScope
+                        */
+
+                        
+                                    protected java.lang.String localStemScope ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localStemScopeTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getStemScope(){
+                               return localStemScope;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param StemScope
+                               */
+                               public void setStemScope(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localStemScopeTracker = true;
+                                       } else {
+                                          localStemScopeTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localStemScope=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for Enabled
+                        */
+
+                        
+                                    protected java.lang.String localEnabled ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localEnabledTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getEnabled(){
+                               return localEnabled;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Enabled
+                               */
+                               public void setEnabled(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localEnabledTracker = true;
+                                       } else {
+                                          localEnabledTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localEnabled=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PageSize
+                        */
+
+                        
+                                    protected java.lang.String localPageSize ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPageSizeTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPageSize(){
+                               return localPageSize;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PageSize
+                               */
+                               public void setPageSize(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localPageSizeTracker = true;
+                                       } else {
+                                          localPageSizeTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localPageSize=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for PageNumber
+                        */
+
+                        
+                                    protected java.lang.String localPageNumber ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localPageNumberTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getPageNumber(){
+                               return localPageNumber;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param PageNumber
+                               */
+                               public void setPageNumber(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localPageNumberTracker = true;
+                                       } else {
+                                          localPageNumberTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localPageNumber=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for SortString
+                        */
+
+                        
+                                    protected java.lang.String localSortString ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localSortStringTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getSortString(){
+                               return localSortString;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param SortString
+                               */
+                               public void setSortString(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localSortStringTracker = true;
+                                       } else {
+                                          localSortStringTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localSortString=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for Ascending
+                        */
+
+                        
+                                    protected java.lang.String localAscending ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localAscendingTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getAscending(){
+                               return localAscending;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param Ascending
+                               */
+                               public void setAscending(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localAscendingTracker = true;
+                                       } else {
+                                          localAscendingTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localAscending=param;
+                                    
+
+                               }
+                            
+
      /**
      * isReaderMTOMAware
      * @return true if the reader supports MTOM
@@ -971,7 +1367,310 @@
                                                xmlWriter.writeEndElement();
                                         
                                     }
-                                 }
+                                 } if (localFieldNameTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"fieldName", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"fieldName");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("fieldName");
+                                    }
+                                
+
+                                          if (localFieldName==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localFieldName);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localScopeTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"scope", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"scope");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("scope");
+                                    }
+                                
+
+                                          if (localScope==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localScope);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localWsStemLookupTracker){
+                                    if (localWsStemLookup==null){
+
+                                            java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+
+                                        if (! namespace2.equals("")) {
+                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                            if (prefix2 == null) {
+                                                prefix2 = generatePrefix(namespace2);
+
+                                                xmlWriter.writeStartElement(prefix2,"wsStemLookup", namespace2);
+                                                xmlWriter.writeNamespace(prefix2, namespace2);
+                                                xmlWriter.setPrefix(prefix2, namespace2);
+
+                                            } else {
+                                                xmlWriter.writeStartElement(namespace2,"wsStemLookup");
+                                            }
+
+                                        } else {
+                                            xmlWriter.writeStartElement("wsStemLookup");
+                                        }
+
+
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localWsStemLookup.serialize(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsStemLookup"),
+                                        factory,xmlWriter);
+                                    }
+                                } if (localStemScopeTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"stemScope", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"stemScope");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("stemScope");
+                                    }
+                                
+
+                                          if (localStemScope==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localStemScope);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localEnabledTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"enabled", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"enabled");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("enabled");
+                                    }
+                                
+
+                                          if (localEnabled==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localEnabled);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPageSizeTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"pageSize", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"pageSize");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("pageSize");
+                                    }
+                                
+
+                                          if (localPageSize==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPageSize);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localPageNumberTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"pageNumber", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"pageNumber");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("pageNumber");
+                                    }
+                                
+
+                                          if (localPageNumber==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localPageNumber);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localSortStringTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"sortString", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"sortString");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("sortString");
+                                    }
+                                
+
+                                          if (localSortString==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localSortString);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localAscendingTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"ascending", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"ascending");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("ascending");
+                                    }
+                                
+
+                                          if (localAscending==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localAscending);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             }
                     xmlWriter.writeEndElement();
                
 
@@ -1241,7 +1940,62 @@
                                     
                              }
 
-                        }
+                        } if (localFieldNameTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "fieldName"));
+                                 
+                                         elementList.add(localFieldName==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localFieldName));
+                                    } if (localScopeTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "scope"));
+                                 
+                                         elementList.add(localScope==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localScope));
+                                    } if (localWsStemLookupTracker){
+                            elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "wsStemLookup"));
+                            
+                            
+                                    elementList.add(localWsStemLookup==null?null:
+                                    localWsStemLookup);
+                                } if (localStemScopeTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "stemScope"));
+                                 
+                                         elementList.add(localStemScope==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localStemScope));
+                                    } if (localEnabledTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "enabled"));
+                                 
+                                         elementList.add(localEnabled==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localEnabled));
+                                    } if (localPageSizeTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pageSize"));
+                                 
+                                         elementList.add(localPageSize==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageSize));
+                                    } if (localPageNumberTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "pageNumber"));
+                                 
+                                         elementList.add(localPageNumber==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPageNumber));
+                                    } if (localSortStringTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "sortString"));
+                                 
+                                         elementList.add(localSortString==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localSortString));
+                                    } if (localAscendingTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "ascending"));
+                                 
+                                         elementList.add(localAscending==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAscending));
+                                    }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
             
@@ -1624,6 +2378,246 @@
                                                                 edu.internet2.middleware.grouper.ws.soap.xsd.WsParam.class,
                                                                 list8));
                                                             
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","fieldName").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setFieldName(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","scope").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setScope(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsStemLookup").equals(reader.getName())){
+                                
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setWsStemLookup(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
+                                    
+                                                object.setWsStemLookup(edu.internet2.middleware.grouper.ws.soap.xsd.WsStemLookup.Factory.parse(reader));
+                                              
+                                        reader.next();
+                                    }
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","stemScope").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setStemScope(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","enabled").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setEnabled(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","pageSize").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPageSize(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","pageNumber").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setPageNumber(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","sortString").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setSortString(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","ascending").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setAscending(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
                               }  // End of if for expected property start element
                                 
                                     else {

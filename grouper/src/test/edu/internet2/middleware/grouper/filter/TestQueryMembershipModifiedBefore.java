@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author shilen
  * 
- * @version $Id: TestQueryMembershipModifiedBefore.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestQueryMembershipModifiedBefore.java,v 1.5 2009-12-10 08:54:15 mchyzer Exp $
  */
 public class TestQueryMembershipModifiedBefore extends GrouperTest {
 
@@ -191,8 +191,9 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
   public void testFindNothing() {
     try {
       R r = R.populateRegistry(0, 0, 0);
+      //do 5 seconds ago in case the auto-create kicked in...
       GrouperQuery gq = GrouperQuery.createQuery(r.rs,
-          new GroupMembershipModifiedBeforeFilter(new Date(), r.root));
+          new GroupMembershipModifiedBeforeFilter(new Date(System.currentTimeMillis()-10000), r.root));
       T.amount("groups", 0, gq.getGroups().size());
       T.amount("members", 0, gq.getMembers().size());
       T.amount("mships", 0, gq.getMemberships().size());

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -553,6 +554,15 @@ public class GrouperService {
    *            T|F, for if the extended subject information should be
    *            returned (anything more than just the id)
    * @param params optional: reserved for future use
+   * @param fieldName is field name (list name) to search or blank for default list
+   * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param wsStemLookup is the stem to check in, or null if all.  If has stem, must have stemScope
+   * @param stemScope is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath.  You must pass stemScope if you pass a stem
+   * @param enabled is A for all, T or null for enabled only, F for disabled
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, F for descending.  If you pass T or F, must pass a sort string
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -560,7 +570,9 @@ public class GrouperService {
       WsSubjectLookup[] subjectLookups, String memberFilter, 
       WsSubjectLookup actAsSubjectLookup, String includeGroupDetail,
       String includeSubjectDetail, String[] subjectAttributeNames, 
-      WsParam[] params) {
+      WsParam[] params, String fieldName, String scope, 
+      WsStemLookup wsStemLookup, String stemScope, String enabled, 
+      String pageSize, String pageNumber, String sortString, String ascending) {
     
     WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
 
@@ -578,9 +590,24 @@ public class GrouperService {
       WsMemberFilter wsMemberFilter = GrouperServiceUtils
         .convertMemberFilter(memberFilter);
 
+      StemScope stemScopeEnum = StemScope.valueOfIgnoreCase(stemScope);
+      
+      Boolean enabledBoolean = null;
+      if (StringUtils.equalsIgnoreCase("A", enabled)) {
+        enabledBoolean = null;
+      } else {
+        enabledBoolean = GrouperServiceUtils.booleanValue(enabled, true, "enabled");
+      }
+      
+      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
+      Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
+      
+      Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+      
       wsGetGroupsResults = GrouperServiceLogic.getGroups(grouperWsVersion, subjectLookups, 
           wsMemberFilter, actAsSubjectLookup, includeGroupDetailBoolean, 
-          includeSubjectDetailBoolean, subjectAttributeNames, params);
+          includeSubjectDetailBoolean, subjectAttributeNames, params, fieldName, scope, wsStemLookup, 
+          stemScopeEnum, enabledBoolean, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, null, e);
     }
@@ -2555,6 +2582,16 @@ public class GrouperService {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param fieldName is field name (list name) to search or blank for default list
+   * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param stemName is the stem to check in, or null if all.  If has stem, must have stemScope
+   * @param stemUuid is the stem to check in, or null if all.  If has stem, must have stemScope
+   * @param stemScope is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath.  You must pass stemScope if you pass a stem
+   * @param enabled is A for all, T or blank for enabled only, F for disabled
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
    * @return the result of one member add
    */
   public WsGetGroupsLiteResult getGroupsLite(final String clientVersion, String subjectId,
@@ -2563,7 +2600,9 @@ public class GrouperService {
       String actAsSubjectIdentifier, String includeGroupDetail, 
       String includeSubjectDetail, 
       String subjectAttributeNames, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
+      String paramName1, String paramValue1, String fieldName, String scope, 
+      String stemName, String stemUuid, String stemScope, String enabled, 
+      String pageSize, String pageNumber, String sortString, String ascending) {
 
     WsGetGroupsLiteResult wsGetGroupsLiteResult = new WsGetGroupsLiteResult();
 
@@ -2581,11 +2620,26 @@ public class GrouperService {
       WsMemberFilter wsMemberFilter = GrouperServiceUtils
         .convertMemberFilter(memberFilter);
 
+      StemScope stemScopeEnum = StemScope.valueOfIgnoreCase(stemScope);
+      
+      Boolean enabledBoolean = null;
+      if (StringUtils.equalsIgnoreCase("A", enabled)) {
+        enabledBoolean = null;
+      } else {
+        enabledBoolean = GrouperServiceUtils.booleanValue(enabled, true, "enabled");
+      }
+      
+      Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
+      Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
+      
+      Boolean ascendingBoolean = GrouperUtil.booleanObjectValue(ascending);
+
       wsGetGroupsLiteResult = GrouperServiceLogic.getGroupsLite(grouperWsVersion, 
           subjectId, subjectSourceId, subjectIdentifier, wsMemberFilter, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-          paramName1, paramValue1);
+          paramName1, paramValue1, fieldName, scope, stemName, stemUuid, stemScopeEnum, enabledBoolean, 
+          pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
     } catch (Exception e) {
       wsGetGroupsLiteResult.assignResultCodeException(null, null, e);
     }

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.11 2009-12-07 07:31:14 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.12 2009-12-10 08:54:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -685,7 +685,11 @@ public class GrouperServiceRest {
         wsRestGetGroupsRequest.getMemberFilter(), wsRestGetGroupsRequest
             .getActAsSubjectLookup(), wsRestGetGroupsRequest.getIncludeGroupDetail(),
         wsRestGetGroupsRequest.getIncludeSubjectDetail(), wsRestGetGroupsRequest
-            .getSubjectAttributeNames(), wsRestGetGroupsRequest.getParams());
+            .getSubjectAttributeNames(), wsRestGetGroupsRequest.getParams(), wsRestGetGroupsRequest.getFieldName(),
+            wsRestGetGroupsRequest.getScope(),
+            wsRestGetGroupsRequest.getWsStemLookup(), wsRestGetGroupsRequest.getStemScope(), wsRestGetGroupsRequest.getEnabled(),
+            wsRestGetGroupsRequest.getPageSize(), wsRestGetGroupsRequest.getPageNumber(), wsRestGetGroupsRequest.getSortString(), 
+            wsRestGetGroupsRequest.getAscending());
 
     //return result
     return wsGetGroupsResults;
@@ -730,7 +734,12 @@ public class GrouperServiceRest {
             .getIncludeSubjectDetail(), wsRestGetGroupsLiteRequest
             .getSubjectAttributeNames(), wsRestGetGroupsLiteRequest.getParamName0(),
         wsRestGetGroupsLiteRequest.getParamValue0(), wsRestGetGroupsLiteRequest
-            .getParamName1(), wsRestGetGroupsLiteRequest.getParamValue1());
+            .getParamName1(), wsRestGetGroupsLiteRequest.getParamValue1(), wsRestGetGroupsLiteRequest.getFieldName(),
+            wsRestGetGroupsLiteRequest.getScope(), wsRestGetGroupsLiteRequest.getStemName(), 
+            wsRestGetGroupsLiteRequest.getStemUuid(), wsRestGetGroupsLiteRequest.getStemScope(),
+            wsRestGetGroupsLiteRequest.getEnabled(), wsRestGetGroupsLiteRequest.getPageSize(),
+            wsRestGetGroupsLiteRequest.getPageNumber(), wsRestGetGroupsLiteRequest.getSortString(), 
+            wsRestGetGroupsLiteRequest.getAscending());
 
     //return result
     return wsGetGroupsLiteResult;

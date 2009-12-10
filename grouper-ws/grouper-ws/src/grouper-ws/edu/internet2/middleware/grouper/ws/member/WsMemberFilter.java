@@ -12,9 +12,13 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -85,20 +89,9 @@ public enum WsMemberFilter {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Group> getGroups(Member member) {
-      return GrouperUtil.nonNull(member.getGroups());
-    }
-
-    /**
-     * get groups for subject
-     * 
-     * @param member
-     * @return the set of members (non null)
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Set<Group> getGroups(Member member, Field field) {
-      return GrouperUtil.nonNull(member.getGroups(field));
+    public Set<Group> getGroups(Member member, Field field, String scope, 
+        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+      return GrouperUtil.nonNull(member.getGroups(field, scope, stem, stemScope, queryOptions, enabled));
     }
   },
 
@@ -160,25 +153,14 @@ public enum WsMemberFilter {
      * get groups for subject
      * 
      * @param member
-     * @return the set of members (non null)
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Set<Group> getGroups(Member member) {
-      return GrouperUtil.nonNull(member.getEffectiveGroups());
-    }
-
-    /**
-     * get groups for subject
-     * 
-     * @param member
      * @param field
      * @return the set of members (non null)
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Group> getGroups(Member member, Field field) {
-      return GrouperUtil.nonNull(member.getEffectiveGroups(field));
+    public Set<Group> getGroups(Member member, Field field, String scope, 
+        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+      return GrouperUtil.nonNull(member.getEffectiveGroups(field, scope, stem, stemScope, queryOptions, enabled));
     }
   },
   /**
@@ -239,25 +221,14 @@ public enum WsMemberFilter {
      * get groups for subject
      * 
      * @param member
-     * @return the set of members (non null)
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Set<Group> getGroups(Member member) {
-      return GrouperUtil.nonNull(member.getImmediateGroups());
-    }
-
-    /**
-     * get groups for subject
-     * 
-     * @param member
      * @param field
      * @return the set of members (non null)
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Group> getGroups(Member member, Field field) {
-      return GrouperUtil.nonNull(member.getImmediateGroups(field));
+    public Set<Group> getGroups(Member member, Field field, String scope, 
+        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+      return GrouperUtil.nonNull(member.getImmediateGroups(field, scope, stem, stemScope, queryOptions, enabled));
     }
   },
 
@@ -323,20 +294,8 @@ public enum WsMemberFilter {
      * @return the set of members (non null)
      */
     @Override
-    public Set<Group> getGroups(Member member) {
-      throw new RuntimeException(
-          "getGroups with composite is not supported: member subject id: "
-              + member.getSubjectId());
-    }
-
-    /**
-     * get groups for subject
-     * 
-     * @param member
-     * @return the set of members (non null)
-     */
-    @Override
-    public Set<Group> getGroups(Member member, Field field) {
+    public Set<Group> getGroups(Member member, Field field, String scope, 
+        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
       throw new RuntimeException(
           "getGroups with composite is not supported: member subject id: "
               + member.getSubjectId());
@@ -400,25 +359,14 @@ public enum WsMemberFilter {
      * get groups for subject
      * 
      * @param member
-     * @return the set of members (non null)
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Set<Group> getGroups(Member member) {
-      return GrouperUtil.nonNull(member.getNonImmediateGroups());
-    }
-  
-    /**
-     * get groups for subject
-     * 
-     * @param member
      * @param field
      * @return the set of members (non null)
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Group> getGroups(Member member, Field field) {
-      return GrouperUtil.nonNull(member.getNonImmediateGroups(field));
+    public Set<Group> getGroups(Member member, Field field, String scope, 
+        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+      return GrouperUtil.nonNull(member.getNonImmediateGroups(field, scope, stem, stemScope, queryOptions, enabled));
     }
   };
 
@@ -510,23 +458,20 @@ public enum WsMemberFilter {
   }
 
   /**
-   * get groups for subject
-   * 
-   * @param member
-   * @param field to check with membership
-   * @return the set of members (non null)
-   */
-  public abstract Set<Group> getGroups(Member member);
-
-  /**
    * get groups for subject based on field
    * 
    * @param member
    * @param field
    * @param field to check with membership
+   * @param scope 
+   * @param stem 
+   * @param stemScope 
+   * @param enabled 
+   * @param queryOptions 
    * @return the set of members (non null)
    */
-  public abstract Set<Group> getGroups(Member member, Field field);
+  public abstract Set<Group> getGroups(Member member, Field field, String scope, 
+      Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled);
 
   /**
    * do a case-insensitive matching

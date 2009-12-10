@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -53,7 +54,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.13 2009-12-07 07:31:09 mchyzer Exp $
+ * @version $Id: TestStemApi.java,v 1.14 2009-12-10 08:54:15 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -85,8 +86,8 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_insufficient_privilege_listGroupAsMember"));
-    //TestRunner.run(Test_api_Stem.class);
+    //TestRunner.run(new TestStemApi("test_rename_insufficientPrivileges_with_admin_group"));
+    TestRunner.run(TestStemApi.class);
   }
 
   /** size before getting started */
@@ -951,7 +952,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_rename_insufficientPrivileges_with_admin_group() throws Exception {
-    this.etc          = this.root.addChildStem("etc", "etc");
+    this.etc          = new StemSave(this.s).assignStemNameToEdit("etc").assignName("etc").save();
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
@@ -990,7 +991,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_rename_insufficientPrivileges_with_wheel_group() throws Exception {
-    this.etc          = this.root.addChildStem("etc", "etc");
+    this.etc          = new StemSave(this.s).assignStemNameToEdit("etc").assignName("etc").save();
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
@@ -1029,7 +1030,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_move_insufficientPrivileges_with_admin_group() throws Exception {
-    this.etc          = this.root.addChildStem("etc", "etc");
+    this.etc          = new StemSave(this.s).assignStemNameToEdit("etc").assignName("etc").save();
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
@@ -1072,7 +1073,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_move_insufficientPrivileges_with_wheel_group() throws Exception {
-    this.etc          = this.root.addChildStem("etc", "etc");
+    this.etc          = new StemSave(this.s).assignStemNameToEdit("etc").assignName("etc").save();
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
@@ -1115,7 +1116,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_move_insufficientPrivileges_with_wheel_group_in_self_mode() throws Exception {
-    this.etc          = this.root.addChildStem("etc", "etc");
+    this.etc          = new StemSave(this.s).assignStemNameToEdit("etc").assignName("etc").save();
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
@@ -1916,7 +1917,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_insufficientPrivileges_with_admin_group() throws Exception {
-    this.etc          = this.root.addChildStem("etc", "etc");
+    this.etc          = new StemSave(this.s).assignStemNameToEdit("etc").assignName("etc").save();
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     
@@ -1964,7 +1965,7 @@ public class TestStemApi extends GrouperTest {
    * @throws Exception
    */
   public void test_copy_insufficientPrivileges_with_wheel_group() throws Exception {
-    this.etc          = this.root.addChildStem("etc", "etc");
+    this.etc          = new StemSave(this.s).assignStemNameToEdit("etc").assignName("etc").save();
     this.admin        = this.etc.addChildGroup("admin", "admin");
     this.wheel        = this.etc.addChildGroup("wheel","wheel");
     

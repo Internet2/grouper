@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.34 2009-10-31 16:27:12 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.35 2009-12-10 08:54:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -418,7 +418,7 @@ public class GrouperCheckConfig {
     if (!wasInCheckConfig) {
       inCheckConfig = true;
     }
-
+    
     Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
 
     //groups auto-create

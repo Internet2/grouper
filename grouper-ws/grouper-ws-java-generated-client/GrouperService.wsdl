@@ -498,6 +498,16 @@
                         <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -528,9 +538,24 @@
                         <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="scope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsStemLookup" nillable="true" type="ns:WsStemLookup"/>
+                        <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageSize" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="pageNumber" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sortString" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ascending" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:complexType name="WsStemLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="getGroupsResponse">
                 <xs:complexType>
                     <xs:sequence>
@@ -571,6 +596,7 @@
                         <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="sourceIds" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -602,6 +628,7 @@
                         <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="sourceIds" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -966,12 +993,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="WsStemLookup">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:element name="stemDeleteResponse">
                 <xs:complexType>
                     <xs:sequence>

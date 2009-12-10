@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -47,6 +48,7 @@ import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -61,7 +63,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.3 2009-12-07 07:31:09 mchyzer Exp $
+ * @version $Id: TestMember.java,v 1.4 2009-12-10 08:54:15 mchyzer Exp $
  */
 public class TestMember extends GrouperTest {
 
@@ -70,7 +72,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember("testNonImmediateMembershipsAndGroups"));
+    TestRunner.run(new TestMember("testGetGroupsComplex"));
   }
   
   /** logger */
@@ -226,6 +228,118 @@ public class TestMember extends GrouperTest {
     
   }
   
+  /**
+   * 
+   */
+  public void testGetGroupsComplex() {
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    Subject         subj1  = SubjectTestHelper.SUBJ1;
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    Stem            eduSub   = edu.addChildStem("eduSub", "eduSub");
+    Stem            edu2   = root.addChildStem("edu2", "edu2");
+    Group           i2    = edu.addChildGroup("i2", "i2");
+    Group           i2sub    = eduSub.addChildGroup("i2sub", "i2sub");
+    Group           edu2i2sub    = edu2.addChildGroup("edu2i2sub", "edu2i2sub");
+    Group           comp1    = edu.addChildGroup("comp1", "comp1");
+    Group           compLeft    = edu.addChildGroup("compLeft", "compRight");
+    Group           compRight    = edu.addChildGroup("compRight", "compRight");
+    
+    comp1.addCompositeMember(CompositeType.INTERSECTION, compLeft, compRight);
+    
+    compLeft.addMember(subj);  
+    compRight.addMember(subj);  
+    
+    Group           uofc  = edu.addChildGroup("uofc", "uofc");
+    GroupHelper.addMember(uofc, subj, "members");
+    GroupHelper.addMember(i2, uofc.toSubject(), "members");
+    Member          member     = MemberFinder.findBySubject(s, subj, true);
+    Member          member1     = MemberFinder.findBySubject(s, subj1, true);
+    
+    i2sub.addMember(subj1);
+    edu2i2sub.addMember(subj1);
+    
+    Set<Group> groups = member.getImmediateGroups();
+    assertEquals(3, groups.size());
+    assertTrue(groups.contains(compLeft));
+    assertTrue(groups.contains(compRight));
+    assertTrue(groups.contains(uofc));
+    
+    groups = member.getNonImmediateGroups();
+    assertEquals(2, groups.size());
+    assertTrue(groups.contains(comp1));
+    assertTrue(groups.contains(i2));
+
+    groups = member1.getEffectiveGroups();
+    assertEquals(0, groups.size());
+    
+    groups = member1.getImmediateGroups(Group.getDefaultList(), "whatever", null, null, null, true);
+    assertEquals(0, groups.size());
+    
+    groups = member1.getImmediateGroups(Group.getDefaultList(), "edu:eduSub", null, null, null, true);
+    assertEquals(1, groups.size());
+    assertEquals("edu:eduSub:i2sub", ((Group)GrouperUtil.get(groups, 0)).getName());
+
+    groups = member1.getImmediateGroups(Group.getDefaultList(), "edu2", null, null, null, true);
+    assertEquals(1, groups.size());
+    assertEquals("edu2:edu2i2sub", ((Group)GrouperUtil.get(groups, 0)).getName());
+
+    groups = member1.getImmediateGroups(Group.getDefaultList(), "edu2", null, null, null, false);
+    assertEquals(0, groups.size());
+    
+    try {
+      groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu, null, null, true);
+      fail("Need stemScope");
+    } catch (Exception e) {
+      //good
+    }
+
+    groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu, Scope.ONE, null, true);
+    assertEquals(0, groups.size());
+
+    groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu2, Scope.ONE, null, true);
+    assertEquals(1, groups.size());
+    assertEquals("edu2:edu2i2sub", ((Group)GrouperUtil.get(groups, 0)).getName());
+
+    groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu, Scope.SUB, null, true);
+    assertEquals(1, groups.size());
+    assertEquals("edu:eduSub:i2sub", ((Group)GrouperUtil.get(groups, 0)).getName());
+
+    groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu2, Scope.SUB, null, true);
+    assertEquals(1, groups.size());
+    assertEquals("edu2:edu2i2sub", ((Group)GrouperUtil.get(groups, 0)).getName());
+    
+    QueryOptions queryOptions = new QueryOptions().paging(1, 1, true).sortAsc("name");
+    groups = member.getImmediateGroups(Group.getDefaultList(), null, null, null, queryOptions, true);
+    assertEquals(1, groups.size());
+    assertEquals("edu:compLeft", ((Group)GrouperUtil.get(groups, 0)).getName());
+    assertEquals(3, queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    queryOptions = new QueryOptions().paging(1, 1, true).sortAsc("displayName");
+    groups = member.getImmediateGroups(Group.getDefaultList(), null, null, null, queryOptions, true);
+    assertEquals(1, groups.size());
+
+    queryOptions = new QueryOptions().paging(1, 1, true).sortAsc("extension");
+    groups = member.getImmediateGroups(Group.getDefaultList(), null, null, null, queryOptions, true);
+    assertEquals(1, groups.size());
+
+    queryOptions = new QueryOptions().paging(1, 1, true).sortAsc("displayExtension");
+    groups = member.getImmediateGroups(Group.getDefaultList(), null, null, null, queryOptions, true);
+    assertEquals(1, groups.size());
+
+    queryOptions = new QueryOptions().paging(1, 1, true).sortAsc("non existent column");
+    try {
+      groups = member.getImmediateGroups(Group.getDefaultList(), null, null, null, queryOptions, true);
+      fail("Column doesnt exist");
+    } catch (Exception e) {
+      //good
+    }
+  }
+  
+  /**
+   * 
+   */
   public void testGetMembershipsAndGroups() {
     LOG.info("testGetMembershipsAndGroups");
     try {

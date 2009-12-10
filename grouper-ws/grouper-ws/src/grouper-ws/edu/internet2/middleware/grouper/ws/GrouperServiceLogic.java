@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.29 2009-12-07 07:31:14 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.30 2009-12-10 08:54:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
@@ -36,6 +37,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -118,7 +122,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult.WsStemSaveResul
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Meant to be delegate from GrouperService which has the same params (and names)
@@ -908,6 +911,15 @@ public class GrouperServiceLogic {
    * @param subjectAttributeNames are the additional subject attributes (data) to return.
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param params optional: reserved for future use
+   * @param fieldName is field name (list name) to search or blank for default list
+   * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param wsStemLookup is the stem to check in, or null if all.  If has stem, must have stemScope
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param enabled is null for all, true for enabled only, false fordisabled
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -915,7 +927,9 @@ public class GrouperServiceLogic {
       WsSubjectLookup[] subjectLookups, WsMemberFilter memberFilter, 
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail,
       boolean includeSubjectDetail, 
-      String[] subjectAttributeNames, WsParam[] params) {
+      String[] subjectAttributeNames, WsParam[] params, String fieldName, String scope, 
+      WsStemLookup wsStemLookup, StemScope stemScope, Boolean enabled, 
+      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending) {
   
     final WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
   
@@ -928,7 +942,11 @@ public class GrouperServiceLogic {
           + GrouperUtil.toStringForLog(subjectLookups, 200) 
           + "\nmemberFilter: " + memberFilter + ", includeGroupDetail: "
           + includeGroupDetail + ", actAsSubject: " + actAsSubjectLookup
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
+          + "\n fieldName1: " + fieldName + "\n, scope: " + scope
+          + ", wsStemLookup: " + wsStemLookup + "\n, stemScope: " + stemScope + ", enabled: " + enabled
+          + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber + ", sortString: " + sortString
+          + ", ascending: " + ascending;
   
       subjectAttributeNames = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -947,7 +965,9 @@ public class GrouperServiceLogic {
 
       //convert the options to a map for easy access, and validate them
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
-      String fieldName = paramMap.get("fieldName");
+      if (StringUtils.isBlank(fieldName)) {
+        fieldName = paramMap.get("fieldName");
+      }
       Field field = null;
       if (!StringUtils.isBlank(fieldName)) {
         field = GrouperServiceUtils.retrieveField(fieldName);
@@ -969,10 +989,39 @@ public class GrouperServiceLogic {
             groups = new HashSet<Group>();
           } else {
             if (field == null) {
-              groups = memberFilter.getGroups(member);
-            } else {
-              groups = memberFilter.getGroups(member, field);
+              field = Group.getDefaultList();
             }
+            
+            Stem stem = null;
+            if (wsStemLookup != null) {
+              wsStemLookup.retrieveStemIfNeeded(session, true);
+              stem = wsStemLookup.retrieveStem();
+            }
+            
+            QueryOptions queryOptions = null;
+            
+            if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
+              queryOptions = new QueryOptions();
+              if ((pageSize == null) != (pageNumber == null)) {
+                throw new RuntimeException("If you pass page size, you must pass page number and vice versa");
+              }
+              if (pageSize != null) {
+                queryOptions.paging(new QueryPaging(pageSize, pageNumber, false));
+              }
+              if (!StringUtils.isBlank(sortString)) {
+                if (ascending == null) {
+                  ascending = true;
+                }
+                queryOptions.sort(new QuerySort(sortString, ascending));
+              }
+            }
+            
+            Scope stemDotScope = null;
+            if (stemScope != null) {
+              stemDotScope = stemScope.convertToScope();
+            }
+            
+            groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabled);
           }
           wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
         } catch (Exception e) {
@@ -1035,6 +1084,16 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param fieldName is field name (list name) to search or blank for default list
+   * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param stemName is the stem to check in, or null if all.  If has stem, must have stemScope
+   * @param stemUuid is the stem to check in, or null if all.  If has stem, must have stemScope
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param enabled is null for all, true for enabled only, false for disabled
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, false for descending.  If you pass true or false, must pass a sort string
    * @return the result of one member add
    */
   public static WsGetGroupsLiteResult getGroupsLite(final GrouperWsVersion clientVersion, String subjectId,
@@ -1044,7 +1103,9 @@ public class GrouperServiceLogic {
       boolean includeSubjectDetail, 
       String subjectAttributeNames,
       String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
+      String paramName1, String paramValue1, String fieldName, String scope, 
+      String stemName, String stemUuid, StemScope stemScope, Boolean enabled, 
+      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending) {
   
     // setup the subject lookup
     WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, subjectSourceId,
@@ -1057,9 +1118,11 @@ public class GrouperServiceLogic {
 
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
+    WsStemLookup wsStemLookup = new WsStemLookup(stemName, stemUuid);
+    
     WsGetGroupsResults wsGetGroupsResults = getGroups(clientVersion, subjectLookups,
         memberFilter, actAsSubjectLookup, includeGroupDetail, includeSubjectDetail,
-        subjectAttributeArray, params);
+        subjectAttributeArray, params, fieldName, scope, wsStemLookup, stemScope, enabled, pageSize, pageNumber, sortString, ascending);
   
     return new WsGetGroupsLiteResult(wsGetGroupsResults);
   
@@ -1385,7 +1448,7 @@ public class GrouperServiceLogic {
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
-
+  
     String[] sourceIdArray = GrouperUtil.splitTrim(sourceIds, ",");
     
     // pass through to the more comprehensive method

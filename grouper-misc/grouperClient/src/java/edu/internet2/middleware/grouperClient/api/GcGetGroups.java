@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGetGroups.java,v 1.5 2009-03-15 08:16:36 mchyzer Exp $
+ * $Id: GcGetGroups.java,v 1.6 2009-12-10 08:54:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -11,12 +11,14 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
+import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGroupsRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
 
@@ -96,6 +98,19 @@ public class GcGetGroups {
     return this;
   }
   
+  /** field name to search */
+  private String fieldName;
+  
+  /**
+   * assign field name, blank for default members list
+   * @param theFieldName
+   * @return this for chaining
+   */
+  public GcGetGroups assignFieldName(String theFieldName) {
+    this.fieldName = theFieldName;
+    return this;
+  }
+  
   /** act as subject if any */
   private WsSubjectLookup actAsSubject;
 
@@ -131,6 +146,112 @@ public class GcGetGroups {
    * member filter 
    */
   private WsMemberFilter memberFilter;
+
+  /** scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent: */
+  private String scope;
+  
+  /**
+   * scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
+   * @param theScope
+   * @return this for chaining
+   */
+  public GcGetGroups assignScope(String theScope) {
+    this.scope = theScope;
+    return this;
+  }
+  
+  /** is the stem to check in, or null if all.  If has stem, must have stemScope */
+  private WsStemLookup wsStemLookup;
+  
+  /**
+   * is the stem to check in, or null if all.  If has stem, must have stemScope
+   * @param theWsStemLookup
+   * @return this for chaining
+   */
+  public GcGetGroups assignWsStemLookup(WsStemLookup theWsStemLookup) {
+    this.wsStemLookup = theWsStemLookup;   
+    return this;
+  }
+  
+  /** stemScope is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath.  You must pass stemScope if you pass a stem */
+  private StemScope stemScope;
+  
+  /**
+   * stemScope is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath.  You must pass stemScope if you pass a stem
+   * @param theStemScope
+   * @return this for chaining
+   */
+  public GcGetGroups assignStemScope(StemScope theStemScope) {
+    this.stemScope = theStemScope;
+    return this;
+  }
+  
+  /** enabled is A for all, T or null for enabled only, F for disabled */
+  private Boolean enabled = Boolean.TRUE;
+  
+  /**
+   * enabled is null for all, true for only enabled, false for only disabled
+   * @param theEnabled
+   * @return this for chaining
+   */
+  public GcGetGroups assignEnabled(Boolean theEnabled) {
+    this.enabled = theEnabled;
+    return this;
+  }
+  
+  /** pageSize page size if paging */
+  private Integer pageSize;
+  
+  /**
+   * pageSize page size if paging
+   * @param thePageSize
+   * @return this for chaining
+   */
+  public GcGetGroups assignPageSize(Integer thePageSize) {
+    this.pageSize = thePageSize;
+    return this;
+  }
+  
+  /** pageNumber page number 1 indexed if paging */
+  private Integer pageNumber;
+  
+  /**
+   * pageNumber page number 1 indexed if paging
+   * @param thePageNumber
+   * @return this for chaining
+   */
+  public GcGetGroups assignPageNumber(Integer thePageNumber) {
+    this.pageNumber = thePageNumber;
+    return this;
+  }
+  
+  
+  /** sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
+  private String sortString;
+
+  /**
+   * sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param theSortString
+   * @return this for chaining
+   */
+  public GcGetGroups assignSortString(String theSortString) {
+    this.sortString = theSortString;
+    return this;
+  }
+
+  
+  /** ascending or null for ascending, F for descending.  If you pass T or F, must pass a sort string */
+  private Boolean ascending;
+
+  /**
+   * ascending or null for ascending, F for descending.  If you pass T or F, must pass a sort string
+   * @param theAscending
+   * @return this for chaining
+   */
+  public GcGetGroups assignAscending(Boolean theAscending) {
+    this.ascending = theAscending;
+    return this;
+  }
 
   /**
    * 
@@ -193,6 +314,24 @@ public class GcGetGroups {
       
       getGroups.setMemberFilter(this.memberFilter == null ? null : this.memberFilter.name());
 
+      getGroups.setScope(this.scope);
+
+      getGroups.setWsStemLookup(this.wsStemLookup);
+
+      getGroups.setStemScope(this.stemScope == null ? null : this.stemScope.name());
+      
+      getGroups.setEnabled(this.enabled == null ? "A" : (this.enabled ? "T" : "F"));
+      
+      getGroups.setPageSize(this.pageSize == null ? null : this.pageSize.toString());
+      
+      getGroups.setPageNumber(this.pageNumber == null ? null : this.pageNumber.toString());
+      
+      getGroups.setSortString(this.sortString);
+      
+      getGroups.setAscending(this.ascending == null ? null : (this.ascending ? "T" : "F"));
+      
+      getGroups.setFieldName(this.fieldName);
+      
       WsSubjectLookup[] subjectLookupsResults = GrouperClientUtils.toArray(this.subjectLookups, 
           WsSubjectLookup.class);
       getGroups.setSubjectLookups(subjectLookupsResults);

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.24 2009-12-07 07:33:04 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.25 2009-12-10 08:54:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -10,6 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
 import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivilegesLite;
@@ -33,6 +35,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
+import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
@@ -1979,6 +1982,31 @@ public class GrouperClient {
 
     Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
 
+    String scope = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "scope", false);
+    
+    String stemUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemUuid", false);
+    String stemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemName", false);
+    
+    WsStemLookup wsStemLookup = null;
+    
+    if (!StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemUuid)) {
+      wsStemLookup = new WsStemLookup(stemName, stemUuid);
+    }
+
+    String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
+
+    String stemScope = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemScope", false);
+
+    String enabled = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "enabled", false);
+    
+    Integer pageSize = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, "pageSize", false, null); 
+    
+    Integer pageNumber = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, "pageNumber", false, null); 
+
+    String sortString = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "sortString", false);
+    
+    Boolean ascending = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "ascending");
+    
     GcGetGroups gcGetGroups = new GcGetGroups();        
 
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
@@ -1992,6 +2020,29 @@ public class GrouperClient {
 
     gcGetGroups.assignIncludeGroupDetail(includeGroupDetail);
     gcGetGroups.assignIncludeSubjectDetail(includeSubjectDetail);
+    
+    gcGetGroups.assignScope(scope);
+    gcGetGroups.assignWsStemLookup(wsStemLookup);
+    if (!StringUtils.isBlank(stemScope)) {
+      StemScope theStemScope = StemScope.valueOfIgnoreCase(stemScope);
+      gcGetGroups.assignStemScope(theStemScope);
+    }
+    
+    if (!StringUtils.isBlank(enabled)) {
+      //A
+      Boolean enabledBoolean = null;
+      if (!StringUtils.equalsIgnoreCase("A", enabled)) {
+        enabledBoolean = GrouperClientUtils.booleanValue(enabled);
+      }
+      
+      gcGetGroups.assignEnabled(enabledBoolean);
+    }
+    gcGetGroups.assignPageSize(pageSize);
+    gcGetGroups.assignPageNumber(pageNumber);
+    gcGetGroups.assignSortString(sortString);
+    gcGetGroups.assignAscending(ascending);
+    
+    gcGetGroups.assignFieldName(fieldName);
     
     List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap, argMapNotUsed);
     
