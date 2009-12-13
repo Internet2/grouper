@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcAddMember.java,v 1.6 2009-12-07 07:33:04 mchyzer Exp $
+ * $Id: GcAddMember.java,v 1.7 2009-12-13 06:33:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -143,7 +143,8 @@ public class GcAddMember {
     if (GrouperClientUtils.isNotBlank(this.groupName) && GrouperClientUtils.isNotBlank(this.groupUuid)) {
       throw new RuntimeException("Group name and uuid cannot both be filled in at once: " + this);
     }
-    if (GrouperClientUtils.length(this.subjectLookups) == 0) {
+    //if we arent replacing, we need a subject to add.  if replacing, we might be removing all
+    if (GrouperClientUtils.length(this.subjectLookups) == 0 && (this.replaceAllExisting == null || this.replaceAllExisting == false)) {
       throw new RuntimeException("Need at least one subject to add to group: " + this);
     }
   }
