@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupUpdateServiceImpl.java,v 1.2 2009-12-13 22:33:04 mchyzer Exp $
+ * $Id: GrouperKimGroupUpdateServiceImpl.java,v 1.3 2009-12-14 06:23:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.groupUpdate;
 
@@ -173,14 +173,26 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
    */
   public GroupInfo createGroup(GroupInfo groupInfo) throws UnsupportedOperationException {
     
-    
+    return createGroupHelper(groupInfo, null, "createGroup", "INSERT");
+  }
+
+  /**
+   * create or update group
+   * @param groupInfo
+   * @param groupIdToLookup add group id to lookup
+   * @param operation is for logging
+   * @param saveMode should be a valid SaveMode class (from grouper ws): INSERT, UPDATE, INSERT_OR_UPDATE
+   * @return the group info
+   * @throws UnsupportedOperationException
+   */
+  private GroupInfo createGroupHelper(GroupInfo groupInfo, String groupIdToLookup, String operation, String saveMode) throws UnsupportedOperationException {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     boolean hadException = false;
     
     try {
       
-      debugMap.put("operation", "createGroup");
+      debugMap.put("operation", operation);
       debugMap.put("groupInfo.isActive", groupInfo.isActive());
       debugMap.put("groupInfo.getGroupDescription", groupInfo.getGroupDescription());
       debugMap.put("groupInfo.getGroupIdOrig", groupInfo.getGroupId());
@@ -191,12 +203,15 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
 
       GcGroupSave gcGroupSave = new GcGroupSave();
 
-      WsGroupLookup wsGroupLookup = new WsGroupLookup();
-      wsGroupLookup.setGroupName(groupInfo.getGroupName());
-      
-      
       WsGroupToSave wsGroupToSave = new WsGroupToSave();
-      wsGroupToSave.setWsGroupLookup(wsGroupLookup);
+      wsGroupToSave.setSaveMode(saveMode);
+      
+      if (!GrouperClientUtils.isBlank(groupIdToLookup)) {
+        WsGroupLookup wsGroupLookup = new WsGroupLookup();
+        wsGroupLookup.setUuid(groupIdToLookup);
+        wsGroupToSave.setWsGroupLookup(wsGroupLookup);
+      }
+
       gcGroupSave.addGroupToSave(wsGroupToSave);
       
       WsGroup wsGroup = new WsGroup();
@@ -221,7 +236,6 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
       //not sure why it would add a group and specify the group id... but we can try to support that
       if (!GrouperClientUtils.isBlank(groupInfo.getGroupId())) {
         wsGroup.setUuid(groupInfo.getGroupId());
-        wsGroupLookup.setUuid(groupInfo.getGroupId());
       }
         
       String stemName = GrouperKimUtils.kimStem();
@@ -295,6 +309,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
     
   }
 
+  
   /**
    * void removeAllGroupMembers(java.lang.String groupId)
    *                        throws java.lang.UnsupportedOperationException
@@ -457,11 +472,16 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
   }
 
   /**
+   * GroupInfo updateGroup(java.lang.String groupId,
+   *                   GroupInfo groupInfo)
+   *                   throws java.lang.UnsupportedOperationException
+   *
+   * Updates the group with the given groupId using the supplied GroupInfo. 
    * @see org.kuali.rice.kim.service.GroupUpdateService#updateGroup(java.lang.String, org.kuali.rice.kim.bo.group.dto.GroupInfo)
    */
-  public GroupInfo updateGroup(String arg0, GroupInfo arg1)
+  public GroupInfo updateGroup(String groupId, GroupInfo groupInfo)
       throws UnsupportedOperationException {
-    return null;
+    return createGroupHelper(groupInfo, groupId, "updateGroup", "UPDATE");
   }
 
 }
