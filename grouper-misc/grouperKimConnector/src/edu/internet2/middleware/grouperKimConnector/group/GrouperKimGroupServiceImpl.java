@@ -1,9 +1,10 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupServiceImpl.java,v 1.3 2009-12-15 17:07:56 mchyzer Exp $
+ * $Id: GrouperKimGroupServiceImpl.java,v 1.4 2009-12-15 17:45:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.group;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,9 +16,15 @@ import org.kuali.rice.kim.bo.group.dto.GroupMembershipInfo;
 import org.kuali.rice.kim.service.GroupService;
 
 import edu.internet2.middleware.grouperClient.api.GcFindGroups;
+import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
 
@@ -159,6 +166,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
       String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
       LOG.error(errorPrefix, re);
       GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
       throw re;
     } finally {
       if (LOG.isDebugEnabled() && !hadException) {
@@ -247,6 +255,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
       String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
       LOG.error(errorPrefix, re);
       GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
       throw re;
     } finally {
       if (LOG.isDebugEnabled() && !hadException) {
@@ -273,11 +282,102 @@ public class GrouperKimGroupServiceImpl implements GroupService {
   }
 
   /**
+   * getGroupsForPrincipal
+   *
+   * java.util.List<GroupInfo> getGroupsForPrincipal(java.lang.String principalId)
+   *
+   * Get all the groups for a given principal.
+   *
+   * This will include all groups directly assigned as well as those inferred by the fact that they are members of higher level groups. 
+   *    
    * @see org.kuali.rice.kim.service.GroupService#getGroupsForPrincipal(java.lang.String)
    */
-  
-  public List<GroupInfo> getGroupsForPrincipal(String arg0) {
-    return null;
+  public List<GroupInfo> getGroupsForPrincipal(String principalId) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getGroupsForPrincipal");
+    debugMap.put("principalId", principalId);
+
+    boolean hadException = false;
+    
+    try {
+      
+      int index = 0;
+      
+      GcGetGroups gcGetGroups = new GcGetGroups();
+      
+      WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
+      
+      wsSubjectLookup.setSubjectId(principalId);
+      gcGetGroups.addSubjectLookup(wsSubjectLookup);
+      
+      String sourceId = GrouperKimUtils.subjectSourceId();
+      
+      debugMap.put("sourceId", sourceId);
+
+      if (!GrouperClientUtils.isBlank(sourceId)) {
+        wsSubjectLookup.setSubjectSourceId(sourceId);
+      }
+      String stemName = GrouperKimUtils.kimStem();
+      WsStemLookup wsStemLookup = new WsStemLookup(stemName, null);
+      
+      gcGetGroups.assignWsStemLookup(wsStemLookup);
+      gcGetGroups.assignStemScope(StemScope.ALL_IN_SUBTREE);
+      
+      WsGetGroupsResults wsGetGroupsResults = gcGetGroups.execute();
+      WsGetGroupsResult[] wsGetGroupsResultArray = wsGetGroupsResults.getResults();
+      
+      int resultsSize = GrouperClientUtils.length(wsGetGroupsResultArray);
+      
+      debugMap.put("resultsArraySize", resultsSize);
+      
+      //not sure why this would ever be 0...
+      if (resultsSize == 0) {
+        return null;
+      }
+      
+      if (resultsSize > 1) {
+        throw new RuntimeException("Why is result array size more than 1?");
+      }
+      
+      WsGetGroupsResult wsGetGroupsResult = wsGetGroupsResultArray[0];
+      
+      WsGroup[] wsGroups = wsGetGroupsResult.getWsGroups();
+      resultsSize = GrouperClientUtils.length(wsGroups);
+      debugMap.put("resultSize", resultsSize);
+      List<GroupInfo> results = new ArrayList<GroupInfo>();
+      
+      index = 0;
+      
+      for (WsGroup wsGroup : wsGroups) {
+        
+        if (index < 20) {
+          
+          debugMap.put("result." + index, wsGroup.getUuid() + ", " + wsGroup.getName());
+          
+        }
+        
+        GroupInfo groupInfo = GrouperKimUtils.convertWsGroupToGroupInfo(wsGroup);
+        results.add(groupInfo);
+        
+        
+        index++;
+      }
+      
+      return results;
+      
+    } catch (RuntimeException re) {
+      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
+      LOG.error(errorPrefix, re);
+      GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled() && !hadException) {
+        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+      }
+    }
+
   }
 
   /**

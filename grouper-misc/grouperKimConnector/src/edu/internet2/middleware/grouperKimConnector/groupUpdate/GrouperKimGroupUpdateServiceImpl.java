@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupUpdateServiceImpl.java,v 1.4 2009-12-15 06:47:14 mchyzer Exp $
+ * $Id: GrouperKimGroupUpdateServiceImpl.java,v 1.5 2009-12-15 17:45:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.groupUpdate;
 
@@ -114,6 +114,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
       String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
       LOG.error(errorPrefix, re);
       GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
       throw re;
     } finally {
       if (LOG.isDebugEnabled() && !hadException) {
@@ -282,6 +283,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
       String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
       LOG.error(errorPrefix, re);
       GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
       throw re;
     } finally {
       if (LOG.isDebugEnabled() && !hadException) {
@@ -319,6 +321,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
       String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
       LOG.error(errorPrefix, re);
       GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
       throw re;
     } finally {
       if (LOG.isDebugEnabled() && !hadException) {
@@ -402,6 +405,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
       String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
       LOG.error(errorPrefix, re);
       GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
       throw re;
     } finally {
       if (LOG.isDebugEnabled() && !hadException) {
