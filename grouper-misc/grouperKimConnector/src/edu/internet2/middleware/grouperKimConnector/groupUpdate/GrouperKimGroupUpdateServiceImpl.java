@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupUpdateServiceImpl.java,v 1.3 2009-12-14 06:23:50 mchyzer Exp $
+ * $Id: GrouperKimGroupUpdateServiceImpl.java,v 1.4 2009-12-15 06:47:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.groupUpdate;
 
@@ -57,11 +57,33 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
     debugMap.put("parentId", parentId);
     debugMap.put("operation", "addGroupToGroup");
     
+    return addMemberHelper(childId, parentId, "g:gsa", debugMap);
+  }
+
+  /**
+   * add a member to a group
+   * @param subjectId
+   * @param groupId
+   * @param sourceId if applicable, null if not
+   * @param debugMap
+   * @return true if happened, or false if already existed
+   */
+  private boolean addMemberHelper(String subjectId, String groupId, String sourceId,
+      Map<String, Object> debugMap) {
     boolean hadException = false;
     
     try {
-      WsAddMemberResults wsAddMemberResults = new GcAddMember().assignGroupUuid(parentId)
-        .addSubjectLookup(new WsSubjectLookup(childId, "g:gsa", null)).execute();
+      
+      
+      WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
+      wsSubjectLookup.setSubjectId(subjectId);
+      if (!GrouperClientUtils.isBlank(sourceId)) {
+        wsSubjectLookup.setSubjectSourceId(sourceId);
+      }
+      debugMap.put("sourceId", sourceId);
+
+      WsAddMemberResults wsAddMemberResults = new GcAddMember().assignGroupUuid(groupId)
+        .addSubjectLookup(wsSubjectLookup).execute();
       
       //we did one assignment, we have one result
       WsAddMemberResult wsAddMemberResult = wsAddMemberResults.getResults()[0];
@@ -115,52 +137,12 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
     debugMap.put("principalId", principalId);
     debugMap.put("groupId", groupId);
     debugMap.put("operation", "addPrincipalToGroup");
-    
-    boolean hadException = false;
-    
-    try {
-      
-      //lets see if there is a source to use
-      String sourceId = GrouperKimUtils.subjectSourceId();
-      
-      WsAddMemberResults wsAddMemberResults = new GcAddMember().assignGroupUuid(groupId)
-        .addSubjectLookup(new WsSubjectLookup(principalId, sourceId, null)).execute();
-      
-      //we did one assignment, we have one result
-      WsAddMemberResult wsAddMemberResult = wsAddMemberResults.getResults()[0];
-      
-      String resultCode = wsAddMemberResult.getResultMetadata().getResultCode();
 
-      debugMap.put("resultCode", resultCode);
+    //lets see if there is a source to use
+    String sourceId = GrouperKimUtils.subjectSourceId();
+    
+    return addMemberHelper(principalId, groupId, sourceId, debugMap);
 
-      //assignment was made
-      if (GrouperClientUtils.equals("SUCCESS", resultCode)) {
-        debugMap.put("returned", Boolean.TRUE);
-        return true;
-      }
-      
-      //assignment was already made
-      if (GrouperClientUtils.equals("SUCCESS_ALREADY_EXISTED", resultCode)) {
-        debugMap.put("returned", Boolean.FALSE);
-        return false;
-      }
-      
-      //we got a success, but we dont recognize the code... hmmm
-      LOG.warn("Not expecting this resultCode: " + resultCode);
-      
-      //true or false?  who knows
-      debugMap.put("returned", Boolean.FALSE);
-      return false;
-    } catch (RuntimeException re) {
-      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
-      LOG.error(errorPrefix, re);
-      GrouperClientUtils.injectInException(re, errorPrefix);
-      throw re;
-    } finally {
-      if (LOG.isDebugEnabled() && !hadException) {
-        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
-      }
-    }
   }
 
   /**
@@ -173,7 +155,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
    */
   public GroupInfo createGroup(GroupInfo groupInfo) throws UnsupportedOperationException {
     
-    return createGroupHelper(groupInfo, null, "createGroup", "INSERT");
+    return saveGroupHelper(groupInfo, null, "createGroup", "INSERT");
   }
 
   /**
@@ -185,7 +167,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
    * @return the group info
    * @throws UnsupportedOperationException
    */
-  private GroupInfo createGroupHelper(GroupInfo groupInfo, String groupIdToLookup, String operation, String saveMode) throws UnsupportedOperationException {
+  private GroupInfo saveGroupHelper(GroupInfo groupInfo, String groupIdToLookup, String operation, String saveMode) throws UnsupportedOperationException {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     boolean hadException = false;
@@ -361,11 +343,33 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
     debugMap.put("parentId", parentId);
     debugMap.put("operation", "removeGroupFromGroup");
     
+    return deleteMemberHelper(childId, parentId, "g:gsa", debugMap);
+    
+  }
+
+  /**
+   * delete a member or group from a group
+   * @param subjectId
+   * @param groupId
+   * @param sourceId sourceId or null if none
+   * @param debugMap
+   * @return if the unassignment happened, or false if didnt need to happen
+   */
+  private boolean deleteMemberHelper(String subjectId, String groupId, String sourceId,
+      Map<String, Object> debugMap) {
     boolean hadException = false;
     
     try {
+
+      WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
+      wsSubjectLookup.setSubjectId(subjectId);
+      if (!GrouperClientUtils.isBlank(sourceId)) {
+        wsSubjectLookup.setSubjectSourceId(sourceId);
+      }
+      debugMap.put("sourceId", sourceId);
+
       WsDeleteMemberResults wsDeleteMemberResults = new GcDeleteMember()
-        .addSubjectLookup(new WsSubjectLookup(childId, "g:gsa", null)).assignGroupUuid(parentId).execute();
+        .addSubjectLookup(wsSubjectLookup).assignGroupUuid(groupId).execute();
       
       //we did one assignment, we have one result
       WsDeleteMemberResult wsDeleteMemberResult = wsDeleteMemberResults.getResults()[0];
@@ -404,7 +408,6 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
         LOG.debug(GrouperKimUtils.mapForLog(debugMap));
       }
     }
-    
   }
 
   /**
@@ -422,53 +425,11 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
     debugMap.put("groupId", groupId);
     debugMap.put("operation", "removePrincipalFromGroup");
     
-    boolean hadException = false;
-    
-    try {
-      
-      //lets see if there is a source to use
-      String sourceId = GrouperKimUtils.subjectSourceId();
-      
-      WsDeleteMemberResults wsDeleteMemberResults = new GcDeleteMember()
-        .addSubjectLookup(new WsSubjectLookup(principalId, sourceId, null)).assignGroupUuid(groupId).execute();
-      
-      //we did one assignment, we have one result
-      WsDeleteMemberResult wsDeleteMemberResult = wsDeleteMemberResults.getResults()[0];
-      
-      String resultCode = wsDeleteMemberResult.getResultMetadata().getResultCode();
+    //lets see if there is a source to use
+    String sourceId = GrouperKimUtils.subjectSourceId();
 
-      debugMap.put("resultCode", resultCode);
+    return deleteMemberHelper(principalId, groupId, sourceId, debugMap);
 
-      //assignment was deleted
-      if (GrouperClientUtils.equals("SUCCESS", resultCode) 
-          || GrouperClientUtils.equals("SUCCESS_BUT_HAS_EFFECTIVE", resultCode)) {
-        debugMap.put("returned", Boolean.TRUE);
-        return true;
-      }
-      
-      //immediate assignment didnt exist
-      if (GrouperClientUtils.equals("SUCCESS_WASNT_IMMEDIATE", resultCode)
-          || GrouperClientUtils.equals("SUCCESS_WASNT_IMMEDIATE_BUT_HAS_EFFECTIVE", resultCode)) {
-        debugMap.put("returned", Boolean.FALSE);
-        return false;
-      }
-      
-      //we got a success, but we dont recognize the code... hmmm
-      LOG.warn("Not expecting this resultCode: " + resultCode);
-      
-      //true or false?  who knows
-      debugMap.put("returned", Boolean.FALSE);
-      return false;
-    } catch (RuntimeException re) {
-      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
-      LOG.error(errorPrefix, re);
-      GrouperClientUtils.injectInException(re, errorPrefix);
-      throw re;
-    } finally {
-      if (LOG.isDebugEnabled() && !hadException) {
-        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
-      }
-    }
   }
 
   /**
@@ -481,7 +442,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
    */
   public GroupInfo updateGroup(String groupId, GroupInfo groupInfo)
       throws UnsupportedOperationException {
-    return createGroupHelper(groupInfo, groupId, "updateGroup", "UPDATE");
+    return saveGroupHelper(groupInfo, groupId, "updateGroup", "UPDATE");
   }
 
 }

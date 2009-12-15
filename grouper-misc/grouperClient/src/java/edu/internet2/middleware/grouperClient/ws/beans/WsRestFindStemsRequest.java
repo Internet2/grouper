@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestFindStemsRequest.java,v 1.1 2008-12-04 07:51:39 mchyzer Exp $
+ * $Id: WsRestFindStemsRequest.java,v 1.2 2009-12-15 06:47:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
@@ -22,6 +22,28 @@ public class WsRestFindStemsRequest implements WsRequestBean {
   /** field */
   private WsParam[] params;
   
+  /**  to pass in a list of uuids or names to lookup.  Note the stems are returned
+   * in alphabetical order */
+  private WsStemLookup[] wsStemLookups;
+  
+  /**
+   *  to pass in a list of uuids or names to lookup.  Note the stems are returned
+   * in alphabetical order
+   * @return stem lookups
+   */
+  public WsStemLookup[] getWsStemLookups() {
+    return this.wsStemLookups;
+  }
+
+  /**
+   *  to pass in a list of uuids or names to lookup.  Note the stems are returned
+   * in alphabetical order
+   * @param wsStemLookups1
+   */
+  public void setWsStemLookups(WsStemLookup[] wsStemLookups1) {
+    this.wsStemLookups = wsStemLookups1;
+  }
+
   /**
    * @return the clientVersion
    */

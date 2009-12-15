@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestFindGroupsRequest.java,v 1.2 2008-12-07 05:57:47 mchyzer Exp $
+ * $Id: WsRestFindGroupsRequest.java,v 1.3 2009-12-15 06:47:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
@@ -25,6 +25,30 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
   /** field */
   private WsParam[] params;
   
+  /** wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned
+   * in alphabetical order */
+  private WsGroupLookup[] wsGroupLookups;
+  
+  /**
+   * wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned
+   * in alphabetical order
+   * @return group lookups
+   */
+  public WsGroupLookup[] getWsGroupLookups() {
+    return this.wsGroupLookups;
+  }
+
+
+  /**
+   * wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned
+   * in alphabetical order
+   * @param wsGroupLookups1
+   */
+  public void setWsGroupLookups(WsGroupLookup[] wsGroupLookups1) {
+    this.wsGroupLookups = wsGroupLookups1;
+  }
+
+
   /**
    * @return the clientVersion
    */

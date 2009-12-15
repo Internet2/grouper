@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.12 2009-12-10 08:54:25 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.13 2009-12-15 06:47:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -84,7 +84,8 @@ public class GrouperServiceRest {
     WsFindGroupsResults wsFindGroupsResults = new GrouperService(false).findGroups(
         clientVersionString, wsRestFindGroupsRequest.getWsQueryFilter(),
         wsRestFindGroupsRequest.getActAsSubjectLookup(), wsRestFindGroupsRequest
-            .getIncludeGroupDetail(), wsRestFindGroupsRequest.getParams());
+            .getIncludeGroupDetail(), wsRestFindGroupsRequest.getParams(), 
+            wsRestFindGroupsRequest.getWsGroupLookups());
 
     //return result
     return wsFindGroupsResults;
@@ -764,7 +765,7 @@ public class GrouperServiceRest {
     WsFindStemsResults wsFindStemsResults = new GrouperService(false).findStems(
         clientVersionString, wsRestFindStemsRequest.getWsStemQueryFilter(),
         wsRestFindStemsRequest.getActAsSubjectLookup(), wsRestFindStemsRequest
-            .getParams());
+            .getParams(), wsRestFindStemsRequest.getWsStemLookups());
 
     //return result
     return wsFindStemsResults;

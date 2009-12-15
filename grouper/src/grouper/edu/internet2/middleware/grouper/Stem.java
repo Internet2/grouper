@@ -116,10 +116,10 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.208 2009-11-17 02:52:29 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.209 2009-12-15 06:47:06 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
+public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable<Stem> {
 
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";
@@ -210,12 +210,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Object o) {
-    if (o==null || (!(o instanceof Stem))) {
+  public int compareTo(Stem that) {
+    if (that==null) {
       return 1;
     }
     String thisName = StringUtils.defaultString(this.getName());
-    Stem that = (Stem)o;
     String thatName = StringUtils.defaultString(that.getName());
     return thisName.compareTo(thatName);
   }
@@ -3316,6 +3315,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       
   }
 
-  
+
 }
 

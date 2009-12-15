@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.30 2009-12-10 08:54:25 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.31 2009-12-15 06:47:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -632,12 +632,14 @@ public class GrouperServiceLogic {
    * included (defaults to F)
    * @param actAsSubjectLookup
    * @param params optional: reserved for future use
+   * @param wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned
+   * in alphabetical order
    * @return the groups, or no groups if none found
    */
   @SuppressWarnings("unchecked")
   public static WsFindGroupsResults findGroups(final GrouperWsVersion clientVersion,
       WsQueryFilter wsQueryFilter, 
-      WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail, WsParam[] params) {
+      WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail, WsParam[] params, WsGroupLookup[] wsGroupLookups) {
   
     final WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
   
@@ -649,7 +651,8 @@ public class GrouperServiceLogic {
       theSummary = "clientVersion: " + clientVersion + ", wsQueryFilter: "
           + wsQueryFilter + "\n, includeGroupDetail: " + includeGroupDetail
           + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
+          + "\n, wsGroupLookups: " + GrouperUtil.toStringForLog(wsGroupLookups, 100);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -659,16 +662,27 @@ public class GrouperServiceLogic {
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
   
-      wsQueryFilter.assignGrouperSession(session);
-  
-      //make sure filter is ok to use
-      wsQueryFilter.validate();
-  
-      //run the query
-      QueryFilter queryFilter = wsQueryFilter.retrieveQueryFilter();
-      GrouperQuery grouperQuery = GrouperQuery.createQuery(session, queryFilter);
-      Set<Group> groups = grouperQuery.getGroups();
-  
+      Set<Group> groups = new TreeSet<Group>();
+      
+      if (wsQueryFilter != null) {
+        wsQueryFilter.assignGrouperSession(session);
+    
+        //make sure filter is ok to use
+        wsQueryFilter.validate();
+    
+        //run the query
+        QueryFilter queryFilter = wsQueryFilter.retrieveQueryFilter();
+        GrouperQuery grouperQuery = GrouperQuery.createQuery(session, queryFilter);
+        groups.addAll(grouperQuery.getGroups());
+      }
+      
+      //we could do this in fewer queries if we like...
+      for (WsGroupLookup wsGroupLookup : GrouperUtil.nonNull(wsGroupLookups, WsGroupLookup.class)) {
+        wsGroupLookup.retrieveGroupIfNeeded(session);
+        Group group = wsGroupLookup.retrieveGroup();
+        groups.add(group);
+      }
+      
       wsFindGroupsResults.assignGroupResult(groups, includeGroupDetail);
   
       wsFindGroupsResults.assignResultCode(WsFindGroupsResultsCode.SUCCESS);
@@ -752,7 +766,7 @@ public class GrouperServiceLogic {
   
     // pass through to the more comprehensive method
     WsFindGroupsResults wsFindGroupsResults = findGroups(clientVersion, wsQueryFilter,
-        actAsSubjectLookup, includeGroupDetail, params);
+        actAsSubjectLookup, includeGroupDetail, params, null);
   
     return wsFindGroupsResults;
   }
@@ -766,12 +780,14 @@ public class GrouperServiceLogic {
    * included (defaults to F)
    * @param actAsSubjectLookup
    * @param params optional: reserved for future use
+   * @param wsStemLookups to pass in a list of uuids or names to lookup.  Note the stems are returned
+   * in alphabetical order
    * @return the stems, or no stems if none found
    */
   @SuppressWarnings("unchecked")
   public static WsFindStemsResults findStems(final GrouperWsVersion clientVersion,
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
-      WsParam[] params) {
+      WsParam[] params, WsStemLookup[] wsStemLookups) {
   
     final WsFindStemsResults wsFindStemsResults = new WsFindStemsResults();
   
@@ -782,7 +798,8 @@ public class GrouperServiceLogic {
 
       theSummary = "clientVersion: " + clientVersion + ", wsStemQueryFilter: "
           + wsStemQueryFilter + ", actAsSubject: " + actAsSubjectLookup
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
+          + "\n, wsStemLookups: " + GrouperUtil.toStringForLog(wsStemLookups, 100);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -792,17 +809,30 @@ public class GrouperServiceLogic {
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
   
-      wsStemQueryFilter.assignGrouperSession(session);
-  
-      //make sure filter is ok to use
-      wsStemQueryFilter.validate();
-  
-      //run the query
-      QueryFilter queryFilter = wsStemQueryFilter.retrieveQueryFilter();
-      GrouperQuery grouperQuery = GrouperQuery.createQuery(session, queryFilter);
-      Set<Stem> stems = grouperQuery.getStems();
-      //lets alphabetize for easy testing
-      stems = new TreeSet<Stem>(stems);
+      //keep these ordered for testing
+      Set<Stem> stems = new TreeSet<Stem>();
+      
+      if (wsStemQueryFilter != null) {
+
+        wsStemQueryFilter.assignGrouperSession(session);
+        
+        //make sure filter is ok to use
+        wsStemQueryFilter.validate();
+    
+        //run the query
+        QueryFilter queryFilter = wsStemQueryFilter.retrieveQueryFilter();
+        GrouperQuery grouperQuery = GrouperQuery.createQuery(session, queryFilter);
+        stems.addAll(grouperQuery.getStems());
+        
+      }
+
+      //we could do this in fewer queries if we like...
+      for (WsStemLookup wsStemLookup : GrouperUtil.nonNull(wsStemLookups, WsStemLookup.class)) {
+        wsStemLookup.retrieveStemIfNeeded(session, false);
+        Stem stem = wsStemLookup.retrieveStem();
+        stems.add(stem);
+      }
+
       wsFindStemsResults.assignStemResult(stems);
   
       wsFindStemsResults.assignResultCode(WsFindStemsResultsCode.SUCCESS);
@@ -885,7 +915,7 @@ public class GrouperServiceLogic {
   
     // pass through to the more comprehensive method
     WsFindStemsResults wsFindStemsResults = findStems(clientVersion, wsStemQueryFilter,
-        actAsSubjectLookup, params);
+        actAsSubjectLookup, params, null);
   
     return wsFindStemsResults;
   }

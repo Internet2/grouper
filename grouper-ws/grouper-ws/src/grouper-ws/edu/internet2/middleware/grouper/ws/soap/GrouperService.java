@@ -161,12 +161,14 @@ public class GrouperService {
    * included (defaults to F)
    * @param actAsSubjectLookup
    * @param params optional: reserved for future use
+   * @param wsStemLookups to pass in a list of uuids or names to lookup.  Note the stems are returned
+   * in alphabetical order
    * @return the stems, or no stems if none found
    */
   @SuppressWarnings("unchecked")
   public WsFindStemsResults findStems(final String clientVersion,
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
-      WsParam[] params) {
+      WsParam[] params, WsStemLookup[] wsStemLookups) {
 
     WsFindStemsResults wsFindStemsResults = new WsFindStemsResults();
 
@@ -176,7 +178,7 @@ public class GrouperService {
           clientVersion, true);
 
       wsFindStemsResults = GrouperServiceLogic.findStems(grouperWsVersion, wsStemQueryFilter, 
-          actAsSubjectLookup, params);
+          actAsSubjectLookup, params, wsStemLookups);
     } catch (Exception e) {
       wsFindStemsResults.assignResultCodeException(null, null, e);
     }
@@ -198,13 +200,15 @@ public class GrouperService {
    * included (defaults to F)
    * @param actAsSubjectLookup
    * @param params optional: reserved for future use
+   * @param wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the stems are returned
+   * in alphabetical order
    * @return the groups, or no groups if none found
    */
   @SuppressWarnings("unchecked")
   public WsFindGroupsResults findGroups(final String clientVersion,
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, 
-      String includeGroupDetail, WsParam[] params) {
+      String includeGroupDetail, WsParam[] params, WsGroupLookup[] wsGroupLookups) {
 
     WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
 
@@ -217,7 +221,7 @@ public class GrouperService {
           clientVersion, true);
 
       wsFindGroupsResults = GrouperServiceLogic.findGroups(grouperWsVersion, wsQueryFilter, actAsSubjectLookup, 
-          includeGroupDetailBoolean, params);
+          includeGroupDetailBoolean, params, wsGroupLookups);
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, null, e);
     }

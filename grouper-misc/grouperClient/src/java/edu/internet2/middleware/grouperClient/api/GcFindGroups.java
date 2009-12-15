@@ -1,15 +1,19 @@
 /*
  * @author mchyzer
- * $Id: GcFindGroups.java,v 1.3 2008-12-08 02:55:52 mchyzer Exp $
+ * $Id: GcFindGroups.java,v 1.4 2009-12-15 06:47:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindGroupsRequest;
@@ -89,13 +93,18 @@ public class GcFindGroups {
    * validate this call
    */
   private void validate() {
-    if (this.queryFilter == null) {
-      throw new RuntimeException("Need to pass in a query filter: " + this);
+    if (this.queryFilter == null && GrouperUtil.length(this.groupUuids) == 0 
+        && GrouperUtil.length(this.groupNames) == 0) {
+      throw new RuntimeException("Need to pass in a query filter, or groupNames or groupUuids: " + this);
     }
   }
   
   /** if the group detail should be sent back */
   private Boolean includeGroupDetail;
+  /** group names to query */
+  private Set<String> groupNames = new LinkedHashSet<String>();
+  /** group names to query */
+  private Set<String> groupUuids = new LinkedHashSet<String>();
   
   /**
    * assign if the group detail should be included
@@ -134,6 +143,17 @@ public class GcFindGroups {
         findGroups.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
       
+      List<WsGroupLookup> groupLookups = new ArrayList<WsGroupLookup>();
+      //add names and/or uuids
+      for (String groupName : this.groupNames) {
+        groupLookups.add(new WsGroupLookup(groupName, null));
+      }
+      for (String groupUuid : this.groupUuids) {
+        groupLookups.add(new WsGroupLookup(null, groupUuid));
+      }
+      findGroups.setWsGroupLookups(GrouperClientUtils.toArray(groupLookups, WsGroupLookup.class));
+
+      
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
@@ -148,6 +168,26 @@ public class GcFindGroups {
     }
     return wsFindGroupsResults;
     
+  }
+
+  /**
+   * set the group name
+   * @param theGroupName
+   * @return this for chaining
+   */
+  public GcFindGroups addGroupName(String theGroupName) {
+    this.groupNames.add(theGroupName);
+    return this;
+  }
+
+  /**
+   * set the group uuid
+   * @param theGroupUuid
+   * @return this for chaining
+   */
+  public GcFindGroups addGroupUuid(String theGroupUuid) {
+    this.groupUuids.add(theGroupUuid);
+    return this;
   }
   
 }

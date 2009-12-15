@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.6 2009-12-10 08:54:32 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.7 2009-12-15 06:47:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 
@@ -53,7 +53,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetGroups2"));
+    TestRunner.run(new GrouperClientWsTest("testFindStems"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -4537,6 +4537,78 @@ public class GrouperClientWsTest extends GrouperTest {
           && GrouperClientWs.mostRecentRequest
               .contains("FIND_BY_GROUP_NAME_APPROXIMATE"));
 
+      // #####################################################
+      // run again, search by names
+
+      Group group1 = Group.saveGroup(grouperSession, "aStem:aGroup1", null, "aStem:aGroup1", null, null, null, true);
+      
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findGroupsWs --groupNames=aStem:aGroup,aStem:aGroup1",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 2, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aGroup", matcher.group(2));
+      assertEquals(output, "aStem:aGroup", matcher.group(3));
+      
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aGroup1", matcher.group(2));
+      assertEquals(output, "aStem:aGroup1", matcher.group(3));
+
+      // #####################################################
+      // run again, search by uuids
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findGroupsWs --groupUuids=" + group.getId() + "," + group1.getId(),
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 2, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aGroup", matcher.group(2));
+      assertEquals(output, "aStem:aGroup", matcher.group(3));
+      
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aGroup1", matcher.group(2));
+      assertEquals(output, "aStem:aGroup1", matcher.group(3));
+
     } finally {
       System.setOut(systemOut);
     }
@@ -4766,6 +4838,80 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest.contains("OR")
           && GrouperClientWs.mostRecentRequest.contains("FIND_BY_STEM_NAME"));
 
+      // #####################################################
+      // run again, search by names
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      Stem aStem = StemFinder.findByName(grouperSession, "aStem", true);
+      Stem aStem0 = StemFinder.findByName(grouperSession, "aStem:aStem0", true);
+      
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findStemsWs --stemNames=aStem,aStem:aStem0",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 2, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem", matcher.group(2));
+      assertEquals(output, "aStem", matcher.group(3));
+      
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aStem0", matcher.group(2));
+      assertEquals(output, "aStem:aStem0", matcher.group(3));
+
+      // #####################################################
+      // run again, search by uuids
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findStemsWs --stemUuids=" + aStem.getUuid() + "," + aStem0.getUuid(),
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(output, 2, outputLines.length);
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem", matcher.group(2));
+      assertEquals(output, "aStem", matcher.group(3));
+      
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aStem0", matcher.group(2));
+      assertEquals(output, "aStem:aStem0", matcher.group(3));
+
+      
     } finally {
       System.setOut(systemOut);
     }

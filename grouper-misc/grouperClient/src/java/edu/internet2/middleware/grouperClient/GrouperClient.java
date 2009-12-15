@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.25 2009-12-10 08:54:32 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.26 2009-12-15 06:47:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -1730,13 +1730,28 @@ public class GrouperClient {
         gcFindGroups.addParam(param);
       }
       
+      List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", false);
+      List<String> groupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupUuids", false);
+
+      if (GrouperClientUtils.length(groupNames) > 0) {
+        for (String groupName: groupNames) {
+          gcFindGroups.addGroupName(groupName);
+        }
+      }
+      
+      if (GrouperClientUtils.length(groupUuids) > 0) {
+        for (String groupUuid: groupUuids) {
+          gcFindGroups.addGroupUuid(groupUuid);
+        }
+      }
+      
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
       gcFindGroups.assignActAsSubject(actAsSubject);
       
       gcFindGroups.assignIncludeGroupDetail(includeGroupDetail);
     
-      WsQueryFilter wsQueryFilter = retrieveQueryFilterFromArgs(argMap, argMapNotUsed, "", true);
+      WsQueryFilter wsQueryFilter = retrieveQueryFilterFromArgs(argMap, argMapNotUsed, "", false);
       gcFindGroups.assignQueryFilter(wsQueryFilter);
       
       //register that we will use this
@@ -1805,8 +1820,24 @@ public class GrouperClient {
       gcFindStems.assignActAsSubject(actAsSubject);
       
 
-      WsStemQueryFilter wsStemQueryFilter = retrieveStemQueryFilterFromArgs(argMap, argMapNotUsed, "", true);
+      WsStemQueryFilter wsStemQueryFilter = retrieveStemQueryFilterFromArgs(argMap, argMapNotUsed, "", false);
       gcFindStems.assignStemQueryFilter(wsStemQueryFilter);
+      
+      List<String> stemNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "stemNames", false);
+      List<String> stemUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "stemUuids", false);
+
+      if (GrouperClientUtils.length(stemNames) > 0) {
+        for (String stemName: stemNames) {
+          gcFindStems.addStemName(stemName);
+        }
+      }
+      
+      if (GrouperClientUtils.length(stemUuids) > 0) {
+        for (String stemUuid: stemUuids) {
+          gcFindStems.addStemUuid(stemUuid);
+        }
+      }
+
       
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);

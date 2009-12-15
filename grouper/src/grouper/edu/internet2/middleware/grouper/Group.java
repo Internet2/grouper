@@ -136,10 +136,10 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.268 2009-12-07 07:31:08 mchyzer Exp $
+ * @version $Id: Group.java,v 1.269 2009-12-15 06:47:06 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
+public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable<Group> {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -5021,12 +5021,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Object o) {
-    if (o==null || (!(o instanceof Group))) {
+  public int compareTo(Group that) {
+    if (that==null) {
       return 1;
     }
     String thisName = StringUtils.defaultString(this.getName());
-    Group that = (Group)o;
     String thatName = StringUtils.defaultString(that.getName());
     return thisName.compareTo(thatName);
   }
