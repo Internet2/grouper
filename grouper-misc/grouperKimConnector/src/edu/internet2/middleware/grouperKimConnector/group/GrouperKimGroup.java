@@ -2,7 +2,11 @@ package edu.internet2.middleware.grouperKimConnector.group;
 
 import org.kuali.rice.kim.bo.Group;
 import org.kuali.rice.kim.bo.types.dto.AttributeSet;
+
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
+import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
 
 /**
 * Grouper implementation of the rice group interface
@@ -59,7 +63,20 @@ public class GrouperKimGroup implements Group {
     this.groupId = wsGroup.getUuid();
     this.groupName = wsGroup.getExtension();
     this.groupDescription = wsGroup.getDescription();
-    finish this
+    this.kimTypeId = GrouperKimUtils.grouperDefaultGroupTypeId();
+    this.nameSpaceCode = GrouperKimUtils.calculateNamespaceCode(wsGroup.getName());
+    WsGroupDetail detail = wsGroup.getDetail();
+    
+    //if there is a detail and attributes, then set the attributeSet
+    if (detail != null) {
+      int attributeLength = GrouperClientUtils.length(detail.getAttributeNames());
+      if (attributeLength > 0) {
+        this.attributeSet = new AttributeSet();
+        for (int i=0;i<attributeLength;i++) {
+          this.attributeSet.put(detail.getAttributeNames()[i], detail.getAttributeValues()[i]);
+        }
+      }
+    }
   }
 
   /**

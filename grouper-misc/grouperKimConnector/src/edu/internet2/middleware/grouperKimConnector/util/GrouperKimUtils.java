@@ -1,12 +1,19 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimUtils.java,v 1.2 2009-12-13 22:33:03 mchyzer Exp $
+ * $Id: GrouperKimUtils.java,v 1.3 2009-12-15 17:07:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.util;
 
 import java.util.Map;
 
+import org.kuali.rice.kim.bo.group.dto.GroupInfo;
+import org.kuali.rice.kim.bo.types.dto.AttributeSet;
+import org.kuali.rice.kim.bo.types.dto.KimTypeInfo;
+import org.kuali.rice.kim.service.KIMServiceLocator;
+
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
 
 
 /**
@@ -67,6 +74,79 @@ public class GrouperKimUtils {
       return null;
     }
     return GrouperClientUtils.splitTrim(typeString, ",");
+  }
+  
+  /**
+   * cache the group type id since it doesnt change
+   */
+  private static String typeId = null;
+  
+  /**
+   * get the default group type id 
+   * @return the type id
+   */
+  public static String grouperDefaultGroupTypeId() {
+    if (typeId == null) {
+      KimTypeInfo typeInfo = KIMServiceLocator.getTypeInfoService().getKimTypeByName("KUALI", "Default");
+      typeId = typeInfo.getKimTypeId();
+    }
+    return typeId;
+  }
+  
+  /**
+   * convert a ws group to a group info
+   * @param wsGroup
+   * @return the group info
+   */
+  public static GroupInfo convertWsGroupToGroupInfo(WsGroup wsGroup) {
+    GroupInfo groupInfo = new GroupInfo();
+    groupInfo.setGroupId(wsGroup.getUuid());
+    groupInfo.setGroupName(wsGroup.getExtension());
+    groupInfo.setGroupDescription(wsGroup.getDescription());
+    groupInfo.setKimTypeId(GrouperKimUtils.grouperDefaultGroupTypeId());
+    groupInfo.setNamespaceCode(GrouperKimUtils.calculateNamespaceCode(wsGroup.getName()));
+    WsGroupDetail detail = wsGroup.getDetail();
+    
+    //if there is a detail and attributes, then set the attributeSet
+    if (detail != null) {
+      int attributeLength = GrouperClientUtils.length(detail.getAttributeNames());
+      if (attributeLength > 0) {
+        AttributeSet attributeSet = new AttributeSet();
+        groupInfo.setAttributes(attributeSet);
+        
+        for (int i=0;i<attributeLength;i++) {
+          attributeSet.put(detail.getAttributeNames()[i], detail.getAttributeValues()[i]);
+        }
+      }
+    }
+    return groupInfo;
+  }
+  
+  /**
+   * if group name is: a:b:c:d, and the kuali stem is a:b, then the namespace is c
+   * @param groupName
+   * @return the namespace code
+   */
+  public static String calculateNamespaceCode(String groupName) {
+    if (GrouperClientUtils.isBlank(groupName)) {
+      return groupName;
+    }
+    int lastColonIndex = groupName.lastIndexOf(':');
+    if (lastColonIndex == -1) {
+      throw new RuntimeException("Not expecting a name with no folders: '" + groupName + "'");
+    }
+    String stem = groupName.substring(0,lastColonIndex);
+    String kimStem = kimStem();
+    if (!stem.startsWith(kimStem)) {
+      throw new RuntimeException("Why does the stem not start with kimStem? '" + groupName + "', '" + kimStem + "'");
+    }
+    //group is in the kim stem, no namespace
+    if (stem.equals(kimStem)) {
+      return null;
+    }
+    //add one for the colon
+    String namespace = stem.substring(kimStem.length() + 1);
+    return namespace;
   }
   
 }

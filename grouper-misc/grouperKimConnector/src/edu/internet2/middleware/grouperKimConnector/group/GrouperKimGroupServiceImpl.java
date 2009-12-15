@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupServiceImpl.java,v 1.2 2009-12-15 06:47:14 mchyzer Exp $
+ * $Id: GrouperKimGroupServiceImpl.java,v 1.3 2009-12-15 17:07:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.group;
 
@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperKimConnector.groupUpdate.GrouperKimGroupUpdateServiceImpl;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
 
 
@@ -89,19 +88,85 @@ public class GrouperKimGroupServiceImpl implements GroupService {
   }
 
   /**
+   * getGroupInfo
+   *
+   * GroupInfo getGroupInfo(java.lang.String groupId)
+   *
+   * Get the group by the given id. 
    * @see org.kuali.rice.kim.service.GroupService#getGroupInfo(java.lang.String)
    */
-  
-  public GroupInfo getGroupInfo(String arg0) {
-    return null;
+  public GroupInfo getGroupInfo(String groupId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getGroupInfo");
+    
+    Map<String, GroupInfo> resultMap = getGroupInfosHelper(GrouperClientUtils.toList(groupId), debugMap);
+    
+    if (GrouperClientUtils.length(resultMap) == 0) {
+      return null;
+    }
+    
+    if (resultMap.size() > 1) {
+      throw new RuntimeException("Why is there more than one result when searching for " + groupId);
+    }
+
+    //return the group;
+    return resultMap.values().iterator().next();
   }
 
   /**
+   * getGroupInfoByName
+   *
+   * GroupInfo getGroupInfoByName(java.lang.String namespaceCode,
+   *                          java.lang.String groupName)
+   *
+   * Get the group by the given namesapce code and name. 
    * @see org.kuali.rice.kim.service.GroupService#getGroupInfoByName(java.lang.String, java.lang.String)
    */
   
-  public GroupInfo getGroupInfoByName(String arg0, String arg1) {
-    return null;
+  public GroupInfo getGroupInfoByName(String namespaceCode, String groupName) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getGroupInfoByName");
+    debugMap.put("namespaceCode", namespaceCode);
+    debugMap.put("groupName", groupName);
+    
+    boolean hadException = false;
+    
+    try {
+      
+      GcFindGroups gcFindGroups = new GcFindGroups();
+      gcFindGroups.addGroupName(GrouperKimUtils.kimStem() + ":" + namespaceCode + ":" + groupName);
+      
+      WsFindGroupsResults wsFindGroupsResults = gcFindGroups.execute();
+      
+      //we did one assignment, we have one result
+      WsGroup[] wsGroups = wsFindGroupsResults.getGroupResults();
+      
+      int numberOfGroups = GrouperClientUtils.length(wsGroups);
+      
+      debugMap.put("resultNumberOfGroups", numberOfGroups);
+      
+      if (numberOfGroups == 0) {
+        return null;
+      }
+      
+      if (numberOfGroups > 1) {
+        throw new RuntimeException("Why is there more than 1 group returned?");
+      }
+
+      return GrouperKimUtils.convertWsGroupToGroupInfo(wsGroups[0]);
+      
+    } catch (RuntimeException re) {
+      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
+      LOG.error(errorPrefix, re);
+      GrouperClientUtils.injectInException(re, errorPrefix);
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled() && !hadException) {
+        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+      }
+    }
+
+    
   }
 
   /**
@@ -162,9 +227,21 @@ public class GrouperKimGroupServiceImpl implements GroupService {
       //we did one assignment, we have one result
       WsGroup[] wsGroups = wsFindGroupsResults.getGroupResults();
       
+      debugMap.put("resultNumberOfGroups", GrouperClientUtils.length(wsGroups));
+      
+      index = 0;
       for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsGroups, WsGroup.class)) {
-        GroupInfo groupInfo = 
+        
+        if (index < 20) {
+          debugMap.put("groupResult." + index, wsGroup.getUuid() + ", " + wsGroup.getName());
+        }
+        
+        GroupInfo groupInfo = GrouperKimUtils.convertWsGroupToGroupInfo(wsGroup);
+        result.put(groupInfo.getGroupId(), groupInfo);
+        index++;
       }
+      
+      return result;
       
     } catch (RuntimeException re) {
       String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
@@ -251,8 +328,21 @@ public class GrouperKimGroupServiceImpl implements GroupService {
    */
   public boolean isGroupActive(String groupId) {
     
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "isGroupActive");
     
+    Map<String, GroupInfo> resultMap = getGroupInfosHelper(GrouperClientUtils.toList(groupId), debugMap);
     
+    if (GrouperClientUtils.length(resultMap) == 0) {
+      return false;
+    }
+
+    if (resultMap.size() > 1) {
+      throw new RuntimeException("Why is there more than one result when searching for " + groupId);
+    }
+    
+    //if there is one, then we found it, it is active
+    return true;
   }
 
   /**
