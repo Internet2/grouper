@@ -1,9 +1,11 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimUtils.java,v 1.3 2009-12-15 17:07:56 mchyzer Exp $
+ * $Id: GrouperKimUtils.java,v 1.4 2009-12-15 20:02:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
@@ -91,6 +93,26 @@ public class GrouperKimUtils {
       typeId = typeInfo.getKimTypeId();
     }
     return typeId;
+  }
+  
+  /**
+   * utility method to convert group infos to group ids
+   * @param groupInfos
+   * @return the list of group ids
+   */
+  public static List<String> convertGroupInfosToGroupIds(List<GroupInfo> groupInfos) {
+    if (groupInfos == null) {
+      return null;
+    }
+    
+    List<String> groupIds = new ArrayList<String>();
+    
+    for (GroupInfo groupInfo : groupInfos) {
+      groupIds.add(groupInfo.getGroupId());
+    }
+    
+    return groupIds;
+
   }
   
   /**
