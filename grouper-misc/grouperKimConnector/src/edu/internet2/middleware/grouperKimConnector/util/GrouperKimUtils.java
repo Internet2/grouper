@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimUtils.java,v 1.4 2009-12-15 20:02:52 mchyzer Exp $
+ * $Id: GrouperKimUtils.java,v 1.5 2009-12-15 21:15:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.util;
 
@@ -23,6 +23,20 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
  */
 public class GrouperKimUtils {
 
+  /**
+   * sources id where non group source ids can live
+   * @return the source ids, comma separated
+   */
+  public static String[] subjectSourceIds() {
+    //lets see if there is a source to use
+    String sourceIds = GrouperClientUtils.propertiesValue("grouper.kim.plugin.subjectSourceIds", false);
+    sourceIds = GrouperClientUtils.isBlank(sourceIds) ? subjectSourceId() : sourceIds;
+    
+    String[] result = GrouperClientUtils.splitTrim(sourceIds, ",");
+    
+    return result;
+  }
+  
   /**
    * source id to use for all subjects, or null if none specified (dont bind to one source)
    * @return the source id

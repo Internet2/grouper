@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupServiceImpl.java,v 1.5 2009-12-15 20:02:52 mchyzer Exp $
+ * $Id: GrouperKimGroupServiceImpl.java,v 1.6 2009-12-15 21:15:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.group;
 
@@ -17,6 +17,7 @@ import org.kuali.rice.kim.service.GroupService;
 
 import edu.internet2.middleware.grouperClient.api.GcFindGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
+import edu.internet2.middleware.grouperClient.api.GcGetMembers;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.StemScope;
@@ -24,10 +25,13 @@ import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
@@ -60,23 +64,47 @@ public class GrouperKimGroupServiceImpl implements GroupService {
 
     String stemName = GrouperKimUtils.kimStem();
 
-    List<GroupInfo> groupInfos = getGroupsHelper(principalId, sourceId, stemName, StemScope.ALL_IN_SUBTREE, WsMemberFilter.Immediate, debugMap);
+    List<GroupInfo> groupInfos = getGroupsHelper(principalId, sourceId, stemName, 
+        StemScope.ALL_IN_SUBTREE, WsMemberFilter.Immediate, debugMap);
     
     return GrouperKimUtils.convertGroupInfosToGroupIds(groupInfos);
   }
 
   /**
+   * <pre>
+   * getDirectMemberGroupIds
+   *
+   * java.util.List<java.lang.String> getDirectMemberGroupIds(java.lang.String groupId)
+   *
+   * Get all the groups which are direct members of the given group. 
+   * 
    * @see org.kuali.rice.kim.service.GroupService#getDirectMemberGroupIds(java.lang.String)
+   * </pre>
    */
-  public List<String> getDirectMemberGroupIds(String arg0) {
-    return null;
+  public List<String> getDirectMemberGroupIds(String groupId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getDirectMemberGroupIds");
+    debugMap.put("groupId", groupId);
+    
+    return getMemberIdsHelper(groupId, new String[]{"g:gsa"}, 
+        WsMemberFilter.Immediate, debugMap);
   }
 
   /**
+   * getDirectMemberPrincipalIds
+   *
+   * java.util.List<java.lang.String> getDirectMemberPrincipalIds(java.lang.String groupId)
+   *
+   * Get all the principals directly assigned to the given group.
    * @see org.kuali.rice.kim.service.GroupService#getDirectMemberPrincipalIds(java.lang.String)
    */
-  public List<String> getDirectMemberPrincipalIds(String arg0) {
-    return null;
+  public List<String> getDirectMemberPrincipalIds(String groupId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getDirectMemberPrincipalIds");
+    debugMap.put("groupId", groupId);
+    
+    return getMemberIdsHelper(groupId, GrouperKimUtils.subjectSourceIds(), 
+        WsMemberFilter.Immediate, debugMap);
   }
 
   /**
@@ -517,19 +545,131 @@ public class GrouperKimGroupServiceImpl implements GroupService {
   }
 
   /**
+   * <pre>
    * @see org.kuali.rice.kim.service.GroupService#getMemberGroupIds(java.lang.String)
+   * </pre>
    */
-  public List<String> getMemberGroupIds(String arg0) {
-    return null;
+  public List<String> getMemberGroupIds(String groupId) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getMemberPrincipalIds");
+    debugMap.put("groupId", groupId);
+    
+    return getMemberIdsHelper(groupId, new String[]{"g:gsa"}, null, debugMap);
+
+    
   }
 
   /**
+   * <pre>
+   * getMemberPrincipalIds
+   * java.util.List<java.lang.String> getMemberPrincipalIds(java.lang.String groupId)
+   *
+   * Get all the principals of the given group. Recurses into contained groups to provide a comprehensive list. 
    * @see org.kuali.rice.kim.service.GroupService#getMemberPrincipalIds(java.lang.String)
+   * </pre>
    */
-  public List<String> getMemberPrincipalIds(String arg0) {
-    return null;
+  public List<String> getMemberPrincipalIds(String groupId) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getMemberPrincipalIds");
+    debugMap.put("groupId", groupId);
+    
+    return getMemberIdsHelper(groupId, GrouperKimUtils.subjectSourceIds(), null, debugMap);
+    
   }
 
+  /**
+   * get member ids from a group
+   * @param groupId
+   * @param sourceIds 
+   * @param wsMemberFilter null for all, or immediate, or nonimmediate
+   * @param debugMap 
+   * @return the member ids
+   */
+  private List<String> getMemberIdsHelper(String groupId, String[] sourceIds, WsMemberFilter wsMemberFilter, Map<String, Object> debugMap ) {
+    
+    boolean hadException = false;
+    
+    try {
+      
+      int index = 0;
+      
+      GcGetMembers gcGetMembers = new GcGetMembers();
+            
+      debugMap.put("groupId", groupId);
+
+      gcGetMembers.addGroupUuid(groupId);
+      
+      int sourceIdsLength = GrouperClientUtils.length(sourceIds);
+      
+      debugMap.put("sourceIds.length", sourceIdsLength);
+      
+      for (int i=0;i<sourceIdsLength;i++) {
+        
+        gcGetMembers.addSourceId(sourceIds[i]);
+        
+      }
+      
+      debugMap.put("wsMemberFilter", wsMemberFilter == null ? null : wsMemberFilter.name());
+
+      gcGetMembers.assignMemberFilter(wsMemberFilter);
+      
+      WsGetMembersResults wsGetMembersResults = gcGetMembers.execute();
+      WsGetMembersResult[] wsGetMembersResultArray = wsGetMembersResults.getResults();
+      
+      int resultsSize = GrouperClientUtils.length(wsGetMembersResultArray);
+      
+      debugMap.put("resultsArraySize", resultsSize);
+      
+      //not sure why this would ever be 0...
+      if (resultsSize == 0) {
+        throw new RuntimeException("Why is result size not 1?");
+      }
+      
+      if (resultsSize > 1) {
+        throw new RuntimeException("Why is result array size more than 1?");
+      }
+      
+      WsGetMembersResult wsGetMembersResult = wsGetMembersResultArray[0];
+      
+      WsSubject[] wsSubjects = wsGetMembersResult.getWsSubjects();
+      
+      int wsSubjectsLength = GrouperClientUtils.length(wsSubjects);
+      
+      debugMap.put("wsSubjectsLength", wsSubjectsLength);
+
+      if (wsSubjectsLength == 0) {
+        return null;
+      }
+
+      List<String> results = new ArrayList<String>();
+      
+      for (int i=0;i<wsSubjectsLength;i++) {
+        WsSubject wsSubject = wsSubjects[i];
+
+        if (i < 20) {
+          debugMap.put("result." + index, wsSubject.getId());
+        }
+
+        results.add(wsSubject.getId());
+      }
+      
+      return results;
+    } catch (RuntimeException re) {
+      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
+      LOG.error(errorPrefix, re);
+      GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled() && !hadException) {
+        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+      }
+    }
+  }
+  
+  
   /**
    * <pre>
    * java.util.List<java.lang.String> getParentGroupIds(java.lang.String groupId)
@@ -537,6 +677,8 @@ public class GrouperKimGroupServiceImpl implements GroupService {
    * Get the groups which are parents of the given group.
    * 
    * This will recurse into groups above the given group and build a complete list of all groups included above this group. 
+   * @param groupId 
+   * @return the list of group ids
    * @see org.kuali.rice.kim.service.GroupService#getParentGroupIds(java.lang.String)
    </pre>
    */
