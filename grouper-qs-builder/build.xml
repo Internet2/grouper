@@ -90,7 +90,12 @@
 			<copy todir="${quickstart.dir}/grouper/conf">
 				<fileset dir="${grouper.folder}/conf"></fileset>
 			</copy>
-
+			<copy todir="${quickstart.dir}/grouper">
+			  <fileset dir=".">
+					<include name="logs/**/*"/>
+				</fileset>
+			</copy>
+			<chmod dir="${quickstart.dir}/grouper/logs" perm="ug+rw" includes="**/*.log"/>
 			<copy todir="${quickstart.dir}/grouper">
 				<fileset dir="${grouper.folder}">
 					<include name="contrib/**/*"/>

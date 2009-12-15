@@ -11,16 +11,22 @@
 <ul>
   <li> the Grouper API libraries,</li>
   <li> a Subject API <a href="http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/*checkout*/subject/doc/jdbc-adapter-user-guide.html?rev=HEAD&cvsroot=I2MI&content-type=text/html">implementation</a>, </li>
+
   <li>a small HSQLDB demo database (containing Subject and groups data) and,</li>
   <li> the Grouper User Interface (UI) - a Java web application</li>
 </ul>
-<p>The UI must be built using the Ant script provided and installed on a Tomcat 
-  5 instance. In addition the HSQLDB database must be started. It is assumed that 
-  all components will be run on one machine. Other configurations are possible.</p>
-<p><a href="grouper/doc">Release documentation for the Grouper API</a>.</p>
-<p><a href="grouper-ui/doc/index.html">Grouper UI specific documentation</a>.</p>
-<p><a href="#otherDatabase">Using the QuickStart instance with a different database</a></p>
-<h2>Preparing Tomcat</h2>
+<h2>Installation</h2>
+<p>The basic installation steps are</p>
+<ol>
+  <li>Prepare tomcat.</li>
+  <li>Arrange logging.</li>
+
+  <li>Build and deploy the UI.</li>
+  <li>Start the included database.</li>
+  <li>Log in to the UI.     </li>
+</ol>
+<p>Details for each are in the following sections. This installation process assumes that al components will run on the same machine. Other configurations are possible. </p>
+<h2>Prepare Tomcat</h2>
 <p>This document assumes you are familiar with Tomcat. </p>
 <p>The Grouper UI requires that users authenticate themselves and this QuickStart 
   relies upon Tomcat's default authentication mechanism which is based on <font face="Courier New, Courier, mono">&lt;TOMCAT_HOME&gt;/conf/tomcat-users.xml</font>. 
@@ -29,13 +35,9 @@
   tags to the <font face="Courier New, Courier, mono">tomcat-users.xml</font> 
   file for your Tomcat installation. This file contains login details for all 
   the QuickStart subjects</p>
+
 <p>Restart Tomcat.</p>
-<h2>Building the UI</h2>
-<p>Review <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/build.properties</font>. 
-  If you want the build script to automatically install the UI in your Tomcat 
-  instance uncomment and set the appropriate value for deploy.home. If you do 
-  not set this you will need to copy the UI to your Tomcat installations webapps 
-  directory.</p>
+<h2>Arrange Logging </h2>
 <p>As of v1.3.0 the UI has improved error handling and logging. To take advantage 
   of new logging fetaures review and uncomment the lines:</p>
 <p><font face="Courier New, Courier, mono">#use.local.log4j=true<br>
@@ -44,8 +46,19 @@
   email - choose an appropriate <font face="Courier New, Courier, mono">error.append</font> 
   value and configure:</p>
 <p><font face="Courier New, Courier, mono">error.mail.to<br>
+
   error.mail.from<br>
   error.mail.host</font></p>
+<h3>Log File Location and Permissions </h3>
+<p>By default, the quickstart package expects log files to exist in the grouper/logs/ subfolder where the package is built. These files must be made writable by the tomcat user. </p>
+<p>An alternative location can be specified either by replacing the system property ${grouper.home} in the grouper/conf/log4j.properties file prior to building the UI, or by starting tomcat with a parameter setting that system property to another value, e.g., by adding &quot;-Dgrouper.home=&lt;grouper dir&gt;&quot; to the tomcat startup command.</p>
+<h2>Build the UI</h2>
+
+<p>Review <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/build.properties</font>. 
+  If you want the build script to automatically install the UI in your Tomcat 
+  instance uncomment and set the appropriate value for deploy.home. If you do 
+  not set this you will need to copy the UI to your Tomcat installations webapps 
+  directory.</p>
 <p>Change directory to<font face="Courier New, Courier, mono"> grouper-qs</font> 
   and type <font face="Courier New, Courier, mono">ant ui</font>. </p>
 <p>A list of build targets* is displayed. If you have set deploy.home press <font face="Courier New, Courier, mono">default</font>. 
@@ -54,9 +67,7 @@
   to <font face="Courier New, Courier, mono">&lt;TOMCAT_HOME&gt;/webapps</font>, 
   or, if the latter, copy <font face="Courier New, Courier, mono">grouper-qs/dist/grouper.war</font> 
   to <font face="Courier New, Courier, mono">&lt;TOMCAT_HOME&gt;/webapps</font>.</p>
-<p>Using a web browser access the UI e.g.<font face="Courier New, Courier, mono"> 
-  http://localhost:8080/grouper</font>. Login as GrouperSystem - using the password 
-  from the<font face="Courier New, Courier, mono"> tomcat-users.xml</font> file.</p>
+
 <p>You may want to review <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
   and, if necessary, modify the values for the keys:</p>
 <ul>
@@ -66,6 +77,7 @@
 </ul>
 <p>to valid / appropriate paths on your system. Use / as a directory separator 
   whichever operating system you are using.</p>
+
 <p>*If you want to take advantage of the 'nice' targets you must uncomment and 
   set appropriate values for all the deploy properties in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/build.properties</font>. 
   In addition you must make <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/catalina-ant.jar</font> 
@@ -76,6 +88,7 @@
   home directory (or see the Ant documentation for other options). You will have 
   to run Ant again for it to find the newly copied jar file.</p>
 <h2>Starting HSQLDB</h2>
+
 <p>HSQLDB is configured to run on the default port of 9001. If you already have 
   a database running on that port you must choose a different port and update 
   the JDBC urls in <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/grouper.hibernate.properties</font> 
@@ -85,9 +98,14 @@
 <p>An Ant target is provided to start the database as a server. Change directory 
   to<font face="Courier New, Courier, mono"> grouper-qs</font> and type <font face="Courier New, Courier, mono">ant 
   db</font>.</p>
+
 <p>HSQLDB is packaged with a database manager application which lets you run queries 
   against database tables. To run the manager applciation change directory to<font face="Courier New, Courier, mono"> 
   grouper-qs</font> and type <font face="Courier New, Courier, mono">ant dbgui</font>.</p>
+<h2>Logging in to the UI </h2>
+<p>Using a web browser access the UI e.g.<font face="Courier New, Courier, mono"> http://localhost:8080/grouper/</font>. Login as GrouperSystem - using the password 
+  from the<font face="Courier New, Courier, mono"> tomcat-users.xml</font> file.</p>
+
 <h2>The Demo Database</h2>
 <p>The HSQLDB database comes preloaded with Subject data (see <font face="Courier New, Courier, mono">grouper-qs/subjects.xml</font>) 
   and a set of stems and groups (with members) and access and naming privileges 
@@ -98,6 +116,7 @@
 <h2>Customising the UI</h2>
 <p>Uncomment the line:<br>
   <font face="Courier New, Courier, mono">#additional.build=${basedir}/../custom-grouper-ui/additional-build.xml</font></p>
+
 <p>in <font face="Courier New, Courier, mono">grouper-qs/grouper-ui/build.properties</font> 
   and rebuild the UI as described above. Restart the webapp, and access it in 
   your browser.</p>
@@ -111,6 +130,7 @@
   a different database</h2>
 <p name="otherDatabase">You should only try using a different database after you 
   have successfully setup the default QuickStart.</p>
+
 <p name="otherDatabase">If you want to run the QuickStart against your own data* 
   you may:</p>
 <ol>
@@ -122,6 +142,7 @@
   essential data for Grouper to work. The Grouper UI allows you to create new 
   stems and groups, but not subjects. See <a href="#loadingData">Loading your 
   own data</a> for details on how to batch load data.</p>
+
 <h3 id="emptyHsqldb" name="emptyHsqldb">Setting up the QuickStart with an empty 
   HSQLDB database</h3>
 <ol>
@@ -130,6 +151,7 @@
   <li>restart the HSQLDB database</li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
     <font face="Courier New, Courier, mono">ant db-init</font></li>
+
   <li>restart the grouper web application</li>
 </ol>
 <h3 id="emptyAlternative" name="emptyAlternative">Settng up the QuickStart with an alternative supported database</h3>
@@ -140,6 +162,7 @@
     <font face="Courier New, Courier, mono">hibernate.connection.driver_class</font> 
     and<font face="Courier New, Courier, mono"> hibernate.connection.url</font> 
     keys under <font face="Courier New, Courier, mono">#HSQLDB</font>.</li>
+
   <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/grouper.hibernate.properties</font> 
     by uncommenting the same keys under their chosen database, ensuring a valid 
     conection url and correct<font face="Courier New, Courier, mono"> hibernate.connection.username</font> 
@@ -149,6 +172,7 @@
   </li>
   <li>Copy any required Jar files for your JDBC drivers to <font face="Courier New, Courier, mono">grouper-qs/grouper/lib/custom 
     </font></li>
+
   <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
     <font face="Courier New, Courier, mono">ant db-init</font></li>
   <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/sources.xml</font> 
@@ -158,6 +182,7 @@
     and <font face="Courier New, Courier, mono">subjectattribute</font> tables 
     required by the JDBCSourceAdapter, so you may use the same database connection 
     url, username and password as you specified in <font face="Courier New, Courier, mono">grouper.hibernate.properties</font></li>
+
   <li>from <font face="Courier New, Courier, mono">grouper-qs</font> type <font face="Courier New, Courier, mono">ant 
     ui</font></li>
   <li>restart the grouper web application</li>
@@ -170,6 +195,7 @@
   subjects in the demo database. Additional attributes may be added. Ensure that 
   you <font face="Courier New, Courier, mono">commit</font> any subjects you add 
   before using them.</p>
+
 <p>For Grouper 0.6 it was necessary to include a subject <font face="Courier New, Courier, mono">GrouperSystem</font>. 
   This is no longer a requirement, and, in fact, defining <font face="Courier New, Courier, mono">GrouperSystem</font> 
   will cause errors.</p>
@@ -178,5 +204,9 @@
 <p>You may use the <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Import-Export">XML 
   import / export tool</a> to load stems, groups, memberships, privileges and 
   custom group types</p>
+<h2>Further Reading </h2>
+<p><a href="grouper/doc">Release documentation for the Grouper API</a>.</p>
+
+<p><a href="grouper-ui/doc/index.html">Grouper UI specific documentation</a>.</p>
 </body>
 </html>
