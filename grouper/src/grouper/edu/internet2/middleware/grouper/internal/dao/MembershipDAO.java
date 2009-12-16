@@ -25,13 +25,16 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Source;
 
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.33 2009-12-07 07:31:09 mchyzer Exp $
+ * @version $Id: MembershipDAO.java,v 1.34 2009-12-16 06:02:30 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -372,6 +375,25 @@ TODO update for 1.5
    */
   Set<Membership> findAllEffectiveByStemOwner(String ownerStemId, String memberUUID, Field f, String viaGroupId, int depth, boolean enabledOnly) 
     throws  GrouperDAOException;
+
+  /**
+   * find membershpis by group owner and other options.  Note you cant pass in more than 100 groupIds, or memberIds.  
+   * @param groupIds
+   * @param memberIds
+   * @param membershipIds
+   * @param membershipType
+   * @param field
+   * @param sources
+   * @param scope
+   * @param stem
+   * @param stemScope
+   * @param enabled
+   * @return a set of membership, group, and member objects
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled);
 
   /**
    * @param memberUUID 

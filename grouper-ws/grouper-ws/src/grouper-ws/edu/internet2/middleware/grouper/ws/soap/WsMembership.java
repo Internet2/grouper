@@ -10,11 +10,6 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
-import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -24,39 +19,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * @author mchyzer
  */
 public class WsMembership {
-
-  /**
-   * result code of a request
-   */
-  public static enum WsGetMembershipResultCode {
-
-    /** found the stem (or not) */
-    SUCCESS,
-
-    /** cant find subject */
-    SUBJECT_NOT_FOUND,
-
-    /** duplicate subject records found */
-    SUBJECT_DUPLICATE,
-
-    /** subject is in member table, but cant be found from subject source */
-    UNRESOLVABLE;
-
-    /**
-     * if this is a successful result
-     * 
-     * @return true if success
-     */
-    public boolean isSuccess() {
-      return this == SUCCESS;
-    }
-  }
-
-  /** subject of membership */
-  private WsSubject subject;
-
-  /** stem name this membership is realted to */
-  private String stemName = null;
 
   /** id of the membership */
   private String membershipId = null;
@@ -70,11 +32,157 @@ public class WsMembership {
   /** membership type of the membership */
   private String membershipType = null;
 
-  /** depth of the membership */
-  private int depth = -1;
+  /** if the membership is enabled, T or F */
+  private String enabled = null;
 
-  /** if there is a parent, this is the id */
-  private String parentMembershipUuid;
+  /** timestamp this membership is enabled: yyyy/MM/dd HH:mm:ss.SSS */
+  private String enabledTime = null;
+
+  /** timestamp this membership is disabled: yyyy/MM/dd HH:mm:ss.SSS */
+  private String disabledTime = null;
+
+  /** member id of the member */
+  private String memberId = null;
+  
+  /** group uuid of the group */
+  private String groupId = null;
+  
+  /** subject id of the subject involved */
+  private String subjectId = null;
+  
+  /** sourceId of the subject involved */
+  private String subjectSourceId = null;
+  
+  /** groupName of the group involved */
+  private String groupName = null;
+  
+  /**
+   * member id of the subject involved
+   * @return member id
+   */
+  public String getMemberId() {
+    return this.memberId;
+  }
+
+  /**
+   * member id of the subject involved
+   * @param memberId1
+   */
+  public void setMemberId(String memberId1) {
+    this.memberId = memberId1;
+  }
+
+  /**
+   * group id of the group involved
+   * @return the group id
+   */
+  public String getGroupId() {
+    return this.groupId;
+  }
+
+  /**
+   * group id of the group involved
+   * @param groupUuid
+   */
+  public void setGroupId(String groupUuid) {
+    this.groupId = groupUuid;
+  }
+
+  /**
+   * subject id of the subject involved
+   * @return the subject id
+   */
+  public String getSubjectId() {
+    return this.subjectId;
+  }
+
+  /**
+   * subject id of the subject involved
+   * @param subjectId1
+   */
+  public void setSubjectId(String subjectId1) {
+    this.subjectId = subjectId1;
+  }
+
+  /**
+   * source if of the subject involved
+   * @return the source id
+   */
+  public String getSubjectSourceId() {
+    return this.subjectSourceId;
+  }
+
+  /**
+   * source id of the subject involved
+   * @param subjectSourceId1
+   */
+  public void setSubjectSourceId(String subjectSourceId1) {
+    this.subjectSourceId = subjectSourceId1;
+  }
+
+  /**
+   * name of the group involved
+   * @return the group name
+   */
+  public String getGroupName() {
+    return this.groupName;
+  }
+
+  /**
+   * name of the group involved
+   * @param groupName1
+   */
+  public void setGroupName(String groupName1) {
+    this.groupName = groupName1;
+  }
+
+  /**
+   * enabled time: yyyy/MM/dd HH:mm:ss.SSS
+   * @return enabled time
+   */
+  public String getEnabledTime() {
+    return this.enabledTime;
+  }
+
+  /**
+   * enabled time: yyyy/MM/dd HH:mm:ss.SSS
+   * @param enabledTime1
+   */
+  public void setEnabledTime(String enabledTime1) {
+    this.enabledTime = enabledTime1;
+  }
+
+  /**
+   * disabled time: yyyy/MM/dd HH:mm:ss.SSS
+   * @return disabled time
+   */
+  public String getDisabledTime() {
+    return this.disabledTime;
+  }
+
+  /**
+   * abled time: yyyy/MM/dd HH:mm:ss.SSS
+   * @param disabledTime1
+   */
+  public void setDisabledTime(String disabledTime1) {
+    this.disabledTime = disabledTime1;
+  }
+
+  /**
+   * enabled
+   * @return if enabled T or F
+   */
+  public String getEnabled() {
+    return this.enabled;
+  }
+
+  /**
+   * if enabled T or F
+   * @param enabled1
+   */
+  public void setEnabled(String enabled1) {
+    this.enabled = enabled1;
+  }
 
   /**
    * id of the membership
@@ -102,86 +210,37 @@ public class WsMembership {
     // nothing
   }
 
-  /** group name this membership is related to */
-  private String groupName = null;
-
   /**
    * construct with member to set internal fields
    * 
    * @param membership
+   * @param group 
+   * @param member 
    * @param subjectAttributeNames are the attribute names the user is receiving (either requested or from config)
    * @param includeSubjectDetail 
    * @param retrieveExtendedSubjectDataBoolean
    *            true to retrieve subject info (more than just the id)
    */
-  public WsMembership(Membership membership, String[] subjectAttributeNames, boolean includeSubjectDetail) {
-    try {
-      Membership parent = membership.getParentMembership();
-      this.setParentMembershipUuid(parent.getUuid());
-    } catch (MembershipNotFoundException mnfe) {
-      //its ok, no parent
-    }
+  public WsMembership(Membership membership, Group group, Member member) {
     this.setMembershipId(membership.getUuid());
     this.setMembershipType(membership.getType());
     this.setCreateTime(GrouperServiceUtils.dateToString(membership.getCreateTime()));
-    this.setDepth(membership.getDepth());
-    Group group = null;
-    try {
-      group = membership.getGroup();
-    } catch (GroupNotFoundException gnfe) {
-      // group info is null if not there
-    }
-    this.setGroupName(group == null ? null : group.getName());
     Field listField = membership.getList();
     FieldType listFieldType = listField == null ? null : listField.getType();
     this.setListType(listFieldType == null ? null : listFieldType.toString());
     this.setListName(listField == null ? null : listField.getName());
-    Stem stem = null;
-    try {
-      stem = membership.getStem();
-    } catch (StemNotFoundException snfe) {
-      // stem fields will be null if this happens
-    }
-    this.setStemName(stem == null ? null : stem.getName());
-    Member member = null;
-    try {
-      member = membership.getMember();
-    } catch (MemberNotFoundException mnfe) {
-      // member fields will be null if this happens
-    }
-    if (member != null) {
-      this.subject = new WsSubject(member, subjectAttributeNames, null, includeSubjectDetail);
-      //propagate the result code back up to this object
-      if (!GrouperUtil.booleanValue(this.subject.getSuccess())) {
-        this.assignResultCode(WsGetMembershipResultCode.valueOf(this.subject
-            .getResultCode()));
-      }
-    } else {
-      this.assignResultCode(WsGetMembershipResultCode.SUBJECT_NOT_FOUND);
-    }
-  }
-
-  /**
-   * assign the code from the enum
-   * 
-   * @param wsGetMembershipResultCode
-   */
-  public void assignResultCode(WsGetMembershipResultCode wsGetMembershipResultCode) {
-    this.getResultMetadata().assignResultCode(
-        wsGetMembershipResultCode == null ? null : wsGetMembershipResultCode.name());
-    this.getResultMetadata()
-        .assignSuccess(
-            GrouperServiceUtils.booleanToStringOneChar(wsGetMembershipResultCode
-                .isSuccess()));
+    this.setDisabledTime(GrouperServiceUtils.dateToString(membership.getDisabledTime()));
+    this.setEnabledTime(GrouperServiceUtils.dateToString(membership.getEnabledTime()));
+    this.setEnabled(membership.isEnabled() ? "T" : "F");
+    this.setGroupId(membership.getOwnerGroupId());
+    this.setGroupName(group.getName());
+    this.setMemberId(membership.getMemberUuid());
+    this.setSubjectId(member.getSubjectId());
+    this.setSubjectSourceId(member.getSubjectSourceId());
   }
 
   /** timestamp it was created: yyyy/MM/dd HH:mm:ss.SSS */
   private String createTime;
-
-  /**
-   * metadata about the result
-   */
-  private WsResultMeta resultMetadata = new WsResultMeta();
 
   /**
    * list name of the membership
@@ -237,21 +296,6 @@ public class WsMembership {
   }
 
   /**
-   * @return the depth
-   */
-  public int getDepth() {
-    return this.depth;
-  }
-
-  /**
-   * @param depth1
-   *            the depth to set
-   */
-  public void setDepth(int depth1) {
-    this.depth = depth1;
-  }
-
-  /**
    * timestamp it was created: yyyy/MM/dd HH:mm:ss.SSS
    * 
    * @return the createTime
@@ -271,89 +315,18 @@ public class WsMembership {
   }
 
   /**
-   * stem name this membership is realted to
-   * 
-   * @return the stemName
-   */
-  public String getStemName() {
-    return this.stemName;
-  }
-
-  /**
-   * stem name this membership is realted to
-   * 
-   * @param stemName1
-   *            the stemName to set
-   */
-  public void setStemName(String stemName1) {
-    this.stemName = stemName1;
-  }
-
-  /**
-   * group name this membership is related to
-   * 
-   * @return the groupName
-   */
-  public String getGroupName() {
-    return this.groupName;
-  }
-
-  /**
-   * group name this membership is related to
-   * 
-   * @param groupName1
-   *            the groupName to set
-   */
-  public void setGroupName(String groupName1) {
-    this.groupName = groupName1;
-  }
-
-  /**
-   * @return the subject
-   */
-  public WsSubject getSubject() {
-    return this.subject;
-  }
-
-  /**
-   * @param subject1 the subject to set
-   */
-  public void setSubject(WsSubject subject1) {
-    this.subject = subject1;
-  }
-
-  /**
-   * if there is a parent, this is the id
-   * @return the parentMembershipId
-   */
-  public String getParentMembershipUuid() {
-    return this.parentMembershipUuid;
-  }
-
-  /**
-   * if there is a parent, this is the id
-   * @param parentMembershipUuid1 the parentMembershipId to set
-   */
-  public void setParentMembershipUuid(String parentMembershipUuid1) {
-    this.parentMembershipUuid = parentMembershipUuid1;
-  }
-
-  /**
-   * @return the resultMetadata
-   */
-  public WsResultMeta getResultMetadata() {
-    return this.resultMetadata;
-  }
-
-  /**
    * convert members to subject results
    * @param attributeNames to get from subjects
-   * @param membershipSet
+   * @param membershipSet should be the membership, group, and member objects in a row
+   * @param returnedGroups pass in a set for groups, add any groups in there which arent
+   * there already
+   * @param returnedMembers psas in a set for members, add any members in there which arent
+   * there already 
    * @param includeSubjectDetail 
    * @return the subject results
    */
-  public static WsMembership[] convertMembers(Set<Membership> membershipSet,
-      String[] attributeNames, boolean includeSubjectDetail) {
+  public static WsMembership[] convertMembers(Set<Object[]> membershipSet,
+      Set<Group> returnedGroups, Set<Member> returnedMembers) {
     int memberSetLength = GrouperUtil.length(membershipSet);
     if (memberSetLength == 0) {
       return null;
@@ -361,8 +334,23 @@ public class WsMembership {
 
     WsMembership[] wsGetMembershipsResultArray = new WsMembership[memberSetLength];
     int index = 0;
-    for (Membership membership : membershipSet) {
-      wsGetMembershipsResultArray[index++] = new WsMembership(membership, attributeNames, includeSubjectDetail);
+    for (Object[] objects : membershipSet) {
+      
+      Membership membership = (Membership)objects[0];
+      Group group = (Group)objects[1];
+      Member member = (Member)objects[2];
+      
+      wsGetMembershipsResultArray[index++] = new WsMembership(membership, group, 
+          member);
+      
+      if (!returnedGroups.contains(group)) {
+        returnedGroups.add(group);
+      }
+      
+      if (!returnedMembers.contains(member)) {
+        returnedMembers.add(member);
+      }
+      
     }
     return wsGetMembershipsResultArray;
   }

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: RestConverterTest.java,v 1.4 2009-11-21 21:50:56 mchyzer Exp $
+ * $Id: RestConverterTest.java,v 1.5 2009-12-16 06:02:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -43,7 +43,7 @@ public class RestConverterTest extends TestCase {
   public void testMarshal3() {
     
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
-    wsGetMembershipsResults.setResults(new WsMembership[0]);
+    wsGetMembershipsResults.setWsMemberships(new WsMembership[0]);
     String string = WsRestRequestContentType.json.writeString(wsGetMembershipsResults);
     StringBuilder stringBuilder = new StringBuilder();
     

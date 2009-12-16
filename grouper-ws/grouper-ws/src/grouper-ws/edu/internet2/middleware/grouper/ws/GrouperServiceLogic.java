@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.31 2009-12-15 06:47:27 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.32 2009-12-16 06:02:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -73,6 +73,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult;
@@ -945,7 +946,7 @@ public class GrouperServiceLogic {
    * @param scope is a DB pattern that will have % appended to it, or null for all.  e.g. school:whatever:parent:
    * @param wsStemLookup is the stem to check in, or null if all.  If has stem, must have stemScope
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
-   * @param enabled is null for all, true for enabled only, false fordisabled
+   * @param enabled is A for all, T or null for enabled only, F for disabled
    * @param pageSize page size if paging
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
@@ -958,7 +959,7 @@ public class GrouperServiceLogic {
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail,
       boolean includeSubjectDetail, 
       String[] subjectAttributeNames, WsParam[] params, String fieldName, String scope, 
-      WsStemLookup wsStemLookup, StemScope stemScope, Boolean enabled, 
+      WsStemLookup wsStemLookup, StemScope stemScope, String enabled, 
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending) {
   
     final WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
@@ -991,6 +992,13 @@ public class GrouperServiceLogic {
 
       int resultIndex = 0;
 
+      Boolean enabledBoolean = null;
+      if (StringUtils.equalsIgnoreCase("A", enabled)) {
+        enabledBoolean = null;
+      } else {
+        enabledBoolean = GrouperServiceUtils.booleanValue(enabled, true, "enabled");
+      }
+      
       wsGetGroupsResults.setResults(new WsGetGroupsResult[subjectLength]);
 
       //convert the options to a map for easy access, and validate them
@@ -1051,7 +1059,7 @@ public class GrouperServiceLogic {
               stemDotScope = stemScope.convertToScope();
             }
             
-            groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabled);
+            groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
           }
           wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
         } catch (Exception e) {
@@ -1119,7 +1127,7 @@ public class GrouperServiceLogic {
    * @param stemName is the stem to check in, or null if all.  If has stem, must have stemScope
    * @param stemUuid is the stem to check in, or null if all.  If has stem, must have stemScope
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
-   * @param enabled is null for all, true for enabled only, false for disabled
+   * @param enabled is A for all, T or null for enabled only, F for disabled
    * @param pageSize page size if paging
    * @param pageNumber page number 1 indexed if paging
    * @param sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
@@ -1134,7 +1142,7 @@ public class GrouperServiceLogic {
       String subjectAttributeNames,
       String paramName0, String paramValue0,
       String paramName1, String paramValue1, String fieldName, String scope, 
-      String stemName, String stemUuid, StemScope stemScope, Boolean enabled, 
+      String stemName, String stemUuid, StemScope stemScope, String enabled, 
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending) {
   
     // setup the subject lookup
@@ -1274,61 +1282,74 @@ public class GrouperServiceLogic {
     return wsGetMembersResults;
   }
 
-//  /**
-//   * get memberships from a group based on a filter (all, immediate only,
-//   * effective only, composite)
-//   * 
-//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-//   * @param wsGroupLookup
-//   * @param membershipFilter
-//   *            must be one of All, Effective, Immediate, Composite
-//   * @param includeSubjectDetail
-//   *            T|F, for if the extended subject information should be
-//   *            returned (anything more than just the id)
-//   * @param actAsSubjectLookup
-//   * @param fieldName is if the member should be added to a certain field membership
-//   * of the group (certain list)
-//   * @param subjectAttributeNames are the additional subject attributes (data) to return.
-//   * If blank, whatever is configured in the grouper-ws.properties will be sent
-//   * @param includeGroupDetail T or F as to if the group detail should be returned
-//   * @param params optional: reserved for future use
-//   * @return the results
-//   */
-//  @SuppressWarnings("unchecked")
-//  public static WsGetMembershipsResults getMemberships(final GrouperWsVersion clientVersion,
-//      WsGroupLookup wsGroupLookup, String membershipFilter,
-//      WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
-//      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params) {
-//  
-//    WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
-//  
-//    GrouperSession session = null;
-//    String theSummary = null;
-//    try {
-//  
-//      theSummary = "clientVersion: " + clientVersion + ", wsGroupLookup: "
-//          + wsGroupLookup + ", membershipFilter: " + membershipFilter
-//          + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
-//          + actAsSubjectLookup + ", fieldName: " + fieldName
-//          + ", subjectAttributeNames: "
-//          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
-//          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n";
-//  
-//      //start session based on logged in user or the actAs passed in
-//      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-//  
-//      //convert the options to a map for easy access, and validate them
-//      @SuppressWarnings("unused")
-//      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-//          params);
-//  
+  /**
+   * get memberships from gruops and or subjects based on a filter (all, immediate only,
+   * effective only, composite, nonimmediate).
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsGroupLookups are groups to look in
+   * @param wsSubjectLookups are subjects to look in
+   * @param wsMembershipFilter
+   *            must be one of All, Effective, Immediate, Composite, NonImmediate
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectLookup
+   * @param fieldName is if the member should be added to a certain field membership
+   * of the group (certain list)
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @param sourceIds are sources to look in for memberships
+   * @param scope is a sql like string which will have a percent % concatenated to the end for group
+   * names to search in (or stem names)
+   * @param wsStemLookup is the stem to look in for memberships
+   * @param stemScope is StemScope to search only in one stem or in substems
+   * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @param membershipIds are the ids to search for if they are known
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsGetMembershipsResults getMemberships(final GrouperWsVersion clientVersion,
+      WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, WsMemberFilter wsMembershipFilter,
+      WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
+      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params, 
+      String[] sourceIds, String scope, 
+      WsStemLookup wsStemLookup, StemScope stemScope, String enabled, String[] membershipIds) {  
+
+    WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+  
+      theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
+          + GrouperUtil.toStringForLog(wsGroupLookups, 200) + ", wsMembershipFilter: " + wsMembershipFilter
+          + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
+          + actAsSubjectLookup + ", fieldName: " + fieldName
+          + ", subjectAttributeNames: "
+          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
+          + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + "\n, sourceIds: " + GrouperUtil.toStringForLog(sourceIds, 100)
+          + "\n, scope: " + scope + ", wsStemLookup: " + wsStemLookup + ", stemScope: " + stemScope + ", enabled: " + enabled
+          + "\n, membershipIds: " + GrouperUtil.toStringForLog(membershipIds, 200);
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      //TODO lookup all groups and subjects before and after
+      
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+  
+      //TODO
 //      Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
 //  
 //      //assign the group to the result to be descriptive
 //      wsGetMembershipsResults.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
-//  
-//      WsMemberFilter wsMembershipFilter = GrouperServiceUtils
-//          .convertMemberFilter(membershipFilter);
 //  
 //      String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
 //          .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -1338,85 +1359,106 @@ public class GrouperServiceLogic {
 //  
 //      wsGetMembershipsResults.assignSubjectResult(memberships,
 //          subjectAttributeNamesToRetrieve);
-//  
-//      //see if all success
-//      wsGetMembershipsResults.tallyResults(theSummary);
-//  
-//    } catch (Exception e) {
-//      wsGetMembershipsResults.assignResultCodeException(null, theSummary, e);
-//    } finally {
-//      GrouperSession.stopQuietly(session);
-//    }
-//  
-//    return wsGetMembershipsResults;
-//  
-//  }
-//
-//  /**
-//   * get memberships from a group based on a filter (all, immediate only,
-//   * effective only, composite)
-//   * 
-//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-//   * @param groupName
-//   *            to lookup the group (mutually exclusive with groupUuid)
-//   * @param groupUuid
-//   *            to lookup the group (mutually exclusive with groupName)
-//   * @param membershipFilter
-//   *            must be one of All, Effective, Immediate, Composite
-//   * @param includeSubjectDetail
-//   *            T|F, for if the extended subject information should be
-//   *            returned (anything more than just the id)
-//   * @param actAsSubjectId
-//   *            optional: is the subject id of subject to act as (if
-//   *            proxying). Only pass one of actAsSubjectId or
-//   *            actAsSubjectIdentifer
-//   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
-//   * duplicates
-//   * @param actAsSubjectIdentifier
-//   *            optional: is the subject identifier of subject to act as (if
-//   *            proxying). Only pass one of actAsSubjectId or
-//   *            actAsSubjectIdentifer
-//   * @param fieldName is if the member should be added to a certain field membership
-//   * of the group (certain list)
-//   * @param subjectAttributeNames are the additional subject attributes (data) to return.
-//   * If blank, whatever is configured in the grouper-ws.properties will be sent.  Comma-separate
-//   * if multiple
-//   * @param includeGroupDetail T or F as to if the group detail should be returned
-//   * @param paramName0
-//   *            reserved for future use
-//   * @param paramValue0
-//   *            reserved for future use
-//   * @param paramName1
-//   *            reserved for future use
-//   * @param paramValue1
-//   *            reserved for future use
-//   * @return the memberships, or none if none found
-//   */
-//  public static WsGetMembershipsResults getMembershipsLite(final GrouperWsVersion clientVersion,
-//      String groupName, String groupUuid, String membershipFilter,
-//      boolean includeSubjectDetail, String actAsSubjectId, String actAsSubjectSourceId,
-//      String actAsSubjectIdentifier, Field fieldName, String subjectAttributeNames,
-//      boolean includeGroupDetail, String paramName0, String paramValue0,
-//      String paramName1, String paramValue1) {
-//  
-//    // setup the group lookup
-//    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
-//  
-//    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
-//        actAsSubjectSourceId, actAsSubjectIdentifier);
-//  
-//    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
-//  
-//    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
-//  
-//    // pass through to the more comprehensive method
-//    WsGetMembershipsResults wsGetMembershipsResults = getMemberships(clientVersion,
-//        wsGroupLookup, membershipFilter, actAsSubjectLookup, fieldName,
-//        includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
-//        params);
-//  
-//    return wsGetMembershipsResults;
-//  }
+  
+    } catch (Exception e) {
+      wsGetMembershipsResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  
+    return wsGetMembershipsResults;
+  
+  }
+
+  /**
+   * get memberships from a group based on a filter (all, immediate only,
+   * effective only, composite)
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param groupName
+   *            to lookup the group (mutually exclusive with groupUuid)
+   * @param groupUuid
+   *            to lookup the group (mutually exclusive with groupName)
+   * @param subjectId to search for memberships in or null to not restrict
+   * @param sourceId of subject to search for memberships, or null to not restrict
+   * @param subjectIdentifier of subject to search for memberships, or null to not restrict
+   * @param wsMemberFilter
+   *            must be one of All, Effective, Immediate, Composite
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+   * duplicates
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param fieldName is if the member should be added to a certain field membership
+   * of the group (certain list)
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent.  Comma-separate
+   * if multiple
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @param sourceIds are comma separated sourceIds
+   * @param scope is a sql like string which will have a percent % concatenated to the end for group
+   * names to search in (or stem names)
+   * @param stemName to limit the search to a stem (in or under)
+   * @param stemUuid to limit the search to a stem (in or under)
+   * @param stemScope to specify if we are searching in or under the stem
+   * @param enabled A for all, null or T for enabled only, F for disabled only
+   * @param membershipIds comma separated list of membershipIds to retrieve
+   * @return the memberships, or none if none found
+   */
+  public static WsGetMembershipsResults getMembershipsLite(final GrouperWsVersion clientVersion,
+      String groupName, String groupUuid, String subjectId, String sourceId, String subjectIdentifier, 
+      WsMemberFilter wsMemberFilter,
+      boolean includeSubjectDetail, String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, Field fieldName, String subjectAttributeNames,
+      boolean includeGroupDetail, String paramName0, String paramValue0,
+      String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
+      String stemUuid, StemScope stemScope, String enabled, String membershipIds) {
+  
+    // setup the group lookup
+    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+  
+    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup(subjectId, sourceId, subjectIdentifier);
+    
+    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+  
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+  
+    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
+  
+    // pass through to the more comprehensive method
+    WsGroupLookup[] wsGroupLookups = new WsGroupLookup[]{wsGroupLookup};
+    WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[]{wsSubjectLookup};
+    
+    String[] sourceIdArray = GrouperUtil.splitTrim(sourceIds, ",");
+
+    String[] membershipIdArray = GrouperUtil.splitTrim(membershipIds, ",");
+
+    WsStemLookup wsStemLookup = new WsStemLookup(stemName, stemUuid);
+    
+    WsGetMembershipsResults wsGetMembershipsResults = getMemberships(clientVersion,
+        wsGroupLookups, wsSubjectLookups, wsMemberFilter, actAsSubjectLookup, fieldName,
+        includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
+        params, sourceIdArray, scope, wsStemLookup, stemScope, enabled, membershipIdArray);
+  
+    return wsGetMembershipsResults;
+  }
 
   /**
    * get members from a group based on a filter (all, immediate only,

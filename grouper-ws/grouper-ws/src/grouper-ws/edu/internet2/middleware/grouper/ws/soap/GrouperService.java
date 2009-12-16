@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -596,13 +595,6 @@ public class GrouperService {
 
       StemScope stemScopeEnum = StemScope.valueOfIgnoreCase(stemScope);
       
-      Boolean enabledBoolean = null;
-      if (StringUtils.equalsIgnoreCase("A", enabled)) {
-        enabledBoolean = null;
-      } else {
-        enabledBoolean = GrouperServiceUtils.booleanValue(enabled, true, "enabled");
-      }
-      
       Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
       Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
       
@@ -611,7 +603,7 @@ public class GrouperService {
       wsGetGroupsResults = GrouperServiceLogic.getGroups(grouperWsVersion, subjectLookups, 
           wsMemberFilter, actAsSubjectLookup, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, params, fieldName, scope, wsStemLookup, 
-          stemScopeEnum, enabledBoolean, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
+          stemScopeEnum, enabled, pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, null, e);
     }
@@ -2626,13 +2618,6 @@ public class GrouperService {
 
       StemScope stemScopeEnum = StemScope.valueOfIgnoreCase(stemScope);
       
-      Boolean enabledBoolean = null;
-      if (StringUtils.equalsIgnoreCase("A", enabled)) {
-        enabledBoolean = null;
-      } else {
-        enabledBoolean = GrouperServiceUtils.booleanValue(enabled, true, "enabled");
-      }
-      
       Integer pageSizeInteger = GrouperUtil.intObjectValue(pageSize, true);
       Integer pageNumberInteger = GrouperUtil.intObjectValue(pageNumber, true);
       
@@ -2642,7 +2627,7 @@ public class GrouperService {
           subjectId, subjectSourceId, subjectIdentifier, wsMemberFilter, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-          paramName1, paramValue1, fieldName, scope, stemName, stemUuid, stemScopeEnum, enabledBoolean, 
+          paramName1, paramValue1, fieldName, scope, stemName, stemUuid, stemScopeEnum, enabled, 
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean);
     } catch (Exception e) {
       wsGetGroupsLiteResult.assignResultCodeException(null, null, e);
