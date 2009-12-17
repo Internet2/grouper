@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -9,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
@@ -40,6 +42,9 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
    * result code of a request
    */
   public static enum WsGetMembershipsResultsCode implements WsResultCode {
+
+    /** cant find group (lite http status code 500) (success: F) */
+    GROUP_NOT_FOUND(500),
 
     /** found the subject (lite http status code 200) (success: T) */
     SUCCESS(200),
@@ -188,13 +193,42 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
   /**
    * convert members to subject results
    * @param membershipSet
+   * @param includeGroupDetail 
+   * @param includeSubjectDetail 
+   * @param theSubjectAttributeNames 
    * @param returnedGroups
    * @param returnedMembers
    */
-  public void assignSubjectResult(Set<Object[]> membershipSet, Set<Group> returnedGroups, Set<Member> returnedMembers) {
-    this.setWsMemberships(WsMembership.convertMembers(membershipSet, returnedGroups, returnedMembers));
-  }
+  public void assignResult(Set<Object[]> membershipSet, boolean includeGroupDetail, 
+      boolean includeSubjectDetail, String[] theSubjectAttributeNames) {
+    Set<Group> groupSet = new LinkedHashSet<Group>();
+    Set<Member> memberSet = new LinkedHashSet<Member>();
+    
+    this.subjectAttributeNames = theSubjectAttributeNames;
 
+    this.setWsMemberships(WsMembership.convertMembers(membershipSet, groupSet, memberSet));
+    
+    //turn groups into wsgroups
+    if (groupSet.size() > 0) {
+      this.wsGroups = new WsGroup[groupSet.size()];
+      int index = 0;
+      for (Group group : groupSet) {
+        this.wsGroups[index] = new WsGroup(group, null, includeGroupDetail);
+        
+        index++;
+      }
+    }
+    
+    if (memberSet.size() > 0) {
+      this.wsSubjects = new WsSubject[memberSet.size()];
+      int index = 0;
+      for (Member member : memberSet) {
+        this.wsSubjects[index] = new WsSubject(member, theSubjectAttributeNames, null, includeSubjectDetail);
+        
+        index++;
+      }
+    }    
+  }
 
   /**
    * process an exception, log, etc
@@ -209,7 +243,9 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
     if (e instanceof WsInvalidQueryException) {
       wsGetMembershipsResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsGetMembershipsResultsCodeOverride, WsGetMembershipsResultsCode.INVALID_QUERY);
-
+      if (e.getCause() instanceof GroupNotFoundException) {
+        wsGetMembershipsResultsCodeOverride = WsGetMembershipsResultsCode.GROUP_NOT_FOUND;
+      }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetMembershipsResultsCodeOverride);
       this.getResultMetadata().appendResultMessage(e.getMessage());

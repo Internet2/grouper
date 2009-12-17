@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -49,6 +50,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -63,7 +65,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.4 2009-12-10 08:54:15 mchyzer Exp $
+ * @version $Id: TestMember.java,v 1.5 2009-12-17 06:57:57 mchyzer Exp $
  */
 public class TestMember extends GrouperTest {
 
@@ -72,7 +74,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember("testGetGroupsComplex"));
+    TestRunner.run(new TestMember("testGetMembershipsComplex"));
   }
   
   /** logger */
@@ -336,6 +338,197 @@ public class TestMember extends GrouperTest {
       //good
     }
   }
+  
+  /**
+   * see if a result array has a group in there, count the times
+   * @param result
+   * @param group
+   * @return count of times group is there
+   */
+  @SuppressWarnings("unused")
+  private static int membershipArrayHasGroup(Set<Object[]> result, Group group) {
+    int count = 0;
+    for (Object[] row : GrouperUtil.nonNull(result)) {
+      Membership currentMembership = (Membership)row[0];
+      Group currentGroup = (Group)row[1];
+      Member currentMember = (Member)row[2];
+      if (group.getName().equals(currentGroup.getName())) {
+        count++;
+      }
+    }
+    return count;
+  }
+  
+  /**
+   * see if a result array has a group in there, count the times
+   * @param result
+   * @param member
+   * @return count of times group is there
+   */
+  private static int membershipArrayHasMember(Set<Object[]> result, Member member) {
+    int count = 0;
+    for (Object[] row : GrouperUtil.nonNull(result)) {
+      Member currentMember = (Member)row[2];
+      if (member.getUuid().equals(currentMember.getUuid())) {
+        count++;
+      }
+    }
+    return count;
+  }
+  
+  /**
+   * <pre>
+   * edu(f)
+   * edu:comp1
+   * edu:compLeft
+   * edu:compRight
+   * edu:eduSub(f)
+   * edu:eduSub:i2sub
+   * edu:i2
+   * edu:uofc
+   * edu2(f)
+   * 
+   * 
+   * </pre>
+   */
+  public void testGetMembershipsComplex() {
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    Subject         subj1  = SubjectTestHelper.SUBJ1;
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    Stem            eduSub   = edu.addChildStem("eduSub", "eduSub");
+    Stem            edu2   = root.addChildStem("edu2", "edu2");
+    Group           i2    = edu.addChildGroup("i2", "i2");
+    Group           i2sub    = eduSub.addChildGroup("i2sub", "i2sub");
+    Group           edu2i2sub    = edu2.addChildGroup("edu2i2sub", "edu2i2sub");
+    Group           comp1    = edu.addChildGroup("comp1", "comp1");
+    Group           compLeft    = edu.addChildGroup("compLeft", "compRight");
+    Group           compRight    = edu.addChildGroup("compRight", "compRight");
+    
+    comp1.addCompositeMember(CompositeType.INTERSECTION, compLeft, compRight);
+    
+    compLeft.addMember(subj);  
+    compRight.addMember(subj);  
+    
+    Group           uofc  = edu.addChildGroup("uofc", "uofc");
+    GroupHelper.addMember(uofc, subj, "members");
+    GroupHelper.addMember(i2, uofc.toSubject(), "members");
+    Member          member     = MemberFinder.findBySubject(s, subj, true);
+    Member          member1     = MemberFinder.findBySubject(s, subj1, true);
+    
+    i2sub.addMember(subj1);
+    edu2i2sub.addMember(subj1);
+
+    //Set<Group> groups = member.getImmediateGroups();
+    Set<Object[]> results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member.getUuid()), null, MembershipType.IMMEDIATE, null, null, null, null, null, true);
+    
+    assertEquals(3, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, compLeft));
+    assertEquals(1, membershipArrayHasGroup(results, compRight));
+    assertEquals(1, membershipArrayHasGroup(results, uofc));
+    
+    //groups = member.getNonImmediateGroups();
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member.getUuid()), null, MembershipType.NONIMMEDIATE, null, null, null, null, null, true);
+
+    assertEquals(2, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, comp1));
+    assertEquals(1, membershipArrayHasGroup(results, i2));
+    
+    //groups = member1.getEffectiveGroups();
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.EFFECTIVE, null, null, null, null, null, true);
+    assertEquals(0, results.size());
+
+    //groups = member1.getImmediateGroups(Group.getDefaultList(), "whatever", null, null, null, true);
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, null, null, "whatever", null, null, true);
+    assertEquals(0, results.size());
+
+    //groups = member1.getImmediateGroups(Group.getDefaultList(), "edu:eduSub", null, null, null, true);
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, null, null, "edu:eduSub", null, null, true);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, i2sub));
+
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, null, null, "edu:eduSub", null, null, null);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, i2sub));
+
+    //groups = member1.getImmediateGroups(Group.getDefaultList(), "edu2", null, null, null, true);
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, null, null, "edu2", null, null, true);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, edu2i2sub));
+
+    //groups = member1.getImmediateGroups(Group.getDefaultList(), "edu2", null, null, null, false);
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, null, null, "edu2", null, null, false);
+    assertEquals(0, results.size());
+
+    try {
+      results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+          GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, null, null, null, edu, null, false);
+      fail("Need stem scope");
+    } catch (Exception e) {
+      //good
+    }
+    
+    //groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu, Scope.ONE, null, true);
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, Group.getDefaultList(), null, null, edu, Scope.ONE, false);
+    assertEquals(0, results.size());
+    
+    //groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu2, Scope.ONE, null, true);
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, Group.getDefaultList(), null, null, edu2, Scope.ONE, true);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, edu2i2sub));
+
+    
+    //groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu, Scope.SUB, null, true);
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, Group.getDefaultList(), null, null, edu, Scope.SUB, true);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, i2sub));
+
+    //groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu2, Scope.SUB, null, true);
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        GrouperUtil.toList(member1.getUuid()), null, MembershipType.IMMEDIATE, Group.getDefaultList(), null, null, edu2, Scope.SUB, true);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, edu2i2sub));
+
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(GrouperUtil.toList(edu2i2sub.getUuid()), 
+        null, null, MembershipType.IMMEDIATE, Group.getDefaultList(), null, null, edu2, Scope.SUB, true);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasMember(results, member1));
+
+    String membershipId = ((Membership)results.iterator().next()[0]).getUuid();
+  
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        null, GrouperUtil.toList(membershipId), MembershipType.IMMEDIATE, Group.getDefaultList(), null, null, edu2, Scope.SUB, true);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasMember(results, member1));
+    assertEquals(1, membershipArrayHasGroup(results, edu2i2sub));
+  
+    results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 
+        null, GrouperUtil.toList(membershipId), MembershipType.IMMEDIATE, Group.getDefaultList(), 
+        GrouperUtil.toSet(SourceManager.getInstance().getSource("g:gsa")), null, edu2, Scope.SUB, true);
+    assertEquals(0, results.size());
+    
+    results = MembershipFinder.findMemberships(null, 
+        null, GrouperUtil.toList(membershipId), MembershipType.IMMEDIATE, Group.getDefaultList(), 
+        GrouperUtil.toSet(SourceManager.getInstance().getSource("jdbc")), null, edu2, Scope.SUB, true);
+    assertEquals(1, results.size());
+    assertEquals(1, membershipArrayHasMember(results, member1));
+    assertEquals(1, membershipArrayHasGroup(results, edu2i2sub));
+    
+  }
+  
+  
   
   /**
    * 

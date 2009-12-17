@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.51 2009-12-16 06:02:30 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.52 2009-12-17 06:57:57 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -510,8 +510,15 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
-    StringBuilder sql = new StringBuilder("select ms, g, m "
-        + " from Member m, MembershipEntry ms, Group g ");
+    String selectPrefix = "select ms, g, m ";
+    String countPrefix = "select count(*) ";
+    
+    StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");
+    
+    //we need to make sure it is a list type field
+    if (field == null) {
+      sql.append(", Field f ");
+    }
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -564,8 +571,15 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
     }
     if (field != null) {
+      //needs to be a members field
+      if (!StringUtils.equals("list",field.getTypeString())) {
+        throw new RuntimeException("This method only works with members fields: " + field);
+      }
       sql.append(" and ms.fieldId = :fieldId ");
       byHqlStatic.setString("fieldId", field.getUuid());
+    } else {
+      //add on the column
+      sql.append(" and ms.fieldId = f.uuid and f.typeString = 'list' ");
     }
     if (groupIdsSize > 0) {
       sql.append(" and ms.ownerGroupId in (");
@@ -583,7 +597,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       sql.append(") ");
     }
     
-    byHqlStatic.createQuery(sql.toString())
+    byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByGroupOwnerOptions");
 
@@ -591,12 +605,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     //if -1, lets not check
     if (maxMemberships >= 0) {
-      //just get number of results
-      QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
-      
-      int size = byHqlStatic.options(queryOptions)
-        .uniqueResult(int.class);    
-      
+
+      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
       
       //see if too many
       if (size > maxMemberships) {
@@ -606,7 +616,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     
     
-    Set<Object[]> results = byHqlStatic.options(null).listSet(Object[].class);
+    Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
 
     //nothing to filter
     if (GrouperUtil.length(results) == 0) {

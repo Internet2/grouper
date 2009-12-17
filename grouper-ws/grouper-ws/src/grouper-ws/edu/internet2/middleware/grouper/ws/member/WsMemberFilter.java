@@ -3,10 +3,7 @@
  */
 package edu.internet2.middleware.grouper.ws.member;
 
-import java.util.Collection;
 import java.util.Set;
-
-import org.apache.commons.lang.ObjectUtils;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
@@ -16,9 +13,9 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -93,6 +90,16 @@ public enum WsMemberFilter {
         Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
       return GrouperUtil.nonNull(member.getGroups(field, scope, stem, stemScope, queryOptions, enabled));
     }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
+     */
+    @Override
+    public MembershipType getMembershipType() {
+      //note, all members is the same as an "all" membership type
+      return null;
+    }
   },
 
   /**
@@ -162,6 +169,15 @@ public enum WsMemberFilter {
         Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
       return GrouperUtil.nonNull(member.getEffectiveGroups(field, scope, stem, stemScope, queryOptions, enabled));
     }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
+     */
+    @Override
+    public MembershipType getMembershipType() {
+      return MembershipType.EFFECTIVE;
+    }
   },
   /**
    * return only direct members of a group (for composite groups this will not return anything) 
@@ -229,6 +245,15 @@ public enum WsMemberFilter {
     public Set<Group> getGroups(Member member, Field field, String scope, 
         Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
       return GrouperUtil.nonNull(member.getImmediateGroups(field, scope, stem, stemScope, queryOptions, enabled));
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
+     */
+    @Override
+    public MembershipType getMembershipType() {
+      return MembershipType.IMMEDIATE;
     }
   },
 
@@ -300,6 +325,15 @@ public enum WsMemberFilter {
           "getGroups with composite is not supported: member subject id: "
               + member.getSubjectId());
     }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
+     */
+    @Override
+    public MembershipType getMembershipType() {
+      return MembershipType.COMPOSITE;
+    }
   }, 
   
   /**
@@ -368,6 +402,15 @@ public enum WsMemberFilter {
         Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
       return GrouperUtil.nonNull(member.getNonImmediateGroups(field, scope, stem, stemScope, queryOptions, enabled));
     }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
+     */
+    @Override
+    public MembershipType getMembershipType() {
+      return MembershipType.NONIMMEDIATE;
+    }
   };
 
   /**
@@ -387,6 +430,12 @@ public enum WsMemberFilter {
     }
   }
 
+  /**
+   * get the membership type for this member filter
+   * @return the membership type
+   */
+  public abstract MembershipType getMembershipType();
+  
   /**
    * get the members from the group based on type of filter
    * 

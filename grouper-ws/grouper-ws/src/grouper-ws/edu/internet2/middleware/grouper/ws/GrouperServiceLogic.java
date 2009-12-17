@@ -1,10 +1,11 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.32 2009-12-16 06:02:34 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.33 2009-12-17 06:58:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -22,6 +23,7 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -40,6 +42,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -112,6 +115,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult.WsDeleteMem
 import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults.WsFindGroupsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults.WsFindStemsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
+import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult.WsGroupSaveResultCode;
@@ -120,6 +124,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult.WsMe
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup.StemFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult.WsStemSaveResultCode;
+import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.MemberFindResult;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -1289,7 +1294,7 @@ public class GrouperServiceLogic {
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @param wsGroupLookups are groups to look in
    * @param wsSubjectLookups are subjects to look in
-   * @param wsMembershipFilter
+   * @param wsMemberFilter
    *            must be one of All, Effective, Immediate, Composite, NonImmediate
    * @param includeSubjectDetail
    *            T|F, for if the extended subject information should be
@@ -1312,7 +1317,7 @@ public class GrouperServiceLogic {
    */
   @SuppressWarnings("unchecked")
   public static WsGetMembershipsResults getMemberships(final GrouperWsVersion clientVersion,
-      WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, WsMemberFilter wsMembershipFilter,
+      WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, WsMemberFilter wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
@@ -1325,7 +1330,7 @@ public class GrouperServiceLogic {
     try {
   
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
-          + GrouperUtil.toStringForLog(wsGroupLookups, 200) + ", wsMembershipFilter: " + wsMembershipFilter
+          + GrouperUtil.toStringForLog(wsGroupLookups, 200) + ", wsMembershipFilter: " + wsMemberFilter
           + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
           + actAsSubjectLookup + ", fieldName: " + fieldName
           + ", subjectAttributeNames: "
@@ -1344,22 +1349,80 @@ public class GrouperServiceLogic {
       @SuppressWarnings("unused")
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
-  
-      //TODO
-//      Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
-//  
-//      //assign the group to the result to be descriptive
-//      wsGetMembershipsResults.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
-//  
-//      String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
-//          .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
-//  
-//      // lets get the members, cant be null
-//      Set<Membership> memberships = wsMembershipFilter.getMemberships(group, fieldName);
-//  
-//      wsGetMembershipsResults.assignSubjectResult(memberships,
-//          subjectAttributeNamesToRetrieve);
-  
+      
+      MembershipType membershipType = null;
+      if (wsMemberFilter != null) {
+        membershipType = wsMemberFilter.getMembershipType();
+      }
+      
+      //get all the groups
+      //we could probably batch these to get better performance.  And we dont even have to lookup uuids
+      Set<String> groupIds = null;
+      if (GrouperUtil.length(wsGroupLookups) > 0) {
+        
+        groupIds = new LinkedHashSet<String>();
+        for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
+          
+          wsGroupLookup.retrieveGroupIfNeeded(session);
+          Group group = wsGroupLookup.retrieveGroup();
+          groupIds.add(group.getUuid());
+          
+        }
+        
+      }
+
+      //get all the members
+      Set<String> memberIds = null;
+      if (GrouperUtil.length(wsSubjectLookups) > 0) {
+        
+        memberIds = new LinkedHashSet<String>();
+        for (WsSubjectLookup wsSubjectLookup : wsSubjectLookups) {
+          
+          Member member = wsSubjectLookup.retrieveMember();
+          if (member == null) {
+            //cant find, thats ok
+            if (MemberFindResult.MEMBER_NOT_FOUND.equals(wsSubjectLookup.retrieveMemberFindResult())) {
+              continue;
+            }
+            //problem
+            throw new RuntimeException("Problem with subject: " + wsSubjectLookup + ", " + wsSubjectLookup.retrieveMemberFindResult());
+          }
+          memberIds.add(member.getUuid());
+        }
+      }
+
+      Boolean enabledBoolean = true;
+      if (!StringUtils.isBlank(enabled)) {
+        if (StringUtils.equalsIgnoreCase("A", enabled)) {
+          enabledBoolean = null;
+        } else {
+          enabledBoolean = GrouperUtil.booleanValue(enabled);
+        }
+      }
+      
+      Stem stem = null;
+      
+      if (wsStemLookup != null) {
+        wsStemLookup.retrieveStemIfNeeded(session, true);
+        stem = wsStemLookup.retrieveStem();
+      }
+      
+      Set<Source> sources = GrouperUtil.convertSources(sourceIds);
+      
+      Set<String> membershipIdSet = null;
+      if (GrouperUtil.length(membershipIds) > 0) {
+        membershipIdSet = GrouperUtil.toSet(membershipIds);
+      }
+      
+      // lets get the members, cant be null
+      Set<Object[]> membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
+          membershipType, fieldName, sources, scope, stem, stemScope == null ? null : stemScope.convertToScope(), enabledBoolean);
+      
+      //calculate and return the results
+      wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
+      
+      wsGetMembershipsResults.assignResultCode(WsGetMembershipsResultsCode.SUCCESS);
+        
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, theSummary, e);
     } finally {

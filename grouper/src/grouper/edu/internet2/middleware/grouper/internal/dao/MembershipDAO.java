@@ -34,7 +34,7 @@ import edu.internet2.middleware.subject.Source;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.34 2009-12-16 06:02:30 mchyzer Exp $
+ * @version $Id: MembershipDAO.java,v 1.35 2009-12-17 06:57:57 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -378,16 +378,16 @@ TODO update for 1.5
 
   /**
    * find membershpis by group owner and other options.  Note you cant pass in more than 100 groupIds, or memberIds.  
-   * @param groupIds
-   * @param memberIds
-   * @param membershipIds
-   * @param membershipType
-   * @param field
-   * @param sources
-   * @param scope
-   * @param stem
-   * @param stemScope
-   * @param enabled
+   * @param groupIds to limit memberships to (cant have more than 100 bind variables)
+   * @param memberIds to limit memberships to (cant have more than 100 bind variables)
+   * @param membershipIds to limit memberships to (cant have more than 100 bind variables)
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
    * @return a set of membership, group, and member objects
    */
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
