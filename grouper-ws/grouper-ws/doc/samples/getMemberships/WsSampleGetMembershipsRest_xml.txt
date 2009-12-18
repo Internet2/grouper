@@ -46,49 +46,49 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Thu, 17 Dec 2009 22:31:09 GMT
+Date: Fri, 18 Dec 2009 04:38:26 GMT
 Connection: close
 
 <WsGetMembershipsResults>
   <wsMemberships>
     <WsMembership>
-      <membershipId>49011ff5ba2f42b4bdcfbc715b5f924f:3a157cb8a9664757a629ba3e7b24f4e3</membershipId>
-      <listName>members</listName>
-      <listType>list</listType>
-      <membershipType>immediate</membershipType>
-      <enabled>T</enabled>
-      <memberId>05080389fe444e87bc83cf75b8f440a3</memberId>
-      <groupId>9ce1117afef2414e92498a86a0b53ee1</groupId>
-      <subjectId>10021368</subjectId>
-      <subjectSourceId>jdbc</subjectSourceId>
-      <groupName>aStem:aGroup</groupName>
-      <createTime>2009/12/17 17:31:07.561</createTime>
-    </WsMembership>
-    <WsMembership>
-      <membershipId>8f420819e9404b7e8e59aff318c72cef:3a157cb8a9664757a629ba3e7b24f4e3</membershipId>
+      <membershipId>d9bc008e6eef449c93c26d1e3dafedd2:46ba8943c9364931bec0d1fcb3c31778</membershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
       <memberId>18115df1c9b043f2bcaf58163003a276</memberId>
-      <groupId>9ce1117afef2414e92498a86a0b53ee1</groupId>
+      <groupId>f7136ae90a1a49d7b623334fd9ec154c</groupId>
       <subjectId>GrouperSystem</subjectId>
       <subjectSourceId>g:isa</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2009/12/17 17:31:07.528</createTime>
+      <createTime>2009/12/17 23:38:24.238</createTime>
     </WsMembership>
     <WsMembership>
-      <membershipId>cea7c2a68c4e4ab0b4abe5b0ed87c7c9:3a157cb8a9664757a629ba3e7b24f4e3</membershipId>
+      <membershipId>5084466824364e27a90df91ce8b257e4:46ba8943c9364931bec0d1fcb3c31778</membershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>3bdfdf749bba48d1a5c53253b53be300</memberId>
-      <groupId>9ce1117afef2414e92498a86a0b53ee1</groupId>
+      <memberId>07afa53575a2494cb859cb83458c97f5</memberId>
+      <groupId>f7136ae90a1a49d7b623334fd9ec154c</groupId>
+      <subjectId>10021368</subjectId>
+      <subjectSourceId>jdbc</subjectSourceId>
+      <groupName>aStem:aGroup</groupName>
+      <createTime>2009/12/17 23:38:24.280</createTime>
+    </WsMembership>
+    <WsMembership>
+      <membershipId>5ec4cef7088a45779203adcef8468639:46ba8943c9364931bec0d1fcb3c31778</membershipId>
+      <listName>members</listName>
+      <listType>list</listType>
+      <membershipType>immediate</membershipType>
+      <enabled>T</enabled>
+      <memberId>c355f668f84348b595cf994bd7101922</memberId>
+      <groupId>f7136ae90a1a49d7b623334fd9ec154c</groupId>
       <subjectId>10039438</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2009/12/17 17:31:07.545</createTime>
+      <createTime>2009/12/17 23:38:24.262</createTime>
     </WsMembership>
   </wsMemberships>
   <subjectAttributeNames>
@@ -103,22 +103,10 @@ Connection: close
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>9ce1117afef2414e92498a86a0b53ee1</uuid>
+      <uuid>f7136ae90a1a49d7b623334fd9ec154c</uuid>
     </WsGroup>
   </wsGroups>
   <wsSubjects>
-    <WsSubject>
-      <resultCode>SUCCESS</resultCode>
-      <success>T</success>
-      <id>10021368</id>
-      <name>10021368</name>
-      <sourceId>jdbc</sourceId>
-      <attributeValues>
-        <string></string>
-        <string></string>
-        <string>10021368</string>
-      </attributeValues>
-    </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
@@ -129,6 +117,18 @@ Connection: close
         <string>GrouperSysAdmin</string>
         <string></string>
         <string>EveryEntity</string>
+      </attributeValues>
+    </WsSubject>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <id>10021368</id>
+      <name>10021368</name>
+      <sourceId>jdbc</sourceId>
+      <attributeValues>
+        <string></string>
+        <string></string>
+        <string>10021368</string>
       </attributeValues>
     </WsSubject>
     <WsSubject>
@@ -146,10 +146,11 @@ Connection: close
   </wsSubjects>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
+    <resultMessage>Found 3 results involving 1 groups and 3 subjects</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>152</millis>
+    <millis>541</millis>
     <serverVersion>v1_6_000</serverVersion>
   </responseMetadata>
 </WsGetMembershipsResults>
@@ -315,4 +316,4 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: null
+Server version: v1_6_000, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects

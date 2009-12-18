@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Thu, 17 Dec 2009 22:31:23 GMT
+Date: Fri, 18 Dec 2009 04:38:41 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -47,51 +47,113 @@ Connection: close
     <div title="WsGetMembershipsResults">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="success">T</p>
-        <p class="resultMessage" />
+        <p class="resultMessage">Found 4 results involving 4 groups and 1 subjects</p>
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">164</p>
+        <p class="millis">172</p>
         <p class="serverVersion">v1_6_000</p>
         <p class="resultWarnings" />
       </div>
-      <ul class="wsGroups">
-        <li title="WsGroup">
-          <p class="name">etc:webServiceActAsGroup</p>
-          <p class="displayName">etc:webServiceActAsGroup</p>
-          <p class="description" />
-          <p class="uuid">92920e0184ba4759ae76422a6d697af7</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="extension">webServiceActAsGroup</p>
-          <p class="displayExtension">webServiceActAsGroup</p>
+      <ul class="wsMemberships">
+        <li title="WsMembership">
+          <p class="subjectSourceId">jdbc</p>
+          <p class="subjectId">10021368</p>
+          <p class="groupName">aStem:aGroup</p>
+          <p class="createTime">2009/12/17 23:38:39.493</p>
+          <p class="enabledTime" />
+          <p class="disabledTime" />
+          <p class="memberId">b76c635dda9f4d98a84ebd40103c32e0</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="membershipType">immediate</p>
+          <p class="enabled">T</p>
+          <p class="groupId">f3dcb983a9df4ac4b03fecd0d68a612e</p>
+          <p class="membershipId">901aefc4d17e4c1d97c522a8bfb297c0:c74c5b212f5f4598a542edcd57cc9a03</p>
         </li>
+        <li title="WsMembership">
+          <p class="subjectSourceId">jdbc</p>
+          <p class="subjectId">10021368</p>
+          <p class="groupName">aStem:aGroup2</p>
+          <p class="createTime">2009/12/17 23:38:39.548</p>
+          <p class="enabledTime" />
+          <p class="disabledTime" />
+          <p class="memberId">b76c635dda9f4d98a84ebd40103c32e0</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="membershipType">immediate</p>
+          <p class="enabled">T</p>
+          <p class="groupId">4e8e0e705d5743a1ac01be45a9275898</p>
+          <p class="membershipId">891be36cf3b447949432e66ca9de57d2:876bac7ab26946fcb5b908b4e4d713b0</p>
+        </li>
+        <li title="WsMembership">
+          <p class="subjectSourceId">jdbc</p>
+          <p class="subjectId">10021368</p>
+          <p class="groupName">etc:sysadmingroup</p>
+          <p class="createTime">2009/12/17 23:38:39.727</p>
+          <p class="enabledTime" />
+          <p class="disabledTime" />
+          <p class="memberId">b76c635dda9f4d98a84ebd40103c32e0</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="membershipType">immediate</p>
+          <p class="enabled">T</p>
+          <p class="groupId">033e9e3529c2458c9f7544389ffadb69</p>
+          <p class="membershipId">80c343c7a004403caf569414678c9c62:fbd12b07f8154ffd8d52b9593342c26a</p>
+        </li>
+        <li title="WsMembership">
+          <p class="subjectSourceId">jdbc</p>
+          <p class="subjectId">10021368</p>
+          <p class="groupName">etc:webServiceActAsGroup</p>
+          <p class="createTime">2009/12/17 23:38:39.685</p>
+          <p class="enabledTime" />
+          <p class="disabledTime" />
+          <p class="memberId">b76c635dda9f4d98a84ebd40103c32e0</p>
+          <p class="listName">members</p>
+          <p class="listType">list</p>
+          <p class="membershipType">immediate</p>
+          <p class="enabled">T</p>
+          <p class="groupId">4d8219a3964a42cab173608340048121</p>
+          <p class="membershipId">ea3dc7c719dd4cedad0f792308d915ac:8445b57f17e245d6bd01bd6926c903c0</p>
+        </li>
+      </ul>
+      <ul class="wsGroups">
         <li title="WsGroup">
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
-          <p class="uuid">d8c27170fd5b4de39cba3971b924df89</p>
+          <p class="uuid">f3dcb983a9df4ac4b03fecd0d68a612e</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
           <p class="displayExtension">a group</p>
         </li>
         <li title="WsGroup">
+          <p class="name">aStem:aGroup2</p>
+          <p class="displayName">a stem:a group2</p>
+          <p class="description">a group description2</p>
+          <p class="uuid">4e8e0e705d5743a1ac01be45a9275898</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="extension">aGroup2</p>
+          <p class="displayExtension">a group2</p>
+        </li>
+        <li title="WsGroup">
           <p class="name">etc:sysadmingroup</p>
           <p class="displayName">etc:sysadmingroup</p>
           <p class="description" />
-          <p class="uuid">16d630d1491c43d7b784a6988778014f</p>
+          <p class="uuid">033e9e3529c2458c9f7544389ffadb69</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">sysadmingroup</p>
           <p class="displayExtension">sysadmingroup</p>
         </li>
         <li title="WsGroup">
-          <p class="name">aStem:aGroup2</p>
-          <p class="displayName">a stem:a group2</p>
-          <p class="description">a group description2</p>
-          <p class="uuid">9ac98c96659a41d9aff5e9c06b24e72a</p>
+          <p class="name">etc:webServiceActAsGroup</p>
+          <p class="displayName">etc:webServiceActAsGroup</p>
+          <p class="description" />
+          <p class="uuid">4d8219a3964a42cab173608340048121</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="extension">aGroup2</p>
-          <p class="displayExtension">a group2</p>
+          <p class="extension">webServiceActAsGroup</p>
+          <p class="displayExtension">webServiceActAsGroup</p>
         </li>
       </ul>
       <ul class="wsSubjects">
@@ -102,68 +164,6 @@ Connection: close
           <p class="success">T</p>
           <p class="resultCode">SUCCESS</p>
           <p class="identifierLookup" />
-        </li>
-      </ul>
-      <ul class="wsMemberships">
-        <li title="WsMembership">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">10021368</p>
-          <p class="groupName">etc:webServiceActAsGroup</p>
-          <p class="createTime">2009/12/17 17:31:21.938</p>
-          <p class="enabledTime" />
-          <p class="disabledTime" />
-          <p class="memberId">57e8ee85b79849cfb8ec61cd85cd3333</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="membershipType">immediate</p>
-          <p class="enabled">T</p>
-          <p class="groupId">92920e0184ba4759ae76422a6d697af7</p>
-          <p class="membershipId">489b41a63b06423184289827fa48b778:e887cd7c029a4299a5ffa25f6f672d46</p>
-        </li>
-        <li title="WsMembership">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">10021368</p>
-          <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2009/12/17 17:31:21.764</p>
-          <p class="enabledTime" />
-          <p class="disabledTime" />
-          <p class="memberId">57e8ee85b79849cfb8ec61cd85cd3333</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="membershipType">immediate</p>
-          <p class="enabled">T</p>
-          <p class="groupId">d8c27170fd5b4de39cba3971b924df89</p>
-          <p class="membershipId">7718dd0c1f41416193e6d0321f487f8e:b062262326774be19a12a38ab91c1471</p>
-        </li>
-        <li title="WsMembership">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">10021368</p>
-          <p class="groupName">etc:sysadmingroup</p>
-          <p class="createTime">2009/12/17 17:31:22.000</p>
-          <p class="enabledTime" />
-          <p class="disabledTime" />
-          <p class="memberId">57e8ee85b79849cfb8ec61cd85cd3333</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="membershipType">immediate</p>
-          <p class="enabled">T</p>
-          <p class="groupId">16d630d1491c43d7b784a6988778014f</p>
-          <p class="membershipId">9c29f4f0a58a43349a0cc30e620586d8:aeba93d559e041179b941c90d0bc9280</p>
-        </li>
-        <li title="WsMembership">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">10021368</p>
-          <p class="groupName">aStem:aGroup2</p>
-          <p class="createTime">2009/12/17 17:31:21.813</p>
-          <p class="enabledTime" />
-          <p class="disabledTime" />
-          <p class="memberId">57e8ee85b79849cfb8ec61cd85cd3333</p>
-          <p class="listName">members</p>
-          <p class="listType">list</p>
-          <p class="membershipType">immediate</p>
-          <p class="enabled">T</p>
-          <p class="groupId">9ac98c96659a41d9aff5e9c06b24e72a</p>
-          <p class="membershipId">e97cf146963147509a933ec9a17359b5:fb3c02adc368440aaad0fd5f55a36fe0</p>
         </li>
       </ul>
     </div>
@@ -301,4 +301,4 @@ public class WsSampleGetMembershipsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: null
+Server version: v1_6_000, result code: SUCCESS, result message: Found 4 results involving 4 groups and 1 subjects

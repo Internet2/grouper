@@ -18,7 +18,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * 
  * @author mchyzer
  */
-public class WsMembership {
+public class WsMembership implements Comparable<WsMembership> {
 
   /** id of the membership */
   private String membershipId = null;
@@ -353,6 +353,43 @@ public class WsMembership {
       
     }
     return wsGetMembershipsResultArray;
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(WsMembership o2) {
+    if (this == o2) {
+      return 0;
+    }
+    //lets by null safe here
+    if (this == null) {
+      return -1;
+    }
+    if (o2 == null) {
+      return 1;
+    }
+    int compare = GrouperUtil.compare(this.getGroupName(), o2.getGroupName());
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.getSubjectSourceId(), o2.getSubjectSourceId());
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.getSubjectId(), o2.getSubjectId());
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.getListType(), o2.getListType());
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.getListName(), o2.getListName());
+    if (compare != 0) {
+      return compare;
+    }
+    return GrouperUtil.compare(this.getMembershipType(), o2.getMembershipType());
   }
 
 }

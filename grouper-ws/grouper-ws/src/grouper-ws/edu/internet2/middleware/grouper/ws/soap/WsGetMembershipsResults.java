@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -238,8 +239,22 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
         index++;
       }
     }    
+    
+    this.sortResults();
+    
   }
 
+  /**
+   * sort the memberships by group, then subject, then list, then membership type.  
+   * sort the groups by name, and the subjects by sourceId,subjectId
+   */
+  private void sortResults() {
+    //maybe we shouldnt do this for huge resultsets, but this makes things more organized and easier to test
+    Arrays.sort(this.wsGroups);
+    Arrays.sort(this.wsSubjects);
+    Arrays.sort(this.wsMemberships);
+  }
+  
   /**
    * process an exception, log, etc
    * @param wsGetMembershipsResultsCodeOverride

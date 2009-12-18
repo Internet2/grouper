@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * @author mchyzer
  */
-public class WsGroup {
+public class WsGroup implements Comparable<WsGroup> {
 
   /**
    * make sure this is an explicit toString
@@ -230,5 +230,22 @@ public class WsGroup {
    */
   public void setDisplayExtension(String displayExtension1) {
     this.displayExtension = displayExtension1;
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(WsGroup o2) {
+    if (this == o2) {
+      return 0;
+    }
+    //lets by null safe here
+    if (this == null) {
+      return -1;
+    }
+    if (o2 == null) {
+      return 1;
+    }
+    return GrouperUtil.compare(this.getName(), o2.getName());
   }
 }

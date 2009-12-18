@@ -101,6 +101,25 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class GrouperUtil {
 
   /**
+   * compare null safe
+   * @param first
+   * @param second
+   * @return 0 for equal, 1 for greater, -1 for less
+   */
+  public static int compare(Comparable first, Comparable second) {
+    if (first == second) {
+      return 0;
+    }
+    if (first == null) {
+      return -1;
+    }
+    if (second == null) {
+      return 1;
+    }
+    return first.compareTo(second);
+  }
+  
+  /**
    * e.g. ('g:gsa', 'jdbc')
    * @param sources is comma separated source id's
    * @return the set of sources

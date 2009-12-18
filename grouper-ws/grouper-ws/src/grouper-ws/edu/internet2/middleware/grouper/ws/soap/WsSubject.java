@@ -19,7 +19,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @author mchyzer
  * 
  */
-public class WsSubject {
+public class WsSubject implements Comparable<WsSubject> {
 
   /** if lookedup by identifier, this is that identifier */
   private String identifierLookup;
@@ -376,6 +376,28 @@ public class WsSubject {
    */
   public void setSuccess(String success1) {
     this.success = success1;
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(WsSubject o2) {
+    if (this == o2) {
+      return 0;
+    }
+    //lets by null safe here
+    if (this == null) {
+      return -1;
+    }
+    if (o2 == null) {
+      return 1;
+    }
+    int compare = GrouperUtil.compare(this.getSourceId(), o2.getSourceId());
+    if (compare != 0) {
+      return compare;
+    }
+    return GrouperUtil.compare(this.getId(), o2.getId());
+
   }
 
 }

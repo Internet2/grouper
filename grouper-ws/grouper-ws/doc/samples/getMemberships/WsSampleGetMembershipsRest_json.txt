@@ -49,18 +49,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1971
-Date: Thu, 17 Dec 2009 22:31:06 GMT
+Content-Length: 2039
+Date: Fri, 18 Dec 2009 04:38:23 GMT
 Connection: close
 
 {
   "WsGetMembershipsResults":{
     "responseMetadata":{
-      "millis":"158",
+      "millis":"466",
       "serverVersion":"v1_6_000"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
+      "resultMessage":"Found 3 results involving 1 groups and 3 subjects",
       "success":"T"
     },
     "subjectAttributeNames":[
@@ -76,46 +77,46 @@ Connection: close
         "displayName":"a stem:a group",
         "extension":"aGroup",
         "name":"aStem:aGroup",
-        "uuid":"7198ab9250a74bfea544602231746eab"
+        "uuid":"a4b7bacbea3446f48723ddf77e9314e0"
       }
     ]
     ,
     "wsMemberships":[
       {
-        "createTime":"2009/12/17 17:31:04.767",
+        "createTime":"2009/12/17 23:38:21.147",
         "enabled":"T",
-        "groupId":"7198ab9250a74bfea544602231746eab",
+        "groupId":"a4b7bacbea3446f48723ddf77e9314e0",
         "groupName":"aStem:aGroup",
         "listName":"members",
         "listType":"list",
         "memberId":"18115df1c9b043f2bcaf58163003a276",
-        "membershipId":"b6176656d2f34679b2389b46a1ecbf28:3be6bf138b1649e58efcaee78f0fa31b",
+        "membershipId":"e3a88a28a20b4f6886ffdef0d374ce58:7f87a25346d2488a942bd80caa37ecb6",
         "membershipType":"immediate",
         "subjectId":"GrouperSystem",
         "subjectSourceId":"g:isa"
       },
       {
-        "createTime":"2009/12/17 17:31:04.808",
+        "createTime":"2009/12/17 23:38:21.183",
         "enabled":"T",
-        "groupId":"7198ab9250a74bfea544602231746eab",
+        "groupId":"a4b7bacbea3446f48723ddf77e9314e0",
         "groupName":"aStem:aGroup",
         "listName":"members",
         "listType":"list",
-        "memberId":"b59f99cde5e64200884f7c97e05d126c",
-        "membershipId":"b85bb139fa1a4ff392d42702c3ff4b5f:3be6bf138b1649e58efcaee78f0fa31b",
+        "memberId":"df5c0c3bde4d44fe81a498af1716c214",
+        "membershipId":"77be082d26534164bac88fb53f5a6999:7f87a25346d2488a942bd80caa37ecb6",
         "membershipType":"immediate",
         "subjectId":"10021368",
         "subjectSourceId":"jdbc"
       },
       {
-        "createTime":"2009/12/17 17:31:04.792",
+        "createTime":"2009/12/17 23:38:21.166",
         "enabled":"T",
-        "groupId":"7198ab9250a74bfea544602231746eab",
+        "groupId":"a4b7bacbea3446f48723ddf77e9314e0",
         "groupName":"aStem:aGroup",
         "listName":"members",
         "listType":"list",
-        "memberId":"e94da4878afc4a01bd28991642b4aa09",
-        "membershipId":"17873aa877dd4311ab2d1336f6e6d533:3be6bf138b1649e58efcaee78f0fa31b",
+        "memberId":"b065badee6b6434fb3008018eb599f6a",
+        "membershipId":"0e8bb2c52306499b816ca13d57c9ffd6:7f87a25346d2488a942bd80caa37ecb6",
         "membershipType":"immediate",
         "subjectId":"10039438",
         "subjectSourceId":"jdbc"
@@ -327,4 +328,4 @@ public class WsSampleGetMembershipsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS, result message: null
+Server version: v1_6_000, result code: SUCCESS, result message: Found 3 results involving 1 groups and 3 subjects
