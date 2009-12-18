@@ -57,7 +57,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -111,7 +110,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.24.2.1 2009-12-14 16:32:49 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.24.2.2 2009-12-18 21:03:44 tzeller Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -643,6 +642,7 @@ public class XmlImporter {
   } // private String _getDataPrivilegesImportMode()
 
   // Returns immediate child element with given name
+  // TODO 2009-12-18 tz : includes all child elements
   // @since   1.0
   private Element _getImmediateElement(Element element, String name)
   { 
@@ -1187,7 +1187,7 @@ public class XmlImporter {
       e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION),
       id
     );
-    String                  desc  = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
+    String desc = this._getDescription(e);
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
     if (v.isValid()) {
       child.setDescription(desc);
@@ -1253,10 +1253,10 @@ public class XmlImporter {
         g.setDisplayExtension(dExtn);
         g.store();
       }
-      String desc = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
+      String desc = this._getDescription(e);      
       v           = NotNullOrEmptyValidator.validate(desc);
-      if ( v.isValid() && !desc.equals( g.getDisplayExtension() ) ) {
-        g.setDisplayExtension(desc);
+      if ( v.isValid() && !desc.equals( g.getDescription() ) ) {
+        g.setDescription(desc);
         g.store();
       }
     }
@@ -1642,7 +1642,7 @@ public class XmlImporter {
       e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION),
       id
     );
-    String                  desc  = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
+    String                  desc  = this._getDescription(e);
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
     if (v.isValid()) {
       child.setDescription(desc);
@@ -1670,10 +1670,11 @@ public class XmlImporter {
         ns.setDisplayExtension(dExtn);
         ns.store();
       }
-      String desc = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
+      String desc = this._getDescription(e);
       v           = NotNullOrEmptyValidator.validate(desc);
-      if ( v.isValid() && !desc.equals( ns.getDisplayExtension() ) ) {
-        ns.setDisplayExtension(desc);
+      if ( v.isValid() && !desc.equals( ns.getDescription() ) ) {
+        ns.setDescription(desc);
+        ns.store();
       }
     }
   } // private void _processPathUpdate(e, newStem)
@@ -1846,5 +1847,34 @@ public class XmlImporter {
     this.updateOnly = updateOnly;
   } // private void _setUpdateOnly(updateOnly)
 
+  // @since 1.5.1
+  /**
+   * Return the value of the immediate child <description> element or null. Throws a
+   * RuntimeException if there is more than one description found.
+   * 
+   * @param e
+   *          the element
+   * @return the description or null
+   */
+  private String _getDescription(Element e) {
+    String desc = null;   
+    Collection elements = this._getImmediateElements(e, GrouperConfig.ATTRIBUTE_DESCRIPTION);    
+    if (elements.isEmpty()) {
+      return desc;
+    }
+    if (elements.size() > 1) {
+      throw new IllegalArgumentException(E.ELEMENT_NOT_UNIQUE + GrouperConfig.ATTRIBUTE_DESCRIPTION);
+    }
+    Element elDesc = (Element) elements.iterator().next();    
+    if (elDesc != null) {
+      try {
+        desc = ((Text) elDesc.getFirstChild()).getData();
+      } catch (NullPointerException npe) {
+        // ignore
+      }
+    }
+    return desc;
+  }
+  
 } // public class XmlImporter
 
