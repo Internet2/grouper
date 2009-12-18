@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.StemNameFilter;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -47,7 +48,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestXml.java,v 1.2.2.1 2009-12-18 21:03:44 tzeller Exp $
  * @since   1.1.0
  */
 public class TestXml extends GrouperTest {
@@ -1313,7 +1314,9 @@ public class TestXml extends GrouperTest {
   
       // Update
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      XmlImporter importer  = new XmlImporter(s, new Properties());
+      Properties  custom  = new Properties();
+      custom.setProperty("import.data.update-attributes", "false");
+      XmlImporter importer  = new XmlImporter(s, custom);
       importer.update( XmlReader.getDocumentFromString(xml) );
       s.stop();
   
@@ -1360,7 +1363,9 @@ public class TestXml extends GrouperTest {
   
       // Update
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      XmlImporter importer  = new XmlImporter(s, new Properties());
+      Properties  custom  = new Properties();
+      custom.setProperty("import.data.update-attributes", "false");
+      XmlImporter importer  = new XmlImporter(s, custom);
       importer.update( XmlReader.getDocumentFromString(xml) );
       s.stop();
   
@@ -1809,6 +1814,240 @@ public class TestXml extends GrouperTest {
       unexpectedException(e);
     }
   } // public void testUpdateOkNamingPrivsInReplaceMode()
+
+  public void testGroupCreateDescription() {
+    LOG.info("testGroupCreateDescription");
+    try {
+      String val_d = "Description of Group";
+      
+      // Populate Registry And Verify
+      R     r   = R.populateRegistry(1, 1, 0);
+      Group gA  = assertFindGroupByName( r.rs, "i2:a:a" );
+      
+      // Set description      
+      gA.setDescription(val_d);
+      gA.store();
+      
+      // Stop session
+      r.rs.stop();
+  
+      // Export
+      GrouperSession  s         = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Writer          w         = new StringWriter();
+      XmlExporter     exporter  = new XmlExporter(s, new Properties());
+      exporter.export(w);
+      String          xml       = w.toString();
+      s.stop();
+  
+      // Reset And Verify
+      RegistryReset.reset();
+      s = GrouperSession.start( SubjectFinder.findRootSubject() );
+      assertDoNotFindGroupByName( s, "i2:a:a" );
+      s.stop();
+  
+      // Import 
+      s = GrouperSession.start( SubjectFinder.findRootSubject() );
+      XmlImporter importer = new XmlImporter(s, new Properties());
+      importer.load( XmlReader.getDocumentFromString(xml) );
+      s.stop();
+  
+      // Verify
+      s   = GrouperSession.start( SubjectFinder.findRootSubject() );
+      gA  = assertFindGroupByName( s, "i2:a:a" );     
+      assertGroupDescription( gA, val_d );      
+      s.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testGroupCreateDescription()
+
+  public void testGroupUpdateDescription() {
+    LOG.info("testGroupUpdateDescription");
+    try {
+      String val_d = "Description of Group";
+      
+      // Populate Registry And Verify
+      R     r   = R.populateRegistry(1, 1, 0);
+      Group gA  = assertFindGroupByName( r.rs, "i2:a:a" );
+      
+      // Stop session
+      r.rs.stop();
+      
+      // Export
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      Writer w = new StringWriter();
+      XmlExporter exporter = new XmlExporter(s, new Properties());
+      exporter.export(w);
+      String xml = w.toString();
+      s.stop();
+
+      // Reset And Verify
+      RegistryReset.reset();
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      assertDoNotFindGroupByName(s, "i2:a:a");
+      s.stop();
+
+      // Import 
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      XmlImporter importer = new XmlImporter(s, new Properties());
+      importer.load(XmlReader.getDocumentFromString(xml));
+      s.stop();
+
+      // Verify that there is no description
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      gA = assertFindGroupByName(s, "i2:a:a");
+      assertEquals(GrouperConfig.EMPTY_STRING, gA.getDescription());
+      s.stop();
+
+      // Set description
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      gA = assertFindGroupByName(s, "i2:a:a");
+      gA.setDescription(val_d);
+      gA.store();
+      s.stop();
+
+      // Export
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      w = new StringWriter();
+      exporter = new XmlExporter(s, new Properties());
+      exporter.export(w);
+      xml = w.toString();
+      s.stop();
+
+      // Import 
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      importer = new XmlImporter(s, new Properties());
+      importer.load(XmlReader.getDocumentFromString(xml));
+      s.stop();
+
+      // Verify description
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      gA = assertFindGroupByName(s, "i2:a:a");
+      assertGroupDescription(gA, val_d);
+      s.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testGroupUpdateDescription()
+  
+  public void testStemCreateDescription() {
+    LOG.info("testStemCreateDescription");
+    try {
+      String val_d = "Description of Stem";
+
+      // Populate Registry And Verify
+      R r = R.populateRegistry(2, 0, 0);
+      Stem nsA = assertFindStemByName(r.rs, "i2:a");
+
+      // Set description     
+      nsA.setDescription(val_d);
+      nsA.store();
+
+      // Stop session
+      r.rs.stop();
+
+      // Export
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      Writer w = new StringWriter();
+      XmlExporter exporter = new XmlExporter(s, new Properties());
+      exporter.export(w);
+      String xml = w.toString();
+      s.stop();
+
+      // Reset And Verify
+      RegistryReset.reset();
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      assertDoNotFindStemByName(s, "i2:a");
+      s.stop();
+
+      // Import 
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      XmlImporter importer = new XmlImporter(s, new Properties());
+      importer.load(XmlReader.getDocumentFromString(xml));
+      s.stop();
+
+      // Verify
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = assertFindStemByName(s, "i2:a");
+      assertStemDescription(nsA, val_d);
+      s.stop();
+    } catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testStemCreateDescription()
+
+  public void testStemUpdateDescription() {
+    LOG.info("testStemUpdateDescription");
+    try {
+      String val_d = "Description of Stem";
+
+      // Populate Registry And Verify
+      R r = R.populateRegistry(2, 0, 0);
+      Stem nsA = assertFindStemByName(r.rs, "i2:a");
+
+      // Stop session
+      r.rs.stop();
+
+      // Export
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      Writer w = new StringWriter();
+      XmlExporter exporter = new XmlExporter(s, new Properties());
+      exporter.export(w);
+      String xml = w.toString();
+      System.out.println(xml);
+      s.stop();
+
+      // Reset And Verify
+      RegistryReset.reset();
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      assertDoNotFindStemByName(s, "i2:a");
+      s.stop();
+
+      // Import 
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      XmlImporter importer = new XmlImporter(s, new Properties());
+      importer.load(XmlReader.getDocumentFromString(xml));
+      s.stop();
+
+      // Verify that there is no description
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = assertFindStemByName(s, "i2:a");
+      assertEquals(GrouperConfig.EMPTY_STRING, nsA.getDescription());
+      s.stop();
+
+      // Set description
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = assertFindStemByName(s, "i2:a");
+      nsA.setDescription(val_d);
+      nsA.store();
+      s.stop();
+
+      // Export
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      w = new StringWriter();
+      exporter = new XmlExporter(s, new Properties());
+      exporter.export(w);
+      xml = w.toString();
+      s.stop();
+
+      // Import 
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      importer = new XmlImporter(s, new Properties());
+      importer.load(XmlReader.getDocumentFromString(xml));
+      s.stop();
+
+      // Verify
+      s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = assertFindStemByName(s, "i2:a");
+      assertStemDescription(nsA, val_d);
+      s.stop();
+    } catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testStemUpdateDescription()
+
 
 } // public class TestXml0
 
