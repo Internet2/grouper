@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject;
 import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
 
@@ -91,8 +92,9 @@ public class WsSampleGetMembers implements WsSampleGenerated {
 
             for (WsGetMembersResult wsGetMembersResult : GeneratedUtils.nonNull(
                     wsGetMemberResults)) {
+                WsResultMeta resultMetadata = wsGetMembersResult.getResultMetadata();
                 System.out.println("Result: " + i++ + ": code: " +
-                    wsGetMembersResult.getResultMetadata().getResultCode());
+                    resultMetadata.getResultCode());
 
                 WsSubject[] wsSubjectArray = wsGetMembersResult.getWsSubjects();
 

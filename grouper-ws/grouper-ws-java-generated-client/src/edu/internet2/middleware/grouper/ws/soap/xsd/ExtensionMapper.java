@@ -60,9 +60,9 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsGroupToSave".equals(typeName)){
+                  "WsGroupDeleteResult".equals(typeName)){
                    
-                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupToSave.Factory.parse(reader);
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteResult.Factory.parse(reader);
                         
 
                   }
@@ -70,9 +70,9 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsGroupDeleteResult".equals(typeName)){
+                  "WsGroupToSave".equals(typeName)){
                    
-                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteResult.Factory.parse(reader);
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupToSave.Factory.parse(reader);
                         
 
                   }
@@ -420,6 +420,16 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsGetMembershipsResults".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembershipsResults.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsGroupDeleteLiteResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteLiteResult.Factory.parse(reader);
@@ -513,6 +523,16 @@
                   "WsGetGroupsResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetGroupsResult.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsMembership".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsMembership.Factory.parse(reader);
                         
 
                   }

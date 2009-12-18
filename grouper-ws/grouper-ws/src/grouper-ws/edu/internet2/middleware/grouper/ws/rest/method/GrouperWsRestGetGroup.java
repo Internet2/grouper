@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGetGroup.java,v 1.2 2008-03-30 09:01:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGetGroup.java,v 1.3 2009-12-18 02:43:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -14,6 +14,8 @@ import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -52,7 +54,7 @@ public enum GrouperWsRestGetGroup {
         
       }
       
-      if (requestObject instanceof WsRestHasMemberRequest) {
+      if (GrouperUtil.length(urlStrings) == 0 && requestObject instanceof WsRestHasMemberRequest) {
 
         //make sure right type
         WsRestHasMemberRequest wsRestHasMemberRequest = GrouperUtil.typeCast(
@@ -85,6 +87,53 @@ public enum GrouperWsRestGetGroup {
           + ", " + GrouperUtil.toStringForLog(urlStrings));
     }
 
+  }, 
+  /** group get requests for memberships */
+  memberships {
+  
+    /**
+     * handle the incoming request based on HTTP method GET and group as resource, and memberships as subresource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b/memberships
+     * the urlStrings would be size three: {"group", "a:b", "member"}
+     * @param groupName in url
+     * @param requestObject is the request body converted to object
+     * @return the return object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperWsVersion clientVersion, String groupName, List<String> urlStrings,
+        WsRequestBean requestObject) {
+  
+      if (GrouperUtil.length(urlStrings) == 0 && (requestObject == null || 
+          requestObject instanceof WsRestGetMembershipsLiteRequest)) {
+  
+        WsRestGetMembershipsLiteRequest wsRestGetMembershipsLiteRequest = 
+          (WsRestGetMembershipsLiteRequest)requestObject;
+        
+        //url should be: /xhtml/v1_3_000/groups/a:b/memberships
+        return GrouperServiceRest.getMembershipsLite(clientVersion, groupName, null, 
+            null, wsRestGetMembershipsLiteRequest);
+        
+      }
+  
+      if (GrouperUtil.length(urlStrings) == 0 && requestObject == null || 
+          requestObject instanceof WsRestGetMembershipsRequest) {
+  
+        WsRestGetMembershipsRequest wsRestGetMembershipsRequest = 
+          (WsRestGetMembershipsRequest)requestObject;
+        
+        //url should be: /xhtml/v1_3_000/groups/a:b/memberships
+        return GrouperServiceRest.getMemberships(clientVersion, groupName, null, 
+            null, wsRestGetMembershipsRequest);
+        
+      }
+      
+      throw new RuntimeException("Invalid REST GET Group request: " + clientVersion + " , " + groupName 
+          + ", " + GrouperUtil.toStringForLog(urlStrings));
+    }
+  
   };
 
   /**

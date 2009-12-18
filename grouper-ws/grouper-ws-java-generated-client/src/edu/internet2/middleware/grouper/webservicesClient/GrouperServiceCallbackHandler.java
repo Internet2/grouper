@@ -93,6 +93,22 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for getMembershipsLite method
+            * override this method for handling normal response from getMembershipsLite operation
+            */
+           public void receiveResultgetMembershipsLite(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLiteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getMembershipsLite operation
+           */
+            public void receiveErrorgetMembershipsLite(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for hasMember method
             * override this method for handling normal response from hasMember operation
             */
@@ -266,6 +282,22 @@
            * override this method for handling error response from getMembersLite operation
            */
             public void receiveErrorgetMembersLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for getMemberships method
+            * override this method for handling normal response from getMemberships operation
+            */
+           public void receiveResultgetMemberships(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getMemberships operation
+           */
+            public void receiveErrorgetMemberships(java.lang.Exception e) {
             }
                 
            /**

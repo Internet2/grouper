@@ -174,6 +174,21 @@ public class WsSubjectLookup {
   private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
 
   /**
+   * create if any not null, otherwise null
+   * @param subjectId
+   * @param sourceId
+   * @param subjectIdentifier
+   * @return the subject lookup
+   */
+  public static WsSubjectLookup createIfNeeded(String subjectId, String sourceId, String subjectIdentifier) {
+    WsSubjectLookup wsSubjectLookup = null;
+    if (StringUtils.isNotBlank(subjectId) || StringUtils.isNotBlank(subjectIdentifier) || StringUtils.isNotBlank(sourceId)) {
+      wsSubjectLookup = new WsSubjectLookup(subjectId, sourceId, subjectIdentifier);
+    }
+    return wsSubjectLookup;
+  }
+  
+  /**
    * 
    */
   @Override
@@ -230,7 +245,7 @@ public class WsSubjectLookup {
         //cant have source without type
         if (hasSubjectSource) {
           this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubject(
-              this.subjectId);
+              this.subjectId, true);
           return;
         } 
         this.subject = SubjectFinder.findById(this.subjectId, true);
@@ -240,7 +255,7 @@ public class WsSubjectLookup {
         //cant have source without type
         if (hasSubjectSource) {
           this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubjectByIdentifier(
-              this.subjectIdentifier);
+              this.subjectIdentifier, true);
           return;
         }
         this.subject = SubjectFinder.findByIdentifier(this.subjectIdentifier, true);

@@ -34,6 +34,15 @@ import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
+   * result metadata
+   * @param resultMetadata1
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
+  }
+
+
+  /**
    * logger 
    */
   private static final Log LOG = LogFactory.getLog(WsGetMembershipsResults.class);
@@ -98,6 +107,7 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
     this.getResultMetadata().assignResultCode(getMembersResultCode);
   }
 
+  
   /**
    * results for each assignment sent in
    */

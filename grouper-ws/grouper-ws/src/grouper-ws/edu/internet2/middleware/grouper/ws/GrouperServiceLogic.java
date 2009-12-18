@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.33 2009-12-17 06:58:02 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.34 2009-12-18 02:43:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -390,8 +390,9 @@ public class GrouperServiceLogic {
     // setup the subject lookup
     WsSubjectLookup[] subjectLookups = new WsSubjectLookup[1];
     subjectLookups[0] = new WsSubjectLookup(subjectId, subjectSourceId, subjectIdentifier);
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
 
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
 
@@ -615,8 +616,9 @@ public class GrouperServiceLogic {
     // setup the subject lookup
     WsSubjectLookup[] subjectLookups = new WsSubjectLookup[1];
     subjectLookups[0] = new WsSubjectLookup(subjectId, subjectSourceId, subjectIdentifier);
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
@@ -755,8 +757,9 @@ public class GrouperServiceLogic {
       String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
   
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
@@ -904,8 +907,9 @@ public class GrouperServiceLogic {
       String actAsSubjectSourceId, String actAsSubjectIdentifier, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
   
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, 
         paramName1, paramValue1);
@@ -1154,8 +1158,9 @@ public class GrouperServiceLogic {
     WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, subjectSourceId,
         subjectIdentifier);
     WsSubjectLookup[] subjectLookups = new WsSubjectLookup[]{subjectLookup};
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
 
@@ -1300,17 +1305,18 @@ public class GrouperServiceLogic {
    *            T|F, for if the extended subject information should be
    *            returned (anything more than just the id)
    * @param actAsSubjectLookup
-   * @param fieldName is if the member should be added to a certain field membership
+   * @param fieldName is if the memberships should be retrieved from a certain field membership
+   * of the group (certain list)
    * of the group (certain list)
    * @param subjectAttributeNames are the additional subject attributes (data) to return.
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
-   * @param sourceIds are sources to look in for memberships
+   * @param sourceIds are sources to look in for memberships, or null if all
    * @param scope is a sql like string which will have a percent % concatenated to the end for group
    * names to search in (or stem names)
    * @param wsStemLookup is the stem to look in for memberships
-   * @param stemScope is StemScope to search only in one stem or in substems
+   * @param stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @param membershipIds are the ids to search for if they are known
    * @return the results
@@ -1363,6 +1369,9 @@ public class GrouperServiceLogic {
         groupIds = new LinkedHashSet<String>();
         for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
           
+          if (wsGroupLookup == null) {
+            continue;
+          }
           wsGroupLookup.retrieveGroupIfNeeded(session);
           Group group = wsGroupLookup.retrieveGroup();
           groupIds.add(group.getUuid());
@@ -1377,7 +1386,9 @@ public class GrouperServiceLogic {
         
         memberIds = new LinkedHashSet<String>();
         for (WsSubjectLookup wsSubjectLookup : wsSubjectLookups) {
-          
+          if (wsSubjectLookup == null) {
+            continue;
+          }
           Member member = wsSubjectLookup.retrieveMember();
           if (member == null) {
             //cant find, thats ok
@@ -1494,11 +1505,15 @@ public class GrouperServiceLogic {
       String stemUuid, StemScope stemScope, String enabled, String membershipIds) {
   
     // setup the group lookup
-    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
-  
-    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup(subjectId, sourceId, subjectIdentifier);
+    WsGroupLookup wsGroupLookup = null;
     
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    if (StringUtils.isNotBlank(groupName) || StringUtils.isNotBlank(groupUuid)) {
+      wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+    }
+  
+    WsSubjectLookup wsSubjectLookup = WsSubjectLookup.createIfNeeded(subjectId, sourceId, subjectIdentifier);
+    
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
@@ -1506,8 +1521,8 @@ public class GrouperServiceLogic {
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
   
     // pass through to the more comprehensive method
-    WsGroupLookup[] wsGroupLookups = new WsGroupLookup[]{wsGroupLookup};
-    WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[]{wsSubjectLookup};
+    WsGroupLookup[] wsGroupLookups = wsGroupLookup == null ? null : new WsGroupLookup[]{wsGroupLookup};
+    WsSubjectLookup[] wsSubjectLookups = wsSubjectLookup == null ? null : new WsSubjectLookup[]{wsSubjectLookup};
     
     String[] sourceIdArray = GrouperUtil.splitTrim(sourceIds, ",");
 
@@ -1577,8 +1592,9 @@ public class GrouperServiceLogic {
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
     WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] {wsGroupLookup};
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
@@ -1759,9 +1775,9 @@ public class GrouperServiceLogic {
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
     WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
-  
+
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
     WsGroupDeleteResults wsGroupDeleteResults = groupDelete(clientVersion,
@@ -2065,8 +2081,9 @@ public class GrouperServiceLogic {
     // setup the subject lookup
     WsSubjectLookup[] subjectLookups = new WsSubjectLookup[1];
     subjectLookups[0] = new WsSubjectLookup(subjectId, subjectSourceId, subjectIdentifier);
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
@@ -2141,8 +2158,9 @@ public class GrouperServiceLogic {
     WsMemberChangeSubject[] wsMemberChangeSubjects = {wsMemberChangeSubject};
     
     // setup the subject lookup
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
@@ -2431,8 +2449,9 @@ public class GrouperServiceLogic {
     // setup the stem lookup
     WsStemLookup wsStemLookup = new WsStemLookup(stemName, stemUuid);
     WsStemLookup[] wsStemLookups = new WsStemLookup[] { wsStemLookup };
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
@@ -2606,8 +2625,9 @@ public class GrouperServiceLogic {
   
     WsStemToSave[] wsStemsToSave = new WsStemToSave[] { wsStemToSave };
   
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
@@ -2675,8 +2695,9 @@ public class GrouperServiceLogic {
   
     WsGroupToSave[] wsGroupsToSave = new WsGroupToSave[] { wsGroupToSave };
   
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
@@ -3082,8 +3103,9 @@ public class GrouperServiceLogic {
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
     
     // setup the subject lookup
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
+
 
     WsParam[] params = GrouperServiceUtils.params(paramName0, 
         paramValue0, paramValue1, paramValue1);

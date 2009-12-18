@@ -3368,17 +3368,18 @@ public class GrouperService {
    *            T|F, for if the extended subject information should be
    *            returned (anything more than just the id)
    * @param actAsSubjectLookup
-   * @param fieldName is if the member should be added to a certain field membership
+   * @param fieldName is if the memberships should be retrieved from a certain field membership
+   * of the group (certain list)
    * of the group (certain list)
    * @param subjectAttributeNames are the additional subject attributes (data) to return.
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
-   * @param sourceIds are sources to look in for memberships
+   * @param sourceIds are sources to look in for memberships, or null if all
    * @param scope is a sql like string which will have a percent % concatenated to the end for group
    * names to search in (or stem names)
    * @param wsStemLookup is the stem to look in for memberships
-   * @param stemScope is StemScope to search only in one stem or in substems
+   * @param stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @param membershipIds are the ids to search for if they are known
    * @return the results
@@ -3410,6 +3411,11 @@ public class GrouperService {
       
       StemScope theStemScope = StringUtils.isBlank(stemScope) ? null : StemScope.valueOfIgnoreCase(stemScope);
 
+      //if its blank it is a placeholder for axis, just null it out
+      if (wsStemLookup != null && wsStemLookup.blank()) {
+        wsStemLookup = null;
+      }
+      
       wsGetMembershipsResults = GrouperServiceLogic.getMemberships(grouperWsVersion, wsGroupLookups, 
           wsSubjectLookups, memberFilter, actAsSubjectLookup, field, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds);
@@ -3417,6 +3423,9 @@ public class GrouperService {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
     }
   
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsGetMembershipsResults.getResultMetadata(), this.soap);
+
     return wsGetMembershipsResults;
   
   }
@@ -3507,6 +3516,10 @@ public class GrouperService {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
       
     }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsGetMembershipsResults.getResultMetadata(), this.soap);
+    
     return wsGetMembershipsResults;
   }
 }

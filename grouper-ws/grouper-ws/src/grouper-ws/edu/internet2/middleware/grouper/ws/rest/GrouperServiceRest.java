@@ -1,7 +1,12 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.13 2009-12-15 06:47:27 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.14 2009-12-18 02:43:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
@@ -25,6 +30,8 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteReque
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
+import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest;
@@ -44,6 +51,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
@@ -57,6 +65,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
+import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -156,7 +165,7 @@ public class GrouperServiceRest {
             .getRetrieveSubjectDetail(), wsRestGetMembersLiteRequest
             .getSubjectAttributeNames(), wsRestGetMembersLiteRequest.getParamName0(),
         wsRestGetMembersLiteRequest.getParamValue0(), wsRestGetMembersLiteRequest
-            .getParamName1(), wsRestGetMembersLiteRequest.getParamName1(), 
+            .getParamName1(), wsRestGetMembersLiteRequest.getParamValue1(), 
             wsRestGetMembersLiteRequest.getSourceIds());
 
     //return result
@@ -869,7 +878,7 @@ public class GrouperServiceRest {
         wsRestStemSaveLiteRequest.getActAsSubjectIdentifier(), wsRestStemSaveLiteRequest
             .getParamName0(), wsRestStemSaveLiteRequest.getParamValue0(),
         wsRestStemSaveLiteRequest.getParamName1(), wsRestStemSaveLiteRequest
-            .getParamValue0());
+            .getParamValue1());
 
     //return result
     return wsStemSaveLiteResult;
@@ -938,7 +947,7 @@ public class GrouperServiceRest {
             .getActAsSubjectSourceId(), wsRestStemDeleteLiteRequest
             .getActAsSubjectIdentifier(), wsRestStemDeleteLiteRequest.getParamName0(),
         wsRestStemDeleteLiteRequest.getParamValue0(), wsRestStemDeleteLiteRequest
-            .getParamName1(), wsRestStemDeleteLiteRequest.getParamValue0());
+            .getParamName1(), wsRestStemDeleteLiteRequest.getParamValue1());
 
     //return result
     return wsStemDeleteLiteResult;
@@ -1012,7 +1021,7 @@ public class GrouperServiceRest {
             wsRestGroupDeleteLiteRequest.getIncludeGroupDetail(),
             wsRestGroupDeleteLiteRequest.getParamName0(), wsRestGroupDeleteLiteRequest
                 .getParamValue0(), wsRestGroupDeleteLiteRequest.getParamName1(),
-            wsRestGroupDeleteLiteRequest.getParamValue0());
+            wsRestGroupDeleteLiteRequest.getParamValue1());
 
     //return result
     return wsGroupDeleteLiteResult;
@@ -1088,10 +1097,129 @@ public class GrouperServiceRest {
         wsRestGroupSaveLiteRequest.getIncludeGroupDetail(), wsRestGroupSaveLiteRequest
             .getParamName0(), wsRestGroupSaveLiteRequest.getParamValue0(),
         wsRestGroupSaveLiteRequest.getParamName1(), wsRestGroupSaveLiteRequest
-            .getParamValue0());
+            .getParamValue1());
   
     //return result
     return wsGroupSaveLiteResult;
+  
+  }
+
+  /**
+   * <pre>
+   * based on a group name, get memberships.  e.g. url:
+   * /v1_3_000/groups/aStem:aGroup/memberships
+   * /v1_3_000/subjects/12345678/memberships
+   * /v1_3_000/memberships
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param groupName is the name of the group (optional)
+   * @param subjectId is the subjectId (optional)
+   * @param sourceId is the source id of the subject to search for (optional)
+   * @param wsRestGetMembershipsRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGetMembershipsResults getMemberships(GrouperWsVersion clientVersion,
+      String groupName, String subjectId, String sourceId, 
+      WsRestGetMembershipsRequest wsRestGetMembershipsRequest) {
+  
+    //cant be null
+    wsRestGetMembershipsRequest = wsRestGetMembershipsRequest == null ? new WsRestGetMembershipsRequest()
+      : wsRestGetMembershipsRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestGetMembershipsRequest.getClientVersion(), false, "clientVersion");
+  
+    Set<WsGroupLookup> groupLookups = null;
+    WsGroupLookup[] groupLookupArray = wsRestGetMembershipsRequest.getWsGroupLookups();
+    //add a lookup
+    if (!StringUtils.isBlank(groupName)) {
+      if (GrouperUtil.length(groupLookupArray) == 0) {
+        groupLookups = new HashSet<WsGroupLookup>();
+      } else {
+        groupLookups = GrouperUtil.toSet(groupLookupArray);
+      }
+      
+      WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, null);
+      groupLookups.add(wsGroupLookup);
+      groupLookupArray = GrouperUtil.toArray(groupLookups, WsGroupLookup.class);
+    }
+
+    Set<WsSubjectLookup> subjectLookups = null;
+    WsSubjectLookup[] subjectLookupArray = wsRestGetMembershipsRequest.getWsSubjectLookups();
+    if (!StringUtils.isBlank(subjectId)) {
+      
+      if (GrouperUtil.length(subjectLookupArray) == 0) {
+        subjectLookups = new HashSet<WsSubjectLookup>();
+      } else {
+        subjectLookups = GrouperUtil.toSet(subjectLookupArray);
+      }
+      
+      WsSubjectLookup wsSubjectLookup = new WsSubjectLookup(subjectId, sourceId, null);
+      subjectLookups.add(wsSubjectLookup);
+      subjectLookupArray = GrouperUtil.toArray(subjectLookups, WsSubjectLookup.class);
+    }
+        
+    //get the results
+    WsGetMembershipsResults wsGetMembershipsResults = new GrouperService(false).getMemberships(
+        clientVersionString, groupLookupArray, subjectLookupArray,
+        wsRestGetMembershipsRequest.getMemberFilter(), wsRestGetMembershipsRequest
+            .getActAsSubjectLookup(), wsRestGetMembershipsRequest.getFieldName(), wsRestGetMembershipsRequest.getIncludeSubjectDetail(), 
+            wsRestGetMembershipsRequest.getSubjectAttributeNames(),
+        wsRestGetMembershipsRequest.getIncludeGroupDetail(), wsRestGetMembershipsRequest.getParams(),
+            wsRestGetMembershipsRequest.getSourceIds(), wsRestGetMembershipsRequest.getScope(), 
+            wsRestGetMembershipsRequest.getWsStemLookup(), wsRestGetMembershipsRequest.getStemScope(), wsRestGetMembershipsRequest.getEnabled(), wsRestGetMembershipsRequest.getMembershipsIds() );
+  
+    //return result
+    return wsGetMembershipsResults;
+  
+  }
+
+  /**
+   * <pre>
+   * based on a group name, get memberships.  e.g. url:
+   * /v1_3_000/groups/aStem:aGroup/memberships
+   * /v1_3_000/subjects/12345678/memberships
+   * /v1_3_000/memberships
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param groupName is the name of the group (optional)
+   * @param subjectId is the subjectId (optional)
+   * @param sourceId is the source id of the subject to search for (optional)
+   * @param wsRestGetMembershipsLiteRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGetMembershipsResults getMembershipsLite(GrouperWsVersion clientVersion,
+      String groupName, String subjectId, String sourceId, WsRestGetMembershipsLiteRequest wsRestGetMembershipsLiteRequest) {
+  
+    //make sure not null
+    wsRestGetMembershipsLiteRequest = wsRestGetMembershipsLiteRequest == null ? new WsRestGetMembershipsLiteRequest()
+        : wsRestGetMembershipsLiteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestGetMembershipsLiteRequest.getClientVersion(), false, "clientVersion");
+    groupName = GrouperServiceUtils.pickOne(groupName, wsRestGetMembershipsLiteRequest
+        .getGroupName(), true, "groupName");
+    subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestGetMembershipsLiteRequest
+        .getSubjectId(), true, "subjectId");
+    sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestGetMembershipsLiteRequest
+        .getSubjectSourceId(), true, "sourceId");
+
+    //get the results
+    WsGetMembershipsResults wsGetMembershipsResults = new GrouperService(false).getMembershipsLite(
+        clientVersionString, groupName, wsRestGetMembershipsLiteRequest.getGroupUuid(), subjectId, sourceId, wsRestGetMembershipsLiteRequest.getSubjectIdentifier(),
+        wsRestGetMembershipsLiteRequest.getMemberFilter(), wsRestGetMembershipsLiteRequest.getIncludeSubjectDetail(), wsRestGetMembershipsLiteRequest
+            .getActAsSubjectId(), wsRestGetMembershipsLiteRequest.getActAsSubjectSourceId(),
+        wsRestGetMembershipsLiteRequest.getActAsSubjectIdentifier(),
+        wsRestGetMembershipsLiteRequest.getFieldName(), wsRestGetMembershipsLiteRequest
+            .getSubjectAttributeNames(), wsRestGetMembershipsLiteRequest.getIncludeGroupDetail(), wsRestGetMembershipsLiteRequest.getParamName0(),
+        wsRestGetMembershipsLiteRequest.getParamValue0(), wsRestGetMembershipsLiteRequest
+            .getParamName1(), wsRestGetMembershipsLiteRequest.getParamValue1(), 
+            wsRestGetMembershipsLiteRequest.getSourceIds(), wsRestGetMembershipsLiteRequest.getScope(), wsRestGetMembershipsLiteRequest.getStemName(),
+            wsRestGetMembershipsLiteRequest.getStemUuid(), wsRestGetMembershipsLiteRequest.getStemScope(), 
+            wsRestGetMembershipsLiteRequest.getEnabled(), wsRestGetMembershipsLiteRequest.getMembershipsIds());
+  
+    //return result
+    return wsGetMembershipsResults;
   
   }
 }
