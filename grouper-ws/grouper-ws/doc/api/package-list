@@ -5,7 +5,9 @@ edu.internet2.middleware.grouper.ws.query
 edu.internet2.middleware.grouper.ws.rest
 edu.internet2.middleware.grouper.ws.rest.contentType
 edu.internet2.middleware.grouper.ws.rest.group
+edu.internet2.middleware.grouper.ws.rest.json
 edu.internet2.middleware.grouper.ws.rest.member
+edu.internet2.middleware.grouper.ws.rest.membership
 edu.internet2.middleware.grouper.ws.rest.method
 edu.internet2.middleware.grouper.ws.rest.stem
 edu.internet2.middleware.grouper.ws.security
