@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 18 Dec 2009 04:38:29 GMT
+Date: Sat, 19 Dec 2009 21:33:51 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -61,7 +61,7 @@ Connection: close
           <p class="subjectSourceId">g:isa</p>
           <p class="subjectId">GrouperSystem</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2009/12/17 23:38:27.402</p>
+          <p class="createTime">2009/12/19 16:33:50.351</p>
           <p class="enabledTime" />
           <p class="disabledTime" />
           <p class="memberId">18115df1c9b043f2bcaf58163003a276</p>
@@ -69,38 +69,38 @@ Connection: close
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
           <p class="enabled">T</p>
-          <p class="groupId">149253f0b0764c448e9e779371730588</p>
-          <p class="membershipId">b30b43d4e1dd4e8e908ec98e7da82ca1:1d671b5049c9488292a046e06a5de883</p>
+          <p class="groupId">facc52f687d6443f9a72082f060c6ad4</p>
+          <p class="membershipId">38dd4e4f0a204b9ea40854d1b26e795a:1d45bbb9b3c44080b85e7d2053cfb059</p>
         </li>
         <li title="WsMembership">
           <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">10021368</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2009/12/17 23:38:27.439</p>
+          <p class="createTime">2009/12/19 16:33:50.390</p>
           <p class="enabledTime" />
           <p class="disabledTime" />
-          <p class="memberId">a49a110d72b0462c915a2a9b8b3cfe99</p>
+          <p class="memberId">3ab839d2117d49c19d33955230375c31</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
           <p class="enabled">T</p>
-          <p class="groupId">149253f0b0764c448e9e779371730588</p>
-          <p class="membershipId">9ef4721d7d28404094d8da8503951c65:1d671b5049c9488292a046e06a5de883</p>
+          <p class="groupId">facc52f687d6443f9a72082f060c6ad4</p>
+          <p class="membershipId">d7d0b4096ac34c72a61b48735e54aed2:1d45bbb9b3c44080b85e7d2053cfb059</p>
         </li>
         <li title="WsMembership">
           <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">10039438</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2009/12/17 23:38:27.421</p>
+          <p class="createTime">2009/12/19 16:33:50.368</p>
           <p class="enabledTime" />
           <p class="disabledTime" />
-          <p class="memberId">38f10784156746ec953128d7d07bc5bd</p>
+          <p class="memberId">b47b0bd3cf074e6896b6a06a278c84c3</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
           <p class="enabled">T</p>
-          <p class="groupId">149253f0b0764c448e9e779371730588</p>
-          <p class="membershipId">483208ff3ee34461be096db43b56c70b:1d671b5049c9488292a046e06a5de883</p>
+          <p class="groupId">facc52f687d6443f9a72082f060c6ad4</p>
+          <p class="membershipId">5aa3a97e15cf4157b168cfc9250b5a0d:1d45bbb9b3c44080b85e7d2053cfb059</p>
         </li>
       </ul>
       <ul class="wsGroups">
@@ -108,7 +108,7 @@ Connection: close
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
-          <p class="uuid">149253f0b0764c448e9e779371730588</p>
+          <p class="uuid">facc52f687d6443f9a72082f060c6ad4</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
           <p class="displayExtension">a group</p>

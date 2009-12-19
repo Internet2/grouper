@@ -1,17 +1,16 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.26 2009-12-15 06:47:10 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.27 2009-12-19 21:38:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
 import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivilegesLite;
@@ -21,6 +20,7 @@ import edu.internet2.middleware.grouperClient.api.GcFindStems;
 import edu.internet2.middleware.grouperClient.api.GcGetGrouperPrivilegesLite;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
+import edu.internet2.middleware.grouperClient.api.GcGetMemberships;
 import edu.internet2.middleware.grouperClient.api.GcGroupDelete;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouperClient.api.GcLdapSearchAttribute;
 import edu.internet2.middleware.grouperClient.api.GcMemberChangeSubject;
 import edu.internet2.middleware.grouperClient.api.GcStemDelete;
 import edu.internet2.middleware.grouperClient.api.GcStemSave;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.commandLine.GcLdapSearchAttributeConfig;
 import edu.internet2.middleware.grouperClient.commandLine.GcLdapSearchAttributeConfig.SearchAttributeResultType;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
@@ -49,6 +50,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembershipsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResults;
@@ -62,6 +64,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStem;
@@ -282,6 +285,9 @@ public class GrouperClient {
       } else if (GrouperClientUtils.equals(operation, "getMembersWs")) {
         result = getMembers(argMap, argMapNotUsed);
 
+      } else if (GrouperClientUtils.equals(operation, "getMembershipsWs")) {
+        result = getMemberships(argMap, argMapNotUsed);
+
       } else if (GrouperClientUtils.equals(operation, "hasMemberWs")) {
         result = hasMember(argMap, argMapNotUsed);
 
@@ -486,7 +492,7 @@ public class GrouperClient {
       }
       
       List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap,
-          argMapNotUsed);
+          argMapNotUsed, true);
       
       for (WsSubjectLookup wsSubjectLookup : wsSubjectLookupList) {
         gcAddMember.addSubjectLookup(wsSubjectLookup);
@@ -1418,7 +1424,7 @@ public class GrouperClient {
       }
       
       List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap,
-          argMapNotUsed);
+          argMapNotUsed, true);
       
       for (WsSubjectLookup wsSubjectLookup : wsSubjectLookupList) {
         gcHasMember.addSubjectLookup(wsSubjectLookup);
@@ -1521,7 +1527,7 @@ public class GrouperClient {
       }
       
       List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap,
-          argMapNotUsed);
+          argMapNotUsed, true);
       
       for (WsSubjectLookup wsSubjectLookup : wsSubjectLookupList) {
         gcDeleteMember.addSubjectLookup(wsSubjectLookup);
@@ -2020,7 +2026,7 @@ public class GrouperClient {
     
     WsStemLookup wsStemLookup = null;
     
-    if (!StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemUuid)) {
+    if (!GrouperClientUtils.isBlank(stemName) || !GrouperClientUtils.isBlank(stemUuid)) {
       wsStemLookup = new WsStemLookup(stemName, stemUuid);
     }
 
@@ -2054,15 +2060,15 @@ public class GrouperClient {
     
     gcGetGroups.assignScope(scope);
     gcGetGroups.assignWsStemLookup(wsStemLookup);
-    if (!StringUtils.isBlank(stemScope)) {
+    if (!GrouperClientUtils.isBlank(stemScope)) {
       StemScope theStemScope = StemScope.valueOfIgnoreCase(stemScope);
       gcGetGroups.assignStemScope(theStemScope);
     }
     
-    if (!StringUtils.isBlank(enabled)) {
+    if (!GrouperClientUtils.isBlank(enabled)) {
       //A
       Boolean enabledBoolean = null;
-      if (!StringUtils.equalsIgnoreCase("A", enabled)) {
+      if (!GrouperClientUtils.equalsIgnoreCase("A", enabled)) {
         enabledBoolean = GrouperClientUtils.booleanValue(enabled);
       }
       
@@ -2075,7 +2081,7 @@ public class GrouperClient {
     
     gcGetGroups.assignFieldName(fieldName);
     
-    List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap, argMapNotUsed);
+    List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap, argMapNotUsed, true);
     
     for (WsSubjectLookup wsSubjectLookup : wsSubjectLookupList) {
       gcGetGroups.addSubjectLookup(wsSubjectLookup);
@@ -2238,10 +2244,11 @@ public class GrouperClient {
   /**
    * @param argMap
    * @param argMapNotUsed
+   * @param required if they are required
    * @return the subjects
    */
   private static List<WsSubjectLookup> retrieveSubjectsFromArgs(
-      Map<String, String> argMap, Map<String, String> argMapNotUsed) {
+      Map<String, String> argMap, Map<String, String> argMapNotUsed, boolean required) {
     
     
     String argMapSubjectIdsKey = "subjectIds";
@@ -2358,6 +2365,9 @@ public class GrouperClient {
     }
     
     if (subjectIdLength == 0 && subjectIdentifierLength == 0) {
+      if (!required) {
+        return null;
+      }
       throw new RuntimeException("Cant pass no subject ids and no subject identifiers!");
     }
     if (subjectIdLength != 0 && subjectIdentifierLength != 0) {
@@ -2467,6 +2477,178 @@ public class GrouperClient {
     //read in the usage file
     String usage = GrouperClientUtils.readResourceIntoString("grouper.client.usage.txt", GrouperClientCommonUtils.class);
     System.err.println(usage);
+  }
+
+  /**
+   * get memberships
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String getMemberships(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+
+    String enabled = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "enabled", false);
+
+    String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
+
+    List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", false);
+    List<String> groupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupUuids", false);
+  
+    Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+
+    Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
+
+    String memberFilter = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "memberFilter", false);
+
+    List<String> membershipIds = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "membershipIds", false);
+
+    String scope = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "scope", false);
+
+    String sourceIds = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "sourceIds", false);
+
+    String stemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemName", false);
+    String stemUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemUuid", false);
+    
+    WsStemLookup wsStemLookup = null;
+    if (!GrouperClientUtils.isBlank(stemName) || !GrouperClientUtils.isBlank(stemUuid)) {
+      wsStemLookup = new WsStemLookup(stemName, stemUuid);
+    }
+    
+    String stemScope = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemScope", false);
+    
+    Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
+
+    List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap, argMapNotUsed, false);
+
+    GcGetMemberships gcGetMemberships = new GcGetMemberships();        
+
+    gcGetMemberships.assignActAsSubject(actAsSubject);
+    
+    gcGetMemberships.assignClientVersion(clientVersion);
+  
+    gcGetMemberships.assignEnabled(enabled);
+
+    gcGetMemberships.assignFieldName(fieldName);
+    
+    if (GrouperClientUtils.length(groupNames) > 0) {
+      for (String groupName: groupNames) {
+        gcGetMemberships.addGroupName(groupName);
+      }
+    }
+    
+    if (GrouperClientUtils.length(groupUuids) > 0) {
+      for (String groupUuid: groupUuids) {
+        gcGetMemberships.addGroupUuid(groupUuid);
+      }
+    }
+    
+    gcGetMemberships.assignIncludeGroupDetail(includeGroupDetail);
+    gcGetMemberships.assignIncludeSubjectDetail(includeSubjectDetail);
+    
+    gcGetMemberships.assignMemberFilter(WsMemberFilter.valueOfIgnoreCase(memberFilter));
+  
+    if (GrouperClientUtils.length(membershipIds) > 0) {
+      for (String membershipId: membershipIds) {
+        gcGetMemberships.addMembershipId(membershipId);
+      }
+    }
+    
+    
+    for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
+      gcGetMemberships.addSubjectAttributeName(subjectAttribute);
+    }
+    
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    for (WsParam param : params) {
+      gcGetMemberships.addParam(param);
+    }
+    
+    //add source ids if there
+    if (!GrouperClientUtils.isBlank(sourceIds)) {
+      String[] sourceIdsArray = GrouperClientUtils.splitTrim(sourceIds, ",");
+      for (String sourceId : sourceIdsArray) {
+        gcGetMemberships.addSourceId(sourceId);
+      }
+    }
+    
+    gcGetMemberships.assignScope(scope);
+
+    gcGetMemberships.assigStemScope(stemScope);
+    
+    gcGetMemberships.assignWsStem(wsStemLookup);
+    
+    if (GrouperClientUtils.length(wsSubjectLookupList) > 0) {
+      for (WsSubjectLookup wsSubjectLookup: wsSubjectLookupList) {
+        gcGetMemberships.addWsSubjectLookup(wsSubjectLookup);
+      }
+    }
+
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    
+    
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsGetMembershipsResults wsGetMembershipsResults = gcGetMemberships.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsGetMembershipsResults", wsGetMembershipsResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.getMemberships.output", true);
+    }
+    log.debug("Output template: " + outputTemplate + ", available variables: wsGetMembershipsResults, " +
+      "grouperClientUtils, index, wsMembership");
+  
+    //lets index the groups by groupId 
+    Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
+    
+    for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsGetMembershipsResults.getWsGroups(), WsGroup.class)) {
+      groupLookup.put(wsGroup.getUuid(), wsGroup);
+    }
+    
+    //lets index the subjects by multikey of sourceId and subjectId
+    Map<MultiKey, WsSubject> subjectLookup = new HashMap<MultiKey, WsSubject>();
+    
+    for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsGetMembershipsResults.getWsSubjects(), WsSubject.class)) {
+      MultiKey key = new MultiKey(wsSubject.getSourceId(), wsSubject.getId());
+      subjectLookup.put(key, wsSubject);
+    }
+    
+    for (WsMembership wsMembership : GrouperClientUtils.nonNull(wsGetMembershipsResults.getWsMemberships(), WsMembership.class)) {
+      
+      WsGroup wsGroup = groupLookup.get(wsMembership.getGroupId());
+      MultiKey subjectKey = new MultiKey(wsMembership.getSubjectSourceId(), wsMembership.getSubjectId());
+      WsSubject wsSubject = subjectLookup.get(subjectKey);
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsMembership", wsMembership);
+      substituteMap.put("wsSubject", wsSubject);
+      substituteMap.put("wsGroup", wsGroup);
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
   }
 
 }

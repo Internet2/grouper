@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.14 2009-12-18 02:43:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.15 2009-12-19 21:38:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -1167,7 +1167,7 @@ public class GrouperServiceRest {
             wsRestGetMembershipsRequest.getSubjectAttributeNames(),
         wsRestGetMembershipsRequest.getIncludeGroupDetail(), wsRestGetMembershipsRequest.getParams(),
             wsRestGetMembershipsRequest.getSourceIds(), wsRestGetMembershipsRequest.getScope(), 
-            wsRestGetMembershipsRequest.getWsStemLookup(), wsRestGetMembershipsRequest.getStemScope(), wsRestGetMembershipsRequest.getEnabled(), wsRestGetMembershipsRequest.getMembershipsIds() );
+            wsRestGetMembershipsRequest.getWsStemLookup(), wsRestGetMembershipsRequest.getStemScope(), wsRestGetMembershipsRequest.getEnabled(), wsRestGetMembershipsRequest.getMembershipIds() );
   
     //return result
     return wsGetMembershipsResults;
@@ -1216,7 +1216,7 @@ public class GrouperServiceRest {
             .getParamName1(), wsRestGetMembershipsLiteRequest.getParamValue1(), 
             wsRestGetMembershipsLiteRequest.getSourceIds(), wsRestGetMembershipsLiteRequest.getScope(), wsRestGetMembershipsLiteRequest.getStemName(),
             wsRestGetMembershipsLiteRequest.getStemUuid(), wsRestGetMembershipsLiteRequest.getStemScope(), 
-            wsRestGetMembershipsLiteRequest.getEnabled(), wsRestGetMembershipsLiteRequest.getMembershipsIds());
+            wsRestGetMembershipsLiteRequest.getEnabled(), wsRestGetMembershipsLiteRequest.getMembershipIds());
   
     //return result
     return wsGetMembershipsResults;

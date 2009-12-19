@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcFindGroups.java,v 1.4 2009-12-15 06:47:10 mchyzer Exp $
+ * $Id: GcFindGroups.java,v 1.5 2009-12-19 21:38:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
@@ -93,8 +92,8 @@ public class GcFindGroups {
    * validate this call
    */
   private void validate() {
-    if (this.queryFilter == null && GrouperUtil.length(this.groupUuids) == 0 
-        && GrouperUtil.length(this.groupNames) == 0) {
+    if (this.queryFilter == null && GrouperClientUtils.length(this.groupUuids) == 0 
+        && GrouperClientUtils.length(this.groupNames) == 0) {
       throw new RuntimeException("Need to pass in a query filter, or groupNames or groupUuids: " + this);
     }
   }

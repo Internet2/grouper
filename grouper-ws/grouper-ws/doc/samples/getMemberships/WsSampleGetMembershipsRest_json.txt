@@ -50,13 +50,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 2039
-Date: Fri, 18 Dec 2009 04:38:23 GMT
+Date: Sat, 19 Dec 2009 21:33:46 GMT
 Connection: close
 
 {
   "WsGetMembershipsResults":{
     "responseMetadata":{
-      "millis":"466",
+      "millis":"474",
       "serverVersion":"v1_6_000"
     },
     "resultMetadata":{
@@ -77,46 +77,46 @@ Connection: close
         "displayName":"a stem:a group",
         "extension":"aGroup",
         "name":"aStem:aGroup",
-        "uuid":"a4b7bacbea3446f48723ddf77e9314e0"
+        "uuid":"034d24f23fd747f0867dd8a343f55518"
       }
     ]
     ,
     "wsMemberships":[
       {
-        "createTime":"2009/12/17 23:38:21.147",
+        "createTime":"2009/12/19 16:33:44.272",
         "enabled":"T",
-        "groupId":"a4b7bacbea3446f48723ddf77e9314e0",
+        "groupId":"034d24f23fd747f0867dd8a343f55518",
         "groupName":"aStem:aGroup",
         "listName":"members",
         "listType":"list",
         "memberId":"18115df1c9b043f2bcaf58163003a276",
-        "membershipId":"e3a88a28a20b4f6886ffdef0d374ce58:7f87a25346d2488a942bd80caa37ecb6",
+        "membershipId":"4e3340471de642ba848ff891f35ffbb8:c7a78394d4be44e985917a22ea50f5b0",
         "membershipType":"immediate",
         "subjectId":"GrouperSystem",
         "subjectSourceId":"g:isa"
       },
       {
-        "createTime":"2009/12/17 23:38:21.183",
+        "createTime":"2009/12/19 16:33:44.313",
         "enabled":"T",
-        "groupId":"a4b7bacbea3446f48723ddf77e9314e0",
+        "groupId":"034d24f23fd747f0867dd8a343f55518",
         "groupName":"aStem:aGroup",
         "listName":"members",
         "listType":"list",
-        "memberId":"df5c0c3bde4d44fe81a498af1716c214",
-        "membershipId":"77be082d26534164bac88fb53f5a6999:7f87a25346d2488a942bd80caa37ecb6",
+        "memberId":"3d5cadf1c0ae42d086768c1638756b37",
+        "membershipId":"e7627861bf434d68aa2aef90f8c7d8f0:c7a78394d4be44e985917a22ea50f5b0",
         "membershipType":"immediate",
         "subjectId":"10021368",
         "subjectSourceId":"jdbc"
       },
       {
-        "createTime":"2009/12/17 23:38:21.166",
+        "createTime":"2009/12/19 16:33:44.291",
         "enabled":"T",
-        "groupId":"a4b7bacbea3446f48723ddf77e9314e0",
+        "groupId":"034d24f23fd747f0867dd8a343f55518",
         "groupName":"aStem:aGroup",
         "listName":"members",
         "listType":"list",
-        "memberId":"b065badee6b6434fb3008018eb599f6a",
-        "membershipId":"0e8bb2c52306499b816ca13d57c9ffd6:7f87a25346d2488a942bd80caa37ecb6",
+        "memberId":"da2414c663cc40cb94714e0c2a034bc6",
+        "membershipId":"b2f8fe2e9ff14704a485b6a44552e872:c7a78394d4be44e985917a22ea50f5b0",
         "membershipType":"immediate",
         "subjectId":"10039438",
         "subjectSourceId":"jdbc"

@@ -250,9 +250,15 @@ public class WsGetMembershipsResults implements WsResponseBean, ResultMetadataHo
    */
   private void sortResults() {
     //maybe we shouldnt do this for huge resultsets, but this makes things more organized and easier to test
-    Arrays.sort(this.wsGroups);
-    Arrays.sort(this.wsSubjects);
-    Arrays.sort(this.wsMemberships);
+    if (this.wsGroups != null) {
+      Arrays.sort(this.wsGroups);
+    }
+    if (this.wsSubjects != null) {
+      Arrays.sort(this.wsSubjects);
+    }
+    if (this.wsMemberships != null) {
+      Arrays.sort(this.wsMemberships);
+    }
   }
   
   /**

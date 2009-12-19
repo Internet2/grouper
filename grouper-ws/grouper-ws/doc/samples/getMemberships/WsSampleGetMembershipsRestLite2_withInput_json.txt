@@ -35,13 +35,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 2576
-Date: Fri, 18 Dec 2009 04:38:44 GMT
+Date: Sat, 19 Dec 2009 21:34:07 GMT
 Connection: close
 
 {
   "WsGetMembershipsResults":{
     "responseMetadata":{
-      "millis":"191",
+      "millis":"190",
       "serverVersion":"v1_6_000"
     },
     "resultMetadata":{
@@ -56,7 +56,7 @@ Connection: close
         "displayName":"a stem:a group",
         "extension":"aGroup",
         "name":"aStem:aGroup",
-        "uuid":"47283ab29f1a4e19a7771131b535e0ae"
+        "uuid":"85d42e349f4a487fb290f914b131187b"
       },
       {
         "description":"a group description2",
@@ -64,73 +64,73 @@ Connection: close
         "displayName":"a stem:a group2",
         "extension":"aGroup2",
         "name":"aStem:aGroup2",
-        "uuid":"30cddd2db18545f5b8d1a9e384eafe0c"
+        "uuid":"46e946f58d934acfb6aa2854a67e6818"
       },
       {
         "displayExtension":"sysadmingroup",
         "displayName":"etc:sysadmingroup",
         "extension":"sysadmingroup",
         "name":"etc:sysadmingroup",
-        "uuid":"11458f1b21a04ae594b5371593bc33b5"
+        "uuid":"c8b911efbc66464fa7b02f06e6b25cab"
       },
       {
         "displayExtension":"webServiceActAsGroup",
         "displayName":"etc:webServiceActAsGroup",
         "extension":"webServiceActAsGroup",
         "name":"etc:webServiceActAsGroup",
-        "uuid":"d9a3b140527848d39f503064286cd942"
+        "uuid":"49edc49b95904e578551dae71e0dff49"
       }
     ]
     ,
     "wsMemberships":[
       {
-        "createTime":"2009/12/17 23:38:42.633",
+        "createTime":"2009/12/19 16:34:04.927",
         "enabled":"T",
-        "groupId":"47283ab29f1a4e19a7771131b535e0ae",
+        "groupId":"85d42e349f4a487fb290f914b131187b",
         "groupName":"aStem:aGroup",
         "listName":"members",
         "listType":"list",
-        "memberId":"f0ecaf22ba094f38aceec1575f124d34",
-        "membershipId":"9b2fcb49cb4f4e128283b5aa1c425dbb:f341fd05b43548cebd8116df1610c6b9",
+        "memberId":"18c641dd9ff741b29e18396a22f44b7b",
+        "membershipId":"bbe1ae3a163844a58e2d3406e2926ad0:d0b9c90d9fb64813aac9323ddea5ce7e",
         "membershipType":"immediate",
         "subjectId":"10021368",
         "subjectSourceId":"jdbc"
       },
       {
-        "createTime":"2009/12/17 23:38:42.683",
+        "createTime":"2009/12/19 16:34:04.975",
         "enabled":"T",
-        "groupId":"30cddd2db18545f5b8d1a9e384eafe0c",
+        "groupId":"46e946f58d934acfb6aa2854a67e6818",
         "groupName":"aStem:aGroup2",
         "listName":"members",
         "listType":"list",
-        "memberId":"f0ecaf22ba094f38aceec1575f124d34",
-        "membershipId":"9308e5ed1b3c4c359345b33c3a3ef10e:4e5ba865e27b4b878e08f3d3fa06eaec",
+        "memberId":"18c641dd9ff741b29e18396a22f44b7b",
+        "membershipId":"3d6c2ac357ab43118ec737e20b16439b:ee0e2414902d47f09cc201d4001ce848",
         "membershipType":"immediate",
         "subjectId":"10021368",
         "subjectSourceId":"jdbc"
       },
       {
-        "createTime":"2009/12/17 23:38:42.851",
+        "createTime":"2009/12/19 16:34:05.161",
         "enabled":"T",
-        "groupId":"11458f1b21a04ae594b5371593bc33b5",
+        "groupId":"c8b911efbc66464fa7b02f06e6b25cab",
         "groupName":"etc:sysadmingroup",
         "listName":"members",
         "listType":"list",
-        "memberId":"f0ecaf22ba094f38aceec1575f124d34",
-        "membershipId":"db4e691ffc8143dcb8a7dc193ffc4824:f58a8f3ea36c496bb7e459cf56f09731",
+        "memberId":"18c641dd9ff741b29e18396a22f44b7b",
+        "membershipId":"e956622b813d47d0b8bf486ba1fff789:df9136d59ea0431dad4342687fd5b36b",
         "membershipType":"immediate",
         "subjectId":"10021368",
         "subjectSourceId":"jdbc"
       },
       {
-        "createTime":"2009/12/17 23:38:42.809",
+        "createTime":"2009/12/19 16:34:05.116",
         "enabled":"T",
-        "groupId":"d9a3b140527848d39f503064286cd942",
+        "groupId":"49edc49b95904e578551dae71e0dff49",
         "groupName":"etc:webServiceActAsGroup",
         "listName":"members",
         "listType":"list",
-        "memberId":"f0ecaf22ba094f38aceec1575f124d34",
-        "membershipId":"0b62b19c75e6441aacdc75bb53d05f1e:9351a7c7225a4e0f90fb305c7ce7a55e",
+        "memberId":"18c641dd9ff741b29e18396a22f44b7b",
+        "membershipId":"356c860344a943b8a70e314cae0eae86:34715a5a681f44998c590310c4f17140",
         "membershipType":"immediate",
         "subjectId":"10021368",
         "subjectSourceId":"jdbc"

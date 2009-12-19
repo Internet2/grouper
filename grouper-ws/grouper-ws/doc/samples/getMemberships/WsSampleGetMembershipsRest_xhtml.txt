@@ -66,7 +66,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Fri, 18 Dec 2009 04:38:20 GMT
+Date: Sat, 19 Dec 2009 21:33:43 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -84,7 +84,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">276</p>
+        <p class="millis">261</p>
         <p class="serverVersion">v1_6_000</p>
         <p class="resultWarnings" />
       </div>
@@ -93,7 +93,7 @@ Connection: close
           <p class="subjectSourceId">g:isa</p>
           <p class="subjectId">GrouperSystem</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2009/12/17 23:38:18.337</p>
+          <p class="createTime">2009/12/19 16:33:41.324</p>
           <p class="enabledTime" />
           <p class="disabledTime" />
           <p class="memberId">18115df1c9b043f2bcaf58163003a276</p>
@@ -101,38 +101,38 @@ Connection: close
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
           <p class="enabled">T</p>
-          <p class="groupId">93740a0afe63475987ade1e89269fed1</p>
-          <p class="membershipId">8eaa2c821ebf41638b51a6d675affde9:760738cd542441b2a2ff9e74b814754d</p>
+          <p class="groupId">3937bcc659254cea9446f9d45cc10fe8</p>
+          <p class="membershipId">40a7b473c77b492d8eb7598f215b1f72:1468a62f2d1e4b2ea649fbd135717ebd</p>
         </li>
         <li title="WsMembership">
           <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">10021368</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2009/12/17 23:38:18.373</p>
+          <p class="createTime">2009/12/19 16:33:41.377</p>
           <p class="enabledTime" />
           <p class="disabledTime" />
-          <p class="memberId">2cccc3035cd24488a969b98df0bcdb62</p>
+          <p class="memberId">35c2aeb8dd534e2896a5e04a3c72c5cc</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
           <p class="enabled">T</p>
-          <p class="groupId">93740a0afe63475987ade1e89269fed1</p>
-          <p class="membershipId">3a9bced90a804572ba1c09101538c529:760738cd542441b2a2ff9e74b814754d</p>
+          <p class="groupId">3937bcc659254cea9446f9d45cc10fe8</p>
+          <p class="membershipId">14fbe4436ee54ca0acab7e02019d8aec:1468a62f2d1e4b2ea649fbd135717ebd</p>
         </li>
         <li title="WsMembership">
           <p class="subjectSourceId">jdbc</p>
           <p class="subjectId">10039438</p>
           <p class="groupName">aStem:aGroup</p>
-          <p class="createTime">2009/12/17 23:38:18.355</p>
+          <p class="createTime">2009/12/19 16:33:41.361</p>
           <p class="enabledTime" />
           <p class="disabledTime" />
-          <p class="memberId">f22ab62c3e9c4ef2b9f2f07e12210a4c</p>
+          <p class="memberId">4fa1658c2223493fad11c469179e6544</p>
           <p class="listName">members</p>
           <p class="listType">list</p>
           <p class="membershipType">immediate</p>
           <p class="enabled">T</p>
-          <p class="groupId">93740a0afe63475987ade1e89269fed1</p>
-          <p class="membershipId">72aec0f2a00a422c99e06594deb8dc05:760738cd542441b2a2ff9e74b814754d</p>
+          <p class="groupId">3937bcc659254cea9446f9d45cc10fe8</p>
+          <p class="membershipId">0aed5136b81248168dc5ffbccf636fd1:1468a62f2d1e4b2ea649fbd135717ebd</p>
         </li>
       </ul>
       <ul class="wsGroups">
@@ -140,7 +140,7 @@ Connection: close
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
-          <p class="uuid">93740a0afe63475987ade1e89269fed1</p>
+          <p class="uuid">3937bcc659254cea9446f9d45cc10fe8</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
           <p class="displayExtension">a group</p>

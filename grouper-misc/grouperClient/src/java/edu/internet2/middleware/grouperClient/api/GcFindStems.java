@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcFindStems.java,v 1.3 2009-12-15 06:47:10 mchyzer Exp $
+ * $Id: GcFindStems.java,v 1.4 2009-12-19 21:38:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindStemsResults;
@@ -97,8 +96,8 @@ public class GcFindStems {
    * validate this call
    */
   private void validate() {
-    if (this.wsStemQueryFilter == null && GrouperUtil.length(this.stemUuids) == 0 
-        && GrouperUtil.length(this.stemNames) == 0) {
+    if (this.wsStemQueryFilter == null && GrouperClientUtils.length(this.stemUuids) == 0 
+        && GrouperClientUtils.length(this.stemNames) == 0) {
       throw new RuntimeException("Need to pass in a stem query filter, or stemNames or stemUuids: " + this);
     }
 

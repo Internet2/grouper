@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestGetMembershipsLiteRequest.java,v 1.1 2009-12-18 02:43:26 mchyzer Exp $
+ * @author mchyzer $Id: WsRestGetMembershipsLiteRequest.java,v 1.2 2009-12-19 21:38:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.membership;
 
@@ -68,7 +68,7 @@ public class WsRestGetMembershipsLiteRequest implements WsRequestBean {
   private String memberFilter;
 
   /** membershipIds are the comma separated list of ids to search for if known */
-  private String membershipsIds;
+  private String membershipIds;
 
   /** scope is a sql like string which will have a percent % concatenated to the end for group
    * names to search in (or stem names) */
@@ -184,8 +184,8 @@ public class WsRestGetMembershipsLiteRequest implements WsRequestBean {
    * membershipIds are the comma separated list of ids to search for if known
    * @return membership id
    */
-  public String getMembershipsIds() {
-    return this.membershipsIds;
+  public String getMembershipIds() {
+    return this.membershipIds;
   }
 
 
@@ -193,8 +193,8 @@ public class WsRestGetMembershipsLiteRequest implements WsRequestBean {
    * membershipIds are the comma separated list of ids to search for if known
    * @param membershipsId1
    */
-  public void setMembershipsIds(String membershipsId1) {
-    this.membershipsIds = membershipsId1;
+  public void setMembershipIds(String membershipsId1) {
+    this.membershipIds = membershipsId1;
   }
 
 

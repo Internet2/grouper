@@ -34,62 +34,62 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Fri, 18 Dec 2009 04:38:50 GMT
+Date: Sat, 19 Dec 2009 21:34:12 GMT
 Connection: close
 
 <WsGetMembershipsResults>
   <wsMemberships>
     <WsMembership>
-      <membershipId>6e98cbab6a9e4ec4ae0172bd524be248:44a5c3809c2f454db77705768a1fc5af</membershipId>
+      <membershipId>70c07cbc64994a4e895afe39a6c7f6bd:2a16e105975a4dceb8986262fe56a6f1</membershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>ae9c9ea41c2e490094e98808e028a581</memberId>
-      <groupId>807236f8fd77474c96da485cd0f350d1</groupId>
+      <memberId>971dea02747045c7a0af54f85c705a57</memberId>
+      <groupId>884e439b6e154cf5b18f1f96cd81ceb0</groupId>
       <subjectId>10021368</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>aStem:aGroup</groupName>
-      <createTime>2009/12/17 23:38:48.068</createTime>
+      <createTime>2009/12/19 16:34:10.829</createTime>
     </WsMembership>
     <WsMembership>
-      <membershipId>f921bd00861f4028b822b6ffe387b319:5a5999acbbd841788964751ed26b8d2d</membershipId>
+      <membershipId>35d69fa7b7274193b50ef13c362c4aaf:08aec4fa18d34204ace5f38e1a341875</membershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>ae9c9ea41c2e490094e98808e028a581</memberId>
-      <groupId>ace486c12a7f45c59cea537407d87c15</groupId>
+      <memberId>971dea02747045c7a0af54f85c705a57</memberId>
+      <groupId>3af9472b96fe4054bbbbe72b1fa6be46</groupId>
       <subjectId>10021368</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>aStem:aGroup2</groupName>
-      <createTime>2009/12/17 23:38:48.114</createTime>
+      <createTime>2009/12/19 16:34:10.878</createTime>
     </WsMembership>
     <WsMembership>
-      <membershipId>17d28d98b3cf49d7979f03ceebcd4d93:45475bbe8e1f457fabdfdba30f0413fc</membershipId>
+      <membershipId>82310c04a8ed4abbb815fb5700cc7d8a:a5488d03096148849fe32140af5c0510</membershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>ae9c9ea41c2e490094e98808e028a581</memberId>
-      <groupId>fd67e63236d44ff9acce2e6c507a0e4c</groupId>
+      <memberId>971dea02747045c7a0af54f85c705a57</memberId>
+      <groupId>eb98a1cd84cc461c8c112d0f23c917b8</groupId>
       <subjectId>10021368</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>etc:sysadmingroup</groupName>
-      <createTime>2009/12/17 23:38:48.292</createTime>
+      <createTime>2009/12/19 16:34:11.114</createTime>
     </WsMembership>
     <WsMembership>
-      <membershipId>44dc245762444d55ae14cf201b26a865:ec58a9fd778c41a4b00a78ee78ec5061</membershipId>
+      <membershipId>5e277121af57458f81cfa70943e15f94:de1e361409684562aa4774eadd40ee6e</membershipId>
       <listName>members</listName>
       <listType>list</listType>
       <membershipType>immediate</membershipType>
       <enabled>T</enabled>
-      <memberId>ae9c9ea41c2e490094e98808e028a581</memberId>
-      <groupId>16ef6264d54b4c89a3cbcf9ddc44a9ed</groupId>
+      <memberId>971dea02747045c7a0af54f85c705a57</memberId>
+      <groupId>5de2b6e0d5be40cb8aded52195e9ef6a</groupId>
       <subjectId>10021368</subjectId>
       <subjectSourceId>jdbc</subjectSourceId>
       <groupName>etc:webServiceActAsGroup</groupName>
-      <createTime>2009/12/17 23:38:48.238</createTime>
+      <createTime>2009/12/19 16:34:11.070</createTime>
     </WsMembership>
   </wsMemberships>
   <wsGroups>
@@ -99,7 +99,7 @@ Connection: close
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>807236f8fd77474c96da485cd0f350d1</uuid>
+      <uuid>884e439b6e154cf5b18f1f96cd81ceb0</uuid>
     </WsGroup>
     <WsGroup>
       <extension>aGroup2</extension>
@@ -107,21 +107,21 @@ Connection: close
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>ace486c12a7f45c59cea537407d87c15</uuid>
+      <uuid>3af9472b96fe4054bbbbe72b1fa6be46</uuid>
     </WsGroup>
     <WsGroup>
       <extension>sysadmingroup</extension>
       <displayExtension>sysadmingroup</displayExtension>
       <displayName>etc:sysadmingroup</displayName>
       <name>etc:sysadmingroup</name>
-      <uuid>fd67e63236d44ff9acce2e6c507a0e4c</uuid>
+      <uuid>eb98a1cd84cc461c8c112d0f23c917b8</uuid>
     </WsGroup>
     <WsGroup>
       <extension>webServiceActAsGroup</extension>
       <displayExtension>webServiceActAsGroup</displayExtension>
       <displayName>etc:webServiceActAsGroup</displayName>
       <name>etc:webServiceActAsGroup</name>
-      <uuid>16ef6264d54b4c89a3cbcf9ddc44a9ed</uuid>
+      <uuid>5de2b6e0d5be40cb8aded52195e9ef6a</uuid>
     </WsGroup>
   </wsGroups>
   <wsSubjects>
@@ -138,7 +138,7 @@ Connection: close
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>166</millis>
+    <millis>181</millis>
     <serverVersion>v1_6_000</serverVersion>
   </responseMetadata>
 </WsGetMembershipsResults>

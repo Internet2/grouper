@@ -1,20 +1,12 @@
 /*
  * @author mchyzer
- * $Id: WsRestGetMembershipsRequest.java,v 1.2 2009-12-19 21:38:21 mchyzer Exp $
+ * $Id: WsRestGetMembershipsRequest.java,v 1.1 2009-12-19 21:38:27 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.ws.rest.membership;
-
-import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
-import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
-import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+package edu.internet2.middleware.grouperClient.ws.beans;
 
 /**
  * bean that will be the data from rest request
- * @see GrouperServiceLogic#getMemberships(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup[], WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, String[], boolean, WsParam[], String[], String, edu.internet2.middleware.grouper.ws.soap.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, String, String[])
+ * GrouperServiceLogic#getMemberships(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup[], WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, String[], boolean, WsParam[], String[], String, edu.internet2.middleware.grouper.ws.soap.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, String, String[])
  * for method
  */
 public class WsRestGetMembershipsRequest implements WsRequestBean {
@@ -352,13 +344,6 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    */
   public void setParams(WsParam[] params1) {
     this.params = params1;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
-   */
-  public GrouperRestHttpMethod retrieveRestHttpMethod() {
-    return GrouperRestHttpMethod.GET;
   }
 
 }

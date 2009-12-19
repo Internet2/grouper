@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.7 2008-12-07 17:32:21 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.8 2009-12-19 21:38:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembershipsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResults;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta;
@@ -46,6 +48,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembershipsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGroupDeleteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestHasMemberRequest;
@@ -92,6 +95,8 @@ public class WsRestClassLookup {
     addAliasClass(WsGetMembersResult.class);
     addAliasClass(WsGetMembersResults.class);
 
+    addAliasClass(WsGetMembershipsResults.class);
+
     addAliasClass(WsGroup.class);
     addAliasClass(WsGroupDeleteResult.class);
     addAliasClass(WsGroupDeleteResults.class);
@@ -110,6 +115,8 @@ public class WsRestClassLookup {
     addAliasClass(WsMemberChangeSubject.class);
     addAliasClass(WsMemberChangeSubjectResult.class);
     addAliasClass(WsMemberChangeSubjectResults.class);
+
+    addAliasClass(WsMembership.class);
     
     addAliasClass(WsParam.class);
     addAliasClass(WsQueryFilter.class);
@@ -126,6 +133,7 @@ public class WsRestClassLookup {
 
     addAliasClass(WsRestGetGroupsRequest.class);
     addAliasClass(WsRestGetMembersRequest.class);
+    addAliasClass(WsRestGetMembershipsRequest.class);
 
     addAliasClass(WsRestGroupDeleteRequest.class);
     addAliasClass(WsRestGroupSaveRequest.class);
