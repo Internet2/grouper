@@ -55,6 +55,25 @@ public class WsGroupToSave {
   /** stem to save */
   private WsGroup wsGroup;
 
+  /** T or F (null if F) */
+  private String createParentStemsIfNotExist;
+  
+  /**
+   * if should create parent stems if not exist
+   * @return T or F or null (F)
+   */
+  public String getCreateParentStemsIfNotExist() {
+    return this.createParentStemsIfNotExist;
+  }
+
+  /**
+   * if should create parent stems if not exist
+   * @param createParentStemsIfNotExist1 T or F or null (F)
+   */
+  public void setCreateParentStemsIfNotExist(String createParentStemsIfNotExist1) {
+    this.createParentStemsIfNotExist = createParentStemsIfNotExist1;
+  }
+
   /**
    * logger
    */
@@ -153,7 +172,7 @@ public class WsGroupToSave {
       groupSave.assignDisplayExtension(this.getWsGroup().getDisplayExtension());
       groupSave.assignDescription(this.getWsGroup().getDescription());
       groupSave.assignSaveMode(theSaveMode);
-      groupSave.assignCreateParentStemsIfNotExist(false);
+      groupSave.assignCreateParentStemsIfNotExist(GrouperUtil.booleanValue(this.getCreateParentStemsIfNotExist(), false));
       
       group = groupSave.save();
       

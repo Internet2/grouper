@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.35 2009-12-18 05:58:47 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.36 2009-12-20 18:03:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -215,8 +215,7 @@ public class GrouperServiceLogic {
               Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
                   params);
 
-              int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-                  subjectLookups, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000, "subjectLookups");
+              int subjectLength = GrouperUtil.length(subjectLookups);
 
               Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
 
@@ -233,7 +232,10 @@ public class GrouperServiceLogic {
               int resultIndex = 0;
 
               Set<MultiKey> newSubjects = new HashSet<MultiKey>();
-              wsAddMemberResults.setResults(new WsAddMemberResult[subjectLength]);
+              
+              if (subjectLength > 0) {
+                wsAddMemberResults.setResults(new WsAddMemberResult[subjectLength]);
+              }
 
               //get existing members if replacing
               Set<Member> members = null;
@@ -249,7 +251,7 @@ public class GrouperServiceLogic {
                 }
               }
 
-              for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
+              for (WsSubjectLookup wsSubjectLookup : GrouperUtil.nonNull(subjectLookups, WsSubjectLookup.class)) {
                 WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
                 wsAddMemberResults.getResults()[resultIndex++] = wsAddMemberResult;
                 try {

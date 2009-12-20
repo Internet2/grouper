@@ -1,9 +1,10 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimUtilsTest.java,v 1.1 2009-12-15 17:07:56 mchyzer Exp $
+ * $Id: GrouperKimUtilsTest.java,v 1.2 2009-12-20 18:03:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.util;
 
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -12,7 +13,7 @@ import junit.textui.TestRunner;
 /**
  *
  */
-public class GrouperKimUtilsTest extends TestCase {
+public class GrouperKimUtilsTest extends GrouperTest {
 
   /**
    * 
@@ -43,7 +44,7 @@ public class GrouperKimUtilsTest extends TestCase {
    * @see junit.framework.TestCase#tearDown()
    */
   @Override
-  protected void tearDown() throws Exception {
+  protected void tearDown() {
     super.tearDown();
     GrouperClientUtils.grouperClientOverrideMap().clear();
   }

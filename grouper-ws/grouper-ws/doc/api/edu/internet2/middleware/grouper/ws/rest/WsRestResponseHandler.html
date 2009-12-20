@@ -6,14 +6,15 @@
 WsRestResponseHandler
 </TITLE>
 
-<META NAME="keywords" CONTENT="edu.internet2.middleware.grouper.ws.rest.WsRestResponseHandler interface">
 
-<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" TITLE="Style">
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?root=I2MI&view=co&pathrev=HEAD" TITLE="Style">
 
 <SCRIPT type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="WsRestResponseHandler";
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="WsRestResponseHandler";
+    }
 }
 </SCRIPT>
 <NOSCRIPT>
@@ -22,6 +23,7 @@ function windowTitle()
 </HEAD>
 
 <BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
 
 
 <!-- ========= START OF TOP NAVBAR ======= -->
@@ -33,13 +35,13 @@ function windowTitle()
 <A NAME="navbar_top_firstrow"><!-- --></A>
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
   <TR ALIGN="center" VALIGN="top">
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
   </TR>
 </TABLE>
 </TD>
@@ -50,20 +52,20 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestClassLookup.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="class in edu.internet2.middleware.grouper.ws.rest"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="class in edu.internet2.middleware.grouper.ws.rest"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestClassLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsRestResponseHandler.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsRestResponseHandler.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
-    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><B>All Classes</B></A>');
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?root=I2MI&view=co&pathrev=HEAD"><B>All Classes</B></A>');
   }
   //-->
 </SCRIPT>
 <NOSCRIPT>
-  <A HREF="../../../../../../allclasses-noframe.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><B>All Classes</B></A>
+  <A HREF="../../../../../../allclasses-noframe.html?root=I2MI&view=co&pathrev=HEAD"><B>All Classes</B></A>
 </NOSCRIPT>
 
 
@@ -111,7 +113,7 @@ writes the body of a grouper rest response
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResponseHandler.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH#writeResponse(javax.xml.stream.XMLStreamWriter)">writeResponse</A></B>(javax.xml.stream.XMLStreamWriter&nbsp;writer)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResponseHandler.html?root=I2MI&view=co&pathrev=HEAD#writeResponse(javax.xml.stream.XMLStreamWriter)">writeResponse</A></B>(javax.xml.stream.XMLStreamWriter&nbsp;writer)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write the response of the rest web service inside the top and bottom</TD>
@@ -157,13 +159,13 @@ void <B>writeResponse</B>(javax.xml.stream.XMLStreamWriter&nbsp;writer)
 <A NAME="navbar_bottom_firstrow"><!-- --></A>
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
   <TR ALIGN="center" VALIGN="top">
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?root=I2MI&view=co&pathrev=HEAD"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
   </TR>
 </TABLE>
 </TD>
@@ -174,20 +176,20 @@ void <B>writeResponse</B>(javax.xml.stream.XMLStreamWriter&nbsp;writer)
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestClassLookup.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="class in edu.internet2.middleware.grouper.ws.rest"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="class in edu.internet2.middleware.grouper.ws.rest"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestClassLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-  <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsRestResponseHandler.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+  <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsRestResponseHandler.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
-    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><B>All Classes</B></A>');
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?root=I2MI&view=co&pathrev=HEAD"><B>All Classes</B></A>');
   }
   //-->
 </SCRIPT>
 <NOSCRIPT>
-  <A HREF="../../../../../../allclasses-noframe.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH"><B>All Classes</B></A>
+  <A HREF="../../../../../../allclasses-noframe.html?root=I2MI&view=co&pathrev=HEAD"><B>All Classes</B></A>
 </NOSCRIPT>
 
 

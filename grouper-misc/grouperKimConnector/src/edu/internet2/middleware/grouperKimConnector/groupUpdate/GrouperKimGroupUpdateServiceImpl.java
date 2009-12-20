@@ -1,11 +1,12 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupUpdateServiceImpl.java,v 1.5 2009-12-15 17:45:30 mchyzer Exp $
+ * $Id: GrouperKimGroupUpdateServiceImpl.java,v 1.6 2009-12-20 18:03:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.groupUpdate;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
 import org.kuali.rice.kim.bo.types.dto.AttributeSet;
@@ -204,7 +205,9 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
       String[] groupTypesOfKimGroups = GrouperKimUtils.grouperTypesOfKimGroups();
       boolean hasGroupTypes = GrouperClientUtils.length(groupTypesOfKimGroups) > 0;
       
-      for (String key : attributeSet.keySet()) {
+      Set<String> attributeNameSet = attributeSet == null ? null : attributeSet.keySet();
+      
+      for (String key : GrouperClientUtils.nonNull(attributeNameSet)) {
         String value = attributeSet.get(key);
         //store in debug map for debugging or errors
         debugMap.put("groupInfo.attribute." + key, value);
@@ -251,7 +254,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
           wsGroupDetail.setAttributeValues(attributeValues);
           
           int index = 0;
-          for (String key : attributeSet.keySet()) {
+          for (String key : attributeNameSet) {
             String value = attributeSet.get(key);
             attributeNames[index] = key;
             attributeValues[index] = value;
@@ -263,6 +266,7 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
         //if no types, then cannot have attributes, so dont assign them
       }
       
+      wsGroupToSave.setCreateParentStemsIfNotExist("T");
       
       WsGroupSaveResults wsGroupSaveResults = gcGroupSave.execute();
       

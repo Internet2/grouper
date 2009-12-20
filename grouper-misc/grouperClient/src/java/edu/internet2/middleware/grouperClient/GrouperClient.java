@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.27 2009-12-19 21:38:27 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.28 2009-12-20 18:03:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -1111,6 +1111,10 @@ public class GrouperClient {
       wsGroupLookup.setGroupName(name);
     }
     
+    //createParentStemsIfNotExist
+    String createParentStemsIfNotExist = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "createParentStemsIfNotExist", false);
+    wsGroupToSave.setCreateParentStemsIfNotExist(createParentStemsIfNotExist);
+    
     //save mode
     String saveMode = GrouperClientUtils.argMapString(argMap, 
         argMapNotUsed, "saveMode", false);
@@ -1320,6 +1324,10 @@ public class GrouperClient {
         //just edit the name passed in
         wsStemLookup.setStemName(name);
       }
+      
+      //createParentStemsIfNotExist
+      String createParentStemsIfNotExist = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "createParentStemsIfNotExist", false);
+      wsStemToSave.setCreateParentStemsIfNotExist(createParentStemsIfNotExist);
       
       //save mode
       String saveMode = GrouperClientUtils.argMapString(argMap, 
