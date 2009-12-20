@@ -8277,4 +8277,17 @@ public class GrouperClientCommonUtils  {
     }
     return intValue(argString);
   }
+  
+  /**
+   * null safe convert from util date to sql date
+   * @param date
+   * @return the sql date
+   */
+  public static java.sql.Date toSqlDate(Date date) {
+    if (date == null) {
+      return null;
+    }
+    return new java.sql.Date(date.getTime());
+  }
+  
 }

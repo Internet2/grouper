@@ -1,11 +1,12 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupServiceImpl.java,v 1.6 2009-12-15 21:15:32 mchyzer Exp $
+ * $Id: GrouperKimGroupServiceImpl.java,v 1.7 2009-12-20 01:22:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.group;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,9 @@ import org.kuali.rice.kim.service.GroupService;
 import edu.internet2.middleware.grouperClient.api.GcFindGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
+import edu.internet2.middleware.grouperClient.api.GcGetMemberships;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
@@ -27,9 +30,11 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembershipsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
@@ -382,17 +387,117 @@ public class GrouperKimGroupServiceImpl implements GroupService {
   }
   
   /**
+   * getGroupMembers
+   *
+   * java.util.Collection<GroupMembershipInfo> getGroupMembers(java.util.List<java.lang.String> groupIds)
+   *
+   * Get the membership info for the members of all the groups with the given group ids.
+   *
+   * The collection of GroupMembershipInfo will contain members for all the groups in no defined order. The values returned may or may not be grouped by group id. 
+   * 
    * @see org.kuali.rice.kim.service.GroupService#getGroupMembers(java.util.List)
    */
-  public Collection<GroupMembershipInfo> getGroupMembers(List<String> arg0) {
-    return null;
+  public Collection<GroupMembershipInfo> getGroupMembers(List<String> groupIds) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getGroupMembers");
+    
+    int groupIdsSize = GrouperClientUtils.length(groupIds);
+    debugMap.put("groupIds.size", groupIdsSize);
+
+    List<GroupMembershipInfo> results = new ArrayList<GroupMembershipInfo>();
+    if (groupIdsSize == 0) {
+      return results;
+    }
+    boolean hadException = false;
+    
+    try {
+      
+      int index = 0;
+      
+      //log some of these
+      for (String groupId : groupIds) {
+        
+        //dont log all...
+        if (index > 20) {
+          break;
+        }
+        
+        debugMap.put("groupIds." + index, groupId);
+        
+        index++;
+      }
+      
+      GcGetMemberships gcGetMemberships = new GcGetMemberships();
+      
+      for (String groupId : groupIds) {
+        gcGetMemberships.addGroupUuid(groupId);
+      }
+      
+      WsGetMembershipsResults wsGetMembershipsResults = gcGetMemberships.execute();
+      
+      //we did one assignment, we have one result
+      WsMembership[] wsMemberships = wsGetMembershipsResults.getWsMemberships();
+      
+      debugMap.put("resultNumberOfMemberships", GrouperClientUtils.length(wsMemberships));
+      
+      index = 0;
+
+      for (WsMembership wsMembership : GrouperClientUtils.nonNull(wsMemberships, WsMembership.class)) {
+        
+        if (index < 20) {
+          debugMap.put("membershipResult." + index, wsMembership.getMembershipId() + ", " + wsMembership.getGroupName() + ", " + wsMembership.getSubjectId());
+        }
+        
+        String groupId = wsMembership.getGroupId();
+        String groupMemberId = wsMembership.getMembershipId();
+        String memberId = wsMembership.getMemberId();
+        String memberTypeCode = null;
+        String enabledDateString = wsMembership.getEnabledTime();
+        Date enabledDate = GrouperClientCommonUtils.dateValue(enabledDateString);
+        java.sql.Date enabledSqlDate = GrouperClientCommonUtils.toSqlDate(enabledDate);
+        String disabledDateString = wsMembership.getDisabledTime();
+        Date disabledDate = GrouperClientCommonUtils.dateValue(disabledDateString);
+        java.sql.Date disabledSqlDate = GrouperClientCommonUtils.toSqlDate(disabledDate);
+        
+        GroupMembershipInfo groupMembershipInfo = new GroupMembershipInfo(groupId, groupMemberId, memberId, memberTypeCode, enabledSqlDate, disabledSqlDate);
+        results.add(groupMembershipInfo);
+        index++;
+      }
+      
+      return results;
+      
+    } catch (RuntimeException re) {
+      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
+      LOG.error(errorPrefix, re);
+      GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled() && !hadException) {
+        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+      }
+    }
+
+    
+
   }
 
   /**
+   * getGroupMembersOfGroup
+   *
+   * java.util.Collection<GroupMembershipInfo> getGroupMembersOfGroup(java.lang.String groupId)
+   *
+   * Get the membership info for the members of the group with the given id.
+   *
+   * Only GroupMembershipInfo for direct group members is returned.
+   * 
    * @see org.kuali.rice.kim.service.GroupService#getGroupMembersOfGroup(java.lang.String)
    */
-  public Collection<GroupMembershipInfo> getGroupMembersOfGroup(String arg0) {
-    return null;
+  public Collection<GroupMembershipInfo> getGroupMembersOfGroup(String groupId) {
+    
+    return getGroupMembers(GrouperClientUtils.toList(groupId));
+    
   }
 
   /**
