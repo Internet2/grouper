@@ -23,9 +23,6 @@
   <fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
   <property file="build.properties" />
   
-  <echo message="CLIENT: ${grouperClient.dir}" />
-  <echo message="CLIENT: ${grouperClient.jar.name}" />
-  
   <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar">
   </target>
 
