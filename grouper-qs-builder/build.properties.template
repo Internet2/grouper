@@ -15,7 +15,7 @@ grouper-ui.folder=${basedir}/../grouper-ui
 
 
 #The directory where the QuickStart distribution will be created
-qs.dirname=grouper-qs
+qs.dirname=grouper-qs-1.5.1
 quickstart.dir=${basedir}/../${qs.dirname}
 
 
