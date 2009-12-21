@@ -1,4 +1,4 @@
-qs.version=1-5-0
+qs.version=1-5-1
 
 #If grouper.folder is not set to an existing installation
 #the build script will export grouper from CVS
@@ -15,7 +15,7 @@ grouper-ui.folder=${basedir}/../grouper-ui
 
 
 #The directory where the QuickStart distribution will be created
-qs.dirname=grouper-qs-1.5.0
+qs.dirname=grouper-qs-1.5.1
 quickstart.dir=${basedir}/../${qs.dirname}
 
 
