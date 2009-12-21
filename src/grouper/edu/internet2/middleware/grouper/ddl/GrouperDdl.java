@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.98 2009-12-05 06:39:07 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.98.2.1 2009-12-21 07:42:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -5368,7 +5368,7 @@ public enum GrouperDdl implements DdlVersionable {
           "grouper_version", Types.VARCHAR, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "hibernate_version_number", Types.INTEGER, null, false, false); 
+          "hibernate_version_number", Types.INTEGER, "12", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "id", Types.VARCHAR, ID_SIZE, true, true); 
@@ -5425,7 +5425,7 @@ public enum GrouperDdl implements DdlVersionable {
           "user_ip_address", Types.VARCHAR, "50", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "duration_microseconds", Types.INTEGER, null, false, false); 
+          "duration_microseconds", Types.BIGINT, "15", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "query_count", Types.INTEGER, null, false, false); 
