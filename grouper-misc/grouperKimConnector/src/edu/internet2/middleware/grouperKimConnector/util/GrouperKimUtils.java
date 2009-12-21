@@ -1,21 +1,29 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimUtils.java,v 1.5 2009-12-15 21:15:32 mchyzer Exp $
+ * $Id: GrouperKimUtils.java,v 1.6 2009-12-21 06:15:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
 import org.kuali.rice.kim.bo.types.dto.AttributeSet;
 import org.kuali.rice.kim.bo.types.dto.KimTypeInfo;
 import org.kuali.rice.kim.service.KIMServiceLocator;
 
+import edu.internet2.middleware.grouperClient.api.GcFindGroups;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 
 
 /**
@@ -23,6 +31,130 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
  */
 public class GrouperKimUtils {
 
+  /**
+   * filter out subjects which are groups and not in the kim stem
+   * @param wsSubjects
+   */
+  public static void filterGroupsNotInKimStem(List<WsSubject> wsSubjects) {
+    
+    if (GrouperClientUtils.length(wsSubjects) == 0) {
+      return;
+    }
+    
+    Set<String> wsSubjectsSet = new HashSet<String>();
+    List<String> wsGroupSubjectsList = new ArrayList<String>();
+
+    //filter out the group subjects
+    for (int i=0;i<GrouperClientUtils.length(wsSubjects);i++) {
+      WsSubject wsSubject = wsSubjects.get(i);
+      if (GrouperClientUtils.equals("g:gsa", wsSubject.getSourceId())) {
+        wsGroupSubjectsList.add(wsSubject.getId());
+      } else {
+        wsSubjectsSet.add(wsSubject.getId());
+      }
+    }
+    //if no groups, all good
+    if (wsGroupSubjectsList.size() == 0) {
+      return;
+    }
+
+    //lookup the groups and see if in the right stem
+    GcFindGroups gcFindGroups = new GcFindGroups();
+    
+    for (String groupId : wsGroupSubjectsList) {
+      gcFindGroups.addGroupUuid(groupId);
+    }
+    
+    WsFindGroupsResults wsFindGroupsResults = gcFindGroups.execute();
+    WsGroup[] wsGroups = wsFindGroupsResults.getGroupResults();
+    
+    Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
+    for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsGroups, WsGroup.class)) {
+      groupLookup.put(wsGroup.getUuid(), wsGroup);
+    }
+    
+    String kimStem = GrouperKimUtils.kimStem() + ":";
+    
+    Iterator<WsSubject> iterator = wsSubjects.iterator();
+    
+    while (iterator.hasNext()) {
+      WsSubject wsSubject = iterator.next();
+      if (wsSubjectsSet.contains(wsSubject.getId())) {
+        continue;
+      }
+      WsGroup wsGroup = groupLookup.get(wsSubject.getId());
+      //if group not readable, or not in right stem, remove
+      if (wsGroup == null || !wsGroup.getName().startsWith(kimStem)) {
+        iterator.remove();
+      }
+    }
+  }
+  
+  /**
+   * filter out subjects which are groups and not in the kim stem
+   * @param wsMemberships
+   */
+  public static void filterMembershipGroupsNotInKimStem(List<WsMembership> wsMemberships) {
+    
+    if (GrouperClientUtils.length(wsMemberships) == 0) {
+      return;
+    }
+    
+    Set<String> wsMembershipsSet = new HashSet<String>();
+    List<String> wsGroupMembershipsList = new ArrayList<String>();
+
+    Map<String, WsMembership> membershipMap = new HashMap<String, WsMembership>();
+    
+    //filter out the group subjects
+    for (int i=0;i<GrouperClientUtils.length(wsMemberships);i++) {
+      WsMembership currentMembership = wsMemberships.get(i);
+      membershipMap.put(currentMembership.getMembershipId(), currentMembership);
+      WsMembership wsMembership = currentMembership;
+      if (GrouperClientUtils.equals("g:gsa", wsMembership.getSubjectSourceId())) {
+        wsGroupMembershipsList.add(wsMembership.getMembershipId());
+      } else {
+        wsMembershipsSet.add(wsMembership.getMembershipId());
+      }
+    }
+    //if no groups, all good
+    if (wsGroupMembershipsList.size() == 0) {
+      return;
+    }
+
+    //lookup the groups and see if in the right stem
+    GcFindGroups gcFindGroups = new GcFindGroups();
+    
+    for (String membershipId : wsGroupMembershipsList) {
+      WsMembership currentMembership = membershipMap.get(membershipId);
+      String currentGroupId = currentMembership.getSubjectId();
+      gcFindGroups.addGroupUuid(currentGroupId);
+    }
+    
+    WsFindGroupsResults wsFindGroupsResults = gcFindGroups.execute();
+    WsGroup[] wsGroups = wsFindGroupsResults.getGroupResults();
+    
+    Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
+    for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsGroups, WsGroup.class)) {
+      groupLookup.put(wsGroup.getUuid(), wsGroup);
+    }
+    
+    String kimStem = GrouperKimUtils.kimStem() + ":";
+    
+    Iterator<WsMembership> iterator = wsMemberships.iterator();
+    
+    while (iterator.hasNext()) {
+      WsMembership wsMembership = iterator.next();
+      if (wsMembershipsSet.contains(wsMembership.getMembershipId())) {
+        continue;
+      }
+      WsGroup wsGroup = groupLookup.get(wsMembership.getSubjectId());
+      //if group not readable, or not in right stem, remove
+      if (wsGroup == null || !wsGroup.getName().startsWith(kimStem)) {
+        iterator.remove();
+      }
+    }
+  }
+  
   /**
    * sources id where non group source ids can live
    * @return the source ids, comma separated
@@ -103,8 +235,12 @@ public class GrouperKimUtils {
    */
   public static String grouperDefaultGroupTypeId() {
     if (typeId == null) {
-      KimTypeInfo typeInfo = KIMServiceLocator.getTypeInfoService().getKimTypeByName("KUALI", "Default");
-      typeId = typeInfo.getKimTypeId();
+      //override e.g. for testing
+      typeId = GrouperClientUtils.propertiesValue("kim.override.groupTypeId", false);
+      if (GrouperClientUtils.isBlank(typeId)) {
+        KimTypeInfo typeInfo = KIMServiceLocator.getTypeInfoService().getKimTypeByName("KUALI", "Default");
+        typeId = typeInfo.getKimTypeId();
+      }
     }
     return typeId;
   }
@@ -136,6 +272,7 @@ public class GrouperKimUtils {
    */
   public static GroupInfo convertWsGroupToGroupInfo(WsGroup wsGroup) {
     GroupInfo groupInfo = new GroupInfo();
+    groupInfo.setActive(true);
     groupInfo.setGroupId(wsGroup.getUuid());
     groupInfo.setGroupName(wsGroup.getExtension());
     groupInfo.setGroupDescription(wsGroup.getDescription());

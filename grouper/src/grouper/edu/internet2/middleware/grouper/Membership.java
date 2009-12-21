@@ -94,7 +94,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.140 2009-12-07 07:31:08 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.141 2009-12-21 06:15:02 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -772,15 +772,15 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @throws GroupNotFoundException if group not found
    */
   public Group getGroup() throws GroupNotFoundException {
-    String uuid = this.getOwnerGroupId();
-    if (uuid == null) {
+    String groupUuid = this.getOwnerGroupId();
+    if (groupUuid == null) {
       throw new GroupNotFoundException();
     }
-    Group g = getGroupFromCache(uuid);
+    Group g = getGroupFromCache(groupUuid);
     if (g != null) {
       return g;
     }
-    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true);
+    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUuid, true);
     putGroupInCache(g);
     return g;
   }

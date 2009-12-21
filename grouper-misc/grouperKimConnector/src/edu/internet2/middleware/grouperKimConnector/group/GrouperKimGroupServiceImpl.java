@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupServiceImpl.java,v 1.7 2009-12-20 01:22:39 mchyzer Exp $
+ * $Id: GrouperKimGroupServiceImpl.java,v 1.8 2009-12-21 06:15:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.group;
 
@@ -151,7 +151,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getGroupAttributes");
     
-    Map<String, GroupInfo> resultMap = getGroupInfosHelper(GrouperClientUtils.toList(groupId), debugMap);
+    Map<String, GroupInfo> resultMap = getGroupInfosHelper(GrouperClientUtils.toList(groupId), debugMap, true);
     
     if (GrouperClientUtils.length(resultMap) == 0) {
       return null;
@@ -228,7 +228,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getGroupInfo");
     
-    Map<String, GroupInfo> resultMap = getGroupInfosHelper(GrouperClientUtils.toList(groupId), debugMap);
+    Map<String, GroupInfo> resultMap = getGroupInfosHelper(GrouperClientUtils.toList(groupId), debugMap, true);
     
     if (GrouperClientUtils.length(resultMap) == 0) {
       return null;
@@ -262,6 +262,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     try {
       
       GcFindGroups gcFindGroups = new GcFindGroups();
+      gcFindGroups.assignIncludeGroupDetail(true);
       gcFindGroups.addGroupName(GrouperKimUtils.kimStem() + ":" + namespaceCode + ":" + groupName);
       
       WsFindGroupsResults wsFindGroupsResults = gcFindGroups.execute();
@@ -310,16 +311,17 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getGroupInfos");
     
-    return getGroupInfosHelper(groupIds, debugMap);
+    return getGroupInfosHelper(groupIds, debugMap, true);
   }
 
   /**
    * get group info on a bunch of group ids
    * @param groupIds
    * @param debugMap 
+   * @param retrieveGroupDetail
    * @return the map of id to group
    */
-  private Map<String, GroupInfo> getGroupInfosHelper(Collection<String> groupIds, Map<String, Object> debugMap) {
+  private Map<String, GroupInfo> getGroupInfosHelper(Collection<String> groupIds, Map<String, Object> debugMap, boolean retrieveGroupDetail) {
     int groupIdsSize = GrouperClientUtils.length(groupIds);
     debugMap.put("groupIds.size", groupIdsSize);
     Map<String, GroupInfo> result = new LinkedHashMap<String, GroupInfo>();
@@ -346,6 +348,10 @@ public class GrouperKimGroupServiceImpl implements GroupService {
       }
 
       GcFindGroups gcFindGroups = new GcFindGroups();
+      
+      if (retrieveGroupDetail) {
+        gcFindGroups.assignIncludeGroupDetail(retrieveGroupDetail);
+      }
       
       for (String groupId : groupIds) {
         gcFindGroups.addGroupUuid(groupId);
@@ -434,16 +440,34 @@ public class GrouperKimGroupServiceImpl implements GroupService {
         gcGetMemberships.addGroupUuid(groupId);
       }
       
+      //only get subjects from the right sources
+      String sourceIdsCommaSeparated = GrouperClientUtils.propertiesValue("grouper.kim.plugin.subjectSourceIds", true);
+      String[] sourceIds = GrouperClientUtils.splitTrim(sourceIdsCommaSeparated, ",");
+      for (String sourceId : sourceIds) {
+        gcGetMemberships.addSourceId(sourceId);
+      }
+      
+      //get groups too?
+      gcGetMemberships.addSourceId("g:gsa");
+      
       WsGetMembershipsResults wsGetMembershipsResults = gcGetMemberships.execute();
       
       //we did one assignment, we have one result
       WsMembership[] wsMemberships = wsGetMembershipsResults.getWsMemberships();
       
-      debugMap.put("resultNumberOfMemberships", GrouperClientUtils.length(wsMemberships));
+      if (GrouperClientUtils.length(wsMemberships) == 0) {
+        return null;
+      }
+      
+      List<WsMembership> wsMembershipsList = GrouperClientUtils.toList(wsMemberships);
+
+      GrouperKimUtils.filterMembershipGroupsNotInKimStem(wsMembershipsList);
+      
+      debugMap.put("resultNumberOfMemberships", GrouperClientUtils.length(wsMembershipsList));
       
       index = 0;
 
-      for (WsMembership wsMembership : GrouperClientUtils.nonNull(wsMemberships, WsMembership.class)) {
+      for (WsMembership wsMembership : GrouperClientUtils.nonNull(wsMembershipsList)) {
         
         if (index < 20) {
           debugMap.put("membershipResult." + index, wsMembership.getMembershipId() + ", " + wsMembership.getGroupName() + ", " + wsMembership.getSubjectId());
@@ -451,7 +475,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
         
         String groupId = wsMembership.getGroupId();
         String groupMemberId = wsMembership.getMembershipId();
-        String memberId = wsMembership.getMemberId();
+        String memberId = wsMembership.getSubjectId();
         String memberTypeCode = null;
         String enabledDateString = wsMembership.getEnabledTime();
         Date enabledDate = GrouperClientCommonUtils.dateValue(enabledDateString);
@@ -593,7 +617,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
       
       index = 0;
       
-      for (WsGroup wsGroup : wsGroups) {
+      for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsGroups, WsGroup.class)) {
         
         if (index < 20) {
           
@@ -748,16 +772,18 @@ public class GrouperKimGroupServiceImpl implements GroupService {
         return null;
       }
 
+      List<WsSubject> wsSubjectList = GrouperClientUtils.toList(wsSubjects);
+      GrouperKimUtils.filterGroupsNotInKimStem(wsSubjectList);
+            
       List<String> results = new ArrayList<String>();
       
-      for (int i=0;i<wsSubjectsLength;i++) {
-        WsSubject wsSubject = wsSubjects[i];
+      for (int i=0;i<GrouperClientUtils.length(wsSubjectList);i++) {
 
         if (i < 20) {
-          debugMap.put("result." + index, wsSubject.getId());
+          debugMap.put("result." + index, wsSubjectList.get(i));
         }
 
-        results.add(wsSubject.getId());
+        results.add(wsSubjectList.get(i).getId());
       }
       
       return results;
@@ -915,7 +941,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "isGroupActive");
     
-    Map<String, GroupInfo> resultMap = getGroupInfosHelper(GrouperClientUtils.toList(groupId), debugMap);
+    Map<String, GroupInfo> resultMap = getGroupInfosHelper(GrouperClientUtils.toList(groupId), debugMap, false);
     
     if (GrouperClientUtils.length(resultMap) == 0) {
       return false;
@@ -947,7 +973,7 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     debugMap.put("groupMemberId", groupMemberId);
     debugMap.put("groupId", groupId);
 
-    return isMemberHelper(groupMemberId, "g:gsa", groupId, WsMemberFilter.Immediate, debugMap);
+    return isMemberHelper(groupMemberId, "g:gsa", groupId, null, debugMap);
   }
 
   /**

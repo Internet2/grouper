@@ -229,9 +229,13 @@ public class WsMembership implements Comparable<WsMembership> {
     FieldType listFieldType = listField == null ? null : listField.getType();
     this.setListType(listFieldType == null ? null : listFieldType.toString());
     this.setListName(listField == null ? null : listField.getName());
-    this.setDisabledTime(GrouperServiceUtils.dateToString(membership.getDisabledTime()));
-    this.setEnabledTime(GrouperServiceUtils.dateToString(membership.getEnabledTime()));
-    this.setEnabled(membership.isEnabled() ? "T" : "F");
+    if (membership.isImmediate()) {
+      this.setDisabledTime(GrouperServiceUtils.dateToString(membership.getDisabledTime()));
+      this.setEnabledTime(GrouperServiceUtils.dateToString(membership.getEnabledTime()));
+      this.setEnabled(membership.isEnabled() ? "T" : "F");
+    } else {
+      this.setEnabled("T");
+    }
     this.setGroupId(membership.getOwnerGroupId());
     this.setGroupName(group.getName());
     this.setMemberId(membership.getMemberUuid());

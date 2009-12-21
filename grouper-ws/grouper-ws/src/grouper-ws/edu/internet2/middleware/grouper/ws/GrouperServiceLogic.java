@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.36 2009-12-20 18:03:17 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.37 2009-12-21 06:14:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -690,7 +690,9 @@ public class GrouperServiceLogic {
       for (WsGroupLookup wsGroupLookup : GrouperUtil.nonNull(wsGroupLookups, WsGroupLookup.class)) {
         wsGroupLookup.retrieveGroupIfNeeded(session);
         Group group = wsGroupLookup.retrieveGroup();
-        groups.add(group);
+        if (group != null) {
+          groups.add(group);
+        }
       }
       
       wsFindGroupsResults.assignGroupResult(groups, includeGroupDetail);
@@ -1046,31 +1048,34 @@ public class GrouperServiceLogic {
               wsStemLookup.retrieveStemIfNeeded(session, true);
               stem = wsStemLookup.retrieveStem();
             }
-            
-            QueryOptions queryOptions = null;
-            
-            if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
-              queryOptions = new QueryOptions();
-              if ((pageSize == null) != (pageNumber == null)) {
-                throw new RuntimeException("If you pass page size, you must pass page number and vice versa");
-              }
-              if (pageSize != null) {
-                queryOptions.paging(new QueryPaging(pageSize, pageNumber, false));
-              }
-              if (!StringUtils.isBlank(sortString)) {
-                if (ascending == null) {
-                  ascending = true;
+
+            //if supposed to have stem but cant find, then dont get any groups
+            if (wsStemLookup == null || stem != null ) {
+              QueryOptions queryOptions = null;
+              
+              if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
+                queryOptions = new QueryOptions();
+                if ((pageSize == null) != (pageNumber == null)) {
+                  throw new RuntimeException("If you pass page size, you must pass page number and vice versa");
                 }
-                queryOptions.sort(new QuerySort(sortString, ascending));
+                if (pageSize != null) {
+                  queryOptions.paging(new QueryPaging(pageSize, pageNumber, false));
+                }
+                if (!StringUtils.isBlank(sortString)) {
+                  if (ascending == null) {
+                    ascending = true;
+                  }
+                  queryOptions.sort(new QuerySort(sortString, ascending));
+                }
               }
+              
+              Scope stemDotScope = null;
+              if (stemScope != null) {
+                stemDotScope = stemScope.convertToScope();
+              }
+              
+              groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
             }
-            
-            Scope stemDotScope = null;
-            if (stemScope != null) {
-              stemDotScope = stemScope.convertToScope();
-            }
-            
-            groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
           }
           wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
         } catch (Exception e) {
@@ -1418,22 +1423,25 @@ public class GrouperServiceLogic {
       if (wsStemLookup != null) {
         wsStemLookup.retrieveStemIfNeeded(session, true);
         stem = wsStemLookup.retrieveStem();
+
       }
       
-      Set<Source> sources = GrouperUtil.convertSources(sourceIds);
-      
-      Set<String> membershipIdSet = null;
-      if (GrouperUtil.length(membershipIds) > 0) {
-        membershipIdSet = GrouperUtil.toSet(membershipIds);
+      //if filtering by stem, and stem not found, then dont find any memberships
+      if (wsStemLookup == null || stem != null) {
+        Set<Source> sources = GrouperUtil.convertSources(sourceIds);
+        
+        Set<String> membershipIdSet = null;
+        if (GrouperUtil.length(membershipIds) > 0) {
+          membershipIdSet = GrouperUtil.toSet(membershipIds);
+        }
+        
+        // lets get the members, cant be null
+        Set<Object[]> membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
+            membershipType, fieldName, sources, scope, stem, stemScope == null ? null : stemScope.convertToScope(), enabledBoolean);
+        
+        //calculate and return the results
+        wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
       }
-      
-      // lets get the members, cant be null
-      Set<Object[]> membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
-          membershipType, fieldName, sources, scope, stem, stemScope == null ? null : stemScope.convertToScope(), enabledBoolean);
-      
-      //calculate and return the results
-      wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
-      
       wsGetMembershipsResults.assignResultCode(WsGetMembershipsResultsCode.SUCCESS);
       
       wsGetMembershipsResults.getResultMetadata().setResultMessage(
