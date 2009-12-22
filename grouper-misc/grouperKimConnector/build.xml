@@ -168,7 +168,7 @@
     <!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
     <javadoc destdir="doc/api" access="public"
       additionalparam="-notimestamp" >
-      <packageset dir="src/java" defaultexcludes="yes">
+      <packageset dir="src" defaultexcludes="yes">
         <include name="edu/internet2/middleware/grouperKimConnector/**" />
 
       </packageset>
