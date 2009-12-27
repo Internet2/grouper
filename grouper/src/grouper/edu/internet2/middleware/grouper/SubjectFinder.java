@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -37,7 +38,7 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.45 2009-10-30 12:39:26 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.46 2009-12-27 02:31:42 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -331,6 +332,39 @@ public class SubjectFinder {
     throws  SourceUnavailableException
   {
     return getResolver().findAll(query, source);
+  } 
+
+  /**
+   * Find all subjects matching the query within the specified {@link Source}s.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   Set subjects = SubjectFinder.findAll(query, sources);
+   * }
+   * catch (SourceUnavailableException eSU) {
+   *   // unable to query source
+   * }
+   *  </pre>
+   * @param   query   Subject query string.
+   * @param   sources  {@link Source} adapters to search.
+   * @return  A {@link Set} of {@link Subject}s.
+   * @throws  SourceUnavailableException
+   */
+  public static Set<Subject> findAll(String query, Set<Source> sources)
+      throws  SourceUnavailableException {
+    if (sources == null || sources.isEmpty()) {
+      return findAll(query);
+    }
+    Set<Subject> results = new LinkedHashSet<Subject>();
+    for (Source source: sources) {
+      Set<Subject> current = findAll(query, source.getId());
+      if (current != null) {
+        results.addAll(current);
+      }
+    }
+    return results;
   } 
 
   /**

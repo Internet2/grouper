@@ -55,12 +55,11 @@ import edu.internet2.middleware.ldappc.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.12 2009-11-09 03:12:18 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.13 2009-12-27 02:31:42 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 
   /** logger */
-  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(AllTests.class);
 
   /**
@@ -167,6 +166,7 @@ public class AllTests extends GrouperTest {
     suite.addTestSuite(TestField.class);
     suite.addTestSuite(TestStemApi.class);
     suite.addTestSuite(TestStem.class);
+    suite.addTestSuite(TestSubjectFinder.class);
     suite.addTestSuite(TestGrouperVersion.class);
     suite.addTestSuite(TestCompositeModel.class);
     suite.addTestSuite(TestCompositeU.class);
