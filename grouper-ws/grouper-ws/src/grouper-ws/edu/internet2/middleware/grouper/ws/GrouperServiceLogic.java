@@ -1,8 +1,9 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.37 2009-12-21 06:14:59 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.38 2009-12-28 06:08:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -25,6 +26,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -60,6 +62,7 @@ import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
+import edu.internet2.middleware.grouper.ws.rest.subject.TooManyResultsWhenFilteringByGroupException;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
@@ -77,6 +80,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult;
@@ -116,6 +120,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults.WsFindGroups
 import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults.WsFindStemsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
+import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults.WsGetSubjectsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult.WsGroupSaveResultCode;
@@ -1343,7 +1348,7 @@ public class GrouperServiceLogic {
     try {
   
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
-          + GrouperUtil.toStringForLog(wsGroupLookups, 200) + ", wsMembershipFilter: " + wsMemberFilter
+          + GrouperUtil.toStringForLog(wsGroupLookups, 200) + ", wsMemberFilter: " + wsMemberFilter
           + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
           + actAsSubjectLookup + ", fieldName: " + fieldName
           + ", subjectAttributeNames: "
@@ -3990,6 +3995,277 @@ public class GrouperServiceLogic {
       }
     
       return wsAssignGrouperPrivilegesLiteResult;
+    }
+
+    /**
+     * get subjects from searching by id or identifier or search string.  Can filter by subjects which
+     * are members in a group.
+     * 
+     * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+     * @param wsSubjectLookups are subjects to look in
+     * @param searchString free form string query to find a list of subjects (exact behavior depends on source)
+     * @param wsMemberFilter
+     *            must be one of All, Effective, Immediate, Composite, NonImmediate
+     * @param includeSubjectDetail
+     *            T|F, for if the extended subject information should be
+     *            returned (anything more than just the id)
+     * @param actAsSubjectLookup
+     * @param fieldName is if the memberships should be retrieved from a certain field membership
+     * of the group (certain list)
+     * of the group (certain list)
+     * @param subjectAttributeNames are the additional subject attributes (data) to return.
+     * If blank, whatever is configured in the grouper-ws.properties will be sent
+     * @param includeGroupDetail T or F as to if the group detail should be returned
+     * @param params optional: reserved for future use
+     * @param sourceIds are sources to look in for memberships, or null if all
+     * @param wsGroupLookup specify a group if the subjects must be in the group (limit of number of subjects
+     * found in list is much lower e.g. 1000)
+     * @return the results
+     */
+    @SuppressWarnings("unchecked")
+    public static WsGetSubjectsResults getSubjects(final GrouperWsVersion clientVersion,
+        WsSubjectLookup[] wsSubjectLookups, String searchString, boolean includeSubjectDetail,
+        String[] subjectAttributeNames, WsSubjectLookup actAsSubjectLookup, 
+        String[] sourceIds, WsGroupLookup wsGroupLookup, WsMemberFilter wsMemberFilter,
+        Field fieldName, boolean includeGroupDetail, final WsParam[] params) {  
+    
+      WsGetSubjectsResults wsGetSubjectsResults = new WsGetSubjectsResults();
+    
+      GrouperSession session = null;
+      String theSummary = null;
+      try {
+    
+        theSummary = "clientVersion: " + clientVersion + ", wsSubjectLookups: "
+            + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + ", searchString: '" + searchString + "'" 
+            + ", wsMemberFilter: " + wsMemberFilter
+            + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
+            + actAsSubjectLookup + ", fieldName: " + fieldName  + ", wsGroupLookup: " + wsGroupLookup
+            + ", subjectAttributeNames: "
+            + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
+            + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
+            + GrouperUtil.toStringForLog(wsSubjectLookups, 200) + "\n, sourceIds: " + GrouperUtil.toStringForLog(sourceIds, 100);
+    
+        //start session based on logged in user or the actAs passed in
+        session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+    
+        //convert the options to a map for easy access, and validate them
+        @SuppressWarnings("unused")
+        Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+            params);
+        
+        MembershipType membershipType = null;
+        if (wsMemberFilter != null) {
+          membershipType = wsMemberFilter.getMembershipType();
+        }
+        
+        Group group = null;
+        if (wsGroupLookup != null && wsGroupLookup.hasData()) {
+          wsGroupLookup.retrieveGroupIfNeeded(session, "getSubjects group is not valid");
+          group = wsGroupLookup.retrieveGroup();            
+          wsGetSubjectsResults.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
+        }
+        boolean filteringByGroup = group != null;
+        
+        //get all the members
+        Set<Subject> resultSubjects = new TreeSet<Subject>();
+        Set<WsSubject> resultWsSubjects = new TreeSet<WsSubject>();
+
+        String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
+          .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
+
+        wsGetSubjectsResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
+
+        //we need to keep track of the lookups if doing group filtering and specifying the users by id or identifier
+        //multikey of source id to subject id
+        Map<MultiKey, WsSubjectLookup> subjectLookupMap = null;
+        
+        //find members by id or identifier
+        if (GrouperUtil.length(wsSubjectLookups) > 0) {
+          
+          subjectLookupMap = new HashMap<MultiKey, WsSubjectLookup>();
+          
+          for (WsSubjectLookup wsSubjectLookup : wsSubjectLookups) {
+            if (wsSubjectLookup == null) {
+              continue;
+            }
+            
+            Subject subject = wsSubjectLookup.retrieveSubject();
+            
+            //normally we will keep the subjects not found, but not if filtering by group, no subject, or result
+            if (subject == null && filteringByGroup) {
+              continue; 
+            }
+            
+            subjectLookupMap.put(SubjectHelper.convertToMultiKey(subject), wsSubjectLookup);
+            
+            //keep track here if not filtering by group
+            if (!filteringByGroup) {
+              WsSubject wsSubject = new WsSubject(subject, subjectAttributeNamesToRetrieve, wsSubjectLookup);
+              
+              resultWsSubjects.add(wsSubject);
+            }
+            
+            if (subject == null) {
+
+              continue;
+            }
+            resultSubjects.add(subject);
+          }
+        }
+        
+        //free form search
+        if (!StringUtils.isBlank(searchString)) {
+          
+          //if filtering by stem, and stem not found, then dont find any memberships
+          Set<Source> sources = GrouperUtil.convertSources(sourceIds);
+          
+          Set<Subject> subjects = SubjectFinder.findAll(searchString, sources);
+          
+          for (Subject subject: GrouperUtil.nonNull(subjects)) {
+            resultSubjects.add(subject);
+            
+            //keep track here if not filtering by group
+            if (!filteringByGroup) {
+              resultWsSubjects.add(new WsSubject(subject, subjectAttributeNamesToRetrieve, null));
+            }
+              
+          }
+          
+        }
+        
+        int resultSubjectsLengthPreGroup = GrouperUtil.length(resultSubjects);
+        if (filteringByGroup && resultSubjectsLengthPreGroup > 0) {
+          //we have a list of subjects, lets see if they are too large
+          if (resultSubjectsLengthPreGroup > GrouperWsConfig.getPropertyInt("ws.get.subjects.max.filter.by.group", 1000)) {
+            throw new TooManyResultsWhenFilteringByGroupException();
+          }
+          
+          //lets filter by group
+          Set<Member> members = MemberFinder.findBySubjectsInGroup(session, resultSubjects, group, fieldName, membershipType);
+          
+          resultSubjects = null;
+          
+          if (GrouperUtil.length(members) > 0) {
+            resultSubjects = new TreeSet<Subject>();
+            for (Member member : members) {
+              Subject subject = member.getSubject();
+              
+              WsSubjectLookup wsSubjectLookup = null;
+              if (subjectLookupMap != null) {
+                
+                wsSubjectLookup = subjectLookupMap.get(SubjectHelper.convertToMultiKey(subject));
+                
+              }
+              
+              WsSubject wsSubject = new WsSubject(subject, subjectAttributeNamesToRetrieve, wsSubjectLookup);
+              resultWsSubjects.add(wsSubject);
+            }
+          }
+        }
+        
+        //calculate and return the results
+        if (GrouperUtil.length(resultWsSubjects) > 0) {
+          
+          wsGetSubjectsResults.setWsSubjects(GrouperUtil.toArray(resultWsSubjects, WsSubject.class));
+        }
+        
+        wsGetSubjectsResults.assignResultCode(WsGetSubjectsResultsCode.SUCCESS);
+        
+        wsGetSubjectsResults.getResultMetadata().setResultMessage(
+            "Found " + GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()) + " subjects");
+          
+      } catch (Exception e) {
+        wsGetSubjectsResults.assignResultCodeException(null, theSummary, e);
+      } finally {
+        GrouperSession.stopQuietly(session);
+      }
+    
+      return wsGetSubjectsResults;
+    
+    }
+
+    /**
+     * get subjects from searching by id or identifier or search string.  Can filter by subjects which
+     * are members in a group.
+     * 
+     * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+     * @param wsSubjectLookups are subjects to look in
+     * @param subjectId to find a subject by id
+     * @param sourceId to find a subject by id or identifier
+     * @param subjectIdentifier to find a subject by identifier
+     * @param searchString free form string query to find a list of subjects (exact behavior depends on source)
+     * @param wsMemberFilter
+     *            must be one of All, Effective, Immediate, Composite, NonImmediate or null (all)
+     * @param includeSubjectDetail
+     *            T|F, for if the extended subject information should be
+     *            returned (anything more than just the id)
+     * @param actAsSubjectId
+     *            optional: is the subject id of subject to act as (if
+     *            proxying). Only pass one of actAsSubjectId or
+     *            actAsSubjectIdentifer
+     * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+     * duplicates
+     * @param actAsSubjectIdentifier
+     *            optional: is the subject identifier of subject to act as (if
+     *            proxying). Only pass one of actAsSubjectId or
+     *            actAsSubjectIdentifer
+     * @param fieldName is if the memberships should be retrieved from a certain field membership
+     * of the group (certain list)
+     * @param subjectAttributeNames are the additional subject attributes (data) to return.
+     * If blank, whatever is configured in the grouper-ws.properties will be sent.  Comma-separate
+     * if multiple
+     * @param includeGroupDetail T or F as to if the group detail should be returned
+     * @param paramName0
+     *            reserved for future use
+     * @param paramValue0
+     *            reserved for future use
+     * @param paramName1
+     *            reserved for future use
+     * @param paramValue1
+     *            reserved for future use
+     * @param sourceIds are comma separated sourceIds for a searchString
+     * @param groupName specify a group if the subjects must be in the group (limit of number of subjects
+     * found in list is much lower e.g. 1000)
+     * @param groupUuid specify a group if the subjects must be in the group (limit of number of subjects
+     * found in list is much lower e.g. 1000)
+     * @return the results or none if none found
+     */
+    public static WsGetSubjectsResults getSubjectsLite(final GrouperWsVersion clientVersion,
+        String subjectId, String sourceId, String subjectIdentifier, String searchString,
+        boolean includeSubjectDetail, String subjectAttributeNames,
+        String actAsSubjectId, String actAsSubjectSourceId,
+        String actAsSubjectIdentifier, String sourceIds,
+        String groupName, String groupUuid, WsMemberFilter wsMemberFilter,
+        Field fieldName, boolean includeGroupDetail, String paramName0, String paramValue0,
+        String paramName1, String paramValue1) {
+    
+      // setup the group lookup
+      WsGroupLookup wsGroupLookup = null;
+      
+      if (StringUtils.isNotBlank(groupName) || StringUtils.isNotBlank(groupUuid)) {
+        wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+      }
+    
+      WsSubjectLookup wsSubjectLookup = WsSubjectLookup.createIfNeeded(subjectId, sourceId, subjectIdentifier);
+      
+      WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+          actAsSubjectSourceId, actAsSubjectIdentifier);
+    
+      WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+    
+      String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
+    
+      // pass through to the more comprehensive method
+      WsSubjectLookup[] wsSubjectLookups = wsSubjectLookup == null ? null : new WsSubjectLookup[]{wsSubjectLookup};
+      
+      String[] sourceIdArray = GrouperUtil.splitTrim(sourceIds, ",");
+      
+      WsGetSubjectsResults wsGetSubjectsResults = getSubjects(clientVersion,
+          wsSubjectLookups, searchString, includeSubjectDetail, subjectAttributeArray, actAsSubjectLookup, sourceIdArray, wsGroupLookup, wsMemberFilter, fieldName,
+          includeGroupDetail,
+          params);
+    
+      return wsGetSubjectsResults;
     }
 
 //  /**

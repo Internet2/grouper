@@ -18,16 +18,20 @@
 package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MemberDAO.java,v 1.10 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: MemberDAO.java,v 1.11 2009-12-28 06:08:37 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MemberDAO extends GrouperDAO {
@@ -209,5 +213,18 @@ public interface MemberDAO extends GrouperDAO {
    */
   public Set<String> _internal_membersComplement(String groupUuid1, String groupUuid2);
 
+  /**
+   * convert a set of subjects to a set of members
+   * @param grouperSession 
+   * @param subjects to convert to members
+   * @param group that subjects must be in
+   * @param field that they must be in in the group (null will default to eh members list
+   * @param membershipType that they must be in in the group
+   * @return the members in the group
+   */
+  public abstract Set<Member> findBySubjectsInGroup(GrouperSession grouperSession,
+      Set<Subject> subjects, Group group, Field field, MembershipType membershipType);
+
+  
 } 
 

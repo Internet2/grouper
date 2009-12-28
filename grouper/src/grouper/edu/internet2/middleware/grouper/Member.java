@@ -91,9 +91,9 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.134 2009-12-10 08:54:15 mchyzer Exp $
+ * @version $Id: Member.java,v 1.135 2009-12-28 06:08:37 mchyzer Exp $
  */
-public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, Comparable<Member> {
 
   /** */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
@@ -2930,6 +2930,24 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   public Set<Group> getNonImmediateGroups(Field field) {
     
     return this.getNonImmediateGroups(field, null, null, null, null, true);
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Member o) {
+    if (this == o) {
+      return 0;
+    }
+    //lets by null safe here
+    if (o == null) {
+      return -1;
+    }
+    int compare = GrouperUtil.compare(this.getSubjectSourceId(), o.getSubjectSourceId());
+    if (compare != 0) {
+      return compare;
+    }
+    return GrouperUtil.compare(this.getSubjectId(), o.getSubjectId());
   } 
 
 } 

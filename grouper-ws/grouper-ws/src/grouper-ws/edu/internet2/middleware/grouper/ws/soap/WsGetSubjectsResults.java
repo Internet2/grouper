@@ -12,13 +12,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.subject.TooManyResultsWhenFilteringByGroupException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 
 /**
  * <pre>
@@ -66,15 +69,12 @@ public class WsGetSubjectsResults implements WsResponseBean, ResultMetadataHolde
     /** if a search string generates too many results (lite http status code 500) (success: F) */
     TOO_MANY_RESULTS(500),
 
+    /** if a search string generates too many results (less than other too many, e.g. 1000 results) (lite http status code 500) (success: F) */
+    TOO_MANY_GROUP_FILTER_RESULTS(500),
+
     /** something bad happened (lite http status code 500) (success: F) */
     EXCEPTION(500),
     
-    /** if one request, and that is a duplicate (rest http status code 409) (success: F) */
-    SUBJECT_DUPLICATE(409),
-
-    /** if one request, and that is a subject not found (rest http status code 404) (success: F) */
-    SUBJECT_NOT_FOUND(404),
-
     /** if one request, and that is a insufficient privileges (rest http status code 403) (success: F) */
     INSUFFICIENT_PRIVILEGES(403);
 
@@ -253,7 +253,33 @@ public class WsGetSubjectsResults implements WsResponseBean, ResultMetadataHolde
       WsGetSubjectsResultsCode wsGetMembershipsResultsCodeOverride, String theError,
       Exception e) {
 
-    if (e instanceof WsInvalidQueryException) {
+    if (e instanceof SubjectTooManyResults) {
+
+      this.assignResultCode(WsGetSubjectsResultsCode.INSUFFICIENT_PRIVILEGES);
+      this.getResultMetadata().appendResultMessage(e.getMessage());
+      this.getResultMetadata().appendResultMessage(theError);
+      LOG.warn(e);
+    } else if (e instanceof InsufficientPrivilegeException) {
+
+      this.assignResultCode(WsGetSubjectsResultsCode.INSUFFICIENT_PRIVILEGES);
+      this.getResultMetadata().appendResultMessage(e.getMessage());
+      this.getResultMetadata().appendResultMessage(theError);
+      LOG.warn(e);
+    
+    } else if (e instanceof GroupNotFoundException) {
+
+      this.assignResultCode(WsGetSubjectsResultsCode.GROUP_NOT_FOUND);
+      this.getResultMetadata().appendResultMessage(e.getMessage());
+      this.getResultMetadata().appendResultMessage(theError);
+      LOG.warn(e);
+      
+    } else if (e instanceof TooManyResultsWhenFilteringByGroupException) {
+      this.assignResultCode(WsGetSubjectsResultsCode.TOO_MANY_GROUP_FILTER_RESULTS);
+      this.getResultMetadata().appendResultMessage(e.getMessage());
+      this.getResultMetadata().appendResultMessage(theError);
+      LOG.warn(e);
+      
+    } else if (e instanceof WsInvalidQueryException) {
       wsGetMembershipsResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsGetMembershipsResultsCodeOverride, WsGetSubjectsResultsCode.INVALID_QUERY);
       if (e.getCause() instanceof GroupNotFoundException) {

@@ -18,21 +18,29 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -41,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.19 2009-11-17 06:26:17 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.20 2009-12-28 06:08:37 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -56,6 +64,16 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
 
   private static        GrouperCache<String, Member>  uuid2dtoCache   = null;
+
+
+
+
+
+
+  /**
+   * number of subjects to put in member query
+   */
+  public static int MEMBER_SUBJECT_BATCH_SIZE = 80;
   
 
   /**
@@ -427,6 +445,80 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         .setString("fuuid", Group.getDefaultList().getUuid())
         .listSet(String.class);
     return memberUuids;
+  }
+
+  /**
+   * convert a set of subjects to a set of members
+   * @param grouperSession 
+   * @param subjects to convert to members
+   * @param group that subjects must be in
+   * @param field that they must be in in the group (null will default to eh members list
+   * @param membershipType that they must be in in the group
+   * @return the members in the group
+   * @see MemberDAO#findBySubjectsInGroup(GrouperSession, Set, Group, Field, MembershipType)
+   */
+  public Set<Member> findBySubjectsInGroup(GrouperSession grouperSession,
+      Set<Subject> subjects, Group group, Field field, MembershipType membershipType) {
+    if (field == null) {
+      field = Group.getDefaultList();
+    }
+
+    Set<Member> result = new TreeSet<Member>();
+    
+    if (GrouperUtil.length(subjects) == 0) {
+      return result;
+    }
+    
+    //TODO see what the max prepared statement variables are
+    //lets do this in batches
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjects, MEMBER_SUBJECT_BATCH_SIZE);
+    
+    if (!StringUtils.equals("list", field.getTypeString())) {
+      throw new RuntimeException("Can only call this method with a list field: " + field);
+    }
+    
+    //check security once
+    if (!PrivilegeHelper.canViewMembers(grouperSession, group, field)) {
+      throw new InsufficientPrivilegeException("subject " + grouperSession.getSubject() + " cannot read group: " + group);
+    }
+
+    for (int i=0;i<numberOfBatches;i++) {
+
+      List<Subject> subjectBatch = GrouperUtil.batchList(subjects, MEMBER_SUBJECT_BATCH_SIZE, i);
+
+//      select distinct gm.* 
+//      from grouper_members gm, grouper_memberships gms
+//      where gm.id = gms.member_id
+//      and gms.field_id = 'abc' and gms.owner_id = '123'
+//      and ((gm.subject_id = '123' and gm.subject_source = 'jdbc') 
+//          or (gm.subject_id = '234' and gm.subject_source = 'jdbc' ))
+//      and mship_type = 'immediate'
+
+      //lets turn the subjects into subjectIds
+      if (GrouperUtil.length(subjectBatch) == 0) {
+        continue;
+      }
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select distinct gm " +
+          "from Member gm, MembershipEntry gms " +
+          "where gm.uuid = gms.memberUuid " +
+          "and gms.enabledDb = 'T' " +
+          "and gms.fieldId = :fieldId " +
+          "and gms.ownerGroupId = :ownerId " +
+          (membershipType == null ? "" : (" and gms.type " + membershipType.queryClause() + " ")) +
+          "and ");
+      
+      //add all the uuids
+      byHqlStatic.setString("fieldId", field.getUuid());
+      byHqlStatic.setString("ownerId", group.getUuid());
+      query.append(HibUtils.convertToSubjectInClause(subjectBatch, byHqlStatic, "gm"));
+      List<Member> currentMemberList = byHqlStatic.createQuery(query.toString())
+        .list(Member.class);
+      result.addAll(currentMemberList);
+    }
+    return result;
+
   }
 
 } 

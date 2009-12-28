@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.46 2009-12-27 02:31:42 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -367,6 +367,8 @@ public class SubjectFinder {
     return results;
   } 
 
+  
+  
   /**
    * Get <i>GrouperAll</i> subject.
    * <pre class="eg">

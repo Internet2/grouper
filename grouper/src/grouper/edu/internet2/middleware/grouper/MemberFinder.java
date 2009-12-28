@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
@@ -41,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.67 2009-12-07 07:31:08 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.68 2009-12-28 06:08:37 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -126,6 +127,23 @@ public class MemberFinder {
   @Deprecated
   public static Member findBySubject(GrouperSession s, Subject subj) {
     return findBySubject(s, subj, true);
+  }
+  
+  /**
+   * convert a set of subjects to a set of members
+   * @param grouperSession 
+   * @param subjects to convert to members
+   * @param group that subjects must be in
+   * @param field that they must be in in the group (null will default to eh members list
+   * @param membershipType that they must be in in the group
+   * @return the members in the group
+   */
+  public static Set<Member> findBySubjectsInGroup(GrouperSession grouperSession,
+      Set<Subject> subjects, Group group, Field field, MembershipType membershipType) {
+
+    return GrouperDAOFactory.getFactory().getMember().findBySubjectsInGroup(
+        grouperSession, subjects, group, field, membershipType);
+
   }
 
   /**

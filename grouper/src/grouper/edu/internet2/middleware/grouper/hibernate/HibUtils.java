@@ -30,6 +30,7 @@ import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author mchyzer
@@ -587,6 +588,43 @@ public class HibUtils {
       i++;
     }
     return result.toString();
+  }
+  
+  /**
+   * @param memberAlias is the alias of the table for members, e.g. gm
+   * @param subjects collection of subjects
+   * @param hqlQuery so far
+   * @return the query, e.g.  ((gm.subject_id = '123' and gm.subject_source = 'jdbc') 
+   *   or (gm.subject_id = '234' and gm.subject_source = 'jdbc' ))
+   */
+  public static String convertToSubjectInClause(Collection<Subject> subjects, HqlQuery hqlQuery, String memberAlias) {
+    
+    //    ((gm.subject_id = '123' and gm.subject_source = 'jdbc') 
+    //      or (gm.subject_id = '234' and gm.subject_source = 'jdbc' ))
+    
+    String unique = GrouperUtil.uniqueId();
+    
+    StringBuilder result = new StringBuilder(" ( ");
+    int collectionSize = subjects.size();
+    int i = 0;
+    for (Subject subject : subjects) {
+      String subjectVar = unique + "_subj" + i;
+      String sourceVar = unique + "_source" + i;
+      result.append(" ( ").append(memberAlias).append(".subjectIdDb = :").append(subjectVar);
+      result.append(" and ").append(memberAlias).append(".subjectSourceIdDb = :").append(sourceVar).append(" ) ");
+
+      //add to query
+      hqlQuery.setString(subjectVar, subject.getId());
+      hqlQuery.setString(sourceVar, subject.getSourceId());
+      if (i < collectionSize-1) {
+        result.append("\n or ");
+      }
+      i++;
+    }
+    result.append(" ) ");
+    return result.toString();
+
+    
   }
   
   /**

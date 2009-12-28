@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Member;
@@ -34,13 +35,24 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.6 2009-10-21 12:27:40 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.7 2009-12-28 06:08:37 mchyzer Exp $
  */
 public class SubjectHelper {
 
   /** */
   private static final String SUBJECT_DELIM = "/";
 
+  /**
+   * if keeping the subjects in a map where the subject is the key, this
+   * multikey will identify the subject
+   * @param subject
+   * @return the multikey of source id and subject id
+   */
+  public static MultiKey convertToMultiKey(Subject subject) {
+    MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
+    return multiKey;
+  }
+  
   /**
    * sort a set of subjects for a search, match id's and identifiers at top
    * @param subjectsIn
