@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.15 2009-12-19 21:38:21 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.16 2009-12-29 07:39:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
@@ -38,6 +39,8 @@ import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.soap.GrouperService;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
@@ -52,6 +55,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
@@ -679,7 +683,7 @@ public class GrouperServiceRest {
    * @return the result
    */
   public static WsGetGroupsResults getGroups(GrouperWsVersion clientVersion,
-      WsRestGetGroupsRequest wsRestGetGroupsRequest) {
+      String subjectId, String sourceId, WsRestGetGroupsRequest wsRestGetGroupsRequest) {
 
     //cant be null
     GrouperUtil.assertion(wsRestGetGroupsRequest != null,
@@ -689,9 +693,24 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
         wsRestGetGroupsRequest.getClientVersion(), false, "clientVersion");
 
+    Set<WsSubjectLookup> subjectLookups = null;
+    WsSubjectLookup[] subjectLookupArray = wsRestGetGroupsRequest.getSubjectLookups();
+    if (!StringUtils.isBlank(subjectId)) {
+      
+      if (GrouperUtil.length(subjectLookupArray) == 0) {
+        subjectLookups = new HashSet<WsSubjectLookup>();
+      } else {
+        subjectLookups = GrouperUtil.toSet(subjectLookupArray);
+      }
+      
+      WsSubjectLookup wsSubjectLookup = new WsSubjectLookup(subjectId, sourceId, null);
+      subjectLookups.add(wsSubjectLookup);
+      subjectLookupArray = GrouperUtil.toArray(subjectLookups, WsSubjectLookup.class);
+    }
+
     //get the results
     WsGetGroupsResults wsGetGroupsResults = new GrouperService(false).getGroups(
-        clientVersionString, wsRestGetGroupsRequest.getSubjectLookups(),
+        clientVersionString, subjectLookupArray,
         wsRestGetGroupsRequest.getMemberFilter(), wsRestGetGroupsRequest
             .getActAsSubjectLookup(), wsRestGetGroupsRequest.getIncludeGroupDetail(),
         wsRestGetGroupsRequest.getIncludeSubjectDetail(), wsRestGetGroupsRequest
@@ -1220,6 +1239,121 @@ public class GrouperServiceRest {
   
     //return result
     return wsGetMembershipsResults;
+  
+  }
+
+  /**
+   * <pre>
+   * find subjects by id or search string.  e.g. url:
+   * /v1_6_000/subjects/12345678
+   * /v1_6_000/subjects
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_6_000
+   * @param subjectId is the subjectId (optional)
+   * @param sourceId is the source id of the subject to search for (optional)
+   * @param wsRestGetSubjectsRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGetSubjectsResults getSubjects(GrouperWsVersion clientVersion,
+      String subjectId, String sourceId, 
+      WsRestGetSubjectsRequest wsRestGetSubjectsRequest) {
+  
+    //cant be null
+    wsRestGetSubjectsRequest = wsRestGetSubjectsRequest == null ? new WsRestGetSubjectsRequest()
+      : wsRestGetSubjectsRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestGetSubjectsRequest.getClientVersion(), false, "clientVersion");
+  
+    Set<WsSubjectLookup> subjectLookups = null;
+    WsSubjectLookup[] subjectLookupArray = wsRestGetSubjectsRequest.getWsSubjectLookups();
+    if (!StringUtils.isBlank(subjectId)) {
+      
+      if (GrouperUtil.length(subjectLookupArray) == 0) {
+        subjectLookups = new HashSet<WsSubjectLookup>();
+      } else {
+        subjectLookups = GrouperUtil.toSet(subjectLookupArray);
+      }
+      
+      WsSubjectLookup wsSubjectLookup = new WsSubjectLookup(subjectId, sourceId, null);
+      subjectLookups.add(wsSubjectLookup);
+      subjectLookupArray = GrouperUtil.toArray(subjectLookups, WsSubjectLookup.class);
+    }
+        
+    //get the results
+    WsGetSubjectsResults wsGetSubjectsResults = new GrouperService(false).getSubjects(
+        clientVersionString, subjectLookupArray, wsRestGetSubjectsRequest.getSearchString(),
+        wsRestGetSubjectsRequest.getIncludeSubjectDetail(), wsRestGetSubjectsRequest.getSubjectAttributeNames(),
+        wsRestGetSubjectsRequest.getActAsSubjectLookup(), wsRestGetSubjectsRequest.getSourceIds(), 
+        wsRestGetSubjectsRequest.getWsGroupLookup(), wsRestGetSubjectsRequest.getMemberFilter(),
+        wsRestGetSubjectsRequest.getFieldName(), wsRestGetSubjectsRequest.getIncludeGroupDetail(), 
+        wsRestGetSubjectsRequest.getParams());
+  
+    //return result
+    return wsGetSubjectsResults;
+  
+  }
+
+  /**
+   * <pre>
+   * find subjects by id or search string.  e.g. url:
+   * /v1_6_000/subjects/12345678
+   * /v1_6_000/subjects
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_6_000
+   * @param subjectId is the subjectId (optional)
+   * @param sourceId is the source id of the subject to search for (optional)
+   * @param wsRestGetSubjectsLiteRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGetSubjectsResults getSubjectsLite(GrouperWsVersion clientVersion,
+      String subjectId, String sourceId, 
+      WsRestGetSubjectsLiteRequest wsRestGetSubjectsLiteRequest) {
+  
+    //cant be null
+    wsRestGetSubjectsLiteRequest = wsRestGetSubjectsLiteRequest == null ? new WsRestGetSubjectsLiteRequest()
+      : wsRestGetSubjectsLiteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestGetSubjectsLiteRequest.getClientVersion(), false, "clientVersion");
+    
+    String theSubjectId = wsRestGetSubjectsLiteRequest.getSubjectId();
+    
+    if (!StringUtils.isBlank(subjectId)) {
+      if (!StringUtils.isBlank(theSubjectId) 
+          && !StringUtils.equals(subjectId, theSubjectId)) {
+        throw new WsInvalidQueryException("subjectId in url '" + subjectId 
+            + "' is different than in XML submission '" + theSubjectId + "'");
+      }
+      theSubjectId = subjectId;
+    }
+    
+    String theSourceId = wsRestGetSubjectsLiteRequest.getSubjectSourceId();
+    
+    if (!StringUtils.isBlank(sourceId)) {
+      if (!StringUtils.isBlank(theSourceId) 
+          && !StringUtils.equals(sourceId, theSourceId)) {
+        throw new WsInvalidQueryException("sourceId in url '" + sourceId 
+            + "' is different than in XML submission '" + theSourceId + "'");
+      }
+      theSourceId = sourceId;
+    }
+    
+    //get the results
+    WsGetSubjectsResults wsGetSubjectsResults = new GrouperService(false).getSubjectsLite(
+        clientVersionString, theSubjectId, theSourceId, 
+        wsRestGetSubjectsLiteRequest.getSubjectIdentifier(), wsRestGetSubjectsLiteRequest.getSearchString(),
+        wsRestGetSubjectsLiteRequest.getIncludeSubjectDetail(), wsRestGetSubjectsLiteRequest.getSubjectAttributeNames(),
+        wsRestGetSubjectsLiteRequest.getActAsSubjectId(), wsRestGetSubjectsLiteRequest.getActAsSubjectSourceId(),
+        wsRestGetSubjectsLiteRequest.getActAsSubjectIdentifier(), wsRestGetSubjectsLiteRequest.getSourceIds(),
+        wsRestGetSubjectsLiteRequest.getGroupName(), wsRestGetSubjectsLiteRequest.getGroupUuid(),
+        wsRestGetSubjectsLiteRequest.getMemberFilter(), wsRestGetSubjectsLiteRequest.getFieldName(),
+        wsRestGetSubjectsLiteRequest.getIncludeGroupDetail(), wsRestGetSubjectsLiteRequest.getParamName0(),
+        wsRestGetSubjectsLiteRequest.getParamValue0(), wsRestGetSubjectsLiteRequest.getParamName1(),
+        wsRestGetSubjectsLiteRequest.getParamValue1());
+
+    //return result
+    return wsGetSubjectsResults;
   
   }
 }

@@ -333,6 +333,38 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for getSubjectsLite method
+            * override this method for handling normal response from getSubjectsLite operation
+            */
+           public void receiveResultgetSubjectsLite(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLiteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getSubjectsLite operation
+           */
+            public void receiveErrorgetSubjectsLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for getSubjects method
+            * override this method for handling normal response from getSubjects operation
+            */
+           public void receiveResultgetSubjects(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getSubjects operation
+           */
+            public void receiveErrorgetSubjects(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for findGroupsLite method
             * override this method for handling normal response from findGroupsLite operation
             */

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGet.java,v 1.8 2009-12-18 02:43:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGet.java,v 1.9 2009-12-29 07:39:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsL
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
+import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -205,9 +207,22 @@ public enum GrouperWsRestGet {
       //do that
       if (StringUtils.isBlank(operation) && (requestObject instanceof WsRestGetGroupsRequest)) {
         
-        return GrouperServiceRest.getGroups(clientVersion, (WsRestGetGroupsRequest)requestObject);
+        return GrouperServiceRest.getGroups(clientVersion, subjectId, sourceId, (WsRestGetGroupsRequest)requestObject);
         
       }
+      
+      if (StringUtils.isBlank(operation) && (requestObject == null || requestObject instanceof WsRestGetSubjectsRequest)) {
+        
+        return GrouperServiceRest.getSubjects(clientVersion, subjectId, sourceId, (WsRestGetSubjectsRequest)requestObject);
+        
+      }
+      
+      if (StringUtils.isBlank(operation) && requestObject instanceof WsRestGetSubjectsLiteRequest) {
+        
+        return GrouperServiceRest.getSubjectsLite(clientVersion, subjectId, sourceId, (WsRestGetSubjectsLiteRequest)requestObject);
+        
+      }
+      
       
       //validate and get the operation
       GrouperWsRestGetSubject grouperWsRestGetSubject = GrouperWsRestGetSubject

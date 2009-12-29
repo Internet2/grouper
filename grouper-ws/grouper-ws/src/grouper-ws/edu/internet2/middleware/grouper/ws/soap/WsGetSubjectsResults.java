@@ -128,11 +128,6 @@ public class WsGetSubjectsResults implements WsResponseBean, ResultMetadataHolde
   private String[] subjectAttributeNames;
 
   /**
-   * group filtering for
-   */
-  private WsGroup wsGroup;
-
-  /**
    * subjects that are in the results
    */
   private WsSubject[] wsSubjects;
@@ -177,20 +172,6 @@ public class WsGetSubjectsResults implements WsResponseBean, ResultMetadataHolde
    */
   public void setSubjectAttributeNames(String[] attributeNamesa) {
     this.subjectAttributeNames = attributeNamesa;
-  }
-
-  /**
-   * @return the wsGroups
-   */
-  public WsGroup getWsGroups() {
-    return this.wsGroup;
-  }
-
-  /**
-   * @param wsGroup1 the wsGroups to set
-   */
-  public void setWsGroup(WsGroup wsGroup1) {
-    this.wsGroup = wsGroup1;
   }
 
   /**
@@ -325,5 +306,25 @@ public class WsGetSubjectsResults implements WsResponseBean, ResultMetadataHolde
   public void setResponseMetadata(WsResponseMeta responseMetadata1) {
     this.responseMetadata = responseMetadata1;
   }
+
+  /**
+   * group filtering for
+   */
+  private WsGroup wsGroup;
+
+  /**
+   * @return the wsGroups
+   */
+  public WsGroup getWsGroup() {
+    return this.wsGroup;
+  }
+
+  /**
+   * @param wsGroup1 the wsGroups to set
+   */
+  public void setWsGroup(WsGroup wsGroup1) {
+    this.wsGroup = wsGroup1;
+  }
+
 
 }

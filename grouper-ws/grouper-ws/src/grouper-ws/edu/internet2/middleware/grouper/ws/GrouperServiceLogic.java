@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.38 2009-12-28 06:08:42 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.39 2009-12-29 07:39:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -4064,10 +4064,11 @@ public class GrouperServiceLogic {
           group = wsGroupLookup.retrieveGroup();            
           wsGetSubjectsResults.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
         }
+        
         boolean filteringByGroup = group != null;
         
         //get all the members
-        Set<Subject> resultSubjects = new TreeSet<Subject>();
+        Set<Subject> resultSubjects = new HashSet<Subject>();
         Set<WsSubject> resultWsSubjects = new TreeSet<WsSubject>();
 
         String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
@@ -4080,7 +4081,7 @@ public class GrouperServiceLogic {
         Map<MultiKey, WsSubjectLookup> subjectLookupMap = null;
         
         //find members by id or identifier
-        if (GrouperUtil.length(wsSubjectLookups) > 0) {
+        if (GrouperUtil.length(wsSubjectLookups) > 0 && !wsSubjectLookups[0].blank()) {
           
           subjectLookupMap = new HashMap<MultiKey, WsSubjectLookup>();
           
@@ -4096,7 +4097,9 @@ public class GrouperServiceLogic {
               continue; 
             }
             
-            subjectLookupMap.put(SubjectHelper.convertToMultiKey(subject), wsSubjectLookup);
+            if (subject != null) {
+              subjectLookupMap.put(SubjectHelper.convertToMultiKey(subject), wsSubjectLookup);
+            }
             
             //keep track here if not filtering by group
             if (!filteringByGroup) {
@@ -4146,7 +4149,7 @@ public class GrouperServiceLogic {
           resultSubjects = null;
           
           if (GrouperUtil.length(members) > 0) {
-            resultSubjects = new TreeSet<Subject>();
+            resultSubjects = new HashSet<Subject>();
             for (Member member : members) {
               Subject subject = member.getSubject();
               
@@ -4179,7 +4182,7 @@ public class GrouperServiceLogic {
       } finally {
         GrouperSession.stopQuietly(session);
       }
-    
+
       return wsGetSubjectsResults;
     
     }

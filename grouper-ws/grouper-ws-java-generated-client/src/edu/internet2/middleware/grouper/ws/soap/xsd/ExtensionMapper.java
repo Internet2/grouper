@@ -80,6 +80,16 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsGetMembersLiteResult".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembersLiteResult.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsGetGrouperPrivilegesLiteResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetGrouperPrivilegesLiteResult.Factory.parse(reader);
@@ -93,16 +103,6 @@
                   "WsGroupSaveLiteResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupSaveLiteResult.Factory.parse(reader);
-                        
-
-                  }
-
-              
-                  if (
-                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsGetMembersLiteResult".equals(typeName)){
-                   
-                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembersLiteResult.Factory.parse(reader);
                         
 
                   }
@@ -183,6 +183,16 @@
                   "WsAssignGrouperPrivilegesLiteResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesLiteResult.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsGetSubjectsResults".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetSubjectsResults.Factory.parse(reader);
                         
 
                   }

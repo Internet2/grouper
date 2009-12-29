@@ -150,7 +150,9 @@ public class GrouperUtil {
     }
     Set<Source> sourceSet = new HashSet<Source>();
     for (String source : sourceIds) {
-      sourceSet.add(SourceManager.getInstance().getSource(source));
+      if (!StringUtils.isBlank(source)) {
+        sourceSet.add(SourceManager.getInstance().getSource(source));
+      }
     }
     
     return sourceSet;

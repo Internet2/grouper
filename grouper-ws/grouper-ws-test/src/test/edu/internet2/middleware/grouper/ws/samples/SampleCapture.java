@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.9 2009-12-18 02:44:11 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.10 2009-12-29 07:38:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -45,6 +45,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembers;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembersLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMemberships;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembershipsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetSubjects;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetSubjectsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDetailSave;
@@ -100,6 +102,9 @@ import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteR
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemSaveRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.subject.WsSampleGetSubjectsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.subject.WsSampleGetSubjectsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.subject.WsSampleGetSubjectsRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSample;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleClientType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -149,10 +154,11 @@ public class SampleCapture {
     captureGroupDelete();
     captureGroupSave();
     captureMemberChangeSubject();
+    captureGetMemberships();
 
     */
     
-    captureGetMemberships();
+    captureGetSubjects();
 
   }
 
@@ -690,6 +696,23 @@ public class SampleCapture {
       System.out.println(error + ", " + ExceptionUtils.getFullStackTrace(e));
       LOG.error(error, e);
     }
+  }
+
+  /**
+   * all get subjects captures
+   */
+  public static void captureGetSubjects() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetSubjects.class, "getSubjects", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetSubjectsLite.class, "getSubjects", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetSubjectsRest.class, "getSubjects", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetSubjectsRestLite.class, "getSubjects", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetSubjectsRestLite2.class, "getSubjects", "_withInput");
+    
   }
   
 }

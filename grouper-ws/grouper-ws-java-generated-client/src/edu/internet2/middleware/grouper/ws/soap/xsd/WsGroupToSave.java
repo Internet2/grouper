@@ -32,6 +32,50 @@
         
 
                         /**
+                        * field for CreateParentStemsIfNotExist
+                        */
+
+                        
+                                    protected java.lang.String localCreateParentStemsIfNotExist ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localCreateParentStemsIfNotExistTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getCreateParentStemsIfNotExist(){
+                               return localCreateParentStemsIfNotExist;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param CreateParentStemsIfNotExist
+                               */
+                               public void setCreateParentStemsIfNotExist(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localCreateParentStemsIfNotExistTracker = true;
+                                       } else {
+                                          localCreateParentStemsIfNotExistTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localCreateParentStemsIfNotExist=param;
+                                    
+
+                               }
+                            
+
+                        /**
                         * field for SaveMode
                         */
 
@@ -259,7 +303,41 @@
 
                
                    }
-                if (localSaveModeTracker){
+                if (localCreateParentStemsIfNotExistTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"createParentStemsIfNotExist", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"createParentStemsIfNotExist");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("createParentStemsIfNotExist");
+                                    }
+                                
+
+                                          if (localCreateParentStemsIfNotExist==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localCreateParentStemsIfNotExist);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localSaveModeTracker){
                                     namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
                                     if (! namespace.equals("")) {
                                         prefix = xmlWriter.getPrefix(namespace);
@@ -517,7 +595,13 @@
                  java.util.ArrayList elementList = new java.util.ArrayList();
                  java.util.ArrayList attribList = new java.util.ArrayList();
 
-                 if (localSaveModeTracker){
+                 if (localCreateParentStemsIfNotExistTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "createParentStemsIfNotExist"));
+                                 
+                                         elementList.add(localCreateParentStemsIfNotExist==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localCreateParentStemsIfNotExist));
+                                    } if (localSaveModeTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "saveMode"));
                                  
@@ -613,6 +697,33 @@
                     
                     reader.next();
                 
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","createParentStemsIfNotExist").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setCreateParentStemsIfNotExist(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
