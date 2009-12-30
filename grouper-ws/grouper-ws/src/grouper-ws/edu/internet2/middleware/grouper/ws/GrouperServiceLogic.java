@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.39 2009-12-29 07:39:28 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.40 2009-12-30 04:22:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -4175,7 +4175,7 @@ public class GrouperServiceLogic {
         wsGetSubjectsResults.assignResultCode(WsGetSubjectsResultsCode.SUCCESS);
         
         wsGetSubjectsResults.getResultMetadata().setResultMessage(
-            "Found " + GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()) + " subjects");
+            "Queried " + GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()) + " subjects");
           
       } catch (Exception e) {
         wsGetSubjectsResults.assignResultCodeException(null, theSummary, e);

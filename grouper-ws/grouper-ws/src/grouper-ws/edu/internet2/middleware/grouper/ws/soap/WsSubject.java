@@ -152,10 +152,19 @@ public class WsSubject implements Comparable<WsSubject> {
    */
   public WsSubject(Subject subject, String[] subjectAttributeNames, WsSubjectLookup wsSubjectLookup) {
     this.assignSubjectData(subject, subjectAttributeNames);
-    if (wsSubjectLookup != null && StringUtils.isNotBlank(wsSubjectLookup.getSubjectIdentifier())) {
-      this.identifierLookup = wsSubjectLookup.getSubjectIdentifier();
+    if (wsSubjectLookup != null) {
+      //if the lookup has info, and it isnt in the wssubject, put it there
+      if (!StringUtils.isNotBlank(wsSubjectLookup.getSubjectIdentifier())) {
+        this.identifierLookup = wsSubjectLookup.getSubjectIdentifier();      
+      }
+      if (StringUtils.isBlank(this.getId()) && !StringUtils.isBlank(wsSubjectLookup.getSubjectId())) {
+        this.setId(wsSubjectLookup.getSubjectId());
+      }
+      if (StringUtils.isBlank(this.getSourceId()) && !StringUtils.isBlank(wsSubjectLookup.getSubjectSourceId())) {
+        this.setSourceId(wsSubjectLookup.getSubjectSourceId());
+      }
+      
     }
-
   }
 
   /**
