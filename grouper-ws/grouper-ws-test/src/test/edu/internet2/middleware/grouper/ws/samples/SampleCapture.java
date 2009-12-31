@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.10 2009-12-29 07:38:16 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.10 2009/12/29 07:38:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivileges;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
@@ -75,6 +76,7 @@ import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDelet
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDetailSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupSaveRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleAssignGrouperPrivilegesRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleAssignGrouperPrivilegesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleGetGrouperPrivilegesListRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleGetGrouperPrivilegesRestLite;
@@ -155,10 +157,11 @@ public class SampleCapture {
     captureGroupSave();
     captureMemberChangeSubject();
     captureGetMemberships();
+    captureGetSubjects();
 
     */
     
-    captureGetSubjects();
+    captureAssignGrouperPrivileges();
 
   }
 
@@ -318,6 +321,12 @@ public class SampleCapture {
    * all member change subject captures
    */
   public static void captureAssignGrouperPrivileges() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignGrouperPrivileges.class, "assignGrouperPrivileges", (String)null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignGrouperPrivilegesRest.class, "assignGrouperPrivileges", null);
+
+    
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleAssignGrouperPrivilegesLite.class, "assignGrouperPrivileges", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
