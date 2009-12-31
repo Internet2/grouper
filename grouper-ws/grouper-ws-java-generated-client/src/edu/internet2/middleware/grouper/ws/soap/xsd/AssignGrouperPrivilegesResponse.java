@@ -1,6 +1,6 @@
 
 /**
- * MemberChangeSubjectResponse.java
+ * AssignGrouperPrivilegesResponse.java
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: 1.4.1  Built on : Aug 13, 2008 (05:03:41 LKT)
@@ -10,15 +10,15 @@
             
 
             /**
-            *  MemberChangeSubjectResponse bean class
+            *  AssignGrouperPrivilegesResponse bean class
             */
         
-        public  class MemberChangeSubjectResponse
+        public  class AssignGrouperPrivilegesResponse
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://soap.ws.grouper.middleware.internet2.edu/xsd",
-                "memberChangeSubjectResponse",
+                "assignGrouperPrivilegesResponse",
                 "ns1");
 
             
@@ -37,7 +37,7 @@
                         */
 
                         
-                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResults local_return ;
+                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResults local_return ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
@@ -48,9 +48,9 @@
 
                            /**
                            * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResults
+                           * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResults
                            */
-                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResults get_return(){
+                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResults get_return(){
                                return local_return;
                            }
 
@@ -60,7 +60,7 @@
                                * Auto generated setter method
                                * @param param _return
                                */
-                               public void set_return(edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResults param){
+                               public void set_return(edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResults param){
                             
                                        if (param != null){
                                           //update the setting tracker
@@ -108,7 +108,7 @@
                        new org.apache.axis2.databinding.ADBDataSource(this,MY_QNAME){
 
                  public void serialize(org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-                       MemberChangeSubjectResponse.this.serialize(MY_QNAME,factory,xmlWriter);
+                       AssignGrouperPrivilegesResponse.this.serialize(MY_QNAME,factory,xmlWriter);
                  }
                };
                return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
@@ -162,11 +162,11 @@
                    java.lang.String namespacePrefix = registerPrefix(xmlWriter,"http://soap.ws.grouper.middleware.internet2.edu/xsd");
                    if ((namespacePrefix != null) && (namespacePrefix.trim().length() > 0)){
                        writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
-                           namespacePrefix+":memberChangeSubjectResponse",
+                           namespacePrefix+":assignGrouperPrivilegesResponse",
                            xmlWriter);
                    } else {
                        writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
-                           "memberChangeSubjectResponse",
+                           "assignGrouperPrivilegesResponse",
                            xmlWriter);
                    }
 
@@ -397,9 +397,9 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static MemberChangeSubjectResponse parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            MemberChangeSubjectResponse object =
-                new MemberChangeSubjectResponse();
+        public static AssignGrouperPrivilegesResponse parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            AssignGrouperPrivilegesResponse object =
+                new AssignGrouperPrivilegesResponse();
 
             int event;
             java.lang.String nillableValue = null;
@@ -423,10 +423,10 @@
 
                     java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
                     
-                            if (!"memberChangeSubjectResponse".equals(type)){
+                            if (!"assignGrouperPrivilegesResponse".equals(type)){
                                 //find namespace for the prefix
                                 java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                                return (MemberChangeSubjectResponse)edu.internet2.middleware.grouper.ws.soap.xsd.ExtensionMapper.getTypeObject(
+                                return (AssignGrouperPrivilegesResponse)edu.internet2.middleware.grouper.ws.soap.xsd.ExtensionMapper.getTypeObject(
                                      nsUri,type,reader);
                               }
                         
@@ -462,7 +462,7 @@
                                           
                                       }else{
                                     
-                                                object.set_return(edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResults.Factory.parse(reader));
+                                                object.set_return(edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResults.Factory.parse(reader));
                                               
                                         reader.next();
                                     }

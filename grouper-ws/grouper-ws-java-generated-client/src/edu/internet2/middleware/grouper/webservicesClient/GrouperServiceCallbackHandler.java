@@ -317,6 +317,22 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for assignGrouperPrivileges method
+            * override this method for handling normal response from assignGrouperPrivileges operation
+            */
+           public void receiveResultassignGrouperPrivileges(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from assignGrouperPrivileges operation
+           */
+            public void receiveErrorassignGrouperPrivileges(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for assignGrouperPrivilegesLite method
             * override this method for handling normal response from assignGrouperPrivilegesLite operation
             */

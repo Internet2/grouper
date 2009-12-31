@@ -1,6 +1,6 @@
 
 /**
- * WsAddMemberResults.java
+ * WsAssignGrouperPrivilegesResults.java
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: 1.4.1  Built on : Aug 13, 2008 (05:03:41 LKT)
@@ -10,13 +10,13 @@
             
 
             /**
-            *  WsAddMemberResults bean class
+            *  WsAssignGrouperPrivilegesResults bean class
             */
         
-        public  class WsAddMemberResults
+        public  class WsAssignGrouperPrivilegesResults
         implements org.apache.axis2.databinding.ADBBean{
         /* This type was generated from the piece of schema that had
-                name = WsAddMemberResults
+                name = WsAssignGrouperPrivilegesResults
                 Namespace URI = http://soap.ws.grouper.middleware.internet2.edu/xsd
                 Namespace Prefix = ns1
                 */
@@ -125,7 +125,7 @@
                         */
 
                         
-                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[] localResults ;
+                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[] localResults ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
@@ -136,9 +136,9 @@
 
                            /**
                            * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[]
+                           * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[]
                            */
-                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[] getResults(){
+                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[] getResults(){
                                return localResults;
                            }
 
@@ -150,7 +150,7 @@
                               /**
                                * validate the array for Results
                                */
-                              protected void validateResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[] param){
+                              protected void validateResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[] param){
                              
                               }
 
@@ -159,7 +159,7 @@
                               * Auto generated setter method
                               * @param param Results
                               */
-                              public void setResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[] param){
+                              public void setResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[] param){
                               
                                    validateResults(param);
 
@@ -179,11 +179,11 @@
                              
                              /**
                              * Auto generated add method for the array for convenience
-                             * @param param edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult
+                             * @param param edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult
                              */
-                             public void addResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult param){
+                             public void addResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult param){
                                    if (localResults == null){
-                                   localResults = new edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[]{};
+                                   localResults = new edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[]{};
                                    }
 
                             
@@ -195,8 +195,8 @@
                             org.apache.axis2.databinding.utils.ConverterUtil.toList(localResults);
                                list.add(param);
                                this.localResults =
-                             (edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[])list.toArray(
-                            new edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[list.size()]);
+                             (edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[])list.toArray(
+                            new edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[list.size()]);
 
                              }
                              
@@ -284,44 +284,88 @@
                              
 
                         /**
-                        * field for WsGroupAssigned
+                        * field for WsGroup
                         */
 
                         
-                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup localWsGroupAssigned ;
+                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup localWsGroup ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localWsGroupAssignedTracker = false ;
+                           protected boolean localWsGroupTracker = false ;
                            
 
                            /**
                            * Auto generated getter method
                            * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup
                            */
-                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup getWsGroupAssigned(){
-                               return localWsGroupAssigned;
+                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup getWsGroup(){
+                               return localWsGroup;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param WsGroupAssigned
+                               * @param param WsGroup
                                */
-                               public void setWsGroupAssigned(edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup param){
+                               public void setWsGroup(edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup param){
                             
                                        if (param != null){
                                           //update the setting tracker
-                                          localWsGroupAssignedTracker = true;
+                                          localWsGroupTracker = true;
                                        } else {
-                                          localWsGroupAssignedTracker = true;
+                                          localWsGroupTracker = true;
                                               
                                        }
                                    
-                                            this.localWsGroupAssigned=param;
+                                            this.localWsGroup=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for WsStem
+                        */
+
+                        
+                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsStem localWsStem ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localWsStemTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsStem
+                           */
+                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsStem getWsStem(){
+                               return localWsStem;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param WsStem
+                               */
+                               public void setWsStem(edu.internet2.middleware.grouper.ws.soap.xsd.WsStem param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localWsStemTracker = true;
+                                       } else {
+                                          localWsStemTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localWsStem=param;
                                     
 
                                }
@@ -359,7 +403,7 @@
                        new org.apache.axis2.databinding.ADBDataSource(this,parentQName){
 
                  public void serialize(org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-                       WsAddMemberResults.this.serialize(parentQName,factory,xmlWriter);
+                       WsAssignGrouperPrivilegesResults.this.serialize(parentQName,factory,xmlWriter);
                  }
                };
                return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
@@ -413,11 +457,11 @@
                    java.lang.String namespacePrefix = registerPrefix(xmlWriter,"http://soap.ws.grouper.middleware.internet2.edu/xsd");
                    if ((namespacePrefix != null) && (namespacePrefix.trim().length() > 0)){
                        writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
-                           namespacePrefix+":WsAddMemberResults",
+                           namespacePrefix+":WsAssignGrouperPrivilegesResults",
                            xmlWriter);
                    } else {
                        writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
-                           "WsAddMemberResults",
+                           "WsAssignGrouperPrivilegesResults",
                            xmlWriter);
                    }
 
@@ -633,8 +677,8 @@
                                     
                              }
 
-                        } if (localWsGroupAssignedTracker){
-                                    if (localWsGroupAssigned==null){
+                        } if (localWsGroupTracker){
+                                    if (localWsGroup==null){
 
                                             java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
 
@@ -644,16 +688,16 @@
                                             if (prefix2 == null) {
                                                 prefix2 = generatePrefix(namespace2);
 
-                                                xmlWriter.writeStartElement(prefix2,"wsGroupAssigned", namespace2);
+                                                xmlWriter.writeStartElement(prefix2,"wsGroup", namespace2);
                                                 xmlWriter.writeNamespace(prefix2, namespace2);
                                                 xmlWriter.setPrefix(prefix2, namespace2);
 
                                             } else {
-                                                xmlWriter.writeStartElement(namespace2,"wsGroupAssigned");
+                                                xmlWriter.writeStartElement(namespace2,"wsGroup");
                                             }
 
                                         } else {
-                                            xmlWriter.writeStartElement("wsGroupAssigned");
+                                            xmlWriter.writeStartElement("wsGroup");
                                         }
 
 
@@ -661,7 +705,38 @@
                                       writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
                                       xmlWriter.writeEndElement();
                                     }else{
-                                     localWsGroupAssigned.serialize(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsGroupAssigned"),
+                                     localWsGroup.serialize(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsGroup"),
+                                        factory,xmlWriter);
+                                    }
+                                } if (localWsStemTracker){
+                                    if (localWsStem==null){
+
+                                            java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+
+                                        if (! namespace2.equals("")) {
+                                            java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                            if (prefix2 == null) {
+                                                prefix2 = generatePrefix(namespace2);
+
+                                                xmlWriter.writeStartElement(prefix2,"wsStem", namespace2);
+                                                xmlWriter.writeNamespace(prefix2, namespace2);
+                                                xmlWriter.setPrefix(prefix2, namespace2);
+
+                                            } else {
+                                                xmlWriter.writeStartElement(namespace2,"wsStem");
+                                            }
+
+                                        } else {
+                                            xmlWriter.writeStartElement("wsStem");
+                                        }
+
+
+                                       // write the nil attribute
+                                      writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                      xmlWriter.writeEndElement();
+                                    }else{
+                                     localWsStem.serialize(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsStem"),
                                         factory,xmlWriter);
                                     }
                                 }
@@ -892,13 +967,20 @@
                                 
                             }
 
-                        } if (localWsGroupAssignedTracker){
+                        } if (localWsGroupTracker){
                             elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
-                                                                      "wsGroupAssigned"));
+                                                                      "wsGroup"));
                             
                             
-                                    elementList.add(localWsGroupAssigned==null?null:
-                                    localWsGroupAssigned);
+                                    elementList.add(localWsGroup==null?null:
+                                    localWsGroup);
+                                } if (localWsStemTracker){
+                            elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "wsStem"));
+                            
+                            
+                                    elementList.add(localWsStem==null?null:
+                                    localWsStem);
                                 }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -924,9 +1006,9 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static WsAddMemberResults parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            WsAddMemberResults object =
-                new WsAddMemberResults();
+        public static WsAssignGrouperPrivilegesResults parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            WsAssignGrouperPrivilegesResults object =
+                new WsAssignGrouperPrivilegesResults();
 
             int event;
             java.lang.String nillableValue = null;
@@ -950,10 +1032,10 @@
 
                     java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
                     
-                            if (!"WsAddMemberResults".equals(type)){
+                            if (!"WsAssignGrouperPrivilegesResults".equals(type)){
                                 //find namespace for the prefix
                                 java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                                return (WsAddMemberResults)edu.internet2.middleware.grouper.ws.soap.xsd.ExtensionMapper.getTypeObject(
+                                return (WsAssignGrouperPrivilegesResults)edu.internet2.middleware.grouper.ws.soap.xsd.ExtensionMapper.getTypeObject(
                                      nsUri,type,reader);
                               }
                         
@@ -1041,7 +1123,7 @@
                                                               list3.add(null);
                                                               reader.next();
                                                           } else {
-                                                        list3.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult.Factory.parse(reader));
+                                                        list3.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult.Factory.parse(reader));
                                                                 }
                                                         //loop until we find a start element that is not part of this array
                                                         boolean loopDone3 = false;
@@ -1065,7 +1147,7 @@
                                                                           list3.add(null);
                                                                           reader.next();
                                                                       } else {
-                                                                    list3.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult.Factory.parse(reader));
+                                                                    list3.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult.Factory.parse(reader));
                                                                         }
                                                                 }else{
                                                                     loopDone3 = true;
@@ -1074,9 +1156,9 @@
                                                         }
                                                         // call the converter utility  to convert and set the array
                                                         
-                                                        object.setResults((edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult[])
+                                                        object.setResults((edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult[])
                                                             org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                                edu.internet2.middleware.grouper.ws.soap.xsd.WsAddMemberResult.class,
+                                                                edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult.class,
                                                                 list3));
                                                             
                               }  // End of if for expected property start element
@@ -1147,18 +1229,42 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsGroupAssigned").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsGroup").equals(reader.getName())){
                                 
                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
                                       if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                          object.setWsGroupAssigned(null);
+                                          object.setWsGroup(null);
                                           reader.next();
                                             
                                             reader.next();
                                           
                                       }else{
                                     
-                                                object.setWsGroupAssigned(edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup.Factory.parse(reader));
+                                                object.setWsGroup(edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup.Factory.parse(reader));
+                                              
+                                        reader.next();
+                                    }
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsStem").equals(reader.getName())){
+                                
+                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                          object.setWsStem(null);
+                                          reader.next();
+                                            
+                                            reader.next();
+                                          
+                                      }else{
+                                    
+                                                object.setWsStem(edu.internet2.middleware.grouper.ws.soap.xsd.WsStem.Factory.parse(reader));
                                               
                                         reader.next();
                                     }
