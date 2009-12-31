@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: json, for version: v1_5_000
+Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: json, for version: v1_6_000
 
 
 #########################################
@@ -44,20 +44,19 @@ X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 536
-Date: Sat, 21 Nov 2009 21:18:39 GMT
+Content-Length: 866
+Date: Thu, 31 Dec 2009 17:31:54 GMT
 Connection: close
 
 {
   "WsAssignGrouperPrivilegesLiteResult":{
-    "privilegeName":"optin",
-    "privilegeType":"access",
     "responseMetadata":{
-      "millis":"215",
-      "serverVersion":"v1_5_000"
+      "millis":"123",
+      "serverVersion":"v1_6_000"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_ALLOWED",
+      "resultMessage":"No subjects were passed in, Success for: clientVersion: v1_5_000, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]\n, group: WsGroupLookup[groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin\n, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false\n, params: null",
       "success":"T"
     },
     "wsGroup":{
@@ -66,7 +65,7 @@ Connection: close
       "displayName":"a stem:a group",
       "extension":"aGroup",
       "name":"aStem:aGroup",
-      "uuid":"b8148119f7ba4774a22a818c4ee55c53"
+      "uuid":"62b6bd7b6558443fb5b6a14c1a928f5a"
     },
     "wsSubject":{
       "id":"test.subject.0",
@@ -238,4 +237,7 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_ALLOWED, result message: null
+Server version: v1_6_000, result code: SUCCESS_ALLOWED, result message: No subjects were passed in, Success for: clientVersion: v1_5_000, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
+, group: WsGroupLookup[groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
+, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
+, params: null

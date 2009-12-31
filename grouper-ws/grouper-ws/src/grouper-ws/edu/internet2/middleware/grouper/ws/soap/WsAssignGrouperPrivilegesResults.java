@@ -12,12 +12,14 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
 
 /**
  * Result of assigning or removing a privilege
@@ -138,7 +140,10 @@ public class WsAssignGrouperPrivilegesResults implements WsResponseBean, ResultM
     INSUFFICIENT_PRIVILEGES(403),
 
     /** invalid query (e.g. if everything blank) (rest http status code 400) (success: F) */
-    INVALID_QUERY(400);
+    INVALID_QUERY(400), 
+    
+    /** problem assigning privileges (rest http status code 500) (success: F) */
+    PROBLEM_WITH_ASSIGNMENT(500);
 
     /** get the name label for a certain version of client 
      * @param clientVersion 
@@ -248,6 +253,69 @@ public class WsAssignGrouperPrivilegesResults implements WsResponseBean, ResultM
    */
   public WsAssignGrouperPrivilegesResult[] getResults() {
     return this.results;
+  }
+  
+  /**
+   * make sure if there is an error, to record that as an error
+   * @param grouperTransactionType for request
+   * @param theSummary
+   * @return true if success, false if not
+   */
+  public boolean tallyResults(GrouperTransactionType grouperTransactionType,
+      String theSummary) {
+    //maybe already a failure
+    boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
+        .getSuccess(), true);
+    if (this.getResults() != null) {
+      // check all entries
+      int successes = 0;
+      int failures = 0;
+      for (WsAssignGrouperPrivilegesResult wsAssignGrouperPrivilegesResult : this.getResults()) {
+        boolean theSuccess = "T".equalsIgnoreCase(wsAssignGrouperPrivilegesResult.getResultMetadata()
+            .getSuccess());
+        if (theSuccess) {
+          successes++;
+        } else {
+          failures++;
+        }
+      }
+
+      //if transaction rolled back all line items, 
+      if ((!successOverall || failures > 0) && grouperTransactionType.isTransactional()
+          && !grouperTransactionType.isReadonly()) {
+        for (WsAssignGrouperPrivilegesResult wsAssignGrouperPrivilegesResult : this.getResults()) {
+          if (GrouperUtil.booleanValue(
+              wsAssignGrouperPrivilegesResult.getResultMetadata().getSuccess(), true)) {
+            wsAssignGrouperPrivilegesResult
+                .assignResultCode(WsAssignGrouperPrivilegesResultCode.TRANSACTION_ROLLED_BACK);
+            failures++;
+          }
+        }
+      }
+      if (failures > 0) {
+        this.getResultMetadata().appendResultMessage(
+            "There were " + successes + " successes and " + failures
+                + " failures of users assigned privileges.   ");
+        this.assignResultCode(WsAssignGrouperPrivilegesResultsCode.PROBLEM_WITH_ASSIGNMENT);
+        //this might not be a problem
+        LOG.warn(this.getResultMetadata().getResultMessage());
+
+      } else {
+        this.assignResultCode(WsAssignGrouperPrivilegesResultsCode.SUCCESS);
+      }
+    } else {
+      //none is not ok, must pass one in
+      this.assignResultCode(WsAssignGrouperPrivilegesResultsCode.SUCCESS);
+      this.getResultMetadata().appendResultMessage(
+          "No subjects were passed in, ");
+    }
+    //make response descriptive
+    if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {
+      this.getResultMetadata().appendResultMessage("Success for: " + theSummary);
+      return true;
+    }
+    //false if need rollback
+    return !grouperTransactionType.isTransactional();
   }
 
   /**

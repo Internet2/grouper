@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPut.java,v 1.10 2009-12-07 07:31:14 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPut.java,v 1.10 2009/12/07 07:31:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
@@ -160,7 +161,13 @@ public enum GrouperWsRestPut {
           //find stems
           return GrouperServiceRest.assignGrouperPrivilegesLite(clientVersion,
               (WsRestAssignGrouperPrivilegesLiteRequest)requestObject);
+        } else if (requestObject instanceof WsRestAssignGrouperPrivilegesRequest) {
+          
+          //find stems
+          return GrouperServiceRest.assignGrouperPrivileges(clientVersion,
+              (WsRestAssignGrouperPrivilegesRequest)requestObject);
         }
+
       }
       throw new RuntimeException("Invalid put grouper privileges request: " + clientVersion 
           + ", " + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));

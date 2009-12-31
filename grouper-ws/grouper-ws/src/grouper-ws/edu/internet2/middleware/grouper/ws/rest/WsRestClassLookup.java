@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.12 2009-12-29 07:39:28 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.12 2009/12/29 07:39:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
@@ -45,6 +46,8 @@ import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAttribute;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeEdit;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
@@ -166,6 +169,10 @@ public class WsRestClassLookup {
     addAliasClass(WsRestAssignGrouperPrivilegesLiteRequest.class);
     addAliasClass(WsGetGrouperPrivilegesLiteResult.class);
     addAliasClass(WsAssignGrouperPrivilegesLiteResult.class);
+    
+    addAliasClass(WsRestAssignGrouperPrivilegesRequest.class);
+    addAliasClass(WsAssignGrouperPrivilegesResults.class);
+    addAliasClass(WsAssignGrouperPrivilegesResult.class);
     
     addAliasClass(WsRestGetMembersLiteRequest.class);
     addAliasClass(WsRestAddMemberRequest.class);

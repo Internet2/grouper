@@ -12,8 +12,8 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
-import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult.WsAssignGrouperPrivilegesLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -118,10 +118,11 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
 
   /**
    * assign the code from the enum
-   * @param memberChangeSubjectLiteResultCode1
+   * @param wsAssignGrouperPrivilegesResultCode
    */
-  public void assignResultCode(WsAssignGrouperPrivilegesResultCode memberChangeSubjectLiteResultCode1) {
-    this.getResultMetadata().assignResultCode(memberChangeSubjectLiteResultCode1);
+  public void assignResultCode(WsAssignGrouperPrivilegesResultCode wsAssignGrouperPrivilegesResultCode) {
+    this.getResultMetadata().assignResultCode(wsAssignGrouperPrivilegesResultCode == null 
+        ? null : wsAssignGrouperPrivilegesResultCode.name());
   }
 
   /**
@@ -132,37 +133,173 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
   /**
    * result code of a request
    */
-  public static enum WsAssignGrouperPrivilegesResultCode implements WsResultCode {
+  public static enum WsAssignGrouperPrivilegesResultCode {
 
     /** made the update to allow (rest http status code 200) (success: T) */
-    SUCCESS_ALLOWED(200),
+    SUCCESS_ALLOWED {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_ALLOWED;
+      }
+
+    },
 
     /** privilege allow already existed (rest http status code 200) (success: T) */
-    SUCCESS_ALLOWED_ALREADY_EXISTED(200),
+    SUCCESS_ALLOWED_ALREADY_EXISTED {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_ALLOWED_ALREADY_EXISTED;
+      }
+
+    },
 
     /** made the update to deny (rest http status code 200) (success: T) */
-    SUCCESS_NOT_ALLOWED(200),
+    SUCCESS_NOT_ALLOWED {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED;
+      }
+
+    },
 
     /** made the update to deny the immediate privilege, though the user still has an effective privilege, so is still allowed (rest http status code 200) (success: T) */
-    SUCCESS_NOT_ALLOWED_EXISTS_EFFECTIVE(200),
+    SUCCESS_NOT_ALLOWED_EXISTS_EFFECTIVE {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED_EXISTS_EFFECTIVE;
+      }
+
+    },
 
     /** privilege deny already existed (rest http status code 200) (success: T) */
-    SUCCESS_NOT_ALLOWED_DIDNT_EXIST(200),
+    SUCCESS_NOT_ALLOWED_DIDNT_EXIST {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED_DIDNT_EXIST;
+      }
+
+    },
 
     /** privilege deny already existed (rest http status code 200) (success: T) */
-    SUCCESS_NOT_ALLOWED_DIDNT_EXIST_BUT_EXISTS_EFFECTIVE(200),
+    SUCCESS_NOT_ALLOWED_DIDNT_EXIST_BUT_EXISTS_EFFECTIVE {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED_DIDNT_EXIST_BUT_EXISTS_EFFECTIVE;
+      }
+
+    },
 
     /** some exception occurred (rest http status code 500) (success: F) */
-    EXCEPTION(500),
+    EXCEPTION  {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.EXCEPTION;
+      }
+
+    },
 
     /** if one request, and that is a duplicate (rest http status code 409) (success: F) */
-    SUBJECT_DUPLICATE(409),
+    SUBJECT_DUPLICATE {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.SUBJECT_DUPLICATE;
+      }
+
+    },
 
     /** if one request, and that is a subject not found (rest http status code 404) (success: F) */
-    SUBJECT_NOT_FOUND(404),
+    SUBJECT_NOT_FOUND {
 
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.SUBJECT_NOT_FOUND;
+      }
+
+    },
+
+    /** if one item failed in the transaction, then roll back (success: F) */
+    TRANSACTION_ROLLED_BACK {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.EXCEPTION;
+      }
+
+    },
+
+    
     /** invalid query (e.g. if everything blank) (rest http status code 400) (success: F) */
-    INVALID_QUERY(400);
+    INVALID_QUERY  {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode() {
+        //shouldnt happen (one result with rollback)
+        return WsAssignGrouperPrivilegesLiteResultCode.EXCEPTION;
+      }
+
+    };
 
     /** get the name label for a certain version of client 
      * @param clientVersion 
@@ -170,6 +307,12 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
     public String nameForVersion(GrouperWsVersion clientVersion) {
       return this.name();
     }
+
+    /** 
+     * if there is one result, convert to the results code
+     * @return result code
+     */
+    public abstract WsAssignGrouperPrivilegesLiteResultCode convertToLiteCode();
 
     /**
      * if this is a successful result
@@ -180,23 +323,6 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
       return this.name().startsWith("SUCCESS");
     }
 
-    /** http status code for rest/lite e.g. 200 */
-    private int httpStatusCode;
-
-    /**
-     * status code for rest/lite e.g. 200
-     * @param statusCode
-     */
-    private WsAssignGrouperPrivilegesResultCode(int statusCode) {
-      this.httpStatusCode = statusCode;
-    }
-
-    /**
-     * @see edu.internet2.middleware.grouper.ws.WsResultCode#getHttpStatusCode()
-     */
-    public int getHttpStatusCode() {
-      return this.httpStatusCode;
-    }
   }
 
   /**
@@ -316,5 +442,13 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
    */
   public void setWsSubject(WsSubject wsSubject1) {
     this.wsSubject = wsSubject1;
+  }
+
+  /**
+   * convert string to result code
+   * @return the result code
+   */
+  public WsAssignGrouperPrivilegesResultCode resultCode() {
+    return WsAssignGrouperPrivilegesResultCode.valueOf(this.getResultMetadata().getResultCode());
   }
 }

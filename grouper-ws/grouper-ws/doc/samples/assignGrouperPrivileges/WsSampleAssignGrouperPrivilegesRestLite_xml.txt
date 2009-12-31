@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: xml, for version: v1_5_000
+Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: xml, for version: v1_6_000
 
 
 #########################################
@@ -42,34 +42,36 @@ X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sat, 21 Nov 2009 21:18:51 GMT
+Date: Thu, 31 Dec 2009 17:32:00 GMT
 Connection: close
 
 <WsAssignGrouperPrivilegesLiteResult>
   <resultMetadata>
-    <success>T</success>
     <resultCode>SUCCESS_ALLOWED</resultCode>
+    <resultMessage>No subjects were passed in, Success for: clientVersion: v1_5_000, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
+, group: WsGroupLookup[groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
+, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
+, params: null</resultMessage>
+    <success>T</success>
   </resultMetadata>
+  <responseMetadata>
+    <millis>147</millis>
+    <serverVersion>v1_6_000</serverVersion>
+  </responseMetadata>
   <wsGroup>
     <extension>aGroup</extension>
-    <description>a group description</description>
     <displayExtension>a group</displayExtension>
-    <uuid>7420ae5715d34eb6803835df3166a7b3</uuid>
-    <name>aStem:aGroup</name>
+    <description>a group description</description>
     <displayName>a stem:a group</displayName>
+    <name>aStem:aGroup</name>
+    <uuid>dda77a8443d14733a9537afcb2699f7f</uuid>
   </wsGroup>
-  <privilegeName>optin</privilegeName>
-  <responseMetadata>
-    <millis>233</millis>
-    <serverVersion>v1_5_000</serverVersion>
-  </responseMetadata>
-  <privilegeType>access</privilegeType>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
     <success>T</success>
+    <id>test.subject.0</id>
     <name>my name is test.subject.0</name>
     <sourceId>jdbc</sourceId>
-    <id>test.subject.0</id>
   </wsSubject>
 </WsAssignGrouperPrivilegesLiteResult>
 
@@ -233,4 +235,7 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_5_000, result code: SUCCESS_ALLOWED, result message: null
+Server version: v1_6_000, result code: SUCCESS_ALLOWED, result message: No subjects were passed in, Success for: clientVersion: v1_5_000, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
+, group: WsGroupLookup[groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
+, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
+, params: null

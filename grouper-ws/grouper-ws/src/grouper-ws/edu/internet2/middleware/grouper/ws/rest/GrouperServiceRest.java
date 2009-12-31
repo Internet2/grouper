@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.16 2009-12-29 07:39:28 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.16 2009/12/29 07:39:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
@@ -45,6 +46,7 @@ import edu.internet2.middleware.grouper.ws.soap.GrouperService;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
@@ -266,6 +268,41 @@ public class GrouperServiceRest {
 
     //return result
     return wsAddMemberResults;
+
+  }
+
+  /**
+   * <pre>
+   * assign privileges.  e.g. url:
+   * /v1_3_000/grouperPrivileges
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param groupName is the name of the group including stems, e.g. a:b:c
+   * @param wsRestAssignGrouperPrivilegeRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsAssignGrouperPrivilegesResults assignGrouperPrivileges(GrouperWsVersion clientVersion,
+      WsRestAssignGrouperPrivilegesRequest wsRestAssignGrouperPrivilegeRequest) {
+
+    //cant be null
+    GrouperUtil.assertion(wsRestAssignGrouperPrivilegeRequest != null,
+        "Body of request must contain an instance of "
+            + WsRestAssignGrouperPrivilegesRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestAssignGrouperPrivilegeRequest.getClientVersion(), false, "clientVersion");
+
+    //get the results
+    WsAssignGrouperPrivilegesResults wsAssignGrouperPrivilegesResults = new GrouperService(false).assignGrouperPrivileges(
+        clientVersionString, wsRestAssignGrouperPrivilegeRequest.getWsSubjectLookups(), wsRestAssignGrouperPrivilegeRequest.getWsGroupLookup(), 
+        wsRestAssignGrouperPrivilegeRequest.getWsStemLookup(), wsRestAssignGrouperPrivilegeRequest.getPrivilegeType(), wsRestAssignGrouperPrivilegeRequest.getPrivilegeNames(),
+        wsRestAssignGrouperPrivilegeRequest.getAllowed(), wsRestAssignGrouperPrivilegeRequest.getReplaceAllExisting(), wsRestAssignGrouperPrivilegeRequest.getTxType(), wsRestAssignGrouperPrivilegeRequest
+            .getActAsSubjectLookup(), wsRestAssignGrouperPrivilegeRequest.getIncludeSubjectDetail(),
+            wsRestAssignGrouperPrivilegeRequest.getSubjectAttributeNames(), wsRestAssignGrouperPrivilegeRequest
+            .getIncludeGroupDetail(), wsRestAssignGrouperPrivilegeRequest.getParams());
+
+    //return result
+    return wsAssignGrouperPrivilegesResults;
 
   }
 

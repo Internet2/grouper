@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestAddMemberRequest.java,v 1.1 2008-03-30 09:01:03 mchyzer Exp $
+ * $Id: WsRestAddMemberRequest.java,v 1.1 2008/03/30 09:01:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.member;
 
@@ -24,13 +24,13 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   /** field */
   private WsGroupLookup wsGroupLookup;
   
-  /** field */
+  /** subjects to assign to */
   private WsSubjectLookup[] subjectLookups;
   
   /** field */
   private String replaceAllExisting;
   
-  /** field */
+  /** who to act as if not the connecting user */
   private WsSubjectLookup actAsSubjectLookup;
   
   /** field */
@@ -45,7 +45,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   /** field */
   private String includeSubjectDetail;
   
-  /** field */
+  /** attribute names to return */
   private String[] subjectAttributeNames;
   
   /** field */
@@ -84,6 +84,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
 
   
   /**
+   * subjects to assign to
    * @return the subjectLookups
    */
   public WsSubjectLookup[] getSubjectLookups() {
@@ -92,6 +93,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
 
   
   /**
+   * subjects to assign to
    * @param subjectLookups1 the subjectLookups to set
    */
   public void setSubjectLookups(WsSubjectLookup[] subjectLookups1) {
@@ -116,6 +118,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
 
   
   /**
+   * who to act as if not the connecting user
    * @return the actAsSubjectLookup
    */
   public WsSubjectLookup getActAsSubjectLookup() {
@@ -124,6 +127,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
 
   
   /**
+   * who to act as if not the connecting user
    * @param actAsSubjectLookup1 the actAsSubjectLookup to set
    */
   public void setActAsSubjectLookup(WsSubjectLookup actAsSubjectLookup1) {
