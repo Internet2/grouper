@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperKimGroupServiceImpl.java,v 1.8 2009-12-21 06:15:06 mchyzer Exp $
+ * $Id: GrouperKimGroupServiceImpl.java,v 1.8 2009/12/21 06:15:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperKimConnector.group;
 
@@ -43,7 +43,10 @@ import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
 
 
 /**
- * Implement the group service to delegate to grouper
+ * <pre>
+ * Implement the Kim group service to delegate to grouper.  This is readonly group queries.  
+ * https://test.kuali.org/rice/rice-api-1.0-javadocs/org/kuali/rice/kim/service/GroupService.html
+ * </pre>
  */
 public class GrouperKimGroupServiceImpl implements GroupService {
 
@@ -58,6 +61,9 @@ public class GrouperKimGroupServiceImpl implements GroupService {
    *
    * Get the groupIds in which the principal has direct membership only. 
    * @see org.kuali.rice.kim.service.GroupService#getDirectGroupIdsForPrincipal(java.lang.String)
+   * 
+   * Note: this will only return group ids that are in the Kim stem in groups (since if you try to 
+   * pull groups from outside, it wont work, Kim is sandboxed off in Grouper)
    * </pre>
    */
   public List<String> getDirectGroupIdsForPrincipal(String principalId) {
@@ -84,6 +90,10 @@ public class GrouperKimGroupServiceImpl implements GroupService {
    * Get all the groups which are direct members of the given group. 
    * 
    * @see org.kuali.rice.kim.service.GroupService#getDirectMemberGroupIds(java.lang.String)
+   * 
+   * Note: this will only return group ids that are in the Kim stem in groups (since if you try to 
+   * pull groups from outside, it wont work, Kim is sandboxed off in Grouper)
+   * 
    * </pre>
    */
   public List<String> getDirectMemberGroupIds(String groupId) {
@@ -96,12 +106,17 @@ public class GrouperKimGroupServiceImpl implements GroupService {
   }
 
   /**
+   * <pre>
    * getDirectMemberPrincipalIds
    *
    * java.util.List<java.lang.String> getDirectMemberPrincipalIds(java.lang.String groupId)
    *
    * Get all the principals directly assigned to the given group.
    * @see org.kuali.rice.kim.service.GroupService#getDirectMemberPrincipalIds(java.lang.String)
+   * 
+   * Note: only subjects in sources in grouper.client.properties: grouper.kim.plugin.subjectSourceIds
+   * will be returned.
+   * </pre>
    */
   public List<String> getDirectMemberPrincipalIds(String groupId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -120,6 +135,9 @@ public class GrouperKimGroupServiceImpl implements GroupService {
    *
    * This will recurse into groups above the given group and build a complete list of all groups included above this group. 
    * @see org.kuali.rice.kim.service.GroupService#getDirectParentGroupIds(java.lang.String)
+   * 
+   * Note: this will only return group ids that are in the Kim stem in groups (since if you try to 
+   * pull groups from outside, it wont work, Kim is sandboxed off in Grouper)
    * </pre>
    */
   public List<String> getDirectParentGroupIds(String groupId) {
