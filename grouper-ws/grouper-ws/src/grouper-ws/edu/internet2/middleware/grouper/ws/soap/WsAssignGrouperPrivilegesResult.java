@@ -123,6 +123,11 @@ public class WsAssignGrouperPrivilegesResult implements ResultMetadataHolder {
   public void assignResultCode(WsAssignGrouperPrivilegesResultCode wsAssignGrouperPrivilegesResultCode) {
     this.getResultMetadata().assignResultCode(wsAssignGrouperPrivilegesResultCode == null 
         ? null : wsAssignGrouperPrivilegesResultCode.name());
+    String success = null;
+    if (wsAssignGrouperPrivilegesResultCode != null) {
+      success = wsAssignGrouperPrivilegesResultCode.isSuccess() ? "T" : "F";
+    }
+    this.getResultMetadata().setSuccess(success);
   }
 
   /**

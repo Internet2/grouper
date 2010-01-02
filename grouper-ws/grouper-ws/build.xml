@@ -561,7 +561,12 @@
 	<target name="javadoc" description="generate public api docs to doc/api">
 		<!-- Let's be sure we clear out old cruft first... -->
 		<mkdir dir="doc/api" />
-		<delete dir="doc/api" />
+		<delete>
+      <fileset dir="doc/api">
+        <exclude name="**/.svn" />
+        <exclude name="**/.svn/**" />
+      </fileset>
+		</delete>
 		<mkdir dir="doc/api" />
 		<!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
 		<javadoc destdir="doc/api" classpathref="ws.api.class.path" access="public"
