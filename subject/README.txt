@@ -68,6 +68,7 @@ When prompted for a password, hit enter.
   % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
   % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co subject
 
+test line
 ---
 
 $Id: README.txt,v 1.4 2006-08-07 18:22:12 blair Exp $
