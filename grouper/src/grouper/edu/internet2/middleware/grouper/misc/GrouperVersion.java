@@ -22,8 +22,9 @@ public class GrouperVersion {
    * update this before each
    * non-release-candidate release (e.g. in preparation for it)
    * e.g. 1.5.0
+   * TODO change this to read from properties file
    */
-  public static final String GROUPER_VERSION = "1.5.0";
+  public static final String GROUPER_VERSION = "1.6.0";
   
   /** major number */
   private int major;
@@ -41,7 +42,7 @@ public class GrouperVersion {
    * private constructor
    * @param versionString
    */
-  private GrouperVersion(String versionString) {
+  public GrouperVersion(String versionString) {
     Matcher grouperMatcher = pattern.matcher(versionString);
     if (!grouperMatcher.matches()) {
       grouperMatcher = rcPattern.matcher(versionString);

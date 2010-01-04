@@ -839,7 +839,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    */ 
   public String getName() {
     String val = this.getNameDb();
-    if (val.equals(ROOT_INT)) {
+    if (StringUtils.equals(ROOT_INT, val)) {
       return ROOT_NAME;
     }
     return val;
