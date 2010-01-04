@@ -4989,7 +4989,38 @@ public class GrouperUtil {
     }
     return theFile;
   }
-  
+
+  /**
+   * convert a string date into a long date (e.g. for xml export)
+   * @param date
+   * @return the long or null if the date was null or blank
+   */
+  public static Long dateLongValue(String date) {
+    if (isBlank(date)) {
+      return null;
+    }
+    Date dateObject = dateValue(date);
+    return dateObject.getTime();
+  }
+
+  /**
+   * web service format string
+   */
+  private static final String TIMESTAMP_XML_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
+
+  /**
+   * date object to a string: 
+   * @param date
+   * @return the long or null if the date was null or blank
+   */
+  public static String dateStringValue(Date date) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TIMESTAMP_XML_FORMAT);
+    return simpleDateFormat.format(date);
+  }
+
   /**
    * <pre>
    * Convert an object to a java.util.Date.  allows, dates, null, blank, 
