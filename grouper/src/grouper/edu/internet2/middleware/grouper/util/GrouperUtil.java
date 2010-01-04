@@ -94,7 +94,8 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
- * utility methods for grouper.
+ * utility methods for grouper.  Generally these are static methods.
+ * 
  * @author mchyzer
  *
  */
