@@ -12,7 +12,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/joda-time-1.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/stax-1.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/xom-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/xpp3_min-1.1.4c.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/xstream-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/jettison-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/mysql-connector-java-5.1.5-bin.jar"/>
