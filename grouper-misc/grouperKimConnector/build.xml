@@ -190,7 +190,7 @@
     <!-- replace relative links, e.g. method links -->
     <replaceregexp flags="g">
       <regexp pattern="\.html#([^&quot;>]*)&quot;" />
-      <substitution expression="\.html?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}#\1&quot;" />
+      <substitution expression="\.html?view=co#\1&quot;" />
       <fileset dir="doc/api" includes="**/*.html" />
     </replaceregexp>
     <!-- replace onLoad="top.loadFrames()" with onLoad="", this javascript messes things up with viewvc params -->
@@ -198,12 +198,12 @@
       <replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
       <replacevalue><![CDATA[onLoad=""]]></replacevalue>
     </replace>
-    <!-- replace for cvs web: .html" with .html?root=I2MI&view=co&pathrev=HEAD"   -->
-    <replace dir="doc/api" value=".html?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}&quot;">
+    <!-- replace for cvs web: .html" with .html?view=co"   -->
+    <replace dir="doc/api" value=".html?view=co&quot;">
       <include name="**/*.html" />
       <replacetoken><![CDATA[.html"]]></replacetoken>
     </replace>
-    <replace dir="doc/api" value=".css?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}&quot;">
+    <replace dir="doc/api" value=".css?view=co&quot;">
       <include name="**/*.html" />
       <replacetoken><![CDATA[.css"]]></replacetoken>
     </replace>
