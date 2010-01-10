@@ -20,6 +20,8 @@ public class AllXmlExportTests {
         "Test for edu.internet2.middleware.grouper.xml.export");
     //$JUnit-BEGIN$
     suite.addTestSuite(XmlExportStemTest.class);
+    suite.addTestSuite(XmlExportFieldTest.class);
+    suite.addTestSuite(XmlExportGroupTest.class);
     suite.addTestSuite(XmlExportMemberTest.class);
     //$JUnit-END$
     return suite;
