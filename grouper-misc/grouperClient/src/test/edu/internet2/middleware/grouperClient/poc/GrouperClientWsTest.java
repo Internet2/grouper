@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -53,7 +55,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetSubjects"));
+    TestRunner.run(new GrouperClientWsTest("testAssignGrouperPrivileges"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -1740,7 +1742,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * normal save
    * @throws Exception
    */
-  public void c() throws Exception {
+  public void testGroupSaveInsertAlreadyExists() throws Exception {
     
     {
       WsGroupToSave wsGroupToSave = new WsGroupToSave();
@@ -7958,6 +7960,298 @@ public class GrouperClientWsTest extends GrouperTest {
   
   
       
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testAssignGrouperPrivileges() throws Exception {
+  
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIds=test.subject.0 --privilegeNames=optin --allowed=true",
+                  " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      Pattern pattern = Pattern
+          .compile("^Index: ([0-9]+), success: (T|F), code: (.+), (group|stem): (.*), subject: (.+), (.+): (.+)$");
+      Matcher matcher = pattern.matcher(outputLines[0]);
+  
+      assertEquals(output, 1, GrouperClientUtils.length(outputLines));
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("T", matcher.group(2));
+      assertEquals("SUCCESS_ALLOWED", matcher.group(3));
+      assertEquals("group", matcher.group(4));
+      assertEquals("aStem:aGroup", matcher.group(5));
+      assertEquals("test.subject.0", matcher.group(6));
+      assertEquals("access", matcher.group(7));
+      assertEquals("optin", matcher.group(8));
+  
+      // #####################################################
+      // run again with subject identifier, and privilege type
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0 --privilegeType=access --privilegeNames=optin --allowed=true",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("T", matcher.group(2));
+      assertEquals("SUCCESS_ALLOWED_ALREADY_EXISTED", matcher.group(3));
+      assertEquals("group", matcher.group(4));
+      assertEquals("aStem:aGroup", matcher.group(5));
+      assertEquals("test.subject.0", matcher.group(6));
+      assertEquals("access", matcher.group(7));
+      assertEquals("optin", matcher.group(8));
+  
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("access")
+              && GrouperClientWs.mostRecentRequest.contains("privilegeType")
+              && GrouperClientWs.mostRecentRequest
+                  .contains("id.test.subject.0"));
+  
+      // #####################################################
+      // run with invalid args
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      // test a command line template
+      try {
+        GrouperClient
+            .main(GrouperClientUtils
+                .splitTrim(
+                    "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIds=test.subject.0 --privilegeNames=optin --allowed=true --ousdfsdfate=${index}",
+                    " "));
+      } catch (Exception e) {
+        assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+      }
+      System.out.flush();
+  
+      System.setOut(systemOut);
+  
+      // #####################################################
+      // run with custom template
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      // test a command line template
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0 --privilegeNames=optin --allowed=true --outputTemplate=${wsSubject.identifierLookup}",
+                  " "));
+  
+      System.out.flush();
+  
+      output = new String(baos.toByteArray());
+  
+      assertEquals("id.test.subject.0", output);
+  
+      System.setOut(systemOut);
+  
+      // #####################################################
+      // run again, with stem
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignGrouperPrivilegesWs --stemName=aStem --pennKeys=id.test.subject.0 --privilegeNames=stem --allowed=true",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("T", matcher.group(2));
+      assertEquals("SUCCESS_ALLOWED_ALREADY_EXISTED", matcher.group(3));
+      assertEquals("stem", matcher.group(4));
+      assertEquals("aStem", matcher.group(5));
+      assertEquals("test.subject.0", matcher.group(6));
+      assertEquals("naming", matcher.group(7));
+      assertEquals("stem", matcher.group(8));
+  
+      // #####################################################
+      // run again, with includeGroupDetail and includeSubjectDetail
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIds=test.subject.0 --includeGroupDetail=true --includeSubjectDetail=true --privilegeNames=optin --allowed=false",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("T", matcher.group(2));
+      assertEquals("SUCCESS_NOT_ALLOWED", matcher.group(3));
+      assertEquals("group", matcher.group(4));
+      assertEquals("aStem:aGroup", matcher.group(5));
+      assertEquals("test.subject.0", matcher.group(6));
+      assertEquals("access", matcher.group(7));
+      assertEquals("optin", matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest
+          .contains("includeGroupDetail")
+          && GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+  
+      // #####################################################
+      // run again, with subject attributes
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIds=test.subject.0 --subjectAttributeNames=name --privilegeNames=optin --allowed=false --outputTemplate=${index}:$space$${wsSubject.getAttributeValue(0)}$newline$",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      assertTrue(outputLines[0], outputLines[0]
+          .contains("my name is test.subject.0"));
+  
+      assertTrue(GrouperClientWs.mostRecentRequest.contains(">name<"));
+      assertTrue(GrouperClientWs.mostRecentResponse
+          .contains("my name is test.subject.0"));
+  
+      // #####################################################
+      // run again, with params
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --privilegeNames=optin --allowed=false --subjectIds=test.subject.0 --paramName0=whatever --paramValue0=someValue",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("T", matcher.group(2));
+      assertEquals("SUCCESS_NOT_ALLOWED_DIDNT_EXIST", matcher.group(3));
+      assertEquals("group", matcher.group(4));
+      assertEquals("aStem:aGroup", matcher.group(5));
+      assertEquals("test.subject.0", matcher.group(6));
+      assertEquals("access", matcher.group(7));
+      assertEquals("optin", matcher.group(8));
+
+      assertTrue(GrouperClientWs.mostRecentRequest.contains("whatever")
+          && GrouperClientWs.mostRecentRequest.contains("someValue"));
+  
+      // #####################################################
+      // run again, replace existing
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Group replaceGroup = new GroupSave(grouperSession).assignGroupNameToEdit("aStem:replaceExisting")
+        .assignName("aStem:replaceExisting").assignCreateParentStemsIfNotExist(true).save();
+      
+      Set<Subject> subjects = grouperSession.getAccessResolver().getSubjectsWithPrivilege(replaceGroup, AccessPrivilege.UPDATE);
+
+      assertEquals(0, GrouperUtil.length(subjects));
+      
+      replaceGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE);
+      
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignGrouperPrivilegesWs --groupName=aStem:replaceExisting --privilegeNames=update --allowed=true --subjectIds=test.subject.4 --replaceAllExisting=true",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("T", matcher.group(2));
+      assertEquals("SUCCESS_ALLOWED", matcher.group(3));
+      assertEquals("group", matcher.group(4));
+      assertEquals("aStem:replaceExisting", matcher.group(5));
+      assertEquals("test.subject.4", matcher.group(6));
+      assertEquals("access", matcher.group(7));
+      assertEquals("update", matcher.group(8));
+
+      subjects = grouperSession.getAccessResolver().getSubjectsWithPrivilege(replaceGroup, AccessPrivilege.UPDATE);
+
+      assertEquals(1, GrouperUtil.length(subjects));
+      assertEquals(SubjectTestHelper.SUBJ4_ID, subjects.iterator().next().getId());
     } finally {
       System.setOut(systemOut);
     }
