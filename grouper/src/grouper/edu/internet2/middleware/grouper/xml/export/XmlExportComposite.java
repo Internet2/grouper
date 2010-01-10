@@ -17,7 +17,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
-import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -32,52 +32,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  *
  */
-public class XmlExportGroupType {
-
-  /** assignable, T|F */
-  private String assignable;
-  
-  /** internal, T|F */
-  private String internal;
-  
-  /**
-   * assignable, T|F
-   * @return assignable
-   */
-  public String getAssignable() {
-    return this.assignable;
-  }
-
-  /**
-   * assignable, T|F
-   * @param assignable1
-   */
-  public void setAssignable(String assignable1) {
-    this.assignable = assignable1;
-  }
-
-  /**
-   * internal, T|F
-   * @return internal
-   */
-  public String getInternal() {
-    return this.internal;
-  }
-
-  /**
-   * internal, T|F
-   * @param internal1
-   */
-  public void setInternal(String internal1) {
-    this.internal = internal1;
-  }
+public class XmlExportComposite {
 
   /** uuid */
   private String uuid;
   
-  /** name */
-  private String name;
-
   /** creatorId */
   private String creatorId;
 
@@ -89,21 +48,97 @@ public class XmlExportGroupType {
 
   /** contextId */
   private String contextId;
+  
+  /** owner */
+  private String owner;
+  
+  /** leftFactor */
+  private String leftFactor;
+  
+  /** rightFactor */
+  private String rightFactor;
+  
+  /** type */
+  private String type;
+
+  /**
+   * owner
+   * @return owner
+   */
+  public String getOwner() {
+    return this.owner;
+  }
+
+  /**
+   * owner
+   * @param owner1
+   */
+  public void setOwner(String owner1) {
+    this.owner = owner1;
+  }
+
+  /**
+   * left factor
+   * @return left factor
+   */
+  public String getLeftFactor() {
+    return this.leftFactor;
+  }
+
+  /**
+   * left factor
+   * @param leftFactor1
+   */
+  public void setLeftFactor(String leftFactor1) {
+    this.leftFactor = leftFactor1;
+  }
+
+  /**
+   * right factor
+   * @return right factor
+   */
+  public String getRightFactor() {
+    return this.rightFactor;
+  }
+
+  /**
+   * right factor
+   * @param rightFactor1
+   */
+  public void setRightFactor(String rightFactor1) {
+    this.rightFactor = rightFactor1;
+  }
+
+  /**
+   * type
+   * @return type
+   */
+  public String getType() {
+    return this.type;
+  }
+
+  /**
+   * type
+   * @param type1
+   */
+  public void setType(String type1) {
+    this.type = type1;
+  }
 
   /**
    * 
    */
-  public XmlExportGroupType() {
+  public XmlExportComposite() {
     
   }
 
   /**
-   * @param groupType
+   * @param composite
    * @param grouperVersion
    */
-  public XmlExportGroupType(GrouperVersion grouperVersion, GroupType groupType) {
+  public XmlExportComposite(GrouperVersion grouperVersion, Composite composite) {
     
-    if (groupType == null) {
+    if (composite == null) {
       throw new RuntimeException();
     }
     
@@ -111,14 +146,15 @@ public class XmlExportGroupType {
       throw new RuntimeException();
     }
     
-    this.assignable = groupType.getIsAssignable() ? "T" : "F";
-    this.contextId = groupType.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(new Date(groupType.getCreateTime()));
-    this.creatorId = groupType.getCreatorUuid();
-    this.hibernateVersionNumber = groupType.getHibernateVersionNumber();
-    this.internal = groupType.getIsInternal() ? "T" : "F";
-    this.name = groupType.getName();
-    this.uuid = groupType.getUuid();
+    this.contextId = composite.getContextId();
+    this.createTime = GrouperUtil.dateStringValue(new Date(composite.getCreateTime()));
+    this.creatorId = composite.getCreatorUuid();
+    this.hibernateVersionNumber = composite.getHibernateVersionNumber();
+    this.leftFactor = composite.getLeftFactorUuid();
+    this.owner = composite.getFactorOwnerUuid();
+    this.rightFactor = composite.getRightFactorUuid();
+    this.type = composite.getTypeDb();
+    this.uuid = composite.getUuid();
     
   }
 
@@ -136,22 +172,6 @@ public class XmlExportGroupType {
    */
   public void setUuid(String uuid1) {
     this.uuid = uuid1;
-  }
-
-  /**
-   * name
-   * @return name
-   */
-  public String getName() {
-    return this.name;
-  }
-
-  /**
-   * name
-   * @param name
-   */
-  public void setName(String name) {
-    this.name = name;
   }
 
   /**
@@ -219,22 +239,23 @@ public class XmlExportGroupType {
   }
   
   /**
-   * convert to group
-   * @return the group
+   * convert to composite
+   * @return the composite
    */
-  public GroupType toGroupType() {
-    GroupType groupType = new GroupType();
+  public Composite toComposite() {
+    Composite composite = new Composite();
     
-    groupType.setIsAssignable(GrouperUtil.booleanValue(this.assignable, false));
-    groupType.setContextId(this.contextId);
-    groupType.setCreateTime(GrouperUtil.defaultIfNull(GrouperUtil.dateLongValue(this.createTime), 0L));
-    groupType.setCreatorUuid(this.creatorId);
-    groupType.setHibernateVersionNumber(this.hibernateVersionNumber);
-    groupType.setIsInternal(GrouperUtil.booleanValue(this.internal, false));
-    groupType.setName(this.name);
-    groupType.setUuid(this.uuid);
+    composite.setContextId(this.contextId);
+    composite.setCreateTime(GrouperUtil.defaultIfNull(GrouperUtil.dateLongValue(this.createTime), 0L));
+    composite.setCreatorUuid(this.creatorId);
+    composite.setHibernateVersionNumber(this.hibernateVersionNumber);
+    composite.setLeftFactorUuid(this.leftFactor);
+    composite.setFactorOwnerUuid(this.owner);
+    composite.setRightFactorUuid(this.rightFactor);
+    composite.setTypeDb(this.type);
+    composite.setUuid(this.uuid);
     
-    return groupType;
+    return composite;
   }
 
   /**
@@ -265,7 +286,7 @@ public class XmlExportGroupType {
    * 
    * @param writer
    */
-  public static void exportGroupTypes(final Writer writer) {
+  public static void exportComposites(final Writer writer) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -276,11 +297,11 @@ public class XmlExportGroupType {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theGroupType from GroupType as theGroupType order by theGroupType.name");
+            "select theComposite from Composite as theComposite order by theComposite.factorOwnerUuid, theComposite.leftFactorUuid, theComposite.rightFactorUuid, theComposite.typeDb");
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {
-          writer.write("  <groupTypes>\n");
+          writer.write("  <composites>\n");
   
           //this is an efficient low-memory way to iterate through a resultset
           ScrollableResults results = null;
@@ -288,10 +309,10 @@ public class XmlExportGroupType {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              GroupType groupType = (GroupType)object;
-              XmlExportGroupType xmlExportGroupType = new XmlExportGroupType(grouperVersion, groupType);
+              Composite composite = (Composite)object;
+              XmlExportComposite xmlExportComposite = new XmlExportComposite(grouperVersion, composite);
               writer.write("    ");
-              xmlExportGroupType.toXml(grouperVersion, writer);
+              xmlExportComposite.toXml(grouperVersion, writer);
               writer.write("\n");
             }
           } finally {
@@ -299,9 +320,9 @@ public class XmlExportGroupType {
           }
           
           //end the members element 
-          writer.write("  </groupTypes>\n");
+          writer.write("  </composites>\n");
         } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming group types", ioe);
+          throw new RuntimeException("Problem with streaming composites", ioe);
         }
         return null;
       }
@@ -314,11 +335,11 @@ public class XmlExportGroupType {
    * @param hierarchicalStreamReader
    * @return the bean
    */
-  public static XmlExportGroupType fromXml(@SuppressWarnings("unused") GrouperVersion exportVersion, 
+  public static XmlExportComposite fromXml(@SuppressWarnings("unused") GrouperVersion exportVersion, 
       HierarchicalStreamReader hierarchicalStreamReader) {
     XStream xStream = XmlExportUtils.xstream();
     
-    XmlExportGroupType xmlExportGroupType = (XmlExportGroupType)xStream.unmarshal(hierarchicalStreamReader);
+    XmlExportComposite xmlExportGroupType = (XmlExportComposite)xStream.unmarshal(hierarchicalStreamReader);
   
     return xmlExportGroupType;
   }
@@ -329,11 +350,11 @@ public class XmlExportGroupType {
    * @param xml
    * @return the object from xml
    */
-  public static XmlExportGroupType fromXml(
+  public static XmlExportComposite fromXml(
       @SuppressWarnings("unused") GrouperVersion exportVersion, String xml) {
     XStream xStream = XmlExportUtils.xstream();
     
-    XmlExportGroupType xmlExportGroupType = (XmlExportGroupType)xStream.fromXML(xml);
+    XmlExportComposite xmlExportGroupType = (XmlExportComposite)xStream.fromXML(xml);
   
     return xmlExportGroupType;
   }

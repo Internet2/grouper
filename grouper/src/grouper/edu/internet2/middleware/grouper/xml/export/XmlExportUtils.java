@@ -35,10 +35,12 @@ public class XmlExportUtils {
       }
       
     }); 
-    
+
+    registerClass(xStream, XmlExportComposite.class);
     registerClass(xStream, XmlExportField.class);
     registerClass(xStream, XmlExportGroup.class);
     registerClass(xStream, XmlExportGroupType.class);
+    registerClass(xStream, XmlExportGroupTypeTuple.class);
     registerClass(xStream, XmlExportMember.class);
     registerClass(xStream, XmlExportStem.class);
     return xStream;

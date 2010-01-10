@@ -53,6 +53,10 @@ public class XmlExportMain {
 
       XmlExportField.exportFields(writer);
 
+      XmlExportGroupTypeTuple.exportGroupTypeTuples(writer);
+
+      XmlExportComposite.exportComposites(writer);
+
       writer.write("</grouperExport>");
       writer.flush();
     } catch (IOException ioe) {

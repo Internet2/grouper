@@ -7,7 +7,6 @@ package edu.internet2.middleware.grouper.xml.export;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Date;
 
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
@@ -17,7 +16,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
-import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -26,84 +25,75 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  *
  */
-public class XmlExportGroupType {
-
-  /** assignable, T|F */
-  private String assignable;
-  
-  /** internal, T|F */
-  private String internal;
-  
-  /**
-   * assignable, T|F
-   * @return assignable
-   */
-  public String getAssignable() {
-    return this.assignable;
-  }
-
-  /**
-   * assignable, T|F
-   * @param assignable1
-   */
-  public void setAssignable(String assignable1) {
-    this.assignable = assignable1;
-  }
-
-  /**
-   * internal, T|F
-   * @return internal
-   */
-  public String getInternal() {
-    return this.internal;
-  }
-
-  /**
-   * internal, T|F
-   * @param internal1
-   */
-  public void setInternal(String internal1) {
-    this.internal = internal1;
-  }
+public class XmlExportGroupTypeTuple {
 
   /** uuid */
   private String uuid;
   
-  /** name */
-  private String name;
-
-  /** creatorId */
-  private String creatorId;
-
-  /** createTime */
-  private String createTime;
-
   /** hibernateVersionNumber */
   private long hibernateVersionNumber;
 
   /** contextId */
   private String contextId;
 
+  /** group id */
+  private String groupId;
+  
+  /** type id */
+  private String typeId;
+  
+  
+  /**
+   * group id
+   * @return group id
+   */
+  public String getGroupId() {
+    return this.groupId;
+  }
+
+  /**
+   * group id
+   * @param groupId1
+   */
+  public void setGroupId(String groupId1) {
+    this.groupId = groupId1;
+  }
+
+  /**
+   * type id
+   * @return type id
+   */
+  public String getTypeId() {
+    return this.typeId;
+  }
+
+  /**
+   * type id
+   * @param typeId1
+   */
+  public void setTypeId(String typeId1) {
+    this.typeId = typeId1;
+  }
+
   /**
    * 
    */
-  public XmlExportGroupType() {
+  public XmlExportGroupTypeTuple() {
     
   }
 
   /**
-   * @param groupType
+   * @param groupTypeTuple
    * @param grouperVersion
    */
-  public XmlExportGroupType(GrouperVersion grouperVersion, GroupType groupType) {
+  public XmlExportGroupTypeTuple(GrouperVersion grouperVersion, GroupTypeTuple groupTypeTuple) {
     
-    if (groupType == null) {
+    if (groupTypeTuple == null) {
       throw new RuntimeException();
     }
     
@@ -111,14 +101,11 @@ public class XmlExportGroupType {
       throw new RuntimeException();
     }
     
-    this.assignable = groupType.getIsAssignable() ? "T" : "F";
-    this.contextId = groupType.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(new Date(groupType.getCreateTime()));
-    this.creatorId = groupType.getCreatorUuid();
-    this.hibernateVersionNumber = groupType.getHibernateVersionNumber();
-    this.internal = groupType.getIsInternal() ? "T" : "F";
-    this.name = groupType.getName();
-    this.uuid = groupType.getUuid();
+    this.contextId = groupTypeTuple.getContextId();
+    this.groupId = groupTypeTuple.getGroupUuid();
+    this.hibernateVersionNumber = groupTypeTuple.getHibernateVersionNumber();
+    this.typeId = groupTypeTuple.getTypeUuid();
+    this.uuid = groupTypeTuple.getId();
     
   }
 
@@ -136,54 +123,6 @@ public class XmlExportGroupType {
    */
   public void setUuid(String uuid1) {
     this.uuid = uuid1;
-  }
-
-  /**
-   * name
-   * @return name
-   */
-  public String getName() {
-    return this.name;
-  }
-
-  /**
-   * name
-   * @param name
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * creatorId
-   * @return creatorId
-   */
-  public String getCreatorId() {
-    return this.creatorId;
-  }
-
-  /**
-   * creatorId
-   * @param creatorId1
-   */
-  public void setCreatorId(String creatorId1) {
-    this.creatorId = creatorId1;
-  }
-
-  /**
-   * createTime
-   * @return createTime
-   */
-  public String getCreateTime() {
-    return this.createTime;
-  }
-
-  /**
-   * createTime
-   * @param createTime1
-   */
-  public void setCreateTime(String createTime1) {
-    this.createTime = createTime1;
   }
 
   /**
@@ -222,19 +161,16 @@ public class XmlExportGroupType {
    * convert to group
    * @return the group
    */
-  public GroupType toGroupType() {
-    GroupType groupType = new GroupType();
+  public GroupTypeTuple toGroupTypeTuple() {
+    GroupTypeTuple groupTypeTuple = new GroupTypeTuple();
     
-    groupType.setIsAssignable(GrouperUtil.booleanValue(this.assignable, false));
-    groupType.setContextId(this.contextId);
-    groupType.setCreateTime(GrouperUtil.defaultIfNull(GrouperUtil.dateLongValue(this.createTime), 0L));
-    groupType.setCreatorUuid(this.creatorId);
-    groupType.setHibernateVersionNumber(this.hibernateVersionNumber);
-    groupType.setIsInternal(GrouperUtil.booleanValue(this.internal, false));
-    groupType.setName(this.name);
-    groupType.setUuid(this.uuid);
+    groupTypeTuple.setContextId(this.contextId);
+    groupTypeTuple.setGroupUuid(this.groupId);
+    groupTypeTuple.setHibernateVersionNumber(this.hibernateVersionNumber);
+    groupTypeTuple.setTypeUuid(this.typeId);
+    groupTypeTuple.setId(this.uuid);
     
-    return groupType;
+    return groupTypeTuple;
   }
 
   /**
@@ -265,7 +201,7 @@ public class XmlExportGroupType {
    * 
    * @param writer
    */
-  public static void exportGroupTypes(final Writer writer) {
+  public static void exportGroupTypeTuples(final Writer writer) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -276,11 +212,12 @@ public class XmlExportGroupType {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theGroupType from GroupType as theGroupType order by theGroupType.name");
+            "select theGroupTypeTuple from GroupTypeTuple as theGroupTypeTuple " +
+            "order by theGroupTypeTuple.groupUuid, theGroupTypeTuple.typeUuid");
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {
-          writer.write("  <groupTypes>\n");
+          writer.write("  <groupTypeTuples>\n");
   
           //this is an efficient low-memory way to iterate through a resultset
           ScrollableResults results = null;
@@ -288,10 +225,10 @@ public class XmlExportGroupType {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              GroupType groupType = (GroupType)object;
-              XmlExportGroupType xmlExportGroupType = new XmlExportGroupType(grouperVersion, groupType);
+              GroupTypeTuple groupTypeTuple = (GroupTypeTuple)object;
+              XmlExportGroupTypeTuple xmlExportGroupTypeTuple = new XmlExportGroupTypeTuple(grouperVersion, groupTypeTuple);
               writer.write("    ");
-              xmlExportGroupType.toXml(grouperVersion, writer);
+              xmlExportGroupTypeTuple.toXml(grouperVersion, writer);
               writer.write("\n");
             }
           } finally {
@@ -299,9 +236,9 @@ public class XmlExportGroupType {
           }
           
           //end the members element 
-          writer.write("  </groupTypes>\n");
+          writer.write("  </groupTypeTuples>\n");
         } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming group types", ioe);
+          throw new RuntimeException("Problem with streaming group type tuples", ioe);
         }
         return null;
       }
@@ -314,13 +251,13 @@ public class XmlExportGroupType {
    * @param hierarchicalStreamReader
    * @return the bean
    */
-  public static XmlExportGroupType fromXml(@SuppressWarnings("unused") GrouperVersion exportVersion, 
+  public static XmlExportGroupTypeTuple fromXml(@SuppressWarnings("unused") GrouperVersion exportVersion, 
       HierarchicalStreamReader hierarchicalStreamReader) {
     XStream xStream = XmlExportUtils.xstream();
     
-    XmlExportGroupType xmlExportGroupType = (XmlExportGroupType)xStream.unmarshal(hierarchicalStreamReader);
+    XmlExportGroupTypeTuple xmlExportGroupTypeTuple = (XmlExportGroupTypeTuple)xStream.unmarshal(hierarchicalStreamReader);
   
-    return xmlExportGroupType;
+    return xmlExportGroupTypeTuple;
   }
 
   /**
@@ -329,13 +266,13 @@ public class XmlExportGroupType {
    * @param xml
    * @return the object from xml
    */
-  public static XmlExportGroupType fromXml(
+  public static XmlExportGroupTypeTuple fromXml(
       @SuppressWarnings("unused") GrouperVersion exportVersion, String xml) {
     XStream xStream = XmlExportUtils.xstream();
     
-    XmlExportGroupType xmlExportGroupType = (XmlExportGroupType)xStream.fromXML(xml);
+    XmlExportGroupTypeTuple xmlExportGroupTypeTuple = (XmlExportGroupTypeTuple)xStream.fromXML(xml);
   
-    return xmlExportGroupType;
+    return xmlExportGroupTypeTuple;
   }
 
 }
