@@ -2,7 +2,7 @@
 
 <project name="Grouper" default="compile" basedir=".">
 
-  <!-- ant contrib allows conditionals in ant scripts -->
+  <!-- ant contrib allows conditionals in the ant scripts -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
     <classpath>
       <pathelement location="${basedir}/lib/ant/ant-contrib.jar" />
