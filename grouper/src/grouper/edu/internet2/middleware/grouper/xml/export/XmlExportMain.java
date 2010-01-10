@@ -49,6 +49,8 @@ public class XmlExportMain {
       
       XmlExportGroup.exportGroups(writer);
       
+      XmlExportGroupType.exportGroupTypes(writer);
+
       XmlExportField.exportFields(writer);
 
       writer.write("</grouperExport>");
