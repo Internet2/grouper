@@ -57,6 +57,8 @@ public class XmlExportMain {
 
       XmlExportComposite.exportComposites(writer);
 
+      XmlExportAttribute.exportAttributes(writer);
+
       writer.write("</grouperExport>");
       writer.flush();
     } catch (IOException ioe) {
