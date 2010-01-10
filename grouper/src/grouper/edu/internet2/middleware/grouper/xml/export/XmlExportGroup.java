@@ -16,7 +16,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
-import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -31,8 +31,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  *
  */
-public class XmlExportStem {
+public class XmlExportGroup {
 
+  /** alternate name */
+  private String alternateName;
+  
   /** uuid */
   private String uuid;
   
@@ -75,20 +78,39 @@ public class XmlExportStem {
   /** contextId */
   private String contextId;
 
+  /** typeOfGroup */
+  private String typeOfGroup;
+
+  /**
+   * type of group
+   * @return type of group
+   */
+  public String getTypeOfGroup() {
+    return this.typeOfGroup;
+  }
+
+  /**
+   * type of group
+   * @param typeOfGroup1
+   */
+  public void setTypeOfGroup(String typeOfGroup1) {
+    this.typeOfGroup = typeOfGroup1;
+  }
+
   /**
    * 
    */
-  public XmlExportStem() {
+  public XmlExportGroup() {
     
   }
 
   /**
-   * @param stem
+   * @param group
    * @param grouperVersion
    */
-  public XmlExportStem(GrouperVersion grouperVersion, Stem stem) {
+  public XmlExportGroup(GrouperVersion grouperVersion, Group group) {
     
-    if (stem == null) {
+    if (group == null) {
       throw new RuntimeException();
     }
     
@@ -96,22 +118,40 @@ public class XmlExportStem {
       throw new RuntimeException();
     }
     
-    this.contextId = stem.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(stem.getCreateTime());
-    this.creatorId = stem.getCreatorUuid();
-    this.description = stem.getDescription();
-    this.displayExtension = stem.getDisplayExtension();
-    this.displayName = stem.getDisplayName();
-    this.extension = stem.getExtension();
-    this.hibernateVersionNumber = stem.getHibernateVersionNumber();
+    this.alternateName = group.getAlternateNameDb();
+    this.contextId = group.getContextId();
+    this.createTime = GrouperUtil.dateStringValue(group.getCreateTime());
+    this.creatorId = group.getCreatorUuid();
+    this.description = group.getDescription();
+    this.displayExtension = group.getDisplayExtension();
+    this.displayName = group.getDisplayName();
+    this.extension = group.getExtension();
+    this.hibernateVersionNumber = group.getHibernateVersionNumber();
     //TODO make string
-    this.lastMembershipChange = stem.getLastMembershipChangeDb();
-    this.modifierId = stem.getModifierUuid();
-    this.modifierTime = GrouperUtil.dateStringValue(stem.getModifyTime());
-    this.name = stem.getName();
-    this.parentStem = stem.getParentUuid();
-    this.uuid = stem.getUuid();
+    this.lastMembershipChange = group.getLastMembershipChangeDb();
+    this.modifierId = group.getModifierUuid();
+    this.modifierTime = GrouperUtil.dateStringValue(group.getModifyTime());
+    this.name = group.getName();
+    this.parentStem = group.getParentUuid();
+    this.typeOfGroup = group.getTypeOfGroupDb();
+    this.uuid = group.getUuid();
     
+  }
+
+  /**
+   * alternate name
+   * @return alternate name
+   */
+  public String getAlternateName() {
+    return this.alternateName;
+  }
+
+  /**
+   * alternateName
+   * @param alternateName1
+   */
+  public void setAlternateName(String alternateName1) {
+    this.alternateName = alternateName1;
   }
 
   /**
@@ -339,28 +379,30 @@ public class XmlExportStem {
   }
   
   /**
-   * convert to stem
-   * @return the stem
+   * convert to group
+   * @return the group
    */
-  public Stem toStem() {
-    Stem stem = new Stem();
+  public Group toGroup() {
+    Group group = new Group();
     
-    stem.setContextId(this.contextId);
-    stem.setCreateTimeLong(GrouperUtil.dateLongValue(this.createTime));
-    stem.setCreatorUuid(this.creatorId);
-    stem.setDescriptionDb(this.description);
-    stem.setDisplayExtensionDb(this.displayExtension);
-    stem.setDisplayNameDb(this.displayName);
-    stem.setExtensionDb(this.extension);
-    stem.setHibernateVersionNumber(this.hibernateVersionNumber);
-    stem.setLastMembershipChangeDb(this.lastMembershipChange);
-    stem.setModifierUuid(this.modifierId);
-    stem.setModifyTimeLong(GrouperUtil.dateLongValue(this.modifierTime));
-    stem.setNameDb(this.name);
-    stem.setParentUuid(this.parentStem);
-    stem.setUuid(this.uuid);
+    group.setAlternateNameDb(this.alternateName);
+    group.setContextId(this.contextId);
+    group.setCreateTimeLong(GrouperUtil.dateLongValue(this.createTime));
+    group.setCreatorUuid(this.creatorId);
+    group.setDescriptionDb(this.description);
+    group.setDisplayExtensionDb(this.displayExtension);
+    group.setDisplayNameDb(this.displayName);
+    group.setExtensionDb(this.extension);
+    group.setHibernateVersionNumber(this.hibernateVersionNumber);
+    group.setLastMembershipChangeDb(this.lastMembershipChange);
+    group.setModifierUuid(this.modifierId);
+    group.setModifyTimeLong(GrouperUtil.dateLongValue(this.modifierTime));
+    group.setNameDb(this.name);
+    group.setParentUuid(this.parentStem);
+    group.setTypeOfGroupDb(this.typeOfGroup);
+    group.setUuid(this.uuid);
     
-    return stem;
+    return group;
   }
 
   /**
@@ -391,7 +433,7 @@ public class XmlExportStem {
    * 
    * @param writer
    */
-  public static void exportStems(final Writer writer) {
+  public static void exportGroups(final Writer writer) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -402,11 +444,11 @@ public class XmlExportStem {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theStem from Stem as theStem order by theStem.nameDb");
+            "select theGroup from Group as theGroup order by theGroup.nameDb");
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {
-          writer.write("  <stems>\n");
+          writer.write("  <groups>\n");
   
           //this is an efficient low-memory way to iterate through a resultset
           ScrollableResults results = null;
@@ -414,10 +456,10 @@ public class XmlExportStem {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              Stem stem = (Stem)object;
-              XmlExportStem xmlExportStem = new XmlExportStem(grouperVersion, stem);
+              Group group = (Group)object;
+              XmlExportGroup xmlExportGroup = new XmlExportGroup(grouperVersion, group);
               writer.write("    ");
-              xmlExportStem.toXml(grouperVersion, writer);
+              xmlExportGroup.toXml(grouperVersion, writer);
               writer.write("\n");
             }
           } finally {
@@ -425,9 +467,9 @@ public class XmlExportStem {
           }
           
           //end the members element 
-          writer.write("  </stems>\n");
+          writer.write("  </groups>\n");
         } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming stems", ioe);
+          throw new RuntimeException("Problem with streaming groups", ioe);
         }
         return null;
       }
@@ -435,18 +477,18 @@ public class XmlExportStem {
   }
 
   /**
-   * take a reader (e.g. dom reader) and convert to an xml export stem
+   * take a reader (e.g. dom reader) and convert to an xml export group
    * @param exportVersion
    * @param hierarchicalStreamReader
    * @return the bean
    */
-  public static XmlExportStem fromXml(@SuppressWarnings("unused") GrouperVersion exportVersion, 
+  public static XmlExportGroup fromXml(@SuppressWarnings("unused") GrouperVersion exportVersion, 
       HierarchicalStreamReader hierarchicalStreamReader) {
     XStream xStream = XmlExportUtils.xstream();
     
-    XmlExportStem xmlExportStem = (XmlExportStem)xStream.unmarshal(hierarchicalStreamReader);
+    XmlExportGroup xmlExportGroup = (XmlExportGroup)xStream.unmarshal(hierarchicalStreamReader);
   
-    return xmlExportStem;
+    return xmlExportGroup;
   }
 
   /**
@@ -455,13 +497,13 @@ public class XmlExportStem {
    * @param xml
    * @return the object from xml
    */
-  public static XmlExportStem fromXml(
+  public static XmlExportGroup fromXml(
       @SuppressWarnings("unused") GrouperVersion exportVersion, String xml) {
     XStream xStream = XmlExportUtils.xstream();
     
-    XmlExportStem xmlExportStem = (XmlExportStem)xStream.fromXML(xml);
+    XmlExportGroup xmlExportGroup = (XmlExportGroup)xStream.fromXML(xml);
   
-    return xmlExportStem;
+    return xmlExportGroup;
   }
 
 }

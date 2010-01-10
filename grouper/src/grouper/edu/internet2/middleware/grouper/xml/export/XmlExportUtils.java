@@ -37,6 +37,8 @@ public class XmlExportUtils {
     }); 
     
     registerClass(xStream, XmlExportMember.class);
+    registerClass(xStream, XmlExportStem.class);
+    registerClass(xStream, XmlExportGroup.class);
     return xStream;
   }
 

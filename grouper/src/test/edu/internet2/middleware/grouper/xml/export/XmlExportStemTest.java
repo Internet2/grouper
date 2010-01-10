@@ -97,7 +97,7 @@ public class XmlExportStemTest extends GrouperTest {
     assertEquals("displayName", xmlExportStem.getDisplayName());
     assertEquals("extension", xmlExportStem.getExtension());
     assertEquals(3L, xmlExportStem.getHibernateVersionNumber());
-    assertEquals(4L, xmlExportStem.getLastMembershipChange());
+    assertEquals(new Long(4L), xmlExportStem.getLastMembershipChange());
     assertEquals("modifierId", xmlExportStem.getModifierId());
     assertEquals("modifierTime", xmlExportStem.getModifierTime());
     assertEquals("name", xmlExportStem.getName());

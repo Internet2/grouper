@@ -104,16 +104,16 @@ public class XmlUserAuditExport {
                 Session session = hibernateSession.getSession();
   
                 xmlExportFileWriter.write("<userAudits version=\"" + GrouperVersion.GROUPER_VERSION + "\">\n");
-                
+
                 xmlExportFileWriter.write("<xmlMembers>\n");
-  
+
                 // map of member uuid to XmlMember
                 Map<String, XmlMember> allMembersInRegistryNotExported = XmlMember.retrieveAllMembers(session);
-                
+
                 if (LOG.isInfoEnabled()) {
                   LOG.info("userAudit export: Read in " + allMembersInRegistryNotExported.size() + " members into cache");
                 }
-  
+
                 //get the audit types (note, it is assumed there are no members here)
                 {
                   xmlAuditFileWriter.write("<xmlAuditTypes>\n");

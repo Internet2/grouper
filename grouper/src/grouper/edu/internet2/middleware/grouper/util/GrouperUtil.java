@@ -9142,5 +9142,45 @@ public class GrouperUtil {
         + " was returned when only one was expected. (size:" + size +")" );
   }
   
+
+  /** array for converting HTML to string */
+  private static final String[] XML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
+
+  /** array for converting HTML to string */
+  private static final String[] XML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input, boolean isEscape) {
+    if (isEscape) {
+      return replace(input, XML_SEARCH_NO_SINGLE, XML_REPLACE_NO_SINGLE);
+    }
+    return replace(input, XML_REPLACE_NO_SINGLE, XML_SEARCH_NO_SINGLE);
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param attributeName
+   * @param attributeValue
+   */
+  public static void xmlAttribute(Writer writer, String attributeName, String attributeValue) {
+    try {
+      writer.write(" ");
+      writer.write(attributeName);
+      writer.write("=\"");
+      String escapedValue = xmlEscape(attributeValue, true);
+      writer.write(escapedValue);
+      writer.write("\"");
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
   
 }

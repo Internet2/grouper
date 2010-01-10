@@ -4,14 +4,26 @@
  */
 package edu.internet2.middleware.grouper.xml.export;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+
+import org.hibernate.Query;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 
@@ -20,6 +32,53 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
  */
 public class XmlExportMember {
 
+  /**
+   * 
+   * @param writer
+   */
+  public static void exportMembers(final Writer writer) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+
+        //select all members in order
+        Query query = session.createQuery(
+            "select theMember from Member as theMember order by theMember.subjectSourceIdDb, theMember.subjectIdDb");
+
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        try {
+          writer.write("  <members>\n");
+
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              Object object = results.get(0);
+              Member member = (Member)object;
+              XmlExportMember xmlExportMember = new XmlExportMember(grouperVersion, member);
+              writer.write("    ");
+              xmlExportMember.toXml(grouperVersion, writer);
+              writer.write("\n");
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+          //end the members element 
+          writer.write("  </members>\n");
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming members", ioe);
+        }
+        return null;
+      }
+    });
+  }
+  
   /**
    * 
    */
