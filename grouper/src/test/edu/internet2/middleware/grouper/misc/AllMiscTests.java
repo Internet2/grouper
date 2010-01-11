@@ -13,7 +13,7 @@ public class AllMiscTests {
 
   /**
    * 
-   * @return the test
+   * @return the test object
    */
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.misc");
