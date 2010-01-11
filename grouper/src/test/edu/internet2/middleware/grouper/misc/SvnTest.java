@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouper.misc;
 
 
 /**
- * test
+ * test 2
  */
 public class SvnTest {
 
