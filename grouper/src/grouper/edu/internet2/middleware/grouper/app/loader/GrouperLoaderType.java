@@ -927,6 +927,7 @@ public enum GrouperLoaderType {
             //if there is a colon, that is a group, it doesnt exist, so create it
             GrouperSession grouperSession = GrouperSession.staticGrouperSession();
             Group group = new GroupSave(grouperSession).assignName(subjectIdOrIdentifier)
+              .assignCreateParentStemsIfNotExist(true)  
               .assignGroupNameToEdit(subjectIdOrIdentifier)
               .assignSaveMode(SaveMode.INSERT).saveUnchecked();
             subject = group.toSubject();
