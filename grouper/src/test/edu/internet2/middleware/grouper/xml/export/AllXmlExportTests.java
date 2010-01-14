@@ -23,6 +23,7 @@ public class AllXmlExportTests {
     suite.addTestSuite(XmlExportFieldTest.class);
     suite.addTestSuite(XmlExportGroupTest.class);
     suite.addTestSuite(XmlExportCompositeTest.class);
+    suite.addTestSuite(XmlExportMembershipTest.class);
     suite.addTestSuite(XmlExportGroupTypeTest.class);
     suite.addTestSuite(XmlExportGroupTypeTupleTest.class);
     suite.addTestSuite(XmlExportMemberTest.class);

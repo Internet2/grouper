@@ -1743,22 +1743,27 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @since   1.2.0
    */
   public String toString() {
-    return new ToStringBuilder(this)
-      .append( "createTime",  this.getCreateTimeLong()  )
-      .append( "creatorUuid", this.getCreatorUuid() )
-      .append( "depth",       this.getDepth()       )
-      .append( "listName",    this.getListName()    )
-      .append( "listType",    this.getListType()    )
-      .append( "memberUuid",  this.getMemberUuid()  )
-      .append( "groupId",   this.getOwnerGroupId()   )
-      .append( "attributeDefId",   this.getOwnerAttrDefId()   )
-      .append( "stemId",   this.getOwnerStemId()   )
-      .append( "type",        this.getType()        )
-      .append( "uuid",        this.getUuid()        )
-      .append( "parentUuid",  this.getParentUuid()  )
-      .append( "viaGroupId",     this.getViaGroupId()     )
-      .append( "viaCompositeId",     this.getViaCompositeId()     )
-      .toString();
+    try {
+      return new ToStringBuilder(this)
+        .append( "createTime",  this.getCreateTimeLong()  )
+        .append( "creatorUuid", this.getCreatorUuid() )
+        .append( "depth",       this.getDepth()       )
+        .append( "listName",    this.getListName()    )
+        .append( "listType",    this.getListType()    )
+        .append( "memberUuid",  this.getMemberUuid()  )
+        .append( "groupId",   this.getOwnerGroupId()   )
+        .append( "attributeDefId",   this.getOwnerAttrDefId()   )
+        .append( "stemId",   this.getOwnerStemId()   )
+        .append( "type",        this.getType()        )
+        .append( "uuid",        this.getUuid()        )
+        .append( "parentUuid",  this.getParentUuid()  )
+        .append( "viaGroupId",     this.getViaGroupId()     )
+        .append( "viaCompositeId",     this.getViaCompositeId()     )
+        .toString();
+    } catch (Exception e) {
+      LOG.error("Error printing membership: " + this.uuid, e);
+      return "Membership: " + this.uuid + " (error converting to string)";
+    }
   } // public String toString()
 
   /**
@@ -2378,15 +2383,29 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @return the owner id
    */
   public String getOwnerId() {
-    if (this.ownerAttrDefId != null) {
+    
+    boolean hasOwnerAttrDefId = this.ownerAttrDefId != null;
+    boolean hasOwnerGroupId = this.ownerGroupId != null;
+    boolean hasOwnerStemId = this.ownerStemId != null;
+    
+    int owners = 0;
+    owners += hasOwnerAttrDefId ? 1 : 0;
+    owners += hasOwnerGroupId ? 1 : 0;
+    owners += hasOwnerStemId ? 1 : 0;
+
+    if (owners > 1) {
+      throw new RuntimeException("This membership has more than one owner: " + this);
+    }
+    
+    if (hasOwnerAttrDefId) {
       return this.ownerAttrDefId;
     }
     
-    if (this.ownerGroupId != null) {
+    if (hasOwnerGroupId) {
       return this.ownerGroupId;
     }
     
-    if (this.ownerStemId != null) {
+    if (hasOwnerStemId) {
       return this.ownerStemId;
     }
     

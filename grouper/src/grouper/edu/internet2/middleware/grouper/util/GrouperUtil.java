@@ -5023,6 +5023,18 @@ public class GrouperUtil {
   }
 
   /**
+   * date object to a string: 
+   * @param theDate
+   * @return the long or null if the date was null or blank
+   */
+  public static String dateStringValue(Long theDate) {
+    if (theDate == null) {
+      return null;
+    }
+    return dateStringValue(new Date(theDate));
+  }
+
+  /**
    * <pre>
    * Convert an object to a java.util.Date.  allows, dates, null, blank, 
    * yyyymmdd or yyyymmdd hh24:mm:ss
