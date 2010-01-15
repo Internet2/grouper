@@ -27,7 +27,9 @@ public class AllXmlExportTests {
     suite.addTestSuite(XmlExportGroupTypeTest.class);
     suite.addTestSuite(XmlExportGroupTypeTupleTest.class);
     suite.addTestSuite(XmlExportMemberTest.class);
+    suite.addTestSuite(XmlExportAttributeDefTest.class);
     suite.addTestSuite(XmlExportAttributeTest.class);
+    suite.addTestSuite(XmlExportAttributeDefNameTest.class);
     //$JUnit-END$
     return suite;
   }

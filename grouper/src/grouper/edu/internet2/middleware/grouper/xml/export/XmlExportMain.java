@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -84,6 +83,8 @@ public class XmlExportMain {
       XmlExportAttributeDef.exportAttributeDefs(writer);
 
       XmlExportMembership.exportMemberships(writer);
+
+      XmlExportAttributeDefName.exportAttributeDefNames(writer);
 
       writer.write("</grouperExport>");
       writer.flush();
