@@ -19,17 +19,18 @@ public class AllXmlExportTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.xml.export");
     //$JUnit-BEGIN$
-    suite.addTestSuite(XmlExportStemTest.class);
     suite.addTestSuite(XmlExportFieldTest.class);
+    suite.addTestSuite(XmlExportStemTest.class);
     suite.addTestSuite(XmlExportGroupTest.class);
-    suite.addTestSuite(XmlExportCompositeTest.class);
     suite.addTestSuite(XmlExportMembershipTest.class);
     suite.addTestSuite(XmlExportGroupTypeTest.class);
+    suite.addTestSuite(XmlExportAttributeDefTest.class);
+    suite.addTestSuite(XmlExportAttributeDefNameTest.class);
+    suite.addTestSuite(XmlExportRoleSetTest.class);
+    suite.addTestSuite(XmlExportCompositeTest.class);
     suite.addTestSuite(XmlExportGroupTypeTupleTest.class);
     suite.addTestSuite(XmlExportMemberTest.class);
-    suite.addTestSuite(XmlExportAttributeDefTest.class);
     suite.addTestSuite(XmlExportAttributeTest.class);
-    suite.addTestSuite(XmlExportAttributeDefNameTest.class);
     //$JUnit-END$
     return suite;
   }

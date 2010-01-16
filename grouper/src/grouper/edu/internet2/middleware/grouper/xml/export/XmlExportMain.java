@@ -25,24 +25,25 @@ public class XmlExportMain {
   public static void main(String[] args) throws Exception {
     
     //test this with GSH
-    //gsh 0% addGroup("etc:a", "etc:a");
-    //gsh 1% addGroup("etc", "a", "a");
-    //gsh 2% addGroup("etc", "b", "b");
-    //gsh 3% addGroup("etc", "c", "c");
-    //gsh 5% addComposite("etc:a", CompositeType.INTERSECTION, "etc:b", "etc:c");
-    //gsh 6% typeAdd("test");
-    //gsh 8% typeAddAttr("test", "attr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
-    //gsh 9% groupAddType("etc:b", "test");
-    //gsh 10% grouperSession = GrouperSession.startRootSession();
-    //edu.internet2.middleware.grouper.GrouperSession: 56bd9b456d08410590f56582df8b84ee,'GrouperSystem','application'
-    //gsh 11% groupB = GroupFinder.findByName(grouperSession, "etc:b");
-    //group: name='etc:b' displayName='etc:b' uuid='6b94cf5a8cc44dfea7f6e4450be133f8'
-    //gsh 12% groupB.setAttribute("attr", "value");
-    //gsh 13% groupB.store();
-    //gsh 14% stem = StemFinder.findByName(grouperSession, "etc", true);
-    //gsh 15% studentsAttrDef = stem.addChildAttributeDef("students", AttributeDefType.attr);
-    //gsh 16%
-
+    /*
+    addGroup("etc:a", "etc:a");
+    addGroup("etc", "a", "a");
+    addGroup("etc", "b", "b");
+    addGroup("etc", "c", "c");
+    addComposite("etc:a", CompositeType.INTERSECTION, "etc:b", "etc:c");
+    typeAdd("test");
+    typeAddAttr("test", "attr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+    groupAddType("etc:b", "test");
+    grouperSession = GrouperSession.startRootSession();
+    groupB = GroupFinder.findByName(grouperSession, "etc:b");
+    groupB.setAttribute("attr", "value");
+    groupB.store();
+    stem = StemFinder.findByName(grouperSession, "etc", true);
+    studentsAttrDef = stem.addChildAttributeDef("students", AttributeDefType.attr);
+    userSharerRole = stem.addChildRole("userSharer", "userSharer");
+    userReceiverRole = stem.addChildRole("userReceiver", "userReceiver");
+    userSharerRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(userReceiverRole);
+    */
     
     StringWriter stringWriter = new StringWriter();
     XmlExportMain xmlExportMain = new XmlExportMain();
@@ -85,6 +86,8 @@ public class XmlExportMain {
       XmlExportMembership.exportMemberships(writer);
 
       XmlExportAttributeDefName.exportAttributeDefNames(writer);
+
+      XmlExportRoleSet.exportRoleSets(writer);
 
       writer.write("</grouperExport>");
       writer.flush();

@@ -47,6 +47,7 @@ public class XmlExportUtils {
     registerClass(xStream, XmlExportMember.class);
     registerClass(xStream, XmlExportMembership.class);
     registerClass(xStream, XmlExportStem.class);
+    registerClass(xStream, XmlExportRoleSet.class);
     return xStream;
   }
 
