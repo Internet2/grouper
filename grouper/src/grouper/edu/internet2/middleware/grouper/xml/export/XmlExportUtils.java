@@ -37,6 +37,7 @@ public class XmlExportUtils {
     }); 
 
     registerClass(xStream, XmlExportAttribute.class);
+    registerClass(xStream, XmlExportAttributeAssignAction.class);
     registerClass(xStream, XmlExportAttributeDef.class);
     registerClass(xStream, XmlExportAttributeDefName.class);
     registerClass(xStream, XmlExportComposite.class);

@@ -27,6 +27,7 @@ public class AllXmlExportTests {
     suite.addTestSuite(XmlExportAttributeDefTest.class);
     suite.addTestSuite(XmlExportAttributeDefNameTest.class);
     suite.addTestSuite(XmlExportRoleSetTest.class);
+    suite.addTestSuite(XmlExportAttributeAssignActionTest.class);
     suite.addTestSuite(XmlExportCompositeTest.class);
     suite.addTestSuite(XmlExportGroupTypeTupleTest.class);
     suite.addTestSuite(XmlExportMemberTest.class);

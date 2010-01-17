@@ -43,6 +43,7 @@ public class XmlExportMain {
     userSharerRole = stem.addChildRole("userSharer", "userSharer");
     userReceiverRole = stem.addChildRole("userReceiver", "userReceiver");
     userSharerRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(userReceiverRole);
+    studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction");
     */
     
     StringWriter stringWriter = new StringWriter();
@@ -88,6 +89,8 @@ public class XmlExportMain {
       XmlExportAttributeDefName.exportAttributeDefNames(writer);
 
       XmlExportRoleSet.exportRoleSets(writer);
+
+      XmlExportAttributeAssignAction.exportAttributeAssignActions(writer);
 
       writer.write("</grouperExport>");
       writer.flush();
