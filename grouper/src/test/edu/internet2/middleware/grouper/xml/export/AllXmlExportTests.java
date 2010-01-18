@@ -29,12 +29,14 @@ public class AllXmlExportTests {
     suite.addTestSuite(XmlExportMainTest.class);
     suite.addTestSuite(XmlExportAttributeDefTest.class);
     suite.addTestSuite(XmlExportAttributeDefNameTest.class);
+    suite.addTestSuite(XmlExportAttributeDefNameSetTest.class);
     suite.addTestSuite(XmlExportRoleSetTest.class);
     suite.addTestSuite(XmlExportAttributeAssignActionTest.class);
     suite.addTestSuite(XmlExportCompositeTest.class);
     suite.addTestSuite(XmlExportAttributeAssignTest.class);
     suite.addTestSuite(XmlExportGroupTypeTupleTest.class);
     suite.addTestSuite(XmlExportMemberTest.class);
+    suite.addTestSuite(XmlExportAttributeDefScopeTest.class);
     suite.addTestSuite(XmlExportAttributeTest.class);
     //$JUnit-END$
     return suite;

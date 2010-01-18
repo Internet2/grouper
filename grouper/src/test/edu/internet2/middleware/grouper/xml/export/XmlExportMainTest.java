@@ -15,12 +15,15 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefScope;
+import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -122,6 +125,8 @@ public class XmlExportMainTest extends GrouperTest {
     AttributeDefName studentsAttrName = stem.addChildAttributeDefName(studentsAttrDef, "studentsName", "studentsName");
     AttributeDefName studentsAttrName2 = stem.addChildAttributeDefName(studentsAttrDef2, "studentsName2", "studentsName2");
 
+    studentsAttrName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(studentsAttrName2);
+    
     AttributeAssignResult attributeAssignResult = groupB.getAttributeDelegate().assignAttribute(studentsAttrName);
     attributeAssignResult.getAttributeAssign().getAttributeDelegate().assignAttribute(studentsAttrName2);
 
@@ -130,6 +135,13 @@ public class XmlExportMainTest extends GrouperTest {
     attributeAssignValue.setAttributeAssignId(attributeAssignResult.getAttributeAssign().getId());
     attributeAssignValue.setValueString("string");
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValue);
+    
+    AttributeDefScope attributeDefScope = new AttributeDefScope();
+    attributeDefScope.setId(GrouperUuid.getUuid());
+    attributeDefScope.setAttributeDefScopeType(AttributeDefScopeType.attributeDefNameIdAssigned);
+    attributeDefScope.setAttributeDefId(studentsAttrDef.getId());
+    attributeDefScope.setScopeString("whatever");
+    attributeDefScope.saveOrUpdate();
     
     StringWriter stringWriter = new StringWriter();
     XmlExportMain xmlExportMain = new XmlExportMain();
@@ -187,6 +199,12 @@ public class XmlExportMainTest extends GrouperTest {
 
     assertTrue(xml, xml.contains("<attributeAssignValues>"));
     assertTrue(xml, xml.contains("<XmlExportAttributeAssignValue>"));
+        
+    assertTrue(xml, xml.contains("<attributeDefNameSets>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefNameSet>"));
+        
+    assertTrue(xml, xml.contains("<attributeDefScopes>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
         
   }
 }

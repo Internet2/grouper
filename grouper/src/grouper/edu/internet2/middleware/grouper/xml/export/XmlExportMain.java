@@ -119,6 +119,10 @@ public class XmlExportMain {
 
       XmlExportAttributeAssignValue.exportAttributeAssignValues(writer);
 
+      XmlExportAttributeDefNameSet.exportAttributeDefNameSets(writer);
+
+      XmlExportAttributeDefScope.exportAttributeDefScopes(writer);
+
       writer.write("</grouperExport>");
       writer.flush();
     } catch (IOException ioe) {
