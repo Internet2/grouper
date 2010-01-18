@@ -3392,20 +3392,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   }
 
 
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyUpdatePropertiesToExisting(java.lang.Object)
-   */
-  public void xmlCopyUpdatePropertiesToExisting(Stem existingRecord) {
-    existingRecord.setContextId(this.getContextId());
-    existingRecord.setCreateTimeLong(this.getCreateTimeLong());
-    existingRecord.setCreatorUuid(this.getCreatorUuid());
-    existingRecord.setHibernateVersionNumber(this.getHibernateVersionNumber());
-    existingRecord.setLastMembershipChangeDb(this.getLastMembershipChangeDb());
-    existingRecord.setModifierUuid(this.getModifierUuid());
-    existingRecord.setModifyTimeLong(this.getModifyTimeLong());
-  }
-
-
 
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
