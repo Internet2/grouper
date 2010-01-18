@@ -93,7 +93,7 @@ public class XmlExportAttributeTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToAttribute() {
     Attribute attribute = new Attribute();
     attribute.setContextId("contextId");
     attribute.setFieldId("fieldId");

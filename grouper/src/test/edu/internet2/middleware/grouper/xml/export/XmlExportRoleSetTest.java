@@ -102,7 +102,7 @@ public class XmlExportRoleSetTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToRoleSet() {
     RoleSet roleSet = new RoleSet();
     roleSet.setContextId("contextId");
     roleSet.setCreatedOnDb(new Long(4L));

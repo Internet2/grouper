@@ -97,7 +97,7 @@ public class XmlExportGroupTypeTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToGroupType() {
     GroupType groupType = new GroupType();
     groupType.setIsAssignable(true);
     groupType.setContextId("contextId");

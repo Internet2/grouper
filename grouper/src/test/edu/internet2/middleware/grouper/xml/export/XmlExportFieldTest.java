@@ -99,7 +99,7 @@ public class XmlExportFieldTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToField() {
     Field field = new Field();
     field.setContextId("contextId");
     field.setGroupTypeUuid("groupTypeUuid");

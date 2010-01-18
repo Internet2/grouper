@@ -95,7 +95,7 @@ public class XmlExportAttributeAssignActionTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToAttributeAssignAction() {
     AttributeAssignAction attributeAssignAction = new AttributeAssignAction();
     attributeAssignAction.setAttributeDefId("attributeDefId");
     attributeAssignAction.setContextId("contextId");

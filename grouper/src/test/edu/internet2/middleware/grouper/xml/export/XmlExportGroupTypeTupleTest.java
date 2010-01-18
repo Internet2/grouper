@@ -91,7 +91,7 @@ public class XmlExportGroupTypeTupleTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToGroupTypeTuple() {
     GroupTypeTuple groupTypeTuple = new GroupTypeTuple();
     groupTypeTuple.setContextId("contextId");
     groupTypeTuple.setGroupUuid("groupId");

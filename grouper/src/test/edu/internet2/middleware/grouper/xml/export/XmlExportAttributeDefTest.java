@@ -137,7 +137,7 @@ public class XmlExportAttributeDefTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToAttributeDef() {
     AttributeDef attributeDef = new AttributeDef();
     attributeDef.setAssignToAttributeDef(true);
     attributeDef.setAssignToAttributeDefAssn(true);

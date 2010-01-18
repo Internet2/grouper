@@ -26,7 +26,6 @@ public class XmlExportMain {
     
     //test this with GSH
     /*
-    addGroup("etc:a", "etc:a");
     addGroup("etc", "a", "a");
     addGroup("etc", "b", "b");
     addGroup("etc", "c", "c");
@@ -43,7 +42,29 @@ public class XmlExportMain {
     userSharerRole = stem.addChildRole("userSharer", "userSharer");
     userReceiverRole = stem.addChildRole("userReceiver", "userReceiver");
     userSharerRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(userReceiverRole);
-    studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction");
+    action = studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction");
+    action2 = studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction2");
+    action.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(action2);
+
+    studentsAttrDef.setAssignToGroup(true);
+    studentsAttrDef.store();
+
+    studentsAttrDef2 = stem.addChildAttributeDef("students2", AttributeDefType.attr);
+    studentsAttrDef2.setAssignToGroupAssn(true);
+    studentsAttrDef2.store();
+
+    
+    studentsAttrName = stem.addChildAttributeDefName(studentsAttrDef, "studentsName", "studentsName");
+    studentsAttrName2 = stem.addChildAttributeDefName(studentsAttrDef2, "studentsName2", "studentsName2");
+
+    attributeAssignResult = groupB.getAttributeDelegate().assignAttribute(studentsAttrName);
+    attributeAssignResult.getAttributeAssign().getAttributeDelegate().assignAttribute(studentsAttrName2);
+
+    AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+    attributeAssignValue.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid());
+    attributeAssignValue.setAttributeAssignId(attributeAssignResult.getAttributeAssign().getId());
+    attributeAssignValue.setValueString("string");
+    HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValue);
     */
     
     StringWriter stringWriter = new StringWriter();
@@ -91,6 +112,12 @@ public class XmlExportMain {
       XmlExportRoleSet.exportRoleSets(writer);
 
       XmlExportAttributeAssignAction.exportAttributeAssignActions(writer);
+
+      XmlExportAttributeAssignActionSet.exportAttributeAssignActionSets(writer);
+
+      XmlExportAttributeAssign.exportAttributeAssigns(writer);
+
+      XmlExportAttributeAssignValue.exportAttributeAssignValues(writer);
 
       writer.write("</grouperExport>");
       writer.flush();

@@ -99,7 +99,7 @@ public class XmlExportCompositeTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToComposite() {
     Composite composite = new Composite();
     composite.setContextId("contextId");
     composite.setCreateTime(3L);

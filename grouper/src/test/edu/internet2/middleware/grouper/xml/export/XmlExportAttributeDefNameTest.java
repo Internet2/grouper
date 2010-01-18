@@ -105,7 +105,7 @@ public class XmlExportAttributeDefNameTest extends GrouperTest {
   /**
    * 
    */
-  public void testConvertToGroup() {
+  public void testConvertToAttributeDefName() {
     AttributeDefName attributeDefName = new AttributeDefName();
     attributeDefName.setAttributeDefId("attributeDefId");
     attributeDefName.setContextId("contextId");
