@@ -108,6 +108,7 @@ import edu.internet2.middleware.grouper.validator.DeleteStemValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -119,7 +120,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * @version $Id: Stem.java,v 1.209 2009-12-15 06:47:06 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable<Stem> {
+public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem> {
 
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";
@@ -3313,6 +3314,130 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       
     });
       
+  }
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(Stem other) {
+    
+    if (!StringUtils.equals(this.description, other.description)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.displayExtension, other.displayExtension)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.displayName, other.displayName)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.extension, other.extension)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.name, other.name)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.parentUUID, other.parentUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.uuid, other.uuid)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(Stem other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (this.createTime != other.createTime) {
+      return true;
+    }
+    if (!StringUtils.equals(this.creatorUUID, other.creatorUUID)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.lastMembershipChangeDb, other.lastMembershipChangeDb)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.modifierUUID, other.modifierUUID)) {
+      return true;
+    }
+    if (this.modifyTime != other.modifyTime) {
+      return true;
+    }
+    return false;
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(Stem existingRecord) {
+    existingRecord.setDescriptionDb(this.getDescriptionDb());
+    existingRecord.setDisplayExtensionDb(this.getDisplayExtensionDb());
+    existingRecord.setDisplayNameDb(this.getDisplayNameDb());
+    existingRecord.setExtensionDb(this.getExtensionDb());
+    existingRecord.setNameDb(this.getNameDb());
+    existingRecord.setParentUuid(this.getParentUuid());
+    existingRecord.setUuid(this.getUuid());
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyUpdatePropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyUpdatePropertiesToExisting(Stem existingRecord) {
+    existingRecord.setContextId(this.getContextId());
+    existingRecord.setCreateTimeLong(this.getCreateTimeLong());
+    existingRecord.setCreatorUuid(this.getCreatorUuid());
+    existingRecord.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    existingRecord.setLastMembershipChangeDb(this.getLastMembershipChangeDb());
+    existingRecord.setModifierUuid(this.getModifierUuid());
+    existingRecord.setModifyTimeLong(this.getModifyTimeLong());
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public Stem xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getStem().findByUuidOrName(this.uuid, this.name, false);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(Stem existingRecord) {
+
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      Stem parent = this.getParentStem();
+      existingRecord = parent.internal_addChildStem(this.extension, this.displayExtension, this.uuid);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.store();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    
+    GrouperDAOFactory.getFactory().getStem().saveUpdateProperties(this);
+    
   }
 
 

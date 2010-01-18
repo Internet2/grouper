@@ -76,7 +76,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testCache"));
+    TestRunner.run(new TestStem("testXmlDifferentUpdateProperties"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -1752,6 +1752,343 @@ public class TestStem extends GrouperTest {
     
   }
   
+  /**
+   * make an example stem for testing
+   * @return an example stem
+   */
+  public static Stem exampleStem() {
+    Stem stem = new Stem();
+    stem.setContextId("contextId");
+    stem.setCreateTimeLong(5L);
+    stem.setCreatorUuid("creatorId");
+    stem.setDescription("description");
+    stem.setDisplayExtensionDb("displayExtension");
+    stem.setDisplayNameDb("displayName");
+    stem.setExtensionDb("extension");
+    stem.setHibernateVersionNumber(3L);
+    stem.setLastMembershipChangeDb(4L);
+    stem.setModifierUuid("modifierId");
+    stem.setModifyTimeLong(6L);
+    stem.setName("name");
+    stem.setParentUuid("parentUuid");
+    stem.setUuid("uuid");
+    
+    return stem;
+  }
+  
+  /**
+   * make an example stem for testing
+   * @return an example stem
+   */
+  public static Stem exampleStemDb() {
+    Stem stem = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignStemNameToEdit("stemTest").assignName("stemTest")
+      .assignDescription("description").save();
+    return stem;
+  }
 
+  
+  /**
+   * make an example stem for testing
+   * @return an example stem
+   */
+  public static Stem exampleRetrieveStemDb() {
+    Stem stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), "stemTest", true);
+    return stem;
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    Stem stemOriginal = new StemSave(GrouperSession.staticGrouperSession()).assignStemNameToEdit("stemInsert").assignName("stemInsert").save();
+    Stem stemCopy = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
+    Stem stemCopy2 = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
+    stemCopy.delete();
+    
+    //lets insert the original
+    stemCopy2.xmlSaveBusinessProperties(null);
+    stemCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    stemCopy = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
+    
+    assertFalse(stemCopy == stemOriginal);
+    assertFalse(stemCopy.xmlDifferentBusinessProperties(stemOriginal));
+    assertFalse(stemCopy.xmlDifferentUpdateProperties(stemOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem stem = null;
+    Stem exampleStem = null;
+
+    //lets do an insert
+    
+    
+    //TEST UPDATE PROPERTIES
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+      
+      stem.setContextId("abc");
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertTrue(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setContextId(exampleStem.getContextId());
+      stem.xmlSaveUpdateProperties();
+
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+      
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setCreateTimeLong(99);
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertTrue(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setCreateTimeLong(exampleStem.getCreateTimeLong());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setCreatorUuid("abc");
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertTrue(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setCreatorUuid(exampleStem.getCreatorUuid());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+      
+      stem.setModifierUuid("abc");
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertTrue(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setModifierUuid(exampleStem.getModifierUuid());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setModifyTimeLong(99);
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertTrue(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setModifyTimeLong(exampleStem.getModifyTimeLong());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+    }
+
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setHibernateVersionNumber(99L);
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertTrue(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setHibernateVersionNumber(exampleStem.getHibernateVersionNumber());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setDescriptionDb("abc");
+      
+      assertTrue(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setDescriptionDb(exampleStem.getDescriptionDb());
+      stem.xmlSaveBusinessProperties(exampleStem.clone());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setDisplayExtensionDb("abc");
+      
+      assertTrue(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setDisplayExtensionDb(exampleStem.getDisplayExtensionDb());
+      stem.xmlSaveBusinessProperties(exampleStem.clone());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setDisplayNameDb("abc");
+      
+      assertTrue(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setDisplayNameDb(exampleStem.getDisplayNameDb());
+      stem.xmlSaveBusinessProperties(exampleStem.clone());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setExtensionDb("abc");
+      
+      assertTrue(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setExtensionDb(exampleStem.getExtensionDb());
+      stem.xmlSaveBusinessProperties(exampleStem.clone());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setNameDb("abc");
+      
+      assertTrue(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setNameDb(exampleStem.getNameDb());
+      stem.xmlSaveBusinessProperties(exampleStem.clone());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    
+    }
+    
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setParentUuid("abc");
+      
+      assertTrue(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setParentUuid(exampleStem.getParentUuid());
+      stem.xmlSaveBusinessProperties(exampleStem.clone());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    
+    }
+
+    {
+      stem = exampleStemDb();
+      exampleStem = stem.clone();
+
+      stem.setUuid("abc");
+      
+      assertTrue(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+
+      stem.setUuid(exampleStem.getUuid());
+      stem.xmlSaveBusinessProperties(exampleStem.clone());
+      stem.xmlSaveUpdateProperties();
+      
+      stem = exampleRetrieveStemDb();
+      
+      assertFalse(stem.xmlDifferentBusinessProperties(exampleStem));
+      assertFalse(stem.xmlDifferentUpdateProperties(exampleStem));
+    
+    }
+  }
+  
 }
 

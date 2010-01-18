@@ -1181,6 +1181,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @param name
    * @param exceptionIfNull
+   * @param queryOptions 
    * @return stem
    * @throws GrouperDAOException 
    * @throws StemNotFoundException 
@@ -1237,6 +1238,58 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         + uuid + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean)
+   */
+  public Stem findByUuidOrName(String uuid, String name, boolean exceptionIfNull)
+      throws GrouperDAOException, StemNotFoundException {
+    try {
+      Stem stemDto = HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where ns.uuid = :uuid or ns.nameDb = :name")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("uuid", uuid)
+        .setString("name", name)
+        .uniqueResult(Stem.class);
+      if (stemDto == null && exceptionIfNull) {
+        throw new StemNotFoundException("Can't find stem by uuid: '" + uuid + "' or name '" + name + "'");
+      }
+      return stemDto;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find stem by uuid: '" 
+        + uuid + "' or name '" + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#saveUpdateProperties(edu.internet2.middleware.grouper.Stem)
+   */
+  public void saveUpdateProperties(Stem stem) {
+    
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update Stem " +
+    		"set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+    		"creatorUuid = :theCreatorUuid, " +
+    		"createTimeLong = :theCreateTimeLong, " +
+    		"modifierUuid = :theModifierUuid, " +
+    		"modifyTimeLong = :theModifyTimeLong, " +
+    		"contextId = :theContextId, " +
+    		"lastMembershipChangeDb = :theLastMembershipChangeDb " +
+    		"where uuid = :theUuid")
+    		.setLong("theHibernateVersionNumber", stem.getHibernateVersionNumber())
+        .setString("theContextId", stem.getContextId())
+    		.setString("theCreatorUuid", stem.getCreatorUuid())
+    		.setLong("theCreateTimeLong", stem.getCreateTimeLong())
+    		.setString("theModifierUuid", stem.getModifierUuid())
+    		.setLong("theModifyTimeLong", stem.getModifyTimeLong())
+    		.setString("theContextId", stem.getContextId())
+    		.setString("theUuid", stem.getUuid())
+    		.setLong("theLastMembershipChangeDb", stem.getLastMembershipChangeDb()).executeUpdate();
   }
 } 
 

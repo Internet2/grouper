@@ -197,7 +197,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * @param value is long, primitive so not null
    * @return this object for chaining
    */
-  public ByHql setLong(String bindVarName, long value) {
+  public ByHql setLong(String bindVarName, Long value) {
     this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Long.class));
     return this;
   }
@@ -208,7 +208,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * @param value is long, primitive so not null
    * @return this object for chaining
    */
-  public ByHql setInteger(String bindVarName, int value) {
+  public ByHql setInteger(String bindVarName, Integer value) {
     this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Integer.class));
     return this;
   }
@@ -289,7 +289,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * @return the list or the empty list if not found (only null if not retrieving results)
    * @throws GrouperDAOException
    */
-  public <T> List<T> list(Class<T> returnType) {
+  public <T> List<T> list(@SuppressWarnings("unused") Class<T> returnType) {
     GrouperContext.incrementQueryCount();
 
     HibernateSession hibernateSession = this.getHibernateSession();
@@ -477,9 +477,17 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
         } else if (Timestamp.class.equals(hibernateParam.getType())) {
           query.setTimestamp(hibernateParam.getName(), (Date)hibernateParam.getValue());
         } else if (Long.class.equals(hibernateParam.getType())) {
-          query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
+          if (hibernateParam.getValue() == null) {
+            query.setBigDecimal(hibernateParam.getName(), null);
+          } else {
+            query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
+          }
         } else if (Integer.class.equals(hibernateParam.getType())) {
-          query.setInteger(hibernateParam.getName(), (Integer)hibernateParam.getValue());
+          if (hibernateParam.getValue() == null) {
+            query.setBigDecimal(hibernateParam.getName(), null);
+          } else {
+            query.setInteger(hibernateParam.getName(), (Integer)hibernateParam.getValue());
+          }
         } else {
           throw new RuntimeException("Invalid bind var type: " 
               + hibernateParam );

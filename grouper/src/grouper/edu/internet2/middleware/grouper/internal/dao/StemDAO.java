@@ -272,6 +272,17 @@ public interface StemDAO extends GrouperDAO {
   Stem findByName(String name, boolean exceptionIfNull) throws GrouperDAOException, StemNotFoundException;
 
   /**
+   * @param uuid 
+   * @param name 
+   * @param exceptionIfNull 
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @throws StemNotFoundException 
+   * @since   1.6.0
+   */
+  Stem findByUuidOrName(String uuid, String name, boolean exceptionIfNull) throws GrouperDAOException, StemNotFoundException;
+
+  /**
    * @since   1.2.0
    */
   Stem findByUuid(String uuid, boolean exceptionIfNull) throws GrouperDAOException, StemNotFoundException;
@@ -356,5 +367,12 @@ public interface StemDAO extends GrouperDAO {
    * @param groupId
    */
   public void updateLastMembershipChangeIncludeAncestorGroups(String groupId);
+  
+  /**
+   * save the udpate properties which are auto saved when business method is called
+   * @param stem
+   */
+  public void saveUpdateProperties(Stem stem);
+  
 } 
 

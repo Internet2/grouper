@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.xml.export;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.TestStem;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
@@ -110,21 +111,7 @@ public class XmlExportStemTest extends GrouperTest {
    * 
    */
   public void testConvertToStem() {
-    Stem stem = new Stem();
-    stem.setContextId("contextId");
-    stem.setCreateTimeLong(5L);
-    stem.setCreatorUuid("creatorId");
-    stem.setDescription("description");
-    stem.setDisplayExtensionDb("displayExtension");
-    stem.setDisplayNameDb("displayName");
-    stem.setExtensionDb("extension");
-    stem.setHibernateVersionNumber(3L);
-    stem.setLastMembershipChangeDb(4L);
-    stem.setModifierUuid("modifierId");
-    stem.setModifyTimeLong(6L);
-    stem.setName("name");
-    stem.setParentUuid("parentUuid");
-    stem.setUuid("uuid");
+    Stem stem = TestStem.exampleStem();
     
     XmlExportStem xmlExportStem = new XmlExportStem(new GrouperVersion(GrouperVersion.GROUPER_VERSION), stem);
 
