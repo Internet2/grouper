@@ -3409,7 +3409,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     //if its an insert, call the business method
     if (existingRecord == null) {
       Stem parent = this.getParentStem();
-      existingRecord = parent.internal_addChildStem(this.extension, this.displayExtension, this.uuid);
+      existingRecord = parent.internal_addChildStem(GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, false);
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields

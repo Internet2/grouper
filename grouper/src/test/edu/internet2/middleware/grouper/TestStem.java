@@ -76,7 +76,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new TestStem("testXmlInsert"));
     //TestRunner.run(TestStem.class);
   }
 
