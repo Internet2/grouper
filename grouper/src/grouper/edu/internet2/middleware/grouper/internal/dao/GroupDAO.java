@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
@@ -512,5 +513,22 @@ public interface GroupDAO extends GrouperDAO {
    */
   public void updateLastMembershipChangeIncludeAncestorGroups(String groupId);
   
+  /**
+   * @param uuid 
+   * @param name 
+   * @param exceptionIfNull 
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @throws GroupNotFoundException 
+   * @since   1.6.0
+   */
+  Group findByUuidOrName(String uuid, String name, boolean exceptionIfNull) throws GrouperDAOException, GroupNotFoundException;
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param group
+   */
+  public void saveUpdateProperties(Group group);
+
 } 
 

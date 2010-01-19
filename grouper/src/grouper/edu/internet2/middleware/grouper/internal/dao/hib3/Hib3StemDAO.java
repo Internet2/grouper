@@ -111,8 +111,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               }
               
               //loop through in case an attribute is set in hook
-              for (String key : attributes.keySet()) {
-                _group.setAttribute(key, attributes.get(key), false);
+              if (attributes != null) {
+                for (String key : attributes.keySet()) {
+                  _group.setAttribute(key, attributes.get(key), false);
+                }
               }
               
               //MCH 2009/03/23 remove this for optimistic locking

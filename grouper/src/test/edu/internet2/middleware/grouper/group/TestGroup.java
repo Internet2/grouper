@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -49,6 +50,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -66,8 +68,8 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestGroup("testNoLocking"));
-    TestRunner.run(TestGroup.class);
+    TestRunner.run(new TestGroup("testXmlInsert"));
+    //TestRunner.run(TestGroup.class);
   }
   
   // Private Class Constants
@@ -537,5 +539,392 @@ public class TestGroup extends GrouperTest {
     }
 
   }
+  
+  /**
+   * make an example stem for testing
+   * @return an example stem
+   */
+  public static Group exampleGroup() {
+    Group group = new Group();
+    group.setAlternateNameDb("alternateName");
+    group.setContextId("contextId");
+    group.setCreateTimeLong(5L);
+    group.setCreatorUuid("creatorId");
+    group.setDescription("description");
+    group.setDisplayExtensionDb("displayExtension");
+    group.setDisplayNameDb("displayName");
+    group.setExtensionDb("extension");
+    group.setHibernateVersionNumber(3L);
+    group.setLastMembershipChangeDb(4L);
+    group.setModifierUuid("modifierId");
+    group.setModifyTimeLong(6L);
+    group.setNameDb("name");
+    group.setParentUuid("parentUuid");
+    group.setTypeOfGroupDb("role");
+    group.setUuid("uuid");
+    
+    return group;
+  }
+  
+  /**
+   * make an example stem for testing
+   * @return an example stem
+   */
+  public static Group exampleGroupDb() {
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTest").assignName("test:groupTest").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    return group;
+  }
+
+  
+  /**
+   * make an example stem for testing
+   * @return an example stem
+   */
+  public static Group exampleRetrieveGroupDb() {
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "test:groupTest", true);
+    return group;
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    Group groupOriginal = new GroupSave(GrouperSession.staticGrouperSession()).assignGroupNameToEdit("test:groupInsert")
+      .assignName("test:groupInsert").assignCreateParentStemsIfNotExist(true).save();
+    
+    //not sure why I need to sleep, but the last membership update gets messed up...
+    GrouperUtil.sleep(1000);
+    
+    //do this because last membership update isnt there, only in db
+    groupOriginal = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupOriginal.getUuid(), true, null);
+    Group groupCopy = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupOriginal.getUuid(), true, null);
+    Group groupCopy2 = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupOriginal.getUuid(), true, null);
+    groupCopy.delete();
+    
+    //lets insert the original
+    groupCopy2.xmlSaveBusinessProperties(null);
+    groupCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    groupCopy = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupOriginal.getUuid(), true, null);
+    
+    assertFalse(groupCopy == groupOriginal);
+    assertFalse(groupCopy.xmlDifferentBusinessProperties(groupOriginal));
+    assertFalse(groupCopy.xmlDifferentUpdateProperties(groupOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group group = null;
+    Group exampleGroup = null;
+
+    
+    //TEST UPDATE PROPERTIES
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+      
+      group.setContextId("abc");
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertTrue(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setContextId(exampleGroup.getContextId());
+      group.xmlSaveUpdateProperties();
+
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+      
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setCreateTimeLong(99);
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertTrue(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setCreateTimeLong(exampleGroup.getCreateTimeLong());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setCreatorUuid("abc");
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertTrue(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setCreatorUuid(exampleGroup.getCreatorUuid());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+      
+      group.setModifierUuid("abc");
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertTrue(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setModifierUuid(exampleGroup.getModifierUuid());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setModifyTimeLong(99);
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertTrue(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setModifyTimeLong(exampleGroup.getModifyTimeLong());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+    }
+
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setHibernateVersionNumber(99L);
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertTrue(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setHibernateVersionNumber(exampleGroup.getHibernateVersionNumber());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setAlternateNameDb("abc");
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setAlternateNameDb(exampleGroup.getAlternateNameDb());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setDescriptionDb("abc");
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setDescriptionDb(exampleGroup.getDescriptionDb());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setDisplayExtensionDb("abc");
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setDisplayExtensionDb(exampleGroup.getDisplayExtensionDb());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setDisplayNameDb("abc");
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setDisplayNameDb(exampleGroup.getDisplayNameDb());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setExtensionDb("abc");
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setExtensionDb(exampleGroup.getExtensionDb());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setNameDb("abc");
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setNameDb(exampleGroup.getNameDb());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+    
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setParentUuid("abc");
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setParentUuid(exampleGroup.getParentUuid());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setTypeOfGroup(TypeOfGroup.role);
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setTypeOfGroup(exampleGroup.getTypeOfGroup());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+
+    {
+      group = exampleGroupDb();
+      exampleGroup = group.clone();
+
+      group.setUuid("abc");
+      
+      assertTrue(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+
+      group.setUuid(exampleGroup.getUuid());
+      group.xmlSaveBusinessProperties(exampleGroup.clone());
+      group.xmlSaveUpdateProperties();
+      
+      group = exampleRetrieveGroupDb();
+      
+      assertFalse(group.xmlDifferentBusinessProperties(exampleGroup));
+      assertFalse(group.xmlDifferentUpdateProperties(exampleGroup));
+    
+    }
+  }
+
+  
 }
 

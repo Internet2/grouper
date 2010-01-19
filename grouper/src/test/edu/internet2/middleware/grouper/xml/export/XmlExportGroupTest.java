@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.xml.export;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.group.TestGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
@@ -114,23 +115,7 @@ public class XmlExportGroupTest extends GrouperTest {
    * 
    */
   public void testConvertToGroup() {
-    Group group = new Group();
-    group.setAlternateNameDb("alternateName");
-    group.setContextId("contextId");
-    group.setCreateTimeLong(5L);
-    group.setCreatorUuid("creatorId");
-    group.setDescription("description");
-    group.setDisplayExtensionDb("displayExtension");
-    group.setDisplayNameDb("displayName");
-    group.setExtensionDb("extension");
-    group.setHibernateVersionNumber(3L);
-    group.setLastMembershipChangeDb(4L);
-    group.setModifierUuid("modifierId");
-    group.setModifyTimeLong(6L);
-    group.setNameDb("name");
-    group.setParentUuid("parentUuid");
-    group.setTypeOfGroupDb("role");
-    group.setUuid("uuid");
+    Group group = TestGroup.exampleGroup();
     
     XmlExportGroup xmlExportGroup = new XmlExportGroup(new GrouperVersion(GrouperVersion.GROUPER_VERSION), group);
 

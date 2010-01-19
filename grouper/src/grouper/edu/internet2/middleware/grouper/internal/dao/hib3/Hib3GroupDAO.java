@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
@@ -1806,6 +1807,57 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     } catch (GroupNotFoundException gnfe) {
       throw new RuntimeException("Problem: uuids dont match up", gnfe);
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean)
+   */
+  public Group findByUuidOrName(String uuid, String name, boolean exceptionIfNull)
+      throws GrouperDAOException, GroupNotFoundException {
+    try {
+      Group group = HibernateSession.byHqlStatic()
+        .createQuery("from Group as theGroup where theGroup.uuid = :uuid or theGroup.nameDb = :name")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("uuid", uuid)
+        .setString("name", name)
+        .uniqueResult(Group.class);
+      if (group == null && exceptionIfNull) {
+        throw new GroupNotFoundException("Can't find group by uuid: '" + uuid + "' or name '" + name + "'");
+      }
+      return group;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find group by uuid: '" 
+        + uuid + "' or name '" + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#saveUpdateProperties(edu.internet2.middleware.grouper.Group)
+   */
+  public void saveUpdateProperties(Group group) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update Group " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "creatorUuid = :theCreatorUuid, " +
+        "createTimeLong = :theCreateTimeLong, " +
+        "modifierUuid = :theModifierUuid, " +
+        "modifyTimeLong = :theModifyTimeLong, " +
+        "contextId = :theContextId, " +
+        "lastMembershipChangeDb = :theLastMembershipChangeDb " +
+        "where uuid = :theUuid")
+        .setLong("theHibernateVersionNumber", group.getHibernateVersionNumber())
+        .setString("theContextId", group.getContextId())
+        .setString("theCreatorUuid", group.getCreatorUuid())
+        .setLong("theCreateTimeLong", group.getCreateTimeLong())
+        .setString("theModifierUuid", group.getModifierUuid())
+        .setLong("theModifyTimeLong", group.getModifyTimeLong())
+        .setString("theContextId", group.getContextId())
+        .setString("theUuid", group.getUuid())
+        .setLong("theLastMembershipChangeDb", group.getLastMembershipChangeDb()).executeUpdate();
   }
 
 } 
