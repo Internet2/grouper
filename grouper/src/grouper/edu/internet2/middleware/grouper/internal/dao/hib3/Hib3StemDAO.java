@@ -1284,7 +1284,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     		"lastMembershipChangeDb = :theLastMembershipChangeDb " +
     		"where uuid = :theUuid")
     		.setLong("theHibernateVersionNumber", stem.getHibernateVersionNumber())
-        .setString("theContextId", stem.getContextId())
     		.setString("theCreatorUuid", stem.getCreatorUuid())
     		.setLong("theCreateTimeLong", stem.getCreateTimeLong())
     		.setString("theModifierUuid", stem.getModifierUuid())

@@ -43,7 +43,6 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
@@ -1850,7 +1849,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         "lastMembershipChangeDb = :theLastMembershipChangeDb " +
         "where uuid = :theUuid")
         .setLong("theHibernateVersionNumber", group.getHibernateVersionNumber())
-        .setString("theContextId", group.getContextId())
         .setString("theCreatorUuid", group.getCreatorUuid())
         .setLong("theCreateTimeLong", group.getCreateTimeLong())
         .setString("theModifierUuid", group.getModifierUuid())

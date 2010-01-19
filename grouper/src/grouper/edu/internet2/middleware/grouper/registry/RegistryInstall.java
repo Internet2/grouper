@@ -111,7 +111,7 @@ public class RegistryInstall {
     //note, no need for GrouperSession inverse of control
     boolean changed = false;
     boolean[] changedArray = {false};
-    GroupType base    = GroupType.internal_createType(s, "base", false, false, false, changedArray);
+    GroupType base    = GroupType.internal_createType(s, "base", false, false, false, changedArray, null);
     changed = changed || changedArray[0];
     // base lists
     base.internal_addField( s, "members", FieldType.LIST, AccessPrivilege.READ, 
@@ -138,7 +138,7 @@ public class RegistryInstall {
     changed = changed || changedArray[0];
 
     // reserve attributeDef privs
-    GroupType attributeDefType  = GroupType.internal_createType(s, "attributeDef", false, true, false, changedArray);
+    GroupType attributeDefType  = GroupType.internal_createType(s, "attributeDef", false, true, false, changedArray, null);
     attributeDefType.internal_addField( s, "attrAdmins",   FieldType.ATTRIBUTE_DEF, AttributeDefPrivilege.ATTR_ADMIN,  
         AttributeDefPrivilege.ATTR_ADMIN,  false, false, false , changedArray);
     changed = changed || changedArray[0];
@@ -158,7 +158,7 @@ public class RegistryInstall {
         AttributeDefPrivilege.ATTR_ADMIN,  false, false, false, changedArray );
     changed = changed || changedArray[0];
 
-    GroupType naming  = GroupType.internal_createType(s, "naming", false, true, false, changedArray);
+    GroupType naming  = GroupType.internal_createType(s, "naming", false, true, false, changedArray, null);
     changed = changed || changedArray[0];
     // reserve naming privs
     naming.internal_addField( s, "creators", FieldType.NAMING, NamingPrivilege.STEM, 

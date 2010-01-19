@@ -96,6 +96,7 @@ public interface GroupTypeDAO extends GrouperDAO {
 
   /**
    * @param uuid 
+   * @param exceptionIfNull 
    * @return uuid
    * @throws GrouperDAOException 
    * @throws SchemaException 
@@ -112,5 +113,29 @@ public interface GroupTypeDAO extends GrouperDAO {
    * @return the groupTypes
    */
   Set<GroupType> findAllByCreator(Member member);  
+  
+  /**
+   * @param uuid 
+   * @param name 
+   * @param exceptionIfNull 
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @since   1.6.0
+   */
+  GroupType findByUuidOrName(String uuid, String name, boolean exceptionIfNull) throws GrouperDAOException;
+
+  /**
+   * update in db
+   * @param groupType
+   * @throws GrouperDAOException
+   */
+  void update(GroupType groupType) throws  GrouperDAOException;
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param groupType
+   */
+  public void saveUpdateProperties(GroupType groupType);
+
 } 
 

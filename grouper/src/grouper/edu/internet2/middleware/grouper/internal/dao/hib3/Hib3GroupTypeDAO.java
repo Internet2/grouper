@@ -162,6 +162,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
   /**
    * @param uuid 
+   * @param exceptionIfNull 
    * @return type
    * @throws GrouperDAOException 
    * @throws SchemaException 
@@ -215,5 +216,59 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
     return groupTypes;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean)
+   */
+  public GroupType findByUuidOrName(String uuid, String name, boolean exceptionIfNull)
+      throws GrouperDAOException {
+    try {
+      GroupType groupType = HibernateSession.byHqlStatic()
+        .createQuery("from GroupType as theGroupType where theGroupType.uuid = :uuid or theGroupType.name = :name")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("uuid", uuid)
+        .setString("name", name)
+        .uniqueResult(GroupType.class);
+      if (groupType == null && exceptionIfNull) {
+        throw new RuntimeException("Can't find groupType by uuid: '" + uuid + "' or name '" + name + "'");
+      }
+      return groupType;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find groupType by uuid: '" 
+        + uuid + "' or name '" + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO#update(edu.internet2.middleware.grouper.GroupType)
+   */
+  public void update(GroupType groupType) throws GrouperDAOException {
+    HibernateSession.byObjectStatic().update(groupType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO#saveUpdateProperties(edu.internet2.middleware.grouper.GroupType)
+   */
+  public void saveUpdateProperties(GroupType groupType) {
+
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update GroupType " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "creatorUuid = :theCreatorUuid, " +
+        "createTime = :theCreateTime, " +
+        "contextId = :theContextId " +
+        "where uuid = :theUuid")
+        .setLong("theHibernateVersionNumber", groupType.getHibernateVersionNumber())
+        .setString("theContextId", groupType.getContextId())
+        .setString("theCreatorUuid", groupType.getCreatorUuid())
+        .setLong("theCreateTime", groupType.getCreateTime())
+        .setString("theUuid", groupType.getUuid())
+        .executeUpdate();
+
+  }
+
+  
 } 
 

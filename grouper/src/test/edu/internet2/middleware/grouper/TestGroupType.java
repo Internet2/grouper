@@ -54,7 +54,7 @@ public class TestGroupType extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupType("testAddFieldAttribute"));
+    TestRunner.run(new TestGroupType("testXmlInsert"));
   }
   
   // Private Static Class Constants
@@ -1278,5 +1278,243 @@ public class TestGroupType extends GrouperTest {
     }
   } // public void testDelete_FieldsDeletedWhenRegistryIsReset()
 
+  /**
+   * make an example group type for testing
+   * @return an example groupType
+   */
+  public static GroupType exampleGroupType() {
+    GroupType groupType = new GroupType();
+    groupType.setIsAssignable(true);
+    groupType.setContextId("contextId");
+    groupType.setCreateTime(3L);
+    groupType.setCreatorUuid("creatorId");
+    groupType.setHibernateVersionNumber(3L);
+    groupType.setIsInternal(true);
+    groupType.setName("name");
+    groupType.setUuid("uuid");
+    
+    return groupType;
+  }
+  
+  /**
+   * make an example group type for testing
+   * @return an example group type
+   */
+  public static GroupType exampleGroupTypeDb() {
+    GroupType groupType = GroupTypeFinder.find("example", false);
+    if (groupType == null) {
+      groupType = GroupType.createType(GrouperSession.staticGrouperSession(), "example");
+    }
+    
+    return groupType;
+  }
+
+  
+  /**
+   * make an example grouptype for testing
+   * @return an example grouptype
+   */
+  public static GroupType exampleRetrieveGroupTypeDb() {
+    GroupType groupType = GroupTypeFinder.find("example", true);
+    return groupType;
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    GroupType groupTypeOriginal = GroupType.createType(GrouperSession.staticGrouperSession(), "exampleInsert");
+    groupTypeOriginal = GroupTypeFinder.find("exampleInsert", true);
+    //do this because last membership update isnt there, only in db
+    GroupType groupTypeCopy = GroupTypeFinder.find("exampleInsert", true);
+    GroupType groupTypeCopy2 = GroupTypeFinder.find("exampleInsert", true);
+    groupTypeCopy.delete(GrouperSession.staticGrouperSession());
+    
+    //lets insert the original
+    groupTypeCopy2.xmlSaveBusinessProperties(null);
+    groupTypeCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    groupTypeCopy = GroupTypeFinder.findByUuid(groupTypeOriginal.getUuid(), true);
+    
+    assertFalse(groupTypeCopy == groupTypeOriginal);
+    assertFalse(groupTypeCopy.xmlDifferentBusinessProperties(groupTypeOriginal));
+    assertFalse(groupTypeCopy.xmlDifferentUpdateProperties(groupTypeOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GroupType groupType = null;
+    GroupType exampleGroupType = null;
+
+    
+    //TEST UPDATE PROPERTIES
+    {
+      groupType = exampleGroupTypeDb();
+      exampleGroupType = groupType.clone();
+      
+      groupType.setContextId("abc");
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertTrue(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+
+      groupType.setContextId(exampleGroupType.getContextId());
+      groupType.xmlSaveUpdateProperties();
+
+      groupType = exampleRetrieveGroupTypeDb();
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+      
+    }
+    
+    {
+      groupType = exampleGroupTypeDb();
+      exampleGroupType = groupType.clone();
+
+      groupType.setCreateTime(99);
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertTrue(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+
+      groupType.setCreateTime(exampleGroupType.getCreateTime());
+      groupType.xmlSaveUpdateProperties();
+      
+      groupType = exampleRetrieveGroupTypeDb();
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+    }
+    
+    {
+      groupType = exampleGroupTypeDb();
+      exampleGroupType = groupType.clone();
+
+      groupType.setCreatorUuid("abc");
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertTrue(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+
+      groupType.setCreatorUuid(exampleGroupType.getCreatorUuid());
+      groupType.xmlSaveUpdateProperties();
+      
+      groupType = exampleRetrieveGroupTypeDb();
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+    }
+    
+    {
+      groupType = exampleGroupTypeDb();
+      exampleGroupType = groupType.clone();
+
+      groupType.setHibernateVersionNumber(99L);
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertTrue(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+
+      groupType.setHibernateVersionNumber(exampleGroupType.getHibernateVersionNumber());
+      groupType.xmlSaveUpdateProperties();
+      
+      groupType = exampleRetrieveGroupTypeDb();
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      groupType = exampleGroupTypeDb();
+      exampleGroupType = groupType.clone();
+
+      groupType.setName("abc");
+      
+      assertTrue(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+
+      groupType.setName(exampleGroupType.getName());
+      groupType.xmlSaveBusinessProperties(exampleGroupType.clone());
+      groupType.xmlSaveUpdateProperties();
+      
+      groupType = exampleRetrieveGroupTypeDb();
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+    
+    }
+    
+    {
+      groupType = exampleGroupTypeDb();
+      exampleGroupType = groupType.clone();
+
+      groupType.setIsAssignable(false);
+      
+      assertTrue(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+
+      groupType.setIsAssignable(exampleGroupType.getIsAssignable());
+      groupType.xmlSaveBusinessProperties(exampleGroupType.clone());
+      groupType.xmlSaveUpdateProperties();
+      
+      groupType = exampleRetrieveGroupTypeDb();
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+    
+    }
+    
+    {
+      groupType = exampleGroupTypeDb();
+      exampleGroupType = groupType.clone();
+
+      groupType.setIsInternal(true);
+      
+      assertTrue(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+
+      groupType.setIsInternal(exampleGroupType.getIsInternal());
+      groupType.xmlSaveBusinessProperties(exampleGroupType.clone());
+      groupType.xmlSaveUpdateProperties();
+      
+      groupType = exampleRetrieveGroupTypeDb();
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+    
+    }
+    
+    {
+      groupType = exampleGroupTypeDb();
+      exampleGroupType = groupType.clone();
+
+      groupType.setUuid("abc");
+      
+      assertTrue(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+
+      groupType.setUuid(exampleGroupType.getUuid());
+      groupType.xmlSaveBusinessProperties(exampleGroupType.clone());
+      groupType.xmlSaveUpdateProperties();
+      
+      groupType = exampleRetrieveGroupTypeDb();
+      
+      assertFalse(groupType.xmlDifferentBusinessProperties(exampleGroupType));
+      assertFalse(groupType.xmlDifferentUpdateProperties(exampleGroupType));
+    
+    }
+  }
+
+  
 }
 
