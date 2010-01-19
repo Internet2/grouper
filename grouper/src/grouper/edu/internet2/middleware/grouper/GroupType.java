@@ -309,7 +309,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   )
     throws  InsufficientPrivilegeException,
             SchemaException {
-    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, exceptionIfExists, false, null);
+    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, exceptionIfExists, false, null, null);
   } // public Field addAttribute(s, name, read, write, required)
 
   /**
@@ -338,7 +338,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   public Field addOrUpdateAttribute(
     GrouperSession s, String name, Privilege read, Privilege write, boolean required
   ) throws  InsufficientPrivilegeException, SchemaException {
-    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, false, true, null);
+    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, false, true, null, null);
   } // public Field addAttribute(s, name, read, write, required)
 
   /**
@@ -380,7 +380,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     if (!Privilege.isAccess(write)) {
       throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
     }
-    return this.internal_addField(s, name, FieldType.LIST, read, write, false, true, false, null);
+    return this.internal_addField(s, name, FieldType.LIST, read, write, false, true, false, null, null);
   } // public Field addList(s, name, read, write)
 
   /**
@@ -663,7 +663,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   public Field internal_addField(
     final GrouperSession s, final String name, final FieldType type, final Privilege read, 
     final Privilege write, final boolean required, final boolean exceptionIfExists, final boolean updateIfExists,
-    final boolean[] changedArray) throws  InsufficientPrivilegeException, SchemaException {
+    final boolean[] changedArray, String uuid) throws  InsufficientPrivilegeException, SchemaException {
 
     //these are reserved words:
     if (Group.INTERNAL_FIELD_ATTRIBUTES.contains(name)) {
@@ -671,6 +671,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
           + name + "', reserved words are : " + GrouperUtil.toStringForLog(Group.INTERNAL_FIELD_ATTRIBUTES));
     }
     
+    final String UUID = StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid;
     
     return (Field)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
@@ -785,7 +786,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
             field.setName(name);
             field.setReadPrivilege(read);
             field.setType(type);
-            field.setUuid( GrouperUuid.getUuid() );
+            field.setUuid(UUID);
             field.setWritePrivilege(write);
               
             GrouperDAOFactory.getFactory().getGroupType().createField(field);

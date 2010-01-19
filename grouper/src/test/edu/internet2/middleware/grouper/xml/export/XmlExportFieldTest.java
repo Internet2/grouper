@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.xml.export;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.TestField;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
@@ -100,16 +101,7 @@ public class XmlExportFieldTest extends GrouperTest {
    * 
    */
   public void testConvertToField() {
-    Field field = new Field();
-    field.setContextId("contextId");
-    field.setGroupTypeUuid("groupTypeUuid");
-    field.setHibernateVersionNumber(3L);
-    field.setName("name");
-    field.setIsNullable(true);
-    field.setReadPrivilege("readPrivilege");
-    field.setTypeString("type");
-    field.setUuid("uuid");
-    field.setWritePrivilege("writePrivilege");
+    Field field = TestField.exampleField();
     
     XmlExportField xmlExportField = new XmlExportField(new GrouperVersion(GrouperVersion.GROUPER_VERSION), field);
 

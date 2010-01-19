@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 
 /** 
@@ -54,7 +55,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author  blair christensen.
  * @version $Id: Field.java,v 1.48 2009-09-24 18:07:16 shilen Exp $    
  */
-public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Field> {
 
   /**
    * print out a collection of fields
@@ -652,6 +653,99 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   @Override
   public Field clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
+  /**
+   * store this object to the DB.
+   */
+  public void store() {    
+    GrouperDAOFactory.getFactory().getField().update(this);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(Field existingRecord) {
+    existingRecord.groupTypeUuid = this.groupTypeUuid;
+    existingRecord.isNullable = this.isNullable;
+    existingRecord.name = this.name;
+    existingRecord.readPrivilege = this.readPrivilege;
+    existingRecord.type = this.type;
+    existingRecord.setUuid(this.getUuid());
+    existingRecord.writePrivilege = this.writePrivilege;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(Field other) {
+    if (!StringUtils.equals(this.groupTypeUuid, other.groupTypeUuid)) {
+      return true;
+    }
+    if (this.isNullable != other.isNullable) {
+      return true;
+    }
+    if (!StringUtils.equals(this.name, other.name)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.readPrivilege, other.readPrivilege)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.type, other.type)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.uuid, other.uuid)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.writePrivilege, other.writePrivilege)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(Field other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public Field xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getField().findByUuidOrName(this.uuid, this.name, this.groupTypeUuid, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(Field existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      GroupType groupType = GroupTypeFinder.findByUuid(this.groupTypeUuid, true);
+      existingRecord = groupType.internal_addField(GrouperSession.staticGrouperSession(), this.name, this.getType(), this.getReadPriv(), this.getWritePriv(), !this.isNullable, true, false, null, this.uuid);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.store();
+    FieldFinder.clearCache();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getField().saveUpdateProperties(this);
+    FieldFinder.clearCache();
+
   }
 
 
