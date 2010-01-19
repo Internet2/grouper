@@ -79,6 +79,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.MemberModifyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -93,7 +94,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * @author  blair christensen.
  * @version $Id: Member.java,v 1.135 2009-12-28 06:08:37 mchyzer Exp $
  */
-public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, Comparable<Member> {
+public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, Comparable<Member>, XmlImportable<Member> {
 
   /** */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
@@ -2950,5 +2951,90 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     return GrouperUtil.compare(this.getSubjectId(), o.getSubjectId());
   } 
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(Member other) {
+    
+    if (!StringUtils.equals(this.memberUUID, other.memberUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.subjectID, other.subjectID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.subjectSourceID, other.subjectSourceID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.subjectTypeID, other.subjectTypeID)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(Member other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    return false;
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(Member existingRecord) {
+    existingRecord.memberUUID = this.memberUUID;
+    existingRecord.subjectID = this.subjectID;
+    existingRecord.subjectSourceID = this.subjectSourceID;
+    existingRecord.subjectTypeID = this.subjectTypeID;
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public Member xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getMember().findByUuidOrSubject(this.memberUUID, this.subjectID, this.subjectSourceID, false);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(Member existingRecord) {
+
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      existingRecord = this.clone();
+      GrouperDAOFactory.getFactory().getMember().create(existingRecord);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.store();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    
+    GrouperDAOFactory.getFactory().getMember().saveUpdateProperties(this);
+    
+  }
+
+
+  
+  
 } 
 

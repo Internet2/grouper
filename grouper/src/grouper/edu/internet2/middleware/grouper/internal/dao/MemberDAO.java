@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -225,6 +226,21 @@ public interface MemberDAO extends GrouperDAO {
   public abstract Set<Member> findBySubjectsInGroup(GrouperSession grouperSession,
       Set<Subject> subjects, Group group, Field field, MembershipType membershipType);
 
+  /**
+   * find a member by uuid or subject id
+   * @param uuid
+   * @param subjectId
+   * @param source
+   * @param exceptionIfNull
+   * @return the member
+   */
+  public abstract Member findByUuidOrSubject(String uuid, String subjectId, String source, boolean exceptionIfNull);
   
+  /**
+   * save the udpate properties which are auto saved when business method is called
+   * @param member
+   */
+  public void saveUpdateProperties(Member member);
+
 } 
 

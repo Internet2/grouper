@@ -8,6 +8,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.member.TestMember;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 
@@ -96,13 +97,7 @@ public class XmlExportMemberTest extends GrouperTest {
    * 
    */
   public void testConvertToMember() {
-    Member member = new Member();
-    member.setContextId("contextId");
-    member.setHibernateVersionNumber(3L);
-    member.setSubjectId("subjectId");
-    member.setSubjectSourceId("subjectSourceId");
-    member.setSubjectTypeId("subjectTypeId");
-    member.setUuid("uuid");
+    Member member = TestMember.exampleMember();
     
     XmlExportMember xmlExportMember = new XmlExportMember(new GrouperVersion(GrouperVersion.GROUPER_VERSION), member);
 

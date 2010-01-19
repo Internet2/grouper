@@ -21,6 +21,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
@@ -500,6 +501,7 @@ public class SubjectFinder {
    */
   public static void reset() {
     resolver = null; // TODO 20070807 this could definitely be improved    
+    HibernateSession.bySqlStatic().executeSql("delete from subject where subjectId = 'GrouperSystem'");
   }
 
   /**

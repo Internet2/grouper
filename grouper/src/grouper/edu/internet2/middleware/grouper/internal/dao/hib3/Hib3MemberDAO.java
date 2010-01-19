@@ -29,10 +29,12 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -302,6 +304,9 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       .setString( "subject", "GrouperSystem" )
       .executeUpdate()
       ;
+    hibernateSession.byHql().createQuery("delete from Member as m where m.subjectIdDb = 'GrouperSystem' and m.subjectSourceIdDb = 'jdbc'")
+    .executeUpdate()
+    ;
     getExistsCache().clear();
   }
 
@@ -359,7 +364,9 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     if (member == null && exceptionIfNull) {
       throw new MemberNotFoundException();
     }
-    getUuid2dtoCache().put(member.getUuid(), member);
+    if (member != null) {
+      getUuid2dtoCache().put(member.getUuid(), member);
+    }
     return member;
   }
 
@@ -519,6 +526,41 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     }
     return result;
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findByUuidOrSubject(java.lang.String, java.lang.String, java.lang.String, boolean)
+   */
+  public Member findByUuidOrSubject(String uuid, String subjectId, String source,
+      boolean exceptionIfNull) {
+    Member member = HibernateSession.byHqlStatic().createQuery(
+        "from Member as m where (m.subjectIdDb = :sid    "
+            + "and  m.subjectSourceIdDb = :source) or m.uuid = :uuid ")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindBySubjectIdSrc")
+        .setString("sid", subjectId)
+        .setString("source", source)
+        .setString("uuid", uuid)
+        .uniqueResult(Member.class);
+    if (member == null && exceptionIfNull) {
+      throw new MemberNotFoundException();
+    }
+    return member;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#saveUpdateProperties(edu.internet2.middleware.grouper.Member)
+   */
+  public void saveUpdateProperties(Member member) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update Member " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId " +
+        "where uuid = :theUuid")
+        .setLong("theHibernateVersionNumber", member.getHibernateVersionNumber())
+        .setString("theContextId", member.getContextId())
+        .setString("theUuid", member.getUuid())
+        .executeUpdate();
   }
 
 } 

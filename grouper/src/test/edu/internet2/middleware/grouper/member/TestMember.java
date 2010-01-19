@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -49,10 +50,13 @@ import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -74,7 +78,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember("testGetMembershipsComplex"));
+    TestRunner.run(new TestMember("testXmlDifferentUpdateProperties"));
   }
   
   /** logger */
@@ -87,20 +91,6 @@ public class TestMember extends GrouperTest {
   public TestMember(String name) {
     super(name);
   }
-
-  /**
-   * 
-   * @see junit.framework.TestCase#setUp()
-   */
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
-  }
-
 
   // Tests
 
@@ -1398,6 +1388,218 @@ public class TestMember extends GrouperTest {
       unexpectedException(e);
     }
   } // public void testSetSubjectSourceIdOk() 
+
+  
+  /**
+   * make an example member for testing
+   * @return an example member
+   */
+  public static Member exampleMember() {
+    
+    Member member = new Member();
+    member.setContextId("contextId");
+    member.setHibernateVersionNumber(3L);
+    member.setSubjectId("subjectId");
+    member.setSubjectSourceId("subjectSourceId");
+    member.setSubjectTypeId("subjectTypeId");
+    member.setUuid("uuid");
+    return member;
+  }
+  
+  /**
+   * make an example mmeber for testing
+   * @return an example member
+   */
+  public static Member exampleMemberDb() {
+    
+    Member member = GrouperDAOFactory.getFactory().getMember().findBySubject("subjectTestId", "sourceTestId", false);
+    
+    if (member == null) {
+      member = new Member();
+      member.setSubjectIdDb("subjectTestId");
+      member.setSubjectSourceIdDb("sourceTestId");
+      member.setSubjectTypeId("testTypeId");
+      member.setUuid(GrouperUuid.getUuid());
+      GrouperDAOFactory.getFactory().getMember().create(member);
+      
+    }
+    return member;
+  }
+
+  
+  /**
+   * make an example stem for testing
+   * @return an example stem
+   */
+  public static Member exampleRetrieveMemberDb() {
+    Member member = GrouperDAOFactory.getFactory().getMember().findBySubject("subjectTestId", "sourceTestId", false);
+    return member;
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    Member memberOriginal = new Member();
+    memberOriginal.setSubjectIdDb("subjectInsertId");
+    memberOriginal.setSubjectSourceIdDb("sourceInsertId");
+    memberOriginal.setSubjectTypeId("insertTypeId");
+    memberOriginal.setUuid(GrouperUuid.getUuid());
+    GrouperDAOFactory.getFactory().getMember().create(memberOriginal);
+    
+    Member memberCopy =   GrouperDAOFactory.getFactory().getMember().findBySubject("subjectInsertId", "sourceInsertId", false);
+    Member memberCopy2 =  GrouperDAOFactory.getFactory().getMember().findBySubject("subjectInsertId", "sourceInsertId", false);
+    HibernateSession.byObjectStatic().delete(memberCopy);
+    
+    //lets insert the original
+    memberCopy2.xmlSaveBusinessProperties(null);
+    memberCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    memberCopy = GrouperDAOFactory.getFactory().getMember().findBySubject("subjectInsertId", "sourceInsertId", false);
+    
+    assertFalse(memberCopy == memberOriginal);
+    assertFalse(memberCopy.xmlDifferentBusinessProperties(memberOriginal));
+    assertFalse(memberCopy.xmlDifferentUpdateProperties(memberOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Member member = null;
+    Member exampleMember = null;
+
+    //lets do an insert
+    
+    //TEST UPDATE PROPERTIES
+    {
+      member = exampleMemberDb();
+      exampleMember = member.clone();
+      
+      member.setContextId("abc");
+      
+      assertFalse(member.xmlDifferentBusinessProperties(exampleMember));
+      assertTrue(member.xmlDifferentUpdateProperties(exampleMember));
+
+      member.setContextId(exampleMember.getContextId());
+      member.xmlSaveUpdateProperties();
+
+      member = exampleRetrieveMemberDb();
+      
+      assertFalse(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+      
+    }
+    
+    {
+      member = exampleMemberDb();
+      exampleMember = member.clone();
+
+      member.setHibernateVersionNumber(99L);
+      
+      assertFalse(member.xmlDifferentBusinessProperties(exampleMember));
+      assertTrue(member.xmlDifferentUpdateProperties(exampleMember));
+
+      member.setHibernateVersionNumber(exampleMember.getHibernateVersionNumber());
+      member.xmlSaveUpdateProperties();
+      
+      member = exampleRetrieveMemberDb();
+      
+      assertFalse(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      member = exampleMemberDb();
+      exampleMember = member.clone();
+
+      member.setSubjectId("abc");
+      
+      assertTrue(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+
+      member.setSubjectId(exampleMember.getSubjectId());
+      member.xmlSaveBusinessProperties(exampleMember.clone());
+      member.xmlSaveUpdateProperties();
+      
+      member = exampleRetrieveMemberDb();
+      
+      assertFalse(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+    
+    }
+    
+    {
+      member = exampleMemberDb();
+      exampleMember = member.clone();
+
+      member.setSubjectSourceIdDb("abc");
+      
+      assertTrue(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+
+      member.setSubjectSourceIdDb(exampleMember.getSubjectSourceIdDb());
+      member.xmlSaveBusinessProperties(exampleMember.clone());
+      member.xmlSaveUpdateProperties();
+      
+      member = exampleRetrieveMemberDb();
+      
+      assertFalse(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+    
+    }
+    
+    {
+      member = exampleMemberDb();
+      exampleMember = member.clone();
+
+      member.setSubjectTypeId("abc");
+      
+      assertTrue(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+
+      member.setSubjectTypeId(exampleMember.getSubjectTypeId());
+      member.xmlSaveBusinessProperties(exampleMember.clone());
+      member.xmlSaveUpdateProperties();
+      
+      member = exampleRetrieveMemberDb();
+      
+      assertFalse(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+    
+    }
+    
+    {
+      member = exampleMemberDb();
+      exampleMember = member.clone();
+
+      member.setUuid("abc");
+      
+      assertTrue(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+
+      member.setUuid(exampleMember.getUuid());
+      member.xmlSaveBusinessProperties(exampleMember.clone());
+      member.xmlSaveUpdateProperties();
+      
+      member = exampleRetrieveMemberDb();
+      
+      assertFalse(member.xmlDifferentBusinessProperties(exampleMember));
+      assertFalse(member.xmlDifferentUpdateProperties(exampleMember));
+    
+    }
+  }
 
 }
 
