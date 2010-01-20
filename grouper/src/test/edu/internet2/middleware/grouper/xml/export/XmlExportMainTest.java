@@ -206,5 +206,68 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<attributeDefScopes>"));
     assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
         
+    xmlExportMain.setIncludeComments(true);
+    xmlExportMain.writeAllTables(stringWriter);
+    
+    xml = stringWriter.toString();
+    
+    //TODO comment this out
+    System.out.println(xml);
+    
+    assertTrue(xml, xml.contains("<!--"));
+    assertTrue(xml, xml.contains("<members>"));
+    assertTrue(xml, xml.contains("<XmlExportMember>"));
+    
+    assertTrue(xml, xml.contains("<stems>"));
+    assertTrue(xml, xml.contains("<XmlExportStem>"));
+
+    assertTrue(xml, xml.contains("<groups>"));
+    assertTrue(xml, xml.contains("<XmlExportGroup>"));
+      
+    assertTrue(xml, xml.contains("<groupTypes>"));
+    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
+      
+    assertTrue(xml, xml.contains("<fields>"));
+    assertTrue(xml, xml.contains("<XmlExportField>"));
+
+    assertTrue(xml, xml.contains("<groupTypeTuples>"));
+    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+
+    assertTrue(xml, xml.contains("<composites>"));
+    assertTrue(xml, xml.contains("<XmlExportComposite>"));
+
+    assertTrue(xml, xml.contains("<attributes>"));
+    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
+
+    assertTrue(xml, xml.contains("<attributeDefs>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));
+
+    assertTrue(xml, xml.contains("<memberships>"));
+    assertTrue(xml, xml.contains("<XmlExportMembership>"));
+
+    assertTrue(xml, xml.contains("<attributeDefNames>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefName>"));
+
+    assertTrue(xml, xml.contains("<roleSets>"));
+    assertTrue(xml, xml.contains("<XmlExportRoleSet>"));
+
+    assertTrue(xml, xml.contains("<attributeAssignActions>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignAction>"));
+
+    assertTrue(xml, xml.contains("<attributeAssignActionSets>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignActionSet>"));
+
+    assertTrue(xml, xml.contains("<attributeAssigns>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssign>"));
+
+    assertTrue(xml, xml.contains("<attributeAssignValues>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignValue>"));
+        
+    assertTrue(xml, xml.contains("<attributeDefNameSets>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefNameSet>"));
+        
+    assertTrue(xml, xml.contains("<attributeDefScopes>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
+        
   }
 }

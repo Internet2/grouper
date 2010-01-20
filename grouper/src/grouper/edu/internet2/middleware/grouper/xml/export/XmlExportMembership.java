@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -16,7 +17,13 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -411,8 +418,9 @@ public class XmlExportMembership {
   /**
    * 
    * @param writer
+   * @param xmlExportMain
    */
-  public static void exportMemberships(final Writer writer) {
+  public static void exportMemberships(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -423,7 +431,7 @@ public class XmlExportMembership {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theMembership from ImmediateMembershipEntry as theMembership order by theMembership.memberUuid, theMembership.ownerId, theMembership.fieldId, theMembership.immediateMembershipId");
+            "select theMembership from ImmediateMembershipEntry as theMembership where theMembership.type = 'immediate' order by theMembership.memberUuid, theMembership.ownerId, theMembership.fieldId, theMembership.immediateMembershipId");
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {
@@ -435,7 +443,55 @@ public class XmlExportMembership {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              Membership membership = (Membership)object;
+              final Membership membership = (Membership)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ");
+                      if (!StringUtils.isBlank(membership.getOwnerGroupId())) {
+                        writer.write("group: ");
+                        writer.write(membership.getGroupName());
+                        writer.write(", ");
+                      }
+                      if (!StringUtils.isBlank(membership.getOwnerStemId())) {
+                        writer.write("stem: ");
+                        writer.write(membership.getStem().getName());
+                        writer.write(", ");
+                      }
+                      if (!StringUtils.isBlank(membership.getOwnerGroupId())) {
+                        writer.write("attributeDef: ");
+                        AttributeDef attrubuteDef = AttributeDefFinder.findById(membership.getOwnerAttrDefId(), true);
+                        writer.write(attrubuteDef.getName());
+                        writer.write(", ");
+                      }
+                      
+                      writer.write(", field: ");
+                      writer.write(membership.getListName());
+                      writer.write(", member: ");
+                      Member member = membership.getMember();
+                      writer.write(member.getSubjectSourceId());
+                      writer.write(": ");
+                      if ("g:gsa".equals(member.getSubjectSourceId())) {
+                        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), member.getSubjectIdDb(), false);
+                        String groupName = group == null ? member.getSubjectIdDb() : group.getName();
+                        writer.write(groupName);
+                      } else {
+                        writer.write(member.getSubjectId());
+                      }
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportMembership xmlExportMembership = new XmlExportMembership(grouperVersion, membership);
               writer.write("    ");
               xmlExportMembership.toXml(grouperVersion, writer);

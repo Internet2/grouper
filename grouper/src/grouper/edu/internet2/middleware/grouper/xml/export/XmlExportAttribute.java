@@ -17,6 +17,9 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
 import edu.internet2.middleware.grouper.Attribute;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -222,8 +225,9 @@ public class XmlExportAttribute {
   /**
    * 
    * @param writer
+   * @param xmlExportMain
    */
-  public static void exportAttributes(final Writer writer) {
+  public static void exportAttributes(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -246,7 +250,29 @@ public class XmlExportAttribute {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              Attribute attribute = (Attribute)object;
+              final Attribute attribute = (Attribute)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- group: ");
+                      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attribute.getGroupUuid(), true);
+                      writer.write(group.getName());
+                      writer.write(", attribute: ");
+                      writer.write(attribute.getAttrName());
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportAttribute xmlExportAttribute = new XmlExportAttribute(grouperVersion, attribute);
               writer.write("    ");
               xmlExportAttribute.toXml(grouperVersion, writer);

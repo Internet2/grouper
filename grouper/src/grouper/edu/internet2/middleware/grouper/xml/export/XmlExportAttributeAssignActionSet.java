@@ -311,8 +311,9 @@ public class XmlExportAttributeAssignActionSet {
   /**
    * 
    * @param writer
+   * @param xmlExportMain 
    */
-  public static void exportAttributeAssignActionSets(final Writer writer) {
+  public static void exportAttributeAssignActionSets(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -335,7 +336,8 @@ public class XmlExportAttributeAssignActionSet {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              AttributeAssignActionSet attributeAssignActionSet = (AttributeAssignActionSet)object;
+              final AttributeAssignActionSet attributeAssignActionSet = (AttributeAssignActionSet)object;
+              //TODO add in comments
               XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSet = new XmlExportAttributeAssignActionSet(grouperVersion, attributeAssignActionSet);
               writer.write("    ");
               xmlExportAttributeAssignActionSet.toXml(grouperVersion, writer);

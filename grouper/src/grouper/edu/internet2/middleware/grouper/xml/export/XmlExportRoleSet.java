@@ -311,8 +311,9 @@ public class XmlExportRoleSet {
   /**
    * 
    * @param writer
+   * @param xmlExportMain 
    */
-  public static void exportRoleSets(final Writer writer) {
+  public static void exportRoleSets(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -335,7 +336,28 @@ public class XmlExportRoleSet {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              RoleSet roleSet = (RoleSet)object;
+              final RoleSet roleSet = (RoleSet)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ifHasRole: ");
+                      writer.write(roleSet.getIfHasRole().getName());
+                      writer.write(", thenHasRole: ");
+                      writer.write(roleSet.getThenHasRole().getName());
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportRoleSet xmlExportRoleSet = new XmlExportRoleSet(grouperVersion, roleSet);
               writer.write("    ");
               xmlExportRoleSet.toXml(grouperVersion, writer);

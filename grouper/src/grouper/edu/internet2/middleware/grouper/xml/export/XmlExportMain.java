@@ -17,6 +17,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class XmlExportMain {
 
+  /** if comments should be included for foreign keys, note, this slows down the export */
+  private boolean includeComments;
+  
+  /**
+   * if comments should be included for foreign keys, note, this slows down the export
+   * @return the includeComments
+   */
+  public boolean isIncludeComments() {
+    return this.includeComments;
+  }
+
+  
+  /**
+   * if comments should be included for foreign keys, note, this slows down the export
+   * @param includeComments1 the includeComments to set
+   */
+  public void setIncludeComments(boolean includeComments1) {
+    this.includeComments = includeComments1;
+  }
+
   /**
    * 
    * @param args
@@ -97,23 +117,23 @@ public class XmlExportMain {
 
       XmlExportField.exportFields(writer);
 
-      XmlExportGroupTypeTuple.exportGroupTypeTuples(writer);
+      XmlExportGroupTypeTuple.exportGroupTypeTuples(writer, this);
 
-      XmlExportComposite.exportComposites(writer);
+      XmlExportComposite.exportComposites(writer, this);
 
-      XmlExportAttribute.exportAttributes(writer);
+      XmlExportAttribute.exportAttributes(writer, this);
 
       XmlExportAttributeDef.exportAttributeDefs(writer);
 
-      XmlExportMembership.exportMemberships(writer);
+      XmlExportMembership.exportMemberships(writer, this);
 
       XmlExportAttributeDefName.exportAttributeDefNames(writer);
 
-      XmlExportRoleSet.exportRoleSets(writer);
+      XmlExportRoleSet.exportRoleSets(writer, this);
 
       XmlExportAttributeAssignAction.exportAttributeAssignActions(writer);
 
-      XmlExportAttributeAssignActionSet.exportAttributeAssignActionSets(writer);
+      XmlExportAttributeAssignActionSet.exportAttributeAssignActionSets(writer, this);
 
       XmlExportAttributeAssign.exportAttributeAssigns(writer);
 
@@ -123,7 +143,7 @@ public class XmlExportMain {
 
       XmlExportAttributeDefScope.exportAttributeDefScopes(writer);
 
-      writer.write("</grouperExport>");
+      writer.write("</grouperExport>\n");
       writer.flush();
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);

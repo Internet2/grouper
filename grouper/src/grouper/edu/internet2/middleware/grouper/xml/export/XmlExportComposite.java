@@ -285,8 +285,9 @@ public class XmlExportComposite {
   /**
    * 
    * @param writer
+   * @param xmlExportMain
    */
-  public static void exportComposites(final Writer writer) {
+  public static void exportComposites(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -309,7 +310,29 @@ public class XmlExportComposite {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              Composite composite = (Composite)object;
+              final Composite composite = (Composite)object;
+
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ownerGroup: ");
+                      writer.write(composite.getOwnerGroup().getName());
+                      writer.write(", leftGroup: ");
+                      writer.write(composite.getLeftGroup().getName());
+                      writer.write(", rightGroup: ");
+                      writer.write(composite.getRightGroup().getName());
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
               XmlExportComposite xmlExportComposite = new XmlExportComposite(grouperVersion, composite);
               writer.write("    ");
               xmlExportComposite.toXml(grouperVersion, writer);
