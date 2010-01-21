@@ -290,8 +290,9 @@ public class XmlExportField {
   /**
    * 
    * @param writer
+   * @param xmlExportMain
    */
-  public static void exportFields(final Writer writer) {
+  public static void exportFields(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -314,7 +315,28 @@ public class XmlExportField {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              Field field = (Field)object;
+              final Field field = (Field)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ");
+
+                      XmlExportUtils.toStringType(writer, field.getGroupTypeUuid(), false);
+
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportField xmlExportField = new XmlExportField(grouperVersion, field);
               writer.write("    ");
               xmlExportField.toXml(grouperVersion, writer);
@@ -324,7 +346,11 @@ public class XmlExportField {
             HibUtils.closeQuietly(results);
           }
           
-          //end the members element 
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the fields element 
           writer.write("  </fields>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming fields", ioe);

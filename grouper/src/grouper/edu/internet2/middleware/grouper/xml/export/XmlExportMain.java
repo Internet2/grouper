@@ -115,7 +115,7 @@ public class XmlExportMain {
       
       XmlExportGroupType.exportGroupTypes(writer);
 
-      XmlExportField.exportFields(writer);
+      XmlExportField.exportFields(writer, this);
 
       XmlExportGroupTypeTuple.exportGroupTypeTuples(writer, this);
 
