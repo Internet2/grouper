@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -287,8 +288,9 @@ public class XmlExportAttributeAssignValue {
   /**
    * 
    * @param writer
+   * @param xmlExportMain
    */
-  public static void exportAttributeAssignValues(final Writer writer) {
+  public static void exportAttributeAssignValues(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -311,7 +313,39 @@ public class XmlExportAttributeAssignValue {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              AttributeAssignValue attributeAssignValue = (AttributeAssignValue)object;
+              final AttributeAssignValue attributeAssignValue = (AttributeAssignValue)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- value: ");
+                      
+                      if (attributeAssignValue.getValueInteger() != null) {
+                        writer.write(attributeAssignValue.getValueInteger().toString());
+                      } else if (!StringUtils.isBlank(attributeAssignValue.getValueMemberId())) {
+                        XmlExportUtils.toStringMember("value", writer, attributeAssignValue.getValueMemberId(), false);
+                      } else if (attributeAssignValue.getValueString() != null) {
+                        writer.write(attributeAssignValue.getValueString());
+                      } else {
+                        writer.write("null");
+                      }
+                      writer.write(", ");
+                      
+                      XmlExportUtils.toStringAttributeAssign(null, writer, attributeAssignValue.getAttributeAssignId(), false);
+
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportAttributeAssignValue xmlExportAttributeDefName = new XmlExportAttributeAssignValue(grouperVersion, attributeAssignValue);
               writer.write("    ");
               xmlExportAttributeDefName.toXml(grouperVersion, writer);
@@ -319,6 +353,10 @@ public class XmlExportAttributeAssignValue {
             }
           } finally {
             HibUtils.closeQuietly(results);
+          }
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
           }
           
           //end the members element 

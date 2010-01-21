@@ -311,8 +311,9 @@ public class XmlExportAttributeDefNameSet {
   /**
    * 
    * @param writer
+   * @param xmlExportMain
    */
-  public static void exportAttributeDefNameSets(final Writer writer) {
+  public static void exportAttributeDefNameSets(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -335,7 +336,29 @@ public class XmlExportAttributeDefNameSet {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              AttributeDefNameSet attributeDefNameSet = (AttributeDefNameSet)object;
+              final AttributeDefNameSet attributeDefNameSet = (AttributeDefNameSet)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ");
+
+                      XmlExportUtils.toStringAttributeDefName("ifHas", writer, attributeDefNameSet.getIfHasAttributeDefNameId(), true);
+                      XmlExportUtils.toStringAttributeDefName("thenHas", writer, attributeDefNameSet.getThenHasAttributeDefNameId(), false);
+
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = new XmlExportAttributeDefNameSet(grouperVersion, attributeDefNameSet);
               writer.write("    ");
               xmlExportAttributeDefNameSet.toXml(grouperVersion, writer);
@@ -345,7 +368,11 @@ public class XmlExportAttributeDefNameSet {
             HibUtils.closeQuietly(results);
           }
           
-          //end the members element 
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the attribute def name sets element 
           writer.write("  </attributeDefNameSets>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming attributeDefNameSets", ioe);

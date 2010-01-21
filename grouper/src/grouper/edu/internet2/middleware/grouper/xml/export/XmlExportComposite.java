@@ -319,12 +319,10 @@ public class XmlExportComposite {
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     try {
-                      writer.write("\n    <!-- ownerGroup: ");
-                      writer.write(composite.getOwnerGroup().getName());
-                      writer.write(", leftGroup: ");
-                      writer.write(composite.getLeftGroup().getName());
-                      writer.write(", rightGroup: ");
-                      writer.write(composite.getRightGroup().getName());
+                      writer.write("\n    <!-- ");
+                      XmlExportUtils.toStringGroup("owner", writer, composite.getFactorOwnerUuid(), true);
+                      XmlExportUtils.toStringGroup("left", writer, composite.getLeftFactorUuid(), true);
+                      XmlExportUtils.toStringGroup("right", writer, composite.getRightFactorUuid(), false);
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {
@@ -340,6 +338,11 @@ public class XmlExportComposite {
             }
           } finally {
             HibUtils.closeQuietly(results);
+          }
+          
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
           }
           
           //end the members element 

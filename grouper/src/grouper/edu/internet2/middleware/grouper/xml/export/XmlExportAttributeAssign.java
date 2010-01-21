@@ -549,10 +549,10 @@ public class XmlExportAttributeAssign {
   }
 
   /**
-   * 
+   * @param xmlExportMain
    * @param writer
    */
-  public static void exportAttributeAssigns(final Writer writer) {
+  public static void exportAttributeAssigns(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -576,7 +576,28 @@ public class XmlExportAttributeAssign {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              AttributeAssign attributeAssign = (AttributeAssign)object;
+              final AttributeAssign attributeAssign = (AttributeAssign)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!--  ");
+                      
+                      XmlExportUtils.toStringAttributeAssign(null, writer, attributeAssign, false);
+
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportAttributeAssign xmlExportAttributeAssign = new XmlExportAttributeAssign(grouperVersion, attributeAssign);
               writer.write("    ");
               xmlExportAttributeAssign.toXml(grouperVersion, writer);
@@ -586,7 +607,11 @@ public class XmlExportAttributeAssign {
             HibUtils.closeQuietly(results);
           }
           
-          //end the members element 
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the attribute assigns element 
           writer.write("  </attributeAssigns>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming attributeAssigns", ioe);

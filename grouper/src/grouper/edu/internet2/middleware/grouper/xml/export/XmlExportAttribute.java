@@ -17,9 +17,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
 import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -259,10 +256,9 @@ public class XmlExportAttribute {
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     try {
-                      writer.write("\n    <!-- group: ");
-                      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attribute.getGroupUuid(), true);
-                      writer.write(group.getName());
-                      writer.write(", attribute: ");
+                      writer.write("\n    <!-- ");
+                      XmlExportUtils.toStringGroup(null, writer, attribute.getGroupUuid(), true);
+                      writer.write("attribute: ");
                       writer.write(attribute.getAttrName());
                       writer.write(" -->\n");
                       return null;
@@ -280,6 +276,11 @@ public class XmlExportAttribute {
             }
           } finally {
             HibUtils.closeQuietly(results);
+          }
+          
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
           }
           
           //end the members element 

@@ -16,12 +16,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -240,12 +235,9 @@ public class XmlExportGroupTypeTuple {
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     try {
-                      writer.write("\n    <!-- group: ");
-                      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupTypeTuple.getGroupUuid(), true);
-                      writer.write(group.getName());
-                      writer.write(", type: ");
-                      GroupType groupType = GroupTypeFinder.findByUuid(groupTypeTuple.getTypeUuid(), true);
-                      writer.write(groupType.getName());
+                      writer.write("\n    <!-- ");
+                      XmlExportUtils.toStringGroup(null, writer, groupTypeTuple.getGroupUuid(), true);
+                      XmlExportUtils.toStringType(writer, groupTypeTuple.getTypeUuid(), false);
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {
@@ -262,6 +254,10 @@ public class XmlExportGroupTypeTuple {
             }
           } finally {
             HibUtils.closeQuietly(results);
+          }
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
           }
           
           //end the members element 

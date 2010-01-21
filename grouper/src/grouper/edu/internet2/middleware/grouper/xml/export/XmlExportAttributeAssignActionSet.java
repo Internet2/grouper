@@ -16,6 +16,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -337,7 +338,34 @@ public class XmlExportAttributeAssignActionSet {
             while(results.next()) {
               Object object = results.get(0);
               final AttributeAssignActionSet attributeAssignActionSet = (AttributeAssignActionSet)object;
-              //TODO add in comments
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ");
+                      AttributeAssignAction attributeAssignAction = XmlExportUtils
+                        .toStringAttributeAssignAction("ifHas", writer, 
+                            attributeAssignActionSet.getIfHasAttrAssignActionId(), true);
+                      XmlExportUtils
+                        .toStringAttributeAssignAction("thenHas", writer, 
+                          attributeAssignActionSet.getThenHasAttrAssignActionId(), true);
+                      XmlExportUtils
+                        .toStringAttributeDef(null, writer, 
+                          attributeAssignAction.getAttributeDefId(), false);
+
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSet = new XmlExportAttributeAssignActionSet(grouperVersion, attributeAssignActionSet);
               writer.write("    ");
               xmlExportAttributeAssignActionSet.toXml(grouperVersion, writer);
@@ -347,7 +375,12 @@ public class XmlExportAttributeAssignActionSet {
             HibUtils.closeQuietly(results);
           }
           
-          //end the members element 
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the attribute assign action set element 
           writer.write("  </attributeAssignActionSets>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming attributeAssignActionSets", ioe);

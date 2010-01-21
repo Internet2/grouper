@@ -286,8 +286,9 @@ public class XmlExportAttributeDefScope {
   /**
    * 
    * @param writer
+   * @param xmlExportMain
    */
-  public static void exportAttributeDefScopes(final Writer writer) {
+  public static void exportAttributeDefScopes(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -310,7 +311,29 @@ public class XmlExportAttributeDefScope {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              AttributeDefScope attributeDefScope = (AttributeDefScope)object;
+              final AttributeDefScope attributeDefScope = (AttributeDefScope)object;
+              
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ");
+                      
+                      XmlExportUtils.toStringAttributeDef(null, writer, attributeDefScope.getAttributeDefId(), false);
+
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
               XmlExportAttributeDefScope xmlExportAttributeDefScope = new XmlExportAttributeDefScope(grouperVersion, attributeDefScope);
               writer.write("    ");
               xmlExportAttributeDefScope.toXml(grouperVersion, writer);
@@ -320,7 +343,11 @@ public class XmlExportAttributeDefScope {
             HibUtils.closeQuietly(results);
           }
           
-          //end the members element 
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the attribute def scope element 
           writer.write("  </attributeDefScopes>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming attributeDefScopes", ioe);

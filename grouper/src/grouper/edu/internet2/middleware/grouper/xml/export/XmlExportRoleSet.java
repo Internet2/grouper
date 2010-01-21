@@ -345,10 +345,9 @@ public class XmlExportRoleSet {
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     try {
-                      writer.write("\n    <!-- ifHasRole: ");
-                      writer.write(roleSet.getIfHasRole().getName());
-                      writer.write(", thenHasRole: ");
-                      writer.write(roleSet.getThenHasRole().getName());
+                      writer.write("\n    <!-- ");
+                      XmlExportUtils.toStringRole("ifHas", writer, roleSet.getIfHasRoleId(), true);
+                      XmlExportUtils.toStringRole("thenHas", writer, roleSet.getThenHasRoleId(), false);
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {
@@ -365,6 +364,11 @@ public class XmlExportRoleSet {
             }
           } finally {
             HibUtils.closeQuietly(results);
+          }
+          
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
           }
           
           //end the members element 

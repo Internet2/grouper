@@ -131,17 +131,17 @@ public class XmlExportMain {
 
       XmlExportRoleSet.exportRoleSets(writer, this);
 
-      XmlExportAttributeAssignAction.exportAttributeAssignActions(writer);
+      XmlExportAttributeAssignAction.exportAttributeAssignActions(writer, this);
 
       XmlExportAttributeAssignActionSet.exportAttributeAssignActionSets(writer, this);
 
-      XmlExportAttributeAssign.exportAttributeAssigns(writer);
+      XmlExportAttributeAssign.exportAttributeAssigns(writer, this);
 
-      XmlExportAttributeAssignValue.exportAttributeAssignValues(writer);
+      XmlExportAttributeAssignValue.exportAttributeAssignValues(writer, this);
 
-      XmlExportAttributeDefNameSet.exportAttributeDefNameSets(writer);
+      XmlExportAttributeDefNameSet.exportAttributeDefNameSets(writer, this);
 
-      XmlExportAttributeDefScope.exportAttributeDefScopes(writer);
+      XmlExportAttributeDefScope.exportAttributeDefScopes(writer, this);
 
       writer.write("</grouperExport>\n");
       writer.flush();
