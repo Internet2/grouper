@@ -1097,7 +1097,7 @@ public class GrouperCheckConfig {
     checkJar("commons-collections.jar", 570463, "org.apache.commons.collections.ArrayStack", "0.1.0");
     checkJar("commons-digester.jar", 136649, "org.apache.commons.digester.AbstractObjectCreationFactory", "0.1.0");
     checkJar("commons-discovery.jar", 76685, "org.apache.commons.discovery.ant.ServiceDiscoveryTask", "0.4");
-    checkJar("commons-io.jar", 267413, "org.apache.commons.io.comparator.DefaultFileComparator", "null");
+    checkJar("commons-io.jar", 263589, "org.apache.commons.io.comparator.DefaultFileComparator", "1.4");
     checkJar("commons-lang.jar", 468109, "org.apache.commons.lang.ArrayUtils", "2.1");
     checkJar("commons-logging.jar", 131078, "org.apache.commons.logging.impl.AvalonLogger", "1.1.1");
     checkJar("commons-math.jar", 174535, "org.apache.commons.math.distribution.ExponentialDistributionImpl", "1.1");
