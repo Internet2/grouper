@@ -351,13 +351,13 @@ public class GrouperServiceJ2ee implements Filter {
           if (!group.hasMember(loggedInSubject)) {
             //not allowed, cache it
             subjectAllowedCache().put(cacheKey, false);
-            throw new RuntimeException("User is not authorized");
+            throw new RuntimeException("User is not authorized: " + loggedInSubject);
           }
           subjectAllowedCache().put(cacheKey, true);
         } else {
           //if in cache, reflect that
           if (!allowedInCache) {
-            throw new RuntimeException("User is not authorized");
+            throw new RuntimeException("User is not authorized: " + loggedInSubject);
           }
         }
       } catch (Exception e) {

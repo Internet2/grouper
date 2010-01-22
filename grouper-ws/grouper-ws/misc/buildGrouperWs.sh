@@ -30,13 +30,15 @@ fi
 
 cd $buildDir
 
-export CVSROOT=/home/cvs/i2mi
+#export CVSROOT=/home/cvs/i2mi
 
-/usr/bin/cvs export -r $1 grouper-ws
+#/usr/bin/cvs export -r $1 grouper-ws
+
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-ws/
 
 cd $buildDir/grouper-ws/grouper-ws
 
-/home/mchyzer/ant/bin/ant distPackage
+$ANT_HOME/bin/ant distPackage
 
 echo
 echo "result is in $buildDir/" 
