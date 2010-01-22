@@ -4,14 +4,14 @@
 
   <target name="distPackage" description="build tar gz on internet2 box">
   
-    <copy todir="${basedir}/../../grouper-ui-${version}">
+    <copy todir="${basedir}/../../grouper.ui-${version}">
       <fileset dir="${basedir}/../../grouper-ui" />
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../../grouper-ui-${version}.tar.gz" compression="gzip">
+    <tar destfile="${basedir}/../../grouper.ui-${version}.tar.gz" compression="gzip">
       <tarfileset dir="${basedir}/../.." >
-        <include name="grouper-ui-${version}/**"/>
+        <include name="grouper.ui-${version}/**"/>
       </tarfileset>
     </tar>            
     
