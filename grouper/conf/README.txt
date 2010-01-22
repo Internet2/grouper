@@ -1,0 +1,5 @@
+- All of the config files which have ".example" in them are examples of the real config files, with the same name without the ".example" in the name
+- So copy each of the *.example* files to a name without .example in it, and customize to your environment.
+- e.g. copy sources.example.xml to sources.xml, then customize
+- the .example shows you which files need customization, and will not prompt you to commit the real file to CVS (since it is ignored and not stored in CVS)
+- note some files without .example also might need customization (e.g. grouper.properties)

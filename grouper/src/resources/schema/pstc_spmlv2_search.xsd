@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--************************************************************-->
+<!--  pstc_spmlv2_search.xsd                                    -->
+<!--                                                            -->
+<!--  Draft schema for SPML v2.0 search capabilities.           -->
+<!--                                                            -->
+<!--  Editors:                                                  -->
+<!--    Jeff Bohren (Jeff_Bohren@bmc.com)                       -->
+<!--                                                            -->
+<!--                                                            -->
+<!-- Copyright (C) The Organization for the Advancement of      -->
+<!-- Structured Information Standards [OASIS] 2005. All Rights  -->
+<!-- Reserved.                                                  -->
+<!--************************************************************-->
+<schema targetNamespace="urn:oasis:names:tc:SPML:2:0:search" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+        xmlns:spml="urn:oasis:names:tc:SPML:2:0" 
+        xmlns:spmlsearch="urn:oasis:names:tc:SPML:2:0:search" 
+        elementFormDefault="qualified">
+
+  	<import namespace='urn:oasis:names:tc:SPML:2:0' 
+		schemaLocation='pstc_spmlv2_core.xsd' />
+
+	<simpleType name="ScopeType">
+		<restriction base="string">
+			<enumeration value="pso"/>
+			<enumeration value="oneLevel"/>
+			<enumeration value="subTree"/>
+		</restriction>
+	</simpleType>
+	
+	<complexType name="SearchQueryType">
+		<complexContent>
+			<extension base="spml:ExtensibleType">	
+				<sequence>
+					<annotation>
+						<documentation>Open content is one or more instances of QueryClauseType (including SelectionType) or LogicalOperator.</documentation>
+					</annotation>
+
+					<element name="basePsoID" type="spml:PSOIdentifierType"  minOccurs="0" />
+				</sequence>
+				<attribute name="targetID" type="string" use="optional"/>
+				<attribute name="scope" type="spmlsearch:ScopeType" use="optional"/>
+			</extension>
+		</complexContent>				
+	</complexType>
+	
+	<complexType name="ResultsIteratorType">
+		<complexContent>
+			<extension base="spml:ExtensibleType">	
+				<attribute name="ID" type="xsd:ID"/>
+			</extension>
+		</complexContent>				
+	</complexType>
+	
+	<complexType name="SearchRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<sequence>
+					<element name="query" type="spmlsearch:SearchQueryType" minOccurs="0" />
+					<element name="includeDataForCapability" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute name="returnData" type="spml:ReturnDataType" use="optional" default="everything"/>
+				<attribute name="maxSelect" type="xsd:int" use="optional"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="SearchResponseType">
+		<complexContent>
+			<extension base="spml:ResponseType">
+				<sequence>
+					<element name="pso" type="spml:PSOType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="iterator" type="spmlsearch:ResultsIteratorType" minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	
+	<complexType name="IterateRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<sequence>
+					<element name="iterator" type="spmlsearch:ResultsIteratorType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="CloseIteratorRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<sequence>
+					<element name="iterator" type="spmlsearch:ResultsIteratorType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+
+	<complexType name="LogicalOperatorType">
+		<complexContent>
+			<extension base="spml:QueryClauseType">	
+			</extension>
+		</complexContent>				
+	</complexType>
+	
+
+
+
+	<element name="query" type="spmlsearch:SearchQueryType" />
+	<element name="and" type="spmlsearch:LogicalOperatorType" />
+	<element name="or" type="spmlsearch:LogicalOperatorType" />
+	<element name="not" type="spmlsearch:LogicalOperatorType" />
+	<element name="searchRequest" type="spmlsearch:SearchRequestType" />
+	<element name="searchResponse" type="spmlsearch:SearchResponseType" />
+	<element name="iterateRequest" type="spmlsearch:IterateRequestType" />
+	<element name="iterateResponse" type="spmlsearch:SearchResponseType" />
+	<element name="closeIteratorRequest" type="spmlsearch:CloseIteratorRequestType" />
+	<element name="closeIteratorResponse" type="spml:ResponseType" />
+	
+</schema>
+

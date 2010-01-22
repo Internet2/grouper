@@ -1,0 +1,184 @@
+<listTargetsResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='REQUESTID_TEST'>
+  <target targetID='ad-prod' profile='urn:oasis:names:tc:SPML:2:0:DSML'>
+    <schema>
+      <spmldsml:schema xmlns:spmldsml='urn:oasis:names:tc:SPML:2:0:DSML'>
+        <spmldsml:objectClassDefinition name='group'>
+          <spmldsml:memberAttributes>
+            <spmldsml:attributeDefinitionReference name='objectclass'/>
+            <spmldsml:attributeDefinitionReference name='cn'/>
+            <spmldsml:attributeDefinitionReference name='description'/>
+            <spmldsml:attributeDefinitionReference name='hasMember'/>
+          </spmldsml:memberAttributes>
+        </spmldsml:objectClassDefinition>
+        <spmldsml:objectClassDefinition name='member'>
+          <spmldsml:memberAttributes>
+            <spmldsml:attributeDefinitionReference name='isMemberOf'/>
+          </spmldsml:memberAttributes>
+        </spmldsml:objectClassDefinition>
+        <spmldsml:attributeDefinition name='objectclass'/>
+        <spmldsml:attributeDefinition name='cn'/>
+        <spmldsml:attributeDefinition name='description'/>
+        <spmldsml:attributeDefinition name='hasMember'/>
+        <spmldsml:attributeDefinition name='isMemberOf'/>
+      </spmldsml:schema>
+      <supportedSchemaEntity targetID='ad-prod' entityName='group'/>
+      <supportedSchemaEntity targetID='ad-prod' entityName='member'/>
+    </schema>
+    <capabilities>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:schemaEntity targetID='ad-prod' entityName='group'/>
+          <spmlref:canReferTo targetID='ad-prod' entityName='member'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='ad-prod' entityName='group'/>
+      </capability>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:schemaEntity targetID='ad-prod' entityName='group'/>
+          <spmlref:canReferTo targetID='ad-prod' entityName='group'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='ad-prod' entityName='group'/>
+      </capability>
+    </capabilities>
+  </target>
+  <target targetID='ad-test' profile='urn:oasis:names:tc:SPML:2:0:DSML'>
+    <schema>
+      <spmldsml:schema xmlns:spmldsml='urn:oasis:names:tc:SPML:2:0:DSML'>
+        <spmldsml:objectClassDefinition name='group'>
+          <spmldsml:memberAttributes>
+            <spmldsml:attributeDefinitionReference name='objectclass'/>
+            <spmldsml:attributeDefinitionReference name='cn'/>
+            <spmldsml:attributeDefinitionReference name='description'/>
+            <spmldsml:attributeDefinitionReference name='hasMember'/>
+          </spmldsml:memberAttributes>
+        </spmldsml:objectClassDefinition>
+        <spmldsml:objectClassDefinition name='member'>
+          <spmldsml:memberAttributes>
+            <spmldsml:attributeDefinitionReference name='isMemberOf'/>
+          </spmldsml:memberAttributes>
+        </spmldsml:objectClassDefinition>
+        <spmldsml:attributeDefinition name='objectclass'/>
+        <spmldsml:attributeDefinition name='cn'/>
+        <spmldsml:attributeDefinition name='description'/>
+        <spmldsml:attributeDefinition name='hasMember'/>
+        <spmldsml:attributeDefinition name='isMemberOf'/>
+      </spmldsml:schema>
+      <supportedSchemaEntity targetID='ad-test' entityName='group'/>
+      <supportedSchemaEntity targetID='ad-test' entityName='member'/>
+    </schema>
+    <capabilities>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:schemaEntity targetID='ad-test' entityName='group'/>
+          <spmlref:canReferTo targetID='ad-test' entityName='member'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='ad-test' entityName='group'/>
+      </capability>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:schemaEntity targetID='ad-test' entityName='group'/>
+          <spmlref:canReferTo targetID='ad-test' entityName='group'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='ad-test' entityName='group'/>
+      </capability>
+    </capabilities>
+  </target>
+  <target targetID='openldap-prod' profile='urn:oasis:names:tc:SPML:2:0:DSML'>
+    <schema>
+      <spmldsml:schema xmlns:spmldsml='urn:oasis:names:tc:SPML:2:0:DSML'>
+        <spmldsml:objectClassDefinition name='group'>
+          <spmldsml:memberAttributes>
+            <spmldsml:attributeDefinitionReference name='objectClass'/>
+            <spmldsml:attributeDefinitionReference name='cn'/>
+            <spmldsml:attributeDefinitionReference name='description'/>
+            <spmldsml:attributeDefinitionReference name='hasMember'/>
+          </spmldsml:memberAttributes>
+        </spmldsml:objectClassDefinition>
+        <spmldsml:objectClassDefinition name='member'>
+          <spmldsml:memberAttributes>
+            <spmldsml:attributeDefinitionReference name='isMemberOf'/>
+          </spmldsml:memberAttributes>
+        </spmldsml:objectClassDefinition>
+        <spmldsml:attributeDefinition name='objectClass'/>
+        <spmldsml:attributeDefinition name='cn'/>
+        <spmldsml:attributeDefinition name='description'/>
+        <spmldsml:attributeDefinition name='hasMember'/>
+        <spmldsml:attributeDefinition name='isMemberOf'/>
+      </spmldsml:schema>
+      <supportedSchemaEntity targetID='openldap-prod' entityName='group'/>
+      <supportedSchemaEntity targetID='openldap-prod' entityName='member'/>
+    </schema>
+    <capabilities>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:schemaEntity targetID='openldap-prod' entityName='group'/>
+          <spmlref:canReferTo targetID='openldap-prod' entityName='member'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='openldap-prod' entityName='group'/>
+      </capability>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:schemaEntity targetID='openldap-prod' entityName='group'/>
+          <spmlref:canReferTo targetID='openldap-prod' entityName='group'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='openldap-prod' entityName='group'/>
+      </capability>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='memberOf'>
+          <spmlref:schemaEntity targetID='openldap-prod' entityName='member'/>
+          <spmlref:canReferTo targetID='openldap-prod' entityName='group'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='openldap-prod' entityName='member'/>
+      </capability>
+    </capabilities>
+  </target>
+  <target targetID='openldap-test' profile='urn:oasis:names:tc:SPML:2:0:DSML'>
+    <schema>
+      <spmldsml:schema xmlns:spmldsml='urn:oasis:names:tc:SPML:2:0:DSML'>
+        <spmldsml:objectClassDefinition name='group'>
+          <spmldsml:memberAttributes>
+            <spmldsml:attributeDefinitionReference name='objectClass'/>
+            <spmldsml:attributeDefinitionReference name='cn'/>
+            <spmldsml:attributeDefinitionReference name='description'/>
+            <spmldsml:attributeDefinitionReference name='hasMember'/>
+          </spmldsml:memberAttributes>
+        </spmldsml:objectClassDefinition>
+        <spmldsml:objectClassDefinition name='member'>
+          <spmldsml:memberAttributes>
+            <spmldsml:attributeDefinitionReference name='isMemberOf'/>
+          </spmldsml:memberAttributes>
+        </spmldsml:objectClassDefinition>
+        <spmldsml:attributeDefinition name='objectClass'/>
+        <spmldsml:attributeDefinition name='cn'/>
+        <spmldsml:attributeDefinition name='description'/>
+        <spmldsml:attributeDefinition name='hasMember'/>
+        <spmldsml:attributeDefinition name='isMemberOf'/>
+      </spmldsml:schema>
+      <supportedSchemaEntity targetID='openldap-test' entityName='group'/>
+      <supportedSchemaEntity targetID='openldap-test' entityName='member'/>
+    </schema>
+    <capabilities>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:schemaEntity targetID='openldap-test' entityName='group'/>
+          <spmlref:canReferTo targetID='openldap-test' entityName='member'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='openldap-test' entityName='group'/>
+      </capability>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+          <spmlref:schemaEntity targetID='openldap-test' entityName='group'/>
+          <spmlref:canReferTo targetID='openldap-test' entityName='group'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='openldap-test' entityName='group'/>
+      </capability>
+      <capability namespaceURI='urn:oasis:names:tc:SPML:2:0:reference'>
+        <spmlref:referenceDefinition xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='memberOf'>
+          <spmlref:schemaEntity targetID='openldap-test' entityName='member'/>
+          <spmlref:canReferTo targetID='openldap-test' entityName='group'/>
+        </spmlref:referenceDefinition>
+        <appliesTo targetID='openldap-test' entityName='member'/>
+      </capability>
+    </capabilities>
+  </target>
+</listTargetsResponse>
