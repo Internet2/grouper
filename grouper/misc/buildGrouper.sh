@@ -43,7 +43,6 @@ $ANT_HOME/bin/ant distPackage
 $ANT_HOME/bin/ant distBinary
 
 mv $buildDir/grouper/dist/binary/*.tar.gz $buildDir/
-mv $buildDir/grouper/dist/binary/*.zip $buildDir/
 
 echo
 echo "regular result is in $buildDir/" 
