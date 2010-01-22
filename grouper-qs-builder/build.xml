@@ -24,7 +24,7 @@
 		<tar basedir="${quickstart.dir}/../" 
 			 includes="${qs.dirname}/**"
 			 compression="gzip" 
-			 destfile="${quickstart.dir}/../grouper-quickstart_${version}.tgz" 
+			 destfile="${quickstart.dir}/../grouper.quickstart-${version}.tgz" 
 			 longfile="gnu"/>
 	</target>
 	
