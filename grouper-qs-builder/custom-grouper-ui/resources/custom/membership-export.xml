@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<membership-export>
+	<format name="Tab separated (on screen)" separator="\t" content-type="">
+		<headers>
+			<header name="Id"/>
+			<header name="Name"/>
+			<header name="Type"/>
+		</headers>
+		<source id="g:gsa">
+			<field name="id"/>
+			<field name="displayName"/>
+			<field value="group"/>
+		</source>
+		<source id="example">
+			<field name="id"/>
+			<field name="name"/>
+			<field value="person"/>
+		</source>
+	</format>
+	<format name="CSV (Open with Excel)" separator="," quote="true" extension=".csv" content-type="application/ms-excel">
+		<headers>
+			<header name="Id"/>
+			<header name="Name"/>
+			<header name="Type"/>
+		</headers>
+		<source id="g:gsa">
+			<field name="id"/>
+			<field name="displayName"/>
+			<field value="group"/>
+		</source>
+		<source id="example">
+			<field name="id"/>
+			<field name="name"/>
+			<field value="person"/>
+		</source>
+	</format>
+	<format name="CSV (in browser)" separator="," quote="true" content-type="text/plain">
+		<headers>
+			<header name="Id"/>
+			<header name="Name"/>
+			<header name="Type"/>
+		</headers>
+		<source id="g:gsa">
+			<field name="id"/>
+			<field name="displayName"/>
+			<field value="group"/>
+		</source>
+		<source id="example">
+			<field name="id"/>
+			<field name="name"/>
+			<field value="person"/>
+		</source>
+	</format>
+</membership-export>

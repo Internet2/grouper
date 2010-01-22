@@ -1,0 +1,174 @@
+/*
+ * @author mchyzer
+ * $Id: GuiMember.java,v 1.3 2009-11-02 08:50:40 mchyzer Exp $
+ */
+package edu.internet2.middleware.grouper.grouperUi.beans.api;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+
+
+
+/**
+ * member bean wraps grouper class with useful methods for UIs
+ */
+public class GuiMember implements Serializable {
+
+  /**
+   * default constructor
+   */
+  public GuiMember() {
+    
+  }
+  
+  
+  /**
+   * get membership if here
+   * @return the membership
+   */
+  public Membership getMembership() {
+    return this.membership;
+  }
+
+  /** member */
+  private Member member;
+  
+  /** immediate membership */
+  private Membership membership;
+  
+  /**
+   * construct from member
+   * @param member1
+   */
+  public GuiMember(Member member1) {
+    try {
+      this.guiSubject = new GuiSubject(member1.getSubject());
+    } catch (SubjectNotFoundException snfe) {
+      this.guiSubject = new GuiSubject(new SubjectWrapper(member1));
+    }
+    this.setGuiSubject(this.guiSubject);
+    this.member = member1;
+  }
+  
+  /**
+   * 
+   * @param membership1
+   */
+  public void setMembership(Membership membership1) {
+    this.membership = membership1;
+  }
+  
+  /**
+   * format on screen of config for milestone: yyyy/MM/dd (not hh:mm aa)
+   */
+  public static final String TIMESTAMP_FORMAT = "yyyy/MM/dd";
+
+  /**
+   * <pre> format: yyyy/MM/dd HH:mm:ss.SSS synchronize code that uses this standard formatter for timestamps </pre>
+   */
+  final static SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_FORMAT);
+
+  /**
+   * 
+   * @return the disabled date
+   */
+  public boolean isHasDisabledString() {
+    return this.membership != null && this.membership.getDisabledTime() != null;
+  }
+  
+  /**
+   * 
+   * @return the disabled date
+   */
+  public String getDisabledDateString() {
+    String format = this.getDisabledDate();
+    if (format == null) {
+      return null;
+    }
+    return "("+ GrouperUiUtils.message("simpleMembershipUpdate.disabledPrefix", false) 
+      + ": " + format + ")";
+  }
+
+  /**
+   * 
+   * @return the disabled date
+   */
+  public String getDisabledDate() {
+    if (this.membership == null || this.membership.getDisabledTime() == null) {
+      return null;
+    }
+    return formatEnabledDisabled(this.membership.getDisabledTime());
+  }
+
+  /**
+   * 
+   * @return the disabled date
+   */
+  public String getEnabledDate() {
+    if (this.membership == null || this.membership.getEnabledTime() == null) {
+      return null;
+    }
+    return formatEnabledDisabled(this.membership.getEnabledTime());
+  }
+
+  /**
+   * @param timestamp 
+   * @return the string format
+   */
+  public synchronized static String formatEnabledDisabled(Timestamp timestamp) {
+    return timestampFormat.format(timestamp);
+  }
+  
+  /**
+   * return the member
+   * @return the member
+   */
+  public Member getMember() {
+    return this.member;
+  }
+  
+  /** the subject for this member */
+  private GuiSubject guiSubject;
+  
+  /** if this subject is deletable (has an immediate membership) */
+  private boolean deletable;
+
+  /**
+   * 
+   * @return the subject
+   */
+  public GuiSubject getGuiSubject() {
+    return this.guiSubject;
+  }
+
+  /**
+   * subject
+   * @param subject1
+   */
+  public void setGuiSubject(GuiSubject subject1) {
+    this.guiSubject = subject1;
+  }
+
+  /**
+   * if there is an immediate membership which can be deleted
+   * @return if deletable
+   */
+  public boolean isDeletable() {
+    return this.deletable;
+  }
+
+  /**
+   * if this subject has an immediate membership
+   * @param deletable1
+   */
+  public void setDeletable(boolean deletable1) {
+    this.deletable = deletable1;
+  }
+  
+}

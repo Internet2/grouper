@@ -1,0 +1,282 @@
+Grouper web service sample of service: getMemberships, WsSampleGetMembershipsRestLite2, manually written lite/rest, type: _withInput, format: json, for version: v1_6_000
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+GET /grouper-ws/servicesRest/json/v1_5_000/subjects/10021368/memberships HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/x-json;charset=UTF-8
+Content-Length: 2576
+Date: Sat, 19 Dec 2009 21:34:07 GMT
+Connection: close
+
+{
+  "WsGetMembershipsResults":{
+    "responseMetadata":{
+      "millis":"190",
+      "serverVersion":"v1_6_000"
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Found 4 results involving 4 groups and 1 subjects",
+      "success":"T"
+    },
+    "wsGroups":[
+      {
+        "description":"a group description",
+        "displayExtension":"a group",
+        "displayName":"a stem:a group",
+        "extension":"aGroup",
+        "name":"aStem:aGroup",
+        "uuid":"85d42e349f4a487fb290f914b131187b"
+      },
+      {
+        "description":"a group description2",
+        "displayExtension":"a group2",
+        "displayName":"a stem:a group2",
+        "extension":"aGroup2",
+        "name":"aStem:aGroup2",
+        "uuid":"46e946f58d934acfb6aa2854a67e6818"
+      },
+      {
+        "displayExtension":"sysadmingroup",
+        "displayName":"etc:sysadmingroup",
+        "extension":"sysadmingroup",
+        "name":"etc:sysadmingroup",
+        "uuid":"c8b911efbc66464fa7b02f06e6b25cab"
+      },
+      {
+        "displayExtension":"webServiceActAsGroup",
+        "displayName":"etc:webServiceActAsGroup",
+        "extension":"webServiceActAsGroup",
+        "name":"etc:webServiceActAsGroup",
+        "uuid":"49edc49b95904e578551dae71e0dff49"
+      }
+    ]
+    ,
+    "wsMemberships":[
+      {
+        "createTime":"2009/12/19 16:34:04.927",
+        "enabled":"T",
+        "groupId":"85d42e349f4a487fb290f914b131187b",
+        "groupName":"aStem:aGroup",
+        "listName":"members",
+        "listType":"list",
+        "memberId":"18c641dd9ff741b29e18396a22f44b7b",
+        "membershipId":"bbe1ae3a163844a58e2d3406e2926ad0:d0b9c90d9fb64813aac9323ddea5ce7e",
+        "membershipType":"immediate",
+        "subjectId":"10021368",
+        "subjectSourceId":"jdbc"
+      },
+      {
+        "createTime":"2009/12/19 16:34:04.975",
+        "enabled":"T",
+        "groupId":"46e946f58d934acfb6aa2854a67e6818",
+        "groupName":"aStem:aGroup2",
+        "listName":"members",
+        "listType":"list",
+        "memberId":"18c641dd9ff741b29e18396a22f44b7b",
+        "membershipId":"3d6c2ac357ab43118ec737e20b16439b:ee0e2414902d47f09cc201d4001ce848",
+        "membershipType":"immediate",
+        "subjectId":"10021368",
+        "subjectSourceId":"jdbc"
+      },
+      {
+        "createTime":"2009/12/19 16:34:05.161",
+        "enabled":"T",
+        "groupId":"c8b911efbc66464fa7b02f06e6b25cab",
+        "groupName":"etc:sysadmingroup",
+        "listName":"members",
+        "listType":"list",
+        "memberId":"18c641dd9ff741b29e18396a22f44b7b",
+        "membershipId":"e956622b813d47d0b8bf486ba1fff789:df9136d59ea0431dad4342687fd5b36b",
+        "membershipType":"immediate",
+        "subjectId":"10021368",
+        "subjectSourceId":"jdbc"
+      },
+      {
+        "createTime":"2009/12/19 16:34:05.116",
+        "enabled":"T",
+        "groupId":"49edc49b95904e578551dae71e0dff49",
+        "groupName":"etc:webServiceActAsGroup",
+        "listName":"members",
+        "listType":"list",
+        "memberId":"18c641dd9ff741b29e18396a22f44b7b",
+        "membershipId":"356c860344a943b8a70e314cae0eae86:34715a5a681f44998c590310c4f17140",
+        "membershipType":"immediate",
+        "subjectId":"10021368",
+        "subjectSourceId":"jdbc"
+      }
+    ]
+    ,
+    "wsSubjects":[
+      {
+        "id":"10021368",
+        "resultCode":"SUCCESS",
+        "sourceId":"jdbc",
+        "success":"T"
+      }
+    ]
+  }
+}
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+package edu.internet2.middleware.grouper.ws.samples.rest.membership;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleGetMembershipsRestLite2 implements WsSampleRest {
+
+  /**
+   * get members lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  @SuppressWarnings("deprecation")
+  public static void getMembershipsLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      GetMethod method = new GetMethod(
+          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+            + "/" + RestClientSettings.VERSION  
+            + "/subjects/10021368/memberships");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+      
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsGetMembershipsResults wsGetMembershipsResults = (WsGetMembershipsResults)wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      String resultMessage = wsGetMembershipsResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsGetMembershipsResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+    getMembershipsLite(WsSampleRestType.xml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    getMembershipsLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    return true;
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: v1_6_000, result code: SUCCESS, result message: Found 4 results involving 4 groups and 1 subjects

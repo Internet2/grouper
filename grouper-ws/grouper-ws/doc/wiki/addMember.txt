@@ -1,0 +1,33 @@
+h4. Description
+
+Add member will add or replace the membership of a group.&nbsp; This affects only direct memberships, not indirect memberships.&nbsp; If the user is already a member of the group it is still a success
+
+h4. Features
+
+* Can assign membership to a "field"&nbsp; or "list", this is a custom type of membership to the group
+* Lookup subjects by subject lookup (by id, source, identifier, etc)
+* Lookup groups by group lookup (by name or uuid)
+* Returns group / subject information, can be detailed or not
+* Can actAs another user
+
+h4. Add member Lite service
+
+* Accepts one group and one member to add direct membership to group
+* Documentation: [SOAP|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co] (click on addMemberLite), [REST|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co] (click on addMemberLite)
+* For REST, the request can put data in query string (in URL or request body)
+* REST request (colon is escaped to %3A): PUT /grouper-ws/servicesRest/v1_3_000/group/aStem%3AaGroup/members/10021368
+* (see documentation above for details): [Request object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/group/WsRestAddMemberLiteRequest.html?root=I2MI&view=co], [response object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsAddMemberLiteResult.html?root=I2MI&view=co]
+* [Response codes|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsAddMemberLiteResult.WsAddMemberLiteResultCode.html?root=I2MI&view=co]
+* [Samples|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/samples/addMember/?root=I2MI&pathrev=HEAD] (all files with "Lite" in them, click on "download" to see file)
+
+h4. Add member service
+
+* Accepts one group and many members to add direct membership to group
+* Can either add multiple members to a group, or can replace all existing members
+* Can operate in one transaction, or can let each membership add in its own separate unit
+* Documentation: [SOAP|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD] (click on addMember), [REST|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co] (click on addMember)
+* REST request (colon is escaped to %3A): PUT /grouper-ws/servicesRest/v1_3_000/group/aStem%3AaGroup/members
+* (see documentation above for details): [Request object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/group/WsRestAddMemberRequest.html?root=I2MI&view=co], [response object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.html?root=I2MI&view=co]
+* [Response codes overall|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co], [response codes for each assignment|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsAddMemberResult.WsAddMemberResultCode.html?root=I2MI&view=co]
+* Returns an overall status, and a status for each assignment
+* [Samples|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/samples/addMember/?root=I2MI&pathrev=HEAD] (all files without "Lite" in them, click on "download" to see files)

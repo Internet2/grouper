@@ -1,0 +1,844 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<tiles-definitions>
+  <definition name="BaseDef" path="/WEB-INF/jsp/template.jsp">
+	  <description>
+		  template.jsp controls the order in which page components are output and which components are nested in which structural DIV tags.
+		  Individual pages may be customised by overriding the various definitions referred to by the 'put' tags. CSS can, to some extent, be used to 
+		  re-position components, however, some re-arrangements may require a replacement template.jsp, or post processing of the generated XHTML.
+	  </description>
+    <put name="header" type="definition" value="headerDef"/>
+    <put name="footer" type="definition" value="footerDef"/>
+    <put name="subheader" type="definition" value="subheaderDef"/>
+    <put name="contentwrapper" type="definition" value="contentDef"/>
+    <put name="left" type="definition" value="leftDef"/>
+     <put name="menu" type="definition" value="menuDef"/>
+    <put name="right" type="definition" value="rightDef"/>
+    <put name="head" type="definition" value="headDef"/>
+    <put name="messageArea" type="definition" value="messageDef"/>
+    <put name="init" type="definition" value="initDef"/>
+    <put name="title" value="titleDef"/>
+        <put name="debug" value="debugDef"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="AssignNewMembersDef">
+	  <description>
+		  Page which shows a set of privileges and a list of Subjects. 
+		  The privileges depend on whether the target is a group or a stem.
+		  The list of Subjects may be the result of a search, in which case
+		  the results will be paged. Alternatively, the subjects may  have been 
+		  selected whilst browsing, in which case the list will not need to be 
+		  paged, however, all the subjects will be checked.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/AssignNewMembers.jsp"/>
+	<put name="browseChildGroup" type="page" value="/WEB-INF/jsp/browseForFindChildGroup.jsp"/> 
+  </definition>
+  
+    <definition name="bodyDef" path="/WEB-INF/jsp/body.jsp">
+		<put name="internet2spons" type="definition" value="internet2sponsDef"/>
+	  <description>
+		  Start body tag + content
+	  </description>
+  </definition>
+  	 <definition name="internet2sponsDef" path="/WEB-INF/jsp/internet2spons.jsp">
+		<description>
+			Includes sponsored by + Internet2 logo
+	  </description>
+	 </definition>
+  
+  <definition name="contentDef" path="/WEB-INF/jsp/content.jsp">
+	  <description>
+		  Wrapper which inserts the 'content' attribute into the page.
+		  The wrapper can be redefined to allow sites to add extra 
+		  XHTML around the page specific content, or to re-arrange
+		  the page specific output.
+	  </description>
+  </definition>
+  
+  <definition name="EditorDef" path="/WEB-INF/jsp/Editor.jsp">
+	 <description>
+		  A popup window which immediately closes. Part of
+		  the debug mechanism - if dynamic tiles are shown
+		  and a JSP editor defined, JSP file names are popup links
+		  to an action whch launches the editor. The idea is that the 
+		  underlying page does not refresh when a link is clicked.
+	  </description>    
+    </definition>
+    
+  <definition extends="BaseDef" name="HelpDef">
+	 <description>
+		  The help page. Includes getting started info and general
+		  help. This text is not derived from ResourceBundles as
+		  it makes more sense for a site to override the whole JSP 
+		  pages.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/Help.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="CreateGroupsDef">
+	 <description>
+		  Main page for the 'Create' browse mode
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CreateGroups.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="EditGroupAttributesDef">
+	 <description>
+		  
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/EditGroupAttributes.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="EditGroupDef">
+ 	 <description>
+		  Form for creating new groups or editing existing ones.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/EditGroup.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="CopyGroupDef">
+ 	 <description>
+		  Form for copying groups to another folder.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CopyGroup.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="MoveGroupDef">
+ 	 <description>
+		  Form for moving groups to another folder.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MoveGroup.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="CopyStemDef">
+         <description>
+                  Form for copying stems to another folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CopyStem.jsp"/>
+  </definition>
+ 
+  <definition extends="BaseDef" name="MoveStemDef">
+         <description>
+                  Form for moving stems to another folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MoveStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="CopyOtherStemToStemDef">
+         <description>
+                  Form for copying other stems to the current folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CopyOtherStemToStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="MoveOtherStemToStemDef">
+         <description>
+                  Form for moving other stems to the current folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MoveOtherStemToStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="CopyGroupToStemDef">
+         <description>
+                  Form for copying groups to the current folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CopyGroupToStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="MoveGroupToStemDef">
+         <description>
+                  Form for moving groups to the current folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MoveGroupToStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="MovesCopiesLinksDef">
+ 	 <description>
+		  Form with links for moving/copying a stem and moving/copying stems and groups to a stem.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MovesCopiesLinks.jsp"/>
+  </definition>
+  
+    <definition extends="BaseDef" name="ChainDef">
+    <put name="content" type="page" value="/WEB-INF/jsp/Chain.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="EditStemDef">
+	 <description>
+		 Form for creating newstems or editing existing ones.
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/EditStem.jsp"/>
+  </definition>
+  
+   <definition extends="BaseDef" name="DebugPrefsDef">
+  	 <description>
+		 Form for saving debug preferences.
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/DebugPrefs.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="AuditQueryDef">
+  	 <description>
+		 Show audit query results
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/AuditQuery.jsp"/>
+  </definition>
+  
+    <definition extends="BaseDef" name="GroupTypesDef">
+  	 <description>
+		 Show group types
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/GroupTypes.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="DebugNotAllowedDef">
+  	 <description>
+		 Show instead of debug page if not enabled
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/DebugNotAllowed.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="FindNewMembersDef">
+  	 <description>
+		Browse tree / search screen for finding members 
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/FindNewMembers.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="GroupMemberDef">
+   	 <description>
+			Form which allows user to change an individual
+			Subject`s membership of / privileges for, the
+			active group 
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/GroupMember.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="GroupMembersDef">
+   	 <description>
+			Displays (filtered and paged if necessary) list of current group 
+			members with links to edit individual members
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/GroupMembers.jsp"/>
+  </definition>
+  
+   <definition extends="BaseDef" name="SavedGroupsDef" controllerUrl="/prepareSavedGroups.do">
+   	 <description>
+		Displays list of saved groups	
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SavedGroups.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="SavedSubjectsDef" controllerUrl="/prepareSavedSubjects.do">
+   	 <description>
+		Displays list of saved Subjects	
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SavedSubjects.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="SavedStemsDef" controllerUrl="/prepareSavedStems.do">
+   	 <description>
+		Displays list of saved Stems	
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SavedStems.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="GroupPriviligeesDef">
+    <description>
+			Displays list of Subjects with selected privilege, with links 
+			to edit privileges for individual Subjects
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/GroupPriviligees.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="StemPriviligeesDef">
+     <description>
+			Displays list of Subjects with selected privilege, with links 
+			to edit privileges for individual Subjects
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/StemPriviligees.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="GroupSummaryDef">
+      <description>
+			Displays summary of a group and provides links for 
+			the maintenance of the group
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/GroupSummary.jsp"/>
+	<put name="browseLocation" type="page" value="/WEB-INF/jsp/browseStemsLocation.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="GroupAsFactorDef">
+      <description>
+			Displays Groups where focus group is a factor
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/GroupAsFactor.jsp"/>
+	<put name="browseLocation" type="page" value="/WEB-INF/jsp/browseStemsLocation.jsp"/>
+  </definition>  
+  
+    <definition extends="BaseDef" name="SubjectSummaryDef">
+      <description>
+			Displays summary of a subject and a means to discovering memberships and 
+			privileges
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SubjectSummary.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="IndexDef">
+     <description>
+			Splash page for unauthenticated users, Displays getting started
+			info and a login link
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/index.jsp"/>
+    <put name="left" type="page" value="/WEB-INF/jsp/empty.jsp"/>
+  </definition>
+  
+  <!--definition name="InitSessionDef" path="WEB-INF/jsp/InitSession.jsp"/-->
+  
+  <definition extends="BaseDef" name="JoinGroupsDef">
+ 	 <description>
+		  Main page for the 'Join' browse mode
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/JoinGroups.jsp"/>
+  </definition>
+  
+  <!--definition extends="BaseDef" name="LoginDef">
+    <put name="content" type="page" value="/WEB-INF/jsp/Login.jsp"/>
+    <put name="left" type="page" value="/WEB-INF/jsp/empty.jsp"/>
+  </definition-->
+  <!--definition name="LogoutDef" path="/WEB-INF/jsp/Logout.jsp"/-->
+  
+  <definition extends="BaseDef" name="ManageGroupsDef">
+  	 <description>
+		  Main page for the 'Manage' browse mode
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/ManageGroups.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="MyGroupsDef">
+   	 <description>
+		  Main page for the 'default' browse mode - My memberships
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MyGroups.jsp"/>
+  </definition>
+  
+    <definition extends="BaseDef" name="AllGroupsDef">
+     	 <description>
+		  Main page for the 'All' browse mode 
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/AllGroups.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="SearchGroupResultsDef">
+     <description>
+		  Displays search results when searching for groups in all modes 
+		  except 'Find' mode 
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SearchGroupResults.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="SearchStemResultsDef">
+     <description>
+		  Displays search results when searching for stems 
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/SearchStemResults.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="UploadTestFormDef">
+   	 <description>
+			Form which allows user to upload the results of unit tests. The
+			format is important - but allows the pages produced by testing to be viewed 
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/UploadTestForm.jsp"/>
+  </definition>
+  
+   <definition name="AddCompositeDef" extends="BaseDef" controllerUrl="/prepareSavedGroups.do">
+	  <description>
+		  Form for adding a composite to a group	  
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/AddComposite.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="StemMemberDef">
+   	 <description>
+			Form which allows user to change an individual
+			Subject`s membership of / privileges for, the
+			active stem 
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/StemMember.jsp"/>
+  </definition>
+  
+  <!--definition extends="BaseDef" name="StemMembersDef">
+    <description>
+			Displays list of Subjects with selected privilege, with links 
+			to edit privileges for individual Subjects
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/StemMembers.jsp"/>
+  </definition-->
+  
+  <definition controllerUrl="/prepareStems.do" name="browseStemsDef"
+              path="/WEB-INF/jsp/browseStems.jsp">
+      <description>
+		  Tile which is embedded in other pages - 
+		  displays child stems and groups of the 
+		  active stem
+	</description>
+			  			  <put name="maintainModule" type="String" value="y"/>
+						  <put name="browseLocation" type="page" value="/WEB-INF/jsp/browseStemsLocation.jsp"/>
+						  <put name="browseChildStem" type="page" value="/WEB-INF/jsp/browseChildStem.jsp"/>
+						  <put name="browseChildGroup" type="page" value="/WEB-INF/jsp/browseChildGroup.jsp"/>
+						  <put name="browseForFindMember" type="page" value="/WEB-INF/jsp/browseForFindMember.jsp"/>
+  </definition>
+  
+  <definition controllerUrl="/prepareStems.do" name="browseStemsFindDef"
+              path="/WEB-INF/jsp/browseStemsFind.jsp">
+      <description>
+		  Tile which is embedded in other pages - 
+		  displays child stems and groups and group
+		  memberships of the curent node
+	</description>
+			  <put name="maintainModule" type="String" value="y"/>
+			  <put name="browseChildGroup" type="page" value="/WEB-INF/jsp/browseForFindChildGroup.jsp"/>
+			  <put name="browseLocation" type="page" value="/WEB-INF/jsp/browseStemsLocation.jsp"/>
+			  <put name="browseChildStem" type="page" value="/WEB-INF/jsp/browseChildStem.jsp"/>
+			  <put name="browseForFindMember" type="page" value="/WEB-INF/jsp/browseForFindMember.jsp"/>
+  </definition>
+  
+  <definition controllerUrl="/getDynamicTileName.do"
+				   name="dynamicTileDef" path="/WEB-INF/jsp/dynamicTile.jsp">      
+	<description>
+		  Tile which is configured to load dynamic tiles based on a 'view'
+		  and a 'viewObject'
+	</description>
+				   <put name="maintainModule" type="String" value="y"/>
+</definition>
+
+   <definition name="auditSearchDef" path="/WEB-INF/jsp/audit/auditSearch.jsp">
+	  <description>
+		  Form embedded in another page which allows the audit log to be searched	  
+	  </description>
+  </definition>
+
+  <definition name="groupMemberPrivsDef" path="/WEB-INF/jsp/modifyGroupMemberPrivilegesView.jsp">
+	  <description>
+		  Form embedded in another page which allows a Subject`s
+		  membership / privileges for the active group to be changed	  
+	  </description>
+  </definition>
+ 
+    <definition name="stemMemberPrivsDef" path="/WEB-INF/jsp/modifyStemMemberPrivilegesView.jsp">
+	  <description>
+		  Form embedded in another page which allows a Subject`s
+		  privileges for the active stem to be changed	  
+	  </description>
+	 </definition>
+	 
+  <definition name="footerDef" path="/WEB-INF/jsp/footer.jsp">
+	  <description>
+		 Standard tile used in baseDef which appears at the bottom
+		 of all pages unless otherwise configured	  
+	  </description>
+	 </definition>
+	 
+  <definition name="headDef" path="/WEB-INF/jsp/head.jsp">
+	  <description>
+		  	Tile which provides contents for HEAD tags
+			on all pages derived from baseDef unless
+			overridden  
+	  </description>
+	 </definition>
+	 
+  <definition name="headerDef" path="/WEB-INF/jsp/header.jsp">
+	  <description>
+		 Standard tile used in baseDef which appears at the top
+		 of all pages unless otherwise configured 
+	  </description>
+ </definition>
+	 
+  <definition name="initDef" path="/WEB-INF/jsp/empty.jsp">
+	  <description>
+		  Ensures that session is initialised with
+		  ResourceBundles. May be called even  when
+		  not needed - so must review
+	  </description>
+ </definition>
+ 
+  <definition name="leftDef" path="/WEB-INF/jsp/left.jsp">
+	  <description>
+		 Standard tile used in baseDef which appears at the left
+		 of all pages.
+	  </description>
+ </definition>
+ 
+ <definition name="menuDef" path="/WEB-INF/jsp/menu.jsp" controllerUrl="/prepareMenu.do">
+	  <description>
+		 Standard tile used in baseDef which appears at the left, by default,
+		 of all pages unless otherwise configured. Can be 'relocated' to the menu bar by CSS 
+	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
+ </definition>
+ 
+ 
+  <definition name="messageDef" path="/WEB-INF/jsp/message.jsp">
+	  <description>
+		 Standard tile used in baseDef which appears above the content space
+		 and renders any Message object assigned to the request attribute key
+		 'message'
+	  </description>
+ </definition>
+ 
+    <definition name="initialStemsDef" path="/WEB-INF/jsp/initialStems.jsp">
+	  <description>
+		 	Tile inserted in browseStemsDef if an 
+			InitialStems plugin is defined and that
+			mode is selected
+	  </description>
+ </definition>
+ 
+  <definition name="rightDef" path="/WEB-INF/jsp/right.jsp">
+	  <description>
+		 Standard tile used in baseDef which appears at the right
+		 of all page - empty in the standard UI
+	  </description>
+ </definition>
+ 
+  <definition name="stemLinksDef" path="/WEB-INF/jsp/stemLinks.jsp">
+	  <description>
+		 Tile which displays a standard set of stem management links based
+		 on the privileges of the current user for the current stem
+	  </description>
+ </definition>
+ 
+    <definition name="gettingStartedDef" path="/WEB-INF/jsp/gettingStarted.jsp">
+	  <description>
+		 Tile which gives a basic introduction to Grouper - used on the splash page
+		 and on the help page
+	  </description>
+ </definition>
+ 
+  <definition name="groupLinksDef" path="/WEB-INF/jsp/groupLinks.jsp">
+	  <description>
+		 Tile which displays a standard set of group management links based
+		 on the privileges of the current user for the current group
+	  </description>
+ </definition>
+ 
+   <definition name="subjectLinksDef" path="/WEB-INF/jsp/subjectLinks.jsp">
+	  <description>
+		 Tile which displays a standard set of links for a subject
+	  </description>
+ </definition>
+ 
+  <definition name="subheaderDef" path="/WEB-INF/jsp/subheader.jsp">
+	  <description>
+		 Stanard tile which displays a menu bar below the header
+	  </description>
+ </definition>
+ 
+  <definition name="titleDef" path="/WEB-INF/jsp/title.jsp">
+	  <description>
+		 Standard tile which displays a page title and possibly subtitle
+		 below the subheader
+	  </description>
+ </definition>
+ 
+  <definition controllerUrl="/prepareFlatten.do" name="flattenDef" path="/WEB-INF/jsp/flatten.jsp">
+	  <description>
+		 Standard tile which displays links which allow a user to show
+		 initial stems (if configured) and toggle whether to show the group 
+		 hierarchy or a flat list of groups or stems
+	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
+ </definition>
+ 
+  <definition name="searchFromDef" path="/WEB-INF/jsp/searchFrom.jsp" controllerUrl="/prepareBrowsePath.do">
+	  <description>
+		Tile which displays a select list of parent stems to scope a search
+		to a branch of the groups hierarchy
+	  </description>
+ </definition>
+ 
+  <definition name="showStemsLocationDef" path="/WEB-INF/jsp/browseStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
+	  <description>
+		Tile which displays a  list of parent stems to show the location of the current group
+		or stem. The stem names ARE links. This has changed in 1.3.0
+	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
+ </definition>
+ 
+ <!--<definition name="showStemsLocationDef" path="/WEB-INF/jsp/showStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
+	  <description>
+		Tile which displays a  list of parent stems to show the location of the current group
+		or stem. The stem names are not links
+	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
+ </definition>-->
+ 
+   <definition name="browseStemsLocationDef" path="/WEB-INF/jsp/browseStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
+	  <description>
+		Tile which displays a  list of parent stems to show the location of the current group
+		or stem. The stem names are links
+	  </description>
+	  	  <put name="maintainModule" type="String" value="y"/>
+ </definition>
+ 
+  <definition name="simpleSearchGroupsDef" path="/WEB-INF/jsp/simpleSearchGroups.jsp"  controllerUrl="/prepareGroupOrStemSearch.do"><put name="maintainModule" type="String" value="y"/>
+	  <description>
+		Tile which displays the simple search form for groups
+	  </description>
+  </definition>
+  
+   <definition name="SubjectSearchResultsDef" extends="BaseDef" >
+	  <description>
+		Tile which displays the subject search results
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/SubjectSearchResults.jsp"/>
+  </definition>
+  
+  <definition name="SimpleSubjectSearchDef" extends="BaseDef" >
+	  <description>
+		Tile which displays the subject search form
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/SimpleSubjectSearch.jsp"/>
+  </definition> 
+
+<definition name="ExportMembersDef" extends="BaseDef" >
+	  <description>
+		Tile which displays exported member data
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/ExportMembers.jsp"/>
+  </definition>
+
+<definition name="ImportMembersDef" extends="BaseDef">
+	  <description>
+		Tile which shows 'log' of import process
+	  </description>
+	  <put name="content" type="page" value="/WEB-INF/jsp/ImportMembers.jsp"/>
+  </definition>  
+  
+  <definition name="subjectSearchFragmentDef" path="/WEB-INF/jsp/subjectSearchFragment.jsp"  controllerUrl="/prepareSubjectSearch.do"><put name="maintainModule" type="String" value="y"/>
+	  <description>
+		Tile which displays the subject search form fragment - it uses SourceManager to get a list of sources and allows a user to select which to search.
+	  </description>
+  </definition>
+  
+  <definition name="advancedSearchGroupsDef" path="/WEB-INF/jsp/advancedSearchGroups.jsp"   controllerUrl="/prepareGroupOrStemSearch.do"><put name="maintainModule" type="String" value="y"/>
+	  <description>
+		Tile which displays the advanced search form for groups
+	  </description>  
+  </definition>
+  
+   <definition name="simpleSearchStemsDef" path="/WEB-INF/jsp/simpleSearchStems.jsp"  controllerUrl="/prepareGroupOrStemSearch.do"><put name="maintainModule" type="String" value="y"/>
+	  <description>
+		Tile which displays the simple search form for stems
+	  </description>   
+   </definition>
+   
+   <definition name="advancedSearchStemsDef" path="/WEB-INF/jsp/advancedSearchStems.jsp"   controllerUrl="/prepareGroupOrStemSearch.do"><put name="maintainModule" type="String" value="y"/>
+	  <description>
+		Tile which displays the advanced search form for stems
+	  </description>    
+   </definition>
+   
+   <definition name="simpleSearchDef" path="/WEB-INF/jsp/simpleSearch.jsp"  controllerUrl="/prepareGroupOrStemSearch.do"><put name="maintainModule" type="String" value="y"/>
+ 	  <description>
+		Tile which displays the simple search form for people and groups
+	  </description>
+   </definition>
+   
+   <definition name="changeMembershipScopeDef" path="/WEB-INF/jsp/changeMembershipScope.jsp">
+ 	  <description>
+		Tile which displays a form which allows a user to change whether only immediate, or only effective 
+		or all members of the active group should be displayed
+	  </description>
+   </definition>
+   
+      <definition name="changeSubjectSummaryScopeDef" path="/WEB-INF/jsp/changeSubjectSummaryScope.jsp">
+ 	  <description>
+		Tile which displays a form which allows a user to change whether only immediate, or only effective 
+		or all memberships of the active subject should be displayed, or groups / stems for which the subject
+		has the specified access / naming privilege
+	  </description>
+   </definition>
+   
+   <definition name="selectGroupPrivilegeDef" path="/WEB-INF/jsp/selectGroupPrivilege.jsp">
+ 	  <description>
+		Tile which displays a form which allows a user to select a group privilege and
+		see a list of Subjects with that privilege for the active group
+	  </description>
+   </definition>
+   
+    <definition name="selectStemPrivilegeDef" path="/WEB-INF/jsp/selectStemPrivilege.jsp">
+ 	  <description>
+		Tile which displays a form which allows a user to select a stem privilege and
+		see a list of Subjects with that privilege for the active stem
+	  </description>
+   </definition>
+   
+    <definition name="groupInfoDef" path="/WEB-INF/jsp/groupInfo.jsp">
+ 	  <description>
+		Tile which displays a summary of group attributes  - currently inserted
+		in GroupSummaryDef
+	  </description>
+   </definition>
+   
+  <definition name="emptyDef" path="/WEB-INF/jsp/empty.jsp">
+ 	  <description>
+		Tile with no content - used as a place holder where content may be 
+		needed in future or added in site specific way
+	  </description>
+   </definition>
+
+	<definition name="401Def" path="/WEB-INF/jsp/401.jsp">
+ 	  <description>
+			Not sure this is still used
+	  </description>
+	 </definition>
+	  
+	<definition extends="BaseDef" name="ErrorDef">
+	  <description>
+			Page displayed if uncaught exception thrown
+	  </description>
+		<put name="content" type="page" value="/WEB-INF/jsp/error.jsp"/>
+	</definition>
+	
+	<definition name="generalHelpDef" path="/WEB-INF/jsp/generalHelp.jsp">
+		<description>
+			Tile which displays general help about the UI
+	  </description>
+	 </definition>
+	 
+	 <definition name="callerPageButtonDef" path="/WEB-INF/jsp/callerPageButton.jsp">
+		<description>
+			Tile which displays button to go to previous page
+	  </description>
+	 </definition>
+	 
+	 <definition name="effectivePrivsDef" path="/WEB-INF/jsp/effectivePrivs.jsp">
+		<description>
+			Tile which displays effective privs on priv assignment screen
+	  </description>
+	 </definition>
+	 
+	 <definition name="effectivePrivDef" path="/WEB-INF/jsp/effectivePriv.jsp">
+		<description>
+			Tile which displays one effective priv on priv assignment screen
+	  </description>
+	 </definition>
+	 
+	<definition name="groupStuffDef" path="/WEB-INF/jsp/empty.jsp">
+		<description>
+			Placeholder sites can redefine to add their own content e.g. links
+			to other systems integrated with Grouper.
+	  </description>
+	 </definition>
+	 
+	<definition name="failedRevocationsDef" path="/WEB-INF/jsp/failedRevocations.jsp">
+		<description>
+			Tile which lists any privileges the user attempted to revoke - but which failed
+	  </description>
+	 </definition>
+	 
+	<definition name="debugDef" path="/WEB-INF/jsp/debug.jsp">
+		<description>
+			Tile which displays debug information if dbug mode is on
+	  </description>
+	 </definition>
+	 
+	 <definition name="selectListFieldsDef" path="/WEB-INF/jsp/selectListFields.jsp">
+		<description>
+			Tile which displays form to allow list fields to be viewed / changed
+	  </description>
+	 </definition>
+	 
+	 	<definition name="linkSeparatorDef" path="/WEB-INF/jsp/linkSeparator.jsp">
+		<description>
+			defaults to : to separate links. Made a tile to allow it to be easily changed - possibly with graphic
+	  </description>
+	 </definition>
+	 
+	 <definition name="singleChainPath" path="/WEB-INF/jsp/singleChainPath.jsp">
+		<description>
+			called in loop in view chainPath
+	  </description>
+	 </definition>
+	 
+	 <definition name="multiOptionDef" path="/WEB-INF/jsp/multiOption.jsp">
+		<description>
+			called in loop in view chainPath
+	  </description>
+	 </definition>
+	 	 <definition name="selectStemSearchFieldsDef" path="/WEB-INF/jsp/selectStemSearchFields.jsp">
+		<description>
+			Called from advanced stem search. Displays fields which can be searched
+	  </description>
+	 </definition>
+	 
+	 <definition name="selectGroupSearchFieldsDef" path="/WEB-INF/jsp/selectGroupSearchFields.jsp">
+		<description>
+			Called from advanced group search. Displays fields which can be searched
+	  </description>
+	 </definition>
+	 
+	 	 <definition name="selectGroupSearchTypesDef" path="/WEB-INF/jsp/selectGroupSearchTypes.jsp">
+		<description>
+			Called from advanced group search. Displays group types which can be searched
+	  </description>
+	 </definition>
+	 
+	 <definition name="searchGroupResultFieldChoiceDef" path="/WEB-INF/jsp/searchGroupResultFieldChoice.jsp">
+		<description>
+			Called from group search pages so user can select field to show
+	  </description>
+	 </definition>
+	 
+	 	 <definition name="searchStemResultFieldChoiceDef" path="/WEB-INF/jsp/searchStemResultFieldChoice.jsp">
+		<description>
+			Called from stem search pages so user can select field to show
+	  </description>
+	 </definition>
+	 
+	 <definition name="subjectSearchGroupFragmentDef" path="/WEB-INF/jsp/subjectSearchGroupFragment.jsp">
+		<description>
+			Called from subject search pages to allow source specific search screen
+	  </description>
+	 </definition>
+	 
+	 <definition name="groupMathHelpDef" path="/WEB-INF/jsp/groupMathHelp.jsp">
+		<description>
+			Help text for Group Math
+	  </description>
+	 </definition>
+	 
+	 <definition name="customTypesHelpDef" path="/WEB-INF/jsp/customTypesHelp.jsp">
+		<description>
+			Help text for custom types
+	  </description>
+	 </definition>
+	 
+ <definition name="TestUploadFramesetDef" path="/WEB-INF/jsp/TestUploadFrameset.jsp">
+ 	  <description>
+		Frameset for turning test results into a slideshow
+	  </description>
+   </definition>
+   
+    <definition name="TestUploadFramesetControlsDef" path="/WEB-INF/jsp/TestUploadFramesetControls.jsp">
+ 	  <description>
+		Page which controls slideshow of test results
+	  </description>
+   </definition>
+   
+   <definition extends="BaseDef" name="ErrorPageDef">
+	 <description>
+		 Catch all error page
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/ErrorPage.jsp"/>
+  </definition>
+   <definition extends="BaseDef" name="ErrorNoAuthPageDef">
+	 <description>
+		 Catch all error page when not authenticated
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/ErrorPage.jsp"/>
+     <put name="left" type="page" value="/WEB-INF/jsp/empty.jsp"/>
+  </definition>
+</tiles-definitions> 

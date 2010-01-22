@@ -1,0 +1,311 @@
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesListRestLite, manually written lite/rest, type: _list, format: xml, for version: v1_5_000
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v1_5_000/grouperPrivileges HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+Content-Length: 234
+Content-Type: text/xml; charset=UTF-8
+
+<WsRestGetGrouperPrivilegesLiteRequest>
+  <subjectId>test.subject.0</subjectId>
+  <groupName>aStem:aGroup</groupName>
+  <privilegeType>access</privilegeType>
+  <actAsSubjectId>GrouperSystem</actAsSubjectId>
+</WsRestGetGrouperPrivilegesLiteRequest>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/xml;charset=UTF-8
+Date: Sat, 21 Nov 2009 21:18:21 GMT
+Connection: close
+
+<WsGetGrouperPrivilegesLiteResult>
+  <resultMetadata>
+    <success>T</success>
+    <resultCode>SUCCESS</resultCode>
+  </resultMetadata>
+  <privilegeResults>
+    <WsGrouperPrivilegeResult>
+      <revokable>F</revokable>
+      <privilegeType>access</privilegeType>
+      <privilegeName>read</privilegeName>
+      <ownerSubject>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <name>EveryEntity</name>
+        <sourceId>g:isa</sourceId>
+        <id>GrouperAll</id>
+      </ownerSubject>
+      <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <name>my name is test.subject.0</name>
+        <sourceId>jdbc</sourceId>
+        <id>test.subject.0</id>
+      </wsSubject>
+      <allowed>T</allowed>
+      <wsGroup>
+        <extension>aGroup</extension>
+        <description>a group description</description>
+        <displayExtension>a group</displayExtension>
+        <uuid>92252afc42d547c2b658f34ed9c638ff</uuid>
+        <name>aStem:aGroup</name>
+        <displayName>a stem:a group</displayName>
+      </wsGroup>
+    </WsGrouperPrivilegeResult>
+    <WsGrouperPrivilegeResult>
+      <revokable>F</revokable>
+      <privilegeType>access</privilegeType>
+      <privilegeName>view</privilegeName>
+      <ownerSubject>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <name>EveryEntity</name>
+        <sourceId>g:isa</sourceId>
+        <id>GrouperAll</id>
+      </ownerSubject>
+      <wsSubject>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <name>my name is test.subject.0</name>
+        <sourceId>jdbc</sourceId>
+        <id>test.subject.0</id>
+      </wsSubject>
+      <allowed>T</allowed>
+      <wsGroup>
+        <extension>aGroup</extension>
+        <description>a group description</description>
+        <displayExtension>a group</displayExtension>
+        <uuid>92252afc42d547c2b658f34ed9c638ff</uuid>
+        <name>aStem:aGroup</name>
+        <displayName>a stem:a group</displayName>
+      </wsGroup>
+    </WsGrouperPrivilegeResult>
+  </privilegeResults>
+  <responseMetadata>
+    <millis>126</millis>
+    <serverVersion>v1_5_000</serverVersion>
+  </responseMetadata>
+</WsGetGrouperPrivilegesLiteResult>
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+package edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsGrouperPrivilegeResult;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
+
+  /**
+   * get grouper privileges lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  @SuppressWarnings("deprecation")
+  public static void getGrouperPrivilegesListLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      PostMethod method = new PostMethod(
+          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/grouperPrivileges");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+      
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestGetGrouperPrivilegesLiteRequest wsRestGetGrouperPrivilegesLiteRequest 
+        = new WsRestGetGrouperPrivilegesLiteRequest();
+
+      // set the act as id
+      wsRestGetGrouperPrivilegesLiteRequest.setActAsSubjectId("GrouperSystem");
+      
+      wsRestGetGrouperPrivilegesLiteRequest.setSubjectId("test.subject.0");
+      wsRestGetGrouperPrivilegesLiteRequest.setGroupName("aStem:aGroup");
+      
+      wsRestGetGrouperPrivilegesLiteRequest.setPrivilegeType("access");
+
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(wsRestGetGrouperPrivilegesLiteRequest);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = (WsGetGrouperPrivilegesLiteResult)wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      String resultMessage = wsGetGrouperPrivilegesLiteResult.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsGetGrouperPrivilegesLiteResult.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+      
+      System.out.println(wsGetGrouperPrivilegesLiteResult);
+      
+      boolean foundAdmin = false;
+      
+      //lets make sure admin is in there
+      for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()) {
+        if (StringUtils.equals("admin", wsGrouperPrivilegeResult.getPrivilegeName())
+            && StringUtils.equals("T", wsGrouperPrivilegeResult.getAllowed())) {
+          foundAdmin = true;
+        }
+          
+      }
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      boolean shouldHaveAdmin = false;
+      try {
+        Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup");
+        shouldHaveAdmin = group.hasAdmin(SubjectFinder.findById("test.subject.0"));
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+      if (shouldHaveAdmin != foundAdmin) {
+        throw new RuntimeException("admin priv found (" + foundAdmin 
+            + ") is not the same as it should be: " + shouldHaveAdmin);
+      }
+      
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+    RestClientSettings.resetData();
+    
+    getGrouperPrivilegesListLite(WsSampleRestType.xhtml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    getGrouperPrivilegesListLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    return true;
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: v1_5_000, result code: SUCCESS, result message: null
+WsGetGrouperPrivilegesLiteResult[
+  resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=0],
+  privilegeResults={WsGrouperPrivilegeResult[allowed=T,
+  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=read,privilegeType=access,revokable=F,
+  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=92252afc42d547c2b658f34ed9c638ff],
+  wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]],WsGrouperPrivilegeResult[allowed=T,
+  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,name=EveryEntity,sourceId=g:isa],privilegeName=view,privilegeType=access,revokable=F,
+  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=92252afc42d547c2b658f34ed9c638ff],
+  wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,name=my name is test.subject.0,sourceId=jdbc]]},
+  responseMetadata=WsResponseMeta[millis=126,millisStart=0,serverVersion=v1_5_000]]

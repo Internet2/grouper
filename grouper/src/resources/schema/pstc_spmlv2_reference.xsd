@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--************************************************************-->
+<!--  pstc_spmlv2_reference.xsd                                 -->
+<!--                                                            -->
+<!--  Draft schema for SPML v2.0 reference capabilities.        -->
+<!--                                                            -->
+<!--  Editors:                                                  -->
+<!--    Jeff Bohren (Jeff_Bohren@bmc.com)                       -->
+<!--                                                            -->
+<!--                                                            -->
+<!-- Copyright (C) The Organization for the Advancement of      -->
+<!-- Structured Information Standards [OASIS] 2005. All Rights  -->
+<!-- Reserved.                                                  -->
+<!--************************************************************-->
+<schema targetNamespace="urn:oasis:names:tc:SPML:2:0:reference" 
+        xmlns:spmlref="urn:oasis:names:tc:SPML:2:0:reference"
+        xmlns:spml="urn:oasis:names:tc:SPML:2:0"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    
+    <import namespace="urn:oasis:names:tc:SPML:2:0" 
+            schemaLocation="pstc_spmlv2_core.xsd"/>
+    
+	<complexType name="ReferenceType">
+		<complexContent>
+			<extension base="spml:ExtensibleType">	
+				<sequence>
+					<element name="toPsoID" type="spml:PSOIdentifierType" minOccurs="0" />
+					<element name="referenceData" type="spml:ExtensibleType" minOccurs="0" />
+				</sequence>
+				<attribute name="typeOfReference" type="string" use="required"/>
+			</extension>
+		</complexContent>				
+	</complexType>
+    
+	<complexType name="ReferenceDefinitionType">
+		<complexContent>
+			<extension base="spml:ExtensibleType">
+
+				<sequence>
+					<element name="schemaEntity" type="spml:SchemaEntityRefType"/>
+					<element name="canReferTo" type="spml:SchemaEntityRefType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="referenceDataType" type="spml:SchemaEntityRefType" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute name="typeOfReference" type="string" use="required"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="HasReferenceType">
+		<complexContent>
+			<extension base="spml:QueryClauseType">
+				<sequence>
+					<element name="toPsoID" type="spml:PSOIdentifierType" minOccurs="0"/>
+					<element name="referenceData" type="spml:ExtensibleType" minOccurs="0" />
+				</sequence>
+				<attribute name="typeOfReference" type="string" use="optional"/>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="hasReference" type="spmlref:HasReferenceType"/>    
+	<element name="reference" type="spmlref:ReferenceType"/>    
+	<element name="referenceDefinition" type="spmlref:ReferenceDefinitionType"/>
+
+</schema>

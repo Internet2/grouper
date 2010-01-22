@@ -1,0 +1,33 @@
+<project name="local">
+
+  <!-- This script contains penn specific targets called by the core UI build script.
+		       It is the responsibility of each individual site to set up their own script, however,
+		       this may be used as a model -->
+
+  <target name="webapp">
+    <fail unless="webapp.folder">webapp.folder must be set</fail>
+
+    <path id="contrib.class.path">
+      <!-- Add any site specific jar files to class path -->
+      <fileset dir="java/lib">
+        <include name="**/*.jar" />
+      </fileset>
+      <!-- leverage the class path used for the core UI -->
+      <path refid="ui.class.path" />
+      
+      <fileset dir="${webapp.folder}/WEB-INF/lib">
+        <include name="grouper-ui.jar" />
+      </fileset>
+    </path>
+    <javac srcdir="java/src" destdir="${webapp.class.folder}" classpathref="contrib.class.path" 
+      debuglevel="${debug.level}" debug="true" />
+    <!-- make site specific jar files available to webapp -->
+    <copy toDir="${webapp.folder}/WEB-INF/lib" overwrite="true">
+      <fileset dir="java/lib">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
+    <!--copy web.penn.xml and filter tokens-->
+    <copy file="web.penn.xml" tofile="${temp.dir}/70.web.penn.filtered.xml" overwrite="true" />
+  </target>
+</project>

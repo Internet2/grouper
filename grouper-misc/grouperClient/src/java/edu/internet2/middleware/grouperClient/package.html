@@ -1,0 +1,32 @@
+<body>
+<pre>
+Grouper client is a command line utility or java jar for Grouper, LDAP, and custom functions.
+It consists of one jar, and any included libraries are in a different package structure
+than the original so that they can co-exist with the other libraries.  The entry point is
+the class: GrouperClient.  The web service interaction is REST, with generally the non-lite
+operations
+
+https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Client
+
+These are the packages:
+
+api: if using grouper client as a jar, this is the API to use (or GrouperClient class)
+examples: some examples of longhand calls. 
+util: utility methods
+ws and ws.beans: web service xstream beans and related classes
+
+The src/ext folder has all external packages in a consistent package structure.
+
+The build script will build the external source with compiling jars, but then when running
+they arent needed.
+
+The logging in a refactored commons-logging which will look for the real log4j, and if not
+there, will use an internal log4j
+
+The build script will generate a zip for institutions, or for institutions to distribute
+with institutional defaults.
+
+The usage doc is configurable per institution, and gives all the commands available
+through the client. 
+</pre>
+</body>

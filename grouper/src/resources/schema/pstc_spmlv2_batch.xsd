@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--************************************************************-->
+<!--  pstc_spmlv2_batch.xsd                                     -->
+<!--                                                            -->
+<!--  Draft schema for SPML v2.0 batch request capability.      -->
+<!--                                                            -->
+<!--  Editors:                                                  -->
+<!--    Jeff Bohren (Jeff_Bohren@bmc.com)                       -->
+<!--                                                            -->
+<!--                                                            -->
+<!-- Copyright (C) The Organization for the Advancement of      -->
+<!-- Structured Information Standards [OASIS] 2005. All Rights  -->
+<!-- Reserved.                                                  -->
+<!--************************************************************-->
+<schema targetNamespace="urn:oasis:names:tc:SPML:2:0:batch" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+        xmlns:spml="urn:oasis:names:tc:SPML:2:0" 
+        xmlns:spmlbatch="urn:oasis:names:tc:SPML:2:0:batch"
+        elementFormDefault="qualified">
+
+  	<import namespace='urn:oasis:names:tc:SPML:2:0' 
+		schemaLocation='pstc_spmlv2_core.xsd' />
+
+	<simpleType name="ProcessingType">
+		<restriction base="string">
+			<enumeration value="sequential"/>
+			<enumeration value="parallel"/>
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="OnErrorType">
+		<restriction base="string">
+			<enumeration value="resume"/>
+			<enumeration value="exit"/>
+		</restriction>
+	</simpleType>
+	
+	
+	<complexType name="BatchRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<annotation>
+				    <documentation>Elements that extend spml:RequestType</documentation>
+				</annotation>  
+				<attribute name="processing" type="spmlbatch:ProcessingType" use="optional" default="sequential"/>
+				<attribute name="onError" type="spmlbatch:OnErrorType" use="optional" default="exit"/>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="BatchResponseType">
+		<complexContent>
+			<extension base="spml:ResponseType">
+				<annotation>
+				    <documentation>Elements that extend spml:ResponseType</documentation>
+				</annotation>  
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<element name="batchRequest" type="spmlbatch:BatchRequestType"/>
+	<element name="batchResponse" type="spmlbatch:BatchResponseType"/>
+	
+</schema>
+

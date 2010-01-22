@@ -1,0 +1,33 @@
+h4. Description
+
+Has member will see if a group contains a subject as a member
+
+
+h4. Features
+
+* Can base member list based on memberfilter (e.g. All, Immediate, Effective)
+* Can pass in Field name to query based on Field (e.g. admins, optouts, optins, etc from Field table in DB)
+* Lookup subjects by subject lookup (by id, source, identifier, etc)
+* Lookup groups by group lookup (by name or uuid)
+* Returns group / subject information, can be detailed or not
+* Can actAs another user
+
+h4. Has member Lite service
+
+* Accepts one group and one subject to see if member
+* Documentation: [SOAP|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co] (click on hasMemberLite), [REST|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co] (click on hasMemberLite)
+* For REST, the request can put data in query string (in URL or request body)
+* REST request (colon is escaped to %3A): PUT /grouper-ws/servicesRest/v1_3_000/group/aStem%3AaGroup/members/10021368
+* (see documentation above for details): [Request object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/group/WsRestHasMemberLiteRequest.html?root=I2MI&view=co], [response object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsHasMemberLiteResult.html?root=I2MI&view=co]
+* [Response codes|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsHasMemberLiteResult.WsHasMemberLiteResultCode.html?root=I2MI&view=co]
+* [Samples|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/samples/hasMember/?root=I2MI&pathrev=HEAD] (all files with "Lite" in them, click on "download" to see file)
+
+h4. Has member service
+
+* Accepts a group and multiple subjects to see if members
+* Documentation: [SOAP|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD] (click on hasMember), [REST|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co] (click on hasMember)
+* REST request (colon is escaped to %3A): PUT /grouper-ws/servicesRest/v1_3_000/group/aStem%3AaGroup/members
+* (see documentation above for details): [Request object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/rest/group/WsRestHasMemberRequest.html?root=I2MI&view=co], [response object|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsHasMemberResults.html?root=I2MI&view=co]
+* [Response codes overall|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsHasMemberResults.WsHasMemberResultsCode.html?root=I2MI&view=co], [response codes for each assignment|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/api/edu/internet2/middleware/grouper/ws/soap/WsHasMemberResult.WsHasMemberResultCode.html?root=I2MI&view=co]
+* Returns an overall status, and a status for each assignment
+* [Samples|http://viewvc.internet2.edu/viewvc.py/grouper-ws/grouper-ws/doc/samples/hasMember/?root=I2MI&pathrev=HEAD] (all files without "Lite" in them, click on "download" to see files)
