@@ -149,14 +149,14 @@
 
     <delete dir="doc" />
 
-    <copy todir="${basedir}/../grouperClient-${version}">
+    <copy todir="${basedir}/../grouper.client-${version}">
       <fileset dir="${basedir}/../grouperClient" />
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../grouperClient-${version}.tar.gz" compression="gzip">
+    <tar destfile="${basedir}/../grouper.client-${version}.tar.gz" compression="gzip">
       <tarfileset dir="${basedir}/.." >
-        <include name="grouperClient-${version}/**"/>
+        <include name="grouper.client-${version}/**"/>
       </tarfileset>
     </tar>            
     
