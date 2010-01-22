@@ -30,17 +30,22 @@ fi
 
 cd $buildDir
 
-export CVSROOT=/home/cvs/i2mi
+#export CVSROOT=/home/cvs/i2mi
 
-/usr/bin/cvs export -r $1 grouper
-/usr/bin/cvs export -r $1 grouper-ui
-/usr/bin/cvs export -r $1 grouper-qs-builder
-/usr/bin/cvs export -r $1 subject
+#/usr/bin/cvs export -r $1 grouper
+#/usr/bin/cvs export -r $1 grouper-ui
+#/usr/bin/cvs export -r $1 grouper-qs-builder
+#/usr/bin/cvs export -r $1 subject
+
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-ui/
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-qs-builder/
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/subject/
 
 cd $buildDir/grouper-qs-builder
 cp build.properties.template build.properties
 
-/home/mchyzer/ant/bin/ant
+$ANT_HOME/bin/ant
 
 echo
 echo "QuickStart result is in $buildDir/"
