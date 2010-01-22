@@ -1,0 +1,9 @@
+<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='edu:groupB' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:synchronizedResponse>
+    <ldappc:psoID ID='cn=groupB,ou=groups,dc=grouper,dc=edu' targetID='openldap-prod'/>
+  </ldappc:synchronizedResponse>
+  <ldappc:synchronizedResponse>
+    <ldappc:psoID ID='cn=groupB,ou=groups,dc=grouper,dc=edu' targetID='openldap-test'/>
+  </ldappc:synchronizedResponse>
+  <ldappc:id ID='edu:groupB'/>
+</ldappc:diffResponse>
