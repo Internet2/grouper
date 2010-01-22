@@ -26,11 +26,6 @@ public enum WsMemberFilter {
    */
   Immediate,
 
-  /** 
-   * return only non direct members of a group (will return effective, composite, etc) 
-   */
-  NonImmediate,
-
   /**
    * if this is a composite group, then return all the memberships that match the 
    * composite operator (union, intersection, complement).  This will be the same as

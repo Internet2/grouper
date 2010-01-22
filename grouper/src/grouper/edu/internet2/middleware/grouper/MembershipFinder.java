@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -24,7 +23,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -36,13 +34,11 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -54,31 +50,9 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.108 2009-12-17 06:57:57 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.106 2009-10-18 16:30:51 mchyzer Exp $
  */
 public class MembershipFinder {
-  
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean)
-   * @param groupIds to limit memberships to (cant have more than 100 bind variables)
-   * @param memberIds to limit memberships to (cant have more than 100 bind variables)
-   * @param membershipIds to limit memberships to (cant have more than 100 bind variables)
-   * @param membershipType Immediate, NonImmediate, etc
-   * @param field if finding one field, list here, otherwise all list fields will be returned
-   * @param sources if limiting memberships of members in certain sources, list here
-   * @param scope sql like string which will have a % appended to it
-   * @param stem if looking in a certain stem
-   * @param stemScope if looking only in this stem, or all substems
-   * @param enabled null for all, true for enabled only, false for disabled only
-   * @return the set of arrays of Membership, Group, and Member
-   */
-  public static Set<Object[]> findMemberships(Collection<String> groupIds, Collection<String> memberIds,
-      Collection<String> membershipIds, MembershipType membershipType,
-      Field field,  
-      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled) {
-    return GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(groupIds, memberIds,
-        membershipIds, membershipType, field, sources, scope, stem, stemScope, enabled);  
-  }
   
   /**
    * Return the composite membership if it exists. 
@@ -139,7 +113,7 @@ public class MembershipFinder {
       Field       f   = Group.getDefaultList();
       Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
-          g.getUuid(), m.getUuid(), f, MembershipType.COMPOSITE.getTypeString(), true, true);
+          g.getUuid(), m.getUuid(), f, Membership.COMPOSITE, true, true);
       PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     } catch (MembershipNotFoundException mnfe)  {
@@ -269,7 +243,7 @@ public class MembershipFinder {
     try {
       Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
-          g.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, true);
+          g.getUuid(), m.getUuid(), f, Membership.IMMEDIATE, true, true);
       PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     } catch (MembershipNotFoundException mnfe)         {
@@ -330,20 +304,6 @@ public class MembershipFinder {
   public static Set<Member> findMembers(Group group, Field field, QueryOptions queryOptions)
     throws  IllegalArgumentException
   {
-    return findMembers(group, field, null, queryOptions);
-  }
-  /** 
-   * @param group 
-   * @param field 
-   * @param sources set of sources to retrieve from or null for all
-   * @param queryOptions 
-   * @return  A set of all <code>Member</code>'s in <i>group</i>'s list <i>field</i>.
-   * @throws  IllegalArgumentException if any parameter is null.
-   * @since   1.2.1
-   */
-  public static Set<Member> findMembers(Group group, Field field, Set<Source> sources, QueryOptions queryOptions)
-    throws  IllegalArgumentException
-  {
     //note, no need for GrouperSession inverse of control
     if (group == null) { // TODO 20070814 ParameterHelper
       throw new IllegalArgumentException("null Group");
@@ -356,7 +316,7 @@ public class MembershipFinder {
       GrouperSession  s   = GrouperSession.staticGrouperSession();
       PrivilegeHelper.dispatch( s, group, s.getSubject(), field.getReadPriv() );
       members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
-          group.getUuid(), field, sources, queryOptions, true);
+          group.getUuid(), field, queryOptions, true);
     }
     catch (InsufficientPrivilegeException eIP) {
       // ignore  
@@ -440,7 +400,7 @@ public class MembershipFinder {
       //TODO 20090919 fix this
 //        GrouperDAOFactory.getFactory().getMembership()
 //          .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), f,
-//              MembershipType.IMMEDIATE.getTypeString(), null, true).iterator();
+//              Membership.IMMEDIATE, null, true).iterator();
 
       while (it.hasNext()) {
         try {
@@ -490,7 +450,7 @@ public class MembershipFinder {
       PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getReadPriv());
       Iterator<Member> it = GrouperDAOFactory.getFactory().getMembership()
           .findAllMembersByStemOwnerAndFieldAndType(stem.getUuid(), f,
-              MembershipType.IMMEDIATE.getTypeString(), null, true).iterator();
+              Membership.IMMEDIATE, null, true).iterator();
 
       while (it.hasNext()) {
         try {
@@ -679,22 +639,6 @@ public class MembershipFinder {
     GrouperSession.validate(s);
     return PrivilegeHelper.canViewMemberships( 
       s, GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(m.getUuid(), f, true) 
-    );
-  } 
-
-  /**
-   * 
-   * @param s
-   * @param m
-   * @param f
-   * @return set of memberships
-   */
-  public static Set<Membership> internal_findAllNonImmediateByMemberAndField(GrouperSession s, Member m, Field f) {
-    // @filtered  true
-    // @session   true
-    GrouperSession.validate(s);
-    return PrivilegeHelper.canViewMemberships( 
-      s, GrouperDAOFactory.getFactory().getMembership().findAllNonImmediateByMemberAndField(m.getUuid(), f, true) 
     );
   } 
 
@@ -950,7 +894,7 @@ public class MembershipFinder {
       PrivilegeHelper.dispatch(s, group, s.getSubject(), f.getReadPriv());
       Iterator<Member> it = GrouperDAOFactory.getFactory().getMembership()
           .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), f,
-              MembershipType.IMMEDIATE.getTypeString(), null, true).iterator();
+              Membership.IMMEDIATE, null, true).iterator();
   
       while (it.hasNext()) {
         try {

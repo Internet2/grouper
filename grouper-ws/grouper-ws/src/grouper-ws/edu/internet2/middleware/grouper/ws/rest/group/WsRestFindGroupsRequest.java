@@ -1,13 +1,12 @@
 /*
  * @author mchyzer
- * $Id: WsRestFindGroupsRequest.java,v 1.2 2009-12-15 06:47:27 mchyzer Exp $
+ * $Id: WsRestFindGroupsRequest.java,v 1.1 2008-03-29 10:50:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
@@ -35,30 +34,6 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
   /** field */
   private WsParam[] params;
   
-  /** wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned
-   * in alphabetical order */
-  private WsGroupLookup[] wsGroupLookups;
-  
-  /**
-   * wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned
-   * in alphabetical order
-   * @return group lookups
-   */
-  public WsGroupLookup[] getWsGroupLookups() {
-    return this.wsGroupLookups;
-  }
-
-
-  /**
-   * wsGroupLookups if you want to just pass in a list of uuids and/or names.  Note the groups are returned
-   * in alphabetical order
-   * @param wsGroupLookups1
-   */
-  public void setWsGroupLookups(WsGroupLookup[] wsGroupLookups1) {
-    this.wsGroupLookups = wsGroupLookups1;
-  }
-
-
   /**
    * @return the clientVersion
    */

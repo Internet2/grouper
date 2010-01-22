@@ -179,52 +179,5 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
     FieldFinder.clearCache();
   }
 
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, boolean)
-   */
-  public Field findByUuidOrName(String uuid, String name, String groupTypeUuid,
-      boolean exceptionIfNull) throws GrouperDAOException {
-    try {
-      Field field = HibernateSession.byHqlStatic()
-        .createQuery("from Field as theField where theField.uuid = :uuid or (theField.name = :name and theField.groupTypeUuid = :theGroupTypeUuid)")
-        .setCacheable(true)
-        .setCacheRegion(KLASS + ".FindByUuidOrName")
-        .setString("uuid", uuid)
-        .setString("name", name)
-        .setString("theGroupTypeUuid", groupTypeUuid)
-        .uniqueResult(Field.class);
-      if (field == null && exceptionIfNull) {
-        throw new RuntimeException("Can't find field by uuid: '" + uuid + "' or name '" + name + "', '" + groupTypeUuid + "'");
-      }
-      return field;
-    }
-    catch (GrouperDAOException e) {
-      String error = "Problem find field by uuid: '" 
-        + uuid + "' or name '" + name + "', '" + groupTypeUuid + "', " + e.getMessage();
-      throw new GrouperDAOException( error, e );
-    }
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#saveUpdateProperties(edu.internet2.middleware.grouper.Field)
-   */
-  public void saveUpdateProperties(Field field) {
-    //run an update statement since the business methods affect these properties
-    HibernateSession.byHqlStatic().createQuery("update Field " +
-        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
-        "contextId = :theContextId " +
-        "where uuid = :theUuid")
-        .setLong("theHibernateVersionNumber", field.getHibernateVersionNumber())
-        .setString("theContextId", field.getContextId())
-        .setString("theUuid", field.getUuid())
-        .executeUpdate();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#update(edu.internet2.middleware.grouper.Field)
-   */
-  public void update(Field field) throws GrouperDAOException {
-    HibernateSession.byObjectStatic().update(field);  
-  }
 } 
 

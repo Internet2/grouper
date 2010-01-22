@@ -43,7 +43,7 @@ public class WsHasMemberResults implements WsResponseBean, ResultMetadataHolder 
     /** discovered if each was a member of not (lite http status code 200) (success: T) */
     SUCCESS(200),
 
-    /** could not find group (lite http status code 404) (success: F) */
+    /** discovered if each was a member of not (lite http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),
 
     /** had an exception while figuring out if the subjects were members (lite http status code 500) (success: F) */

@@ -3,7 +3,6 @@
  */
 package edu.internet2.middleware.grouper.xml;
 
-import edu.internet2.middleware.grouper.xml.export.AllXmlExportTests;
 import edu.internet2.middleware.grouper.xml.userAudit.AllXmlUserAuditTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -27,7 +26,6 @@ public class AllXmlTests {
     //$JUnit-END$
 
     suite.addTest(AllXmlUserAuditTests.suite());
-    suite.addTest(AllXmlExportTests.suite());
 
     return suite;
   }

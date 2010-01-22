@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.10 2009/12/29 07:38:16 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.8 2009-03-15 08:14:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -29,7 +29,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivileges;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
@@ -44,10 +43,6 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsAdmin
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembers;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembersLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMemberships;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembershipsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetSubjects;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetSubjectsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDetailSave;
@@ -76,7 +71,6 @@ import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDelet
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDetailSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupSaveRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleAssignGrouperPrivilegesRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleAssignGrouperPrivilegesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleGetGrouperPrivilegesListRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleGetGrouperPrivilegesRestLite;
@@ -94,9 +88,6 @@ import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMember
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMemberRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberChangeSubjectRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberChangeSubjectRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteRest;
@@ -104,9 +95,6 @@ import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteR
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemSaveRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.subject.WsSampleGetSubjectsRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.subject.WsSampleGetSubjectsRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.subject.WsSampleGetSubjectsRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSample;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleClientType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -156,12 +144,10 @@ public class SampleCapture {
     captureGroupDelete();
     captureGroupSave();
     captureMemberChangeSubject();
-    captureGetMemberships();
-    captureGetSubjects();
 
     */
     
-    captureAssignGrouperPrivileges();
+    captureGroupSave();
 
   }
 
@@ -321,12 +307,6 @@ public class SampleCapture {
    * all member change subject captures
    */
   public static void captureAssignGrouperPrivileges() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignGrouperPrivileges.class, "assignGrouperPrivileges", (String)null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleAssignGrouperPrivilegesRest.class, "assignGrouperPrivileges", null);
-
-    
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleAssignGrouperPrivilegesLite.class, "assignGrouperPrivileges", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -494,23 +474,6 @@ public class SampleCapture {
         WsSampleGetMembersRestLite.class, "getMembers", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetMembersRestLite2.class, "getMembers", "_withInput");
-    
-  }
-  
-  /**
-   * all get members captures
-   */
-  public static void captureGetMemberships() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetMemberships.class, "getMemberships", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetMembershipsLite.class, "getMemberships", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGetMembershipsRest.class, "getMemberships", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGetMembershipsRestLite.class, "getMemberships", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGetMembershipsRestLite2.class, "getMemberships", "_withInput");
     
   }
   
@@ -705,23 +668,6 @@ public class SampleCapture {
       System.out.println(error + ", " + ExceptionUtils.getFullStackTrace(e));
       LOG.error(error, e);
     }
-  }
-
-  /**
-   * all get subjects captures
-   */
-  public static void captureGetSubjects() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetSubjects.class, "getSubjects", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetSubjectsLite.class, "getSubjects", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGetSubjectsRest.class, "getSubjects", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGetSubjectsRestLite.class, "getSubjects", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleGetSubjectsRestLite2.class, "getSubjects", "_withInput");
-    
   }
   
 }

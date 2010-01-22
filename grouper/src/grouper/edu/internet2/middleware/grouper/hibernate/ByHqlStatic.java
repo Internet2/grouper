@@ -179,7 +179,7 @@ public class ByHqlStatic implements HqlQuery {
    * @param value is long, primitive so not null
    * @return this object for chaining
    */
-  public ByHqlStatic setLong(String bindVarName, Long value) {
+  public ByHqlStatic setLong(String bindVarName, long value) {
     this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Long.class));
     return this;
   }
@@ -190,7 +190,7 @@ public class ByHqlStatic implements HqlQuery {
    * @param value is long, primitive so not null
    * @return this object for chaining
    */
-  public ByHqlStatic setInteger(String bindVarName, Integer value) {
+  public ByHqlStatic setInteger(String bindVarName, int value) {
     this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Integer.class));
     return this;
   }

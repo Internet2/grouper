@@ -270,7 +270,7 @@ public class GrouperUiFilter implements Filter {
         }
         Group group = GroupFinder.findByName(grouperSession, groupToRequire);
         if (!group.hasMember(subjectLoggedIn)) {
-          String error = "User not in ui group: " + groupToRequire + ", " + subjectLoggedIn;
+          String error = "User not in ui group: " + groupToRequire;
           LOG.error(error);
           GrouperUiUtils.appendErrorToRequest(error);
           GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();

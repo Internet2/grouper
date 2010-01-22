@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
@@ -36,28 +35,6 @@ public class WsAssignGrouperPrivilegesLiteResult implements WsResponseBean, Resu
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
-  }
-
-  /**
-   * construct from results of other
-   * @param wsAssignGrouperPrivilegesResults
-   * @param clientVersion 
-   */
-  public WsAssignGrouperPrivilegesLiteResult(WsAssignGrouperPrivilegesResults wsAssignGrouperPrivilegesResults) {
-
-    this.getResultMetadata().copyFields(wsAssignGrouperPrivilegesResults.getResultMetadata());
-    this.setSubjectAttributeNames(wsAssignGrouperPrivilegesResults.getSubjectAttributeNames());
-    this.setWsGroup(wsAssignGrouperPrivilegesResults.getWsGroup());
-    this.setWsStem(wsAssignGrouperPrivilegesResults.getWsStem());
-
-    WsAssignGrouperPrivilegesResult wsAssignGrouperPrivilegesResult = GrouperServiceUtils
-        .firstInArrayOfOne(wsAssignGrouperPrivilegesResults.getResults());
-    if (wsAssignGrouperPrivilegesResult != null) {
-      this.getResultMetadata().copyFields(wsAssignGrouperPrivilegesResult.getResultMetadata());
-      this.getResultMetadata().assignResultCode(
-          wsAssignGrouperPrivilegesResult.resultCode().convertToLiteCode());
-      this.setWsSubject(wsAssignGrouperPrivilegesResult.getWsSubject());
-    }
   }
 
   /**

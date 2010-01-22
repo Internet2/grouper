@@ -96,7 +96,6 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.log.EventLog;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -125,8 +124,6 @@ import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
-import edu.internet2.middleware.grouper.xml.export.XmlImportable;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -137,10 +134,10 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.269 2009-12-15 06:47:06 mchyzer Exp $
+ * @version $Id: Group.java,v 1.267 2009-11-17 02:52:29 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable<Group>, XmlImportable<Group> {
+public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -1778,7 +1775,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with ADMIN
    * @throws  GrouperException
    */
-  public Set<Subject> getAdmins() 
+  public Set getAdmins() 
     throws  GrouperException
   {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.ADMIN);
@@ -1934,7 +1931,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @since   1.0
    */
   public Set<Member> getCompositeMembers(QueryOptions queryOptions) {
-    return getCompositeMembers(Group.getDefaultList(), null, queryOptions);
+    return MemberFinder.internal_findMembersByType(
+      GrouperSession.staticGrouperSession(), this, Group.getDefaultList(), 
+      Membership.COMPOSITE, queryOptions
+    );
   } // public Set getCompositeMembers()
 
   /**
@@ -2068,9 +2068,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @since   1.0
    */
-  public Set<Membership> getCompositeMemberships() {
+  public Set getCompositeMemberships() {
     return MembershipFinder.internal_findAllByGroupOwnerAndFieldAndType(
-      GrouperSession.staticGrouperSession(), this, Group.getDefaultList(), MembershipType.COMPOSITE.getTypeString()
+      GrouperSession.staticGrouperSession(), this, Group.getDefaultList(), Membership.COMPOSITE
     );
   } // public Set getCompositeMemberships()
 
@@ -2221,7 +2221,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @throws  GrouperException
    */
-  public Set<Member> getEffectiveMembers() 
+  public Set getEffectiveMembers() 
     throws  GrouperException
   {
     try {
@@ -2256,7 +2256,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @throws  SchemaException
    */
-  public Set<Member> getEffectiveMembers(Field f) 
+  public Set getEffectiveMembers(Field f) 
     throws  SchemaException
   {
     return this.getEffectiveMembers(f, null);
@@ -2283,39 +2283,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @throws  SchemaException
    */
-  public Set<Member> getEffectiveMembers(Field f, QueryOptions queryOptions) 
-    throws  SchemaException
-  {
-    return getEffectiveMembers(f, null, queryOptions);
-  }  // public Set getEffectiveMembers(f)
-
-  /**
-   * Get effective members of this group.
-   * 
-   * An effective member has an indirect membership to a group
-   * (e.g. in a group within a group).  All subjects in a
-   * composite group are effective members (since the composite
-   * group has two groups and a set operator and no other immediate
-   * members).  Note that a member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * 'group within a group' can be nested to any level so long as it does 
-   * not become circular.  A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * <pre class="eg">
-   * Set effectives = g.getEffectiveMembers(f);
-   * </pre>
-   * @param   f Get members in this list field.
-   * @param sources sources to filter by, or null for all
-   * @param queryOptions 
-   * @return  A set of {@link Member} objects.
-   * @throws  SchemaException
-   */
-  public Set<Member> getEffectiveMembers(Field f, Set<Source> sources, QueryOptions queryOptions) 
+  public Set getEffectiveMembers(Field f, QueryOptions queryOptions) 
     throws  SchemaException
   {
     return MemberFinder.internal_findMembersByType(
-        GrouperSession.staticGrouperSession(), this, f, MembershipType.EFFECTIVE.getTypeString(), sources, queryOptions);
+        GrouperSession.staticGrouperSession(), this, f, Membership.EFFECTIVE, queryOptions);
   }  // public Set getEffectiveMembers(f)
 
   /**
@@ -2337,7 +2309,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @throws  GrouperException
    */
-  public Set<Membership> getEffectiveMemberships() 
+  public Set getEffectiveMemberships() 
     throws  GrouperException
   {
     try {
@@ -2371,11 +2343,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @throws  SchemaException
    */
-  public Set<Membership> getEffectiveMemberships(Field f) 
+  public Set getEffectiveMemberships(Field f) 
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllByGroupOwnerAndFieldAndType(
-      GrouperSession.staticGrouperSession(), this, f, MembershipType.EFFECTIVE.getTypeString()
+      GrouperSession.staticGrouperSession(), this, f, Membership.EFFECTIVE
     );
   } // public Set getEffectiveMemberships(f)
 
@@ -2415,7 +2387,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Member} objects.
    * @throws  GrouperException
    */
-  public Set<Member> getImmediateMembers() 
+  public Set getImmediateMembers() 
     throws  GrouperException
   {
     try {
@@ -2471,34 +2443,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public Set<Member> getImmediateMembers(Field f, QueryOptions queryOptions) 
     throws  SchemaException {
-    return getImmediateMembers(f, null, queryOptions);
-  }
-
-    
-    
-  /**
-   * Get immediate members of this group.  
-   * 
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * <pre class="eg">
-   * Set immediates = g.getImmediateMembers(f);
-   * </pre>
-   * @param   f Get members in this list field.
-   * @param sources to search in or null if all
-   * @param queryOptions 
-   * @return  A set of {@link Member} objects.
-   * @throws  SchemaException
-   */
-  public Set<Member> getImmediateMembers(Field f, Set<Source> sources, QueryOptions queryOptions) 
-    throws  SchemaException {
     return MemberFinder.internal_findMembersByType(
-      GrouperSession.staticGrouperSession(), this, f, MembershipType.IMMEDIATE.getTypeString(), sources, queryOptions
+      GrouperSession.staticGrouperSession(), this, f, Membership.IMMEDIATE, queryOptions
     );
   } // public Set getImmediateMembers(f)
 
@@ -2522,7 +2468,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  A set of {@link Membership} objects.
    * @throws  GrouperException
    */
-  public Set<Membership> getImmediateMemberships() 
+  public Set getImmediateMemberships() 
     throws  GrouperException
   {
     try {
@@ -2560,7 +2506,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   {
     GrouperSession.validate(GrouperSession.staticGrouperSession());
     return MembershipFinder.internal_findAllByGroupOwnerAndFieldAndType(
-      GrouperSession.staticGrouperSession(), this, f, MembershipType.IMMEDIATE.getTypeString()
+      GrouperSession.staticGrouperSession(), this, f, Membership.IMMEDIATE
     );
   } // public Set getImmediateMemberships(f)
 
@@ -2612,23 +2558,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   public Set<Member> getMembers(Field f, QueryOptions queryOptions)
     throws  SchemaException {
-    return getMembers(f, null, queryOptions);
-  } 
-
-  /**
-   * Get members of this group.
-   * <pre class="eg">
-   * Set members = g.getMembers(f);
-   * </pre>
-   * @param   f Get members in this list field.to get members from, or null for all
-   * @param sources to get members from, or null for all
-   * @param queryOptions paging, sorting, count, etc
-   * @return  A set of {@link Member} objects.
-   * @throws  SchemaException
-   */
-  public Set<Member> getMembers(Field f, Set<Source> sources, QueryOptions queryOptions)
-    throws  SchemaException {
-    return MembershipFinder.findMembers(this, f, sources, queryOptions);
+    return MembershipFinder.findMembers(this, f, queryOptions);
   } 
 
   /**
@@ -2746,8 +2676,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMembersAndType(this.getUuid(), f, members, 
-              MembershipType.IMMEDIATE.getTypeString(), enabledOnly)
+          .findAllByGroupOwnerAndFieldAndMembersAndType(this.getUuid(), f, members, "immediate", enabledOnly)
       );
   }
 
@@ -2938,7 +2867,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with OPTIN
    * @throws  GrouperException
    */
-  public Set<Subject> getOptins() 
+  public Set getOptins() 
     throws  GrouperException
   {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.OPTIN);
@@ -2952,7 +2881,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with OPTOUT
    * @throws  GrouperException
    */
-  public Set<Subject> getOptouts() 
+  public Set getOptouts() 
     throws  GrouperException
   {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.OPTOUT);
@@ -3014,7 +2943,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with READ
    * @throws  GrouperException
    */
-  public Set<Subject> getReaders() 
+  public Set getReaders() 
     throws  GrouperException
   {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.READ);
@@ -3083,7 +3012,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with UPDATE
    * @throws  GrouperException
    */
-  public Set<Subject> getUpdaters() 
+  public Set getUpdaters() 
     throws  GrouperException
   {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.UPDATE);
@@ -3097,7 +3026,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @return  Set of subjects with VIEW
    * @throws  GrouperException
    */
-  public Set<Subject> getViewers() 
+  public Set getViewers() 
     throws  GrouperException
   {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.VIEW);
@@ -5022,11 +4951,12 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * @see java.lang.Comparable#compareTo(java.lang.Object)
    */
-  public int compareTo(Group that) {
-    if (that==null) {
+  public int compareTo(Object o) {
+    if (o==null || (!(o instanceof Group))) {
       return 1;
     }
     String thisName = StringUtils.defaultString(this.getName());
+    Group that = (Group)o;
     String thatName = StringUtils.defaultString(that.getName());
     return thisName.compareTo(thatName);
   }
@@ -5421,7 +5351,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         PrivilegeHelper.dispatch(session, group, session.getSubject(), f.getReadPriv());
         Iterator<Membership> membershipsIter = GrouperDAOFactory.getFactory().getMembership()
             .findAllByGroupOwnerAndFieldAndType(group.getUuid(), f,
-                MembershipType.IMMEDIATE.getTypeString(), false).iterator();
+                Membership.IMMEDIATE, false).iterator();
 
         while (membershipsIter.hasNext()) {
           Membership existingMembership = membershipsIter.next();
@@ -5594,413 +5524,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       this.permissionRoleDelegate = new PermissionRoleDelegate(this);
     }
     return this.permissionRoleDelegate;
-  }
-
-  /**
-   * Get memberships of this group, for a certain collection of members, must be enabled
-   * 
-   * A membership is the object which represents a join of member
-   * and group.  Has metadata like type and creator,
-   * and, if an effective membership, the parent membership
-   * 
-   * <pre class="eg">
-   * Set memberships = g.getMemberships(f);
-   * </pre>
-   * @param   f Get memberships in this list field.
-   * @param members 
-   * @return  A set of {@link Membership} objects.
-   * @throws  SchemaException
-   */
-  public Set<Membership> getNonImmediateMemberships(Field f, Collection<Member> members) 
-    throws  SchemaException {
-    return getNonImmediateMemberships(f, members, true);
-  }
-
-  /**
-   * Get memberships of this group, for a certain collection of members
-   * 
-   * A membership is the object which represents a join of member
-   * and group.  Has metadata like type and creator,
-   * and, if an effective membership, the parent membership
-   * 
-   * <pre class="eg">
-   * Set memberships = g.getMemberships(f);
-   * </pre>
-   * @param   f Get memberships in this list field.
-   * @param members 
-   * @param enabledOnly
-   * @return  A set of {@link Membership} objects.
-   * @throws  SchemaException
-   */
-  public Set<Membership> getNonImmediateMemberships(Field f, Collection<Member> members, boolean enabledOnly) 
-    throws  SchemaException {
-    return PrivilegeHelper.canViewMemberships( 
-        GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMembersAndType(this.getUuid(), f, members, 
-              MembershipType.NONIMMEDIATE.getTypeString(), enabledOnly)
-      );
-  }
-
-  /**
-   * Get non immediate members of this group.  
-   * 
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * <pre class="eg">
-   * Set nonImmediates = g.getNonImmediateMembers();
-   * </pre>
-   * @return  A set of {@link Member} objects.
-   * @throws  GrouperException
-   */
-  public Set<Member> getNonImmediateMembers() 
-    throws  GrouperException
-  {
-    try {
-      return this.getNonImmediateMembers(getDefaultList());
-    }
-    catch (SchemaException eS) {
-      // If we don't have "members" we have serious issues
-      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      LOG.fatal(msg);
-      throw new GrouperException(msg, eS);
-    }
-  } // public Set getImmediateMembers()
-
-  /**
-   * Get non-immediate members of this group.  
-   * 
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * <pre class="eg">
-   * Set nonImmediates = g.getNonImmediateMembers(f);
-   * </pre>
-   * @param   f Get members in this list field.
-   * @return  A set of {@link Member} objects.
-   * @throws  SchemaException
-   */
-  public Set<Member> getNonImmediateMembers(Field f) 
-    throws  SchemaException {
-    return getNonImmediateMembers(f, null);
-  }
-
-  /**
-   * Get non-immediate members of this group.  
-   * 
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * <pre class="eg">
-   * Set nonImmediates = g.getNonImmediateMembers(f);
-   * </pre>
-   * @param   f Get members in this list field.
-   * @param queryOptions 
-   * @return  A set of {@link Member} objects.
-   * @throws  SchemaException
-   */
-  public Set<Member> getNonImmediateMembers(Field f, QueryOptions queryOptions) 
-    throws  SchemaException {
-    return getNonImmediateMembers(f, null, queryOptions);
-  } // public Set getImmediateMembers(f)
-
-  /**
-   * Get non-immediate members of this group.  
-   * 
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * <pre class="eg">
-   * Set nonImmediates = g.getNonImmediateMembers(f);
-   * </pre>
-   * @param   f Get members in this list field.
-   * @param sources 
-   * @param queryOptions 
-   * @return  A set of {@link Member} objects.
-   * @throws  SchemaException
-   */
-  public Set<Member> getNonImmediateMembers(Field f, Set<Source> sources, QueryOptions queryOptions) 
-    throws  SchemaException {
-    return MemberFinder.internal_findMembersByType(
-      GrouperSession.staticGrouperSession(), this, f, MembershipType.NONIMMEDIATE.getTypeString(), sources, queryOptions
-    );
-  } // public Set getImmediateMembers(f)
-
-  /**
-   * Get nonimmediate memberships of this group.  
-   * 
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * A membership is the object which represents a join of member
-   * and group.  Has metadata like type and creator,
-   * and, if an effective membership, the parent membership
-   * 
-   * <pre class="eg">
-   * Set immediates = g.getImmediateMemberships();
-   * </pre>
-   * @return  A set of {@link Membership} objects.
-   * @throws  GrouperException
-   */
-  public Set<Membership> getNonImmediateMemberships() 
-    throws  GrouperException
-  {
-    try {
-      return this.getNonImmediateMemberships(getDefaultList());
-    }
-    catch (SchemaException eS) {
-      // If we don't have "members" we have serious issues
-      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      LOG.fatal(msg);
-      throw new GrouperException(msg, eS);
-    }
-  } // public Set getImmediateMemberships()
-
-  /**
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * A membership is the object which represents a join of member
-   * and group.  Has metadata like type and creator,
-   * and, if an effective membership, the parent membership
-   * 
-   * <pre class="eg">
-   * Set immediates = g.getNonImmediateMemberships(f);
-   * </pre>
-   * @param   f Get memberships in this list field.
-   * @return  A set of {@link Membership} objects.
-   * @throws  SchemaException
-   */
-  public Set<Membership> getNonImmediateMemberships(Field f) 
-    throws  SchemaException
-  {
-    GrouperSession.validate(GrouperSession.staticGrouperSession());
-    return MembershipFinder.internal_findAllByGroupOwnerAndFieldAndType(
-      GrouperSession.staticGrouperSession(), this, f, MembershipType.NONIMMEDIATE.getTypeString()
-    );
-  } // public Set getImmediateMemberships(f)
-
-  /**
-   * Check whether the subject is a non immediate member of this group.  
-   * 
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * <pre class="eg">
-   * if (g.hasImmediateMember(subj)) {
-   *   // Subject is an immediate member of this group
-   * }
-   * else {
-   *   // Subject is not a immediate member of this group
-   * } 
-   * </pre>
-   * @param   subj  Check this subject.
-   * @return  Boolean true if subject belongs to this group.
-   * @throws  GrouperException
-   */
-  public boolean hasNonImmediateMember(Subject subj) 
-    throws  GrouperException
-  {
-    try {
-      return this.hasNonImmediateMember(subj, getDefaultList());
-    }
-    catch (SchemaException eS) {
-      // If we don't have "members" we have serious issues
-      String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      LOG.fatal(msg);
-      throw new GrouperException(msg, eS);
-    }
-  } 
-
-  /**
-   * Check whether the subject is a non immediate member of this group.
-   * 
-   * An immediate member is directly assigned to a group.
-   * A composite group has no immediate members.  Note that a 
-   * member can have 0 to 1 immediate memberships
-   * to a single group, and 0 to many effective memberships to a group.
-   * A group can have potentially unlimited effective 
-   * memberships
-   * 
-   * <pre class="eg">
-   * if (g.hasImmediateMember(subj, f)) {
-   *   // Subject is an immediate member of this group
-   * }
-   * else {
-   *   // Subject is not a immediate member of this group
-   * } 
-   * </pre>
-   * @param   subj  Check this subject.
-   * @param   f     Check for membership in this list field.
-   * @return  Boolean true if subject belongs to this group.
-   * @throws  SchemaException
-   */
-  public boolean hasNonImmediateMember(Subject subj, Field f) 
-    throws  SchemaException
-  {
-    boolean rv = false;
-    Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, true);
-    rv = m.isNonImmediateMember(this, f);
-    return rv;
-  } // public boolean hasImmediateMember(subj, f)
-
-  /**
-   * Get {@link Composite} {@link Member}s of this group.
-   * 
-   * A composite group is composed of two groups and a set operator 
-   * (stored in grouper_composites table)
-   * (e.g. union, intersection, etc).  A composite group has no immediate members.
-   * All subjects in a composite group are effective members.
-   * 
-   * <pre class="eg">
-   * Set members = g.getCompositeMembers();
-   * </pre>
-   * @param field
-   * @param sources 
-   * @param queryOptions 
-   * @return  A set of {@link Member} objects.
-   * @since   1.0
-   */
-  public Set<Member> getCompositeMembers(Field field, Set<Source> sources, QueryOptions queryOptions) {
-
-    return MemberFinder.internal_findMembersByType(
-      GrouperSession.staticGrouperSession(), this, field, 
-      MembershipType.COMPOSITE.getTypeString(), sources, queryOptions
-    );
-  } // public Set getCompositeMembers()
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
-   */
-  public void xmlCopyBusinessPropertiesToExisting(Group existingRecord) {
-    existingRecord.setAlternateNameDb(this.alternateNameDb);
-    existingRecord.setDescriptionDb(this.getDescriptionDb());
-    existingRecord.setDisplayExtensionDb(this.getDisplayExtensionDb());
-    existingRecord.setDisplayNameDb(this.getDisplayNameDb());
-    existingRecord.setExtensionDb(this.getExtensionDb());
-    existingRecord.setNameDb(this.getNameDb());
-    existingRecord.setParentUuid(this.getParentUuid());
-    existingRecord.setTypeOfGroup(this.typeOfGroup);
-    existingRecord.setUuid(this.getUuid());
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentBusinessProperties(Group other) {
-    if (!StringUtils.equals(this.alternateNameDb, other.alternateNameDb)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.description, other.description)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.displayExtension, other.displayExtension)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.displayName, other.displayName)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.extension, other.extension)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.name, other.name)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.parentUUID, other.parentUUID)) {
-      return true;
-    }
-    if (!GrouperUtil.equals(this.typeOfGroup, other.typeOfGroup)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.uuid, other.uuid)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentUpdateProperties(Group other) {
-    if (!StringUtils.equals(this.contextId, other.contextId)) {
-      return true;
-    }
-    if (this.createTime != other.createTime) {
-      return true;
-    }
-    if (!StringUtils.equals(this.creatorUUID, other.creatorUUID)) {
-      return true;
-    }
-    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
-      return true;
-    }
-    if (!GrouperUtil.equals(this.lastMembershipChangeDb, other.lastMembershipChangeDb)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.modifierUUID, other.modifierUUID)) {
-      return true;
-    }
-    if (this.modifyTime != other.modifyTime) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
-   */
-  public Group xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getGroup().findByUuidOrName(this.uuid, this.name, false);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
-   */
-  public void xmlSaveBusinessProperties(Group existingRecord) {
-    //if its an insert, call the business method
-    if (existingRecord == null) {
-      Stem parent = this.getParentStem();
-      existingRecord = parent.internal_addChildGroup(GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, this.description, null, null, false);
-    }
-    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
-    //if its an insert or update, then do the rest of the fields
-    existingRecord.store();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
-   */
-  public void xmlSaveUpdateProperties() {
-    GrouperDAOFactory.getFactory().getGroup().saveUpdateProperties(this);
   }
 
 }

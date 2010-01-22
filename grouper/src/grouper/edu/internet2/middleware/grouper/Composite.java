@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -54,7 +53,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.71 2009-12-07 07:31:08 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.70 2009-09-17 15:33:05 shilen Exp $
  * @since   1.0
  */
 @SuppressWarnings("serial")
@@ -505,7 +504,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     // update group set object to specify type of composite
     GroupSet selfGroupSet = 
       GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getFactorOwnerUuid(), Group.getDefaultList().getUuid());
-    selfGroupSet.setType(MembershipType.COMPOSITE.getTypeString());
+    selfGroupSet.setType(Membership.COMPOSITE);
     GrouperDAOFactory.getFactory().getGroupSet().update(selfGroupSet);
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
@@ -566,7 +565,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     // update the membership type of the group set to 'immediate'
     GroupSet selfGroupSet = 
       GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getFactorOwnerUuid(), Group.getDefaultList().getUuid());
-    selfGroupSet.setType(MembershipType.IMMEDIATE.getTypeString());
+    selfGroupSet.setType(Membership.IMMEDIATE);
     GrouperDAOFactory.getFactory().getGroupSet().update(selfGroupSet);
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
@@ -732,7 +731,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     ms.setFieldId(Group.getDefaultList().getUuid());
     ms.setMemberUuid(memberUuid);
     ms.setOwnerGroupId(ownerGroupId);
-    ms.setType(MembershipType.COMPOSITE.getTypeString());
+    ms.setType(Membership.COMPOSITE);
     ms.setViaCompositeId(viaCompositeId);
 
     return ms;

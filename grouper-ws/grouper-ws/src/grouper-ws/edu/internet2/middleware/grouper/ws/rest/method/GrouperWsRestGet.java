@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGet.java,v 1.9 2009-12-29 07:39:28 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGet.java,v 1.6 2008-10-27 21:28:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -17,15 +17,9 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteReques
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
-import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
-import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -74,18 +68,6 @@ public enum GrouperWsRestGet {
           //find groups lite
           return GrouperServiceRest.findGroupsLite(clientVersion,
               (WsRestFindGroupsLiteRequest)requestObject);
-        }
-        if (requestObject instanceof WsRestHasMemberRequest) {
-          
-          //has member
-          return GrouperServiceRest.hasMember(clientVersion, null,
-              (WsRestHasMemberRequest)requestObject);
-        }
-        if (requestObject instanceof WsRestHasMemberLiteRequest) {
-          
-          //has member lite
-          return GrouperServiceRest.hasMemberLite(clientVersion,null, null, null,
-              (WsRestHasMemberLiteRequest)requestObject);
         }
       }
       
@@ -207,22 +189,9 @@ public enum GrouperWsRestGet {
       //do that
       if (StringUtils.isBlank(operation) && (requestObject instanceof WsRestGetGroupsRequest)) {
         
-        return GrouperServiceRest.getGroups(clientVersion, subjectId, sourceId, (WsRestGetGroupsRequest)requestObject);
+        return GrouperServiceRest.getGroups(clientVersion, (WsRestGetGroupsRequest)requestObject);
         
       }
-      
-      if (StringUtils.isBlank(operation) && (requestObject == null || requestObject instanceof WsRestGetSubjectsRequest)) {
-        
-        return GrouperServiceRest.getSubjects(clientVersion, subjectId, sourceId, (WsRestGetSubjectsRequest)requestObject);
-        
-      }
-      
-      if (StringUtils.isBlank(operation) && requestObject instanceof WsRestGetSubjectsLiteRequest) {
-        
-        return GrouperServiceRest.getSubjectsLite(clientVersion, subjectId, sourceId, (WsRestGetSubjectsLiteRequest)requestObject);
-        
-      }
-      
       
       //validate and get the operation
       GrouperWsRestGetSubject grouperWsRestGetSubject = GrouperWsRestGetSubject
@@ -232,49 +201,6 @@ public enum GrouperWsRestGet {
           clientVersion, subjectId, sourceId, urlStrings, requestObject);
     }
 
-  }, 
-  /** group get requests */
-  memberships {
-  
-    /**
-     * handle the incoming request based on GET HTTP method and memberships resource
-     * @param clientVersion version of client, e.g. v1_3_000
-     * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
-     * the urlStrings would be size two: {"groups", "a:b"}
-     * @param requestObject is the request body converted to object
-     * @return the result object
-     */
-    @Override
-    public WsResponseBean service(
-        GrouperWsVersion clientVersion, List<String> urlStrings,
-        WsRequestBean requestObject) {
-  
-      //url should be: /xhtml/v1_3_000/memberships?something=somethingelse
-      String next = GrouperServiceUtils.popUrlString(urlStrings);
-
-      if (!StringUtils.isBlank(next)) {
-        throw new RuntimeException("Why is there a param here, shouldnt be: " + next);
-      }
-
-      if (requestObject instanceof WsRestGetMembershipsLiteRequest) {
-        
-        //get memberships
-        return GrouperServiceRest.getMembershipsLite(clientVersion,null, null, null,
-            (WsRestGetMembershipsLiteRequest)requestObject);
-      } else if (requestObject instanceof WsRestGetMembershipsRequest) {
-        
-        //get memberships
-        return GrouperServiceRest.getMemberships(clientVersion,null, null, null,
-            (WsRestGetMembershipsRequest)requestObject);
-      } else {
-        throw new RuntimeException("Not expecting object type: " + GrouperUtil.className(requestObject) 
-            + ", must be a WsRestGetMembershipsLiteRequest or WsRestGetMembershipsRequest");
-      }
-
-      
-    }
-  
   };
 
   /**

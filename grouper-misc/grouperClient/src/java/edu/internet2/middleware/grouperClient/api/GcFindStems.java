@@ -1,20 +1,17 @@
 /*
  * @author mchyzer
- * $Id: GcFindStems.java,v 1.4 2009-12-19 21:38:27 mchyzer Exp $
+ * $Id: GcFindStems.java,v 1.2 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindStemsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindStemsRequest;
-import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
@@ -77,10 +74,6 @@ public class GcFindStems {
   
   /** act as subject if any */
   private WsSubjectLookup actAsSubject;
-  /** stem names to query */
-  private Set<String> stemNames = new LinkedHashSet<String>();
-  /** stem names to query */
-  private Set<String> stemUuids = new LinkedHashSet<String>();
 
   /**
    * assign the act as subject if any
@@ -96,11 +89,9 @@ public class GcFindStems {
    * validate this call
    */
   private void validate() {
-    if (this.wsStemQueryFilter == null && GrouperClientUtils.length(this.stemUuids) == 0 
-        && GrouperClientUtils.length(this.stemNames) == 0) {
-      throw new RuntimeException("Need to pass in a stem query filter, or stemNames or stemUuids: " + this);
+    if (this.wsStemQueryFilter == null) {
+      throw new RuntimeException("Need to pass in a stem query filter: " + this);
     }
-
   }
   
   /**
@@ -126,16 +117,6 @@ public class GcFindStems {
         findStems.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
       
-      List<WsStemLookup> stemLookups = new ArrayList<WsStemLookup>();
-      //add names and/or uuids
-      for (String stemName : this.stemNames) {
-        stemLookups.add(new WsStemLookup(stemName, null));
-      }
-      for (String stemUuid : this.stemUuids) {
-        stemLookups.add(new WsStemLookup(null, stemUuid));
-      }
-      findStems.setWsStemLookups(GrouperClientUtils.toArray(stemLookups, WsStemLookup.class));
-
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
@@ -150,26 +131,6 @@ public class GcFindStems {
     }
     return wsFindStemsResults;
     
-  }
-
-  /**
-   * set the stem name
-   * @param theStemName
-   * @return this for chaining
-   */
-  public GcFindStems addStemName(String theStemName) {
-    this.stemNames.add(theStemName);
-    return this;
-  }
-
-  /**
-   * set the stem uuid
-   * @param theStemUuid
-   * @return this for chaining
-   */
-  public GcFindStems addStemUuid(String theStemUuid) {
-    this.stemUuids.add(theStemUuid);
-    return this;
   }
   
 }

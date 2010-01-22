@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestGetMembersLiteRequest.java,v 1.2 2009-12-07 07:31:14 mchyzer Exp $
+ * @author mchyzer $Id: WsRestGetMembersLiteRequest.java,v 1.1 2008-03-30 09:01:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.member;
 
@@ -55,27 +55,6 @@ public class WsRestGetMembersLiteRequest implements WsRequestBean {
 
   /** paramValue1 */
   private String paramValue1;
-
-  /** sourceids to limit request to, or null for all */
-  private String sourceIds;
-  
-  
-  /**
-   * sourceids to limit request to, or null for all
-   * @return the sourceIds
-   */
-  public String getSourceIds() {
-    return this.sourceIds;
-  }
-
-  
-  /**
-   * sourceids to limit request to, or null for all
-   * @param sourceIds1 the sourceIds to set
-   */
-  public void setSourceIds(String sourceIds1) {
-    this.sourceIds = sourceIds1;
-  }
 
   /**
    * 

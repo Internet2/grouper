@@ -17,13 +17,14 @@
 
 package edu.internet2.middleware.grouper.validator;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
@@ -35,7 +36,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * memberships
  * 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.6 2009-12-07 07:31:08 mchyzer Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.5 2009-08-12 12:44:45 shilen Exp $
  * @since   1.2.0
  */
 public class ImmediateMembershipValidator extends MembershipValidator {
@@ -66,7 +67,7 @@ public class ImmediateMembershipValidator extends MembershipValidator {
       v.setErrorMessage( vNull.getErrorMessage() );
     }
     // validate immediate membership attributes
-    else if ( !MembershipType.IMMEDIATE.getTypeString().equals( _ms.getType() ) ) { // type must be immediate
+    else if ( !Membership.IMMEDIATE.equals( _ms.getType() ) ) { // type must be immediate
       v.setErrorMessage(INVALID_TYPE);
     }
     else if ( _ms.getDepth() != 0 )                           { // must have depth == 0

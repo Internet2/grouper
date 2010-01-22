@@ -561,12 +561,7 @@
 	<target name="javadoc" description="generate public api docs to doc/api">
 		<!-- Let's be sure we clear out old cruft first... -->
 		<mkdir dir="doc/api" />
-		<delete>
-      <fileset dir="doc/api">
-        <exclude name="**/.svn" />
-        <exclude name="**/.svn/**" />
-      </fileset>
-		</delete>
+		<delete dir="doc/api" />
 		<mkdir dir="doc/api" />
 		<!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
 		<javadoc destdir="doc/api" classpathref="ws.api.class.path" access="public"
@@ -593,7 +588,7 @@
 		<!-- replace relative links, e.g. method links -->
 		<replaceregexp flags="g">
 			<regexp pattern="\.html#([^&quot;>]*)&quot;" />
-			<substitution expression="\.html?view=co#\1&quot;" />
+			<substitution expression="\.html?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}#\1&quot;" />
 			<fileset dir="doc/api" includes="**/*.html" />
 		</replaceregexp>
 		<!-- replace onLoad="top.loadFrames()" with onLoad="", this javascript messes things up with viewvc params -->
@@ -601,12 +596,12 @@
 			<replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
 			<replacevalue><![CDATA[onLoad=""]]></replacevalue>
 		</replace>
-		<!-- replace for cvs web: .html" with .html?view=co"   -->
-		<replace dir="doc/api" value=".html?view=co&quot;">
+		<!-- replace for cvs web: .html" with .html?root=I2MI&view=co&pathrev=HEAD"   -->
+		<replace dir="doc/api" value=".html?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}&quot;">
 			<include name="**/*.html" />
 			<replacetoken><![CDATA[.html"]]></replacetoken>
 		</replace>
-		<replace dir="doc/api" value=".css?view=co&quot;">
+		<replace dir="doc/api" value=".css?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}&quot;">
 			<include name="**/*.html" />
 			<replacetoken><![CDATA[.css"]]></replacetoken>
 		</replace>

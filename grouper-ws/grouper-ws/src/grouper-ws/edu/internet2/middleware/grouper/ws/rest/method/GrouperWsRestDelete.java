@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestDelete.java,v 1.6 2009-12-07 07:31:14 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestDelete.java,v 1.5 2008-03-30 09:01:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -15,8 +15,6 @@ import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteRequest;
-import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -59,21 +57,6 @@ public enum GrouperWsRestDelete {
             (WsRestGroupDeleteLiteRequest)requestObject);
       }
 
-      if (StringUtils.isBlank(groupName) && StringUtils.isBlank(operation)) {
-        
-        if (requestObject instanceof WsRestDeleteMemberRequest) {
-          
-          return GrouperServiceRest.deleteMember(clientVersion, null, (WsRestDeleteMemberRequest)requestObject);
-          
-        }
-        
-        if (requestObject instanceof WsRestDeleteMemberLiteRequest) {
-          
-          return GrouperServiceRest.deleteMemberLite(clientVersion, null, null, null, (WsRestDeleteMemberLiteRequest)requestObject);
-          
-        }
-        
-      }
       
       //validate and get the operation
       GrouperWsRestDeleteGroup grouperWsRestDeleteGroup = GrouperWsRestDeleteGroup

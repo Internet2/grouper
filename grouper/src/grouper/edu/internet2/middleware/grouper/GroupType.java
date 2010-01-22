@@ -64,7 +64,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddFieldToGroupTypeValidator;
 import edu.internet2.middleware.grouper.validator.DeleteFieldFromGroupTypeValidator;
 import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
-import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /** 
  * Schema specification for a Group type.
@@ -72,7 +71,7 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  * @author  blair christensen.
  * @version $Id: GroupType.java,v 1.89 2009-06-10 05:31:35 mchyzer Exp $
  */
-public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable, XmlImportable<GroupType> {
+public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
   /** name of table for grouper_types */
   public static final String TABLE_GROUPER_TYPES = "grouper_types";
@@ -202,7 +201,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     StopWatch sw = new StopWatch();
     sw.start();
     boolean[] existedAlready = new boolean[1];
-    GroupType type = internal_createType(s, name, true, false, exceptionIfExists, existedAlready, null);
+    GroupType type = internal_createType(s, name, true, false, exceptionIfExists, existedAlready);
     sw.stop();
     if (!existedAlready[0]) {
       EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
@@ -309,7 +308,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   )
     throws  InsufficientPrivilegeException,
             SchemaException {
-    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, exceptionIfExists, false, null, null);
+    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, exceptionIfExists, false, null);
   } // public Field addAttribute(s, name, read, write, required)
 
   /**
@@ -338,7 +337,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   public Field addOrUpdateAttribute(
     GrouperSession s, String name, Privilege read, Privilege write, boolean required
   ) throws  InsufficientPrivilegeException, SchemaException {
-    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, false, true, null, null);
+    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, false, true, null);
   } // public Field addAttribute(s, name, read, write, required)
 
   /**
@@ -380,7 +379,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     if (!Privilege.isAccess(write)) {
       throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
     }
-    return this.internal_addField(s, name, FieldType.LIST, read, write, false, true, false, null, null);
+    return this.internal_addField(s, name, FieldType.LIST, read, write, false, true, false, null);
   } // public Field addList(s, name, read, write)
 
   /**
@@ -573,18 +572,15 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @param isInternal
    * @param exceptionIfExists
    * @param changed boolean array, the fisrt index will be in it existed already
-   * @param uuid to use or null for one to be assigned
    * @return the type
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
    */
   public static GroupType internal_createType(
     final GrouperSession s, final String name, final boolean isAssignable, 
-    final boolean isInternal, final boolean exceptionIfExists, final boolean[] changed, String uuid)
+    final boolean isInternal, final boolean exceptionIfExists, final boolean[] changed)
       throws  InsufficientPrivilegeException,
               SchemaException { 
-    
-    final String UUID = StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid;
     
     return (GroupType)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
@@ -620,7 +616,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
             _gt.setIsAssignable(isAssignable);
             _gt.setIsInternal(isInternal);
             _gt.setName(name);
-            _gt.setUuid( UUID );
+            _gt.setUuid( GrouperUuid.getUuid() );
             
           dao.createOrUpdate(_gt) ;
           
@@ -663,7 +659,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   public Field internal_addField(
     final GrouperSession s, final String name, final FieldType type, final Privilege read, 
     final Privilege write, final boolean required, final boolean exceptionIfExists, final boolean updateIfExists,
-    final boolean[] changedArray, String uuid) throws  InsufficientPrivilegeException, SchemaException {
+    final boolean[] changedArray) throws  InsufficientPrivilegeException, SchemaException {
 
     //these are reserved words:
     if (Group.INTERNAL_FIELD_ATTRIBUTES.contains(name)) {
@@ -671,7 +667,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
           + name + "', reserved words are : " + GrouperUtil.toStringForLog(Group.INTERNAL_FIELD_ATTRIBUTES));
     }
     
-    final String UUID = StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid;
     
     return (Field)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
@@ -786,7 +781,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
             field.setName(name);
             field.setReadPrivilege(read);
             field.setType(type);
-            field.setUuid(UUID);
+            field.setUuid( GrouperUuid.getUuid() );
             field.setWritePrivilege(write);
               
             GrouperDAOFactory.getFactory().getGroupType().createField(field);
@@ -1177,90 +1172,6 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     String thisName = StringUtils.defaultString(this.name);
     String otherName = StringUtils.defaultString(((GroupType)o).name);
     return thisName.compareTo(otherName);
-  }
-
-  /**
-   * store this object to the DB.
-   */
-  public void store() {    
-    GrouperDAOFactory.getFactory().getGroupType().update(this);
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
-   */
-  public void xmlCopyBusinessPropertiesToExisting(GroupType existingRecord) {
-    existingRecord.isAssignable = this.isAssignable;
-    existingRecord.isInternal = this.isInternal;
-    existingRecord.name = this.name;
-    existingRecord.setUuid(this.getUuid());
-
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentBusinessProperties(GroupType other) {
-    if (this.isAssignable != other.isAssignable) {
-      return true;
-    }
-    if (this.isInternal != other.isInternal) {
-      return true;
-    }
-    if (!StringUtils.equals(this.name, other.name)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.uuid, other.uuid)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
-   */
-  public boolean xmlDifferentUpdateProperties(GroupType other) {
-    if (!StringUtils.equals(this.contextId, other.contextId)) {
-      return true;
-    }
-    if (this.createTime != other.createTime) {
-      return true;
-    }
-    if (!StringUtils.equals(this.creatorUUID, other.creatorUUID)) {
-      return true;
-    }
-    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
-   */
-  public GroupType xmlRetrieveByIdOrKey() {
-    return GrouperDAOFactory.getFactory().getGroupType().findByUuidOrName(this.uuid, this.name, false);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
-   */
-  public void xmlSaveBusinessProperties(GroupType existingRecord) {
-    //if its an insert, call the business method
-    if (existingRecord == null) {
-      existingRecord = internal_createType(GrouperSession.staticGrouperSession(), this.name, this.isAssignable, this.isInternal, true, null, this.uuid);
-    }
-    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
-    //if its an insert or update, then do the rest of the fields
-    existingRecord.store();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
-   */
-  public void xmlSaveUpdateProperties() {
-    GrouperDAOFactory.getFactory().getGroupType().saveUpdateProperties(this);
   }
 
 

@@ -9,15 +9,10 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -41,12 +36,9 @@ public enum WsMemberFilter {
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected Set<Member> getMembersHelper(Group group, Field field, Set<Source> sources)
+    protected Set<Member> getMembersHelper(Group group, Field field)
         throws SchemaException {
-      
-      //set default field if null
-      field = field == null ? Group.getDefaultList() : field;
-      return group.getMembers(field, sources, null);
+      return field == null ? group.getMembers() : group.getMembers(field);
     }
 
     /**
@@ -86,19 +78,20 @@ public enum WsMemberFilter {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Group> getGroups(Member member, Field field, String scope, 
-        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
-      return GrouperUtil.nonNull(member.getGroups(field, scope, stem, stemScope, queryOptions, enabled));
+    public Set<Group> getGroups(Member member) {
+      return GrouperUtil.nonNull(member.getGroups());
     }
 
     /**
+     * get groups for subject
      * 
-     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
+     * @param member
+     * @return the set of members (non null)
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public MembershipType getMembershipType() {
-      //note, all members is the same as an "all" membership type
-      return null;
+    public Set<Group> getGroups(Member member, Field field) {
+      return GrouperUtil.nonNull(member.getGroups(field));
     }
   },
 
@@ -117,13 +110,10 @@ public enum WsMemberFilter {
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected Set<Member> getMembersHelper(Group group, Field field, Set<Source> sources)
+    protected Set<Member> getMembersHelper(Group group, Field field)
         throws SchemaException {
-      
-      //set default field if null
-      field = field == null ? Group.getDefaultList() : field;
-
-      return group.getEffectiveMembers(field, sources, null);
+      return field == null ? group.getEffectiveMembers() : group
+          .getEffectiveMembers(field);
     }
 
     /**
@@ -160,23 +150,25 @@ public enum WsMemberFilter {
      * get groups for subject
      * 
      * @param member
+     * @return the set of members (non null)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<Group> getGroups(Member member) {
+      return GrouperUtil.nonNull(member.getEffectiveGroups());
+    }
+
+    /**
+     * get groups for subject
+     * 
+     * @param member
      * @param field
      * @return the set of members (non null)
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Group> getGroups(Member member, Field field, String scope, 
-        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
-      return GrouperUtil.nonNull(member.getEffectiveGroups(field, scope, stem, stemScope, queryOptions, enabled));
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
-     */
-    @Override
-    public MembershipType getMembershipType() {
-      return MembershipType.EFFECTIVE;
+    public Set<Group> getGroups(Member member, Field field) {
+      return GrouperUtil.nonNull(member.getEffectiveGroups(field));
     }
   },
   /**
@@ -193,13 +185,10 @@ public enum WsMemberFilter {
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected Set<Member> getMembersHelper(Group group, Field field, Set<Source> sources)
+    protected Set<Member> getMembersHelper(Group group, Field field)
         throws SchemaException {
-      
-      //set default field if null
-      field = field == null ? Group.getDefaultList() : field;
-
-      return group.getImmediateMembers(field, sources, null);
+      return field == null ? group.getImmediateMembers() : group
+          .getImmediateMembers(field);
     }
 
     /**
@@ -237,23 +226,25 @@ public enum WsMemberFilter {
      * get groups for subject
      * 
      * @param member
+     * @return the set of members (non null)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<Group> getGroups(Member member) {
+      return GrouperUtil.nonNull(member.getImmediateGroups());
+    }
+
+    /**
+     * get groups for subject
+     * 
+     * @param member
      * @param field
      * @return the set of members (non null)
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Group> getGroups(Member member, Field field, String scope, 
-        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
-      return GrouperUtil.nonNull(member.getImmediateGroups(field, scope, stem, stemScope, queryOptions, enabled));
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
-     */
-    @Override
-    public MembershipType getMembershipType() {
-      return MembershipType.IMMEDIATE;
+    public Set<Group> getGroups(Member member, Field field) {
+      return GrouperUtil.nonNull(member.getImmediateGroups(field));
     }
   },
 
@@ -273,12 +264,8 @@ public enum WsMemberFilter {
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected Set<Member> getMembersHelper(Group group, Field field, Set<Source> sources) {
-
-      //set default field if null
-      field = field == null ? Group.getDefaultList() : field;
-      return GrouperUtil.nonNull(group.getCompositeMembers(field, sources, null));
-      
+    protected Set<Member> getMembersHelper(Group group, Field field) {
+      return GrouperUtil.nonNull(group.getCompositeMembers());
     }
 
     /**
@@ -319,97 +306,23 @@ public enum WsMemberFilter {
      * @return the set of members (non null)
      */
     @Override
-    public Set<Group> getGroups(Member member, Field field, String scope, 
-        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
+    public Set<Group> getGroups(Member member) {
       throw new RuntimeException(
           "getGroups with composite is not supported: member subject id: "
               + member.getSubjectId());
     }
 
     /**
-     * 
-     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
-     */
-    @Override
-    public MembershipType getMembershipType() {
-      return MembershipType.COMPOSITE;
-    }
-  }, 
-  
-  /**
-   * return only direct members of a group (for composite groups this will not return anything) 
-   */
-  NonImmediate {
-  
-    /**
-     * get the nonimmediate members from the group
-     * 
-     * @param group
-     * @param field for membership or null to not check field
-     * @return the set of members (non null)
-     */
-    @Override
-    protected Set<Member> getMembersHelper(Group group, Field field, Set<Source> sources)
-        throws SchemaException {
-
-      //set default field if null
-      field = field == null ? Group.getDefaultList() : field;
-
-      return group.getNonImmediateMembers(field, sources, null);
-    }
-  
-    /**
-     * get the composite memberships from the group
-     * 
-     * @param group
-     * @param field for membership or null to not check field
-     * @return the set of members (non null)
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    protected Set<Membership> getMembershipsHelper(Group group, Field field)
-        throws SchemaException {
-      return field == null ? group.getNonImmediateMemberships() : group
-          .getNonImmediateMemberships(field);
-    }
-  
-    /**
-     * see if a group has a subject as member
-     * 
-     * @param group
-     * @param field to check with membership
-     * @return true|false
-     * @throws SchemaException
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    protected boolean hasMemberHelper(Group group, Subject subject, Field field)
-        throws SchemaException {
-      return field == null ? group.hasNonImmediateMember(subject) : group
-          .hasNonImmediateMember(subject, field);
-    }
-  
-    /**
      * get groups for subject
      * 
      * @param member
-     * @param field
      * @return the set of members (non null)
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public Set<Group> getGroups(Member member, Field field, String scope, 
-        Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled) {
-      return GrouperUtil.nonNull(member.getNonImmediateGroups(field, scope, stem, stemScope, queryOptions, enabled));
-    }
-
-    /**
-     * 
-     * @see edu.internet2.middleware.grouper.ws.member.WsMemberFilter#getMembershipType()
-     */
-    @Override
-    public MembershipType getMembershipType() {
-      return MembershipType.NONIMMEDIATE;
+    public Set<Group> getGroups(Member member, Field field) {
+      throw new RuntimeException(
+          "getGroups with composite is not supported: member subject id: "
+              + member.getSubjectId());
     }
   };
 
@@ -418,34 +331,26 @@ public enum WsMemberFilter {
    * 
    * @param group
    * @param field for membership or null to not check field
-   * @param sources are the sources to filter the members
    * @return the set of members (non null)
    */
-  public final Set<Member> getMembers(Group group, Field field, Set<Source> sources) {
+  public final Set<Member> getMembers(Group group, Field field) {
     try {
-      return this.getMembersHelper(group, field, sources);
+      return this.getMembersHelper(group, field);
     } catch (SchemaException se) {
       throw new RuntimeException("Problem with group and field: " + group + ", field: "
-          + field.getName() + ", " + GrouperUtil.toString(sources), se);
+          + field.getName(), se);
     }
   }
 
-  /**
-   * get the membership type for this member filter
-   * @return the membership type
-   */
-  public abstract MembershipType getMembershipType();
-  
   /**
    * get the members from the group based on type of filter
    * 
    * @param group
    * @param field for membership or null to not check field
-   * @param sources
    * @return the set of members (non null)
    * @throws SchemaException if problem with field
    */
-  protected abstract Set<Member> getMembersHelper(Group group, Field field, Set<Source> sources)
+  protected abstract Set<Member> getMembersHelper(Group group, Field field)
       throws SchemaException;
 
   /**
@@ -507,20 +412,23 @@ public enum WsMemberFilter {
   }
 
   /**
+   * get groups for subject
+   * 
+   * @param member
+   * @param field to check with membership
+   * @return the set of members (non null)
+   */
+  public abstract Set<Group> getGroups(Member member);
+
+  /**
    * get groups for subject based on field
    * 
    * @param member
    * @param field
    * @param field to check with membership
-   * @param scope 
-   * @param stem 
-   * @param stemScope 
-   * @param enabled 
-   * @param queryOptions 
    * @return the set of members (non null)
    */
-  public abstract Set<Group> getGroups(Member member, Field field, String scope, 
-      Stem stem, Scope stemScope, QueryOptions queryOptions, Boolean enabled);
+  public abstract Set<Group> getGroups(Member member, Field field);
 
   /**
    * do a case-insensitive matching

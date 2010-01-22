@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: v1_6_000
+Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGrouperPrivilegesRestLite, manually written lite/rest, format: xhtml, for version: v1_5_000
 
 
 #########################################
@@ -30,22 +30,22 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="groupUuid" />
       <p class="groupName">aStem:aGroup</p>
       <p class="clientVersion" />
-      <p class="privilegeType">access</p>
-      <p class="allowed">T</p>
-      <p class="includeSubjectDetail" />
-      <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail" />
       <p class="subjectIdentifier" />
       <p class="stemName" />
+      <p class="stemUuid" />
+      <p class="privilegeType">access</p>
+      <p class="privilegeName">optin</p>
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
+      <p class="includeSubjectDetail" />
+      <p class="subjectAttributeNames" />
+      <p class="includeGroupDetail" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="stemUuid" />
-      <p class="privilegeName">optin</p>
+      <p class="allowed">T</p>
     </div>
   </body>
 </html>
@@ -66,7 +66,7 @@ X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Thu, 31 Dec 2009 17:31:52 GMT
+Date: Sat, 21 Nov 2009 21:18:33 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -78,40 +78,37 @@ Connection: close
   <body>
     <div title="WsAssignGrouperPrivilegesLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">No subjects were passed in, Success for: clientVersion: v1_5_000, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
-, group: WsGroupLookup[groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
-, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
-, params: null</p>
         <p class="resultCode">SUCCESS_ALLOWED</p>
+        <p class="success">T</p>
+        <p class="resultMessage" />
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">122</p>
-        <p class="serverVersion">v1_6_000</p>
+        <p class="serverVersion">v1_5_000</p>
+        <p class="millis">180</p>
         <p class="resultWarnings" />
       </div>
-      <p class="privilegeName" />
-      <div class="wsGroup" title="WsGroup">
-        <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:a group</p>
-        <p class="description">a group description</p>
-        <p class="uuid">d84709726bb547edb4d6833bed0e4e13</p>
-        <div class="detail" title="WsGroupDetail" />
-        <p class="extension">aGroup</p>
-        <p class="displayExtension">a group</p>
-      </div>
-      <p class="privilegeType" />
-      <p class="allowed" />
       <div class="wsSubject" title="WsSubject">
-        <p class="name">my name is test.subject.0</p>
         <p class="id">test.subject.0</p>
-        <p class="sourceId">jdbc</p>
-        <p class="success">T</p>
-        <p class="resultCode">SUCCESS</p>
         <p class="identifierLookup" />
+        <p class="resultCode">SUCCESS</p>
+        <p class="sourceId">jdbc</p>
+        <p class="name">my name is test.subject.0</p>
+        <p class="success">T</p>
       </div>
       <div class="wsStem" title="WsStem" />
+      <div class="wsGroup" title="WsGroup">
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">a group</p>
+        <p class="uuid">f6b577213921477fbdb57d80bb48b35f</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="extension">aGroup</p>
+        <p class="description">a group description</p>
+        <p class="name">aStem:aGroup</p>
+      </div>
+      <p class="allowed" />
+      <p class="privilegeType">access</p>
+      <p class="privilegeName">optin</p>
     </div>
   </body>
 </html>
@@ -276,7 +273,4 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_6_000, result code: SUCCESS_ALLOWED, result message: No subjects were passed in, Success for: clientVersion: v1_5_000, wsSubjects: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0]
-, group: WsGroupLookup[groupName=aStem:aGroup], stem: null, privilege: ACCESS-Array size: 1: [0]: optin
-, allowed? true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], replaceAllExisting: false
-, params: null
+Server version: v1_5_000, result code: SUCCESS_ALLOWED, result message: null

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.12 2009/12/29 07:39:28 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.10 2008-10-27 21:28:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -12,7 +12,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
@@ -32,22 +31,16 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteReque
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
-import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
-import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
-import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAttribute;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeEdit;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
@@ -63,7 +56,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult;
@@ -125,7 +117,6 @@ public class WsRestClassLookup {
     addAliasClass(WsGetMembershipsResults.class);
     addAliasClass(WsGetMembersResult.class);
     addAliasClass(WsGetMembersResults.class);
-    addAliasClass(WsGetSubjectsResults.class);
     addAliasClass(WsGroup.class);
     addAliasClass(WsGroupDeleteResult.class);
     addAliasClass(WsGroupDeleteLiteResult.class);
@@ -170,10 +161,6 @@ public class WsRestClassLookup {
     addAliasClass(WsGetGrouperPrivilegesLiteResult.class);
     addAliasClass(WsAssignGrouperPrivilegesLiteResult.class);
     
-    addAliasClass(WsRestAssignGrouperPrivilegesRequest.class);
-    addAliasClass(WsAssignGrouperPrivilegesResults.class);
-    addAliasClass(WsAssignGrouperPrivilegesResult.class);
-    
     addAliasClass(WsRestGetMembersLiteRequest.class);
     addAliasClass(WsRestAddMemberRequest.class);
     addAliasClass(WsRestAddMemberLiteRequest.class);
@@ -195,13 +182,6 @@ public class WsRestClassLookup {
     addAliasClass(WsRestGetMembersRequest.class);
     addAliasClass(WsGetMembersLiteResult.class);
   
-    addAliasClass(WsRestGetMembershipsLiteRequest.class);
-    addAliasClass(WsRestGetMembershipsRequest.class);
-    addAliasClass(WsGetMembershipsResults.class);
-  
-    addAliasClass(WsRestGetSubjectsLiteRequest.class);
-    addAliasClass(WsRestGetSubjectsRequest.class);
-
     addAliasClass(WsRestFindGroupsLiteRequest.class);
     addAliasClass(WsRestFindGroupsRequest.class);
 

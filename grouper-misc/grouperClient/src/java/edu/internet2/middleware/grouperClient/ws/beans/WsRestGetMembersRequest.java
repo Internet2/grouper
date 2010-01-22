@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestGetMembersRequest.java,v 1.2 2009-12-07 07:33:04 mchyzer Exp $
+ * $Id: WsRestGetMembersRequest.java,v 1.1 2008-12-01 07:40:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
@@ -38,26 +38,6 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /** field */
   private WsParam[] params;
   
-  /** sourceIds, or null if all */
-  private String[] sourceIds;
-  
-  
-  /**
-   * sourceIds, or null if all
-   * @return the sourceIds
-   */
-  public String[] getSourceIds() {
-    return this.sourceIds;
-  }
-  
-  /**
-   * sourceIds, or null if all
-   * @param sourceIds1 the sourceIds to set
-   */
-  public void setSourceIds(String[] sourceIds1) {
-    this.sourceIds = sourceIds1;
-  }
-
   /**
    * @return the clientVersion
    */

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGetMembers.java,v 1.5 2009-12-07 07:33:04 mchyzer Exp $
+ * $Id: GcGetMembers.java,v 1.4 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -40,9 +40,6 @@ public class GcGetMembers {
   /** group names to query */
   private Set<String> groupNames = new LinkedHashSet<String>();
   
-  /** group names to query */
-  private Set<String> groupUuids = new LinkedHashSet<String>();
-  
   /**
    * set the group name
    * @param theGroupName
@@ -50,16 +47,6 @@ public class GcGetMembers {
    */
   public GcGetMembers addGroupName(String theGroupName) {
     this.groupNames.add(theGroupName);
-    return this;
-  }
-  
-  /**
-   * set the group uuid
-   * @param theGroupUuid
-   * @return this for chaining
-   */
-  public GcGetMembers addGroupUuid(String theGroupUuid) {
-    this.groupUuids.add(theGroupUuid);
     return this;
   }
   
@@ -117,9 +104,8 @@ public class GcGetMembers {
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.length(this.groupNames) == 0
-        && GrouperClientUtils.length(this.groupUuids) == 0) {
-      throw new RuntimeException("Group name or uuid is required: " + this);
+    if (GrouperClientUtils.length(this.groupNames) == 0) {
+      throw new RuntimeException("Group name is required: " + this);
     }
   }
   
@@ -145,22 +131,6 @@ public class GcGetMembers {
   /** subject attribute names to return */
   private Set<String> subjectAttributeNames = new LinkedHashSet<String>();
 
-  /** source ids to limit the results to, or null for all sources */
-  private Set<String> sourceIds = null;
-  
-  /**
-   * add a source id to filter by (or none for all sources)
-   * @param sourceId
-   * @return this for chaining
-   */
-  public GcGetMembers addSourceId(String sourceId) {
-    if (this.sourceIds == null) {
-      this.sourceIds = new LinkedHashSet<String>();
-    }
-    this.sourceIds.add(sourceId);
-    return this;
-  }
-  
   /**
    * 
    * @param subjectAttributeName
@@ -212,12 +182,8 @@ public class GcGetMembers {
       getMembers.setMemberFilter(this.memberFilter == null ? null : this.memberFilter.name());
 
       List<WsGroupLookup> groupLookups = new ArrayList<WsGroupLookup>();
-      //add names and/or uuids
       for (String groupName : this.groupNames) {
         groupLookups.add(new WsGroupLookup(groupName, null));
-      }
-      for (String groupUuid : this.groupUuids) {
-        groupLookups.add(new WsGroupLookup(null, groupUuid));
       }
       getMembers.setWsGroupLookups(GrouperClientUtils.toArray(groupLookups, WsGroupLookup.class));
       
@@ -237,10 +203,6 @@ public class GcGetMembers {
       //add params if there are any
       if (this.params.size() > 0) {
         getMembers.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
-      }
-      
-      if (GrouperClientUtils.length(this.sourceIds) > 0) {
-        getMembers.setSourceIds(GrouperClientUtils.toArray(this.sourceIds, String.class));
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();

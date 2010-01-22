@@ -32,15 +32,13 @@ cd $buildDir
 
 export CVSROOT=/home/cvs/i2mi
 
-#/usr/bin/cvs export -r $1 grouper
-
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
+/usr/bin/cvs export -r $1 grouper
 
 cd $buildDir/grouper
 
-$ANT_HOME/bin/ant distPackage
+/home/mchyzer/ant/bin/ant distPackage
 
-$ANT_HOME/bin/ant distBinary
+/home/mchyzer/ant/bin/ant distBinary
 
 mv $buildDir/grouper/dist/binary/*.tar.gz $buildDir/
 mv $buildDir/grouper/dist/binary/*.zip $buildDir/

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllHibernateTests.java,v 1.3 2009-12-28 06:08:37 mchyzer Exp $
+ * $Id: AllHibernateTests.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -21,7 +21,6 @@ public class AllHibernateTests {
         "Test for edu.internet2.middleware.grouper.hibernate");
     //$JUnit-BEGIN$
     suite.addTestSuite(HibernateSessionTest.class);
-    suite.addTestSuite(HibUtilsTest.class);
     //$JUnit-END$
     return suite;
   }

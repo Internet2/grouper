@@ -206,9 +206,9 @@ public class WsAddMemberResults implements WsResponseBean, ResultMetadataHolder 
       }
     } else {
       //none is not ok, must pass one in
-      this.assignResultCode(WsAddMemberResultsCode.SUCCESS);
+      this.assignResultCode(WsAddMemberResultsCode.INVALID_QUERY);
       this.getResultMetadata().appendResultMessage(
-          "No subjects were passed in, ");
+          "You must pass in at least one subject");
     }
     //make response descriptive
     if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {

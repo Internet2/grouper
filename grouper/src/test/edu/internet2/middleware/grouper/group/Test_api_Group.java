@@ -20,10 +20,9 @@ package edu.internet2.middleware.grouper.group;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import junit.textui.TestRunner;
-
 import org.apache.commons.lang.StringUtils;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -49,7 +48,6 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -62,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.11 2009-12-07 07:31:09 mchyzer Exp $
+ * @version $Id: Test_api_Group.java,v 1.10 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -192,14 +190,14 @@ public class Test_api_Group extends GrouperTest {
     Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
     
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group1.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        group1.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), Membership.IMMEDIATE, true, true);
     ms.setEnabled(false);
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);
@@ -219,19 +217,19 @@ public class Test_api_Group extends GrouperTest {
     
 
     Membership disabled1 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        newGroup.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        newGroup.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, false);
     assertTrue(disabled1.getEnabledDb().equals("F"));
     assertTrue(disabled1.getEnabledTime().getTime() == enabledTime.getTime());
     assertTrue(disabled1.getDisabledTime().getTime() == disabledTime.getTime());
     
     Membership disabled2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), Membership.IMMEDIATE, true, false);
     assertTrue(disabled2.getEnabledDb().equals("F"));
     assertTrue(disabled2.getEnabledTime().getTime() == enabledTime.getTime());
     assertTrue(disabled2.getDisabledTime().getTime() == disabledTime.getTime());
 
     Membership enabled1 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, false);
     assertTrue(enabled1.getEnabledDb().equals("T"));
     assertTrue(enabled1.getEnabledTime() == null);
     assertTrue(enabled1.getDisabledTime() == null);
@@ -257,12 +255,12 @@ public class Test_api_Group extends GrouperTest {
     group4.addMember(group5.toSubject());
     
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group2.getUuid(), group3.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        group2.getUuid(), group3.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
     ms.setEnabled(false);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group3.getUuid(), group4.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
+        group3.getUuid(), group4.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
     ms.setEnabled(false);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     
@@ -276,15 +274,15 @@ public class Test_api_Group extends GrouperTest {
     assertEquals(3, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), false).size());
    
     Membership disabled1 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group2.getUuid(), newGroup.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        group2.getUuid(), newGroup.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, false);
     assertTrue(disabled1.getEnabledDb().equals("F"));
     
     Membership disabled2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        newGroup.getUuid(), group4.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, false);
+        newGroup.getUuid(), group4.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, false);
     assertTrue(disabled2.getEnabledDb().equals("F"));
     
     Membership disabled3 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        group1.getUuid(), newGroup.toMember().getUuid(), Group.getDefaultList(), MembershipType.EFFECTIVE.getTypeString(), true, false);
+        group1.getUuid(), newGroup.toMember().getUuid(), Group.getDefaultList(), Membership.EFFECTIVE, true, false);
     assertTrue(disabled3.getEnabledDb().equals("F"));
     assertTrue(disabled3.getDepth() == 1);
   }

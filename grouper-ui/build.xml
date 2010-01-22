@@ -124,14 +124,6 @@
 			<param name="build.dist" value="true"/>
 			<param name="build.clean" value="true"/>
 		</antcall>
-		<echo>****************************************************</echo>
-		<echo>** The Grouper UI will fail to start if the user  **</echo>
-		<echo>** which your application server runs as does not **</echo>
-		<echo>** have permission to write to the log files that **</echo>
-		<echo>** are configured in log4j.properties. See        **</echo>
-		<echo>** build.properties for more information          **</echo>
-		<echo>****************************************************</echo>
-		
 	</target>
 	
 	<target name="test">

@@ -27,13 +27,12 @@ import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.12 2009-12-07 07:31:09 mchyzer Exp $
+ * @author shilen $Id: GroupSet.java,v 1.11 2009-10-31 17:46:47 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
@@ -188,7 +187,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   private String fieldId;
   
   /** membership type -- immediate, effective, or composite */
-  private String type = MembershipType.IMMEDIATE.getTypeString();
+  private String type = Membership.IMMEDIATE;
 
   /** depth - 0 for self records, 1 for immediate memberships, > 1 for effective */
   private int depth;
@@ -577,7 +576,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       groupSet.setOwnerGroupId(ownerGroupId);
       groupSet.setOwnerAttrDefId(ownerAttrDefId);
       groupSet.setOwnerStemId(ownerStemId);
-      groupSet.setType(MembershipType.EFFECTIVE.getTypeString());
+      groupSet.setType(Membership.EFFECTIVE);
 
       // if we're forming a circular path, skip this isMember
       if (isCircular(groupSet, isGS)) {
@@ -687,7 +686,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       newGroupSet.setMemberGroupId(gs.getMemberGroupId());
       newGroupSet.setDepth(parentGroupSet.getDepth() + 1);
       newGroupSet.setParentId(parentGroupSet.getId());
-      newGroupSet.setType(MembershipType.EFFECTIVE.getTypeString());
+      newGroupSet.setType(Membership.EFFECTIVE);
 
       // if we're forming a circular path, return an empty Set.
       if (isCircular(newGroupSet, startGroupSet)) {
@@ -1058,7 +1057,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     effectiveMembership.setViaGroupId(this.getViaGroupId());
     effectiveMembership.setViaCompositeId(null);
     effectiveMembership.setDepth(this.getDepth());
-    effectiveMembership.setType(MembershipType.EFFECTIVE.getTypeString());
+    effectiveMembership.setType(Membership.EFFECTIVE);
     effectiveMembership.setGroupSetParentId(this.getParentId());
     effectiveMembership.setGroupSetCreatorUuid(this.getCreatorId());
     effectiveMembership.setGroupSetCreateTimeLong(this.getCreateTime());

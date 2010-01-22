@@ -39,16 +39,6 @@ public class WsGroupLookup {
   }
   
   /**
-   * see if blank
-   * @return true if blank
-   */
-  public boolean blank() {
-    return StringUtils.isBlank(this.groupName) && StringUtils.isBlank(this.uuid)
-      && this.group == null && this.groupFindResult == null;
-  }
-
-  
-  /**
    * see if this group lookup has data
    * @return true if it has data
    */

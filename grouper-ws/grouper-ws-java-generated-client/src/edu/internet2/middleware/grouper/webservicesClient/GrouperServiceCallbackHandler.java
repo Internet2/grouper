@@ -93,22 +93,6 @@
             }
                 
            /**
-            * auto generated Axis2 call back method for getMembershipsLite method
-            * override this method for handling normal response from getMembershipsLite operation
-            */
-           public void receiveResultgetMembershipsLite(
-                    edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLiteResponse result
-                        ) {
-           }
-
-          /**
-           * auto generated Axis2 Error handler
-           * override this method for handling error response from getMembershipsLite operation
-           */
-            public void receiveErrorgetMembershipsLite(java.lang.Exception e) {
-            }
-                
-           /**
             * auto generated Axis2 call back method for hasMember method
             * override this method for handling normal response from hasMember operation
             */
@@ -285,22 +269,6 @@
             }
                 
            /**
-            * auto generated Axis2 call back method for getMemberships method
-            * override this method for handling normal response from getMemberships operation
-            */
-           public void receiveResultgetMemberships(
-                    edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsResponse result
-                        ) {
-           }
-
-          /**
-           * auto generated Axis2 Error handler
-           * override this method for handling error response from getMemberships operation
-           */
-            public void receiveErrorgetMemberships(java.lang.Exception e) {
-            }
-                
-           /**
             * auto generated Axis2 call back method for getGroupsLite method
             * override this method for handling normal response from getGroupsLite operation
             */
@@ -317,22 +285,6 @@
             }
                 
            /**
-            * auto generated Axis2 call back method for assignGrouperPrivileges method
-            * override this method for handling normal response from assignGrouperPrivileges operation
-            */
-           public void receiveResultassignGrouperPrivileges(
-                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesResponse result
-                        ) {
-           }
-
-          /**
-           * auto generated Axis2 Error handler
-           * override this method for handling error response from assignGrouperPrivileges operation
-           */
-            public void receiveErrorassignGrouperPrivileges(java.lang.Exception e) {
-            }
-                
-           /**
             * auto generated Axis2 call back method for assignGrouperPrivilegesLite method
             * override this method for handling normal response from assignGrouperPrivilegesLite operation
             */
@@ -346,38 +298,6 @@
            * override this method for handling error response from assignGrouperPrivilegesLite operation
            */
             public void receiveErrorassignGrouperPrivilegesLite(java.lang.Exception e) {
-            }
-                
-           /**
-            * auto generated Axis2 call back method for getSubjectsLite method
-            * override this method for handling normal response from getSubjectsLite operation
-            */
-           public void receiveResultgetSubjectsLite(
-                    edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLiteResponse result
-                        ) {
-           }
-
-          /**
-           * auto generated Axis2 Error handler
-           * override this method for handling error response from getSubjectsLite operation
-           */
-            public void receiveErrorgetSubjectsLite(java.lang.Exception e) {
-            }
-                
-           /**
-            * auto generated Axis2 call back method for getSubjects method
-            * override this method for handling normal response from getSubjects operation
-            */
-           public void receiveResultgetSubjects(
-                    edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsResponse result
-                        ) {
-           }
-
-          /**
-           * auto generated Axis2 Error handler
-           * override this method for handling error response from getSubjects operation
-           */
-            public void receiveErrorgetSubjects(java.lang.Exception e) {
             }
                 
            /**

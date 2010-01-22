@@ -7170,7 +7170,7 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
-   * get the value from the argMap
+   * get the value from the argMap, throw exception if not there and required
    * @param argMap
    * @param argMapNotUsed 
    * @param key
@@ -8252,42 +8252,4 @@ public class GrouperClientCommonUtils  {
     }
     return str.substring(pos + separator.length());
   }
-
-  /**
-   * get the value from the argMap, throw exception if not there and required
-   * @param argMap
-   * @param argMapNotUsed 
-   * @param key
-   * @param required
-   * @param defaultValue 
-   * @return the value or null or exception
-   */
-  public static Integer argMapInteger(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
-      String key, boolean required, Integer defaultValue) {
-    String argString = argMapString(argMap, argMapNotUsed, key, required);
-  
-    if (isBlank(argString) && required) {
-      throw new RuntimeException("Argument '--" + key + "' is required, but not specified.  e.g. --" + key + "=5");
-    }
-    if (isBlank(argString)) {
-      if (defaultValue != null) {
-        return defaultValue;
-      }
-      return null;
-    }
-    return intValue(argString);
-  }
-  
-  /**
-   * null safe convert from util date to sql date
-   * @param date
-   * @return the sql date
-   */
-  public static java.sql.Date toSqlDate(Date date) {
-    if (date == null) {
-      return null;
-    }
-    return new java.sql.Date(date.getTime());
-  }
-  
 }

@@ -27,15 +27,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteR
 public class WsStemLookup {
 
   /**
-   * see if blank
-   * @return true if blank
-   */
-  public boolean blank() {
-    return StringUtils.isBlank(this.stemName) && StringUtils.isBlank(this.uuid)
-      && this.stem == null && this.stemFindResult == null;
-  }
-  
-  /**
    * see if this stem lookup has data
    * @return true if it has data
    */

@@ -88,112 +88,16 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
- * utility methods for grouper.  Generally these are static methods.
- * 
+ * utility methods for grouper.
  * @author mchyzer
  *
  */
 public class GrouperUtil {
 
-  /**
-   * compare null safe
-   * @param first
-   * @param second
-   * @return 0 for equal, 1 for greater, -1 for less
-   */
-  public static int compare(Comparable first, Comparable second) {
-    if (first == second) {
-      return 0;
-    }
-    if (first == null) {
-      return -1;
-    }
-    if (second == null) {
-      return 1;
-    }
-    return first.compareTo(second);
-  }
-  
-  /**
-   * e.g. ('g:gsa', 'jdbc')
-   * @param sources is comma separated source id's
-   * @return the set of sources
-   */
-  public static Set<Source> convertSources(String sources) {
-    if (StringUtils.isBlank(sources)) {
-      return null;
-    }
-    String[] sourceStrings = splitTrim(sources, ",");
-        
-    Set<Source> sourceSet = new HashSet<Source>();
-    for (String source : sourceStrings) {
-      sourceSet.add(SourceManager.getInstance().getSource(source));
-    }
-    
-    return sourceSet;
-  }
-  
-
-  /**
-   * e.g. ['g:gsa', 'jdbc']
-   * @param sourceIds is an array of source ids
-   * @return the set of sources
-   */
-  public static Set<Source> convertSources(String[] sourceIds) {
-    if (GrouperUtil.length(sourceIds) == 0) {
-      return null;
-    }
-    Set<Source> sourceSet = new HashSet<Source>();
-    for (String source : sourceIds) {
-      if (!StringUtils.isBlank(source)) {
-        sourceSet.add(SourceManager.getInstance().getSource(source));
-      }
-    }
-    
-    return sourceSet;
-  }
-  
-  /**
-   * e.g. ('g:gsa', 'jdbc')
-   * @param sources
-   * @return the in string, of sources sorted alphabetically
-   */
-  public static String convertSourcesToSqlInString(Set<Source> sources) {
-    if (sources == null || sources.size() == 0) {
-      return null;
-    }
-    
-    //simplify if 1
-    if (sources.size() == 1) {
-      return " ('" + sources.iterator().next().getId() + "') ";
-    }
-    
-    List<String> sourcesStrings = new ArrayList<String>();
-    for (Source source : sources) {
-      sourcesStrings.add(source.getId());
-    }
-    
-    //sort 
-    Collections.sort(sourcesStrings);
-    
-    StringBuilder result = new StringBuilder();
-    result.append(" (");
-    for (int i=0;i<sourcesStrings.size();i++) {
-      result.append("'").append(sourcesStrings.get(i)).append("'");
-      if (i != sourcesStrings.size()-1) {
-        result.append(", ");
-      }
-    }
-    result.append(") ");
-    return result.toString();
-  }
-  
   /**
    * turn some strings into a map
    * @param strings
@@ -4275,22 +4179,7 @@ public class GrouperUtil {
         + " of and object: " + arrayOrCollection);
   }
 
-  /**
-   * convert a collection of sources to a string
-   * @param sources
-   * @return the string
-   */
-  public static String toString(Collection<Source> sources) {
-    if (length(sources) == 0) {
-      return null;
-    }
-    StringBuilder result = new StringBuilder();
-    for (Source source : sources) {
-      result.append(source.getId()).append(", ");
-    }
-    result.delete(result.length()-2, result.length());
-    return result.toString();
-  }
+
   
   /**
    * fail safe toString for Exception blocks, and include the stack
@@ -4990,50 +4879,7 @@ public class GrouperUtil {
     }
     return theFile;
   }
-
-  /**
-   * convert a string date into a long date (e.g. for xml export)
-   * @param date
-   * @return the long or null if the date was null or blank
-   */
-  public static Long dateLongValue(String date) {
-    if (isBlank(date)) {
-      return null;
-    }
-    Date dateObject = dateValue(date);
-    return dateObject.getTime();
-  }
-
-  /**
-   * web service format string
-   */
-  private static final String TIMESTAMP_XML_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
-
-  /**
-   * date object to a string: 
-   * @param date
-   * @return the long or null if the date was null or blank
-   */
-  public static String dateStringValue(Date date) {
-    if (date == null) {
-      return null;
-    }
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TIMESTAMP_XML_FORMAT);
-    return simpleDateFormat.format(date);
-  }
-
-  /**
-   * date object to a string: 
-   * @param theDate
-   * @return the long or null if the date was null or blank
-   */
-  public static String dateStringValue(Long theDate) {
-    if (theDate == null) {
-      return null;
-    }
-    return dateStringValue(new Date(theDate));
-  }
-
+  
   /**
    * <pre>
    * Convert an object to a java.util.Date.  allows, dates, null, blank, 
@@ -9154,45 +9000,5 @@ public class GrouperUtil {
         + " was returned when only one was expected. (size:" + size +")" );
   }
   
-
-  /** array for converting HTML to string */
-  private static final String[] XML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
-
-  /** array for converting HTML to string */
-  private static final String[] XML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
-  /**
-   * Convert an XML string to HTML to display on the screen
-   * 
-   * @param input
-   *          is the XML to convert
-   * @param isEscape true to escape chars, false to unescape
-   * 
-   * @return the HTML converted string
-   */
-  public static String xmlEscape(String input, boolean isEscape) {
-    if (isEscape) {
-      return replace(input, XML_SEARCH_NO_SINGLE, XML_REPLACE_NO_SINGLE);
-    }
-    return replace(input, XML_REPLACE_NO_SINGLE, XML_SEARCH_NO_SINGLE);
-  }
-
-  /**
-   * 
-   * @param writer
-   * @param attributeName
-   * @param attributeValue
-   */
-  public static void xmlAttribute(Writer writer, String attributeName, String attributeValue) {
-    try {
-      writer.write(" ");
-      writer.write(attributeName);
-      writer.write("=\"");
-      String escapedValue = xmlEscape(attributeValue, true);
-      writer.write(escapedValue);
-      writer.write("\"");
-    } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
-    }
-  }
   
 }

@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper.validator;
 
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 
 /** 
  * An effective member has an indirect membership to a group
@@ -33,7 +32,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
  * 
  * indirect membership to a group (e.g. in a group within a group).
  * @author  blair christensen.
- * @version $Id: EffectiveMembershipValidator.java,v 1.4 2009-12-07 07:31:08 mchyzer Exp $
+ * @version $Id: EffectiveMembershipValidator.java,v 1.3 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0
  */
 public class EffectiveMembershipValidator extends MembershipValidator {
@@ -55,7 +54,7 @@ public class EffectiveMembershipValidator extends MembershipValidator {
       v.setErrorMessage( vNull.getErrorMessage() );
     }
     // validate effective membership attributes
-    else if ( !MembershipType.EFFECTIVE.getTypeString().equals( _ms.getType() ) ) { // type must be effective
+    else if ( !Membership.EFFECTIVE.equals( _ms.getType() ) ) { // type must be effective
       v.setErrorMessage(INVALID_TYPE);
     }
     else if ( _ms.getDepth() < 1 )                            { // must have depth > 0

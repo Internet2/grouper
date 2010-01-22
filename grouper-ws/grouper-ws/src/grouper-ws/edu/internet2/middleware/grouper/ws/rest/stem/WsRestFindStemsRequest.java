@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestFindStemsRequest.java,v 1.2 2009-12-15 06:47:27 mchyzer Exp $
+ * $Id: WsRestFindStemsRequest.java,v 1.1 2008-03-29 10:50:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.stem;
 
@@ -8,7 +8,6 @@ import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 
@@ -32,28 +31,6 @@ public class WsRestFindStemsRequest implements WsRequestBean {
   /** field */
   private WsParam[] params;
   
-  /**  to pass in a list of uuids or names to lookup.  Note the stems are returned
-   * in alphabetical order */
-  private WsStemLookup[] wsStemLookups;
-  
-  /**
-   *  to pass in a list of uuids or names to lookup.  Note the stems are returned
-   * in alphabetical order
-   * @return stem lookups
-   */
-  public WsStemLookup[] getWsStemLookups() {
-    return this.wsStemLookups;
-  }
-
-  /**
-   *  to pass in a list of uuids or names to lookup.  Note the stems are returned
-   * in alphabetical order
-   * @param wsStemLookups1
-   */
-  public void setWsStemLookups(WsStemLookup[] wsStemLookups1) {
-    this.wsStemLookups = wsStemLookups1;
-  }
-
   /**
    * @return the clientVersion
    */

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcDeleteMember.java,v 1.5 2009-12-07 07:33:04 mchyzer Exp $
+ * $Id: GcDeleteMember.java,v 1.4 2009-04-13 03:21:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -40,9 +40,6 @@ public class GcDeleteMember {
 
   /** group name to delete member from */
   private String groupName;
-  
-  /** group uuid to delete member from */
-  private String groupUuid;
   
   /**
    * set the group name
@@ -128,11 +125,8 @@ public class GcDeleteMember {
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.isBlank(this.groupName) && GrouperClientUtils.isBlank(this.groupUuid)) {
-      throw new RuntimeException("Group name or uuid is required: " + this);
-    }
-    if (GrouperClientUtils.isNotBlank(this.groupName) && GrouperClientUtils.isNotBlank(this.groupUuid)) {
-      throw new RuntimeException("Group name and uuid cannot both be filled in: " + this);
+    if (GrouperClientUtils.isBlank(this.groupName)) {
+      throw new RuntimeException("Group name is required: " + this);
     }
     if (GrouperClientUtils.length(this.subjectLookups) == 0) {
       throw new RuntimeException("Need at least one subject to add to group: " + this);
@@ -234,7 +228,6 @@ public class GcDeleteMember {
       
       WsGroupLookup wsGroupLookup = new WsGroupLookup();
       wsGroupLookup.setGroupName(this.groupName);
-      wsGroupLookup.setUuid(this.groupUuid);
       
       deleteMember.setWsGroupLookup(wsGroupLookup);
       
@@ -255,7 +248,7 @@ public class GcDeleteMember {
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
-      String urlSuffix = "groups";
+      String urlSuffix = "groups/" + GrouperClientUtils.escapeUrlEncode(this.groupName) + "/members";
       wsDeleteMemberResults = (WsDeleteMemberResults)
         grouperClientWs.executeService(urlSuffix, deleteMember, "deleteMember", this.clientVersion);
       
@@ -267,16 +260,6 @@ public class GcDeleteMember {
     }
     return wsDeleteMemberResults;
     
-  }
-
-  /**
-   * set the group uuid
-   * @param theGroupUuid
-   * @return this for chaining
-   */
-  public GcDeleteMember assignGroupUuid(String theGroupUuid) {
-    this.groupUuid = theGroupUuid;
-    return this;
   }
   
 }

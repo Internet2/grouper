@@ -26,17 +26,14 @@ import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.30 2009-12-10 08:54:15 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.29 2009-11-17 02:52:29 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -485,24 +482,6 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException;
   
   /**
-   * 
-   * @param scope
-   * @param grouperSession
-   * @param subject
-   * @param queryOptions if sorting on name, displayName, extension, displayExtension
-   * @param enabled null for all, True for enabledOnly, False for disabledOnly
-   * @param membershipType immediate, effective, etc
-   * @param stem if searching in a specific stem
-   * @param stemScope sub or one
-   * @return the groups
-   * @throws GrouperDAOException
-   */
-  Set<Group> getAllGroupsMembershipSecure(String scope, GrouperSession grouperSession, 
-      Subject subject, QueryOptions queryOptions, Boolean enabled, 
-      MembershipType membershipType, Stem stem, Scope stemScope)
-    throws  GrouperDAOException;
-  
-  /**
    * @param groupId
    */
   public void updateLastMembershipChange(String groupId);
@@ -513,22 +492,5 @@ public interface GroupDAO extends GrouperDAO {
    */
   public void updateLastMembershipChangeIncludeAncestorGroups(String groupId);
   
-  /**
-   * @param uuid 
-   * @param name 
-   * @param exceptionIfNull 
-   * @return the stem or null
-   * @throws GrouperDAOException 
-   * @throws GroupNotFoundException 
-   * @since   1.6.0
-   */
-  Group findByUuidOrName(String uuid, String name, boolean exceptionIfNull) throws GrouperDAOException, GroupNotFoundException;
-
-  /**
-   * save the update properties which are auto saved when business method is called
-   * @param group
-   */
-  public void saveUpdateProperties(Group group);
-
 } 
 

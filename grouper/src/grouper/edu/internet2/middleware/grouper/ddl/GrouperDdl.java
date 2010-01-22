@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.98 2009-12-05 06:39:07 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.98.2.2 2009-12-21 16:20:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -5129,7 +5129,7 @@ public enum GrouperDdl implements DdlVersionable {
         Types.VARCHAR, "40", false, false);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "hibernate_version_number", 
-        Types.INTEGER, null, false, false);
+        Types.BIGINT, null, false, false);
     
     // field_id doesn't need to be in the unique index, but i'm adding it so that we can
     // set parent_id to null before removing self groupSets without getting a constraint
@@ -5287,7 +5287,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "hibernate_version_number", 
-          Types.INTEGER, null, false, false); 
+          Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "id", 
           Types.VARCHAR, ID_SIZE, true, true); 
@@ -5368,25 +5368,25 @@ public enum GrouperDdl implements DdlVersionable {
           "grouper_version", Types.VARCHAR, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "hibernate_version_number", Types.INTEGER, null, false, false); 
+          "hibernate_version_number", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "id", Types.VARCHAR, ID_SIZE, true, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int01", Types.INTEGER, null, false, false); 
+          "int01", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int02", Types.INTEGER, null, false, false); 
+          "int02", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int03", Types.INTEGER, null, false, false); 
+          "int03", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int04", Types.INTEGER, null, false, false); 
+          "int04", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int05", Types.INTEGER, null, false, false); 
+          "int05", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "last_updated", Types.BIGINT, "20", false, false); 
@@ -5425,7 +5425,7 @@ public enum GrouperDdl implements DdlVersionable {
           "user_ip_address", Types.VARCHAR, "50", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "duration_microseconds", Types.INTEGER, null, false, false); 
+          "duration_microseconds", Types.BIGINT, "15", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "query_count", Types.INTEGER, null, false, false); 
@@ -5483,7 +5483,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "hibernate_version_number", 
-          Types.INTEGER, null, false, false); 
+          Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "id", 
           Types.VARCHAR, ID_SIZE, true, true); 
@@ -5551,7 +5551,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, ID_SIZE, true, true); 
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, 
-          "hibernate_version_number", Types.INTEGER, null, false, false); 
+          "hibernate_version_number", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogConsumerTable.getName(), 
           "change_log_consumer_name_idx", true, "name");

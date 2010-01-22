@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 
 /**
- * Marker annotation applied to fields which should not be included in clone method
+ * Marker annotation applied to fields which should not be included in a clone method
  * 
  * @version $Id: GrouperIgnoreClone.java,v 1.1 2008-07-11 05:11:28 mchyzer Exp $
  * @author mchyzer

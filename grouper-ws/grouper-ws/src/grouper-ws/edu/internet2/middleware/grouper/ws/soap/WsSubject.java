@@ -19,7 +19,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @author mchyzer
  * 
  */
-public class WsSubject implements Comparable<WsSubject> {
+public class WsSubject {
 
   /** if lookedup by identifier, this is that identifier */
   private String identifierLookup;
@@ -152,19 +152,10 @@ public class WsSubject implements Comparable<WsSubject> {
    */
   public WsSubject(Subject subject, String[] subjectAttributeNames, WsSubjectLookup wsSubjectLookup) {
     this.assignSubjectData(subject, subjectAttributeNames);
-    if (wsSubjectLookup != null) {
-      //if the lookup has info, and it isnt in the wssubject, put it there
-      if (!StringUtils.isBlank(wsSubjectLookup.getSubjectIdentifier())) {
-        this.identifierLookup = wsSubjectLookup.getSubjectIdentifier();      
-      }
-      if (StringUtils.isBlank(this.getId()) && !StringUtils.isBlank(wsSubjectLookup.getSubjectId())) {
-        this.setId(wsSubjectLookup.getSubjectId());
-      }
-      if (StringUtils.isBlank(this.getSourceId()) && !StringUtils.isBlank(wsSubjectLookup.getSubjectSourceId())) {
-        this.setSourceId(wsSubjectLookup.getSubjectSourceId());
-      }
-      
+    if (wsSubjectLookup != null && StringUtils.isNotBlank(wsSubjectLookup.getSubjectIdentifier())) {
+      this.identifierLookup = wsSubjectLookup.getSubjectIdentifier();
     }
+
   }
 
   /**
@@ -385,28 +376,6 @@ public class WsSubject implements Comparable<WsSubject> {
    */
   public void setSuccess(String success1) {
     this.success = success1;
-  }
-
-  /**
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsSubject o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (this == null) {
-      return -1;
-    }
-    if (o2 == null) {
-      return 1;
-    }
-    int compare = GrouperUtil.compare(this.getSourceId(), o2.getSourceId());
-    if (compare != 0) {
-      return compare;
-    }
-    return GrouperUtil.compare(this.getId(), o2.getId());
-
   }
 
 }

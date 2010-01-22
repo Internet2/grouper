@@ -16,12 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
@@ -39,7 +37,7 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.45 2009-10-30 12:39:26 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -52,7 +50,6 @@ public class SubjectFinder {
   /** */
   static                Source          gsa;
 
-
   /**
    * find by id or identifier
    * @param idOrIdentifier
@@ -64,18 +61,20 @@ public class SubjectFinder {
   public static Subject findByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
     Subject subject = null;
-    try {
-      subject = SubjectFinder.findById(idOrIdentifier, exceptionIfNull);
-    } catch (SubjectNotFoundException snfe) {
-      try {
-        subject = SubjectFinder.findByIdentifier(idOrIdentifier, exceptionIfNull);
-      } catch (SubjectNotUniqueException snfe2) {
-        if (exceptionIfNull) {
-          throw snfe2;
-        }
-        return null;
-      }
+    
+    //try by id first
+    subject = SubjectFinder.findById(idOrIdentifier, false);
+
+    //try by identifier if not by id
+    if (subject == null) {
+      subject = SubjectFinder.findByIdentifier(idOrIdentifier, false);
     }
+    
+    //if null at this point, and exception, then throw it
+    if (subject == null && exceptionIfNull) {
+      throw new SubjectNotFoundException("Cant find subject by id or identifier: '" + idOrIdentifier + "'"); 
+    }
+
     return subject;
   }
 
@@ -336,41 +335,6 @@ public class SubjectFinder {
   } 
 
   /**
-   * Find all subjects matching the query within the specified {@link Source}s.
-   * <p>
-   * <b>NOTE:</b> This method does not perform any caching.
-   * </p>
-   * <pre class="eg">
-   * try {
-   *   Set subjects = SubjectFinder.findAll(query, sources);
-   * }
-   * catch (SourceUnavailableException eSU) {
-   *   // unable to query source
-   * }
-   *  </pre>
-   * @param   query   Subject query string.
-   * @param   sources  {@link Source} adapters to search.
-   * @return  A {@link Set} of {@link Subject}s.
-   * @throws  SourceUnavailableException
-   */
-  public static Set<Subject> findAll(String query, Set<Source> sources)
-      throws  SourceUnavailableException {
-    if (sources == null || sources.isEmpty()) {
-      return findAll(query);
-    }
-    Set<Subject> results = new LinkedHashSet<Subject>();
-    for (Source source: sources) {
-      Set<Subject> current = findAll(query, source.getId());
-      if (current != null) {
-        results.addAll(current);
-      }
-    }
-    return results;
-  } 
-
-  
-  
-  /**
    * Get <i>GrouperAll</i> subject.
    * <pre class="eg">
    * Subject all = SubjectFinder.findAllSubject();
@@ -501,7 +465,6 @@ public class SubjectFinder {
    */
   public static void reset() {
     resolver = null; // TODO 20070807 this could definitely be improved    
-    HibernateSession.bySqlStatic().executeSql("delete from subject where subjectId = 'GrouperSystem'");
   }
 
   /**

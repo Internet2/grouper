@@ -76,13 +76,6 @@ public interface FieldDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
-   * update in db
-   * @param field
-   * @throws GrouperDAOException
-   */
-  void update(Field field) throws  GrouperDAOException;
-
-  /**
    * @param f 
    * @return if in use
    * @throws GrouperDAOException 
@@ -93,23 +86,6 @@ public interface FieldDAO extends GrouperDAO {
     throws  GrouperDAOException,
             SchemaException
             ;
-
-  /**
-   * @param uuid 
-   * @param name 
-   * @param groupTypeUuid 
-   * @param exceptionIfNull 
-   * @return the field or null
-   * @throws GrouperDAOException 
-   * @since   1.6.0
-   */
-  Field findByUuidOrName(String uuid, String name, String groupTypeUuid, boolean exceptionIfNull) throws GrouperDAOException;
-
-  /**
-   * save the update properties which are auto saved when business method is called
-   * @param field
-   */
-  public void saveUpdateProperties(Field field);
 
 } 
 

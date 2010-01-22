@@ -1,6 +1,9 @@
 <project name="local" default="start" basedir=".">	
 	<property environment="env"/>
-	<property file="build.properties"/>
+	
+  <property file="misc/version.properties"/>
+
+  <property file="build.properties"/>
 	
 	<target name="start" description="Depending on whether grouper.folder is set, uses defined folder, or checks out Grouper from CVS">
 		<fail unless="quickstart.dir">quickstart.dir must be set in build.properties</fail>
@@ -21,7 +24,7 @@
 		<tar basedir="${quickstart.dir}/../" 
 			 includes="${qs.dirname}/**"
 			 compression="gzip" 
-			 destfile="${quickstart.dir}/../grouper-quickstart_${qs.version}.tgz" 
+			 destfile="${quickstart.dir}/../grouper-quickstart_${version}.tgz" 
 			 longfile="gnu"/>
 	</target>
 	
@@ -90,12 +93,7 @@
 			<copy todir="${quickstart.dir}/grouper/conf">
 				<fileset dir="${grouper.folder}/conf"></fileset>
 			</copy>
-			<copy todir="${quickstart.dir}/grouper">
-			  <fileset dir=".">
-					<include name="logs/**/*"/>
-				</fileset>
-			</copy>
-			<chmod dir="${quickstart.dir}/grouper/logs" perm="ug+rw" includes="**/*.log"/>
+
 			<copy todir="${quickstart.dir}/grouper">
 				<fileset dir="${grouper.folder}">
 					<include name="contrib/**/*"/>

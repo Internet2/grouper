@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.2 2009-12-07 07:31:09 mchyzer Exp $
+ * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.1 2009-03-20 19:56:42 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
@@ -39,8 +39,8 @@ public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(Test_U_API_XmlExporter_internal_groupToXML.class);
-    TestRunner.run(new Test_U_API_XmlExporter_internal_groupToXML("test_internal_groupToXML_escapeDisplayName"));
+    TestRunner.run(Test_U_API_XmlExporter_internal_groupToXML.class);
+    //TestRunner.run(new Test_U_API_XmlExporter_internal_groupToXML("test_internal_groupToXML_escapeDisplayName"));
   }
   
   /**

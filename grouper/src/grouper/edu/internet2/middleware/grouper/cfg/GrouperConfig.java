@@ -20,14 +20,13 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.9 2009-12-16 06:02:30 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.8 2009-09-21 06:14:27 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -223,20 +222,6 @@ public class GrouperConfig {
       return false;
     }
     throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
-  }
-  
-  /**
-   * get the property value as an int, throw an exception if invalid value.
-   * @param propertyName
-   * @param defaultValue if the property is blank or missing, return this value
-   * @return the int
-   */
-  public static int getPropertyInt(String propertyName, int defaultValue) {
-    String value = getProperty(propertyName);
-    if (StringUtils.isBlank(value)) {
-      return defaultValue;
-    }
-    return GrouperUtil.intValue(value, defaultValue);
   }
   
   /**

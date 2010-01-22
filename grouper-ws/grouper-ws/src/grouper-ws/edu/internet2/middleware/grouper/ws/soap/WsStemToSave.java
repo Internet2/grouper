@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
@@ -37,25 +36,6 @@ public class WsStemToSave {
 
   /** stem to save */
   private WsStem wsStem;
-
-  /** T or F (null if F) */
-  private String createParentStemsIfNotExist;
-  
-  /**
-   * if should create parent stems if not exist
-   * @return T or F or null (F)
-   */
-  public String getCreateParentStemsIfNotExist() {
-    return this.createParentStemsIfNotExist;
-  }
-
-  /**
-   * if should create parent stems if not exist
-   * @param createParentStemsIfNotExist1 T or F or null (F)
-   */
-  public void setCreateParentStemsIfNotExist(String createParentStemsIfNotExist1) {
-    this.createParentStemsIfNotExist = createParentStemsIfNotExist1;
-  }
 
   /**
    * logger
@@ -141,7 +121,7 @@ public class WsStemToSave {
     stemSave.assignDisplayExtension(this.getWsStem().getDisplayExtension());
     stemSave.assignDescription(this.getWsStem().getDescription());
     stemSave.assignSaveMode(theSaveMode);
-    stemSave.assignCreateParentStemsIfNotExist(GrouperUtil.booleanValue(this.getCreateParentStemsIfNotExist(), false));
+    stemSave.assignCreateParentStemsIfNotExist(false);
     
     Stem stem = stemSave.save();
     
