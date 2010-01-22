@@ -1,3 +1,0 @@
-<ldappc:ldapFilterQueryClause xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
-  <ldappc:filter>(&amp;(objectClass=person)(uid=foo))</ldappc:filter>
-</ldappc:ldapFilterQueryClause>
