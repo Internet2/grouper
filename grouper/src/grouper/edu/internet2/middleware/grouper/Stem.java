@@ -3170,7 +3170,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
               newCompositeOwnerGroup.internal_addCompositeMember(GrouperSession
                   .staticGrouperSession().internal_getRootSession(), oldComposite
-                  .getType(), newCompositeLeftGroup, newCompositeRightGroup);
+                  .getType(), newCompositeLeftGroup, newCompositeRightGroup, null);
             }
 
             //if not a smaller operation of a larger auditable call

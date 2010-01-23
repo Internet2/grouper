@@ -95,9 +95,35 @@ public interface CompositeDAO extends GrouperDAO {
   public void save(Composite c);
 
   /**
+   * update a composite
+   * @param c The composite to update.
+   */
+  public void update(Composite c);
+
+  /**
    * Delete a composite
    * @param c The composite to delete.
    */
   public void delete(Composite c);
+  
+  /**
+   * find a composite by name or uuid
+   * @param uuid
+   * @param factorOwnerUUID
+   * @param leftFactorUUID
+   * @param rightFactorUUID
+   * @param type
+   * @param exceptionIfNull
+   * @return the composite or null
+   */
+  public Composite findByUuidOrName(String uuid, String factorOwnerUUID, String leftFactorUUID, 
+      String rightFactorUUID, String type, boolean exceptionIfNull);
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param composite
+   */
+  public void saveUpdateProperties(Composite composite);
+
 } 
 

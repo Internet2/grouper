@@ -1847,7 +1847,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         "createTimeLong = :theCreateTimeLong, " +
         "modifierUuid = :theModifierUuid, " +
         "modifyTimeLong = :theModifyTimeLong, " +
-        "contextId = :theContextId, " +
         "lastMembershipChangeDb = :theLastMembershipChangeDb " +
         "where uuid = :theUuid")
         .setLong("theHibernateVersionNumber", group.getHibernateVersionNumber())

@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.xml.export;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.TestComposite;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
@@ -100,16 +101,7 @@ public class XmlExportCompositeTest extends GrouperTest {
    * 
    */
   public void testConvertToComposite() {
-    Composite composite = new Composite();
-    composite.setContextId("contextId");
-    composite.setCreateTime(3L);
-    composite.setCreatorUuid("creatorId");
-    composite.setHibernateVersionNumber(3L);
-    composite.setLeftFactorUuid("leftFactor");
-    composite.setFactorOwnerUuid("owner");
-    composite.setRightFactorUuid("rightFactor");
-    composite.setTypeDb("type");
-    composite.setUuid("uuid");
+    Composite composite = TestComposite.exampleComposite();
     
     XmlExportComposite xmlExportComposite = new XmlExportComposite(new GrouperVersion(GrouperVersion.GROUPER_VERSION), composite);
 

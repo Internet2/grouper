@@ -25,11 +25,14 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -40,8 +43,8 @@ import edu.internet2.middleware.subject.Subject;
 public class TestComposite extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(TestComposite.class);
-    //TestRunner.run(new TestComposite("testFailToDeleteCompositeWhenHasMember"));
+    //TestRunner.run(TestComposite.class);
+    TestRunner.run(new TestComposite("testXmlInsert"));
   }
   
   // Private Static Class Constants
@@ -1796,5 +1799,299 @@ public class TestComposite extends GrouperTest {
     }
   } // public void testAddUnionWithNoChildrenAndNoParents()
 
+  
+  /**
+   * make an example composite for testing
+   * @return an example composite
+   */
+  public static Composite exampleComposite() {
+    Composite composite = new Composite();
+    composite.setContextId("contextId");
+    composite.setCreateTime(3L);
+    composite.setCreatorUuid("creatorId");
+    composite.setHibernateVersionNumber(3L);
+    composite.setLeftFactorUuid("leftFactor");
+    composite.setFactorOwnerUuid("owner");
+    composite.setRightFactorUuid("rightFactor");
+    composite.setTypeDb("type");
+    composite.setUuid("uuid");
+    
+    return composite;
+  }
+  
+  /**
+   * make an example composite for testing
+   * @return an example composite
+   */
+  public static Composite exampleCompositeDb() {
+    Group owner = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:owner").assignName("test:owner").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Group left = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:left").assignName("test:left").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Group right = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:right").assignName("test:right").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Composite composite = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(null, owner.getId(),
+        left.getId(), right.getId(), CompositeType.COMPLEMENT.name(), false);
+    if (composite == null) {
+      composite = owner.addCompositeMember(CompositeType.COMPLEMENT, left, right);
+    }
+    return composite;
+  }
+
+  
+  /**
+   * make an example composite for testing
+   * @return an example composite
+   */
+  public static Composite exampleRetrieveCompositeDb() {
+    Group owner = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+    .assignGroupNameToEdit("test:owner").assignName("test:owner").assignCreateParentStemsIfNotExist(true)
+    .assignDescription("description").save();
+  Group left = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+    .assignGroupNameToEdit("test:left").assignName("test:left").assignCreateParentStemsIfNotExist(true)
+    .assignDescription("description").save();
+  Group right = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+    .assignGroupNameToEdit("test:right").assignName("test:right").assignCreateParentStemsIfNotExist(true)
+    .assignDescription("description").save();
+  Composite composite = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(null, owner.getId(),
+      left.getId(), right.getId(), CompositeType.COMPLEMENT.name(), true);
+  return composite;
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    Group owner = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:ownerInsert").assignName("test:ownerInsert").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Group left = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:leftInsert").assignName("test:leftInsert").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Group right = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:rightInsert").assignName("test:rightInsert").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Composite compositeOriginal = owner.addCompositeMember(CompositeType.COMPLEMENT, left, right);
+    
+    //do this because last membership update isnt there, only in db
+    compositeOriginal = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(
+        compositeOriginal.getUuid(), null, null, null, null, true);
+    Composite compositeCopy = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(
+        compositeOriginal.getUuid(), null, null, null, null, true);
+    Composite compositeCopy2 = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(
+        compositeOriginal.getUuid(), null, null, null, null, true);
+    owner.deleteCompositeMember();
+    
+    //lets insert the original
+    compositeCopy2.xmlSaveBusinessProperties(null);
+    compositeCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    compositeCopy = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(
+        null, owner.getId(), left.getId(), right.getId(), CompositeType.COMPLEMENT.name(), true);
+    
+    assertFalse(compositeCopy == compositeOriginal);
+    assertFalse(compositeCopy.xmlDifferentBusinessProperties(compositeOriginal));
+    assertFalse(compositeCopy.xmlDifferentUpdateProperties(compositeOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Composite composite = null;
+    Composite exampleComposite = null;
+
+    
+    //TEST UPDATE PROPERTIES
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+      
+      composite.setContextId("abc");
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertTrue(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setContextId(exampleComposite.getContextId());
+      composite.xmlSaveUpdateProperties();
+
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+      
+    }
+    
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+
+      composite.setCreateTime(99);
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertTrue(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setCreateTime(exampleComposite.getCreateTime());
+      composite.xmlSaveUpdateProperties();
+      
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+    }
+    
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+
+      composite.setCreatorUuid("abc");
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertTrue(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setCreatorUuid(exampleComposite.getCreatorUuid());
+      composite.xmlSaveUpdateProperties();
+      
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+    }
+    
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+
+      composite.setHibernateVersionNumber(99L);
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertTrue(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setHibernateVersionNumber(exampleComposite.getHibernateVersionNumber());
+      composite.xmlSaveUpdateProperties();
+      
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+
+      composite.setFactorOwnerUuid("abc");
+      
+      assertTrue(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setFactorOwnerUuid(exampleComposite.getFactorOwnerUuid());
+      composite.xmlSaveBusinessProperties(exampleComposite.clone());
+      composite.xmlSaveUpdateProperties();
+      
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+    
+    }
+    
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+
+      composite.setLeftFactorUuid("abc");
+      
+      assertTrue(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setLeftFactorUuid(exampleComposite.getLeftFactorUuid());
+      composite.xmlSaveBusinessProperties(exampleComposite.clone());
+      composite.xmlSaveUpdateProperties();
+      
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+    
+    }
+    
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+
+      composite.setRightFactorUuid("abc");
+      
+      assertTrue(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setRightFactorUuid(exampleComposite.getRightFactorUuid());
+      composite.xmlSaveBusinessProperties(exampleComposite.clone());
+      composite.xmlSaveUpdateProperties();
+      
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+    
+    }
+    
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+
+      composite.setTypeDb(CompositeType.UNION.name());
+      
+      assertTrue(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setTypeDb(exampleComposite.getTypeDb());
+      composite.xmlSaveBusinessProperties(exampleComposite.clone());
+      composite.xmlSaveUpdateProperties();
+      
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+    
+    }
+    
+    {
+      composite = exampleCompositeDb();
+      exampleComposite = composite.clone();
+
+      composite.setUuid("abc");
+      
+      assertTrue(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+
+      composite.setUuid(exampleComposite.getUuid());
+      composite.xmlSaveBusinessProperties(exampleComposite.clone());
+      composite.xmlSaveUpdateProperties();
+      
+      composite = exampleRetrieveCompositeDb();
+      
+      assertFalse(composite.xmlDifferentBusinessProperties(exampleComposite));
+      assertFalse(composite.xmlDifferentUpdateProperties(exampleComposite));
+    
+    }
+  }
+
+  
+  
 }
 

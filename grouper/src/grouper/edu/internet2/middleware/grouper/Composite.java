@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -43,6 +44,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /** 
  * A composite membership definition within the Groups Registry.
@@ -58,7 +60,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @since   1.0
  */
 @SuppressWarnings("serial")
-public class Composite extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class Composite extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Composite> {
 
   /** table for composites */
   public static final String TABLE_GROUPER_COMPOSITES = "grouper_composites";
@@ -763,6 +765,95 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
           + this.getRightFactorUuid() + ", " + memberId);
     }
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(Composite existingRecord) {
+    existingRecord.setFactorOwnerUuid(this.factorOwnerUUID);
+    existingRecord.setLeftFactorUuid(this.leftFactorUUID);
+    existingRecord.setRightFactorUuid(this.rightFactorUUID);
+    existingRecord.setTypeDb(this.type);
+    existingRecord.setUuid(this.getUuid());
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(Composite other) {
+    if (!StringUtils.equals(this.factorOwnerUUID, other.factorOwnerUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.leftFactorUUID, other.leftFactorUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.rightFactorUUID, other.rightFactorUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.type, other.type)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.uuid, other.uuid)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(Composite other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (this.createTime != other.createTime) {
+      return true;
+    }
+    if (!StringUtils.equals(this.creatorUUID, other.creatorUUID)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public Composite xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(this.uuid, this.factorOwnerUUID, this.leftFactorUUID, this.rightFactorUUID, this.type, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(Composite existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      Group owner = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.factorOwnerUUID, true);
+      Group left = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.leftFactorUUID, true);
+      Group right = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.rightFactorUUID, true);
+      existingRecord = owner.internal_addCompositeMember(GrouperSession.staticGrouperSession(), this.getType(), left, right, this.uuid);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.store();
+
+  }
+
+  /**
+   * store this object to the DB.
+   */
+  public void store() {    
+    GrouperDAOFactory.getFactory().getComposite().update(this);
+  }
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getComposite().saveUpdateProperties(this);
   }
 } 
 

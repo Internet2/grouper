@@ -596,14 +596,15 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param   type  Add membership of this {@link CompositeType}.
    * @param   left  {@link Group} that is left factor of of composite membership.
    * @param   right {@link Group} that is right factor of composite membership.
+   * @return composite
    * @throws  InsufficientPrivilegeException
    * @throws  MemberAddException
    * @since   1.0
    */
-  public void addCompositeMember(CompositeType type, Group left, Group right)
+  public Composite addCompositeMember(CompositeType type, Group left, Group right)
     throws  InsufficientPrivilegeException,
             MemberAddException {
-    internal_addCompositeMember(GrouperSession.staticGrouperSession(), type, left, right);
+    return internal_addCompositeMember(GrouperSession.staticGrouperSession(), type, left, right, uuid);
   } 
 
   /**
@@ -4263,17 +4264,19 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param type
    * @param left
    * @param right
+   * @param uuid 
+   * @return composite
    * @throws InsufficientPrivilegeException
    * @throws MemberAddException
    */
-  protected void internal_addCompositeMember(final GrouperSession session, final CompositeType type,
-      final Group left, final Group right) throws InsufficientPrivilegeException, MemberAddException {
+  public Composite internal_addCompositeMember(final GrouperSession session, final CompositeType type,
+      final Group left, final Group right, final String uuid) throws InsufficientPrivilegeException, MemberAddException {
 
     final String errorMessageSuffix = ", group name: " + this.name + ", compositeType: " + type
       + ", left group name: " + (left == null ? "null" : left.getName()) 
       + ", right group name: " + (right == null ? "null" : right.getName());
 
-  HibernateSession.callbackHibernateSession(
+  return (Composite)HibernateSession.callbackHibernateSession(
       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
       new HibernateHandler() {
 
@@ -4300,7 +4303,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             c.setLeftFactorUuid(left.getUuid());
             c.setRightFactorUuid(right.getUuid());
             c.setTypeDb(type.toString());
-            c.setUuid(GrouperUuid.getUuid());
+            c.setUuid(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
             CompositeValidator vComp = CompositeValidator.validate(c);
             if (vComp.isInvalid()) {
               throw new MemberAddException(vComp.getErrorMessage() + ", " + errorMessageSuffix);
@@ -4327,7 +4330,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
             
             sw.stop();
-            return null;
+            return c;
           } catch (SchemaException eS) {
             GrouperUtil.injectInException(eS, errorMessageSuffix);
             throw new MemberAddException(eS);
@@ -5316,7 +5319,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                     rightFactorUuid, true);
   
                 newGroup.internal_addCompositeMember(actAs, oldComposite.getType(),
-                    leftFactorGroup, rightFactorGroup);
+                    leftFactorGroup, rightFactorGroup, null);
               }
             }
 

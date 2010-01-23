@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -191,6 +192,13 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.CompositeDAO#update(edu.internet2.middleware.grouper.Composite)
+   */
+  public void update(Composite c) {
+    HibernateSession.byObjectStatic().update(c);
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.CompositeDAO#delete(edu.internet2.middleware.grouper.Composite)
    */
   public void delete(Composite c) {
@@ -221,6 +229,59 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
       .setCacheRegion(KLASS + ".FindByCreator")
       .setString( "uuid", member.getUuid() ).listSet(Composite.class);
     return composites;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.CompositeDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean)
+   */
+  public Composite findByUuidOrName(String uuid, String factorOwnerUUID,
+      String leftFactorUUID, String rightFactorUUID, String type, boolean exceptionIfNull) {
+    try {
+      Composite composite = HibernateSession.byHqlStatic()
+        .createQuery("from Composite as theComposite where theComposite.uuid = :theUuid or " +
+        		"(theComposite.leftFactorUuid = :theLeftUuid and theComposite.rightFactorUuid = :theRightUuid " +
+        		" and theComposite.factorOwnerUuid = :theOwnerUuid and theComposite.typeDb = :theType)")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("theUuid", uuid)
+        .setString("theLeftUuid", leftFactorUUID)
+        .setString("theRightUuid", rightFactorUUID)
+        .setString("theOwnerUuid", factorOwnerUUID)
+        .setString("theType", type)
+        .uniqueResult(Composite.class);
+      if (composite == null && exceptionIfNull) {
+        throw new GroupNotFoundException("Can't find composite by uuid: '" 
+            + uuid + "' or factorOwnerUUID '" + factorOwnerUUID + "', leftFactorUUID: "
+            + leftFactorUUID + ", rightFactorUUID: " + rightFactorUUID + ", type: " 
+            + type);
+      }
+      return composite;
+    }
+    catch (GrouperDAOException e) {
+      String error ="Problem finding composite by uuid: '" 
+        + uuid + "' or factorOwnerUUID '" + factorOwnerUUID + "', leftFactorUUID: "
+        + leftFactorUUID + ", rightFactorUUID: " + rightFactorUUID + ", type: " 
+        + type + ", " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.CompositeDAO#saveUpdateProperties(edu.internet2.middleware.grouper.Composite)
+   */
+  public void saveUpdateProperties(Composite composite) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update Composite " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "creatorUuid = :theCreatorUuid, " +
+        "createTime = :theCreateTime " +
+        "where uuid = :theUuid")
+        .setLong("theHibernateVersionNumber", composite.getHibernateVersionNumber())
+        .setString("theCreatorUuid", composite.getCreatorUuid())
+        .setLong("theCreateTime", composite.getCreateTime())
+        .setString("theContextId", composite.getContextId())
+        .setString("theUuid", composite.getUuid()).executeUpdate();
   }
 
 } 
