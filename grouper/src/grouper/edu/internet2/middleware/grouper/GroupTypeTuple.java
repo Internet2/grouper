@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
@@ -44,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
-public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<GroupTypeTuple> {
 
   /**
    * 
@@ -75,7 +76,7 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_DB_VERSION, FIELD_GROUP_UUID, FIELD_ID, FIELD_TYPE_UUID);
+      FIELD_DB_VERSION, FIELD_GROUP_UUID, FIELD_ID, FIELD_TYPE_UUID, FIELD_HIBERNATE_VERSION_NUMBER);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -274,6 +275,13 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
   }
 
   /**
+   * delete this record
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getGroupTypeTuple().delete(this);
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   @Override
@@ -400,6 +408,82 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
   @Override
   public GroupTypeTuple clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
+  /**
+   * store this object to the DB.
+   */
+  public void store() {    
+    GrouperDAOFactory.getFactory().getGroupTypeTuple().update(this);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(GroupTypeTuple existingRecord) {
+    existingRecord.setGroupUuid(this.getGroupUuid());
+    existingRecord.setId(this.getId());
+    existingRecord.setTypeUuid(this.getTypeUuid());
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(GroupTypeTuple other) {
+    if (!StringUtils.equals(this.groupUUID, other.groupUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.typeUUID, other.typeUUID)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(GroupTypeTuple other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public GroupTypeTuple xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getGroupTypeTuple().findByUuidOrKey(this.id, this.groupUUID, this.typeUUID, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(GroupTypeTuple existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      existingRecord = this.clone();
+      GrouperDAOFactory.getFactory().getGroupTypeTuple().save(existingRecord);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.store();
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getGroupTypeTuple().saveUpdateProperties(this);
   }
 
 

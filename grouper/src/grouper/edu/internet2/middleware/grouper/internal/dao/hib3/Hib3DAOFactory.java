@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
@@ -328,6 +329,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public AttributeAssignActionSetViewDAO getAttributeAssignActionSetView() {
     return new Hib3AttributeAssignActionSetViewDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGroupTypeTuple()
+   */
+  @Override
+  public GroupTypeTupleDAO getGroupTypeTuple() {
+    return new Hib3GroupTypeTupleDAO();
   }
 } 
 

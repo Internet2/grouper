@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -120,6 +121,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             GroupTypeTuple groupTypeTuple = new GroupTypeTuple();
             groupTypeTuple.assignGroupUuid( _g.getUuid(), _g );
             groupTypeTuple.setTypeUuid( _gt.getUuid() );
+            groupTypeTuple.setId(GrouperUuid.getUuid());
             hibernateSession.byObject().save(groupTypeTuple);
             
             //MCH dont save again due to optimistic locking

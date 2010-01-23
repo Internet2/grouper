@@ -30,7 +30,7 @@ fi
 
 cd $buildDir
 
-export CVSROOT=/home/cvs/i2mi
+#export CVSROOT=/home/cvs/i2mi
 
 #/usr/bin/cvs export -r $1 grouper
 

@@ -104,6 +104,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
                 //see if that record exists
                 if (null == Hib3GroupTypeTupleDAO.findByGroupAndType(_group, groupType, false)) {
                   GroupTypeTuple tuple = new GroupTypeTuple();
+                  tuple.setId(GrouperUuid.getUuid());
                   tuple.assignGroupUuid( _group.getUuid(), _group );
                   tuple.setTypeUuid( groupType.getUuid() );
                   byObject.saveOrUpdate(tuple); // new group-type tuple

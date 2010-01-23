@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.xml.export;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.TestGroupTypeTuple;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
@@ -92,12 +93,7 @@ public class XmlExportGroupTypeTupleTest extends GrouperTest {
    * 
    */
   public void testConvertToGroupTypeTuple() {
-    GroupTypeTuple groupTypeTuple = new GroupTypeTuple();
-    groupTypeTuple.setContextId("contextId");
-    groupTypeTuple.setGroupUuid("groupId");
-    groupTypeTuple.setHibernateVersionNumber(3L);
-    groupTypeTuple.setTypeUuid("typeId");
-    groupTypeTuple.setId("uuid");
+    GroupTypeTuple groupTypeTuple = TestGroupTypeTuple.exampleGroupTypeTuple();
     
     XmlExportGroupTypeTuple xmlExportGroupTypeTuple = new XmlExportGroupTypeTuple(new GrouperVersion(GrouperVersion.GROUPER_VERSION), groupTypeTuple);
 

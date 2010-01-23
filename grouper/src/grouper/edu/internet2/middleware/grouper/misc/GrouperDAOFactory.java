@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
@@ -240,6 +241,12 @@ public abstract class GrouperDAOFactory {
    * @since   1.2.0
    */
   public abstract GroupTypeDAO getGroupType();
+
+  /**
+   * @return group type tuple dao
+   * @since   1.6.0
+   */
+  public abstract GroupTypeTupleDAO getGroupTypeTuple();
 
   /**
    * @return member dao
