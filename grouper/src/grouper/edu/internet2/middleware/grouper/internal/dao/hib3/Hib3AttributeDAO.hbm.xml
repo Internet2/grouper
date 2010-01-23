@@ -37,9 +37,8 @@
     <id name="id" 
         type="string"
         unsaved-value="null"
-        length="128"
     >
-      <generator class="uuid.hex"/>
+      <generator class="assigned"/>
     </id>
     <!-- id -->
 

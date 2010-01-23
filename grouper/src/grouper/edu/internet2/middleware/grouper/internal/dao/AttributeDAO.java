@@ -47,5 +47,21 @@ public interface AttributeDAO extends GrouperDAO {
    * @param attribute
    */
   public void delete(Attribute attribute);
+
+  /**
+   * 
+   * @param id
+   * @param groupUUID
+   * @param fieldId
+   * @param exceptionIfNotFound
+   * @return the attribute or null
+   */
+  public Attribute findByUuidOrName(String id, String groupUUID, String fieldId, boolean exceptionIfNotFound);
   
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attribute
+   */
+  public void saveUpdateProperties(Attribute attribute);
+
 } 

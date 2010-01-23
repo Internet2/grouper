@@ -157,21 +157,23 @@ public class AllTests extends GrouperTest {
     TestSuite suite = new TestSuite();
 
     //$JUnit-BEGIN$
-    suite.addTestSuite(TestStemFinder.class);
-    suite.addTestSuite(TestStemIntegration.class);
-    suite.addTestSuite(TestGrouperSession.class);
-    suite.addTestSuite(TestSession.class);
-    suite.addTestSuite(TestGroupTypeIncludeExclude.class);
-    suite.addTestSuite(TestCompositeI.class);
-    suite.addTestSuite(TestField.class);
-    suite.addTestSuite(TestStemApi.class);
-    suite.addTestSuite(TestStem.class);
     suite.addTestSuite(TestSubjectFinder.class);
-    suite.addTestSuite(TestGrouperVersion.class);
-    suite.addTestSuite(TestCompositeModel.class);
-    suite.addTestSuite(TestCompositeU.class);
+    suite.addTestSuite(TestStemFinder.class);
+    suite.addTestSuite(TestAttribute.class);
+    suite.addTestSuite(TestGroupTypeTuple.class);
     suite.addTestSuite(TestComposite.class);
     suite.addTestSuite(TestGroupType.class);
+    suite.addTestSuite(TestSession.class);
+    suite.addTestSuite(TestGrouperVersion.class);
+    suite.addTestSuite(TestStem.class);
+    suite.addTestSuite(TestField.class);
+    suite.addTestSuite(TestCompositeU.class);
+    suite.addTestSuite(TestStemApi.class);
+    suite.addTestSuite(TestStemIntegration.class);
+    suite.addTestSuite(TestGroupTypeIncludeExclude.class);
+    suite.addTestSuite(TestCompositeI.class);
+    suite.addTestSuite(TestCompositeModel.class);
+    suite.addTestSuite(TestGrouperSession.class);
     //$JUnit-END$
 
     //////////////////////////////////////////

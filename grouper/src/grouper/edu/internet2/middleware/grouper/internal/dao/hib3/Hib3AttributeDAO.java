@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Attribute;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
@@ -67,4 +68,49 @@ public class Hib3AttributeDAO implements AttributeDAO {
   public void delete(Attribute attribute) {
     HibernateSession.byObjectStatic().delete(attribute);    
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, boolean)
+   */
+  public Attribute findByUuidOrName(String id, String groupUUID, String fieldId,
+      boolean exceptionIfNotFound) {
+    try {
+      Attribute attribute = HibernateSession.byHqlStatic()
+        .setGrouperTransactionType(GrouperTransactionType.READONLY_OR_USE_EXISTING)
+        .createQuery("from Attribute as theAttribute where theAttribute.id = :theId " +
+        		"or (theAttribute.groupUuid = :theGroupUuid and theAttribute.fieldId = :theFieldId) ")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("theId", id)
+        .setString("theGroupUuid", groupUUID)
+        .setString("theFieldId", fieldId)
+        .uniqueResult(Attribute.class);
+
+      if (attribute == null && exceptionIfNotFound) {
+        throw new GroupNotFoundException("Can't find attribute by id: '" + id 
+            + "' or groupId: '" + groupUUID + "', fieldId: '" + fieldId + "'");
+      }
+      return attribute;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Can't find attribute by id: '" + id 
+        + "' or groupId: '" + groupUUID + "', fieldId: '" + fieldId + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDAO#saveUpdateProperties(edu.internet2.middleware.grouper.Attribute)
+   */
+  public void saveUpdateProperties(Attribute attribute) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update Attribute " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId " +
+        "where id = :theId")
+        .setLong("theHibernateVersionNumber", attribute.getHibernateVersionNumber())
+        .setString("theContextId", attribute.getContextId())
+        .setString("theId", attribute.getId()).executeUpdate();
+  }
+
 }

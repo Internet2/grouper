@@ -3762,8 +3762,40 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     throws  AttributeNotFoundException, 
             GroupModifyException, 
             InsufficientPrivilegeException {
+    this.internal_setAttribute(attributeName, value, checkPrivileges, null);
+  }
+
+  /**
+   * Set an attribute value.
+   * <pre class="eg">
+   * try {
+   *   g.attribute(attribute, value);
+   * } 
+   * catch (AttributeNotFoundException e0) {
+   *   // Attribute doesn't exist
+   * }
+   * catch (GroupModifyException e1) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e2) {
+   *   // Not privileged to modify this attribute
+   * }
+   * </pre>
+   * @param   attributeName  Set this attribute.
+   * @param   value Set to this value.
+   * @param   checkPrivileges 
+   * @param uuid
+   * @return the attribute
+   * @throws  AttributeNotFoundException
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public Attribute internal_setAttribute(final String attributeName, final String value, final boolean checkPrivileges, final String uuid) 
+    throws  AttributeNotFoundException, 
+            GroupModifyException, 
+            InsufficientPrivilegeException {
     
-    HibernateSession.callbackHibernateSession(
+    return (Attribute)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
 
@@ -3846,6 +3878,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               String verb = "Updated";
               if (attribute == null) {
                 attribute = new Attribute();
+                attribute.setId(uuid == null ? GrouperUuid.getUuid() : uuid);
                 attribute.setFieldId( FieldFinder.findFieldIdForAttribute(attributeName, true ));
                 auditTypeBuiltin = AuditTypeBuiltin.GROUP_ATTRIBUTE_ADD;
                 verb = "inserted";
@@ -3879,7 +3912,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 auditEntry.saveOrUpdate(true);
               }
               
-              return null;
+              return attribute;
             }
             catch (GrouperDAOException eDAO) {
               throw new GroupModifyException( eDAO.getMessage(), eDAO );

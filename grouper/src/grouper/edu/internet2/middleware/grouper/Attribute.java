@@ -32,8 +32,10 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
@@ -42,7 +44,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
-public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Attribute> {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -427,7 +429,92 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
     this.contextId = contextId1;
   }
 
+  /**
+   * store this object to the DB.
+   */
+  public void store() {    
+    GrouperDAOFactory.getFactory().getAttribute().createOrUpdate(this);
+  }
 
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(Attribute existingRecord) {
+    
+    existingRecord.setFieldId(existingRecord.getFieldId());
+    existingRecord.setGroupUuid(existingRecord.getGroupUuid());
+    existingRecord.setId(existingRecord.getId());
+    existingRecord.setValue(existingRecord.getValue());
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(Attribute other) {
+    if (!StringUtils.equals(this.fieldId, other.fieldId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.groupUUID, other.groupUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.value, other.value)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(Attribute other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public Attribute xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getAttribute().findByUuidOrName(this.id, this.groupUUID, this.fieldId, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(Attribute existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.groupUUID, true);
+      Field field = FieldFinder.findById(this.fieldId, true);
+      existingRecord = group.internal_setAttribute(field.getName(), this.value, false, this.id);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.store();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttribute().saveUpdateProperties(this);
+  }
+
+  /**
+   * 
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getAttribute().delete(this);
+  }
   
 } 
 
