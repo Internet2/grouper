@@ -116,11 +116,12 @@ public interface AccessAdapter {
    * @param   g     Grant privilege on this group.
    * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.   
+   * @param uuid is uuid or null if generated
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  void grantPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
+  void grantPriv(GrouperSession s, Group g, Subject subj, Privilege priv, String uuid)
     throws  GrantPrivilegeException, 
             InsufficientPrivilegeException,
             SchemaException

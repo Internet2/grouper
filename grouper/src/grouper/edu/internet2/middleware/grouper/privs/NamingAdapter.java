@@ -109,11 +109,12 @@ public interface NamingAdapter {
    * @param   ns    Grant privilege on this stem.
    * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.   
+   * @param uuid is uuid if known or null if assign one
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  void grantPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
+  void grantPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv, String uuid)
     throws  GrantPrivilegeException, 
             InsufficientPrivilegeException,
             SchemaException

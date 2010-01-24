@@ -92,14 +92,14 @@ public class CachingNamingResolver extends NamingResolverDecorator {
   }
 
   /**
-   * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege)
+   * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege, String)
    * @since   1.2.1
    */
-  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
+  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException,
       UnableToPerformException {
     // TODO 20070816 add caching
-    super.getDecoratedResolver().grantPrivilege(stem, subject, privilege);
+    super.getDecoratedResolver().grantPrivilege(stem, subject, privilege, uuid);
     this.cc.flushCache();
     this.putInHasPrivilegeCache(stem, subject, privilege, Boolean.TRUE);
   }

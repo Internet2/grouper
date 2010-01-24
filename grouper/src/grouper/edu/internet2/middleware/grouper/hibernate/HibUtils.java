@@ -39,6 +39,20 @@ import edu.internet2.middleware.subject.Subject;
 public class HibUtils {
 
   /**
+   * if in an hql or sql query, depending on the value, pass is or = back
+   * @param value
+   * @param bindVar 
+   * @return the query comparator
+   */
+  public static String equalsOrIs(Object value, String bindVar) {
+    //if sent with colon, remove
+    if (!StringUtils.isBlank(bindVar) && bindVar.startsWith(":")) {
+      bindVar = bindVar.substring(1);
+    }
+    return value == null ? " is null " : (" = :" + bindVar + " ");
+  }
+  
+  /**
    * 
    * @param cacheable
    * @param queryOptions

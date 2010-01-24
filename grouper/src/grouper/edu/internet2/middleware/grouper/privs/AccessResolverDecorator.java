@@ -117,11 +117,11 @@ public abstract class AccessResolverDecorator implements AccessResolver {
 
 
   /**
-   * @see edu.internet2.middleware.grouper.privs.AccessResolver#grantPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#grantPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, String)
    */
-  public void grantPrivilege(Group group, Subject subject, Privilege privilege)
+  public void grantPrivilege(Group group, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException, UnableToPerformException {
-    this.getDecoratedResolver().grantPrivilege(group, subject, privilege);
+    this.getDecoratedResolver().grantPrivilege(group, subject, privilege, uuid);
   }
 
 

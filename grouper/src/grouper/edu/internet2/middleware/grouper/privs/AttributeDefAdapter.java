@@ -115,11 +115,12 @@ public interface AttributeDefAdapter {
    * @param   attributeDef     Grant privilege on this attrDef.
    * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.   
+   * @param uuid is uuid or null if assign one
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  void grantPriv(GrouperSession grouperSession, AttributeDef attributeDef, Subject subj, Privilege priv)
+  void grantPriv(GrouperSession grouperSession, AttributeDef attributeDef, Subject subj, Privilege priv, String uuid)
     throws  GrantPrivilegeException, 
             InsufficientPrivilegeException,
             SchemaException

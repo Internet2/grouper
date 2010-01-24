@@ -168,10 +168,10 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.NamingAdapter#grantPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   * @see edu.internet2.middleware.grouper.privs.NamingAdapter#grantPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, String)
    */
   public void grantPriv(
-    GrouperSession s, final Stem ns, final Subject subj, final Privilege priv
+    GrouperSession s, final Stem ns, final Subject subj, final Privilege priv, final String uuid
   )
     throws  GrantPrivilegeException, 
             InsufficientPrivilegeException,
@@ -189,7 +189,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
             if (!f.getType().equals(FieldType.NAMING)) {
               throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
             }  
-            Membership.internal_addImmediateMembership(grouperSession, ns, subj, f);
+            Membership.internal_addImmediateMembership(grouperSession, ns, subj, f, uuid);
           } catch (SchemaException se) {
             throw new GrouperSessionException(se);
           } catch (InsufficientPrivilegeException ipe) {

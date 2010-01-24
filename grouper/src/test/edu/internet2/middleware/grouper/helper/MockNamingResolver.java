@@ -108,7 +108,7 @@ public class MockNamingResolver implements NamingResolver {
    * @throws  GrouperException
    * @since   1.2.1
    */
-  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
+  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege, String uuid)
     throws  IllegalArgumentException,
             UnableToPerformException
   {

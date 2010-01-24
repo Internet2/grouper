@@ -78,14 +78,14 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   }
 
   /**
-   * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege)
+   * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege, String)
    * @since   1.2.1
    */
-  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
+  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException,
       UnableToPerformException {
     this.param.notNullStem(stem).notNullSubject(subject).notNullPrivilege(privilege);
-    super.getDecoratedResolver().grantPrivilege(stem, subject, privilege);
+    super.getDecoratedResolver().grantPrivilege(stem, subject, privilege, uuid);
   }
 
   /**

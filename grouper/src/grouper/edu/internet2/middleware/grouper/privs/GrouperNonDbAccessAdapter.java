@@ -214,12 +214,13 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
    * @param   g     Grant privilege on this group.
    * @param   subj  Grant privilege to this subject.
    * @param   priv  Grant this privilege.   
+   * @param uuid
    * @throws  GrantPrivilegeException
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
   public void grantPriv(
-    GrouperSession s, final Group g, final Subject subj, final Privilege priv)
+    GrouperSession s, final Group g, final Subject subj, final Privilege priv, final String uuid)
     throws  GrantPrivilegeException, InsufficientPrivilegeException, SchemaException {
     try {
       GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
@@ -235,7 +236,7 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
             if ( !g.internal_canWriteField( grouperSession.getSubject(), f ) ) {
               throw new GrouperSessionException(new InsufficientPrivilegeException());
             }
-            Membership.internal_addImmediateMembership(grouperSession, g, subj, f);
+            Membership.internal_addImmediateMembership(grouperSession, g, subj, f, uuid);
           } catch (MemberAddException eMA) {
             if (eMA instanceof MemberAddAlreadyExistsException) {
               throw new GrouperSessionException(new GrantPrivilegeAlreadyExistsException(eMA.getMessage(), eMA));

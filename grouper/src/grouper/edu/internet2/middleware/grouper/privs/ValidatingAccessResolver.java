@@ -77,14 +77,14 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
   }
 
   /**
-   * @see     AccessResolver#grantPrivilege(Group, Subject, Privilege)
+   * @see     AccessResolver#grantPrivilege(Group, Subject, Privilege, String)
    * @since   1.2.1
    */
-  public void grantPrivilege(Group group, Subject subject, Privilege privilege)
+  public void grantPrivilege(Group group, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException,
       UnableToPerformException {
     this.param.notNullGroup(group).notNullSubject(subject).notNullPrivilege(privilege);
-    super.getDecoratedResolver().grantPrivilege(group, subject, privilege);
+    super.getDecoratedResolver().grantPrivilege(group, subject, privilege, uuid);
   }
 
   /**

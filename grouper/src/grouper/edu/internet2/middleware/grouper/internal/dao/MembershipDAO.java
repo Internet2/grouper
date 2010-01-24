@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.subject.Source;
@@ -685,5 +686,28 @@ TODO update for 1.5
    */
   Set<Membership> findAllNonImmediateByMemberAndFieldType(String memberUUID, String fieldType, boolean enabledOnly) 
     throws  GrouperDAOException;
+  
+  /**
+   * @param uuid 
+   * @param memberUUID 
+   * @param fieldId 
+   * @param ownerAttrDefId 
+   * @param ownerGroupId 
+   * @param ownerStemId 
+   * @param exceptionIfNull 
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @throws GroupNotFoundException 
+   * @since   1.6.0
+   */
+  Membership findByImmediateUuidOrKey(String uuid, String memberUUID, String fieldId, 
+      String ownerAttrDefId, String ownerGroupId, String ownerStemId, boolean exceptionIfNull) throws GrouperDAOException;
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param membership
+   */
+  public void saveUpdateProperties(Membership membership);
+
 } 
 

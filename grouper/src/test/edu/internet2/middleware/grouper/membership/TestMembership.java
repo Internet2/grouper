@@ -22,11 +22,16 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -39,6 +44,8 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -52,6 +59,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMembership extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestMembership("testXmlDifferentUpdateProperties"));
+  }
+  
   // Private Class Constants
   private static final Log        LOG   = GrouperUtil.getLog(TestMembership.class); 
 
@@ -379,5 +394,419 @@ public class TestMembership extends TestCase {
     }
   } // public void testChildrenOfViaInMofDeletion()
 
+  
+  /**
+   * make an example stem for testing
+   * @return an example membership
+   */
+  public static Membership exampleMembership() {
+    Membership membership = new Membership();
+    membership.setContextId("contextId");
+    membership.setCreateTimeLong(5L);
+    membership.setCreatorUuid("creatorId");
+    membership.setDisabledTimeDb(4L);
+    membership.setEnabledDb("T");
+    membership.setEnabledTimeDb(6L);
+    membership.setFieldId("fieldId");
+    membership.setHibernateVersionNumber(3L);
+    membership.setMemberUuid("memberId");
+    membership.setOwnerAttrDefId("ownerAttrDefId");
+    membership.setOwnerGroupId("ownerGroupId");
+    membership.setOwnerStemId("ownerStemId");
+    membership.setType("type");
+    membership.setImmediateMembershipId("uuid");
+    membership.setViaCompositeId("viaCompositeId");
+    
+    return membership;
+  }
+  
+  /**
+   * make an example membership for testing
+   * @return an example membership
+   */
+  public static Membership exampleMembershipDb() {
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:membershipTest").assignName("test:membershipTest").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Subject subject = SubjectTestHelper.SUBJ0;
+    
+    group.addMember(subject, false);
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+    
+    //find the membership
+    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, member.getUuid(),
+        Group.getDefaultList().getUuid(), null, group.getUuid(), null, true);
+    
+    return membership;
+  }
+
+  
+  /**
+   * make an example stem for testing
+   * @return an example stem
+   */
+  public static Membership exampleRetrieveMembershipDb() {
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "test:membershipTest", true);
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+    
+    //find the membership
+    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, member.getUuid(),
+        Group.getDefaultList().getUuid(), null, group.getUuid(), null, true);
+    
+    return membership;
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:membershipInsertTest").assignName("test:membershipInsertTest").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    Subject subject = SubjectTestHelper.SUBJ0;
+    
+    group.addMember(subject, false);
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+    
+    //find the membership
+    Membership membershipOriginal = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, member.getUuid(),
+        Group.getDefaultList().getUuid(), null, group.getUuid(), null, true);
+    
+    //do this because last membership update isnt there, only in db
+    Membership membershipCopy = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, member.getUuid(),
+        Group.getDefaultList().getUuid(), null, group.getUuid(), null, true);
+    Membership membershipCopy2 = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, member.getUuid(),
+        Group.getDefaultList().getUuid(), null, group.getUuid(), null, true);
+    group.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    //lets insert the original
+    membershipCopy2.xmlSaveBusinessProperties(null);
+    membershipCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    membershipCopy = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, member.getUuid(),
+        Group.getDefaultList().getUuid(), null, group.getUuid(), null, true);
+    
+    assertFalse(membershipCopy == membershipOriginal);
+    assertFalse(membershipCopy.xmlDifferentBusinessProperties(membershipOriginal));
+    assertFalse(membershipCopy.xmlDifferentUpdateProperties(membershipOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Membership membership = null;
+    Membership exampleMembership = null;
+
+    
+    //TEST UPDATE PROPERTIES
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+      
+      membership.setContextId("abc");
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertTrue(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setContextId(exampleMembership.getContextId());
+      membership.xmlSaveUpdateProperties();
+
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+      
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setCreateTimeLong(99);
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertTrue(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setCreateTimeLong(exampleMembership.getCreateTimeLong());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setCreatorUuid("abc");
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertTrue(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setCreatorUuid(exampleMembership.getCreatorUuid());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setHibernateVersionNumber(99L);
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertTrue(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setHibernateVersionNumber(exampleMembership.getHibernateVersionNumber());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    }
+    //TEST BUSINESS PROPERTIES
+
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setDisabledTimeDb(5L);
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setDisabledTimeDb(exampleMembership.getDisabledTimeDb());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setEnabledDb("F");
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setEnabledDb(exampleMembership.getEnabledDb());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setEnabledTimeDb(99L);
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setEnabledTimeDb(exampleMembership.getEnabledTimeDb());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setFieldId("abc");
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setFieldId(exampleMembership.getFieldId());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setMemberUuid("abc");
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setMemberUuid(exampleMembership.getMemberUuid());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setOwnerAttrDefId("abc");
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setOwnerAttrDefId(exampleMembership.getOwnerAttrDefId());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setOwnerGroupId("abc");
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setOwnerGroupId(exampleMembership.getOwnerGroupId());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setOwnerStemId("abc");
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setOwnerStemId(exampleMembership.getOwnerStemId());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setImmediateMembershipId("abc");
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setImmediateMembershipId(exampleMembership.getImmediateMembershipId());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setType(MembershipType.NONIMMEDIATE.name());
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setType(exampleMembership.getType());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+    
+    {
+      membership = exampleMembershipDb();
+      exampleMembership = exampleRetrieveMembershipDb();
+
+      membership.setViaCompositeId("abc");
+      
+      assertTrue(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+
+      membership.setViaCompositeId(exampleMembership.getViaCompositeId());
+      membership.xmlSaveBusinessProperties(exampleRetrieveMembershipDb());
+      membership.xmlSaveUpdateProperties();
+      
+      membership = exampleRetrieveMembershipDb();
+      
+      assertFalse(membership.xmlDifferentBusinessProperties(exampleMembership));
+      assertFalse(membership.xmlDifferentUpdateProperties(exampleMembership));
+    
+    }
+  }
+
+  
 }
 

@@ -122,16 +122,16 @@ public class NamingWrapper implements NamingResolver {
   }
 
   /**
-   * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege)
-   * @see     NamingAdapter#grantPriv(GrouperSession, Stem, Subject, Privilege)
+   * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege, String)
+   * @see     NamingAdapter#grantPriv(GrouperSession, Stem, Subject, Privilege, String)
    * @since   1.2.1
    */
-  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
+  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege, String uuid)
     throws  IllegalArgumentException,
             UnableToPerformException
   {
     try {
-      this.naming.grantPriv(this.s, stem, subject, privilege);
+      this.naming.grantPriv(this.s, stem, subject, privilege, uuid);
     }
     catch (GrantPrivilegeAlreadyExistsException eGrant) {
       throw new UnableToPerformAlreadyExistsException( eGrant.getMessage(), eGrant );

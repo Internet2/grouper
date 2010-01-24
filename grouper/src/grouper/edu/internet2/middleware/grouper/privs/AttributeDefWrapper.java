@@ -112,13 +112,13 @@ public class AttributeDefWrapper implements AttributeDefResolver {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#grantPrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#grantPrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, String)
    */
-  public void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege)
+  public void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException,
       UnableToPerformException {
     try {
-      this.attributeDefAdapter.grantPriv(this.grouperSession, attributeDef, subject, privilege);
+      this.attributeDefAdapter.grantPriv(this.grouperSession, attributeDef, subject, privilege, uuid);
     } catch (GrantPrivilegeException eGrant) {
       if (eGrant instanceof GrantPrivilegeAlreadyExistsException) {
         throw new UnableToPerformAlreadyExistsException(eGrant.getMessage(), eGrant);

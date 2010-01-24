@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -78,11 +79,13 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.CompositeMembershipValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -96,7 +99,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: Membership.java,v 1.141 2009-12-21 06:15:02 mchyzer Exp $
  */
-public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Membership> {
 
   /**
    * 
@@ -592,7 +595,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   }
   
   /** */
-  private String  immediateMembershipId        = GrouperUuid.getUuid(); // reasonable default
+  private String  immediateMembershipId  = GrouperUuid.getUuid(); // reasonable default
 
   /** group set id if this is an effective membership */
   private String groupSetId;
@@ -1062,11 +1065,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @param g
    * @param subj
    * @param f
+   * @param uuid is uuid or null
    * @throws MemberAddException
    * @return the membership if available
    */
   public static Membership internal_addImmediateMembership(
-    GrouperSession s, Group g, Subject subj, Field f) throws  MemberAddException {
+    GrouperSession s, Group g, Subject subj, Field f, String uuid) throws  MemberAddException {
     
     String errorString = "membership: group: " + (g == null ? null : g.getName())
       + ", subject: " + (subj  == null ? null : subj.getId())
@@ -1076,6 +1080,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
       
       Membership ms = new Membership();
+      
+      //if we are assigning the uuid
+      if (!StringUtils.isBlank(uuid)) {
+        ms.setImmediateMembershipId(uuid);
+      }
+      
       ms.setCreatorUuid(s.getMemberUuid());
       ms.setFieldId(FieldFinder.findFieldId(f.getName(), f.getType().toString(), true));
       ms.setMemberUuid(member.getUuid());
@@ -1108,17 +1118,24 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @param ns
    * @param subj
    * @param f
+   * @param uuid
    * @return Membership
    * @throws MemberAddException
    */
   public static Membership internal_addImmediateMembership(
-    GrouperSession s, Stem ns, Subject subj, Field f)
+    GrouperSession s, Stem ns, Subject subj, Field f, String uuid)
     throws  MemberAddException  {
     try {
       GrouperSession.validate(s);
       Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
       
       Membership ms = new Membership();
+      
+      //if we are assigning the uuid
+      if (!StringUtils.isBlank(uuid)) {
+        ms.setImmediateMembershipId(uuid);
+      }
+      
       ms.setCreatorUuid(s.getMemberUuid());
       ms.setFieldId(FieldFinder.findFieldId(f.getName(), f.getType().toString(), true));
       ms.setMemberUuid(member.getUuid());
@@ -2523,17 +2540,24 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @param attributeDef
    * @param subj
    * @param f
+   * @param uuid
    * @return Membership
    * @throws MemberAddException
    */
   public static Membership internal_addImmediateMembership(
-    GrouperSession s, AttributeDef attributeDef, Subject subj, Field f)
+    GrouperSession s, AttributeDef attributeDef, Subject subj, Field f, String uuid)
     throws  MemberAddException  {
     try {
       GrouperSession.validate(s);
       Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
       
       Membership ms = new Membership();
+      
+      //if we are assigning the uuid
+      if (!StringUtils.isBlank(uuid)) {
+        ms.setImmediateMembershipId(uuid);
+      }
+      
       ms.setCreatorUuid(s.getMemberUuid());
       ms.setFieldId(FieldFinder.findFieldId(f.getName(), f.getType().toString(), true));
       ms.setMemberUuid(member.getUuid());
@@ -2747,5 +2771,161 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       Membership ms = iter.next();
       ms.addMembershipDeleteChangeLog(member);
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(Membership existingRecord) {
+    existingRecord.setDisabledTimeDb(this.getDisabledTimeDb());
+    existingRecord.setEnabledDb(this.getEnabledDb());
+    existingRecord.setEnabledTimeDb(this.getEnabledTimeDb());
+    existingRecord.setFieldId(this.getFieldId());
+    existingRecord.setMemberUuid(this.memberUUID);
+    existingRecord.setOwnerAttrDefId(this.ownerAttrDefId);
+    existingRecord.setOwnerGroupId(this.ownerGroupId);
+    //note, no field for ownerId
+    existingRecord.setOwnerStemId(this.ownerStemId);
+    existingRecord.setType(this.getType());
+    existingRecord.setImmediateMembershipId(this.getImmediateMembershipId());
+    existingRecord.setViaCompositeId(this.viaCompositeId);
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(Membership other) {
+    if (!GrouperUtil.equals(this.disabledTimeDb, other.disabledTimeDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.enabledTimeDb, other.enabledTimeDb)) {
+      return true;
+    }
+    if (this.enabled != other.enabled) {
+      return true;
+    }
+    if (!StringUtils.equals(this.fieldId, other.fieldId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.memberUUID, other.memberUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerAttrDefId, other.ownerAttrDefId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerGroupId, other.ownerGroupId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerStemId, other.ownerStemId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.type, other.type)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.immediateMembershipId, other.immediateMembershipId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.viaCompositeId, other.viaCompositeId)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(Membership other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (this.createTimeLong != other.createTimeLong) {
+      return true;
+    }
+    if (!StringUtils.equals(this.creatorUUID, other.creatorUUID)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public Membership xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(this.uuid, this.memberUUID, this.fieldId, 
+        this.ownerAttrDefId, this.ownerGroupId, this.ownerStemId, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(Membership existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.memberUUID, true);
+      Subject subject = member.getSubject();
+      Field field = FieldFinder.findById(this.fieldId, true);
+      
+      //add a membership with business logic
+      if (!StringUtils.isBlank(this.ownerGroupId)) {
+        
+        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
+        
+        if (FieldType.LIST.equals(field.getType())) {
+          
+          group.internal_addMember(subject, field, false, this.getImmediateMembershipId());
+          
+        } else if (FieldType.ACCESS.equals(field.getType())) {
+          
+          //note, we probably have to put more logic in here for implementations of custom privilege logic
+          //probably throw a skip exception to get out of importing this...
+          Privilege privilege = Privilege.getInstance(field.getName());
+          group.internal_grantPriv(subject, privilege, false, this.getImmediateMembershipId());
+          
+        } else {
+          throw new RuntimeException("Not expecting type: '" + field.getType() + "'");
+        }
+        
+        existingRecord = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, this.memberUUID, 
+            this.fieldId, null, group.getUuid(), null, true);
+        
+      } else if (!StringUtils.isBlank(this.ownerStemId)) {
+        
+        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
+        Privilege privilege = Privilege.getInstance(field.getName());
+        stem.internal_grantPriv(subject, privilege, false, this.immediateMembershipId);
+        existingRecord = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, this.memberUUID, 
+            this.fieldId, null, null, stem.getUuid(), true);
+        
+      } else if (!StringUtils.isBlank(this.ownerAttrDefId)) {
+
+        AttributeDef attributeDef = AttributeDefFinder.findById(this.ownerAttrDefId, true);
+        Privilege privilege = Privilege.getInstance(field.getName());
+        attributeDef.getPrivilegeDelegate().internal_grantPriv(subject, privilege, false, this.getImmediateMembershipId());
+        existingRecord = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, this.memberUUID, 
+            this.fieldId, this.ownerAttrDefId, null, null, true);
+        
+      } else {
+        
+        throw new RuntimeException("Not expecting membership record: " + this);
+        
+      }
+      
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.update();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getMembership().saveUpdateProperties(this);
   }
 }

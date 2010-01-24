@@ -1960,4 +1960,73 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
     return _getMembershipsFromMembershipAndMemberQuery(mships);
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByImmediateUuidOrKey(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean)
+   */
+  public Membership findByImmediateUuidOrKey(String uuid, String memberUUID, String fieldId,
+      String ownerAttrDefId, String ownerGroupId, String ownerStemId,
+      boolean exceptionIfNull) throws GrouperDAOException {
+    try {
+      String theHqlQuery = "from ImmediateMembershipEntry as theMembership where theMembership.immediateMembershipId = :uuid or " +
+      		" ( theMembership.fieldId = :theFieldId and theMembership.memberUuid = :theMemberId " +
+      		" and theMembership.ownerGroupId " + HibUtils.equalsOrIs(ownerGroupId, "theOwnerGroupId") + " and theMembership.ownerStemId " +
+      				HibUtils.equalsOrIs(ownerStemId, "theOwnerStemId") +
+      		" and theMembership.ownerAttrDefId " + HibUtils.equalsOrIs(ownerAttrDefId, "theOwnerAttrDefId") + " )";
+        
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .createQuery(theHqlQuery)
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".findByUuidOrKey")
+        .setString("uuid", uuid)
+        .setString("theFieldId", fieldId)
+        .setString("theMemberId", memberUUID);
+
+      //dont attach these if null
+      if (ownerGroupId != null) {
+        byHqlStatic.setString("theOwnerGroupId", ownerGroupId);
+      }
+      if (ownerStemId != null) {
+        byHqlStatic.setString("theOwnerStemId", ownerStemId);
+      }
+      if (ownerAttrDefId != null) {
+        byHqlStatic.setString("theOwnerAttrDefId", ownerAttrDefId);
+      }
+      Membership membership = byHqlStatic.uniqueResult(Membership.class);
+
+      if (membership == null && exceptionIfNull) {
+        throw new RuntimeException("Can't find membership by uuid: '" + uuid + "' or memberUUID '" + memberUUID 
+            + "', fieldId: '" + fieldId + "', ownerAttrDefId: '" + ownerAttrDefId + "', ownerGroupId: '"
+            + ownerGroupId + "', ownerStemId: '" + ownerStemId + "'");
+      }
+      return membership;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find membership by uuid: '" + uuid + "' or memberUUID '" + memberUUID 
+            + "', fieldId: '" + fieldId + "', ownerAttrDefId: '" + ownerAttrDefId + "', ownerGroupId: '"
+            + ownerGroupId + "', ownerStemId: '" + ownerStemId + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#saveUpdateProperties(edu.internet2.middleware.grouper.Membership)
+   */
+  public void saveUpdateProperties(Membership membership) {
+
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update ImmediateMembershipEntry " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "creatorUuid = :theCreatorUuid, " +
+        "createTimeLong = :theCreateTimeLong " +
+        "where immediateMembershipId = :theImmediateMembershipId")
+        .setLong("theHibernateVersionNumber", membership.getHibernateVersionNumber())
+        .setString("theCreatorUuid", membership.getCreatorUuid())
+        .setLong("theCreateTimeLong", membership.getCreateTimeLong())
+        .setString("theContextId", membership.getContextId())
+        .setString("theImmediateMembershipId", membership.getImmediateMembershipId())
+        .executeUpdate();
+  }
 }

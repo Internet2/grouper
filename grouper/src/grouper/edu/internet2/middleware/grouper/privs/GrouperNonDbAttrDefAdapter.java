@@ -196,10 +196,10 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#grantPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#grantPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, String)
    */
   public void grantPriv(
-      GrouperSession s, final AttributeDef attributeDef, final Subject subj, final Privilege priv)
+      GrouperSession s, final AttributeDef attributeDef, final Subject subj, final Privilege priv, final String uuid)
       throws GrantPrivilegeException, InsufficientPrivilegeException, SchemaException {
     try {
       GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
@@ -217,7 +217,7 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
                   + GrouperUtil.subjectToString(grouperSession.getSubject()) 
                   + " cannot admin attributeDef: " + attributeDef.getName());
             }
-            Membership.internal_addImmediateMembership(grouperSession, attributeDef, subj, f);
+            Membership.internal_addImmediateMembership(grouperSession, attributeDef, subj, f, uuid);
           } catch (MemberAddException eMA) {
             if (eMA instanceof MemberAddAlreadyExistsException) {
               throw new GrouperSessionException(new GrantPrivilegeAlreadyExistsException(

@@ -93,12 +93,13 @@ public interface AttributeDefResolver {
    * @param attributeDef 
    * @param subject 
    * @param privilege 
+   * @param uuid is uuid or null for assigned
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be granted.
    * @see     AttributeDefAdapter#grantPriv(GrouperSession, AttributeDef, Subject, Privilege)
    * @since   1.2.1
    */
-  void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege)
+  void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege, String uuid)
     throws  IllegalArgumentException,
             UnableToPerformException
             ;

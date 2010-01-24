@@ -115,16 +115,16 @@ public class AccessWrapper implements AccessResolver {
   }
 
   /**
-   * @see     AccessResolver#grantPrivilege(Group, Subject, Privilege)
-   * @see     AccessAdapter#grantPriv(GrouperSession, Group, Subject, Privilege)
+   * @see     AccessResolver#grantPrivilege(Group, Subject, Privilege, String)
+   * @see     AccessAdapter#grantPriv(GrouperSession, Group, Subject, Privilege, String)
    * @since   1.2.1
    */
-  public void grantPrivilege(Group group, Subject subject, Privilege privilege)
+  public void grantPrivilege(Group group, Subject subject, Privilege privilege, String uuid)
     throws  IllegalArgumentException,
             UnableToPerformException
   {
     try {
-      this.access.grantPriv(this.s, group, subject, privilege);
+      this.access.grantPriv(this.s, group, subject, privilege, uuid);
     }
     catch (GrantPrivilegeException eGrant) {
       if (eGrant instanceof GrantPrivilegeAlreadyExistsException) {

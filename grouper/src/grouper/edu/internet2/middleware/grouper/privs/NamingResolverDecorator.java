@@ -109,11 +109,11 @@ public abstract class NamingResolverDecorator implements NamingResolver {
 
 
   /**
-   * @see edu.internet2.middleware.grouper.privs.NamingResolver#grantPrivilege(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#grantPrivilege(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, String)
    */
-  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
+  public void grantPrivilege(Stem stem, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException, UnableToPerformException {
-    this.getDecoratedResolver().grantPrivilege(stem, subject, privilege);
+    this.getDecoratedResolver().grantPrivilege(stem, subject, privilege, uuid);
   }
 
 

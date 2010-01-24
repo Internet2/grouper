@@ -181,6 +181,36 @@ public class AttributeDefPrivilegeDelegate {
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException,
             SchemaException {
+    return internal_grantPriv(subj, priv, exceptionIfAlreadyMember, null);
+  }
+
+  /**
+   * Grant privilege to a subject on this attributeDef.
+   * <pre class="eg">
+   * try {
+   *   attributeDef.getPrivilegeDelegate().grantPriv(subj, AttributeDefPrivilege.ATTR_ADMIN);
+   * }
+   * catch (GrantPrivilegeException e0) {
+   *   // Cannot grant this privilege
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Unable to grant this privilege
+   * }
+   * </pre>
+   * @param   subj  Grant privilege to this subject.
+   * @param   priv  Grant this privilege.
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the list
+   * @param uuid is uuid or null for assigned
+   * @throws  GrantPrivilegeException
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   * @return false if it already existed, true if it didnt already exist
+   */
+  public boolean internal_grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember, final String uuid)
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException,
+            SchemaException {
     final StopWatch sw = new StopWatch();
     sw.start();
   
@@ -200,7 +230,7 @@ public class AttributeDefPrivilegeDelegate {
           try {
             //note, this will validate the inputs
             GrouperSession.staticGrouperSession().getAttributeDefResolver().grantPrivilege(
-                AttributeDefPrivilegeDelegate.this.attributeDef, subj, priv);
+                AttributeDefPrivilegeDelegate.this.attributeDef, subj, priv, uuid);
             assignedPrivilege = true;
   
           } catch (UnableToPerformAlreadyExistsException eUTP) {

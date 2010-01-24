@@ -83,12 +83,13 @@ public interface NamingResolver {
    * @param stem 
    * @param subject 
    * @param privilege 
+   * @param uuid if known or null
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be granted.
    * @see     edu.internet2.middleware.grouper.privs.NamingAdapter#grantPriv(GrouperSession, Stem, Subject, Privilege)
    * @since   1.2.1
    */
-  void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
+  void grantPrivilege(Stem stem, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException,
       UnableToPerformException;
 

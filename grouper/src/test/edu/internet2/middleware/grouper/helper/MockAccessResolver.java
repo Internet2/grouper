@@ -111,7 +111,7 @@ public class MockAccessResolver implements AccessResolver {
    * @throws  GrouperException
    * @since   1.2.1
    */
-  public void grantPrivilege(Group group, Subject subject, Privilege privilege)
+  public void grantPrivilege(Group group, Subject subject, Privilege privilege, String uuid)
     throws  IllegalArgumentException,
             UnableToPerformException
   {
@@ -224,5 +224,6 @@ public class MockAccessResolver implements AccessResolver {
   public void revokeAllPrivilegesForSubject(Subject subject) {
     throw E;
   }
+
 }
 

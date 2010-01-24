@@ -923,6 +923,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     grantPriv(subj, priv, true);
     
   }
+  
   /**
    * Grant a privilege on this stem.
    * <pre class="eg">
@@ -946,6 +947,33 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     throws  GrantPrivilegeException,        
             InsufficientPrivilegeException, 
             SchemaException {
+    return internal_grantPriv(subj, priv, exceptionIfAlreadyMember, null);
+  }
+  
+  /**
+   * Grant a privilege on this stem.
+   * <pre class="eg">
+   * try {
+   *   ns.grantPriv(subj, NamingPrivilege.CREATE);
+   * }
+   * catch (GrantPrivilegeException e) {
+   *   // Error granting privilege
+   * }
+   * </pre>
+   * @param   subj  Grant privilege to this subject.
+   * @param   priv  Grant this privilege.
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @param uuid
+   * @throws  GrantPrivilegeException
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   * @return false if it already existed, true if it didnt already exist
+   */
+  public boolean internal_grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember, final String uuid) 
+    throws  GrantPrivilegeException,        
+            InsufficientPrivilegeException, 
+            SchemaException {
     final StopWatch sw = new StopWatch();
     sw.start();
     
@@ -965,7 +993,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
-            GrouperSession.staticGrouperSession().getNamingResolver().grantPrivilege(Stem.this, subj, priv);
+            GrouperSession.staticGrouperSession().getNamingResolver().grantPrivilege(Stem.this, subj, priv, uuid);
             
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
               
@@ -2039,7 +2067,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   {
     try {
       GrouperSession.staticGrouperSession().internal_getRootSession().getAccessResolver().grantPrivilege(
-        g, GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN       
+        g, GrouperSession.staticGrouperSession().getSubject(), AccessPrivilege.ADMIN, null   
       );
 
       // Now optionally grant other privs
@@ -2074,7 +2102,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     try {
       //whoever created this is an admin
       GrouperSession.staticGrouperSession().internal_getRootSession().getAttributeDefResolver().grantPrivilege(
-        attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+        attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN, null);
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
@@ -2127,7 +2155,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   {
     try {
       GrouperSession.staticGrouperSession().internal_getRootSession().getNamingResolver().grantPrivilege(
-        ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM
+        ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM, null
       );
 
       // Now optionally grant other privs
@@ -2177,19 +2205,19 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       sw.start();
       if      (o instanceof Group) {
         Group g = (Group) o;
-        GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(g, all, p);
+        GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(g, all, p, null);
         sw.stop();
         EL.groupGrantPriv(GrouperSession.staticGrouperSession(), g.getName(), all, p, sw);
       }
       else if (o instanceof Stem) {
         Stem ns = (Stem) o;
-        GrouperSession.staticGrouperSession().getNamingResolver().grantPrivilege(ns, all, p);
+        GrouperSession.staticGrouperSession().getNamingResolver().grantPrivilege(ns, all, p, null);
         sw.stop();
         EL.stemGrantPriv(GrouperSession.staticGrouperSession(), ns.getName(), all, p, sw);
       }
       else if (o instanceof AttributeDef) {
         AttributeDef attributeDef = (AttributeDef) o;
-        GrouperSession.staticGrouperSession().getAttributeDefResolver().grantPrivilege(attributeDef, all, p);
+        GrouperSession.staticGrouperSession().getAttributeDefResolver().grantPrivilege(attributeDef, all, p, null);
         sw.stop();
       }
       else {

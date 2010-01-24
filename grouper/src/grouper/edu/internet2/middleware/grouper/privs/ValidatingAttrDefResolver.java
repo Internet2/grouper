@@ -78,13 +78,13 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#grantPrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#grantPrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, String)
    */
-  public void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege)
+  public void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException,
       UnableToPerformException {
     this.param.notNullAttributeDef(attributeDef).notNullSubject(subject).notNullPrivilege(privilege);
-    super.getDecoratedResolver().grantPrivilege(attributeDef, subject, privilege);
+    super.getDecoratedResolver().grantPrivilege(attributeDef, subject, privilege, uuid);
   }
 
   /**

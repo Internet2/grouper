@@ -137,13 +137,13 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#grantPrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#grantPrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, String)
    */
-  public void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege)
+  public void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege, String uuid)
       throws IllegalArgumentException,
       UnableToPerformException {
     // TODO 20070816 add caching
-    super.getDecoratedResolver().grantPrivilege(attributeDef, subject, privilege);
+    super.getDecoratedResolver().grantPrivilege(attributeDef, subject, privilege, uuid);
     this.cc.flushCache();
     //there is a problem where if this action happens in root session, the
     //normal session doesnt get flushed

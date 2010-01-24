@@ -94,12 +94,13 @@ public interface AccessResolver {
    * @param group 
    * @param subject 
    * @param privilege 
+   * @param uuid send uuid if known, else null
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be granted.
    * @see     AccessAdapter#grantPriv(GrouperSession, Group, Subject, Privilege)
    * @since   1.2.1
    */
-  void grantPrivilege(Group group, Subject subject, Privilege privilege)
+  void grantPrivilege(Group group, Subject subject, Privilege privilege, String uuid)
     throws  IllegalArgumentException,
             UnableToPerformException
             ;

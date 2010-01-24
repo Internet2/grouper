@@ -541,8 +541,8 @@ public class TestGroup extends GrouperTest {
   }
   
   /**
-   * make an example stem for testing
-   * @return an example stem
+   * make an example group for testing
+   * @return an example group
    */
   public static Group exampleGroup() {
     Group group = new Group();

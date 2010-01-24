@@ -144,7 +144,7 @@ public class Test_privs_AccessResolver extends GrouperTest {
     throws  UnableToPerformException
   {
     try {
-      this.resolver.grantPrivilege(null, null, null);
+      this.resolver.grantPrivilege(null, null, null, null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {
@@ -158,7 +158,7 @@ public class Test_privs_AccessResolver extends GrouperTest {
     throws  UnableToPerformException
   {
     try {
-      this.resolver.grantPrivilege( new Group(), null, null );
+      this.resolver.grantPrivilege( new Group(), null, null, null );
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {
@@ -172,7 +172,7 @@ public class Test_privs_AccessResolver extends GrouperTest {
     throws  UnableToPerformException
   {
     try {
-      this.resolver.grantPrivilege( new Group(), this.s.getSubject(), null );
+      this.resolver.grantPrivilege( new Group(), this.s.getSubject(), null, null );
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {

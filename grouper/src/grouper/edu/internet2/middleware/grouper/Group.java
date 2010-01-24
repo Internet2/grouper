@@ -754,6 +754,47 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public boolean addMember(final Subject subj, final Field f, final boolean exceptionIfAlreadyMember)
     throws  InsufficientPrivilegeException,
             MemberAddException, SchemaException {
+    return this.internal_addMember(subj, f, exceptionIfAlreadyMember, null);
+  }
+  
+  /**
+   * Add a subject to this group as immediate member.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.addMember(subj, f);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add member
+   * } 
+   * catch (SchemaException eS) {
+   *   // Invalid Field
+   * } 
+   * </pre>
+   * @param   subj  Add this {@link Subject}
+   * @param   f     Add subject to this {@link Field}.
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @param uuid is uuid or null for generated
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   * @throws  SchemaException
+   * @return false if it already existed, true if it didnt already exist
+   */
+  public boolean internal_addMember(final Subject subj, final Field f, final boolean exceptionIfAlreadyMember, final String uuid)
+    throws  InsufficientPrivilegeException,
+            MemberAddException, SchemaException {
+
     final StopWatch sw = new StopWatch();
     sw.start();
     
@@ -788,7 +829,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               Membership membership = null;
               
               try {
-                membership = Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), Group.this, subj, f );
+                membership = Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), Group.this, subj, f , uuid);
                 
               } catch (MemberAddAlreadyExistsException memberAddAlreadyExistsException) {
                 if (exceptionIfAlreadyMember) {
@@ -3159,6 +3200,36 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException,
             SchemaException {
+    return internal_grantPriv(subj, priv, exceptionIfAlreadyMember, null);
+  }
+  
+  /**
+   * Grant privilege to a subject on this group.
+   * <pre class="eg">
+   * try {
+   *   g.grantPriv(subj, AccessPrivilege.ADMIN);
+   * }
+   * catch (GrantPrivilegeException e0) {
+   *   // Not privileged to grant this privilege
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Unable to grant this privilege
+   * }
+   * </pre>
+   * @param   subj  Grant privilege to this subject.
+   * @param   priv  Grant this privilege.
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @param uuid
+   * @throws  GrantPrivilegeException
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   * @return false if it already existed, true if it didnt already exist
+   */
+  public boolean internal_grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember, final String uuid)
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException,
+            SchemaException {
     final StopWatch sw = new StopWatch();
     sw.start();
 
@@ -3177,7 +3248,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
-            GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(Group.this, subj, priv);
+            GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(Group.this, subj, priv, uuid);
             assignedPrivilege = true;
 
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
