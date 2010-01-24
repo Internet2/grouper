@@ -567,8 +567,8 @@ public class TestGroup extends GrouperTest {
   }
   
   /**
-   * make an example stem for testing
-   * @return an example stem
+   * make an example group from db for testing
+   * @return an example group
    */
   public static Group exampleGroupDb() {
     Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
@@ -579,8 +579,8 @@ public class TestGroup extends GrouperTest {
 
   
   /**
-   * make an example stem for testing
-   * @return an example stem
+   * retrieve example group from db for testing
+   * @return an example group
    */
   public static Group exampleRetrieveGroupDb() {
     Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "test:groupTest", true);

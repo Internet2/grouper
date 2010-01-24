@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.xml.export;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefTest;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -138,35 +139,7 @@ public class XmlExportAttributeDefTest extends GrouperTest {
    * 
    */
   public void testConvertToAttributeDef() {
-    AttributeDef attributeDef = new AttributeDef();
-    attributeDef.setAssignToAttributeDef(true);
-    attributeDef.setAssignToAttributeDefAssn(true);
-    attributeDef.setAssignToEffMembership(true);
-    attributeDef.setAssignToEffMembershipAssn(true);
-    attributeDef.setAssignToGroup(true);
-    attributeDef.setAssignToGroupAssn(true);
-    attributeDef.setAssignToImmMembership(true);
-    attributeDef.setAssignToImmMembershipAssn(true);
-    attributeDef.setAssignToMember(true);
-    attributeDef.setAssignToMemberAssn(true);
-    attributeDef.setAssignToStem(true);
-    attributeDef.setAssignToStemAssn(true);
-    attributeDef.setAttributeDefIsPublic(true);
-    attributeDef.setAttributeDefType(AttributeDefType.attr);
-    attributeDef.setContextId("contextId");
-    attributeDef.setCreatedOnDb(4L);
-    attributeDef.setCreatorId("creatorId");
-    attributeDef.setDescription("description");
-    attributeDef.setExtensionDb("extension");
-    attributeDef.setHibernateVersionNumber(5L);
-    attributeDef.setId("id");
-    attributeDef.setLastUpdatedDb(3L);
-    attributeDef.setMultiAssignable(true);
-    attributeDef.setMultiValued(true);
-    attributeDef.setNameDb("name");
-    attributeDef.setStemId("stemId");
-    attributeDef.setValueType(AttributeDefValueType.floating);
-    
+    AttributeDef attributeDef = AttributeDefTest.exampleAttributeDef();
     XmlExportAttributeDef xmlExportAttributeDef = new XmlExportAttributeDef(
         new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeDef);
 

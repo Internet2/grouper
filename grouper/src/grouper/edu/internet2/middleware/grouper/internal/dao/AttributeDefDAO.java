@@ -61,5 +61,26 @@ public interface AttributeDefDAO extends GrouperDAO {
    * @return set of stems
    */
   public Set<AttributeDef> findByStem(String id);
+  
+  /**
+   * delete the attribute def
+   * @param attributeDef
+   */
+  public void delete(AttributeDef attributeDef);
+  
+  /**
+   * search for an attribute def by id or name
+   * @param id
+   * @param name
+   * @param exceptionIfNotFound
+   * @return the attribute def or null
+   */
+  public AttributeDef findByUuidOrName(String id, String name, boolean exceptionIfNotFound);
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attributeDef
+   */
+  public void saveUpdateProperties(AttributeDef attributeDef);
 
 }

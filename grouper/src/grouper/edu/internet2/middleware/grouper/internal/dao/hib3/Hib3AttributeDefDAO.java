@@ -1,13 +1,22 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /**
@@ -165,6 +174,74 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         .listSet(AttributeDef.class);
     
     return attributeDefs;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean)
+   */
+  public AttributeDef findByUuidOrName(String id, String name,
+      boolean exceptionIfNotFound) {
+    try {
+      AttributeDef attributeDef = HibernateSession.byHqlStatic()
+        .createQuery("from AttributeDef as theAttributeDef where theAttributeDef.id = :theId or theAttributeDef.nameDb = :theName")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("theId", id)
+        .setString("theName", name)
+        .uniqueResult(AttributeDef.class);
+      if (attributeDef == null && exceptionIfNotFound) {
+        throw new GroupNotFoundException("Can't find attributeDef by id: '" + id + "' or name '" + name + "'");
+      }
+      return attributeDef;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem finding attributeDef by id: '" 
+        + id + "' or name '" + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#saveUpdateProperties(edu.internet2.middleware.grouper.attr.AttributeDef)
+   */
+  public void saveUpdateProperties(AttributeDef attributeDef) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update AttributeDef " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "creatorId = :theCreatorId, " +
+        "createdOnDb = :theCreatedOnDb " +
+        "where id = :theId")
+        .setLong("theHibernateVersionNumber", attributeDef.getHibernateVersionNumber())
+        .setString("theCreatorId", attributeDef.getCreatorId())
+        .setLong("theCreatedOnDb", attributeDef.getCreatedOnDb())
+        .setString("theContextId", attributeDef.getContextId())
+        .setString("theId", attributeDef.getId()).executeUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#delete(edu.internet2.middleware.grouper.attr.AttributeDef)
+   */
+  public void delete(final AttributeDef attributeDef) {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        
+        List<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllByAttrDefOwnerAsList(attributeDef.getId(), false);
+        
+        
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").delete(memberships);
+        
+        Set<AttributeAssignAction> attributeAssignActions = GrouperDAOFactory.getFactory().getAttributeAssignAction().findByAttributeDefId(attributeDef.getId());
+        hibernateHandlerBean.getHibernateSession().byObject().delete(attributeAssignActions);
+        
+        GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerAttrDef(attributeDef.getId());
+        
+        hibernateHandlerBean.getHibernateSession().byObject().delete(attributeDef);
+        return null;
+      }
+    });
   }
 
 } 

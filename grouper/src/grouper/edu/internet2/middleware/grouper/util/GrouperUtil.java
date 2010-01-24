@@ -2902,7 +2902,7 @@ public class GrouperUtil {
         || value.getClass().isPrimitive() || value instanceof Number
         || value instanceof Boolean
         || value instanceof Date || value instanceof Configuration
-        || value instanceof Subject) {
+        || value instanceof Subject || value.getClass().isEnum()) {
       //clone things
       //for strings, and immutable classes, just assign
       //nothing to do, just assign the value
@@ -2937,7 +2937,6 @@ public class GrouperUtil {
       for (int i=0;i<Array.getLength(value);i++) {
         Array.set(clonedValue, i, cloneValue(Array.get(value, i)));
       }
-      
       
     } else {
 

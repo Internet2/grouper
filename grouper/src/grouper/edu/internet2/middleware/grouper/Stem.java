@@ -1873,7 +1873,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @throws AttributeDefAddException
    * @throws InsufficientPrivilegeException
    */
-  protected AttributeDef internal_addChildAttributeDef(final GrouperSession session, final String extn,
+  public AttributeDef internal_addChildAttributeDef(final GrouperSession session, final String extn,
       final String id, final AttributeDefType attributeDefType, final String description)
       throws InsufficientPrivilegeException {
     

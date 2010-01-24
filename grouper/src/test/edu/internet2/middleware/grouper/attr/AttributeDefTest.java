@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefAddException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -19,6 +20,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -34,7 +36,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateGroup"));
+    TestRunner.run(new AttributeDefTest("testXmlDifferentUpdateProperties"));
   }
   
   /**
@@ -416,4 +418,638 @@ public class AttributeDefTest extends GrouperTest {
     
   }
 
+  /**
+   * make an example group for testing
+   * @return an example group
+   */
+  public static AttributeDef exampleAttributeDef() {
+    AttributeDef attributeDef = new AttributeDef();
+    attributeDef.setAssignToAttributeDef(true);
+    attributeDef.setAssignToAttributeDefAssn(true);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.setAssignToEffMembershipAssn(true);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.setAssignToGroupAssn(true);
+    attributeDef.setAssignToImmMembership(true);
+    attributeDef.setAssignToImmMembershipAssn(true);
+    attributeDef.setAssignToMember(true);
+    attributeDef.setAssignToMemberAssn(true);
+    attributeDef.setAssignToStem(true);
+    attributeDef.setAssignToStemAssn(true);
+    attributeDef.setAttributeDefIsPublic(true);
+    attributeDef.setAttributeDefType(AttributeDefType.attr);
+    attributeDef.setContextId("contextId");
+    attributeDef.setCreatedOnDb(4L);
+    attributeDef.setCreatorId("creatorId");
+    attributeDef.setDescription("description");
+    attributeDef.setExtensionDb("extension");
+    attributeDef.setHibernateVersionNumber(5L);
+    attributeDef.setId("id");
+    attributeDef.setLastUpdatedDb(3L);
+    attributeDef.setMultiAssignable(true);
+    attributeDef.setMultiValued(true);
+    attributeDef.setNameDb("name");
+    attributeDef.setStemId("stemId");
+    attributeDef.setValueType(AttributeDefValueType.floating);
+    return attributeDef;
+  }
+  
+  /**
+   * make an example attributeDef for testing
+   * @return an example attributeDef
+   */
+  public static AttributeDef exampleAttributeDefDb() {
+    return exampleAttributeDefDb("test", "testAttributeDef");
+  }
+
+  /**
+   * make an example attributeDef for testing
+   * @param stemName 
+   * @param extension 
+   * @return an example attributeDef
+   */
+  public static AttributeDef exampleAttributeDefDb(String stemName, String extension) {
+
+    String name = stemName + ":" + extension;
+    
+    AttributeDef attributeDef = AttributeDefFinder.findByName(name, false);
+
+    if (attributeDef == null) {
+      Stem stem = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignStemNameToEdit(stemName).assignName(stemName).assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+      attributeDef = stem.addChildAttributeDef(extension, AttributeDefType.attr);
+    }
+    return attributeDef;
+  }
+
+
+  /**
+   * make an example attribute def for testing
+   * @return an example attribute def
+   */
+  public static AttributeDef exampleRetrieveAttributeDefDb() {
+    AttributeDef attributeDef = AttributeDefFinder.findByName("test:testAttributeDef", true);
+    return attributeDef;
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    AttributeDef attributeDefOriginal = exampleAttributeDefDb("test", "testAttributeDefInsert");
+    
+    //do this because last membership update isnt there, only in db
+    attributeDefOriginal =  AttributeDefFinder.findByName("test:testAttributeDefInsert", true);
+    AttributeDef attributeDefCopy = AttributeDefFinder.findByName("test:testAttributeDefInsert", true);
+    AttributeDef attributeDefCopy2 = AttributeDefFinder.findByName("test:testAttributeDefInsert", true);
+    attributeDefCopy.delete();
+    
+    //lets insert the original
+    attributeDefCopy2.xmlSaveBusinessProperties(null);
+    attributeDefCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    attributeDefCopy = AttributeDefFinder.findByName("test:testAttributeDefInsert", true);
+    
+    assertFalse(attributeDefCopy == attributeDefOriginal);
+    assertFalse(attributeDefCopy.xmlDifferentBusinessProperties(attributeDefOriginal));
+    assertFalse(attributeDefCopy.xmlDifferentUpdateProperties(attributeDefOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef attributeDef = null;
+    AttributeDef exampleAttributeDef = null;
+
+    
+    //TEST UPDATE PROPERTIES
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+      
+      attributeDef.setContextId("abc");
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertTrue(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setContextId(exampleAttributeDef.getContextId());
+      attributeDef.xmlSaveUpdateProperties();
+
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+      
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setCreatedOnDb(99L);
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertTrue(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setCreatedOnDb(exampleAttributeDef.getCreatedOnDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setCreatorId("abc");
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertTrue(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setCreatorId(exampleAttributeDef.getCreatorId());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setHibernateVersionNumber(99L);
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertTrue(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setHibernateVersionNumber(exampleAttributeDef.getHibernateVersionNumber());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToAttributeDef(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToAttributeDef(exampleAttributeDef.isAssignToAttributeDef());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToAttributeDefAssn(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToAttributeDefAssn(exampleAttributeDef.isAssignToAttributeDefAssn());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToEffMembership(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToEffMembership(exampleAttributeDef.isAssignToEffMembership());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToEffMembershipAssn(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToEffMembershipAssn(exampleAttributeDef.isAssignToEffMembershipAssn());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToGroup(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToGroup(exampleAttributeDef.isAssignToGroup());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToGroupAssn(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToGroupAssn(exampleAttributeDef.isAssignToGroupAssn());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToImmMembership(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToImmMembership(exampleAttributeDef.isAssignToImmMembership());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToImmMembershipAssn(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToImmMembershipAssn(exampleAttributeDef.isAssignToImmMembershipAssn());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToMember(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToMember(exampleAttributeDef.isAssignToMember());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToMemberAssn(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToMemberAssn(exampleAttributeDef.isAssignToMemberAssn());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToStem(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToStem(exampleAttributeDef.isAssignToStem());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAssignToStemAssn(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAssignToStemAssn(exampleAttributeDef.isAssignToStemAssn());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAttributeDefPublic(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAttributeDefPublic(exampleAttributeDef.isAttributeDefPublic());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setAttributeDefType(AttributeDefType.domain);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setAttributeDefType(exampleAttributeDef.getAttributeDefType());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setDescription("abc");
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setDescription(exampleAttributeDef.getDescription());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setExtensionDb("abc");
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setExtensionDb(exampleAttributeDef.getExtensionDb());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setId("abc");
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setId(exampleAttributeDef.getId());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setMultiAssignable(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setMultiAssignable(exampleAttributeDef.isMultiAssignable());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setMultiValued(true);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setMultiValued(exampleAttributeDef.isMultiValued());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+    
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setNameDb("abc");
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setNameDb(exampleAttributeDef.getName());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setStemId("abc");
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setStemId(exampleAttributeDef.getStemId());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+
+    {
+      attributeDef = exampleAttributeDefDb();
+      exampleAttributeDef = exampleRetrieveAttributeDefDb();
+
+      attributeDef.setValueType(AttributeDefValueType.floating);
+      
+      assertTrue(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+
+      attributeDef.setValueType(exampleAttributeDef.getValueType());
+      attributeDef.xmlSaveBusinessProperties(exampleRetrieveAttributeDefDb());
+      attributeDef.xmlSaveUpdateProperties();
+      
+      attributeDef = exampleRetrieveAttributeDefDb();
+      
+      assertFalse(attributeDef.xmlDifferentBusinessProperties(exampleAttributeDef));
+      assertFalse(attributeDef.xmlDifferentUpdateProperties(exampleAttributeDef));
+    
+    }
+  }
+
+
+  
 }

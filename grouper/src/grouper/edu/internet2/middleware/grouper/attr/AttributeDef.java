@@ -6,12 +6,15 @@ package edu.internet2.middleware.grouper.attr;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -30,6 +33,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -39,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 @SuppressWarnings("serial")
-public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, Owner {
+public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef> {
 
   /** default action */
   public static final String ACTION_DEFAULT = "assign";
@@ -133,44 +137,45 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
-  
   /** constant for field name for: assignToAttributeDef */
-  public static final String ASSIGN_TO_ATTRIBUTE_DEF  = "assignToAttributeDef";
-  
-  /** constant for field name for: assignToAttributeDefAssn */
-  public static final String ASSIGN_TO_ATTRIBUTE_DEF_ASSN  = "assignToAttributeDefAssn";
-  
-  /** constant for field name for: assignToEffMembership */
-  public static final String ASSIGN_TO_EFF_MEMBERSHIP  = "assignToEffMembership";
-  
-  /** constant for field name for: assignToEffMembershipAssn */
-  public static final String ASSIGN_TO_EFF_MEMBERSHIP_ASSN  = "assignToEffMembershipAssn";
-  
-  /** constant for field name for: assignToGroup */
-  public static final String ASSIGN_TO_GROUP  = "assignToGroup";
-  
-  /** constant for field name for: assignToGroupAssn */
-  public static final String ASSIGN_TO_GROUP_ASSN  = "assignToGroupAssn";
-  
-  /** constant for field name for: assignToImmMembership */
-  public static final String ASSIGN_TO_IMM_MEMBERSHIP  = "assignToImmMembership";
-  
-  /** constant for field name for: assignToImmMembershipAssn */
-  public static final String ASSIGN_TO_IMM_MEMBERSHIP_ASSN  = "assignToImmMembershipAssn";
-  
-  /** constant for field name for: assignToMember */
-  public static final String ASSIGN_TO_MEMBER  = "assignToMember";
-  
-  /** constant for field name for: assignToMemberAssn */
-  public static final String ASSIGN_TO_MEMBER_ASSN  = "assignToMemberAssn";
-  
-  /** constant for field name for: assignToStem */
-  public static final String ASSIGN_TO_STEM  = "assignToStem";
-  
-  /** constant for field name for: assignToStemAssn */
-  public static final String ASSIGN_TO_STEM_ASSN = "assignToStemAssn";
+  public static final String FIELD_ASSIGN_TO_ATTRIBUTE_DEF = "assignToAttributeDef";
 
-  
+  /** constant for field name for: assignToAttributeDefAssn */
+  public static final String FIELD_ASSIGN_TO_ATTRIBUTE_DEF_ASSN = "assignToAttributeDefAssn";
+
+  /** constant for field name for: assignToEffMembership */
+  public static final String FIELD_ASSIGN_TO_EFF_MEMBERSHIP = "assignToEffMembership";
+
+  /** constant for field name for: assignToEffMembershipAssn */
+  public static final String FIELD_ASSIGN_TO_EFF_MEMBERSHIP_ASSN = "assignToEffMembershipAssn";
+
+  /** constant for field name for: assignToGroup */
+  public static final String FIELD_ASSIGN_TO_GROUP = "assignToGroup";
+
+  /** constant for field name for: assignToGroupAssn */
+  public static final String FIELD_ASSIGN_TO_GROUP_ASSN = "assignToGroupAssn";
+
+  /** constant for field name for: assignToImmMembership */
+  public static final String FIELD_ASSIGN_TO_IMM_MEMBERSHIP = "assignToImmMembership";
+
+  /** constant for field name for: assignToImmMembershipAssn */
+  public static final String FIELD_ASSIGN_TO_IMM_MEMBERSHIP_ASSN = "assignToImmMembershipAssn";
+
+  /** constant for field name for: assignToMember */
+  public static final String FIELD_ASSIGN_TO_MEMBER = "assignToMember";
+
+  /** constant for field name for: assignToMemberAssn */
+  public static final String FIELD_ASSIGN_TO_MEMBER_ASSN = "assignToMemberAssn";
+
+  /** constant for field name for: assignToStem */
+  public static final String FIELD_ASSIGN_TO_STEM = "assignToStem";
+
+  /** constant for field name for: assignToStemAssn */
+  public static final String FIELD_ASSIGN_TO_STEM_ASSN = "assignToStemAssn";
+
+  /** constant for field name for: attributeDefPrivilegeDelegate */
+  public static final String FIELD_ATTRIBUTE_DEF_PRIVILEGE_DELEGATE = "attributeDefPrivilegeDelegate";
+
   /** constant for field name for: attributeDefPublic */
   public static final String FIELD_ATTRIBUTE_DEF_PUBLIC = "attributeDefPublic";
 
@@ -180,8 +185,11 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
 
-  /** constant for field name for: createTime */
-  public static final String FIELD_CREATE_TIME = "createTime";
+  /** constant for field name for: createdOnDb */
+  public static final String FIELD_CREATED_ON_DB = "createdOnDb";
+
+  /** constant for field name for: creatorId */
+  public static final String FIELD_CREATOR_ID = "creatorId";
 
   /** constant for field name for: description */
   public static final String FIELD_DESCRIPTION = "description";
@@ -192,14 +200,17 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
 
-  /** constant for field name for: modifyTime */
-  public static final String FIELD_MODIFY_TIME = "modifyTime";
+  /** constant for field name for: lastUpdatedDb */
+  public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
 
   /** constant for field name for: multiAssignable */
   public static final String FIELD_MULTI_ASSIGNABLE = "multiAssignable";
 
   /** constant for field name for: multiValued */
   public static final String FIELD_MULTI_VALUED = "multiValued";
+
+  /** constant for field name for: name */
+  public static final String FIELD_NAME = "name";
 
   /** constant for field name for: stemId */
   public static final String FIELD_STEM_ID = "stemId";
@@ -212,19 +223,25 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
-      FIELD_CREATE_TIME, FIELD_DESCRIPTION, FIELD_EXTENSION, 
-      FIELD_ID, FIELD_MODIFY_TIME, FIELD_MULTI_ASSIGNABLE, 
-      FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE);
+      FIELD_ASSIGN_TO_ATTRIBUTE_DEF, FIELD_ASSIGN_TO_ATTRIBUTE_DEF_ASSN, FIELD_ASSIGN_TO_EFF_MEMBERSHIP, FIELD_ASSIGN_TO_EFF_MEMBERSHIP_ASSN, 
+      FIELD_ASSIGN_TO_GROUP, FIELD_ASSIGN_TO_GROUP_ASSN, FIELD_ASSIGN_TO_IMM_MEMBERSHIP, FIELD_ASSIGN_TO_IMM_MEMBERSHIP_ASSN, 
+      FIELD_ASSIGN_TO_MEMBER, FIELD_ASSIGN_TO_MEMBER_ASSN, FIELD_ASSIGN_TO_STEM, FIELD_ASSIGN_TO_STEM_ASSN, 
+      FIELD_ATTRIBUTE_DEF_PRIVILEGE_DELEGATE, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
+      FIELD_CREATED_ON_DB, FIELD_CREATOR_ID, FIELD_DESCRIPTION, FIELD_EXTENSION, 
+      FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, 
+      FIELD_NAME, FIELD_STEM_ID, FIELD_VALUE_TYPE);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
-      FIELD_CREATE_TIME, FIELD_DESCRIPTION, FIELD_EXTENSION, 
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_MODIFY_TIME, 
-      FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE);
+      FIELD_ASSIGN_TO_ATTRIBUTE_DEF, FIELD_ASSIGN_TO_ATTRIBUTE_DEF_ASSN, FIELD_ASSIGN_TO_EFF_MEMBERSHIP, FIELD_ASSIGN_TO_EFF_MEMBERSHIP_ASSN, 
+      FIELD_ASSIGN_TO_GROUP, FIELD_ASSIGN_TO_GROUP_ASSN, FIELD_ASSIGN_TO_IMM_MEMBERSHIP, FIELD_ASSIGN_TO_IMM_MEMBERSHIP_ASSN, 
+      FIELD_ASSIGN_TO_MEMBER, FIELD_ASSIGN_TO_MEMBER_ASSN, FIELD_ASSIGN_TO_STEM, FIELD_ASSIGN_TO_STEM_ASSN, 
+      FIELD_ATTRIBUTE_DEF_PRIVILEGE_DELEGATE, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
+      FIELD_CREATED_ON_DB, FIELD_CREATOR_ID, FIELD_DESCRIPTION, FIELD_EXTENSION, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_MULTI_ASSIGNABLE, 
+      FIELD_MULTI_VALUED, FIELD_NAME, FIELD_STEM_ID, FIELD_VALUE_TYPE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -1275,6 +1292,168 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
       .append( "name", this.name)
       .append( "uuid", this.getId() )
       .toString();
+  }
+
+  /**
+   * delete this record (and security and actions etc, but not attribute def names yet)
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getAttributeDef().delete(this);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AttributeDef existingRecord) {
+    existingRecord.setAssignToAttributeDef(this.assignToAttributeDef);
+    existingRecord.setAssignToAttributeDefAssn(this.assignToAttributeDefAssn);
+    existingRecord.setAssignToEffMembership(this.assignToEffMembership);
+    existingRecord.setAssignToEffMembershipAssn(this.assignToEffMembershipAssn);
+    existingRecord.setAssignToGroup(this.assignToGroup);
+    existingRecord.setAssignToGroupAssn(this.assignToGroupAssn);
+    existingRecord.setAssignToImmMembership(this.assignToImmMembership);
+    existingRecord.setAssignToImmMembershipAssn(this.assignToImmMembershipAssn);
+    existingRecord.setAssignToMember(this.assignToMember);
+    existingRecord.setAssignToMemberAssn(this.assignToMemberAssn);
+    existingRecord.setAssignToStem(this.assignToStem);
+    existingRecord.setAssignToStemAssn(this.assignToStemAssn);
+    existingRecord.setAttributeDefPublic(this.attributeDefPublic);
+    existingRecord.setAttributeDefType(this.attributeDefType);
+    
+    existingRecord.setDescription(this.getDescription());
+    existingRecord.setExtensionDb(this.getExtensionDb());
+    existingRecord.setId(this.getId());
+    existingRecord.setMultiAssignable(this.multiAssignable);
+    existingRecord.setMultiValued(this.multiValued);
+    existingRecord.setNameDb(this.getNameDb());
+    existingRecord.setStemId(this.stemId);
+    existingRecord.setValueType(this.valueType);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AttributeDef other) {
+    if (this.assignToAttributeDef != other.assignToAttributeDef) {
+      return true;
+    }
+    if (this.assignToAttributeDefAssn != other.assignToAttributeDefAssn) {
+      return true;
+    }
+    if (this.assignToEffMembership != other.assignToEffMembership) {
+      return true;
+    }
+    if (this.assignToEffMembershipAssn != other.assignToEffMembershipAssn) {
+      return true;
+    }
+    if (this.assignToGroup != other.assignToGroup) {
+      return true;
+    }
+    if (this.assignToGroupAssn != other.assignToGroupAssn) {
+      return true;
+    }
+    if (this.assignToImmMembership != other.assignToImmMembership) {
+      return true;
+    }
+    if (this.assignToImmMembershipAssn != other.assignToImmMembershipAssn) {
+      return true;
+    }
+    if (this.assignToMember != other.assignToMember) {
+      return true;
+    }
+    if (this.assignToMemberAssn != other.assignToMemberAssn) {
+      return true;
+    }
+    if (this.assignToStem != other.assignToStem) {
+      return true;
+    }
+    if (this.assignToStemAssn != other.assignToStemAssn) {
+      return true;
+    }
+    if (this.attributeDefPublic != other.attributeDefPublic) {
+      return true;
+    }
+    if (this.attributeDefType != other.attributeDefType) {
+      return true;
+    }
+    if (!StringUtils.equals(this.description, other.description)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.extension, other.extension)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (this.multiAssignable != other.multiAssignable) {
+      return true;
+    }
+    if (this.multiValued != other.multiValued) {
+      return true;
+    }
+    if (!StringUtils.equals(this.name, other.name)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.stemId, other.stemId)) {
+      return true;
+    }
+    if (this.valueType != other.valueType) {
+      return true;
+    }
+    return false;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AttributeDef other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!ObjectUtils.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.creatorId, other.creatorId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    return false;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public AttributeDef xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getAttributeDef().findByUuidOrName(this.id, this.name, false);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(AttributeDef existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      Stem parent = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
+      existingRecord = parent.internal_addChildAttributeDef(GrouperSession.staticGrouperSession(), 
+          this.extension, this.id, this.attributeDefType, this.description);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.store();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttributeDef().saveUpdateProperties(this);
   }
 
 }
