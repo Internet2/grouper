@@ -42,4 +42,20 @@ public interface AttributeAssignActionDAO extends GrouperDAO {
   public AttributeAssignAction findById(String id, boolean exceptionIfNotFound)
     throws AttributeAssignActionNotFoundException;
 
+  /**
+   * find by uuid or key
+   * @param id
+   * @param attributeDefId
+   * @param name
+   * @param exceptionIfNull
+   * @return the action or null
+   */
+  public AttributeAssignAction findByUuidOrKey(String id, String attributeDefId, String name, boolean exceptionIfNull);
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attributeAssignAction
+   */
+  public void saveUpdateProperties(AttributeAssignAction attributeAssignAction);
+
 }

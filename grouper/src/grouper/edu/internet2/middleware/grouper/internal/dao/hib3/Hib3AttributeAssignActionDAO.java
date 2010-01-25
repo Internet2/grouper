@@ -3,8 +3,10 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.exception.AttributeAssignActionNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 /**
  * Data Access Object for attribute assign action
@@ -66,6 +68,57 @@ public class Hib3AttributeAssignActionDAO extends Hib3DAO implements AttributeAs
       .setString("theAttributeDefId", attributeDefId).listSet(AttributeAssignAction.class);
     
     return attributeAssignActions;
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionDAO#findByUuidOrKey(java.lang.String, java.lang.String, java.lang.String, boolean)
+   */
+  public AttributeAssignAction findByUuidOrKey(String id, String attributeDefId,
+      String name, boolean exceptionIfNull) {
+    try {
+      AttributeAssignAction attributeAssignAction = HibernateSession.byHqlStatic()
+        .createQuery("from AttributeAssignAction as theAttributeAssignAction " +
+        		"where theAttributeAssignAction.id = :theId " +
+        		"or (theAttributeAssignAction.attributeDefId = :theAttributeDefId " +
+        		"and theAttributeAssignAction.nameDb = :theNameDb)")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("theId", id)
+        .setString("theAttributeDefId", attributeDefId)
+        .setString("theNameDb", name)
+        .uniqueResult(AttributeAssignAction.class);
+      if (attributeAssignAction == null && exceptionIfNull) {
+        throw new GroupNotFoundException("Can't find attributeAssignAction by id: '" 
+            + id + "' or attributeDefId: " + attributeDefId + ", name: '" + name + "'");
+      }
+      return attributeAssignAction;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find attributeAssignAction by id: '" 
+            + id + "' or attributeDefId: " + attributeDefId 
+            + ", name: '" + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionDAO#saveUpdateProperties(edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction)
+   */
+  public void saveUpdateProperties(AttributeAssignAction attributeAssignAction) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssignAction " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "createdOnDb = :theCreatedOnDb, " +
+        "lastUpdatedDb = :theLastUpdatedDb " +
+        "where id = :theId")
+        .setLong("theHibernateVersionNumber", attributeAssignAction.getHibernateVersionNumber())
+        .setLong("theCreatedOnDb", attributeAssignAction.getCreatedOnDb())
+        .setLong("theLastUpdatedDb", attributeAssignAction.getLastUpdatedDb())
+        .setString("theContextId", attributeAssignAction.getContextId())
+        .setString("theId", attributeAssignAction.getId()).executeUpdate();
     
   }
 

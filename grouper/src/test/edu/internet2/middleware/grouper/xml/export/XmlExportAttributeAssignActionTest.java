@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.xml.export;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionTest;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
@@ -96,15 +97,7 @@ public class XmlExportAttributeAssignActionTest extends GrouperTest {
    * 
    */
   public void testConvertToAttributeAssignAction() {
-    AttributeAssignAction attributeAssignAction = new AttributeAssignAction();
-    attributeAssignAction.setAttributeDefId("attributeDefId");
-    attributeAssignAction.setContextId("contextId");
-    attributeAssignAction.setCreatedOnDb(new Long(4L));
-    attributeAssignAction.setHibernateVersionNumber(3L);
-    attributeAssignAction.setId("id");
-    attributeAssignAction.setLastUpdatedDb(new Long(7L));
-    attributeAssignAction.setNameDb("name");
-    
+    AttributeAssignAction attributeAssignAction = AttributeAssignActionTest.exampleAttributeAssignAction();    
     
     XmlExportAttributeAssignAction xmlExportAttributeAssignAction = new XmlExportAttributeAssignAction(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeAssignAction);
 

@@ -131,11 +131,7 @@ public class AttributeDefActionDelegate {
     }
     //lets add and delete, no need to do in transaction
     for (String add: adds) {
-      AttributeAssignAction attributeAssignAction = new AttributeAssignAction();
-      attributeAssignAction.setId(GrouperUuid.getUuid());
-      attributeAssignAction.setNameDb(add);
-      attributeAssignAction.setAttributeDefId(this.attributeDef.getId());
-      attributeAssignAction.save();
+      internal_addAction(add, null);
     }
     for (String remove: removes) {
       for (AttributeAssignAction attributeAssignAction : this.allowedActionsSet) {
@@ -149,6 +145,24 @@ public class AttributeDefActionDelegate {
     this.allowedActionStringSet = null;
     
   }
+
+  /**
+   * add an action
+   * @param action
+   * @param uuid 
+   * @return the assign
+   */
+  public AttributeAssignAction internal_addAction(String action, String uuid) {
+    AttributeAssignAction attributeAssignAction = new AttributeAssignAction();
+    attributeAssignAction.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid );
+    attributeAssignAction.setNameDb(action);
+    attributeAssignAction.setAttributeDefId(this.attributeDef.getId());
+    attributeAssignAction.save();
+    //lets clear the cache
+    this.allowedActionsSet = null;
+    this.allowedActionStringSet = null;
+    return attributeAssignAction;
+  }
   
   /**
    * add an action if necessary
@@ -156,7 +170,7 @@ public class AttributeDefActionDelegate {
    * @return action
    */
   public AttributeAssignAction addAction(String action) {
-
+  
     Set<String> allowedActionStrings = this.allowedActionStrings();
     if (!allowedActionStrings.contains(action)) {
       //make a new set so we dont edit the existing one

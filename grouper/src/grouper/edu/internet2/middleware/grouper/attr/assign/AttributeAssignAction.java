@@ -19,7 +19,9 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -32,6 +34,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 
 /**
@@ -39,7 +42,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class AttributeAssignAction extends GrouperAPI 
-  implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement {
+  implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, XmlImportable<AttributeAssignAction> {
 
   /** column */
   public static final String COLUMN_ATTRIBUTE_DEF_ID = "attribute_def_id";
@@ -428,6 +431,83 @@ public class AttributeAssignAction extends GrouperAPI
    */
   public void update() {
     GrouperDAOFactory.getFactory().getAttributeAssignAction().saveOrUpdate(this);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AttributeAssignAction existingRecord) {
+
+    existingRecord.setAttributeDefId(this.attributeDefId);
+    existingRecord.setId(this.getId());
+    existingRecord.setNameDb(this.getNameDb());
+    
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AttributeAssignAction other) {
+    if (!StringUtils.equals(this.attributeDefId, other.attributeDefId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.name, other.name)) {
+      return true;
+    }
+    return false;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AttributeAssignAction other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.lastUpdatedDb, other.lastUpdatedDb)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public AttributeAssignAction xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getAttributeAssignAction().findByUuidOrKey(this.id, this.attributeDefId, this.name, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(AttributeAssignAction existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      AttributeDef attributeDef = AttributeDefFinder.findById(this.attributeDefId, true);
+      existingRecord = attributeDef.getAttributeDefActionDelegate().internal_addAction(this.name, this.id);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.update();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttributeAssignAction().saveUpdateProperties(this);
   }
 
 }
