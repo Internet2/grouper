@@ -73,7 +73,17 @@ public class AttributeAssignActionSetDelegate implements Serializable {
    * @return true if added, false if already there
    */
   public boolean addToAttributeAssignActionSet(AttributeAssignAction newAttributeAssignAction) {
-    return GrouperSetEnum.ATTRIBUTE_ASSIGN_ACTION_SET.addToGrouperSet(this.attributeAssignAction, newAttributeAssignAction);
+    return internal_addToAttributeAssignActionSet(newAttributeAssignAction, null);
+  }
+  
+  /**
+   * 
+   * @param newAttributeAssignAction
+   * @param uuid
+   * @return true if added, false if already there
+   */
+  public boolean internal_addToAttributeAssignActionSet(AttributeAssignAction newAttributeAssignAction, String uuid) {
+    return GrouperSetEnum.ATTRIBUTE_ASSIGN_ACTION_SET.addToGrouperSet(this.attributeAssignAction, newAttributeAssignAction, uuid);
   }
 
   /**

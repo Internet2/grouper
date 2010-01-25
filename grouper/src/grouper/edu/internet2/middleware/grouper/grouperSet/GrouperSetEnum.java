@@ -86,12 +86,12 @@ public enum GrouperSetEnum {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#newInstance(String, String, int)
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#newInstance(String, String, int, String)
      */
     @Override
-    public GrouperSet newInstance(String ifHasId, String thenHasId, int depth) {
+    public GrouperSet newInstance(String ifHasId, String thenHasId, int depth, String uuid) {
       AttributeDefNameSet attributeDefNameSet = new AttributeDefNameSet();
-      attributeDefNameSet.setId(GrouperUuid.getUuid());
+      attributeDefNameSet.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : null );
       attributeDefNameSet.setDepth(depth);
       attributeDefNameSet.setIfHasAttributeDefNameId(ifHasId);
       attributeDefNameSet.setThenHasAttributeDefNameId(thenHasId);
@@ -164,12 +164,12 @@ public enum GrouperSetEnum {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#newInstance(String, String, int)
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#newInstance(String, String, int, String)
      */
     @Override
-    public GrouperSet newInstance(String ifHasId, String thenHasId, int depth) {
+    public GrouperSet newInstance(String ifHasId, String thenHasId, int depth, String uuid) {
       RoleSet roleSet = new RoleSet();
-      roleSet.setId(GrouperUuid.getUuid());
+      roleSet.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
       roleSet.setDepth(depth);
       roleSet.setIfHasRoleId(ifHasId);
       roleSet.setThenHasRoleId(thenHasId);
@@ -242,12 +242,12 @@ public enum GrouperSetEnum {
   
     /**
      * 
-     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#newInstance(String, String, int)
+     * @see edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum#newInstance(String, String, int, String)
      */
     @Override
-    public GrouperSet newInstance(String ifHasId, String thenHasId, int depth) {
+    public GrouperSet newInstance(String ifHasId, String thenHasId, int depth, String uuid) {
       AttributeAssignActionSet attributeAssignActionSet = new AttributeAssignActionSet();
-      attributeAssignActionSet.setId(GrouperUuid.getUuid());
+      attributeAssignActionSet.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
       attributeAssignActionSet.setDepth(depth);
       attributeAssignActionSet.setIfHasAttrAssignActionId(ifHasId);
       attributeAssignActionSet.setThenHasAttrAssignActionId(thenHasId);
@@ -400,9 +400,10 @@ public enum GrouperSetEnum {
    * @param ifHasId 
    * @param thenHasId 
    * @param depth 
+   * @param uuid is uuid or null if generate one
    * @return the grouper set
    */
-  public abstract GrouperSet newInstance(String ifHasId, String thenHasId, int depth);
+  public abstract GrouperSet newInstance(String ifHasId, String thenHasId, int depth, String uuid);
   
   /**
    * find canidates to delete by if and then
@@ -421,9 +422,10 @@ public enum GrouperSetEnum {
    * 
    * @param containerSetElement 
    * @param newElement 
+   * @param uuid is the uuid or null to generate
    * @return true if added, false if already there
    */
-  public boolean addToGrouperSet(GrouperSetElement containerSetElement, GrouperSetElement newElement) {
+  public boolean addToGrouperSet(GrouperSetElement containerSetElement, GrouperSetElement newElement, String uuid) {
     
     if (LOG.isDebugEnabled()) {
       LOG.debug("Adding to grouper set " + this.name() + ": " + containerSetElement.__getName() + "\n  (" + containerSetElement.__getId() + ")" 
@@ -495,8 +497,12 @@ public enum GrouperSetEnum {
         continue;
       }
       
+      // if one is passed in, and this is the one depth 1 set, then use whats passed in, otherwise null 
+      // means generate
+      String theUuid = (grouperSetPair.depth == 1 && !StringUtils.isBlank(uuid)) ? uuid : null;
+      
       GrouperSet grouperSet = this.newInstance(grouperSetPair.parent.__getIfHasElementId(),
-          grouperSetPair.child.__getThenHasElementId(), grouperSetPair.depth);
+          grouperSetPair.child.__getThenHasElementId(), grouperSetPair.depth, theUuid);
   
       if (LOG.isDebugEnabled()) {
         GrouperSetElement ifHasElement = grouperSetPair.parent.__getIfHasElement();

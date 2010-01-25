@@ -138,7 +138,8 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
       String attributeDefNameIdThen, boolean exceptionIfNotFound) throws AttributeDefNameSetNotFoundException {
     AttributeDefNameSet attributeDefNameSet = HibernateSession.byHqlStatic().createQuery(
       "from AttributeDefNameSet where ifHasAttributeDefNameId = :ifId " +
-      "and thenHasAttributeDefNameId = :thenId")
+      "and thenHasAttributeDefNameId = :thenId " +
+      "and depth = 1")
       .setString("ifId", attributeDefNameIdIf).setString("thenId", attributeDefNameIdThen)
       .uniqueResult(AttributeDefNameSet.class);
     if (attributeDefNameSet == null && exceptionIfNotFound) {

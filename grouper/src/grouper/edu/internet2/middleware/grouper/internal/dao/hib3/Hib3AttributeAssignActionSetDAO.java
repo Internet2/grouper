@@ -139,7 +139,8 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
       String attributeAssignActionIdThen, boolean exceptionIfNotFound) throws AttributeAssignActionSetNotFoundException {
     AttributeAssignActionSet attributeAssignActionSet = HibernateSession.byHqlStatic().createQuery(
       "from AttributeAssignActionSet where ifHasAttrAssignActionId = :ifId " +
-      "and thenHasAttrAssignActionId = :thenId")
+      "and thenHasAttrAssignActionId = :thenId " +
+      "and depth = 1")
       .setString("ifId", attributeAssignActionIdIf).setString("thenId", attributeAssignActionIdThen)
       .uniqueResult(AttributeAssignActionSet.class);
     if (attributeAssignActionSet == null && exceptionIfNotFound) {

@@ -7,14 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
@@ -32,7 +35,7 @@ public class RoleSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RoleSetTest("testRolesHierarchy"));
+    TestRunner.run(new RoleSetTest("testXmlDifferentUpdateProperties"));
   }
 
   /**
@@ -14733,4 +14736,324 @@ public class RoleSetTest extends GrouperTest {
   
   }
 
+  /**
+   * make an example role set for testing
+   * @return an example role set
+   */
+  public static RoleSet exampleRoleSet() {
+    RoleSet roleSet = new RoleSet();
+    roleSet.setContextId("contextId");
+    roleSet.setCreatedOnDb(new Long(4L));
+    roleSet.setDepth(5);
+    roleSet.setIfHasRoleId("ifHasRoleId");
+    roleSet.setHibernateVersionNumber(3L);
+    roleSet.setLastUpdatedDb(new Long(7L));
+    roleSet.setParentRoleSetId("parentRoleSetId");
+    roleSet.setThenHasRoleId("thenHasRoleSetId");
+    roleSet.setType(RoleHierarchyType.effective);
+    roleSet.setId("id");
+    
+    return roleSet;
+  }
+  
+  /**
+   * make an example role set from db for testing
+   * @return an example role set
+   */
+  public static RoleSet exampleRoleSetDb() {
+    return exampleRoleSetDb("roleSetTest");
+  }
+  
+  /**
+   * make an example role set from db for testing
+   * @param label
+   * @return an example role set
+   */
+  public static RoleSet exampleRoleSetDb(String label) {
+    
+    Role roleIf = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:" + label + "If").assignName("test:" + label + "If").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").assignTypeOfGroup(TypeOfGroup.role).save();
+    Role roleThen = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:" + label + "Then").assignName("test:" + label + "Then").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").assignTypeOfGroup(TypeOfGroup.role).save();
+    
+    roleIf.getRoleInheritanceDelegate().addRoleToInheritFromThis(roleThen);
+    
+    RoleSet roleSet = GrouperDAOFactory.getFactory().getRoleSet().findByIfThenImmediate(roleIf.getId(), roleThen.getId(), true);
+    
+    return roleSet;
+  }
+
+  /**
+   * retrieve example role set from db for testing
+   * @return an example role set
+   */
+  public static RoleSet exampleRetrieveRoleSetDb() {
+    
+    return exampleRetrieveRoleSetDb("roleSetTest");
+    
+  }
+  
+  /**
+   * retrieve example role set from db for testing
+   * @param label
+   * @return an example role set
+   */
+  public static RoleSet exampleRetrieveRoleSetDb(String label) {
+    
+    Role roleIf = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:" + label + "If").assignName("test:" + label + "If").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").assignTypeOfGroup(TypeOfGroup.role).save();
+    Role roleThen = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:" + label + "Then").assignName("test:" + label + "Then").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").assignTypeOfGroup(TypeOfGroup.role).save();
+    
+    RoleSet roleSet = GrouperDAOFactory.getFactory().getRoleSet().findByIfThenImmediate(roleIf.getId(), roleThen.getId(), true);
+    
+    return roleSet;
+    
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    RoleSet roleSetOriginal = exampleRoleSetDb("roleSetInsert");
+    
+    //do this because last membership update isnt there, only in db
+    roleSetOriginal = exampleRetrieveRoleSetDb("roleSetInsert");
+    RoleSet roleSetCopy = exampleRetrieveRoleSetDb("roleSetInsert");
+    RoleSet roleSetCopy2 = exampleRetrieveRoleSetDb("roleSetInsert");
+    roleSetCopy.delete();
+    
+    //lets insert the original
+    roleSetCopy2.xmlSaveBusinessProperties(null);
+    roleSetCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    roleSetCopy = exampleRetrieveRoleSetDb("roleSetInsert");
+    
+    assertFalse(roleSetCopy == roleSetOriginal);
+    assertFalse(roleSetCopy.xmlDifferentBusinessProperties(roleSetOriginal));
+    assertFalse(roleSetCopy.xmlDifferentUpdateProperties(roleSetOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    RoleSet roleSet = null;
+    RoleSet exampleRole = null;
+
+    
+    //TEST UPDATE PROPERTIES
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+      
+      roleSet.setContextId("abc");
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertTrue(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setContextId(exampleRole.getContextId());
+      roleSet.xmlSaveUpdateProperties();
+
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+      
+    }
+    
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setCreatedOnDb(99L);
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertTrue(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setCreatedOnDb(exampleRole.getCreatedOnDb());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+    }
+    
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setLastUpdatedDb(99L);
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertTrue(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setLastUpdatedDb(exampleRole.getLastUpdatedDb());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+    }
+
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setHibernateVersionNumber(99L);
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertTrue(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setHibernateVersionNumber(exampleRole.getHibernateVersionNumber());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setDepth(5);
+      
+      assertTrue(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setDepth(exampleRole.getDepth());
+      roleSet.xmlSaveBusinessProperties(exampleRetrieveRoleSetDb());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+    
+    }
+    
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setId("abc");
+      
+      assertTrue(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setId(exampleRole.getId());
+      roleSet.xmlSaveBusinessProperties(exampleRetrieveRoleSetDb());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+    
+    }
+    
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setIfHasRoleId("abc");
+      
+      assertTrue(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setIfHasRoleId(exampleRole.getIfHasRoleId());
+      roleSet.xmlSaveBusinessProperties(exampleRetrieveRoleSetDb());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+    
+    }
+    
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setParentRoleSetId("abc");
+      
+      assertTrue(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setParentRoleSetId(exampleRole.getParentRoleSetId());
+      roleSet.xmlSaveBusinessProperties(exampleRetrieveRoleSetDb());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+    
+    }
+    
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setThenHasRoleId("abc");
+      
+      assertTrue(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setThenHasRoleId(exampleRole.getThenHasRoleId());
+      roleSet.xmlSaveBusinessProperties(exampleRetrieveRoleSetDb());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+    
+    }
+    
+    {
+      roleSet = exampleRoleSetDb();
+      exampleRole = exampleRetrieveRoleSetDb();
+
+      roleSet.setTypeDb(RoleHierarchyType.effective.name());
+      
+      assertTrue(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+
+      roleSet.setTypeDb(exampleRole.getTypeDb());
+      roleSet.xmlSaveBusinessProperties(exampleRetrieveRoleSetDb());
+      roleSet.xmlSaveUpdateProperties();
+      
+      roleSet = exampleRetrieveRoleSetDb();
+      
+      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
+      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
+    
+    }
+    
+  }
+
+
+  
 }

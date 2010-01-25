@@ -4,6 +4,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.RoleSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -126,7 +127,8 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
       boolean exceptionIfNotFound) {
     RoleSet roleSet = HibernateSession.byHqlStatic().createQuery(
         "from RoleSet where ifHasRoleId = :ifId " +
-        "and thenHasRoleId = :thenId")
+        "and thenHasRoleId = :thenId " + 
+        "and depth = 1")
         .setString("ifId", roleIdIf).setString("thenId", roleIdThen)
         .uniqueResult(RoleSet.class);
       if (roleSet == null && exceptionIfNotFound) {
@@ -221,6 +223,57 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
         "and r.id != :theId and rs.typeDb = 'immediate' order by r.nameDb")
         .setString("theId", id).listSet(Group.class);
       return (Set<Role>)(Object)roles;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#findByUuidOrKey(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, boolean)
+   */
+  public RoleSet findByUuidOrKey(String id, String ifHasRoleId, String thenHasRoleId,
+      String parentRoleSetId, int depth, boolean exceptionIfNull) {
+    try {
+      RoleSet roleSet = HibernateSession.byHqlStatic()
+        .createQuery("from RoleSet as theRoleSet where theRoleSet.id = :theId or (theRoleSet.ifHasRoleId = :theIfHasRoleId " +
+        		" and theRoleSet.thenHasRoleId = :theThenHasRoleId and theRoleSet.parentRoleSetId = :theParentRoleSetId " +
+        		" and theRoleSet.depth = :theDepth)")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrKey")
+        .setString("theId", id)
+        .setString("theIfHasRoleId", ifHasRoleId)
+        .setString("theThenHasRoleId", thenHasRoleId)
+        .setString("theParentRoleSetId", parentRoleSetId)
+        .setInteger("theDepth", depth)
+        .uniqueResult(RoleSet.class);
+      if (roleSet == null && exceptionIfNull) {
+        throw new GroupNotFoundException("Can't find roleSet by id: '" + id + "' or ifHasRoleId '" + ifHasRoleId 
+            + "', thenHasRoleId: " + thenHasRoleId + ", parentRoleSetId: " + parentRoleSetId + ", depth: " + depth);
+      }
+      return roleSet;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find roleSet by id: '" + id + "' or ifHasRoleId '" + ifHasRoleId 
+            + "', thenHasRoleId: " + thenHasRoleId + ", parentRoleSetId: " + parentRoleSetId 
+            + ", depth: " + depth + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#saveUpdateProperties(edu.internet2.middleware.grouper.permissions.role.RoleSet)
+   */
+  public void saveUpdateProperties(RoleSet roleSet) {
+
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update RoleSet " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "createdOnDb = :theCreatedOnDb, " +
+        "lastUpdatedDb = :theLastUpdated " +
+        "where id = :theId")
+        .setLong("theHibernateVersionNumber", roleSet.getHibernateVersionNumber())
+        .setLong("theCreatedOnDb", roleSet.getCreatedOnDb())
+        .setLong("theLastUpdated", roleSet.getLastUpdatedDb())
+        .setString("theContextId", roleSet.getContextId())
+        .setString("theId", roleSet.getId()).executeUpdate();
   }
 
 } 

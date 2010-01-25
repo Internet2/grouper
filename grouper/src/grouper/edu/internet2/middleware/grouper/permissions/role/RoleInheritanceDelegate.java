@@ -75,10 +75,21 @@ public class RoleInheritanceDelegate implements Serializable {
    * @return true if added, false if already there
    */
   public boolean addRoleToInheritFromThis(Role roleToAdd) {
-    assertIsRole(roleToAdd);
-    return GrouperSetEnum.ROLE_SET.addToGrouperSet(this.group, roleToAdd);
+    return this.internal_addRoleToInheritFromThis(roleToAdd, null);
   }
 
+  /**
+   * if a user has this role, then he also inherits permissions from the roleToAdd
+   * @param roleToAdd
+   * @param uuid is id or null if assigned
+   * @return true if added, false if already there
+   */
+  public boolean internal_addRoleToInheritFromThis(Role roleToAdd, String uuid) {
+    assertIsRole(roleToAdd);
+    return GrouperSetEnum.ROLE_SET.addToGrouperSet(this.group, roleToAdd, uuid);
+  }
+
+  
   /**
    * if a user has this role, and he had inheriated permissions from roleToRemove directly, then 
    * remove that relationship

@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -122,12 +123,22 @@ public class GroupSave {
   private SaveMode saveMode;
 
   /**
-   * asssign save mode
+   * assign save mode
    * @param theSaveMode
    * @return this for chaining
    */
   public GroupSave assignSaveMode(SaveMode theSaveMode) {
     this.saveMode = theSaveMode;
+    return this;
+  }
+
+  /**
+   * assign save mode
+   * @param theTypeOfGroup
+   * @return this for chaining
+   */
+  public GroupSave assignTypeOfGroup(TypeOfGroup theTypeOfGroup) {
+    this.typeOfGroup = theTypeOfGroup;
     return this;
   }
 
@@ -146,6 +157,9 @@ public class GroupSave {
 
   /** save type after the save */
   private SaveResultType saveResultType = null;
+  
+  /** typeOfGroup */
+  private TypeOfGroup typeOfGroup = null;
   
   /**
    * get the save type
@@ -329,17 +343,10 @@ public class GroupSave {
                 //if inserting
                 if (!isUpdate) {
                   saveResultType = SaveResultType.INSERT;
-                  if (StringUtils.isBlank(GroupSave.this.uuid)) {
-                    try {
-                      //if no uuid
-                      theGroup = parentStem.addChildGroup(extensionNew, theDisplayExtension);
-                    } catch (GroupAddException gae) {
-                      //here for debugging
-                      throw new GrouperSessionException(gae);
-                    }
-                  } else {
-                    //if uuid
+                  if (typeOfGroup == null || typeOfGroup == TypeOfGroup.group) {
                     theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
+                  } else if (typeOfGroup == TypeOfGroup.role) {
+                    theGroup = (Group)parentStem.internal_addChildRole(extensionNew, theDisplayExtension, GroupSave.this.uuid);
                   }
                 } else {
                   //check if different so it doesnt make unneeded queries
@@ -374,6 +381,15 @@ public class GroupSave {
                     GroupSave.this.saveResultType = SaveResultType.UPDATE;
                   }
                   theGroup.setDescription(GroupSave.this.description);
+                }
+
+                //compare type of group
+                if (GroupSave.this.typeOfGroup != null && GroupSave.this.typeOfGroup != theGroup.getTypeOfGroup()) {
+                  needsSave = true;
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                  theGroup.setTypeOfGroup(GroupSave.this.typeOfGroup);
                 }
 
                 //only store once

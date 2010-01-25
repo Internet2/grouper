@@ -114,4 +114,23 @@ public interface RoleSetDAO extends GrouperDAO {
    * @return the role
    */
   public Set<Role> rolesInheritPermissionsFromThisImmediate(String roleId);
+  
+  /**
+   * find a record by uuid or key
+   * @param id
+   * @param ifHasRoleId
+   * @param thenHasRoleId
+   * @param parentRoleSetId
+   * @param depth
+   * @param exceptionIfNull
+   * @return the roleset or null
+   */
+  public RoleSet findByUuidOrKey(String id, String ifHasRoleId, String thenHasRoleId, String parentRoleSetId, int depth, boolean exceptionIfNull);
+  
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param roleSet
+   */
+  public void saveUpdateProperties(RoleSet roleSet);
+
 }

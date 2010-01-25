@@ -73,7 +73,16 @@ public class AttributeDefNameSetDelegate implements Serializable {
    * @return true if added, false if already there
    */
   public boolean addToAttributeDefNameSet(AttributeDefName newAttributeDefName) {
-    return GrouperSetEnum.ATTRIBUTE_SET.addToGrouperSet(this.attributeDefName, newAttributeDefName);
+    return internal_addToAttributeDefNameSet(newAttributeDefName, null);
+  }
+
+  /**
+   * @param uuid is uuid or null to generate one
+   * @param newAttributeDefName
+   * @return true if added, false if already there
+   */
+  public boolean internal_addToAttributeDefNameSet(AttributeDefName newAttributeDefName, String uuid) {
+    return GrouperSetEnum.ATTRIBUTE_SET.addToGrouperSet(this.attributeDefName, newAttributeDefName, uuid);
   }
 
   /**

@@ -17,13 +17,14 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /**
  * @author mchyzer $Id: RoleSet.java,v 1.1 2009-10-02 05:57:58 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class RoleSet extends GrouperAPI 
-    implements Hib3GrouperVersioned, GrouperSet, GrouperHasContext {
+    implements Hib3GrouperVersioned, GrouperSet, GrouperHasContext, XmlImportable<RoleSet> {
   
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
@@ -533,6 +534,102 @@ public class RoleSet extends GrouperAPI
    */
   public String __getParentGrouperSetId() {
     return this.getParentRoleSetId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(RoleSet existingRecord) {
+    existingRecord.setDepth(this.depth);
+    existingRecord.setId(this.id);
+    existingRecord.setIfHasRoleId(this.ifHasRoleId);
+    existingRecord.setParentRoleSetId(this.parentRoleSetId);
+    existingRecord.setThenHasRoleId(this.thenHasRoleId);
+    existingRecord.setType(this.type);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(RoleSet other) {
+    if (this.depth != other.depth) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ifHasRoleId, other.ifHasRoleId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.parentRoleSetId, other.parentRoleSetId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.thenHasRoleId, other.thenHasRoleId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.type, other.type)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(RoleSet other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (this.lastUpdatedDb != other.lastUpdatedDb) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public RoleSet xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getRoleSet().findByUuidOrKey(this.id, this.ifHasRoleId, this.thenHasRoleId, this.parentRoleSetId, this.depth, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(RoleSet existingRecord) {
+
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      
+      if (this.depth != 1) {
+        throw new RuntimeException("Why are we doing a depth not equal to 1????");
+      }
+      
+      Role ifHasRole = GrouperDAOFactory.getFactory().getRole().findById(this.ifHasRoleId, true);
+      Role thenHasRole = GrouperDAOFactory.getFactory().getRole().findById(this.thenHasRoleId, true);
+      
+      ifHasRole.getRoleInheritanceDelegate().internal_addRoleToInheritFromThis(thenHasRole, this.id);
+      
+      existingRecord = GrouperDAOFactory.getFactory().getRoleSet().findByIfThenImmediate(
+          this.ifHasRoleId, this.thenHasRoleId, true);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.saveOrUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getRoleSet().saveUpdateProperties(this);
   }
 
 }

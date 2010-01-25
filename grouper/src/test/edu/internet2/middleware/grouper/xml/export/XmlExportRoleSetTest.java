@@ -8,6 +8,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.permissions.RoleSetTest;
 import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 
@@ -103,17 +104,7 @@ public class XmlExportRoleSetTest extends GrouperTest {
    * 
    */
   public void testConvertToRoleSet() {
-    RoleSet roleSet = new RoleSet();
-    roleSet.setContextId("contextId");
-    roleSet.setCreatedOnDb(new Long(4L));
-    roleSet.setDepth(5);
-    roleSet.setIfHasRoleId("ifHasRoleId");
-    roleSet.setHibernateVersionNumber(3L);
-    roleSet.setLastUpdatedDb(new Long(7L));
-    roleSet.setParentRoleSetId("parentRoleSetId");
-    roleSet.setThenHasRoleId("thenHasRoleSetId");
-    roleSet.setType(RoleHierarchyType.effective);
-    roleSet.setId("id");
+    RoleSet roleSet = RoleSetTest.exampleRoleSet();
     
     
     XmlExportRoleSet xmlExportRoleSet = new XmlExportRoleSet(new GrouperVersion(GrouperVersion.GROUPER_VERSION), roleSet);

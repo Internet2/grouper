@@ -382,6 +382,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** constant for field name for: parentUUID */
   public static final String FIELD_PARENT_UUID = "parentUUID";
 
+  /** constant for field name for: typeOfGroup */
+  public static final String FIELD_TYPE_OF_GROUP = "typeOfGroup";
+
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
 
@@ -391,8 +394,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
-      FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID, FIELD_ALTERNATE_NAME_DB, 
-      FIELD_LAST_MEMBERSHIP_CHANGE_DB);
+      FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, 
+      FIELD_ALTERNATE_NAME_DB, FIELD_LAST_MEMBERSHIP_CHANGE_DB);
 
   /**
    * fields which are included in clone method
@@ -401,7 +404,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
-      FIELD_PARENT_UUID, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, FIELD_ALTERNATE_NAME_DB);
+      FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, 
+      FIELD_ALTERNATE_NAME_DB);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -5376,7 +5380,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   newGroup = stem.internal_addChildGroup(actAs, Group.this.getExtension(),
                       Group.this.getDisplayExtensionDb(), null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
-                      addDefaultGroupPrivileges);
+                      addDefaultGroupPrivileges, null);
                 } catch (GroupAddException e) {
                   Group test = GroupFinder.findByName(GrouperSession
                       .staticGrouperSession().internal_getRootSession(), stem.getName()
@@ -5405,7 +5409,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   newGroup = stem.internal_addChildGroup(actAs, newGroupExtension,
                       Group.this.getDisplayExtensionDb(), null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
-                addDefaultGroupPrivileges);
+                addDefaultGroupPrivileges, null);
                 }
             
             if (composite) {
@@ -6096,7 +6100,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     //if its an insert, call the business method
     if (existingRecord == null) {
       Stem parent = this.getParentStem();
-      existingRecord = parent.internal_addChildGroup(GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, this.description, null, null, false);
+      existingRecord = parent.internal_addChildGroup(
+          GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, this.description, null, null, false, this.typeOfGroup);
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields

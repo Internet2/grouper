@@ -1665,7 +1665,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     } 
     
     return internal_addChildGroup(GrouperSession.staticGrouperSession(), extn, dExtn, uuid, 
-        null, types, new HashMap<String, String>(), true);    
+        null, types, new HashMap<String, String>(), true, null);    
   }
   
   /**
@@ -1678,17 +1678,18 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @param types
    * @param attributes
    * @param addDefaultGroupPrivileges
+   * @param typeOfGroup or null for default
    * @return group
    * @throws GroupAddException
    * @throws InsufficientPrivilegeException
    */
-  protected Group internal_addChildGroup(final GrouperSession session, final String extn, final String dExtn,
+  public Group internal_addChildGroup(final GrouperSession session, final String extn, final String dExtn,
       final String uuid, final String description, final Set<GroupType> types,
-      final Map<String, String> attributes, final boolean addDefaultGroupPrivileges)
+      final Map<String, String> attributes, final boolean addDefaultGroupPrivileges, final TypeOfGroup typeOfGroup)
       throws GroupAddException, InsufficientPrivilegeException {
     
     final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + extn
-      + ", group dExtension: " + dExtn + ", uuid: " + uuid + ", ";
+      + ", group dExtension: " + dExtn + ", uuid: " + uuid + ", typeOfGroup: " + typeOfGroup;
     
     return (Group)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
@@ -1720,6 +1721,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               _g.setCreateTimeLong(new Date().getTime());
               _g.setCreatorUuid(session.getMember().getUuid());
               _g.setTypes(types);
+              
+              if (typeOfGroup != null) {
+                _g.setTypeOfGroup(typeOfGroup);
+              }
   
               v = NotNullOrEmptyValidator.validate(uuid);
               if (v.isInvalid()) {
@@ -3317,6 +3322,33 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   public Role addChildRole(final String extension, final String displayExtension) 
     throws  GroupAddException,
             InsufficientPrivilegeException  {
+    return internal_addChildRole(extension, displayExtension, null);
+  }
+
+  /**
+   * Add a new role to the registry.
+   * <pre class="eg">
+   * // Add a role with the extension "edu" beneath this stem.
+   * try {
+   *   Group edu = ns.addChildRole("edu", "edu domain");
+   * }
+   * catch (GroupAddException eGA) {
+   *   // Group not added
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add group
+   * }
+   * </pre>
+   * @param   extension         Role extension
+   * @param   displayExtension  Role displayExtension
+   * @param uuid is uuid or null if generated
+   * @return  The added {@link Role}
+   * @throws  GroupAddException 
+   * @throws  InsufficientPrivilegeException
+   */
+  public Role internal_addChildRole(final String extension, final String displayExtension, final String uuid) 
+    throws  GroupAddException,
+            InsufficientPrivilegeException  {
     
     return (Group)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -3330,7 +3362,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
         group.store();
         
         RoleSet roleSet = new RoleSet();
-        roleSet.setId(GrouperUuid.getUuid());
+        roleSet.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
         roleSet.setDepth(0);
         roleSet.setIfHasRoleId(group.getId());
         roleSet.setThenHasRoleId(group.getId());
