@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -153,6 +154,48 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
         .listSet(AttributeDefName.class);
     
     return attributeDefNames;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByUuidOrName(java.lang.String, java.lang.String, boolean)
+   */
+  public AttributeDefName findByUuidOrName(String id, String name,
+      boolean exceptionIfNotFound) {
+    try {
+      AttributeDefName attributeDefName = HibernateSession.byHqlStatic()
+        .createQuery("from AttributeDefName as theAttributeDefName where theAttributeDefName.id = :theId or theAttributeDefName.nameDb = :theName")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("theId", id)
+        .setString("theName", name)
+        .uniqueResult(AttributeDefName.class);
+      if (attributeDefName == null && exceptionIfNotFound) {
+        throw new GroupNotFoundException("Can't find attributeDefName by id: '" + id + "' or name '" + name + "'");
+      }
+      return attributeDefName;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem finding attributeDefName by id: '" 
+        + id + "' or name '" + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#saveUpdateProperties(edu.internet2.middleware.grouper.attr.AttributeDefName)
+   */
+  public void saveUpdateProperties(AttributeDefName attributeDefName) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update AttributeDefName " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "createdOnDb = :theCreatedOnDb " +
+        "where id = :theId")
+        .setLong("theHibernateVersionNumber", attributeDefName.getHibernateVersionNumber())
+        .setLong("theCreatedOnDb", attributeDefName.getCreatedOnDb())
+        .setString("theContextId", attributeDefName.getContextId())
+        .setString("theId", attributeDefName.getId()).executeUpdate();
   }
 
 } 

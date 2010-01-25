@@ -11,8 +11,10 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -22,6 +24,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 
 /**
@@ -30,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class AttributeDefName extends GrouperAPI 
-    implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement {
+    implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, XmlImportable<AttributeDefName> {
 
   /** name of the groups attribute def name table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF_NAME = "grouper_attribute_def_name";
@@ -547,5 +550,99 @@ public class AttributeDefName extends GrouperAPI
       .append( this.getName() )
       .toHashCode();
   } // public int hashCode()
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AttributeDefName existingRecord) {
+    existingRecord.setAttributeDefId(this.getAttributeDefId());
+    existingRecord.setDescription(this.getDescription());
+    existingRecord.setDisplayExtensionDb(this.getDisplayExtensionDb());
+    existingRecord.setDisplayNameDb(this.getDisplayNameDb());
+    existingRecord.setExtensionDb(this.getExtensionDb());
+    existingRecord.setId(this.getId());
+    existingRecord.setNameDb(this.getNameDb());
+    existingRecord.setStemId(this.getStemId());
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AttributeDefName other) {
+    if (!StringUtils.equals(this.attributeDefId, other.attributeDefId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.description, other.description)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.displayExtension, other.displayExtension)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.displayName, other.displayName)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.extension, other.extension)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.name, other.name)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.stemId, other.stemId)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AttributeDefName other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (this.createdOnDb != other.createdOnDb) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (this.lastUpdatedDb != other.lastUpdatedDb) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public AttributeDefName xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(this.id, this.name, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(AttributeDefName existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      Stem parent = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
+      existingRecord = parent.internal_addChildAttributeDefName(GrouperSession.staticGrouperSession(), 
+          this.getAttributeDef(), this.extension, this.displayExtension, this.id, this.description);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    GrouperDAOFactory.getFactory().getAttributeDefName().saveOrUpdate(existingRecord);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttributeDefName().saveUpdateProperties(this);
+  }
 
 }

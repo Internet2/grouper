@@ -50,5 +50,20 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @return set of stems
    */
   public Set<AttributeDefName> findByStem(String id);
-  
+ 
+  /**
+   * find a record by uuid or name
+   * @param id
+   * @param name
+   * @param exceptionIfNotFound
+   * @return the attribute def name
+   */
+  public AttributeDefName findByUuidOrName(String id, String name, boolean exceptionIfNotFound);
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attributeDefName
+   */
+  public void saveUpdateProperties(AttributeDefName attributeDefName);
+
 }
