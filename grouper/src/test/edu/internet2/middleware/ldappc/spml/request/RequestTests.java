@@ -15,8 +15,6 @@
 package edu.internet2.middleware.ldappc.spml.request;
 
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +41,7 @@ import org.openspml.v2.msg.spmlsearch.Query;
 import org.openspml.v2.msg.spmlsearch.Scope;
 import org.openspml.v2.msg.spmlsearch.SearchRequest;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcTestHelper;
 import edu.internet2.middleware.ldappc.spml.PSP;
 import edu.internet2.middleware.ldappc.spml.PSPTest;
@@ -50,6 +49,9 @@ import edu.internet2.middleware.ldappc.spml.PSPTest;
 public class RequestTests extends XMLTestCase {
 
   // private static final Logger LOG = LoggerFactory.getLogger(RequestTests.class);
+
+  /** resource location for test data */
+  public static final String TEST_PATH = "/test/edu/internet2/middleware/ldappc/spml/request";
 
   private PSOIdentifier id1;
 
@@ -377,18 +379,13 @@ public class RequestTests extends XMLTestCase {
     assertEquals(syncResponse3, map.get("id3"));
   }
 
-  private File getFile(String fileName) {
-    try {
-      URL url = getClass().getResource(fileName);
-      if (url == null) {
-        fail("File not found : " + fileName);
-      }
-      return new File(url.toURI());
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-      fail("An error occurred : " + e.getMessage());
+  private File getFile(String resourceName) {
+    File file = GrouperUtil.fileFromResourceName(TEST_PATH + "/" + resourceName);
+    if (file == null) {
+      throw new RuntimeException("Unable to find file '" + resourceName + "'");
     }
-    return null;
+
+    return file;
   }
 
   private Marshallable verifySpml(Marshallable testObject, String correctXMLFileName, boolean testEquality) {
