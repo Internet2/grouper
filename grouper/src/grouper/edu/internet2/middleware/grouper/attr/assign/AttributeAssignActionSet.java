@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 //select gg.name, gadn.name
 //from grouper_attribute_assign gaa, grouper_attribute_def_name_set gadns, grouper_groups gg, 
@@ -76,7 +77,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class AttributeAssignActionSet extends GrouperAPI 
-    implements Hib3GrouperVersioned, GrouperSet {
+    implements Hib3GrouperVersioned, GrouperSet, XmlImportable<AttributeAssignActionSet> {
   
   /** logger */
   @SuppressWarnings("unused")
@@ -573,6 +574,102 @@ public class AttributeAssignActionSet extends GrouperAPI
    */
   public String __getParentGrouperSetId() {
     return this.getParentAttrAssignActionSetId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AttributeAssignActionSet existingRecord) {
+    existingRecord.setDepth(this.depth);
+    existingRecord.setId(this.id);
+    existingRecord.setIfHasAttrAssignActionId(this.ifHasAttrAssignActionId);
+    existingRecord.setParentAttrAssignActionSetId(this.parentAttrAssignActionSetId);
+    existingRecord.setThenHasAttrAssignActionId(this.thenHasAttrAssignActionId);
+    existingRecord.setType(this.type);
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AttributeAssignActionSet other) {
+    if (this.depth != other.depth) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ifHasAttrAssignActionId, other.ifHasAttrAssignActionId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.parentAttrAssignActionSetId, other.parentAttrAssignActionSetId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.thenHasAttrAssignActionId, other.thenHasAttrAssignActionId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.type, other.type)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AttributeAssignActionSet other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (this.lastUpdatedDb != other.lastUpdatedDb) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public AttributeAssignActionSet xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByUuidOrKey(this.id, this.ifHasAttrAssignActionId, this.thenHasAttrAssignActionId, this.parentAttrAssignActionSetId, this.depth, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(AttributeAssignActionSet existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      
+      if (this.depth != 1) {
+        throw new RuntimeException("Why are we doing a depth not equal to 1????");
+      }
+      
+      AttributeAssignAction ifHasAttributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction().findById(this.ifHasAttrAssignActionId, true);
+      AttributeAssignAction thenHasAttributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction().findById(this.thenHasAttrAssignActionId, true);
+      
+      ifHasAttributeAssignAction.getAttributeAssignActionSetDelegate().internal_addToAttributeAssignActionSet(thenHasAttributeAssignAction, this.id);
+      
+      existingRecord = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfThenImmediate(
+          this.ifHasAttrAssignActionId, this.thenHasAttrAssignActionId, true);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.saveOrUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttributeAssignActionSet().saveUpdateProperties(this);
   }
 
 }

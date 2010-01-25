@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -32,7 +33,7 @@ public class AttributeAssignActionSetTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new AttributeAssignActionSetTest("testHibernate"));
-    TestRunner.run(new AttributeAssignActionSetTest("testComplexRemoveBfromA"));
+    TestRunner.run(new AttributeAssignActionSetTest("testXmlInsert"));
     //TestRunner.run(AttributeAssignActionSetTest.class);
   }
 
@@ -14566,5 +14567,317 @@ public class AttributeAssignActionSetTest extends GrouperTest {
   
   }
   
+  /**
+   * make an example role set for testing
+   * @return an example role set
+   */
+  public static AttributeAssignActionSet exampleAttributeAssignActionSet() {
+    AttributeAssignActionSet attributeAssignActionSet = new AttributeAssignActionSet();
+    attributeAssignActionSet.setContextId("contextId");
+    attributeAssignActionSet.setCreatedOnDb(new Long(4L));
+    attributeAssignActionSet.setDepth(5);
+    attributeAssignActionSet.setIfHasAttrAssignActionId("ifHasAttributeAssignActionId");
+    attributeAssignActionSet.setHibernateVersionNumber(3L);
+    attributeAssignActionSet.setLastUpdatedDb(new Long(7L));
+    attributeAssignActionSet.setParentAttrAssignActionSetId("parentAttributeAssignActionSetId");
+    attributeAssignActionSet.setThenHasAttrAssignActionId("thenHasAttributeAssignActionSetId");
+    attributeAssignActionSet.setType(AttributeAssignActionType.effective);
+    attributeAssignActionSet.setId("id");
+
+    return attributeAssignActionSet;
+  }
   
+  /**
+   * make an example AttributeAssignAction set from db for testing
+   * @return an example AttributeAssignAction set
+   */
+  public static AttributeAssignActionSet exampleAttributeAssignActionSetDb() {
+    return exampleAttributeAssignActionSetDb("attributeAssignActionSetTest");
+  }
+  
+  /**
+   * make an example AttributeAssignAction set from db for testing
+   * @param label
+   * @return an example AttributeAssignAction set
+   */
+  public static AttributeAssignActionSet exampleAttributeAssignActionSetDb(String label) {
+    
+    AttributeAssignAction attributeAssignActionIf = AttributeAssignActionTest.exampleAttributeAssignActionDb(label + "If");
+    AttributeAssignAction attributeAssignActionThen = AttributeAssignActionTest.exampleAttributeAssignActionDb(label + "Then");
+    
+    attributeAssignActionIf.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(attributeAssignActionThen);
+    
+    AttributeAssignActionSet attributeAssignActionSet = GrouperDAOFactory.getFactory()
+      .getAttributeAssignActionSet().findByIfThenImmediate(
+          attributeAssignActionIf.getId(), attributeAssignActionThen.getId(), true);
+    return attributeAssignActionSet;
+  }
+
+  /**
+   * retrieve example AttributeAssignAction from db for testing
+   * @return an example AttributeAssignAction
+   */
+  public static AttributeAssignActionSet exampleRetrieveAttributeAssignActionSetDb() {
+    
+    return exampleRetrieveAttributeAssignActionSetDb("attributeAssignActionSetTest");
+    
+  }
+  
+  /**
+   * retrieve example AttributeAssignAction set from db for testing
+   * @param label
+   * @return an example AttributeAssignAction set
+   */
+  public static AttributeAssignActionSet exampleRetrieveAttributeAssignActionSetDb(String label) {
+    
+    AttributeAssignAction attributeAssignActionIf = AttributeAssignActionTest.exampleRetrieveAttributeAssignActionDb(label + "If");
+    AttributeAssignAction attributeAssignActionThen = AttributeAssignActionTest.exampleRetrieveAttributeAssignActionDb(label + "Then");
+    
+    AttributeAssignActionSet attributeAssignActionSet = GrouperDAOFactory.getFactory().getAttributeAssignActionSet()
+      .findByIfThenImmediate(attributeAssignActionIf.getId(), attributeAssignActionThen.getId(), true);
+    
+    return attributeAssignActionSet;
+    
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    AttributeAssignActionSet attributeAssignActionSetOriginal = exampleAttributeAssignActionSetDb("attributeAssignActionSetInsert");
+    
+    //do this because last membership update isnt there, only in db
+    attributeAssignActionSetOriginal = exampleRetrieveAttributeAssignActionSetDb("attributeAssignActionSetInsert");
+    AttributeAssignActionSet attributeAssignActionSetCopy = exampleRetrieveAttributeAssignActionSetDb("attributeAssignActionSetInsert");
+    AttributeAssignActionSet attributeAssignActionSetCopy2 = exampleRetrieveAttributeAssignActionSetDb("attributeAssignActionSetInsert");
+    attributeAssignActionSetCopy.delete();
+    
+    //lets insert the original
+    attributeAssignActionSetCopy2.xmlSaveBusinessProperties(null);
+    attributeAssignActionSetCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    attributeAssignActionSetCopy = exampleRetrieveAttributeAssignActionSetDb("attributeAssignActionSetInsert");
+    
+    assertFalse(attributeAssignActionSetCopy == attributeAssignActionSetOriginal);
+    assertFalse(attributeAssignActionSetCopy.xmlDifferentBusinessProperties(attributeAssignActionSetOriginal));
+    assertFalse(attributeAssignActionSetCopy.xmlDifferentUpdateProperties(attributeAssignActionSetOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeAssignActionSet attributeAssignActionSet = null;
+    AttributeAssignActionSet exampleAttributeAssignAction = null;
+
+    
+    //TEST UPDATE PROPERTIES
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+      
+      attributeAssignActionSet.setContextId("abc");
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertTrue(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setContextId(exampleAttributeAssignAction.getContextId());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+      
+    }
+    
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setCreatedOnDb(99L);
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertTrue(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setCreatedOnDb(exampleAttributeAssignAction.getCreatedOnDb());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+    }
+    
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setLastUpdatedDb(99L);
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertTrue(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setLastUpdatedDb(exampleAttributeAssignAction.getLastUpdatedDb());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+    }
+
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setHibernateVersionNumber(99L);
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertTrue(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setHibernateVersionNumber(exampleAttributeAssignAction.getHibernateVersionNumber());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setDepth(5);
+      
+      assertTrue(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setDepth(exampleAttributeAssignAction.getDepth());
+      attributeAssignActionSet.xmlSaveBusinessProperties(exampleRetrieveAttributeAssignActionSetDb());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+    
+    }
+    
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setId("abc");
+      
+      assertTrue(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setId(exampleAttributeAssignAction.getId());
+      attributeAssignActionSet.xmlSaveBusinessProperties(exampleRetrieveAttributeAssignActionSetDb());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+    
+    }
+    
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setIfHasAttrAssignActionId("abc");
+      
+      assertTrue(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setIfHasAttrAssignActionId(exampleAttributeAssignAction.getIfHasAttrAssignActionId());
+      attributeAssignActionSet.xmlSaveBusinessProperties(exampleRetrieveAttributeAssignActionSetDb());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+    
+    }
+    
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setParentAttrAssignActionSetId("abc");
+      
+      assertTrue(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setParentAttrAssignActionSetId(exampleAttributeAssignAction.getParentAttrAssignActionSetId());
+      attributeAssignActionSet.xmlSaveBusinessProperties(exampleRetrieveAttributeAssignActionSetDb());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+    
+    }
+    
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setThenHasAttrAssignActionId("abc");
+      
+      assertTrue(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setThenHasAttrAssignActionId(exampleAttributeAssignAction.getThenHasAttrAssignActionId());
+      attributeAssignActionSet.xmlSaveBusinessProperties(exampleRetrieveAttributeAssignActionSetDb());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+    
+    }
+    
+    {
+      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
+      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
+
+      attributeAssignActionSet.setTypeDb(RoleHierarchyType.effective.name());
+      
+      assertTrue(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+
+      attributeAssignActionSet.setTypeDb(exampleAttributeAssignAction.getTypeDb());
+      attributeAssignActionSet.xmlSaveBusinessProperties(exampleRetrieveAttributeAssignActionSetDb());
+      attributeAssignActionSet.xmlSaveUpdateProperties();
+      
+      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
+      
+      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
+      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
+    
+    }
+    
+  }
+
+
 }

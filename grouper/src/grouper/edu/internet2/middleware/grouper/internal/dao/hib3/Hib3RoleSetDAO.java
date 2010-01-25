@@ -4,7 +4,6 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.RoleSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -244,7 +243,7 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
         .setInteger("theDepth", depth)
         .uniqueResult(RoleSet.class);
       if (roleSet == null && exceptionIfNull) {
-        throw new GroupNotFoundException("Can't find roleSet by id: '" + id + "' or ifHasRoleId '" + ifHasRoleId 
+        throw new RuntimeException("Can't find roleSet by id: '" + id + "' or ifHasRoleId '" + ifHasRoleId 
             + "', thenHasRoleId: " + thenHasRoleId + ", parentRoleSetId: " + parentRoleSetId + ", depth: " + depth);
       }
       return roleSet;

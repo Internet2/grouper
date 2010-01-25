@@ -134,7 +134,7 @@ public class AttributeDefActionDelegate {
       internal_addAction(add, null);
     }
     for (String remove: removes) {
-      for (AttributeAssignAction attributeAssignAction : this.allowedActionsSet) {
+      for (AttributeAssignAction attributeAssignAction : this.allowedActions()) {
         if (StringUtils.equals(remove, attributeAssignAction.getName())) {
           attributeAssignAction.delete();
         }

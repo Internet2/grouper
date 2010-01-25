@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeAssignActionSetNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -228,6 +229,63 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
         "and adn.id != :theId and adn.typeDb = 'immediate' order by adn.name")
         .setString("theId", attributeAssignActionId).listSet(AttributeAssignAction.class);
       return attributeAssignActions;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetDAO#findByUuidOrKey(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, boolean)
+   */
+  public AttributeAssignActionSet findByUuidOrKey(String id, String ifHasAttributeAssignActionId,
+      String thenHasAttributeAssignActionId, String parentAttributeAssignActionSetId,
+      int depth, boolean exceptionIfNull) {
+    try {
+      AttributeAssignActionSet attributeAssignActionSet = HibernateSession.byHqlStatic()
+        .createQuery("from AttributeAssignActionSet as theAttributeAssignActionSet where theAttributeAssignActionSet.id = :theId " +
+        		"or (theAttributeAssignActionSett.ifHasAttributeAssignActionId = :theIfHasAttributeAssignActionId " +
+            " and theAttributeAssignActionSet.thenHasAttributeAssignActionId = :theThenHasAttributeAssignActionId " +
+            "and theAttributeAssignActionSet.parentAttributeAssignActionSetId = :theParentAttributeAssignActionSetId " +
+            " and theAttributeAssignActionSet.depth = :theDepth)")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrKey")
+        .setString("theId", id)
+        .setString("theIfHasAttributeAssignActionId", ifHasAttributeAssignActionId)
+        .setString("theThenHasAttributeAssignActionId", thenHasAttributeAssignActionId)
+        .setString("theParentAttributeAssignActionSetId", parentAttributeAssignActionSetId)
+        .setInteger("theDepth", depth)
+        .uniqueResult(AttributeAssignActionSet.class);
+      if (attributeAssignActionSet == null && exceptionIfNull) {
+        throw new GroupNotFoundException("Can't find AttributeAssignActionSet by id: '" + id 
+            + "' or ifHasAttributeAssignActionId '" + ifHasAttributeAssignActionId 
+            + "', thenHasAttributeAssignActionId: " + thenHasAttributeAssignActionId 
+            + ", parentAttributeAssignActionSetId: " + parentAttributeAssignActionSetId + ", depth: " + depth);
+      }
+      return attributeAssignActionSet;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find AttributeAssignActionSet by id: '" + id 
+        + "' or ifHasAttributeAssignActionId '" + ifHasAttributeAssignActionId 
+        + "', thenHasAttributeAssignActionId: " + thenHasAttributeAssignActionId 
+        + ", parentAttributeAssignActionSetId: " + parentAttributeAssignActionSetId 
+        + ", depth: " + depth + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetDAO#saveUpdateProperties(edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet)
+   */
+  public void saveUpdateProperties(AttributeAssignActionSet attributeAssignActionSet) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update AttributeAssignActionSet " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "createdOnDb = :theCreatedOnDb, " +
+        "lastUpdatedDb = :theLastUpdated " +
+        "where id = :theId")
+        .setLong("theHibernateVersionNumber", attributeAssignActionSet.getHibernateVersionNumber())
+        .setLong("theCreatedOnDb", attributeAssignActionSet.getCreatedOnDb())
+        .setLong("theLastUpdated", attributeAssignActionSet.getLastUpdatedDb())
+        .setString("theContextId", attributeAssignActionSet.getContextId())
+        .setString("theId", attributeAssignActionSet.getId()).executeUpdate();
   }
 
 } 

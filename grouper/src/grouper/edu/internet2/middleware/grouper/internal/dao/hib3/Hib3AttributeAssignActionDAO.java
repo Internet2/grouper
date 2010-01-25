@@ -3,7 +3,6 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.exception.AttributeAssignActionNotFoundException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -89,7 +88,7 @@ public class Hib3AttributeAssignActionDAO extends Hib3DAO implements AttributeAs
         .setString("theNameDb", name)
         .uniqueResult(AttributeAssignAction.class);
       if (attributeAssignAction == null && exceptionIfNull) {
-        throw new GroupNotFoundException("Can't find attributeAssignAction by id: '" 
+        throw new RuntimeException("Can't find attributeAssignAction by id: '" 
             + id + "' or attributeDefId: " + attributeDefId + ", name: '" + name + "'");
       }
       return attributeAssignAction;

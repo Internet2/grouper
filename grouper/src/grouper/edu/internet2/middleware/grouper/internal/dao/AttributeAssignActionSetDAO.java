@@ -6,7 +6,6 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.exception.AttributeAssignActionSetNotFoundException;
@@ -117,5 +116,22 @@ public interface AttributeAssignActionSetDAO extends GrouperDAO {
    */
   public Set<AttributeAssignAction> attributeAssignActionsImpliedByThisImmediate(String attributeAssignActionId);
 
+  /**
+   * find a record by uuid or key
+   * @param id
+   * @param ifHasAttributeAssignActionId
+   * @param thenHasAttributeAssignActionId
+   * @param parentAttributeAssignActionSetId
+   * @param depth
+   * @param exceptionIfNull
+   * @return the roleset or null
+   */
+  public AttributeAssignActionSet findByUuidOrKey(String id, String ifHasAttributeAssignActionId, String thenHasAttributeAssignActionId, String parentAttributeAssignActionSetId, int depth, boolean exceptionIfNull);
+  
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attributeAssignActionSet
+   */
+  public void saveUpdateProperties(AttributeAssignActionSet attributeAssignActionSet);
 
 }
