@@ -12,10 +12,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -29,7 +31,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameSetTest("testComplexRemoveBfromA"));
+    TestRunner.run(new AttributeDefNameSetTest("testXmlDifferentUpdateProperties"));
   }
 
   /**
@@ -14621,4 +14623,320 @@ public class AttributeDefNameSetTest extends GrouperTest {
 
   }
 
+  /**
+   * make an example role set for testing
+   * @return an example role set
+   */
+  public static AttributeDefNameSet exampleAttributeDefNameSet() {
+    AttributeDefNameSet attributeDefNameSet = new AttributeDefNameSet();
+    attributeDefNameSet.setContextId("contextId");
+    attributeDefNameSet.setCreatedOnDb(new Long(4L));
+    attributeDefNameSet.setDepth(5);
+    attributeDefNameSet.setIfHasAttributeDefNameId("ifHasAttributeDefNameId");
+    attributeDefNameSet.setHibernateVersionNumber(3L);
+    attributeDefNameSet.setLastUpdatedDb(new Long(7L));
+    attributeDefNameSet.setParentAttrDefNameSetId("parentAttributeDefNameSetId");
+    attributeDefNameSet.setThenHasAttributeDefNameId("thenHasAttributeDefNameSetId");
+    attributeDefNameSet.setType(AttributeDefAssignmentType.effective);
+    attributeDefNameSet.setId("id");
+
+    
+    return attributeDefNameSet;
+  }
+  
+  /**
+   * make an example AttributeDefName set from db for testing
+   * @return an example AttributeDefName set
+   */
+  public static AttributeDefNameSet exampleAttributeDefNameSetDb() {
+    return exampleAttributeDefNameSetDb("attributeDefNameSetTest");
+  }
+  
+  /**
+   * make an example AttributeDefName set from db for testing
+   * @param label
+   * @return an example AttributeDefName set
+   */
+  public static AttributeDefNameSet exampleAttributeDefNameSetDb(String label) {
+    
+    AttributeDefName attributeDefNameIf = AttributeDefNameTest.exampleAttributeDefNameDb("test", label + "DefIf");
+    AttributeDefName attributeDefNameThen = AttributeDefNameTest.exampleAttributeDefNameDb("test", label + "DefThen");
+    
+    attributeDefNameIf.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(attributeDefNameThen);
+    
+    AttributeDefNameSet attributeDefNameSet = GrouperDAOFactory.getFactory().getAttributeDefNameSet()
+      .findByIfThenImmediate(attributeDefNameIf.getId(), attributeDefNameThen.getId(), true);
+    
+    return attributeDefNameSet;
+  }
+
+  /**
+   * retrieve example AttributeDefName set from db for testing
+   * @return an example AttributeDefName set
+   */
+  public static AttributeDefNameSet exampleRetrieveAttributeDefNameSetDb() {
+    
+    return exampleRetrieveAttributeDefNameSetDb("attributeDefNameSetTest");
+    
+  }
+  
+  /**
+   * retrieve example AttributeDefName set from db for testing
+   * @param label
+   * @return an example AttributeDefName set
+   */
+  public static AttributeDefNameSet exampleRetrieveAttributeDefNameSetDb(String label) {
+    
+    AttributeDefName attributeDefNameIf = AttributeDefNameFinder.findByName("test:" + label + "DefIf", true);
+    AttributeDefName attributeDefNameThen = AttributeDefNameFinder.findByName("test:" + label + "DefThen", true);
+    
+    AttributeDefNameSet attributeDefNameSet = GrouperDAOFactory.getFactory().getAttributeDefNameSet()
+      .findByIfThenImmediate(attributeDefNameIf.getId(), attributeDefNameThen.getId(), true);
+    
+    return attributeDefNameSet;
+    
+  }
+
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    AttributeDefNameSet attributeDefNameSetOriginal = exampleAttributeDefNameSetDb("attributeDefNameSetInsert");
+    
+    //do this because last membership update isnt there, only in db
+    attributeDefNameSetOriginal = exampleRetrieveAttributeDefNameSetDb("attributeDefNameSetInsert");
+    AttributeDefNameSet attributeDefNameSetCopy = exampleRetrieveAttributeDefNameSetDb("attributeDefNameSetInsert");
+    AttributeDefNameSet attributeDefNameSetCopy2 = exampleRetrieveAttributeDefNameSetDb("attributeDefNameSetInsert");
+    attributeDefNameSetCopy.delete();
+    
+    //lets insert the original
+    attributeDefNameSetCopy2.xmlSaveBusinessProperties(null);
+    attributeDefNameSetCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    attributeDefNameSetCopy = exampleRetrieveAttributeDefNameSetDb("attributeDefNameSetInsert");
+    
+    assertFalse(attributeDefNameSetCopy == attributeDefNameSetOriginal);
+    assertFalse(attributeDefNameSetCopy.xmlDifferentBusinessProperties(attributeDefNameSetOriginal));
+    assertFalse(attributeDefNameSetCopy.xmlDifferentUpdateProperties(attributeDefNameSetOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDefNameSet attributeDefNameSet = null;
+    AttributeDefNameSet exampleAttributeDefNameSet = null;
+
+    
+    //TEST UPDATE PROPERTIES
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      attributeDefNameSet.setContextId("abc");
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertTrue(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setContextId(exampleAttributeDefNameSet.getContextId());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+      
+    }
+    
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setCreatedOnDb(99L);
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertTrue(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setCreatedOnDb(exampleAttributeDefNameSet.getCreatedOnDb());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+    }
+    
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setLastUpdatedDb(99L);
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertTrue(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setLastUpdatedDb(exampleAttributeDefNameSet.getLastUpdatedDb());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+    }
+
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setHibernateVersionNumber(99L);
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertTrue(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setHibernateVersionNumber(exampleAttributeDefNameSet.getHibernateVersionNumber());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setDepth(5);
+      
+      assertTrue(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setDepth(exampleAttributeDefNameSet.getDepth());
+      attributeDefNameSet.xmlSaveBusinessProperties(exampleRetrieveAttributeDefNameSetDb());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+    
+    }
+    
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setId("abc");
+      
+      assertTrue(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setId(exampleAttributeDefNameSet.getId());
+      attributeDefNameSet.xmlSaveBusinessProperties(exampleRetrieveAttributeDefNameSetDb());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+    
+    }
+    
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setIfHasAttributeDefNameId("abc");
+      
+      assertTrue(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setIfHasAttributeDefNameId(exampleAttributeDefNameSet.getIfHasAttributeDefNameId());
+      attributeDefNameSet.xmlSaveBusinessProperties(exampleRetrieveAttributeDefNameSetDb());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+    
+    }
+    
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setParentAttrDefNameSetId("abc");
+      
+      assertTrue(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setParentAttrDefNameSetId(exampleAttributeDefNameSet.getParentAttrDefNameSetId());
+      attributeDefNameSet.xmlSaveBusinessProperties(exampleRetrieveAttributeDefNameSetDb());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+    
+    }
+    
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setThenHasAttributeDefNameId("abc");
+      
+      assertTrue(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setThenHasAttributeDefNameId(exampleAttributeDefNameSet.getThenHasAttributeDefNameId());
+      attributeDefNameSet.xmlSaveBusinessProperties(exampleRetrieveAttributeDefNameSetDb());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+    
+    }
+    
+    {
+      attributeDefNameSet = exampleAttributeDefNameSetDb();
+      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+
+      attributeDefNameSet.setTypeDb(RoleHierarchyType.effective.name());
+      
+      assertTrue(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+
+      attributeDefNameSet.setTypeDb(exampleAttributeDefNameSet.getTypeDb());
+      attributeDefNameSet.xmlSaveBusinessProperties(exampleRetrieveAttributeDefNameSetDb());
+      attributeDefNameSet.xmlSaveUpdateProperties();
+      
+      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
+      
+      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
+      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
+    
+    }
+    
+  }
+
+
+  
+  
 }

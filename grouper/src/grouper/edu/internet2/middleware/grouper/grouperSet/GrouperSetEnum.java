@@ -91,7 +91,7 @@ public enum GrouperSetEnum {
     @Override
     public GrouperSet newInstance(String ifHasId, String thenHasId, int depth, String uuid) {
       AttributeDefNameSet attributeDefNameSet = new AttributeDefNameSet();
-      attributeDefNameSet.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : null );
+      attributeDefNameSet.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid );
       attributeDefNameSet.setDepth(depth);
       attributeDefNameSet.setIfHasAttributeDefNameId(ifHasId);
       attributeDefNameSet.setThenHasAttributeDefNameId(thenHasId);

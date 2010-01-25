@@ -228,5 +228,59 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
       return attributeDefNames;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#findByUuidOrKey(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, boolean)
+   */
+  public AttributeDefNameSet findByUuidOrKey(String id, String ifHasAttributeDefNameId,
+      String thenHasAttributeDefNameId, String parentAttributeDefNameSetId, int depth,
+      boolean exceptionIfNull) {
+    try {
+      AttributeDefNameSet attributeDefNameSet = HibernateSession.byHqlStatic()
+        .createQuery("from AttributeDefNameSet as theAttributeDefNameSet where theAttributeDefNameSet.id = :theId " +
+        		"or (theAttributeDefNameSet.ifHasAttributeDefNameId = :theIfHasAttributeDefNameId " +
+            " and theAttributeDefNameSet.thenHasAttributeDefNameId = :theThenHasAttributeDefNameId " +
+            "and theAttributeDefNameSet.parentAttributeDefNameSetId = :theParentAttributeDefNameSetId " +
+            " and theAttributeDefNameSet.depth = :theDepth)")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrKey")
+        .setString("theId", id)
+        .setString("theIfHasAttributeDefNameId", ifHasAttributeDefNameId)
+        .setString("theThenHasAttributeDefNameId", thenHasAttributeDefNameId)
+        .setString("theParentAttributeDefNameSetId", parentAttributeDefNameSetId)
+        .setInteger("theDepth", depth)
+        .uniqueResult(AttributeDefNameSet.class);
+      if (attributeDefNameSet == null && exceptionIfNull) {
+        throw new RuntimeException("Can't find attributeDefNameSet by id: '" + id + "' or ifHasAttributeDefNameId '" + ifHasAttributeDefNameId 
+            + "', thenHasAttributeDefNameId: " + thenHasAttributeDefNameId + ", parentAttributeDefNameSetId: " + parentAttributeDefNameSetId + ", depth: " + depth);
+      }
+      return attributeDefNameSet;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find attributeDefNameSet by id: '" + id + "' or ifHasAttributeDefNameId '" + ifHasAttributeDefNameId 
+            + "', thenHasAttributeDefNameId: " + thenHasAttributeDefNameId + ", parentAttributeDefNameSetId: " + parentAttributeDefNameSetId 
+            + ", depth: " + depth + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#saveUpdateProperties(edu.internet2.middleware.grouper.attr.AttributeDefNameSet)
+   */
+  public void saveUpdateProperties(AttributeDefNameSet attributeDefNameSet) {
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update AttributeDefNameSet " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "createdOnDb = :theCreatedOnDb, " +
+        "lastUpdatedDb = :theLastUpdated " +
+        "where id = :theId")
+        .setLong("theHibernateVersionNumber", attributeDefNameSet.getHibernateVersionNumber())
+        .setLong("theCreatedOnDb", attributeDefNameSet.getCreatedOnDb())
+        .setLong("theLastUpdated", attributeDefNameSet.getLastUpdatedDb())
+        .setString("theContextId", attributeDefNameSet.getContextId())
+        .setString("theId", attributeDefNameSet.getId()).executeUpdate();
+  }
+
 } 
 

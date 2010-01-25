@@ -9,7 +9,6 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
-import edu.internet2.middleware.grouper.permissions.role.Role;
 
 /**
  * attribute def name set, links up attributes with other attributes (probably for privs)
@@ -117,5 +116,24 @@ public interface AttributeDefNameSetDAO extends GrouperDAO {
    */
   public Set<AttributeDefName> attributeDefNamesImpliedByThisImmediate(String attributeDefNameId);
 
+  /**
+   * find a record by uuid or key
+   * @param id
+   * @param ifHasAttributeDefNameId
+   * @param thenHasAttributedefNameId
+   * @param parentAttributeDefNameSetId
+   * @param depth
+   * @param exceptionIfNull
+   * @return the AttributeDefNameSet or null
+   */
+  public AttributeDefNameSet findByUuidOrKey(String id, String ifHasAttributeDefNameId, String thenHasAttributedefNameId, 
+      String parentAttributeDefNameSetId, int depth, boolean exceptionIfNull);
+  
+  
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attributeDefNameSet
+   */
+  public void saveUpdateProperties(AttributeDefNameSet attributeDefNameSet);
 
 }

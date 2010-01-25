@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 //select gg.name, gadn.name
 //from grouper_attribute_assign gaa, grouper_attribute_def_name_set gadns, grouper_groups gg, 
@@ -34,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class AttributeDefNameSet extends GrouperAPI 
-    implements Hib3GrouperVersioned, GrouperSet {
+    implements Hib3GrouperVersioned, GrouperSet, XmlImportable<AttributeDefNameSet> {
   
   /** logger */
   @SuppressWarnings("unused")
@@ -528,6 +529,101 @@ public class AttributeDefNameSet extends GrouperAPI
    */
   public String __getParentGrouperSetId() {
     return this.getParentAttrDefNameSetId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AttributeDefNameSet existingRecord) {
+    existingRecord.setDepth(this.depth);
+    existingRecord.setId(this.id);
+    existingRecord.setIfHasAttributeDefNameId(this.ifHasAttributeDefNameId);
+    existingRecord.setParentAttrDefNameSetId(this.parentAttrDefNameSetId);
+    existingRecord.setThenHasAttributeDefNameId(this.thenHasAttributeDefNameId);
+    existingRecord.setType(this.type);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AttributeDefNameSet other) {
+    if (this.depth != other.depth) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ifHasAttributeDefNameId, other.ifHasAttributeDefNameId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.parentAttrDefNameSetId, other.parentAttrDefNameSetId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.thenHasAttributeDefNameId, other.thenHasAttributeDefNameId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.type, other.type)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AttributeDefNameSet other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (this.lastUpdatedDb != other.lastUpdatedDb) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public AttributeDefNameSet xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByUuidOrKey(this.id, this.ifHasAttributeDefNameId, this.thenHasAttributeDefNameId, this.parentAttrDefNameSetId, this.depth, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(AttributeDefNameSet existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      
+      if (this.depth != 1) {
+        throw new RuntimeException("Why are we doing a depth not equal to 1????");
+      }
+      
+      AttributeDefName ifHasAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(this.ifHasAttributeDefNameId, true);
+      AttributeDefName thenHasAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByIdSecure(this.thenHasAttributeDefNameId, true);
+      
+      ifHasAttributeDefName.getAttributeDefNameSetDelegate().internal_addToAttributeDefNameSet(thenHasAttributeDefName, this.id);
+      
+      existingRecord = GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfThenImmediate(
+          this.ifHasAttributeDefNameId, this.thenHasAttributeDefNameId, true);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.saveOrUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttributeDefNameSet().saveUpdateProperties(this);
   }
 
 }
