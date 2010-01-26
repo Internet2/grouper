@@ -4,8 +4,10 @@
 package edu.internet2.middleware.grouper.attr;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -14,6 +16,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
 
 
 /**
@@ -23,7 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 @SuppressWarnings("serial")
-public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportableMultiple<AttributeDefScope> {
 
   /** logger */
   @SuppressWarnings("unused")
@@ -86,6 +89,7 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
   /**
    * fields which are included in db version
    */
+  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTE_DEF_ID, FIELD_ATTRIBUTE_DEF_SCOPE_TYPE, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, 
       FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_SCOPE_STRING, FIELD_SCOPE_STRING2);
@@ -129,7 +133,7 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
    * context id of the transaction 
    */
   private String contextId;
-  
+
   /**
    * id of this scope
    * @return id
@@ -323,6 +327,96 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
    */
   public String getContextId() {
     return this.contextId;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AttributeDefScope existingRecord) {
+    existingRecord.setAttributeDefId(this.attributeDefId);
+    existingRecord.setAttributeDefScopeType(this.attributeDefScopeType);
+    existingRecord.setId(this.getId());
+    existingRecord.setScopeString(this.scopeString);
+    existingRecord.setScopeString2(this.scopeString2);
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AttributeDefScope other) {
+    if (!StringUtils.equals(this.attributeDefId, other.attributeDefId)) {
+      return true;
+    }
+    if (this.attributeDefScopeType != other.attributeDefScopeType) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.scopeString, other.scopeString)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.scopeString2, other.scopeString2)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AttributeDefScope other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.lastUpdatedDb, other.lastUpdatedDb)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(AttributeDefScope existingRecord) {
+
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      existingRecord = new AttributeDefScope();
+      existingRecord.setId(this.id);
+      existingRecord.setAttributeDefId(this.getAttributeDefId());
+      existingRecord.setAttributeDefScopeType(this.attributeDefScopeType);
+      existingRecord.setScopeString(this.scopeString);
+      existingRecord.setScopeString2(this.scopeString2);
+      existingRecord.saveOrUpdate();
+    }
+
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.saveOrUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttributeDefScope().saveUpdateProperties(this);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple#xmlRetrieveByIdOrKey(java.util.Collection)
+   */
+  public AttributeDefScope xmlRetrieveByIdOrKey(Collection<String> idsToIgnore) {
+    return GrouperDAOFactory.getFactory().getAttributeDefScope().findByUuidOrKey(idsToIgnore,
+        this.id, this.attributeDefId, this.getAttributeDefScopeTypeDb(), false, this.getScopeString());
   }
   
 

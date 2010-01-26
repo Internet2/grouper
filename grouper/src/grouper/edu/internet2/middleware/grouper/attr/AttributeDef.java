@@ -173,9 +173,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /** constant for field name for: assignToStemAssn */
   public static final String FIELD_ASSIGN_TO_STEM_ASSN = "assignToStemAssn";
 
-  /** constant for field name for: attributeDefPrivilegeDelegate */
-  public static final String FIELD_ATTRIBUTE_DEF_PRIVILEGE_DELEGATE = "attributeDefPrivilegeDelegate";
-
   /** constant for field name for: attributeDefPublic */
   public static final String FIELD_ATTRIBUTE_DEF_PUBLIC = "attributeDefPublic";
 
@@ -226,7 +223,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
       FIELD_ASSIGN_TO_ATTRIBUTE_DEF, FIELD_ASSIGN_TO_ATTRIBUTE_DEF_ASSN, FIELD_ASSIGN_TO_EFF_MEMBERSHIP, FIELD_ASSIGN_TO_EFF_MEMBERSHIP_ASSN, 
       FIELD_ASSIGN_TO_GROUP, FIELD_ASSIGN_TO_GROUP_ASSN, FIELD_ASSIGN_TO_IMM_MEMBERSHIP, FIELD_ASSIGN_TO_IMM_MEMBERSHIP_ASSN, 
       FIELD_ASSIGN_TO_MEMBER, FIELD_ASSIGN_TO_MEMBER_ASSN, FIELD_ASSIGN_TO_STEM, FIELD_ASSIGN_TO_STEM_ASSN, 
-      FIELD_ATTRIBUTE_DEF_PRIVILEGE_DELEGATE, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
+      FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
       FIELD_CREATED_ON_DB, FIELD_CREATOR_ID, FIELD_DESCRIPTION, FIELD_EXTENSION, 
       FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, 
       FIELD_NAME, FIELD_STEM_ID, FIELD_VALUE_TYPE);
@@ -238,7 +235,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
       FIELD_ASSIGN_TO_ATTRIBUTE_DEF, FIELD_ASSIGN_TO_ATTRIBUTE_DEF_ASSN, FIELD_ASSIGN_TO_EFF_MEMBERSHIP, FIELD_ASSIGN_TO_EFF_MEMBERSHIP_ASSN, 
       FIELD_ASSIGN_TO_GROUP, FIELD_ASSIGN_TO_GROUP_ASSN, FIELD_ASSIGN_TO_IMM_MEMBERSHIP, FIELD_ASSIGN_TO_IMM_MEMBERSHIP_ASSN, 
       FIELD_ASSIGN_TO_MEMBER, FIELD_ASSIGN_TO_MEMBER_ASSN, FIELD_ASSIGN_TO_STEM, FIELD_ASSIGN_TO_STEM_ASSN, 
-      FIELD_ATTRIBUTE_DEF_PRIVILEGE_DELEGATE, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
+      FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
       FIELD_CREATED_ON_DB, FIELD_CREATOR_ID, FIELD_DESCRIPTION, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_MULTI_ASSIGNABLE, 
       FIELD_MULTI_VALUED, FIELD_NAME, FIELD_STEM_ID, FIELD_VALUE_TYPE);
@@ -251,6 +248,21 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   @Override
   public AttributeDef clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeDefScopeDelegate attributeDefScopeDelegate;
+  
+  /**
+   * 
+   * @return the delegate
+   */
+  public AttributeDefScopeDelegate getAttributeDefScopeDelegate() {
+    if (this.attributeDefScopeDelegate == null) {
+      this.attributeDefScopeDelegate = new AttributeDefScopeDelegate(this);
+    }
+    return this.attributeDefScopeDelegate;
   }
 
   /** */
@@ -268,6 +280,8 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
     return this.attributeAssignAttributeDefDelegate;
   }
 
+
+  
   /** delegate */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeDefActionDelegate attributeDefActionDelegate;
@@ -358,6 +372,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
   
   /** delegate privilege calls to another class to separate logic */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeDefPrivilegeDelegate attributeDefPrivilegeDelegate = null;
 
   /**

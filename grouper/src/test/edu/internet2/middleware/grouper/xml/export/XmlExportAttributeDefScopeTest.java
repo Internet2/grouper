@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.xml.export;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
+import edu.internet2.middleware.grouper.attr.AttributeDefScopeTest;
 import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -101,16 +102,7 @@ public class XmlExportAttributeDefScopeTest extends GrouperTest {
    * 
    */
   public void testConvertToAttributeDefScope() {
-    AttributeDefScope attributeDefScope = new AttributeDefScope();
-    attributeDefScope.setAttributeDefId("attributeDefId");
-    attributeDefScope.setAttributeDefScopeType(AttributeDefScopeType.attributeDefNameIdAssigned);
-    attributeDefScope.setContextId("contextId");
-    attributeDefScope.setCreatedOnDb(new Long(4L));
-    attributeDefScope.setHibernateVersionNumber(3L);
-    attributeDefScope.setLastUpdatedDb(new Long(7L));
-    attributeDefScope.setId("id");
-    attributeDefScope.setScopeString("scopeString");
-    attributeDefScope.setScopeString2("scopeString2");
+    AttributeDefScope attributeDefScope = AttributeDefScopeTest.exampleAttributeDefScope();
     
     XmlExportAttributeDefScope xmlExportAttributeDefScope = new XmlExportAttributeDefScope(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeDefScope);
 

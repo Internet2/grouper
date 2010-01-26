@@ -4,6 +4,9 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.util.Collection;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.exception.AttributeDefScopeNotFoundException;
 
@@ -14,15 +17,44 @@ public interface AttributeDefScopeDAO extends GrouperDAO {
   
   /** 
    * insert or update an attribute def scope object 
-   * @param attributeAssignValue 
+   * @param attributeDefScope 
    */
   public void saveOrUpdate(AttributeDefScope attributeDefScope);
   
   /**
    * @param id
+   * @param exceptionIfNotFound 
    * @return the attribute assign value or null if not there
+   * @throws AttributeDefScopeNotFoundException 
    */
   public AttributeDefScope findById(String id, boolean exceptionIfNotFound)
     throws AttributeDefScopeNotFoundException;
+
+  /**
+   * @param id 
+   * @param idsToIgnore
+   * @param attributeDefId 
+   * @param attributeDefScopeType 
+   * @param exceptionIfNull 
+   * @param scopeString is for matching (if id doesnt match)
+   * @return the attribute def scope or null
+   * @throws GrouperDAOException 
+   * @since   1.6.0
+   */
+  AttributeDefScope findByUuidOrKey(Collection<String> idsToIgnore,
+      String id, String attributeDefId, String attributeDefScopeType, boolean exceptionIfNull, String scopeString) throws GrouperDAOException;
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attributeDefScope
+   */
+  public void saveUpdateProperties(AttributeDefScope attributeDefScope);
+  
+  /**
+   * find all the scopes for a def
+   * @param attributeDefId
+   * @return the attribute def scopes
+   */
+  public Set<AttributeDefScope> findByAttributeDefId(String attributeDefId);
 
 }
