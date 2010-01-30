@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -204,5 +205,34 @@ public interface AttributeAssignDAO extends GrouperDAO {
   public Set<AttributeAssign> findByGroupIdMemberIdAndAttributeDefNameId(
       String groupId, String memberId, String attributeDefNameIdToAssign);
 
-  
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attributeAssign
+   */
+  public void saveUpdateProperties(AttributeAssign attributeAssign);
+
+  /**
+   * @param id if find by id, that is it
+   * @param idsToIgnore dont return anything in this list, already used or will be used
+   * @param attributeDefNameId which attribute is assigned
+   * @param attributeAssignActionId is the action for this assignment
+   * @param ownerAttributeAssignId owner must match 
+   * @param ownerAttributeDefId owner must match
+   * @param ownerGroupId owner must match
+   * @param ownerMemberId owner must match
+   * @param ownerMembershipId owner must match
+   * @param ownerStemId owner must match
+   * @param exceptionIfNull 
+   * @param disabledTimeDb if there are multiple without id match, and this matches, that is good
+   * @param enabledTimeDb if there are multiple without id match, this is good
+   * @param notes if there are multiple without id match, this is good
+   * @return the attribute assign or null
+   * @throws GrouperDAOException 
+   * @since   1.6.0
+   */
+  AttributeAssign findByUuidOrKey(Collection<String> idsToIgnore,
+      String id, String attributeDefNameId, String attributeAssignActionId, String ownerAttributeAssignId, String ownerAttributeDefId, String ownerGroupId,
+      String ownerMemberId, String ownerMembershipId, String ownerStemId, boolean exceptionIfNull, 
+      Long disabledTimeDb, Long enabledTimeDb, String notes) throws GrouperDAOException;
+
 }

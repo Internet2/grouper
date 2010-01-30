@@ -40,11 +40,12 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
   
   /**
    * @param attributeDefName
+   * @param uuid
    * @return attribute assign
    */
   @Override
-  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
-    return new AttributeAssign(this.attributeDef, action, attributeDefName);
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName, String uuid) {
+    return new AttributeAssign(this.attributeDef, action, attributeDefName, uuid);
   }
 
   /**

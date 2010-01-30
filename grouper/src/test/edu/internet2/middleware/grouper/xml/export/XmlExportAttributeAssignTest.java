@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.xml.export;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeAssignTest;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -122,26 +123,7 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
    * 
    */
   public void testConvertToAttributeAssign() {
-    AttributeAssign attributeAssign = new AttributeAssign();
-    attributeAssign.setAttributeAssignActionId("attributeAssignActionId");
-    attributeAssign.setAttributeAssignDelegatable(AttributeAssignDelegatable.TRUE);
-    attributeAssign.setAttributeAssignType(AttributeAssignType.any_mem);
-    attributeAssign.setAttributeDefNameId("attributeDefNameId");
-    attributeAssign.setContextId("contextId");
-    attributeAssign.setCreatedOnDb(5L);
-    attributeAssign.setDisabledTimeDb(7L);
-    attributeAssign.setEnabledDb("T");
-    attributeAssign.setEnabledTimeDb(8L);
-    attributeAssign.setHibernateVersionNumber(3L);
-    attributeAssign.setLastUpdatedDb(6L);
-    attributeAssign.setNotes("notes");
-    attributeAssign.setOwnerAttributeAssignId("ownerAttributeAssignId");
-    attributeAssign.setOwnerAttributeDefId("ownerAttributeDefId");
-    attributeAssign.setOwnerGroupId("ownerGroupId");
-    attributeAssign.setOwnerMemberId("ownerMemberId");
-    attributeAssign.setOwnerMembershipId("ownerMembershipId");
-    attributeAssign.setOwnerStemId("ownerStemId");
-    attributeAssign.setId("uuid");
+    AttributeAssign attributeAssign = AttributeAssignTest.exampleAttributeAssign();
     
     XmlExportAttributeAssign xmlExportAttributeAssign = new XmlExportAttributeAssign(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeAssign);
 

@@ -34,9 +34,10 @@ public abstract class AttributeAssignBaseDelegate {
    * @param action is the action on the attribute assignment (e.g. read, write, assign [default])
    * if null, should go to default
    * @param attributeDefName
+   * @param uuid uuid to use or null for generated
    * @return attribute assign
    */
-  abstract AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName);
+  abstract AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName, String uuid);
   
   /**
    * make sure the user can read the attribute (including looking at object if necessary)
@@ -384,7 +385,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @return the result including if added or already there
    */
   public AttributeAssignResult assignAttribute(String action, AttributeDefName attributeDefName) {
-    return this.assignAttributeHelper(action, attributeDefName, true);
+    return this.internal_assignAttributeHelper(action, attributeDefName, true, null);
 
   }
 
@@ -392,9 +393,12 @@ public abstract class AttributeAssignBaseDelegate {
    * @param action is the action on the assignment (null means default action)
    * @param attributeDefName
    * @param checkSecurity
+   * @param uuid uuid of the assignment
    * @return the result including if added or already there
    */
-  AttributeAssignResult assignAttributeHelper(String action, AttributeDefName attributeDefName, boolean checkSecurity) {
+  public AttributeAssignResult internal_assignAttributeHelper(String action, 
+      AttributeDefName attributeDefName, boolean checkSecurity, String uuid) {
+    
     if (checkSecurity) {
       this.assertCanUpdateAttributeDefName(attributeDefName);
     }
@@ -405,7 +409,7 @@ public abstract class AttributeAssignBaseDelegate {
       return new AttributeAssignResult(false, attributeAssign);
     }
     
-    attributeAssign = newAttributeAssign(action, attributeDefName);
+    attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
     
     if (StringUtils.isBlank(attributeAssign.getAttributeAssignActionId())) {
       attributeAssign.setAttributeAssignActionId(attributeDefName.getAttributeDef()
@@ -600,7 +604,7 @@ public abstract class AttributeAssignBaseDelegate {
           //do the same thing that an assign would do
           //do this as root since the user who can delegate might not be able to assign...
           AttributeAssignResult attributeAssignResult = AttributeAssignBaseDelegate
-          .this.assignAttributeHelper(action, attributeDefName, false);
+          .this.internal_assignAttributeHelper(action, attributeDefName, false, null);
           
           if (attributeAssignDelegateOptions != null) {
             

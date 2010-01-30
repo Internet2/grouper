@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
 
 
 /**
@@ -41,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 @SuppressWarnings("serial")
-public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportableMultiple<AttributeAssign> {
 
   /** logger */
   @SuppressWarnings("unused")
@@ -197,8 +199,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param ownerStem
    * @param theAction
    * @param attributeDefName
+   * @param uuid
    */
-  public AttributeAssign(Stem ownerStem, String theAction, AttributeDefName attributeDefName) {
+  public AttributeAssign(Stem ownerStem, String theAction, AttributeDefName attributeDefName, String uuid) {
 
     this();
     this.setAttributeAssignType(AttributeAssignType.stem);
@@ -208,7 +211,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
-    this.setId(GrouperUuid.getUuid());
+    this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
 
@@ -217,8 +220,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param ownerAttributeDef
    * @param theAction
    * @param attributeDefName
+   * @param uuid is uuid or null if generated
    */
-  public AttributeAssign(AttributeDef ownerAttributeDef, String theAction, AttributeDefName attributeDefName) {
+  public AttributeAssign(AttributeDef ownerAttributeDef, String theAction, AttributeDefName attributeDefName, String uuid) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.attr_def);
@@ -228,7 +232,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
-    this.setId(GrouperUuid.getUuid());
+    this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
 
@@ -237,8 +241,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param ownerGroup
    * @param theAction
    * @param attributeDefName
+   * @param uuid is the uuid or null if generated
    */
-  public AttributeAssign(Group ownerGroup, String theAction, AttributeDefName attributeDefName) {
+  public AttributeAssign(Group ownerGroup, String theAction, AttributeDefName attributeDefName, String uuid) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.group);
@@ -248,7 +253,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
-    this.setId(GrouperUuid.getUuid());
+    this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
 
@@ -258,8 +263,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param ownerMember 
    * @param theAction
    * @param attributeDefName
+   * @param uuid
    */
-  public AttributeAssign(Group ownerGroup, Member ownerMember, String theAction, AttributeDefName attributeDefName) {
+  public AttributeAssign(Group ownerGroup, Member ownerMember, String theAction, 
+      AttributeDefName attributeDefName, String uuid) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.any_mem);
@@ -281,7 +288,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
-    this.setId(GrouperUuid.getUuid());
+    this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
 
@@ -290,9 +297,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param ownerAttributeAssign
    * @param theAction
    * @param attributeDefName
+   * @param uuid to use or null for generated
    */
   public AttributeAssign(AttributeAssign ownerAttributeAssign, String theAction, 
-      AttributeDefName attributeDefName) {
+      AttributeDefName attributeDefName, String uuid) {
     
     this();
     
@@ -330,7 +338,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
-    this.setId(GrouperUuid.getUuid());
+    this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
 
@@ -339,8 +347,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param ownerMembership
    * @param theAction
    * @param attributeDefName
+   * @param uuid
    */
-  public AttributeAssign(Membership ownerMembership, String theAction, AttributeDefName attributeDefName) {
+  public AttributeAssign(Membership ownerMembership, String theAction, AttributeDefName attributeDefName, String uuid) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.imm_mem);
@@ -364,7 +373,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
     this.setAttributeAssignActionId(attributeAssignAction.getId());
     this.setAttributeDefNameId(attributeDefName.getId());
-    this.setId(GrouperUuid.getUuid());
+    this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
 
@@ -373,8 +382,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param ownerMember
    * @param theActionId
    * @param attributeDefName
+   * @param uuid is the uuid or null for generated
    */
-  public AttributeAssign(Member ownerMember, String theActionId, AttributeDefName attributeDefName) {
+  public AttributeAssign(Member ownerMember, String theActionId, AttributeDefName attributeDefName, String uuid) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.member);
@@ -382,7 +392,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this.setOwnerMemberId(ownerMember.getUuid());
     this.setAttributeAssignActionId(theActionId);
     this.setAttributeDefNameId(attributeDefName.getId());
-    this.setId(GrouperUuid.getUuid());
+    this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
 
@@ -772,10 +782,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   
   /**
    * attribute name in this assignment
-   * @param attributeNameId1 the attributeNameId to set
+   * @param attributeDefNameId1 the attributeNameId to set
    */
-  public void setAttributeDefNameId(String attributeNameId1) {
-    this.attributeDefNameId = attributeNameId1;
+  public void setAttributeDefNameId(String attributeDefNameId1) {
+    this.attributeDefNameId = attributeDefNameId1;
     //reset cached object
     this.attributeDefName = null;
     this.attributeDef = null;
@@ -1067,5 +1077,177 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     }
     
     return toStringBuilder.toString();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AttributeAssign existingRecord) {
+    
+    existingRecord.setAttributeAssignActionId(existingRecord.getAttributeAssignActionId());
+    existingRecord.setAttributeAssignDelegatable(existingRecord.getAttributeAssignDelegatable());
+    existingRecord.setAttributeAssignType(existingRecord.getAttributeAssignType());
+    existingRecord.setAttributeDefNameId(existingRecord.getAttributeDefNameId());
+    existingRecord.setDisabledTimeDb(existingRecord.getDisabledTimeDb());
+    existingRecord.setEnabled(existingRecord.isEnabled());
+    existingRecord.setEnabledTimeDb(existingRecord.getEnabledTimeDb());
+    existingRecord.setId(existingRecord.getId());
+    existingRecord.setNotes(existingRecord.getNotes());
+    existingRecord.setOwnerAttributeAssignId(existingRecord.getOwnerAttributeAssignId());
+    existingRecord.setOwnerAttributeDefId(existingRecord.getOwnerAttributeDefId());
+    existingRecord.setOwnerGroupId(existingRecord.getOwnerGroupId());
+    existingRecord.setOwnerMemberId(existingRecord.getOwnerMemberId());
+    existingRecord.setOwnerMembershipId(existingRecord.getOwnerMembershipId());
+    existingRecord.setOwnerStemId(existingRecord.getOwnerStemId());
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AttributeAssign other) {
+    if (!StringUtils.equals(this.attributeAssignActionId, other.attributeAssignActionId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.attributeAssignDelegatable, other.attributeAssignDelegatable)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.attributeAssignType, other.attributeAssignType)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.attributeDefNameId, other.attributeDefNameId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.disabledTimeDb, other.disabledTimeDb)) {
+      return true;
+    }
+    if (this.enabled != other.enabled) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.enabledTimeDb, other.enabledTimeDb)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.notes, other.notes)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerAttributeAssignId, other.ownerAttributeAssignId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerAttributeDefId, other.ownerAttributeDefId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerGroupId, other.ownerGroupId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerMemberId, other.ownerMemberId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerMembershipId, other.ownerMembershipId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.ownerStemId, other.ownerStemId)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AttributeAssign other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.lastUpdatedDb, other.lastUpdatedDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(AttributeAssign existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      
+      AttributeAssignResult attributeAssignResult = null;
+      AttributeAssignAction attributeAssignAction = this.getAttributeAssignAction();
+      AttributeDefName attributeDefName = this.getAttributeDefName();
+        
+      if (!StringUtils.isBlank(this.ownerAttributeAssignId)) {
+        
+        AttributeAssign ownerAttributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign()
+          .findById(this.ownerAttributeAssignId, true);
+        attributeAssignResult = ownerAttributeAssign.getAttributeDelegate()
+          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+        
+      } else if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
+
+        AttributeDef ownerAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
+          .findById(this.ownerAttributeDefId, true);
+        attributeAssignResult = ownerAttributeDef.getAttributeDelegate()
+          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+      
+      } else if (!StringUtils.isBlank(this.ownerGroupId)) {
+
+        Group ownerGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
+        attributeAssignResult = ownerGroup.getAttributeDelegate()
+          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+        
+      } else if (!StringUtils.isBlank(this.ownerMemberId)) {
+        
+        Member ownerMember = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
+        attributeAssignResult = ownerMember.getAttributeDelegate()
+          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+
+      } else if (!StringUtils.isBlank(this.ownerMembershipId)) {
+        
+        Membership ownerMembership = GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
+        attributeAssignResult = ownerMembership.getAttributeDelegate()
+          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+
+      } else if (!StringUtils.isBlank(this.ownerStemId)) {
+        
+        Stem ownerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.id, true);
+        attributeAssignResult = ownerStem.getAttributeDelegate()
+          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+
+      } else {
+        throw new RuntimeException("Cant find owner: " + this);
+      }
+      
+      existingRecord = attributeAssignResult.getAttributeAssign();
+      
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.saveOrUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttributeAssign().saveUpdateProperties(this);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple#xmlRetrieveByIdOrKey(java.util.Collection)
+   */
+  public AttributeAssign xmlRetrieveByIdOrKey(Collection<String> idsToIgnore) {
+    return GrouperDAOFactory.getFactory().getAttributeAssign().findByUuidOrKey(idsToIgnore,
+        this.id, this.attributeDefNameId, this.attributeAssignActionId, this.ownerAttributeAssignId, this.ownerAttributeDefId, this.ownerGroupId,
+        this.ownerMemberId, this.ownerMembershipId, this.ownerStemId,  
+        false, this.disabledTimeDb, this.enabledTimeDb, this.notes);
   }
 }

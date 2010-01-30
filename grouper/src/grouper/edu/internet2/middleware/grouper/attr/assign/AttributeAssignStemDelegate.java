@@ -70,11 +70,11 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, java.lang.String)
    */
   @Override
-  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
-    return new AttributeAssign(this.stem, action, attributeDefName);
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName, String uuid) {
+    return new AttributeAssign(this.stem, action, attributeDefName, uuid);
   }
 
   /**

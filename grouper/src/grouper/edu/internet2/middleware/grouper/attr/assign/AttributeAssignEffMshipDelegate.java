@@ -80,12 +80,12 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName)
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#newAttributeAssign(java.lang.String, edu.internet2.middleware.grouper.attr.AttributeDefName, java.lang.String)
    */
   @Override
-  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName) {
+  AttributeAssign newAttributeAssign(String action, AttributeDefName attributeDefName, String uuid) {
     assertMemberOfGroup();
-    return new AttributeAssign(this.group, this.member, action, attributeDefName);
+    return new AttributeAssign(this.group, this.member, action, attributeDefName, uuid);
   }
 
   /**
