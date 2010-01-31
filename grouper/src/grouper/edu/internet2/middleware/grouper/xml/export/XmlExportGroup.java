@@ -105,40 +105,6 @@ public class XmlExportGroup {
   }
 
   /**
-   * @param group
-   * @param grouperVersion
-   */
-  public XmlExportGroup(GrouperVersion grouperVersion, Group group) {
-    
-    if (group == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.alternateName = group.getAlternateNameDb();
-    this.contextId = group.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(group.getCreateTime());
-    this.creatorId = group.getCreatorUuid();
-    this.description = group.getDescription();
-    this.displayExtension = group.getDisplayExtension();
-    this.displayName = group.getDisplayName();
-    this.extension = group.getExtension();
-    this.hibernateVersionNumber = group.getHibernateVersionNumber();
-    //TODO make string
-    this.lastMembershipChange = group.getLastMembershipChangeDb();
-    this.modifierId = group.getModifierUuid();
-    this.modifierTime = GrouperUtil.dateStringValue(group.getModifyTime());
-    this.name = group.getName();
-    this.parentStem = group.getParentUuid();
-    this.typeOfGroup = group.getTypeOfGroupDb();
-    this.uuid = group.getUuid();
-    
-  }
-
-  /**
    * alternate name
    * @return alternate name
    */
@@ -457,7 +423,7 @@ public class XmlExportGroup {
             while(results.next()) {
               Object object = results.get(0);
               Group group = (Group)object;
-              XmlExportGroup xmlExportGroup = new XmlExportGroup(grouperVersion, group);
+              XmlExportGroup xmlExportGroup = group.xmlToExportGroup(grouperVersion);
               writer.write("    ");
               xmlExportGroup.toXml(grouperVersion, writer);
               writer.write("\n");

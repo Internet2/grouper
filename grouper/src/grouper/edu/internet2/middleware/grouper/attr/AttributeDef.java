@@ -31,8 +31,10 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDef;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.Subject;
 
@@ -1469,6 +1471,49 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getAttributeDef().saveUpdateProperties(this);
+  }
+
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAttributeDef xmlToExportAttributeDef(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+        
+    XmlExportAttributeDef xmlExportAttributeDef = new XmlExportAttributeDef();
+    
+    xmlExportAttributeDef.setAssignToAttributeDef(this.getAssignToAttributeDefDb());
+    xmlExportAttributeDef.setAssignToAttributeDefAssn(this.getAssignToAttributeDefAssnDb());
+    xmlExportAttributeDef.setAssignToEffMembership(this.getAssignToEffMembershipDb());
+    xmlExportAttributeDef.setAssignToEffMembershipAssn(this.getAssignToEffMembershipAssnDb());
+    xmlExportAttributeDef.setAssignToGroup(this.getAssignToGroupDb());
+    xmlExportAttributeDef.setAssignToGroupAssn(this.getAssignToGroupAssnDb());
+    xmlExportAttributeDef.setAssignToImmMembership(this.getAssignToImmMembershipDb());
+    xmlExportAttributeDef.setAssignToImmMembershipAssn(this.getAssignToImmMembershipAssnDb());
+    xmlExportAttributeDef.setAssignToMember(this.getAssignToMemberDb());
+    xmlExportAttributeDef.setAssignToMemberAssn(this.getAssignToMemberAssnDb());
+    xmlExportAttributeDef.setAssignToStem(this.getAssignToStemDb());
+    xmlExportAttributeDef.setAssignToStemAssn(this.getAssignToStemAssnDb());
+    xmlExportAttributeDef.setAttributeDefPublic(this.getAttributeDefPublicDb());
+    xmlExportAttributeDef.setAttributeDefType(this.getAttributeDefTypeDb());
+    xmlExportAttributeDef.setContextId(this.getContextId());
+    xmlExportAttributeDef.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportAttributeDef.setCreatorId(this.getCreatorId());
+    xmlExportAttributeDef.setDescription(this.getDescription());
+    xmlExportAttributeDef.setExtension(this.getExtension());
+    xmlExportAttributeDef.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeDef.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    xmlExportAttributeDef.setMultiAssignable(this.getMultiAssignableDb());
+    xmlExportAttributeDef.setMultiValued(this.getMultiValuedDb());
+    xmlExportAttributeDef.setName(this.getName());
+    xmlExportAttributeDef.setParentStem(this.getStemId());
+    xmlExportAttributeDef.setUuid(this.getUuid());
+    xmlExportAttributeDef.setValueType(this.getValueTypeDb());
+    return xmlExportAttributeDef;
   }
 
 }

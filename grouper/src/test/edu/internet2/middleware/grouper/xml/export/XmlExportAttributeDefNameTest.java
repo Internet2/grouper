@@ -120,7 +120,7 @@ public class XmlExportAttributeDefNameTest extends GrouperTest {
     attributeDefName.setStemId("parentUuid");
     attributeDefName.setId("uuid");
     
-    XmlExportAttributeDefName xmlExportAttributeDefName = new XmlExportAttributeDefName(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeDefName);
+    XmlExportAttributeDefName xmlExportAttributeDefName = attributeDefName.xmlToExportAttributeDefName(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     attributeDefName = xmlExportAttributeDefName.toAttributeDefName();

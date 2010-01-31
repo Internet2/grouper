@@ -43,8 +43,10 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportField;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 
@@ -746,6 +748,31 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
     GrouperDAOFactory.getFactory().getField().saveUpdateProperties(this);
     FieldFinder.clearCache();
 
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportField xmlToExportField(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+
+    XmlExportField xmlExportField = new XmlExportField();
+    
+    xmlExportField.setContextId(this.getContextId());
+    xmlExportField.setGroupTypeUuid(this.getGroupTypeUuid());
+    xmlExportField.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    
+    xmlExportField.setName(this.getName());
+    xmlExportField.setNullable(this.getIsNullable() ? "T" : "F");
+    xmlExportField.setReadPrivilege(this.getReadPrivilege());
+    xmlExportField.setType(this.getTypeString());
+    xmlExportField.setUuid(this.getUuid());
+    xmlExportField.setWritePrivilege(this.getWritePrivilege());
+    return xmlExportField;
   }
 
 

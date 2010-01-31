@@ -95,7 +95,7 @@ public class XmlExportGroupTypeTupleTest extends GrouperTest {
   public void testConvertToGroupTypeTuple() {
     GroupTypeTuple groupTypeTuple = TestGroupTypeTuple.exampleGroupTypeTuple();
     
-    XmlExportGroupTypeTuple xmlExportGroupTypeTuple = new XmlExportGroupTypeTuple(new GrouperVersion(GrouperVersion.GROUPER_VERSION), groupTypeTuple);
+    XmlExportGroupTypeTuple xmlExportGroupTypeTuple = groupTypeTuple.xmlToExportGroup(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     groupTypeTuple = xmlExportGroupTypeTuple.toGroupTypeTuple();

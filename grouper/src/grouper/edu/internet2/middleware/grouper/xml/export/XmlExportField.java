@@ -152,32 +152,6 @@ public class XmlExportField {
     
   }
 
-  /**
-   * @param field
-   * @param grouperVersion
-   */
-  public XmlExportField(GrouperVersion grouperVersion, Field field) {
-    
-    if (field == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.contextId = field.getContextId();
-    this.groupTypeUuid = field.getGroupTypeUuid();
-    this.hibernateVersionNumber = field.getHibernateVersionNumber();
-    
-    this.name = field.getName();
-    this.nullable = field.getIsNullable() ? "T" : "F";
-    this.readPrivilege = field.getReadPrivilege();
-    this.type = field.getTypeString();
-    this.uuid = field.getUuid();
-    this.writePrivilege = field.getWritePrivilege();
-    
-  }
 
   /**
    * uuid
@@ -337,7 +311,7 @@ public class XmlExportField {
                 });
               }
               
-              XmlExportField xmlExportField = new XmlExportField(grouperVersion, field);
+              XmlExportField xmlExportField = field.xmlToExportField(grouperVersion);
               writer.write("    ");
               xmlExportField.toXml(grouperVersion, writer);
               writer.write("\n");

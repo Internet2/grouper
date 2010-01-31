@@ -88,28 +88,6 @@ public class XmlExportGroupTypeTuple {
   }
 
   /**
-   * @param groupTypeTuple
-   * @param grouperVersion
-   */
-  public XmlExportGroupTypeTuple(GrouperVersion grouperVersion, GroupTypeTuple groupTypeTuple) {
-    
-    if (groupTypeTuple == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.contextId = groupTypeTuple.getContextId();
-    this.groupId = groupTypeTuple.getGroupUuid();
-    this.hibernateVersionNumber = groupTypeTuple.getHibernateVersionNumber();
-    this.typeId = groupTypeTuple.getTypeUuid();
-    this.uuid = groupTypeTuple.getId();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -247,7 +225,7 @@ public class XmlExportGroupTypeTuple {
                 });
               }
               
-              XmlExportGroupTypeTuple xmlExportGroupTypeTuple = new XmlExportGroupTypeTuple(grouperVersion, groupTypeTuple);
+              XmlExportGroupTypeTuple xmlExportGroupTypeTuple = groupTypeTuple.xmlToExportGroup(grouperVersion);
               writer.write("    ");
               xmlExportGroupTypeTuple.toXml(grouperVersion, writer);
               writer.write("\n");

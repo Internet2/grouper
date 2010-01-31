@@ -87,6 +87,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -108,6 +109,7 @@ import edu.internet2.middleware.grouper.validator.DeleteStemValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
+import edu.internet2.middleware.grouper.xml.export.XmlExportStem;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -3484,6 +3486,39 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     
     GrouperDAOFactory.getFactory().getStem().saveUpdateProperties(this);
     
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportStem xmlToExportStem(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    XmlExportStem xmlExportStem = new XmlExportStem();
+    
+    xmlExportStem.setContextId(this.getContextId());
+    xmlExportStem.setCreateTime(GrouperUtil.dateStringValue(this.getCreateTime()));
+    xmlExportStem.setCreatorId(this.getCreatorUuid());
+    xmlExportStem.setDescription(this.getDescription());
+    xmlExportStem.setDisplayExtension(this.getDisplayExtension());
+    xmlExportStem.setDisplayName(this.getDisplayName());
+    xmlExportStem.setExtension(this.getExtension());
+    xmlExportStem.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    //TODO make string
+    xmlExportStem.setLastMembershipChange(this.getLastMembershipChangeDb());
+    xmlExportStem.setModifierId(this.getModifierUuid());
+    xmlExportStem.setModifierTime(GrouperUtil.dateStringValue(this.getModifyTime()));
+    xmlExportStem.setName(this.getName());
+    xmlExportStem.setParentStem(this.getParentUuid());
+    xmlExportStem.setUuid(this.getUuid());
+    return xmlExportStem;
   }
 
 

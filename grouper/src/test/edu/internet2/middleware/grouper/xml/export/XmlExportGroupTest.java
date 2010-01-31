@@ -117,7 +117,7 @@ public class XmlExportGroupTest extends GrouperTest {
   public void testConvertToGroup() {
     Group group = TestGroup.exampleGroup();
     
-    XmlExportGroup xmlExportGroup = new XmlExportGroup(new GrouperVersion(GrouperVersion.GROUPER_VERSION), group);
+    XmlExportGroup xmlExportGroup = group.xmlToExportGroup(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     group = xmlExportGroup.toGroup();

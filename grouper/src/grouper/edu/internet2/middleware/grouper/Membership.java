@@ -79,12 +79,14 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.CompositeMembershipValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
+import edu.internet2.middleware.grouper.xml.export.XmlExportMembership;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.Subject;
 
@@ -2927,5 +2929,36 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getMembership().saveUpdateProperties(this);
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportMembership xmlToExportMembership(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportMembership xmlExportMembership = new XmlExportMembership();
+    
+    xmlExportMembership.setContextId(this.getContextId());
+    xmlExportMembership.setCreateTime(GrouperUtil.dateStringValue(this.getCreateTime()));
+    xmlExportMembership.setCreatorId(this.getCreatorUuid());
+    //note assume dont need to export smaller measures than millis
+    xmlExportMembership.setDisableTimestamp(GrouperUtil.dateStringValue(this.getDisabledTimeDb()));
+    xmlExportMembership.setEnabled(GrouperUtil.booleanValue(this.getEnabledDb(), true) ? "T" : "F");
+    xmlExportMembership.setEnabledTimestamp(GrouperUtil.dateStringValue(this.getEnabledTimeDb()));
+    xmlExportMembership.setFieldId(this.getFieldId());
+    xmlExportMembership.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportMembership.setMemberId(this.getMemberUuid());
+    xmlExportMembership.setOwnerAttrDefId(this.getOwnerAttrDefId());
+    xmlExportMembership.setOwnerGroupId(this.getOwnerGroupId());
+    xmlExportMembership.setOwnerStemId(this.getOwnerStemId());
+    xmlExportMembership.setType(this.getType());
+    xmlExportMembership.setUuid(this.getImmediateMembershipId());
+    xmlExportMembership.setViaCompositeId(this.getViaCompositeId());
+    return xmlExportMembership;
   }
 }

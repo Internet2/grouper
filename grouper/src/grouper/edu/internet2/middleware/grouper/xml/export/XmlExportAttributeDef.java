@@ -414,50 +414,6 @@ public class XmlExportAttributeDef {
   }
 
   /**
-   * @param attributeDef
-   * @param grouperVersion
-   */
-  public XmlExportAttributeDef(GrouperVersion grouperVersion, AttributeDef attributeDef) {
-    
-    if (attributeDef == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.assignToAttributeDef = attributeDef.getAssignToAttributeDefDb();
-    this.assignToAttributeDefAssn = attributeDef.getAssignToAttributeDefAssnDb();
-    this.assignToEffMembership = attributeDef.getAssignToEffMembershipDb();
-    this.assignToEffMembershipAssn = attributeDef.getAssignToEffMembershipAssnDb();
-    this.assignToGroup = attributeDef.getAssignToGroupDb();
-    this.assignToGroupAssn = attributeDef.getAssignToGroupAssnDb();
-    this.assignToImmMembership = attributeDef.getAssignToImmMembershipDb();
-    this.assignToImmMembershipAssn = attributeDef.getAssignToImmMembershipAssnDb();
-    this.assignToMember = attributeDef.getAssignToMemberDb();
-    this.assignToMemberAssn = attributeDef.getAssignToMemberAssnDb();
-    this.assignToStem = attributeDef.getAssignToStemDb();
-    this.assignToStemAssn = attributeDef.getAssignToStemAssnDb();
-    this.attributeDefPublic = attributeDef.getAttributeDefPublicDb();
-    this.attributeDefType = attributeDef.getAttributeDefTypeDb();
-    this.contextId = attributeDef.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(attributeDef.getCreatedOnDb());
-    this.creatorId = attributeDef.getCreatorId();
-    this.description = attributeDef.getDescription();
-    this.extension = attributeDef.getExtension();
-    this.hibernateVersionNumber = attributeDef.getHibernateVersionNumber();
-    this.modifierTime = GrouperUtil.dateStringValue(attributeDef.getLastUpdatedDb());
-    this.multiAssignable = attributeDef.getMultiAssignableDb();
-    this.multiValued = attributeDef.getMultiValuedDb();
-    this.name = attributeDef.getName();
-    this.parentStem = attributeDef.getStemId();
-    this.uuid = attributeDef.getUuid();
-    this.valueType = attributeDef.getValueTypeDb();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -707,7 +663,7 @@ public class XmlExportAttributeDef {
             while(results.next()) {
               Object object = results.get(0);
               AttributeDef attributeDef = (AttributeDef)object;
-              XmlExportAttributeDef xmlExportAttributeDef = new XmlExportAttributeDef(grouperVersion, attributeDef);
+              XmlExportAttributeDef xmlExportAttributeDef = attributeDef.xmlToExportAttributeDef(grouperVersion);
               writer.write("    ");
               xmlExportAttributeDef.toXml(grouperVersion, writer);
               writer.write("\n");

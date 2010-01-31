@@ -101,7 +101,7 @@ public class XmlExportGroupTypeTest extends GrouperTest {
   public void testConvertToGroupType() {
     GroupType groupType = TestGroupType.exampleGroupType();
     
-    XmlExportGroupType xmlExportGroupType = new XmlExportGroupType(new GrouperVersion(GrouperVersion.GROUPER_VERSION), groupType);
+    XmlExportGroupType xmlExportGroupType = groupType.xmlToExportGroupType(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     groupType = xmlExportGroupType.toGroupType();

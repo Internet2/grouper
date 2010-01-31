@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -64,6 +65,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddFieldToGroupTypeValidator;
 import edu.internet2.middleware.grouper.validator.DeleteFieldFromGroupTypeValidator;
 import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
+import edu.internet2.middleware.grouper.xml.export.XmlExportGroup;
+import edu.internet2.middleware.grouper.xml.export.XmlExportGroupType;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /** 
@@ -1262,6 +1265,30 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getGroupType().saveUpdateProperties(this);
   }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportGroupType xmlToExportGroupType(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportGroupType xmlExportGroupType = new XmlExportGroupType();
+    
+    xmlExportGroupType.setAssignable(this.getIsAssignable() ? "T" : "F");
+    xmlExportGroupType.setContextId(this.getContextId());
+    xmlExportGroupType.setCreateTime(GrouperUtil.dateStringValue(new Date(this.getCreateTime())));
+    xmlExportGroupType.setCreatorId(this.getCreatorUuid());
+    xmlExportGroupType.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportGroupType.setInternal(this.getIsInternal() ? "T" : "F");
+    xmlExportGroupType.setName(this.getName());
+    xmlExportGroupType.setUuid(this.getUuid());
+    return xmlExportGroupType;
+  }
+
 
 
 }

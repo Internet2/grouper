@@ -33,7 +33,9 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignAction;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 
@@ -508,6 +510,31 @@ public class AttributeAssignAction extends GrouperAPI
    */
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getAttributeAssignAction().saveUpdateProperties(this);
+  }
+
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAttributeAssignAction xmlToExportAttributeAssignAction(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+
+    XmlExportAttributeAssignAction xmlExportAttributeAssignAction = new XmlExportAttributeAssignAction();
+    
+    xmlExportAttributeAssignAction.setAttributeDefId(this.getAttributeDefId());
+    xmlExportAttributeAssignAction.setContextId(this.getContextId());
+    xmlExportAttributeAssignAction.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportAttributeAssignAction.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeAssignAction.setName(this.getNameDb());
+    xmlExportAttributeAssignAction.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    xmlExportAttributeAssignAction.setUuid(this.getId());
+    
+    return xmlExportAttributeAssignAction;
+    
   }
 
 }

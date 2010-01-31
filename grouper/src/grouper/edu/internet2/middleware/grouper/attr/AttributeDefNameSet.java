@@ -14,7 +14,9 @@ import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDefNameSet;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 //select gg.name, gadn.name
@@ -624,6 +626,32 @@ public class AttributeDefNameSet extends GrouperAPI
    */
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getAttributeDefNameSet().saveUpdateProperties(this);
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAttributeDefNameSet xmlToExportAttributeDefNameSet(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = new XmlExportAttributeDefNameSet();
+    
+    xmlExportAttributeDefNameSet.setContextId(this.getContextId());
+    xmlExportAttributeDefNameSet.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportAttributeDefNameSet.setDepth(this.getDepth());
+    xmlExportAttributeDefNameSet.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeDefNameSet.setIfHasAttributeDefNameId(this.getIfHasAttributeDefNameId());
+    xmlExportAttributeDefNameSet.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    xmlExportAttributeDefNameSet.setParentAttributeDefNameSetId(this.getParentAttrDefNameSetId());
+    xmlExportAttributeDefNameSet.setThenHasAttributeDefNameId(this.getThenHasAttributeDefNameId());
+    xmlExportAttributeDefNameSet.setType(this.getTypeDb());
+    xmlExportAttributeDefNameSet.setUuid(this.getId());
+    
+    return xmlExportAttributeDefNameSet;
   }
 
 }

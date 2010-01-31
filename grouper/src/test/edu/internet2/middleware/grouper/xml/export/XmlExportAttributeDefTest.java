@@ -140,8 +140,7 @@ public class XmlExportAttributeDefTest extends GrouperTest {
    */
   public void testConvertToAttributeDef() {
     AttributeDef attributeDef = AttributeDefTest.exampleAttributeDef();
-    XmlExportAttributeDef xmlExportAttributeDef = new XmlExportAttributeDef(
-        new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeDef);
+    XmlExportAttributeDef xmlExportAttributeDef = attributeDef.xmlToExportAttributeDef(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     attributeDef = xmlExportAttributeDef.toAttributeDef();

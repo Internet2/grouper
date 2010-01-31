@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -79,6 +80,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.MemberModifyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.grouper.xml.export.XmlExportMember;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -3034,7 +3036,28 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
 
 
-  
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportMember xmlToExportMember(GrouperVersion grouperVersion) {
+
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportMember xmlExportMember = new XmlExportMember();
+    xmlExportMember.setContextId(this.getContextId());
+    xmlExportMember.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportMember.setSourceId(this.getSubjectSourceId());
+    xmlExportMember.setSubjectId(this.getSubjectId());
+    xmlExportMember.setSubjectType(this.getSubjectTypeId());
+    xmlExportMember.setUuid(this.getUuid());
+    return xmlExportMember;
+  }
+
+
   
 } 
 

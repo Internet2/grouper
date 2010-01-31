@@ -104,7 +104,7 @@ public class XmlExportAttributeDefScopeTest extends GrouperTest {
   public void testConvertToAttributeDefScope() {
     AttributeDefScope attributeDefScope = AttributeDefScopeTest.exampleAttributeDefScope();
     
-    XmlExportAttributeDefScope xmlExportAttributeDefScope = new XmlExportAttributeDefScope(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeDefScope);
+    XmlExportAttributeDefScope xmlExportAttributeDefScope = attributeDefScope.xmlToExportAttributeDefScope(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     attributeDefScope = xmlExportAttributeDefScope.toAttributeDefScope();

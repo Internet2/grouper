@@ -103,7 +103,7 @@ public class XmlExportCompositeTest extends GrouperTest {
   public void testConvertToComposite() {
     Composite composite = TestComposite.exampleComposite();
     
-    XmlExportComposite xmlExportComposite = new XmlExportComposite(new GrouperVersion(GrouperVersion.GROUPER_VERSION), composite);
+    XmlExportComposite xmlExportComposite = composite.xmlToExportComposite(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     composite = xmlExportComposite.toComposite();

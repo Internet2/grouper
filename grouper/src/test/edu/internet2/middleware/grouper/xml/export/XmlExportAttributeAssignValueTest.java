@@ -110,7 +110,7 @@ public class XmlExportAttributeAssignValueTest extends GrouperTest {
     attributeAssignValue.setValueMemberId("valueMemberId");
     attributeAssignValue.setValueString("valueString");
     
-    XmlExportAttributeAssignValue xmlExportAttributeAssignValue = new XmlExportAttributeAssignValue(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeAssignValue);
+    XmlExportAttributeAssignValue xmlExportAttributeAssignValue = attributeAssignValue.xmlToExportAttributeAssignValue(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     attributeAssignValue = xmlExportAttributeAssignValue.toAttributeAssignValue();

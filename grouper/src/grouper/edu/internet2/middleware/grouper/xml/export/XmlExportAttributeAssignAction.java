@@ -94,30 +94,6 @@ public class XmlExportAttributeAssignAction {
   }
 
   /**
-   * @param attributeAssignAction
-   * @param grouperVersion
-   */
-  public XmlExportAttributeAssignAction(GrouperVersion grouperVersion, AttributeAssignAction attributeAssignAction) {
-    
-    if (attributeAssignAction == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.attributeDefId = attributeAssignAction.getAttributeDefId();
-    this.contextId = attributeAssignAction.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(attributeAssignAction.getCreatedOnDb());
-    this.hibernateVersionNumber = attributeAssignAction.getHibernateVersionNumber();
-    this.name = attributeAssignAction.getNameDb();
-    this.modifierTime = GrouperUtil.dateStringValue(attributeAssignAction.getLastUpdatedDb());
-    this.uuid = attributeAssignAction.getId();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -289,7 +265,7 @@ public class XmlExportAttributeAssignAction {
                 });
               }
               
-              XmlExportAttributeAssignAction xmlExportRoleSet = new XmlExportAttributeAssignAction(grouperVersion, attributeAssignAction);
+              XmlExportAttributeAssignAction xmlExportRoleSet = attributeAssignAction.xmlToExportAttributeAssignAction(grouperVersion);
               writer.write("    ");
               xmlExportRoleSet.toXml(grouperVersion, writer);
               writer.write("\n");

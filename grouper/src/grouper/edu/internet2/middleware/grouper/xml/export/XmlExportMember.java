@@ -60,7 +60,7 @@ public class XmlExportMember {
             while(results.next()) {
               Object object = results.get(0);
               Member member = (Member)object;
-              XmlExportMember xmlExportMember = new XmlExportMember(grouperVersion, member);
+              XmlExportMember xmlExportMember = member.xmlToExportMember(grouperVersion);
               writer.write("    ");
               xmlExportMember.toXml(grouperVersion, writer);
               writer.write("\n");
@@ -86,29 +86,6 @@ public class XmlExportMember {
     
   }
   
-  /**
-   * @param member
-   * @param grouperVersion
-   */
-  public XmlExportMember(GrouperVersion grouperVersion, Member member) {
-    
-    if (member == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.contextId = member.getContextId();
-    this.hibernateVersionNumber = member.getHibernateVersionNumber();
-    this.sourceId = member.getSubjectSourceId();
-    this.subjectId = member.getSubjectId();
-    this.subjectType = member.getSubjectTypeId();
-    this.uuid = member.getUuid();
-    
-  }
-
   /**
    * convert to member
    * @return the member

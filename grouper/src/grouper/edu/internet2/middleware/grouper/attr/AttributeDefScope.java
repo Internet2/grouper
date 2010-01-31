@@ -15,7 +15,9 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDefScope;
 import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
 
 
@@ -417,6 +419,31 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
   public AttributeDefScope xmlRetrieveByIdOrKey(Collection<String> idsToIgnore) {
     return GrouperDAOFactory.getFactory().getAttributeDefScope().findByUuidOrKey(idsToIgnore,
         this.id, this.attributeDefId, this.getAttributeDefScopeTypeDb(), false, this.getScopeString());
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAttributeDefScope xmlToExportAttributeDefScope(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportAttributeDefScope xmlExportAttributeDefScope = new XmlExportAttributeDefScope();
+    
+    xmlExportAttributeDefScope.setAttributeDefId(this.getAttributeDefId());
+    xmlExportAttributeDefScope.setAttributeDefScopeType(this.getAttributeDefScopeTypeDb());
+    xmlExportAttributeDefScope.setContextId(this.getContextId());
+    xmlExportAttributeDefScope.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportAttributeDefScope.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeDefScope.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    xmlExportAttributeDefScope.setScopeString(this.getScopeString());
+    xmlExportAttributeDefScope.setScopeString2(this.getScopeString2());
+    xmlExportAttributeDefScope.setUuid(this.getId());
+    
+    return xmlExportAttributeDefScope;
   }
   
 

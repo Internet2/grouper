@@ -103,7 +103,7 @@ public class XmlExportFieldTest extends GrouperTest {
   public void testConvertToField() {
     Field field = TestField.exampleField();
     
-    XmlExportField xmlExportField = new XmlExportField(new GrouperVersion(GrouperVersion.GROUPER_VERSION), field);
+    XmlExportField xmlExportField = field.xmlToExportField(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     field = xmlExportField.toField();

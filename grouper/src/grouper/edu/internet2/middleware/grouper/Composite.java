@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -43,7 +44,9 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportComposite;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /** 
@@ -854,6 +857,32 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
    */
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getComposite().saveUpdateProperties(this);
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportComposite xmlToExportComposite(GrouperVersion grouperVersion) {
+    
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportComposite xmlExportComposite = new XmlExportComposite();
+    
+    xmlExportComposite.setContextId(this.getContextId());
+    xmlExportComposite.setCreateTime(GrouperUtil.dateStringValue(new Date(this.getCreateTime())));
+    xmlExportComposite.setCreatorId(this.getCreatorUuid());
+    xmlExportComposite.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportComposite.setLeftFactor(this.getLeftFactorUuid());
+    xmlExportComposite.setOwner(this.getFactorOwnerUuid());
+    xmlExportComposite.setRightFactor(this.getRightFactorUuid());
+    xmlExportComposite.setType(this.getTypeDb());
+    xmlExportComposite.setUuid(this.getUuid());
+    
+    return xmlExportComposite;
   }
 } 
 

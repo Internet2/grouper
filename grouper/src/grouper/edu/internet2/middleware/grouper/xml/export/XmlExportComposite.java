@@ -133,32 +133,6 @@ public class XmlExportComposite {
   }
 
   /**
-   * @param composite
-   * @param grouperVersion
-   */
-  public XmlExportComposite(GrouperVersion grouperVersion, Composite composite) {
-    
-    if (composite == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.contextId = composite.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(new Date(composite.getCreateTime()));
-    this.creatorId = composite.getCreatorUuid();
-    this.hibernateVersionNumber = composite.getHibernateVersionNumber();
-    this.leftFactor = composite.getLeftFactorUuid();
-    this.owner = composite.getFactorOwnerUuid();
-    this.rightFactor = composite.getRightFactorUuid();
-    this.type = composite.getTypeDb();
-    this.uuid = composite.getUuid();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -331,7 +305,7 @@ public class XmlExportComposite {
                   }
                 });
               }
-              XmlExportComposite xmlExportComposite = new XmlExportComposite(grouperVersion, composite);
+              XmlExportComposite xmlExportComposite = composite.xmlToExportComposite(grouperVersion);
               writer.write("    ");
               xmlExportComposite.toXml(grouperVersion, writer);
               writer.write("\n");

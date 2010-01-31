@@ -82,37 +82,6 @@ public class XmlExportStem {
     
   }
 
-  /**
-   * @param stem
-   * @param grouperVersion
-   */
-  public XmlExportStem(GrouperVersion grouperVersion, Stem stem) {
-    
-    if (stem == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.contextId = stem.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(stem.getCreateTime());
-    this.creatorId = stem.getCreatorUuid();
-    this.description = stem.getDescription();
-    this.displayExtension = stem.getDisplayExtension();
-    this.displayName = stem.getDisplayName();
-    this.extension = stem.getExtension();
-    this.hibernateVersionNumber = stem.getHibernateVersionNumber();
-    //TODO make string
-    this.lastMembershipChange = stem.getLastMembershipChangeDb();
-    this.modifierId = stem.getModifierUuid();
-    this.modifierTime = GrouperUtil.dateStringValue(stem.getModifyTime());
-    this.name = stem.getName();
-    this.parentStem = stem.getParentUuid();
-    this.uuid = stem.getUuid();
-    
-  }
 
   /**
    * uuid
@@ -415,7 +384,7 @@ public class XmlExportStem {
             while(results.next()) {
               Object object = results.get(0);
               Stem stem = (Stem)object;
-              XmlExportStem xmlExportStem = new XmlExportStem(grouperVersion, stem);
+              XmlExportStem xmlExportStem = stem.xmlToExportStem(grouperVersion);
               writer.write("    ");
               xmlExportStem.toXml(grouperVersion, writer);
               writer.write("\n");

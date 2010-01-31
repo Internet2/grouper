@@ -246,39 +246,6 @@ public class XmlExportMembership {
   }
 
   /**
-   * @param membership
-   * @param grouperVersion
-   */
-  public XmlExportMembership(GrouperVersion grouperVersion, Membership membership) {
-    
-    if (membership == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.contextId = membership.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(membership.getCreateTime());
-    this.creatorId = membership.getCreatorUuid();
-    //note assume dont need to export smaller measures than millis
-    this.disableTimestamp = GrouperUtil.dateStringValue(membership.getDisabledTimeDb());
-    this.enabled = GrouperUtil.booleanValue(membership.getEnabledDb(), true) ? "T" : "F";
-    this.enabledTimestamp = GrouperUtil.dateStringValue(membership.getEnabledTimeDb());
-    this.fieldId = membership.getFieldId();
-    this.hibernateVersionNumber = membership.getHibernateVersionNumber();
-    this.memberId = membership.getMemberUuid();
-    this.ownerAttrDefId = membership.getOwnerAttrDefId();
-    this.ownerGroupId = membership.getOwnerGroupId();
-    this.ownerStemId = membership.getOwnerStemId();
-    this.type = membership.getType();
-    this.uuid = membership.getImmediateMembershipId();
-    this.viaCompositeId = membership.getViaCompositeId();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -456,7 +423,7 @@ public class XmlExportMembership {
                 });
               }
               
-              XmlExportMembership xmlExportMembership = new XmlExportMembership(grouperVersion, membership);
+              XmlExportMembership xmlExportMembership = membership.xmlToExportMembership(grouperVersion);
               writer.write("    ");
               xmlExportMembership.toXml(grouperVersion, writer);
               writer.write("\n");

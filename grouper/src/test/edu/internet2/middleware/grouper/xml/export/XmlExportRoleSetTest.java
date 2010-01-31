@@ -107,7 +107,7 @@ public class XmlExportRoleSetTest extends GrouperTest {
     RoleSet roleSet = RoleSetTest.exampleRoleSet();
     
     
-    XmlExportRoleSet xmlExportRoleSet = new XmlExportRoleSet(new GrouperVersion(GrouperVersion.GROUPER_VERSION), roleSet);
+    XmlExportRoleSet xmlExportRoleSet = roleSet.xmlToExportRoleSet(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     roleSet = xmlExportRoleSet.toRoleSet();

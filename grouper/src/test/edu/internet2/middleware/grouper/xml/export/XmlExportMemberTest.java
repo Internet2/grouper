@@ -99,7 +99,7 @@ public class XmlExportMemberTest extends GrouperTest {
   public void testConvertToMember() {
     Member member = TestMember.exampleMember();
     
-    XmlExportMember xmlExportMember = new XmlExportMember(new GrouperVersion(GrouperVersion.GROUPER_VERSION), member);
+    XmlExportMember xmlExportMember = member.xmlToExportMember(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     member = xmlExportMember.toMember();

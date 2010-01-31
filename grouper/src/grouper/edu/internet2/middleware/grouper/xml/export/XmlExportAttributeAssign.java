@@ -378,41 +378,6 @@ public class XmlExportAttributeAssign {
 
   
 
-  /**
-   * @param attributeAssign
-   * @param grouperVersion
-   */
-  public XmlExportAttributeAssign(GrouperVersion grouperVersion, AttributeAssign attributeAssign) {
-    
-    if (attributeAssign == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.attributeAssignActionId = attributeAssign.getAttributeAssignActionId();
-    this.attributeAssignDelegatable = attributeAssign.getAttributeAssignDelegatableDb();
-    this.attributeAssignType = attributeAssign.getAttributeAssignTypeDb();
-    this.attributeDefNameId = attributeAssign.getAttributeDefNameId();
-    this.contextId = attributeAssign.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(attributeAssign.getCreatedOnDb());
-    this.disabledTime = GrouperUtil.dateStringValue(attributeAssign.getDisabledTimeDb());
-    this.enabled = attributeAssign.getEnabledDb();
-    this.enabledTime = GrouperUtil.dateStringValue(attributeAssign.getEnabledTimeDb());
-    this.hibernateVersionNumber = attributeAssign.getHibernateVersionNumber();
-    this.modifierTime = GrouperUtil.dateStringValue(attributeAssign.getLastUpdatedDb());
-    this.notes = attributeAssign.getNotes();
-    this.ownerAttributeAssignId = attributeAssign.getOwnerAttributeAssignId();
-    this.ownerAttributeDefId = attributeAssign.getOwnerAttributeDefId();
-    this.ownerGroupId = attributeAssign.getOwnerGroupId();
-    this.ownerMemberId = attributeAssign.getOwnerMemberId();
-    this.ownerMembershipId = attributeAssign.getOwnerMembershipId();
-    this.ownerStemId = attributeAssign.getOwnerStemId();
-    this.uuid = attributeAssign.getId();
-    
-  }
 
   /**
    * uuid
@@ -598,7 +563,7 @@ public class XmlExportAttributeAssign {
                 });
               }
               
-              XmlExportAttributeAssign xmlExportAttributeAssign = new XmlExportAttributeAssign(grouperVersion, attributeAssign);
+              XmlExportAttributeAssign xmlExportAttributeAssign = attributeAssign.xmlToExportAttributeAssign(grouperVersion);
               writer.write("    ");
               xmlExportAttributeAssign.toXml(grouperVersion, writer);
               writer.write("\n");

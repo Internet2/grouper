@@ -98,31 +98,6 @@ public class XmlExportGroupType {
   }
 
   /**
-   * @param groupType
-   * @param grouperVersion
-   */
-  public XmlExportGroupType(GrouperVersion grouperVersion, GroupType groupType) {
-    
-    if (groupType == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.assignable = groupType.getIsAssignable() ? "T" : "F";
-    this.contextId = groupType.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(new Date(groupType.getCreateTime()));
-    this.creatorId = groupType.getCreatorUuid();
-    this.hibernateVersionNumber = groupType.getHibernateVersionNumber();
-    this.internal = groupType.getIsInternal() ? "T" : "F";
-    this.name = groupType.getName();
-    this.uuid = groupType.getUuid();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -289,7 +264,7 @@ public class XmlExportGroupType {
             while(results.next()) {
               Object object = results.get(0);
               GroupType groupType = (GroupType)object;
-              XmlExportGroupType xmlExportGroupType = new XmlExportGroupType(grouperVersion, groupType);
+              XmlExportGroupType xmlExportGroupType = groupType.xmlToExportGroupType(grouperVersion);
               writer.write("    ");
               xmlExportGroupType.toXml(grouperVersion, writer);
               writer.write("\n");
@@ -338,4 +313,5 @@ public class XmlExportGroupType {
     return xmlExportGroupType;
   }
 
+  
 }

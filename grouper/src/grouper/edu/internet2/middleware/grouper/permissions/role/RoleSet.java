@@ -16,7 +16,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportRoleSet;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /**
@@ -630,6 +632,33 @@ public class RoleSet extends GrouperAPI
    */
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getRoleSet().saveUpdateProperties(this);
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportRoleSet xmlToExportRoleSet(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportRoleSet xmlExportRoleSet = new XmlExportRoleSet();
+    
+    xmlExportRoleSet.setContextId(this.getContextId());
+    xmlExportRoleSet.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportRoleSet.setDepth(this.getDepth());
+    xmlExportRoleSet.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportRoleSet.setIfHasRoleId(this.getIfHasRoleId());
+    xmlExportRoleSet.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    xmlExportRoleSet.setParentRoleSetId(this.getParentRoleSetId());
+    xmlExportRoleSet.setThenHasRoleId(this.getThenHasRoleId());
+    xmlExportRoleSet.setType(this.getTypeDb());
+    xmlExportRoleSet.setUuid(this.getId());
+    
+    return xmlExportRoleSet;
+    
   }
 
 }

@@ -13,7 +13,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignValue;
 
 
 /**
@@ -330,5 +332,31 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    */
   public void setValueMemberId(String valueMemberId1) {
     this.valueMemberId = valueMemberId1;
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAttributeAssignValue xmlToExportAttributeAssignValue(GrouperVersion grouperVersion) {
+    
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportAttributeAssignValue xmlExportAttributeAssignValue = new XmlExportAttributeAssignValue(); 
+    
+    xmlExportAttributeAssignValue.setAttributeAssignId(this.getAttributeAssignId());
+    xmlExportAttributeAssignValue.setContextId(this.getContextId());
+    xmlExportAttributeAssignValue.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportAttributeAssignValue.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeAssignValue.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    xmlExportAttributeAssignValue.setUuid(this.getId());
+    xmlExportAttributeAssignValue.setValueInteger(this.getValueInteger());
+    xmlExportAttributeAssignValue.setValueMemberId(this.getValueMemberId());
+    xmlExportAttributeAssignValue.setValueString(this.getValueString());
+    
+    return xmlExportAttributeAssignValue;
   }
 }

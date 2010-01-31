@@ -134,32 +134,6 @@ public class XmlExportAttributeDefScope {
   }
 
   /**
-   * @param attributeDefScope
-   * @param grouperVersion
-   */
-  public XmlExportAttributeDefScope(GrouperVersion grouperVersion, AttributeDefScope attributeDefScope) {
-    
-    if (attributeDefScope == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.attributeDefId = attributeDefScope.getAttributeDefId();
-    this.attributeDefScopeType = attributeDefScope.getAttributeDefScopeTypeDb();
-    this.contextId = attributeDefScope.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(attributeDefScope.getCreatedOnDb());
-    this.hibernateVersionNumber = attributeDefScope.getHibernateVersionNumber();
-    this.modifierTime = GrouperUtil.dateStringValue(attributeDefScope.getLastUpdatedDb());
-    this.scopeString = attributeDefScope.getScopeString();
-    this.scopeString2 = attributeDefScope.getScopeString2();
-    this.uuid = attributeDefScope.getId();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -334,7 +308,7 @@ public class XmlExportAttributeDefScope {
                 });
               }
               
-              XmlExportAttributeDefScope xmlExportAttributeDefScope = new XmlExportAttributeDefScope(grouperVersion, attributeDefScope);
+              XmlExportAttributeDefScope xmlExportAttributeDefScope = attributeDefScope.xmlToExportAttributeDefScope(grouperVersion);
               writer.write("    ");
               xmlExportAttributeDefScope.toXml(grouperVersion, writer);
               writer.write("\n");

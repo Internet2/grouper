@@ -157,33 +157,6 @@ public class XmlExportRoleSet {
   }
 
   /**
-   * @param roleSet
-   * @param grouperVersion
-   */
-  public XmlExportRoleSet(GrouperVersion grouperVersion, RoleSet roleSet) {
-    
-    if (roleSet == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.contextId = roleSet.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(roleSet.getCreatedOnDb());
-    this.depth = roleSet.getDepth();
-    this.hibernateVersionNumber = roleSet.getHibernateVersionNumber();
-    this.ifHasRoleId = roleSet.getIfHasRoleId();
-    this.modifierTime = GrouperUtil.dateStringValue(roleSet.getLastUpdatedDb());
-    this.parentRoleSetId = roleSet.getParentRoleSetId();
-    this.thenHasRoleId = roleSet.getThenHasRoleId();
-    this.type = roleSet.getTypeDb();
-    this.uuid = roleSet.getId();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -357,7 +330,7 @@ public class XmlExportRoleSet {
                 });
               }
               
-              XmlExportRoleSet xmlExportRoleSet = new XmlExportRoleSet(grouperVersion, roleSet);
+              XmlExportRoleSet xmlExportRoleSet = roleSet.xmlToExportRoleSet(grouperVersion);
               writer.write("    ");
               xmlExportRoleSet.toXml(grouperVersion, writer);
               writer.write("\n");

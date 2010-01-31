@@ -14,7 +14,9 @@ import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignActionSet;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 //select gg.name, gadn.name
@@ -670,6 +672,32 @@ public class AttributeAssignActionSet extends GrouperAPI
    */
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getAttributeAssignActionSet().saveUpdateProperties(this);
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAttributeAssignActionSet xmlToExportAttributeAssignActionSet(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSet = new XmlExportAttributeAssignActionSet();
+    
+    xmlExportAttributeAssignActionSet.setContextId(this.getContextId());
+    xmlExportAttributeAssignActionSet.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportAttributeAssignActionSet.setDepth(this.getDepth());
+    xmlExportAttributeAssignActionSet.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeAssignActionSet.setIfHasAttributeAssignActionId(this.getIfHasAttrAssignActionId());
+    xmlExportAttributeAssignActionSet.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    xmlExportAttributeAssignActionSet.setParentAttributeAssignActionSetId(this.getParentAttrAssignActionSetId());
+    xmlExportAttributeAssignActionSet.setThenHasAttributeAssignActionId(this.getThenHasAttrAssignActionId());
+    xmlExportAttributeAssignActionSet.setType(this.getTypeDb());
+    xmlExportAttributeAssignActionSet.setUuid(this.getId());
+
+    return xmlExportAttributeAssignActionSet;
   }
 
 }

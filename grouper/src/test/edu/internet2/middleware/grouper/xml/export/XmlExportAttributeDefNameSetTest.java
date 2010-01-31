@@ -116,7 +116,7 @@ public class XmlExportAttributeDefNameSetTest extends GrouperTest {
     attributeDefNameSet.setId("id");
     
     
-    XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = new XmlExportAttributeDefNameSet(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeDefNameSet);
+    XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = attributeDefNameSet.xmlToExportAttributeDefNameSet(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     attributeDefNameSet = xmlExportAttributeDefNameSet.toAttributeDefNameSet();

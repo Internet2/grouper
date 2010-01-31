@@ -113,7 +113,7 @@ public class XmlExportStemTest extends GrouperTest {
   public void testConvertToStem() {
     Stem stem = TestStem.exampleStem();
     
-    XmlExportStem xmlExportStem = new XmlExportStem(new GrouperVersion(GrouperVersion.GROUPER_VERSION), stem);
+    XmlExportStem xmlExportStem = stem.xmlToExportStem(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     stem = xmlExportStem.toStem();

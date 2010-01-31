@@ -125,7 +125,7 @@ public class XmlExportAttributeAssignTest extends GrouperTest {
   public void testConvertToAttributeAssign() {
     AttributeAssign attributeAssign = AttributeAssignTest.exampleAttributeAssign();
     
-    XmlExportAttributeAssign xmlExportAttributeAssign = new XmlExportAttributeAssign(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeAssign);
+    XmlExportAttributeAssign xmlExportAttributeAssign = attributeAssign.xmlToExportAttributeAssign(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     attributeAssign = xmlExportAttributeAssign.toAttributeAssign();

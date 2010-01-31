@@ -33,7 +33,9 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssign;
 import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
 
 
@@ -1250,4 +1252,38 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         this.ownerMemberId, this.ownerMembershipId, this.ownerStemId,  
         false, this.disabledTimeDb, this.enabledTimeDb, this.notes);
   }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAttributeAssign xmlToExportAttributeAssign(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    XmlExportAttributeAssign xmlExportAttributeAssign = new XmlExportAttributeAssign();
+    xmlExportAttributeAssign.setAttributeAssignActionId(this.getAttributeAssignActionId());
+    xmlExportAttributeAssign.setAttributeAssignDelegatable(this.getAttributeAssignDelegatableDb());
+    xmlExportAttributeAssign.setAttributeAssignType(this.getAttributeAssignTypeDb());
+    xmlExportAttributeAssign.setAttributeDefNameId(this.getAttributeDefNameId());
+    xmlExportAttributeAssign.setContextId(this.getContextId());
+    xmlExportAttributeAssign.setCreateTime(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportAttributeAssign.setDisabledTime(GrouperUtil.dateStringValue(this.getDisabledTimeDb()));
+    xmlExportAttributeAssign.setEnabled(this.getEnabledDb());
+    xmlExportAttributeAssign.setEnabledTime(GrouperUtil.dateStringValue(this.getEnabledTimeDb()));
+    xmlExportAttributeAssign.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttributeAssign.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    xmlExportAttributeAssign.setNotes(this.getNotes());
+    xmlExportAttributeAssign.setOwnerAttributeAssignId(this.getOwnerAttributeAssignId());
+    xmlExportAttributeAssign.setOwnerAttributeDefId(this.getOwnerAttributeDefId());
+    xmlExportAttributeAssign.setOwnerGroupId(this.getOwnerGroupId());
+    xmlExportAttributeAssign.setOwnerMemberId(this.getOwnerMemberId());
+    xmlExportAttributeAssign.setOwnerMembershipId(this.getOwnerMembershipId());
+    xmlExportAttributeAssign.setOwnerStemId(this.getOwnerStemId());
+    xmlExportAttributeAssign.setUuid(this.getId());
+     
+    return xmlExportAttributeAssign;
+  }
+  
 }

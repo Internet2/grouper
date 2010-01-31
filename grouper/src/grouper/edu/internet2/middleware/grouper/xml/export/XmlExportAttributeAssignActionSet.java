@@ -158,33 +158,6 @@ public class XmlExportAttributeAssignActionSet {
   }
 
   /**
-   * @param attributeAssignActionSet
-   * @param grouperVersion
-   */
-  public XmlExportAttributeAssignActionSet(GrouperVersion grouperVersion, AttributeAssignActionSet attributeAssignActionSet) {
-    
-    if (attributeAssignActionSet == null) {
-      throw new RuntimeException();
-    }
-    
-    if (grouperVersion == null) {
-      throw new RuntimeException();
-    }
-    
-    this.contextId = attributeAssignActionSet.getContextId();
-    this.createTime = GrouperUtil.dateStringValue(attributeAssignActionSet.getCreatedOnDb());
-    this.depth = attributeAssignActionSet.getDepth();
-    this.hibernateVersionNumber = attributeAssignActionSet.getHibernateVersionNumber();
-    this.ifHasAttributeAssignActionId = attributeAssignActionSet.getIfHasAttrAssignActionId();
-    this.modifierTime = GrouperUtil.dateStringValue(attributeAssignActionSet.getLastUpdatedDb());
-    this.parentAttributeAssignActionSetId = attributeAssignActionSet.getParentAttrAssignActionSetId();
-    this.thenHasAttributeAssignActionId = attributeAssignActionSet.getThenHasAttrAssignActionId();
-    this.type = attributeAssignActionSet.getTypeDb();
-    this.uuid = attributeAssignActionSet.getId();
-    
-  }
-
-  /**
    * uuid
    * @return uuid
    */
@@ -366,7 +339,7 @@ public class XmlExportAttributeAssignActionSet {
                 });
               }
               
-              XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSet = new XmlExportAttributeAssignActionSet(grouperVersion, attributeAssignActionSet);
+              XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSet = attributeAssignActionSet.xmlToExportAttributeAssignActionSet(grouperVersion);
               writer.write("    ");
               xmlExportAttributeAssignActionSet.toXml(grouperVersion, writer);
               writer.write("\n");

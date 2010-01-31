@@ -35,7 +35,9 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportGroupTypeTuple;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /**
@@ -484,6 +486,26 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
    */
   public void xmlSaveUpdateProperties() {
     GrouperDAOFactory.getFactory().getGroupTypeTuple().saveUpdateProperties(this);
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportGroupTypeTuple xmlToExportGroup(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportGroupTypeTuple xmlExportGroupTypeTuple = new XmlExportGroupTypeTuple();
+    
+    xmlExportGroupTypeTuple.setContextId(this.getContextId());
+    xmlExportGroupTypeTuple.setGroupId(this.getGroupUuid());
+    xmlExportGroupTypeTuple.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportGroupTypeTuple.setTypeId(this.getTypeUuid());
+    xmlExportGroupTypeTuple.setUuid(this.getId());
+    return xmlExportGroupTypeTuple;
   }
 
 

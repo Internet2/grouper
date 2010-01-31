@@ -102,7 +102,7 @@ public class XmlExportAttributeTest extends GrouperTest {
     attribute.setId("uuid");
     attribute.setValue("value");
     
-    XmlExportAttribute xmlExportAttribute = new XmlExportAttribute(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attribute);
+    XmlExportAttribute xmlExportAttribute = attribute.xmlToExportAttribute(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     attribute = xmlExportAttribute.toAttribute();

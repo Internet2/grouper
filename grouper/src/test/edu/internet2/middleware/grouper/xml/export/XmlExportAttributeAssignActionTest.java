@@ -99,7 +99,7 @@ public class XmlExportAttributeAssignActionTest extends GrouperTest {
   public void testConvertToAttributeAssignAction() {
     AttributeAssignAction attributeAssignAction = AttributeAssignActionTest.exampleAttributeAssignAction();    
     
-    XmlExportAttributeAssignAction xmlExportAttributeAssignAction = new XmlExportAttributeAssignAction(new GrouperVersion(GrouperVersion.GROUPER_VERSION), attributeAssignAction);
+    XmlExportAttributeAssignAction xmlExportAttributeAssignAction = attributeAssignAction.xmlToExportAttributeAssignAction(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     attributeAssignAction = xmlExportAttributeAssignAction.toAttributeAssignAction();

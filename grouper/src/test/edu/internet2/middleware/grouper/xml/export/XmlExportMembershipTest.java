@@ -129,7 +129,7 @@ public class XmlExportMembershipTest extends GrouperTest {
     membership.setImmediateMembershipId("uuid");
     membership.setViaCompositeId("viaCompositeId");
     
-    XmlExportMembership xmlExportMembership = new XmlExportMembership(new GrouperVersion(GrouperVersion.GROUPER_VERSION), membership);
+    XmlExportMembership xmlExportMembership = membership.xmlToExportMembership(new GrouperVersion(GrouperVersion.GROUPER_VERSION));
 
     //now go back
     membership = xmlExportMembership.toMembership();

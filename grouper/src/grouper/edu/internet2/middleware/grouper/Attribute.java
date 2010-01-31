@@ -34,7 +34,9 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAttribute;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 /**
@@ -514,6 +516,28 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getAttribute().delete(this);
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAttribute xmlToExportAttribute(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportAttribute xmlExportAttribute = new XmlExportAttribute();
+    
+    xmlExportAttribute.setContextId(this.getContextId());
+    xmlExportAttribute.setFieldId(this.getFieldId());
+    xmlExportAttribute.setGroupId(this.getGroupUuid());
+    xmlExportAttribute.setHibernateVersionNumber(this.getHibernateVersionNumber());
+    xmlExportAttribute.setUuid(this.getId());
+    xmlExportAttribute.setValue(this.getValue());
+    
+    return xmlExportAttribute;
   }
   
 } 
