@@ -4,8 +4,10 @@
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -16,6 +18,7 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignValue;
+import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
 
 
 /**
@@ -24,7 +27,7 @@ import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignValue
  *
  */
 @SuppressWarnings("serial")
-public class AttributeAssignValue extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class AttributeAssignValue extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportableMultiple<AttributeAssignValue> {
 
   /** logger */
   @SuppressWarnings("unused")
@@ -359,4 +362,100 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     
     return xmlExportAttributeAssignValue;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple#xmlRetrieveByIdOrKey(java.util.Collection)
+   */
+  public AttributeAssignValue xmlRetrieveByIdOrKey(Collection<String> idsToIgnore) {
+    return GrouperDAOFactory.getFactory().getAttributeAssignValue().findByUuidOrKey(idsToIgnore,
+        this.id, this.attributeAssignId, false, this.valueInteger, this.valueMemberId, this.valueString);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AttributeAssignValue existingRecord) {
+    existingRecord.setAttributeAssignId(this.attributeAssignId);
+    existingRecord.setId(this.id);
+    existingRecord.setValueInteger(this.valueInteger);
+    existingRecord.setValueMemberId(this.valueMemberId);
+    existingRecord.setValueString(this.valueString);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AttributeAssignValue other) {
+    if (!StringUtils.equals(this.attributeAssignId, other.attributeAssignId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.valueInteger, other.valueInteger)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.valueMemberId, other.valueMemberId)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.valueString, other.valueString)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AttributeAssignValue other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.lastUpdatedDb, other.lastUpdatedDb)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public void xmlSaveBusinessProperties(AttributeAssignValue existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      //TODO user business method once it exists
+      existingRecord = new AttributeAssignValue();
+      existingRecord.setId(this.id);
+      existingRecord.setAttributeAssignId(this.attributeAssignId);
+      existingRecord.setValueInteger(this.valueInteger);
+      existingRecord.setValueMemberId(this.valueMemberId);
+      existingRecord.setValueString(this.valueString);
+      existingRecord.saveOrUpdate();
+    }
+
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    existingRecord.saveOrUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAttributeAssignValue().saveUpdateProperties(this);
+  }
+  
+  /**
+   * delete this record
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(this);
+  }
+
 }

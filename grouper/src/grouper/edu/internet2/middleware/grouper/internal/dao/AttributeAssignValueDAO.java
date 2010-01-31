@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.util.Collection;
+
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
 
@@ -18,6 +20,12 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
    */
   public void saveOrUpdate(AttributeAssignValue attributeAssignValue);
   
+  /** 
+   * delete an attribute assign value object 
+   * @param attributeAssignValue 
+   */
+  public void delete(AttributeAssignValue attributeAssignValue);
+  
   /**
    * @param id
    * @param exceptionIfNotFound 
@@ -27,4 +35,27 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
   public AttributeAssignValue findById(String id, boolean exceptionIfNotFound)
     throws AttributeAssignValueNotFoundException;
 
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param attributeAssignValue
+   */
+  public void saveUpdateProperties(AttributeAssignValue attributeAssignValue);
+
+  /**
+   * @param id if find by id, that is it
+   * @param idsToIgnore dont return anything in this list, already used or will be used
+   * @param attributeAssignId to get values from
+   * @param exceptionIfNull 
+   * @param valueInteger try to match this if possible
+   * @param valueMemberId 
+   * @param valueString 
+   * @return the attribute assign value or null
+   * @throws GrouperDAOException 
+   * @since   1.6.0
+   */
+  AttributeAssignValue findByUuidOrKey(Collection<String> idsToIgnore,
+      String id, String attributeAssignId, boolean exceptionIfNull, 
+      Long valueInteger, String valueMemberId, String valueString) throws GrouperDAOException;
+
+  
 }

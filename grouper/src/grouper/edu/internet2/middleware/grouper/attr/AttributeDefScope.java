@@ -392,6 +392,7 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
 
     //if its an insert, call the business method
     if (existingRecord == null) {
+      //TODO user business method once it exists
       existingRecord = new AttributeDefScope();
       existingRecord.setId(this.id);
       existingRecord.setAttributeDefId(this.getAttributeDefId());
