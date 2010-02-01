@@ -469,7 +469,7 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(GroupTypeTuple existingRecord) {
+  public GroupTypeTuple xmlSaveBusinessProperties(GroupTypeTuple existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       existingRecord = this.clone();
@@ -478,6 +478,7 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
+    return existingRecord;
 
   }
 

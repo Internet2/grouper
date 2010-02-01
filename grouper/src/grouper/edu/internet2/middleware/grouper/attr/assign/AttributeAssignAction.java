@@ -494,7 +494,7 @@ public class AttributeAssignAction extends GrouperAPI
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(AttributeAssignAction existingRecord) {
+  public AttributeAssignAction xmlSaveBusinessProperties(AttributeAssignAction existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       AttributeDef attributeDef = AttributeDefFinder.findById(this.attributeDefId, true);
@@ -503,6 +503,7 @@ public class AttributeAssignAction extends GrouperAPI
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.update();
+    return existingRecord;
   }
 
   /**

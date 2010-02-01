@@ -15,6 +15,6 @@ public interface XmlImportable<T> extends XmlImportableBase<T> {
    * retrieve from db by id or key.  throws exception if duplicate
    * @return the object or null if not found
    */
-  public T xmlRetrieveByIdOrKey();
+  public XmlImportable<T> xmlRetrieveByIdOrKey();
   
 }

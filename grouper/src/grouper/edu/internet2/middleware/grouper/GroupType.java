@@ -1249,7 +1249,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(GroupType existingRecord) {
+  public GroupType xmlSaveBusinessProperties(GroupType existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       existingRecord = internal_createType(GrouperSession.staticGrouperSession(), this.name, this.isAssignable, this.isInternal, true, null, this.uuid);
@@ -1257,6 +1257,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
+    return existingRecord;
   }
 
   /**

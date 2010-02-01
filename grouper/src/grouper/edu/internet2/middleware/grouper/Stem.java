@@ -3466,16 +3466,20 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(Stem existingRecord) {
+  public Stem xmlSaveBusinessProperties(Stem existingRecord) {
 
     //if its an insert, call the business method
     if (existingRecord == null) {
+      if (this.isRootStem()) {
+        throw new RuntimeException("Why is there no root stem???");
+      }
       Stem parent = this.getParentStem();
       existingRecord = parent.internal_addChildStem(GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, false);
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
+    return existingRecord;
   }
 
 
@@ -3506,16 +3510,16 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     xmlExportStem.setContextId(this.getContextId());
     xmlExportStem.setCreateTime(GrouperUtil.dateStringValue(this.getCreateTime()));
     xmlExportStem.setCreatorId(this.getCreatorUuid());
-    xmlExportStem.setDescription(this.getDescription());
-    xmlExportStem.setDisplayExtension(this.getDisplayExtension());
-    xmlExportStem.setDisplayName(this.getDisplayName());
-    xmlExportStem.setExtension(this.getExtension());
+    xmlExportStem.setDescription(this.getDescriptionDb());
+    xmlExportStem.setDisplayExtension(this.getDisplayExtensionDb());
+    xmlExportStem.setDisplayName(this.getDisplayNameDb());
+    xmlExportStem.setExtension(this.getExtensionDb());
     xmlExportStem.setHibernateVersionNumber(this.getHibernateVersionNumber());
     //TODO make string
     xmlExportStem.setLastMembershipChange(this.getLastMembershipChangeDb());
     xmlExportStem.setModifierId(this.getModifierUuid());
     xmlExportStem.setModifierTime(GrouperUtil.dateStringValue(this.getModifyTime()));
-    xmlExportStem.setName(this.getName());
+    xmlExportStem.setName(this.getNameDb());
     xmlExportStem.setParentStem(this.getParentUuid());
     xmlExportStem.setUuid(this.getUuid());
     return xmlExportStem;

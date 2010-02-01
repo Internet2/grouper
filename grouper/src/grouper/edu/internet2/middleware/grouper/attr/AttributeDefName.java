@@ -628,7 +628,7 @@ public class AttributeDefName extends GrouperAPI
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(AttributeDefName existingRecord) {
+  public AttributeDefName xmlSaveBusinessProperties(AttributeDefName existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       Stem parent = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
@@ -638,6 +638,7 @@ public class AttributeDefName extends GrouperAPI
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     GrouperDAOFactory.getFactory().getAttributeDefName().saveOrUpdate(existingRecord);
+    return existingRecord;
   }
 
   /**

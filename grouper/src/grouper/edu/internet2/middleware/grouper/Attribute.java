@@ -492,7 +492,7 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(Attribute existingRecord) {
+  public Attribute xmlSaveBusinessProperties(Attribute existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.groupUUID, true);
@@ -502,6 +502,7 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
+    return existingRecord;
   }
 
   /**

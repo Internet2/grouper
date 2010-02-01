@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.dom4j.Element;
+import org.dom4j.ElementHandler;
+import org.dom4j.ElementPath;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -26,6 +29,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
 /**
@@ -262,6 +266,16 @@ public class XmlExportField {
   }
 
   /**
+   * get db count
+   * @return db count
+   */
+  public static long dbCount() {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from Field").uniqueResult(Long.class);
+    return result;
+  }
+  
+
+  /**
    * 
    * @param writer
    * @param xmlExportMain
@@ -362,6 +376,44 @@ public class XmlExportField {
     XmlExportField xmlExportField = (XmlExportField)xStream.fromXML(xml);
   
     return xmlExportField;
+  }
+
+  /**
+   * parse the xml file for fields
+   * @param xmlImportMain
+   */
+  public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/fields", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+
+    xmlImportMain.getReader().addHandler( "/grouperExport/fields/XmlExportField", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+
+                xmlImportMain.incrementTotalImportFileCount();
+            }
+        }
+    );
+ 
   }
 
 }

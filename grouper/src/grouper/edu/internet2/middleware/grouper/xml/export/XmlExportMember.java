@@ -8,6 +8,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.dom4j.Element;
+import org.dom4j.ElementHandler;
+import org.dom4j.ElementPath;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -15,6 +20,7 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -25,6 +31,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
 /**
@@ -33,10 +41,58 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 public class XmlExportMember {
 
   /**
+   * parse the xml file for members
+   * @param xmlImportMain
+   */
+  public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/members", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+
+    xmlImportMain.getReader().addHandler( "/grouperExport/members/XmlExportMember", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+
+                xmlImportMain.incrementTotalImportFileCount();
+            }
+        }
+    );
+ 
+  }
+  
+  /**
+   * get db count
+   * @return db count
+   */
+  public static long dbCount() {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from Member as theMember").uniqueResult(Long.class);
+    return result;
+  }
+  
+  /**
    * 
    * @param writer
+   * @param xmlExportMain 
    */
-  public static void exportMembers(final Writer writer) {
+  public static void exportMembers(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -59,7 +115,29 @@ public class XmlExportMember {
             results = query.scroll();
             while(results.next()) {
               Object object = results.get(0);
-              Member member = (Member)object;
+              final Member member = (Member)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments() && StringUtils.equals("g:gsa", member.getSubjectSourceId())) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ");
+
+                      XmlExportUtils.toStringGroup(null, writer, member.getSubjectId(), false);
+
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+
+              
               XmlExportMember xmlExportMember = member.xmlToExportMember(grouperVersion);
               writer.write("    ");
               xmlExportMember.toXml(grouperVersion, writer);
@@ -69,6 +147,10 @@ public class XmlExportMember {
             HibUtils.closeQuietly(results);
           }
           
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+
           //end the members element 
           writer.write("  </members>\n");
         } catch (IOException ioe) {
@@ -226,6 +308,11 @@ public class XmlExportMember {
   private String uuid;
 
   /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportMember.class);
+
+  /**
    * source id
    * @return source id
    */
@@ -271,6 +358,55 @@ public class XmlExportMember {
    */
   public void setUuid(String uuid1) {
     this.uuid = uuid1;
+  }
+
+  /**
+   * parse the xml file for members
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/members", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( "/grouperExport/members/XmlExportMember", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+              try {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+
+                XmlExportMember xmlExportMemberFromFile = (XmlExportMember)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                Member member = xmlExportMemberFromFile.toMember();
+                
+                XmlExportUtils.syncImportable(member, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing members", re);
+                throw re;
+              }
+            }
+        }
+    );
+  
   }
 
 }

@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
+import org.dom4j.Element;
+import org.dom4j.ElementHandler;
+import org.dom4j.ElementPath;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -15,8 +19,10 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -26,6 +32,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
 /**
@@ -80,6 +87,11 @@ public class XmlExportGroup {
 
   /** typeOfGroup */
   private String typeOfGroup;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportGroup.class);
 
   /**
    * type of group
@@ -396,6 +408,65 @@ public class XmlExportGroup {
   }
 
   /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/groups", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( "/grouperExport/groups/XmlExportGroup", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+              try {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportGroup xmlExportGroupFromFile = (XmlExportGroup)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                Group group = xmlExportGroupFromFile.toGroup();
+                
+                XmlExportUtils.syncImportable(group, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing groups", re);
+                throw re;
+              }
+            }
+        }
+    );
+  
+  }
+
+  /**
+   * get db count
+   * @return db count
+   */
+  public static long dbCount() {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from Group").uniqueResult(Long.class);
+    return result;
+  }
+  
+
+  /**
    * 
    * @param writer
    */
@@ -470,6 +541,44 @@ public class XmlExportGroup {
     XmlExportGroup xmlExportGroup = (XmlExportGroup)xStream.fromXML(xml);
   
     return xmlExportGroup;
+  }
+
+  /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/groups", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+
+    xmlImportMain.getReader().addHandler( "/grouperExport/groups/XmlExportGroup", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+
+                xmlImportMain.incrementTotalImportFileCount();
+            }
+        }
+    );
+ 
   }
 
 }

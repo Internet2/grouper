@@ -30,8 +30,9 @@ public interface XmlImportableBase<T> {
    * @param existingRecord null if insert, the object if exists in DB
    * generally just copy the hibernate version number, and last updated to the
    * object and store it
+   * @return the new object or existing
    */
-  public void xmlSaveBusinessProperties(T existingRecord);
+  public T xmlSaveBusinessProperties(T existingRecord);
 
   /**
    * save the udpate properties (e.g. last updated).  Note, this is

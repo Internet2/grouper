@@ -1178,7 +1178,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(AttributeAssign existingRecord) {
+  public AttributeAssign xmlSaveBusinessProperties(AttributeAssign existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       
@@ -1234,6 +1234,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.saveOrUpdate();
+    return existingRecord;
   }
 
   /**

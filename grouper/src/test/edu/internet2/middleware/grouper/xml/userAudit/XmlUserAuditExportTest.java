@@ -7,10 +7,8 @@ package edu.internet2.middleware.grouper.xml.userAudit;
 import java.io.File;
 
 import junit.textui.TestRunner;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;

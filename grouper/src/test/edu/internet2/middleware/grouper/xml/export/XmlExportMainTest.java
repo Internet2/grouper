@@ -88,6 +88,7 @@ public class XmlExportMainTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     Group groupA = new GroupSave(grouperSession).assignGroupNameToEdit("etc:a").assignName("etc:a")
+       .assignDescription("description")
       .assignCreateParentStemsIfNotExist(true).save();
 
     Group groupB = new GroupSave(grouperSession).assignGroupNameToEdit("etc:b").assignName("etc:b")

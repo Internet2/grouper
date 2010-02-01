@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
@@ -1248,6 +1249,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    */
   public Stem findByUuidOrName(String uuid, String name, boolean exceptionIfNull)
       throws GrouperDAOException, StemNotFoundException {
+    
+    if (StringUtils.equals(name, ":") || StringUtils.isBlank(name)) {
+      return StemFinder.findRootStem(GrouperSession.staticGrouperSession());
+    }
+    
     try {
       Stem stemDto = HibernateSession.byHqlStatic()
         .createQuery("from Stem as ns where ns.uuid = :uuid or ns.nameDb = :name")

@@ -605,7 +605,7 @@ public class RoleSet extends GrouperAPI
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(RoleSet existingRecord) {
+  public RoleSet xmlSaveBusinessProperties(RoleSet existingRecord) {
 
     //if its an insert, call the business method
     if (existingRecord == null) {
@@ -625,6 +625,7 @@ public class RoleSet extends GrouperAPI
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.saveOrUpdate();
+    return existingRecord;
   }
 
   /**

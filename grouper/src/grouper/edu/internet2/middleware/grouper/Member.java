@@ -3013,7 +3013,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(Member existingRecord) {
+  public Member xmlSaveBusinessProperties(Member existingRecord) {
 
     //if its an insert, call the business method
     if (existingRecord == null) {
@@ -3023,6 +3023,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
+    return existingRecord;
   }
 
 

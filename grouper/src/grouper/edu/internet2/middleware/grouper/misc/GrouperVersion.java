@@ -16,6 +16,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperVersion {
   
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return this.major + "." + this.minor + "." + this.build;
+  }
+  
   /** 
    * current version
    * this must be three integers separated by dots for major version, minor version, and build number.

@@ -107,7 +107,7 @@ public class XmlExportMain {
       GrouperUtil.xmlAttribute(writer, "members", "all");
       writer.write(">\n");
 
-      XmlExportMember.exportMembers(writer);
+      XmlExportMember.exportMembers(writer, this);
 
       XmlExportStem.exportStems(writer);
       

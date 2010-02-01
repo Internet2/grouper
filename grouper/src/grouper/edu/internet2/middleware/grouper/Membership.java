@@ -2864,7 +2864,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(Membership existingRecord) {
+  public Membership xmlSaveBusinessProperties(Membership existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       
@@ -2922,6 +2922,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
 
     //if its an insert or update, then do the rest of the fields
     existingRecord.update();
+    return existingRecord;
   }
 
   /**

@@ -729,7 +729,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(Field existingRecord) {
+  public Field xmlSaveBusinessProperties(Field existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       GroupType groupType = GroupTypeFinder.findByUuid(this.groupTypeUuid, true);
@@ -739,6 +739,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
     FieldFinder.clearCache();
+    return existingRecord;
   }
 
   /**

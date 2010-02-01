@@ -1453,7 +1453,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(AttributeDef existingRecord) {
+  public AttributeDef xmlSaveBusinessProperties(AttributeDef existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       Stem parent = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.stemId, true);
@@ -1463,6 +1463,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
+    return existingRecord;
   }
 
 

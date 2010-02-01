@@ -8,6 +8,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
+import org.dom4j.Element;
+import org.dom4j.ElementHandler;
+import org.dom4j.ElementPath;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -15,6 +21,7 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -26,6 +33,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
 /**
@@ -74,6 +82,11 @@ public class XmlExportStem {
 
   /** contextId */
   private String contextId;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportStem.class);
 
   /**
    * 
@@ -357,6 +370,67 @@ public class XmlExportStem {
   }
 
   /**
+   * parse the xml file for stems
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/stems", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( "/grouperExport/stems/XmlExportStem", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+              Element row = null;
+              try {
+                // process a ROW element
+                row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportStem xmlExportStemFromFile = (XmlExportStem)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                Stem stem = xmlExportStemFromFile.toStem();
+                
+                XmlExportUtils.syncImportable(stem, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing stem: " + XmlExportUtils.toString(row), re);
+                throw re;
+              }
+            }
+        }
+    );
+  
+  }
+
+
+  /**
+   * get db count
+   * @return db count
+   */
+  public static long dbCount() {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from Stem").uniqueResult(Long.class);
+    return result;
+  }
+  
+
+  /**
    * 
    * @param writer
    */
@@ -433,4 +507,43 @@ public class XmlExportStem {
     return xmlExportStem;
   }
 
+  /**
+   * parse the xml file for stems
+   * @param xmlImportMain
+   */
+  public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/stems", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+
+    xmlImportMain.getReader().addHandler( "/grouperExport/stems/XmlExportStem", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+
+                // prune the tree
+                row.detach();
+
+                xmlImportMain.incrementTotalImportFileCount();
+            }
+        }
+    );
+ 
+  }
+
+  
 }

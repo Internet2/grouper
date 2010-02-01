@@ -832,7 +832,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(Composite existingRecord) {
+  public Composite xmlSaveBusinessProperties(Composite existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       Group owner = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.factorOwnerUUID, true);
@@ -843,6 +843,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
+    return existingRecord;
 
   }
 

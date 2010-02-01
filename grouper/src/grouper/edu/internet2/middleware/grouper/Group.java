@@ -6098,7 +6098,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSaveBusinessProperties(java.lang.Object)
    */
-  public void xmlSaveBusinessProperties(Group existingRecord) {
+  public Group xmlSaveBusinessProperties(Group existingRecord) {
     //if its an insert, call the business method
     if (existingRecord == null) {
       Stem parent = this.getParentStem();
@@ -6108,6 +6108,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
     existingRecord.store();
+    return existingRecord;
   }
 
   /**

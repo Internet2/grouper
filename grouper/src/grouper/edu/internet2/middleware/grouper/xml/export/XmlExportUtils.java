@@ -5,9 +5,13 @@
 package edu.internet2.middleware.grouper.xml.export;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 
 import org.apache.commons.lang.StringUtils;
+import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
@@ -30,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
 /**
@@ -37,6 +42,46 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  */
 public class XmlExportUtils {
 
+  /**
+   * 
+   * @param element
+   * @return the string
+   */
+  public static String toString(Element element) {
+    OutputFormat format = OutputFormat.createPrettyPrint();
+    StringWriter stringWriter = new StringWriter();
+    XMLWriter writer = new XMLWriter(stringWriter, format );
+    try {
+      writer.write(element);                
+    } catch (IOException ioe) {
+      return ioe.toString();
+    }
+    return stringWriter.toString();
+  }
+  
+  /**
+   * take a record from xml and sync with db
+   * @param xmlImportable
+   * @param xmlImportMain
+   */
+  public static void syncImportable(XmlImportable xmlImportable, XmlImportMain xmlImportMain) {
+    XmlImportable dbObject = xmlImportable.xmlRetrieveByIdOrKey();
+    //if not in db
+    if (dbObject == null) {
+      dbObject = (XmlImportable)xmlImportable.xmlSaveBusinessProperties(dbObject);
+    } else {
+      //db is there, see if different
+      if (xmlImportable.xmlDifferentBusinessProperties(dbObject)) {
+        xmlImportable.xmlCopyBusinessPropertiesToExisting(dbObject);
+        dbObject = (XmlImportable)xmlImportable.xmlSaveBusinessProperties(dbObject);
+      }
+    }
+    //see if update properties need work
+    if (xmlImportable.xmlDifferentUpdateProperties(dbObject)) {
+      xmlImportable.xmlSaveUpdateProperties();
+    }
+  }
+  
   /**
    * @return xstream
    */

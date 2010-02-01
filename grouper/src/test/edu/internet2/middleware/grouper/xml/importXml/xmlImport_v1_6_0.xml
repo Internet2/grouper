@@ -1,0 +1,244 @@
+<?xml version="1.0" ?>
+<grouperExport version="1.6.0" folderRoot=":" members="all">
+  <members>
+
+    <!-- group: etc:userReceiver -->
+    <XmlExportMember><contextId>ebaa57e4728a4216bc5694c52dfe0ee6</contextId><hibernateVersionNumber>0</hibernateVersionNumber><sourceId>g:gsa</sourceId><subjectId>6fd199572c8f4676b3711356acc78df4</subjectId><subjectType>group</subjectType><uuid>a9949f3e94cb4e1c889ac6ac61553489</uuid></XmlExportMember>
+
+    <!-- group: etc:c -->
+    <XmlExportMember><contextId>4a4da2500702479ebf36c66e3f74246e</contextId><hibernateVersionNumber>0</hibernateVersionNumber><sourceId>g:gsa</sourceId><subjectId>92a8f1487e684ce789c5d6256180ac0c</subjectId><subjectType>group</subjectType><uuid>97459bd44f4f40829121417a98e145a5</uuid></XmlExportMember>
+
+    <!-- group: etc:userSharer -->
+    <XmlExportMember><contextId>5704c8f7d4814f47a88bdf10f40d4287</contextId><hibernateVersionNumber>0</hibernateVersionNumber><sourceId>g:gsa</sourceId><subjectId>b0e5013645084f7baa315e0a719f0763</subjectId><subjectType>group</subjectType><uuid>177e77b5961b475fae966d1880857cb1</uuid></XmlExportMember>
+
+    <!-- group: etc:b -->
+    <XmlExportMember><contextId>5f2e81fc5aa14b8480dfafa5ab793b6c</contextId><hibernateVersionNumber>0</hibernateVersionNumber><sourceId>g:gsa</sourceId><subjectId>e39fb58df25f4fa89e7dfc6c0dc1ca5c</subjectId><subjectType>group</subjectType><uuid>dc70b931e2484c11aede3227ccec102e</uuid></XmlExportMember>
+
+    <!-- group: etc:a -->
+    <XmlExportMember><contextId>f89e2fd69a554f2cba5359f10f6d732b</contextId><hibernateVersionNumber>0</hibernateVersionNumber><sourceId>g:gsa</sourceId><subjectId>fc50b4ecf239424db42fa4183f0bf1d0</subjectId><subjectType>group</subjectType><uuid>cade87a1112041e7bd586074c86d638e</uuid></XmlExportMember>
+    <XmlExportMember><contextId>f89e2fd69a554f2cba5359f10f6d732b</contextId><hibernateVersionNumber>0</hibernateVersionNumber><sourceId>g:isa</sourceId><subjectId>GrouperAll</subjectId><subjectType>application</subjectType><uuid>d8a531652fef4528821fde76533da5ac</uuid></XmlExportMember>
+    <XmlExportMember><hibernateVersionNumber>0</hibernateVersionNumber><sourceId>g:isa</sourceId><subjectId>GrouperSystem</subjectId><subjectType>application</subjectType><uuid>af6efe2d661141d09ea59207ad58f2ba</uuid></XmlExportMember>
+
+  </members>
+  <stems>
+    <XmlExportStem><createTime>2010/02/01 02:54:39.121</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><displayExtension>:</displayExtension><displayName>:</displayName><extension>:</extension><hibernateVersionNumber>0</hibernateVersionNumber><modifierTime>1969/12/31 19:00:00.000</modifierTime><name>:</name><uuid>e55e98328a2047ebb5212b35619686e9</uuid></XmlExportStem>
+    <XmlExportStem><contextId>b825585450234f199428178fb908b111</contextId><createTime>2010/02/01 03:12:42.219</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><displayExtension>etc</displayExtension><displayName>etc</displayName><extension>etc</extension><hibernateVersionNumber>0</hibernateVersionNumber><lastMembershipChange>1265011962262</lastMembershipChange><modifierTime>1969/12/31 19:00:00.000</modifierTime><name>etc</name><parentStem>e55e98328a2047ebb5212b35619686e9</parentStem><uuid>872f5913949243db8b19e45235af98a6</uuid></XmlExportStem>
+  </stems>
+  <groups>
+    <XmlExportGroup><contextId>28e69488e9074e7eae3afa9cfee9d465</contextId><createTime>2010/02/01 03:12:42.283</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><description>description</description><displayExtension>a</displayExtension><displayName>etc:a</displayName><extension>a</extension><hibernateVersionNumber>1</hibernateVersionNumber><lastMembershipChange>1265011962347</lastMembershipChange><modifierId>af6efe2d661141d09ea59207ad58f2ba</modifierId><modifierTime>2010/02/01 03:12:42.353</modifierTime><name>etc:a</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><typeOfGroup>group</typeOfGroup><uuid>fc50b4ecf239424db42fa4183f0bf1d0</uuid></XmlExportGroup>
+    <XmlExportGroup><contextId>7fe0c081920e43b8a2249bf6454e6b8e</contextId><createTime>2010/02/01 03:12:42.369</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><description></description><displayExtension>b</displayExtension><displayName>etc:b</displayName><extension>b</extension><hibernateVersionNumber>1</hibernateVersionNumber><lastMembershipChange>1265011962415</lastMembershipChange><modifierId>af6efe2d661141d09ea59207ad58f2ba</modifierId><modifierTime>2010/02/01 03:12:42.637</modifierTime><name>etc:b</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><typeOfGroup>group</typeOfGroup><uuid>e39fb58df25f4fa89e7dfc6c0dc1ca5c</uuid></XmlExportGroup>
+    <XmlExportGroup><contextId>4a4da2500702479ebf36c66e3f74246e</contextId><createTime>2010/02/01 03:12:42.431</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><description></description><displayExtension>c</displayExtension><displayName>etc:c</displayName><extension>c</extension><hibernateVersionNumber>0</hibernateVersionNumber><lastMembershipChange>1265011962473</lastMembershipChange><modifierId>af6efe2d661141d09ea59207ad58f2ba</modifierId><modifierTime>2010/02/01 03:12:42.431</modifierTime><name>etc:c</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><typeOfGroup>group</typeOfGroup><uuid>92a8f1487e684ce789c5d6256180ac0c</uuid></XmlExportGroup>
+    <XmlExportGroup><contextId>343ea02d333a49b4a5e34e17fb13c6b0</contextId><createTime>2010/02/01 03:12:42.830</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><description></description><displayExtension>userReceiver</displayExtension><displayName>etc:userReceiver</displayName><extension>userReceiver</extension><hibernateVersionNumber>1</hibernateVersionNumber><lastMembershipChange>1265011962873</lastMembershipChange><modifierId>af6efe2d661141d09ea59207ad58f2ba</modifierId><modifierTime>2010/02/01 03:12:42.878</modifierTime><name>etc:userReceiver</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><typeOfGroup>role</typeOfGroup><uuid>6fd199572c8f4676b3711356acc78df4</uuid></XmlExportGroup>
+    <XmlExportGroup><contextId>eff25f2e81ff4ee4b773e8cf6a392e1f</contextId><createTime>2010/02/01 03:12:42.726</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><description></description><displayExtension>userSharer</displayExtension><displayName>etc:userSharer</displayName><extension>userSharer</extension><hibernateVersionNumber>1</hibernateVersionNumber><lastMembershipChange>1265011962812</lastMembershipChange><modifierId>af6efe2d661141d09ea59207ad58f2ba</modifierId><modifierTime>2010/02/01 03:12:42.817</modifierTime><name>etc:userSharer</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><typeOfGroup>role</typeOfGroup><uuid>b0e5013645084f7baa315e0a719f0763</uuid></XmlExportGroup>
+  </groups>
+  <groupTypes>
+    <XmlExportGroupType><assignable>F</assignable><contextId>19f844fc2e9a4a12b096ecf6ca954c9a</contextId><createTime>2009/12/21 02:41:53.398</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><hibernateVersionNumber>0</hibernateVersionNumber><internal>T</internal><name>attributeDef</name><uuid>0f39344843fa457e9f471d5d2d6d365c</uuid></XmlExportGroupType>
+    <XmlExportGroupType><assignable>F</assignable><contextId>586e4e7253d24892977b6d3d8c34b2a4</contextId><createTime>2009/12/21 02:41:53.257</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><hibernateVersionNumber>0</hibernateVersionNumber><internal>F</internal><name>base</name><uuid>a06dfe4103864f53a9813d0a23158fd3</uuid></XmlExportGroupType>
+    <XmlExportGroupType><assignable>F</assignable><contextId>7faccaeacf0347a0802ec7186a82d619</contextId><createTime>2009/12/21 02:41:53.447</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><hibernateVersionNumber>0</hibernateVersionNumber><internal>T</internal><name>naming</name><uuid>c29f31fffc784d2cb37e048a8248823d</uuid></XmlExportGroupType>
+    <XmlExportGroupType><assignable>T</assignable><contextId>e21d30921ba846e0bc4eabbd9b98dc67</contextId><createTime>2010/02/01 03:12:42.581</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><hibernateVersionNumber>0</hibernateVersionNumber><internal>F</internal><name>test</name><uuid>4a24f4aaf32b41a9bc3963818b362654</uuid></XmlExportGroupType>
+  </groupTypes>
+  <fields>
+
+    <!-- type: base -->
+    <XmlExportField><contextId>2ac85e2271d94ca4bcc50c78ff90b6aa</contextId><groupTypeUuid>a06dfe4103864f53a9813d0a23158fd3</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>admins</name><nullable>T</nullable><readPrivilege>admin</readPrivilege><type>access</type><uuid>4e2f2925001f4c1dae994fafaa7bb1e3</uuid><writePrivilege>admin</writePrivilege></XmlExportField>
+
+    <!-- type: test -->
+    <XmlExportField><contextId>7e2d2c661e7f440099bbe998da893efd</contextId><groupTypeUuid>4a24f4aaf32b41a9bc3963818b362654</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attr</name><nullable>T</nullable><readPrivilege>admin</readPrivilege><type>attribute</type><uuid>9e60008a1648457b96aa43d649b32b31</uuid><writePrivilege>admin</writePrivilege></XmlExportField>
+
+    <!-- type: attributeDef -->
+    <XmlExportField><contextId>ca5a73039806471cb1eba074e6b834d2</contextId><groupTypeUuid>0f39344843fa457e9f471d5d2d6d365c</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attrAdmins</name><nullable>T</nullable><readPrivilege>attrAdmin</readPrivilege><type>attributeDef</type><uuid>dd46419033574c8d83ef988c234c92d4</uuid><writePrivilege>attrAdmin</writePrivilege></XmlExportField>
+
+    <!-- type: attributeDef -->
+    <XmlExportField><contextId>3ee4aa12843d447cb6aa1093ad3c0fe5</contextId><groupTypeUuid>0f39344843fa457e9f471d5d2d6d365c</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attrOptins</name><nullable>T</nullable><readPrivilege>attrUpdate</readPrivilege><type>attributeDef</type><uuid>d32eb31318d64a74bd0994402d3237ad</uuid><writePrivilege>attrUpdate</writePrivilege></XmlExportField>
+
+    <!-- type: attributeDef -->
+    <XmlExportField><contextId>e20af816192c4cbe837c405e3e009356</contextId><groupTypeUuid>0f39344843fa457e9f471d5d2d6d365c</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attrOptouts</name><nullable>T</nullable><readPrivilege>attrUpdate</readPrivilege><type>attributeDef</type><uuid>efe5df9fe395486f9c5303457fd44e04</uuid><writePrivilege>attrUpdate</writePrivilege></XmlExportField>
+
+    <!-- type: attributeDef -->
+    <XmlExportField><contextId>9f77e1c39c494051a7fceaf981bfd9cd</contextId><groupTypeUuid>0f39344843fa457e9f471d5d2d6d365c</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attrReaders</name><nullable>T</nullable><readPrivilege>attrAdmin</readPrivilege><type>attributeDef</type><uuid>0b0c3d91742243e7bbcfe1d01dd1d539</uuid><writePrivilege>attrAdmin</writePrivilege></XmlExportField>
+
+    <!-- type: attributeDef -->
+    <XmlExportField><contextId>4250b7cbdd674d34888ff7122b108da4</contextId><groupTypeUuid>0f39344843fa457e9f471d5d2d6d365c</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attrUpdaters</name><nullable>T</nullable><readPrivilege>attrAdmin</readPrivilege><type>attributeDef</type><uuid>7a7e4e5a64df4d0b8e1d877b278bc3c2</uuid><writePrivilege>attrAdmin</writePrivilege></XmlExportField>
+
+    <!-- type: attributeDef -->
+    <XmlExportField><contextId>229ef3870f38480cbc01a8ba910bf10f</contextId><groupTypeUuid>0f39344843fa457e9f471d5d2d6d365c</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attrViewers</name><nullable>T</nullable><readPrivilege>attrAdmin</readPrivilege><type>attributeDef</type><uuid>2e167e168113486ab8a6d34efefcc667</uuid><writePrivilege>attrAdmin</writePrivilege></XmlExportField>
+
+    <!-- type: naming -->
+    <XmlExportField><contextId>77c1aa96d7384ce9a206c160f9ba02d2</contextId><groupTypeUuid>c29f31fffc784d2cb37e048a8248823d</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>creators</name><nullable>T</nullable><readPrivilege>stem</readPrivilege><type>naming</type><uuid>03c8a69354e944a4b0b1b816e15f62f6</uuid><writePrivilege>stem</writePrivilege></XmlExportField>
+
+    <!-- type: base -->
+    <XmlExportField><contextId>96a71f64500e430c9af5dd7c0fcb7417</contextId><groupTypeUuid>a06dfe4103864f53a9813d0a23158fd3</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>members</name><nullable>T</nullable><readPrivilege>read</readPrivilege><type>list</type><uuid>910846a2b5a04badaccb069115de39d5</uuid><writePrivilege>update</writePrivilege></XmlExportField>
+
+    <!-- type: base -->
+    <XmlExportField><contextId>44deba1d73884b6baf599397b9575451</contextId><groupTypeUuid>a06dfe4103864f53a9813d0a23158fd3</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>optins</name><nullable>T</nullable><readPrivilege>update</readPrivilege><type>access</type><uuid>567d02b6215a47be9debcf5c4d544e09</uuid><writePrivilege>update</writePrivilege></XmlExportField>
+
+    <!-- type: base -->
+    <XmlExportField><contextId>8a9a27aee4444a0e9ea70bbc8bb79cd4</contextId><groupTypeUuid>a06dfe4103864f53a9813d0a23158fd3</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>optouts</name><nullable>T</nullable><readPrivilege>update</readPrivilege><type>access</type><uuid>1a32e2ba602e42ab85ede2b59a43528e</uuid><writePrivilege>update</writePrivilege></XmlExportField>
+
+    <!-- type: base -->
+    <XmlExportField><contextId>9fd5b7213e714407ba1635985a02bd45</contextId><groupTypeUuid>a06dfe4103864f53a9813d0a23158fd3</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>readers</name><nullable>T</nullable><readPrivilege>admin</readPrivilege><type>access</type><uuid>de1c465c1d1547a697e17768756b39c1</uuid><writePrivilege>admin</writePrivilege></XmlExportField>
+
+    <!-- type: naming -->
+    <XmlExportField><contextId>06a3166e07404116be5d2f5b80def905</contextId><groupTypeUuid>c29f31fffc784d2cb37e048a8248823d</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>stemmers</name><nullable>T</nullable><readPrivilege>stem</readPrivilege><type>naming</type><uuid>8a5b48eee05d4d85af05f15606e26d7d</uuid><writePrivilege>stem</writePrivilege></XmlExportField>
+
+    <!-- type: base -->
+    <XmlExportField><contextId>38cd097a06c54b85ad3f2c2083dfaee8</contextId><groupTypeUuid>a06dfe4103864f53a9813d0a23158fd3</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>updaters</name><nullable>T</nullable><readPrivilege>admin</readPrivilege><type>access</type><uuid>3da881f3c2954ec0ac88fcd83b82c78c</uuid><writePrivilege>admin</writePrivilege></XmlExportField>
+
+    <!-- type: base -->
+    <XmlExportField><contextId>d39c5291bf474b18a942a86851b08d3a</contextId><groupTypeUuid>a06dfe4103864f53a9813d0a23158fd3</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>viewers</name><nullable>T</nullable><readPrivilege>admin</readPrivilege><type>access</type><uuid>8a48d10aa10949eab7c7082071e956cb</uuid><writePrivilege>admin</writePrivilege></XmlExportField>
+
+  </fields>
+  <groupTypeTuples>
+
+    <!-- group: etc:userReceiver, type: base -->
+    <XmlExportGroupTypeTuple><contextId>ebaa57e4728a4216bc5694c52dfe0ee6</contextId><groupId>6fd199572c8f4676b3711356acc78df4</groupId><hibernateVersionNumber>0</hibernateVersionNumber><typeId>a06dfe4103864f53a9813d0a23158fd3</typeId><uuid>ee40035678f144359dcbb7d5533d092e</uuid></XmlExportGroupTypeTuple>
+
+    <!-- group: etc:c, type: base -->
+    <XmlExportGroupTypeTuple><contextId>4a4da2500702479ebf36c66e3f74246e</contextId><groupId>92a8f1487e684ce789c5d6256180ac0c</groupId><hibernateVersionNumber>0</hibernateVersionNumber><typeId>a06dfe4103864f53a9813d0a23158fd3</typeId><uuid>31ab54d8ac9749a28dbb3f94438f658a</uuid></XmlExportGroupTypeTuple>
+
+    <!-- group: etc:userSharer, type: base -->
+    <XmlExportGroupTypeTuple><contextId>5704c8f7d4814f47a88bdf10f40d4287</contextId><groupId>b0e5013645084f7baa315e0a719f0763</groupId><hibernateVersionNumber>0</hibernateVersionNumber><typeId>a06dfe4103864f53a9813d0a23158fd3</typeId><uuid>3ad9b4cc62f7446692d0642b003647fc</uuid></XmlExportGroupTypeTuple>
+
+    <!-- group: etc:b, type: test -->
+    <XmlExportGroupTypeTuple><contextId>52fb3886bb2f44dabecd2b3d912a88fb</contextId><groupId>e39fb58df25f4fa89e7dfc6c0dc1ca5c</groupId><hibernateVersionNumber>0</hibernateVersionNumber><typeId>4a24f4aaf32b41a9bc3963818b362654</typeId><uuid>8dc66a4bd1524e68a39e21c9aa2c3307</uuid></XmlExportGroupTypeTuple>
+
+    <!-- group: etc:b, type: base -->
+    <XmlExportGroupTypeTuple><contextId>5f2e81fc5aa14b8480dfafa5ab793b6c</contextId><groupId>e39fb58df25f4fa89e7dfc6c0dc1ca5c</groupId><hibernateVersionNumber>0</hibernateVersionNumber><typeId>a06dfe4103864f53a9813d0a23158fd3</typeId><uuid>0d7202c7a7cd4842922abb31cfbc6483</uuid></XmlExportGroupTypeTuple>
+
+    <!-- group: etc:a, type: base -->
+    <XmlExportGroupTypeTuple><contextId>f89e2fd69a554f2cba5359f10f6d732b</contextId><groupId>fc50b4ecf239424db42fa4183f0bf1d0</groupId><hibernateVersionNumber>0</hibernateVersionNumber><typeId>a06dfe4103864f53a9813d0a23158fd3</typeId><uuid>4c9c82f5df444707b18386a0171ea5d9</uuid></XmlExportGroupTypeTuple>
+
+  </groupTypeTuples>
+  <composites>
+
+    <!-- ownerGroup: etc:a, leftGroup: etc:b, rightGroup: etc:c -->
+    <XmlExportComposite><contextId>9e4ec9a40e294624a48cc5a3a8c8b9be</contextId><createTime>2010/02/01 03:12:42.484</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><hibernateVersionNumber>0</hibernateVersionNumber><leftFactor>e39fb58df25f4fa89e7dfc6c0dc1ca5c</leftFactor><owner>fc50b4ecf239424db42fa4183f0bf1d0</owner><rightFactor>92a8f1487e684ce789c5d6256180ac0c</rightFactor><type>intersection</type><uuid>fc50b4ecf239424db42fa4183f0bf1d0</uuid></XmlExportComposite>
+
+  </composites>
+  <attributes>
+
+    <!-- group: etc:b, attribute: attr -->
+    <XmlExportAttribute><contextId>684041c945284562b8f3ffbe51a365ae</contextId><fieldId>9e60008a1648457b96aa43d649b32b31</fieldId><groupId>e39fb58df25f4fa89e7dfc6c0dc1ca5c</groupId><hibernateVersionNumber>0</hibernateVersionNumber><uuid>66934ab10c0a4dd68a7fe20de2f42576</uuid><value>value</value></XmlExportAttribute>
+
+  </attributes>
+  <attributeDefs>
+    <XmlExportAttributeDef><assignToAttributeDef>F</assignToAttributeDef><assignToAttributeDefAssn>F</assignToAttributeDefAssn><assignToEffMembership>F</assignToEffMembership><assignToEffMembershipAssn>F</assignToEffMembershipAssn><assignToGroup>T</assignToGroup><assignToGroupAssn>F</assignToGroupAssn><assignToImmMembership>F</assignToImmMembership><assignToImmMembershipAssn>F</assignToImmMembershipAssn><assignToMember>F</assignToMember><assignToMemberAssn>F</assignToMemberAssn><assignToStem>F</assignToStem><assignToStemAssn>F</assignToStemAssn><attributeDefPublic>F</attributeDefPublic><attributeDefType>attr</attributeDefType><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><extension>students</extension><hibernateVersionNumber>1</hibernateVersionNumber><multiAssignable>F</multiAssignable><multiValued>F</multiValued><name>etc:students</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><uuid>150bf6f24d52424abd0569193c3379cc</uuid><valueType>marker</valueType></XmlExportAttributeDef>
+    <XmlExportAttributeDef><assignToAttributeDef>F</assignToAttributeDef><assignToAttributeDefAssn>F</assignToAttributeDefAssn><assignToEffMembership>F</assignToEffMembership><assignToEffMembershipAssn>F</assignToEffMembershipAssn><assignToGroup>F</assignToGroup><assignToGroupAssn>T</assignToGroupAssn><assignToImmMembership>F</assignToImmMembership><assignToImmMembershipAssn>F</assignToImmMembershipAssn><assignToMember>F</assignToMember><assignToMemberAssn>F</assignToMemberAssn><assignToStem>F</assignToStem><assignToStemAssn>F</assignToStemAssn><attributeDefPublic>F</attributeDefPublic><attributeDefType>attr</attributeDefType><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><extension>students2</extension><hibernateVersionNumber>1</hibernateVersionNumber><multiAssignable>F</multiAssignable><multiValued>F</multiValued><name>etc:students2</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><uuid>f966214f987741018ad71fbaf25a5ffe</uuid><valueType>marker</valueType></XmlExportAttributeDef>
+  </attributeDefs>
+  <memberships>
+
+    <!-- membership: attributeDef: etc:students, field: attrAdmins, member: g:isa - GrouperSystem -->
+    <XmlExportMembership><contextId>bff738c5091e4aa3a4db9044d6de1657</contextId><createTime>2010/02/01 03:12:42.698</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>dd46419033574c8d83ef988c234c92d4</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>af6efe2d661141d09ea59207ad58f2ba</memberId><ownerAttrDefId>150bf6f24d52424abd0569193c3379cc</ownerAttrDefId><type>immediate</type><uuid>be18f943f0884639b6e05077fd2d4517</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:userReceiver, field: admins, member: g:isa - GrouperSystem -->
+    <XmlExportMembership><contextId>ebaa57e4728a4216bc5694c52dfe0ee6</contextId><createTime>2010/02/01 03:12:42.849</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>4e2f2925001f4c1dae994fafaa7bb1e3</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>af6efe2d661141d09ea59207ad58f2ba</memberId><ownerGroupId>6fd199572c8f4676b3711356acc78df4</ownerGroupId><type>immediate</type><uuid>8bd9b4da074347a9ae97efaa57f90701</uuid></XmlExportMembership>
+
+    <!-- membership: stem: etc, field: stemmers, member: g:isa - GrouperSystem -->
+    <XmlExportMembership><contextId>b825585450234f199428178fb908b111</contextId><createTime>2010/02/01 03:12:42.247</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>8a5b48eee05d4d85af05f15606e26d7d</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>af6efe2d661141d09ea59207ad58f2ba</memberId><ownerStemId>872f5913949243db8b19e45235af98a6</ownerStemId><type>immediate</type><uuid>1f7dfd66b625457694ad44dc75bc3665</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:c, field: admins, member: g:isa - GrouperSystem -->
+    <XmlExportMembership><contextId>4a4da2500702479ebf36c66e3f74246e</contextId><createTime>2010/02/01 03:12:42.449</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>4e2f2925001f4c1dae994fafaa7bb1e3</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>af6efe2d661141d09ea59207ad58f2ba</memberId><ownerGroupId>92a8f1487e684ce789c5d6256180ac0c</ownerGroupId><type>immediate</type><uuid>b9faaa07f06447f1b27db91c19dc4900</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:userSharer, field: admins, member: g:isa - GrouperSystem -->
+    <XmlExportMembership><contextId>5704c8f7d4814f47a88bdf10f40d4287</contextId><createTime>2010/02/01 03:12:42.744</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>4e2f2925001f4c1dae994fafaa7bb1e3</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>af6efe2d661141d09ea59207ad58f2ba</memberId><ownerGroupId>b0e5013645084f7baa315e0a719f0763</ownerGroupId><type>immediate</type><uuid>6218b2827a234772994fc184f6094aca</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:b, field: admins, member: g:isa - GrouperSystem -->
+    <XmlExportMembership><contextId>5f2e81fc5aa14b8480dfafa5ab793b6c</contextId><createTime>2010/02/01 03:12:42.390</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>4e2f2925001f4c1dae994fafaa7bb1e3</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>af6efe2d661141d09ea59207ad58f2ba</memberId><ownerGroupId>e39fb58df25f4fa89e7dfc6c0dc1ca5c</ownerGroupId><type>immediate</type><uuid>d9cfdffb50644f2c92370a162cb132ed</uuid></XmlExportMembership>
+
+    <!-- membership: attributeDef: etc:students2, field: attrAdmins, member: g:isa - GrouperSystem -->
+    <XmlExportMembership><contextId>199032d9456a421ba9c3762dd942f0d5</contextId><createTime>2010/02/01 03:12:42.968</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>dd46419033574c8d83ef988c234c92d4</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>af6efe2d661141d09ea59207ad58f2ba</memberId><ownerAttrDefId>f966214f987741018ad71fbaf25a5ffe</ownerAttrDefId><type>immediate</type><uuid>7dda362909ad486cb8332be0fa8d287e</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:a, field: admins, member: g:isa - GrouperSystem -->
+    <XmlExportMembership><contextId>f89e2fd69a554f2cba5359f10f6d732b</contextId><createTime>2010/02/01 03:12:42.315</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>4e2f2925001f4c1dae994fafaa7bb1e3</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>af6efe2d661141d09ea59207ad58f2ba</memberId><ownerGroupId>fc50b4ecf239424db42fa4183f0bf1d0</ownerGroupId><type>immediate</type><uuid>bfddba5e896e4678817b6881441368a7</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:userReceiver, field: viewers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>ebaa57e4728a4216bc5694c52dfe0ee6</contextId><createTime>2010/02/01 03:12:42.869</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>8a48d10aa10949eab7c7082071e956cb</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>6fd199572c8f4676b3711356acc78df4</ownerGroupId><type>immediate</type><uuid>e77aed97aa3a42bf8b1145e4361a42e0</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:userReceiver, field: readers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>ebaa57e4728a4216bc5694c52dfe0ee6</contextId><createTime>2010/02/01 03:12:42.859</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>de1c465c1d1547a697e17768756b39c1</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>6fd199572c8f4676b3711356acc78df4</ownerGroupId><type>immediate</type><uuid>3491e10873db4f92963646969af969c3</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:c, field: viewers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>4a4da2500702479ebf36c66e3f74246e</contextId><createTime>2010/02/01 03:12:42.469</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>8a48d10aa10949eab7c7082071e956cb</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>92a8f1487e684ce789c5d6256180ac0c</ownerGroupId><type>immediate</type><uuid>ef2c4d9bfb604b9e91be80e02d6c0c59</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:c, field: readers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>4a4da2500702479ebf36c66e3f74246e</contextId><createTime>2010/02/01 03:12:42.460</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>de1c465c1d1547a697e17768756b39c1</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>92a8f1487e684ce789c5d6256180ac0c</ownerGroupId><type>immediate</type><uuid>aa5e98e60d8940f58a22050f639b920f</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:userSharer, field: viewers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>5704c8f7d4814f47a88bdf10f40d4287</contextId><createTime>2010/02/01 03:12:42.808</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>8a48d10aa10949eab7c7082071e956cb</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>b0e5013645084f7baa315e0a719f0763</ownerGroupId><type>immediate</type><uuid>123053d9d75e455d999cc56c1483f0b0</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:userSharer, field: readers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>5704c8f7d4814f47a88bdf10f40d4287</contextId><createTime>2010/02/01 03:12:42.795</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>de1c465c1d1547a697e17768756b39c1</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>b0e5013645084f7baa315e0a719f0763</ownerGroupId><type>immediate</type><uuid>148cd54e84e44bf3b1661ebdb7fba304</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:b, field: viewers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>5f2e81fc5aa14b8480dfafa5ab793b6c</contextId><createTime>2010/02/01 03:12:42.411</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>8a48d10aa10949eab7c7082071e956cb</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>e39fb58df25f4fa89e7dfc6c0dc1ca5c</ownerGroupId><type>immediate</type><uuid>b492864e7eb849ed95aaa1206fd868eb</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:b, field: readers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>5f2e81fc5aa14b8480dfafa5ab793b6c</contextId><createTime>2010/02/01 03:12:42.400</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>de1c465c1d1547a697e17768756b39c1</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>e39fb58df25f4fa89e7dfc6c0dc1ca5c</ownerGroupId><type>immediate</type><uuid>9187a510ef604d5a9877330091dca875</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:a, field: viewers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>f89e2fd69a554f2cba5359f10f6d732b</contextId><createTime>2010/02/01 03:12:42.344</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>8a48d10aa10949eab7c7082071e956cb</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>fc50b4ecf239424db42fa4183f0bf1d0</ownerGroupId><type>immediate</type><uuid>75fe36f12b234450b448cb6b3443b492</uuid></XmlExportMembership>
+
+    <!-- membership: group: etc:a, field: readers, member: g:isa - GrouperAll -->
+    <XmlExportMembership><contextId>f89e2fd69a554f2cba5359f10f6d732b</contextId><createTime>2010/02/01 03:12:42.335</createTime><creatorId>af6efe2d661141d09ea59207ad58f2ba</creatorId><enabled>T</enabled><fieldId>de1c465c1d1547a697e17768756b39c1</fieldId><hibernateVersionNumber>0</hibernateVersionNumber><memberId>d8a531652fef4528821fde76533da5ac</memberId><ownerGroupId>fc50b4ecf239424db42fa4183f0bf1d0</ownerGroupId><type>immediate</type><uuid>aa7c75a8184746a1a3f13b473f06f36a</uuid></XmlExportMembership>
+
+  </memberships>
+  <attributeDefNames>
+    <XmlExportAttributeDefName><attributeDefId>150bf6f24d52424abd0569193c3379cc</attributeDefId><contextId>00658c8c98ec42e1a669d5a933f44343</contextId><displayExtension>studentsName</displayExtension><displayName>etc:studentsName</displayName><extension>studentsName</extension><hibernateVersionNumber>0</hibernateVersionNumber><name>etc:studentsName</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><uuid>97709491eb28489c975e446e015eba9c</uuid></XmlExportAttributeDefName>
+    <XmlExportAttributeDefName><attributeDefId>f966214f987741018ad71fbaf25a5ffe</attributeDefId><contextId>d863a934838247989079128e64713f7e</contextId><displayExtension>studentsName2</displayExtension><displayName>etc:studentsName2</displayName><extension>studentsName2</extension><hibernateVersionNumber>0</hibernateVersionNumber><name>etc:studentsName2</name><parentStem>872f5913949243db8b19e45235af98a6</parentStem><uuid>032d9b3298a14aa5bdc04407f3025ab2</uuid></XmlExportAttributeDefName>
+  </attributeDefNames>
+  <roleSets>
+
+    <!-- ifHasRole: etc:userSharer, thenHasRole: etc:userReceiver -->
+    <XmlExportRoleSet><createTime>2010/02/01 03:12:42.903</createTime><depth>1</depth><hibernateVersionNumber>0</hibernateVersionNumber><ifHasRoleId>b0e5013645084f7baa315e0a719f0763</ifHasRoleId><parentRoleSetId>4dfffc47d9aa4c48901d01f4a59df3db</parentRoleSetId><thenHasRoleId>6fd199572c8f4676b3711356acc78df4</thenHasRoleId><type>immediate</type><uuid>8d6e95e3fa144770892d1781d6353d2a</uuid></XmlExportRoleSet>
+
+  </roleSets>
+  <attributeAssignActions>
+
+    <!-- attributeDef: etc:students,  -->
+    <XmlExportAttributeAssignAction><attributeDefId>150bf6f24d52424abd0569193c3379cc</attributeDefId><contextId>bff738c5091e4aa3a4db9044d6de1657</contextId><hibernateVersionNumber>0</hibernateVersionNumber><name>assign</name><uuid>7a390a1f6d754288bd8c64b028b10f30</uuid></XmlExportAttributeAssignAction>
+
+    <!-- attributeDef: etc:students,  -->
+    <XmlExportAttributeAssignAction><attributeDefId>150bf6f24d52424abd0569193c3379cc</attributeDefId><hibernateVersionNumber>0</hibernateVersionNumber><name>someAction</name><uuid>ed42869696a34352843336bcad589e73</uuid></XmlExportAttributeAssignAction>
+
+    <!-- attributeDef: etc:students,  -->
+    <XmlExportAttributeAssignAction><attributeDefId>150bf6f24d52424abd0569193c3379cc</attributeDefId><hibernateVersionNumber>0</hibernateVersionNumber><name>someAction2</name><uuid>c44b3b7df0884775af9b0c35fbc1a131</uuid></XmlExportAttributeAssignAction>
+
+    <!-- attributeDef: etc:students2,  -->
+    <XmlExportAttributeAssignAction><attributeDefId>f966214f987741018ad71fbaf25a5ffe</attributeDefId><contextId>199032d9456a421ba9c3762dd942f0d5</contextId><hibernateVersionNumber>0</hibernateVersionNumber><name>assign</name><uuid>0e9a3fee760342179c43664e9f8907b4</uuid></XmlExportAttributeAssignAction>
+
+  </attributeAssignActions>
+  <attributeAssignActionSets>
+
+    <!-- ifHasAction: someAction, thenHasAction: someAction2, attributeDef: etc:students -->
+    <XmlExportAttributeAssignActionSet><depth>1</depth><hibernateVersionNumber>0</hibernateVersionNumber><ifHasAttributeAssignActionId>ed42869696a34352843336bcad589e73</ifHasAttributeAssignActionId><parentAttributeAssignActionSetId>5f7450aa0fd34d158c71c7189ca25c27</parentAttributeAssignActionSetId><thenHasAttributeAssignActionId>c44b3b7df0884775af9b0c35fbc1a131</thenHasAttributeAssignActionId><type>immediate</type><uuid>3b1b33601dfa4c6c933203877dfbb59d</uuid></XmlExportAttributeAssignActionSet>
+
+  </attributeAssignActionSets>
+  <attributeAssigns>
+
+    <!--  attributeAssign: attributeDefName: etc:studentsName, group: etc:b -->
+    <XmlExportAttributeAssign><attributeAssignActionId>7a390a1f6d754288bd8c64b028b10f30</attributeAssignActionId><attributeAssignDelegatable>FALSE</attributeAssignDelegatable><attributeAssignType>group</attributeAssignType><attributeDefNameId>97709491eb28489c975e446e015eba9c</attributeDefNameId><createTime>2010/02/01 03:12:43.108</createTime><enabled>T</enabled><hibernateVersionNumber>0</hibernateVersionNumber><modifierTime>2010/02/01 03:12:43.108</modifierTime><ownerGroupId>e39fb58df25f4fa89e7dfc6c0dc1ca5c</ownerGroupId><uuid>40d732bd5df04c46bf098107778ae4b5</uuid></XmlExportAttributeAssign>
+
+    <!--  attributeAssign: attributeDefName: etc:studentsName2, attrOnAttributeAssign: attributeDefName: etc:studentsName, group: etc:b -->
+    <XmlExportAttributeAssign><attributeAssignActionId>0e9a3fee760342179c43664e9f8907b4</attributeAssignActionId><attributeAssignDelegatable>FALSE</attributeAssignDelegatable><attributeAssignType>group_asgn</attributeAssignType><attributeDefNameId>032d9b3298a14aa5bdc04407f3025ab2</attributeDefNameId><createTime>2010/02/01 03:12:43.133</createTime><enabled>T</enabled><hibernateVersionNumber>0</hibernateVersionNumber><modifierTime>2010/02/01 03:12:43.133</modifierTime><ownerAttributeAssignId>40d732bd5df04c46bf098107778ae4b5</ownerAttributeAssignId><uuid>a01fec995ae748dc8711f03263c70ff2</uuid></XmlExportAttributeAssign>
+
+  </attributeAssigns>
+  <attributeAssignValues>
+
+    <!-- value: string, attributeAssign: attributeDefName: etc:studentsName, group: etc:b -->
+    <XmlExportAttributeAssignValue><attributeAssignId>40d732bd5df04c46bf098107778ae4b5</attributeAssignId><createTime>2010/02/01 03:12:43.137</createTime><hibernateVersionNumber>0</hibernateVersionNumber><modifierTime>2010/02/01 03:12:43.137</modifierTime><uuid>fdbc6b3078154b2c9ee1d62d7a976dcb</uuid><valueString>string</valueString></XmlExportAttributeAssignValue>
+
+  </attributeAssignValues>
+  <attributeDefNameSets>
+
+    <!-- ifHasAttributeDefName: etc:studentsName, thenHasAttributeDefName: etc:studentsName2 -->
+    <XmlExportAttributeDefNameSet><depth>1</depth><hibernateVersionNumber>0</hibernateVersionNumber><ifHasAttributeDefNameId>97709491eb28489c975e446e015eba9c</ifHasAttributeDefNameId><parentAttributeDefNameSetId>7507d6502761446dae883791c2b3f806</parentAttributeDefNameSetId><thenHasAttributeDefNameId>032d9b3298a14aa5bdc04407f3025ab2</thenHasAttributeDefNameId><type>immediate</type><uuid>65ce9b7741db453ab71d8dd2e842f60d</uuid></XmlExportAttributeDefNameSet>
+
+  </attributeDefNameSets>
+  <attributeDefScopes>
+
+    <!-- attributeDef: etc:students -->
+    <XmlExportAttributeDefScope><attributeDefId>150bf6f24d52424abd0569193c3379cc</attributeDefId><attributeDefScopeType>attributeDefNameIdAssigned</attributeDefScopeType><hibernateVersionNumber>0</hibernateVersionNumber><scopeString>whatever</scopeString><uuid>568ac477a6484825869c4d8e05e49e06</uuid></XmlExportAttributeDefScope>
+
+  </attributeDefScopes>
+</grouperExport>
+
