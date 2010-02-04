@@ -194,7 +194,7 @@ public class XmlImportMain {
               
               XmlImportMain.this.originalDbCount = XmlImportMain.this.dbCount();
               
-              logInfoAndPrintToScreen("Database contains " + XmlImportMain.this.originalDbCount + " records");
+              logInfoAndPrintToScreen("Beginning import: database contains " + XmlImportMain.this.originalDbCount + " records");
               
             } catch (FileNotFoundException fnfe) {
               throw new RuntimeException("Problem reading file: " + GrouperUtil.fileCanonicalPath(importFile), fnfe);
@@ -280,16 +280,22 @@ public class XmlImportMain {
               XmlExportMember.processXmlSecondPass(XmlImportMain.this);
               XmlExportStem.processXmlSecondPass(XmlImportMain.this);
               XmlExportGroup.processXmlSecondPass(XmlImportMain.this);
+              XmlExportGroupType.processXmlSecondPass(XmlImportMain.this);
+              XmlExportField.processXmlSecondPass(XmlImportMain.this);
+              XmlExportGroupTypeTuple.processXmlSecondPass(XmlImportMain.this);
+              XmlExportComposite.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttribute.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttributeDef.processXmlSecondPass(XmlImportMain.this);
   
               fileInputStream = new FileInputStream(importFile);
               
               theReader.read(fileInputStream);
               
-              logInfoAndPrintToScreen("Processed " + XmlImportMain.this.currentCount + " records");
+              logInfoAndPrintToScreen("Ending import: processed " + XmlImportMain.this.currentCount + " records");
 
               long finalDbCount = XmlImportMain.this.dbCount();
               
-              logInfoAndPrintToScreen("Database contains " + finalDbCount + " records");
+              logInfoAndPrintToScreen("Ending import: database contains " + finalDbCount + " records");
               
             } catch (FileNotFoundException fnfe) {
               throw new RuntimeException("Problem reading file: " + GrouperUtil.fileCanonicalPath(importFile), fnfe);

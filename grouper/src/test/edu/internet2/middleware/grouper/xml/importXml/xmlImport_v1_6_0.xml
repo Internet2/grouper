@@ -43,7 +43,7 @@
     <XmlExportField><contextId>2ac85e2271d94ca4bcc50c78ff90b6aa</contextId><groupTypeUuid>a06dfe4103864f53a9813d0a23158fd3</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>admins</name><nullable>T</nullable><readPrivilege>admin</readPrivilege><type>access</type><uuid>4e2f2925001f4c1dae994fafaa7bb1e3</uuid><writePrivilege>admin</writePrivilege></XmlExportField>
 
     <!-- type: test -->
-    <XmlExportField><contextId>7e2d2c661e7f440099bbe998da893efd</contextId><groupTypeUuid>4a24f4aaf32b41a9bc3963818b362654</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attr</name><nullable>T</nullable><readPrivilege>admin</readPrivilege><type>attribute</type><uuid>9e60008a1648457b96aa43d649b32b31</uuid><writePrivilege>admin</writePrivilege></XmlExportField>
+    <XmlExportField><contextId>7e2d2c661e7f440099bbe998da893efd</contextId><groupTypeUuid>4a24f4aaf32b41a9bc3963818b362654</groupTypeUuid><hibernateVersionNumber>3</hibernateVersionNumber><name>attr</name><nullable>T</nullable><readPrivilege>admin</readPrivilege><type>attribute</type><uuid>9e60008a1648457b96aa43d649b32b31</uuid><writePrivilege>admin</writePrivilege></XmlExportField>
 
     <!-- type: attributeDef -->
     <XmlExportField><contextId>ca5a73039806471cb1eba074e6b834d2</contextId><groupTypeUuid>0f39344843fa457e9f471d5d2d6d365c</groupTypeUuid><hibernateVersionNumber>0</hibernateVersionNumber><name>attrAdmins</name><nullable>T</nullable><readPrivilege>attrAdmin</readPrivilege><type>attributeDef</type><uuid>dd46419033574c8d83ef988c234c92d4</uuid><writePrivilege>attrAdmin</writePrivilege></XmlExportField>

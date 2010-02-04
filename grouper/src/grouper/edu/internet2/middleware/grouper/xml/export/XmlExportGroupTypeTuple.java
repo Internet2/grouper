@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
@@ -18,6 +19,7 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -28,6 +30,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
@@ -50,6 +53,11 @@ public class XmlExportGroupTypeTuple {
   
   /** type id */
   private String typeId;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportGroup.class);
   
   
   /**
@@ -176,6 +184,55 @@ public class XmlExportGroupTypeTuple {
     CompactWriter compactWriter = new CompactWriter(writer);
     
     xStream.marshal(this, compactWriter);
+  
+  }
+
+  /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/groupTypeTuples", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( "/grouperExport/groupTypeTuples/XmlExportGroupTypeTuple", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+              try {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportGroupTypeTuple xmlExportGroupTypeTupleFromFile = (XmlExportGroupTypeTuple)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                GroupTypeTuple groupTypeTuple = xmlExportGroupTypeTupleFromFile.toGroupTypeTuple();
+                
+                XmlExportUtils.syncImportable(groupTypeTuple, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing groupTypeTuples", re);
+                throw re;
+              }
+            }
+        }
+    );
   
   }
 

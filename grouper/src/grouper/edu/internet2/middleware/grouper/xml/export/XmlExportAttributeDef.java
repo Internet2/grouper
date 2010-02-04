@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
@@ -18,6 +19,7 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -407,6 +409,11 @@ public class XmlExportAttributeDef {
 
   /** attributeDefType */
   private String attributeDefType;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportAttributeDef.class);
   
   
   
@@ -636,6 +643,55 @@ public class XmlExportAttributeDef {
     CompactWriter compactWriter = new CompactWriter(writer);
     
     xStream.marshal(this, compactWriter);
+  
+  }
+
+  /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( "/grouperExport/attributeDefs", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( "/grouperExport/attributeDefs/XmlExportAttributeDef", 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+              try {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportAttributeDef xmlExportAttributeDefFromFile = (XmlExportAttributeDef)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                AttributeDef attributeDef = xmlExportAttributeDefFromFile.toAttributeDef();
+                
+                XmlExportUtils.syncImportable(attributeDef, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing groups", re);
+                throw re;
+              }
+            }
+        }
+    );
   
   }
 

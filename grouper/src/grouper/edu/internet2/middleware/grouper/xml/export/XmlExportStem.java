@@ -12,8 +12,6 @@ import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
