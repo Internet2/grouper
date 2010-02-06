@@ -142,6 +142,15 @@
           overflowToDisk="false"
   />
 
+  <!-- @see   Membership#getAttributeDef(...) -->
+  <cache  name="edu.internet2.middleware.grouper.Membership.getAttributeDef"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
   <!-- @see   Hib3MemberDAO#exists(...) -->
   <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists"
           maxElementsInMemory="1000"
