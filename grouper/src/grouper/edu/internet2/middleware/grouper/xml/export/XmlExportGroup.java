@@ -39,6 +39,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  */
 public class XmlExportGroup {
 
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_GROUP_XPATH = "/grouperExport/groups/XmlExportGroup";
+
+  /**
+   * 
+   */
+  private static final String GROUPS_XPATH = "/grouperExport/groups";
+
   /** alternate name */
   private String alternateName;
   
@@ -411,7 +421,7 @@ public class XmlExportGroup {
    * @param xmlImportMain
    */
   public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/groups", 
+    xmlImportMain.getReader().addHandler( GROUPS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -425,15 +435,17 @@ public class XmlExportGroup {
         }
     );
   
-    xmlImportMain.getReader().addHandler( "/grouperExport/groups/XmlExportGroup", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_GROUP_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    
             }
             public void onEnd(ElementPath path) {
+
+              Element row = null;
               try {
                 // process a ROW element
-                Element row = path.getCurrent();
+                row = path.getCurrent();
   
                 // prune the tree
                 row.detach();
@@ -446,7 +458,7 @@ public class XmlExportGroup {
                 
                 xmlImportMain.incrementCurrentCount();
               } catch (RuntimeException re) {
-                LOG.error("Problem importing groups", re);
+                LOG.error("Problem importing group: " + XmlExportUtils.toString(row), re);
                 throw re;
               }
             }
@@ -547,7 +559,7 @@ public class XmlExportGroup {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/groups", 
+    xmlImportMain.getReader().addHandler( GROUPS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -561,7 +573,7 @@ public class XmlExportGroup {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/groups/XmlExportGroup", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_GROUP_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

@@ -540,6 +540,20 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
     
     return xmlExportAttribute;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setId(theId);
+  }
   
 } 
 

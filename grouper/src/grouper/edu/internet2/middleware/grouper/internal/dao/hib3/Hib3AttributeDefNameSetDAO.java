@@ -239,7 +239,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
         .createQuery("from AttributeDefNameSet as theAttributeDefNameSet where theAttributeDefNameSet.id = :theId " +
         		"or (theAttributeDefNameSet.ifHasAttributeDefNameId = :theIfHasAttributeDefNameId " +
             " and theAttributeDefNameSet.thenHasAttributeDefNameId = :theThenHasAttributeDefNameId " +
-            "and theAttributeDefNameSet.parentAttributeDefNameSetId = :theParentAttributeDefNameSetId " +
+            "and theAttributeDefNameSet.parentAttrDefNameSetId = :theParentAttributeDefNameSetId " +
             " and theAttributeDefNameSet.depth = :theDepth)")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrKey")

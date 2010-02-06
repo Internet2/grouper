@@ -1517,4 +1517,19 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
     return xmlExportAttributeDef;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setId(theId);
+  }
+  
+
 }

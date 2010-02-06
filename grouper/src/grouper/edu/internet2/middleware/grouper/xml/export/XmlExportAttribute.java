@@ -22,7 +22,6 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -39,6 +38,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  *
  */
 public class XmlExportAttribute {
+
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_ATTRIBUTE_XPATH = "/grouperExport/attributes/XmlExportAttribute";
+
+  /**
+   * 
+   */
+  private static final String ATTRIBUTES_XPATH = "/grouperExport/attributes";
 
   /** uuid */
   private String uuid;
@@ -214,7 +223,7 @@ public class XmlExportAttribute {
    * @param xmlImportMain
    */
   public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributes", 
+    xmlImportMain.getReader().addHandler( ATTRIBUTES_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -228,15 +237,17 @@ public class XmlExportAttribute {
         }
     );
   
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributes/XmlExportAttribute", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    
             }
             public void onEnd(ElementPath path) {
+
+              Element row = null;
               try {
                 // process a ROW element
-                Element row = path.getCurrent();
+                row = path.getCurrent();
   
                 // prune the tree
                 row.detach();
@@ -249,7 +260,7 @@ public class XmlExportAttribute {
                 
                 xmlImportMain.incrementCurrentCount();
               } catch (RuntimeException re) {
-                LOG.error("Problem importing attributes", re);
+                LOG.error("Problem importing attributes: " + XmlExportUtils.toString(row), re);
                 throw re;
               }
             }
@@ -376,7 +387,7 @@ public class XmlExportAttribute {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributes", 
+    xmlImportMain.getReader().addHandler( ATTRIBUTES_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -390,7 +401,7 @@ public class XmlExportAttribute {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributes/XmlExportAttribute", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

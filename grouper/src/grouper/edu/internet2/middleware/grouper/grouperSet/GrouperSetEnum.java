@@ -426,7 +426,8 @@ public enum GrouperSetEnum {
    * @return true if added, false if already there
    */
   public boolean addToGrouperSet(GrouperSetElement containerSetElement, GrouperSetElement newElement, String uuid) {
-    
+
+    //TODO, if doesnt point to itself, add a self referential record
     if (LOG.isDebugEnabled()) {
       LOG.debug("Adding to grouper set " + this.name() + ": " + containerSetElement.__getName() + "\n  (" + containerSetElement.__getId() + ")" 
           + " this attribute: " + newElement.__getName() + " (" + newElement.__getId() + ")");

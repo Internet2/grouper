@@ -39,6 +39,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  */
 public class XmlExportStem {
 
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_STEM_XPATH = "/grouperExport/stems/XmlExportStem";
+
+  /**
+   * 
+   */
+  private static final String STEMS_XPATH = "/grouperExport/stems";
+
   /** uuid */
   private String uuid;
   
@@ -372,7 +382,7 @@ public class XmlExportStem {
    * @param xmlImportMain
    */
   public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/stems", 
+    xmlImportMain.getReader().addHandler( STEMS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -386,12 +396,13 @@ public class XmlExportStem {
         }
     );
   
-    xmlImportMain.getReader().addHandler( "/grouperExport/stems/XmlExportStem", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_STEM_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    
             }
             public void onEnd(ElementPath path) {
+              
               Element row = null;
               try {
                 // process a ROW element
@@ -510,7 +521,7 @@ public class XmlExportStem {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/stems", 
+    xmlImportMain.getReader().addHandler( STEMS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -524,7 +535,7 @@ public class XmlExportStem {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/stems/XmlExportStem", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_STEM_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

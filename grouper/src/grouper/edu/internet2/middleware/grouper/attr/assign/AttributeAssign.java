@@ -1287,4 +1287,18 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     return xmlExportAttributeAssign;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setId(theId);
+  }
+
 }

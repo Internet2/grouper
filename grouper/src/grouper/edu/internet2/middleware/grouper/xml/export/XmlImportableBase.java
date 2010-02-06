@@ -45,5 +45,15 @@ public interface XmlImportableBase<T> {
    * @param existingRecord
    */
   public void xmlCopyBusinessPropertiesToExisting(T existingRecord);
+
+  /** set id key in db 
+   * @return id
+   */
+  public String xmlGetId();
+
+  /** set id key in db 
+   * @param theId 
+   */
+  public void xmlSetId(String theId);
   
 }

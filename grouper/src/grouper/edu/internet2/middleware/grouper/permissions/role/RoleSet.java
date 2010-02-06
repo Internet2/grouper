@@ -618,13 +618,16 @@ public class RoleSet extends GrouperAPI
       Role thenHasRole = GrouperDAOFactory.getFactory().getRole().findById(this.thenHasRoleId, true);
       
       ifHasRole.getRoleInheritanceDelegate().internal_addRoleToInheritFromThis(thenHasRole, this.id);
-      
       existingRecord = GrouperDAOFactory.getFactory().getRoleSet().findByIfThenImmediate(
           this.ifHasRoleId, this.thenHasRoleId, true);
     }
-    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
-    //if its an insert or update, then do the rest of the fields
-    existingRecord.saveOrUpdate();
+    
+    //basically the set should not be updated.... the id's wont match since the self referential records arent
+    //exported/imported
+    
+    //    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //    //if its an insert or update, then do the rest of the fields
+    //    existingRecord.saveOrUpdate();
     return existingRecord;
   }
 
@@ -661,5 +664,20 @@ public class RoleSet extends GrouperAPI
     return xmlExportRoleSet;
     
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setId(theId);
+  }
+  
 
 }

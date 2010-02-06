@@ -3359,7 +3359,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
         hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
         //note, roles are modeled as groups
-        Group group = Stem.this.addChildGroup(extension, displayExtension);
+        Group group = Stem.this.internal_addChildGroup(extension, displayExtension, uuid);
         group.setTypeOfGroup(TypeOfGroup.role);
         group.store();
         
@@ -3525,6 +3525,20 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     return xmlExportStem;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getUuid();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setUuid(theId);
+  }
+  
 
 }
 

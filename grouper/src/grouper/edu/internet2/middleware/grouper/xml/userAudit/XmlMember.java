@@ -113,22 +113,6 @@ public class XmlMember {
     
   }
   
-  /** map of class to the list of fields which are string type */
-  private static Map<Class<?>, Set<String>> stringFieldNames = new HashMap<Class<?>, Set<String>>();
-  
-  /**
-   * get the list of string field names based on class, and cache this
-   * @param theClass
-   * @return the set of field names
-   */
-  private static Set<String> stringFieldNames(Class<?> theClass) {
-    
-    if (!stringFieldNames.containsKey(theClass)) {
-      stringFieldNames.put(theClass, GrouperUtil.fieldNames(theClass, String.class, false));
-    }
-    return stringFieldNames.get(theClass);
-  }
-  
   /**
    * see if the object has string fields with members in them (by memberUuid), and if so, export that member
    * @param allMembersInRegistryNotExported
@@ -140,7 +124,7 @@ public class XmlMember {
   public static void exportMembers(Map<String, XmlMember> allMembersInRegistryNotExported, 
       Object object, XStream xStream, FileWriter fileWriter, CompactWriter compactWriter) {
 
-    Set<String> fieldNames = stringFieldNames(object.getClass());
+    Set<String> fieldNames = GrouperUtil.stringFieldNames(object.getClass());
 
     //go through all the fields in the object
     for (String fieldName : fieldNames) {
@@ -169,33 +153,6 @@ public class XmlMember {
         allMembersInRegistryNotExported.remove(value);
       }
     }
-  }
-
-  /**
-   * see if the object has string fields with members in them (by memberUuid), and if so, export that member
-   * @param object
-   * @param memberUuidSubstituteMap
-   * @return if altered or not
-   */
-  public static boolean substituteMemberId(Map<String, String> memberUuidSubstituteMap, 
-      Object object) {
-
-    Set<String> fieldNames = stringFieldNames(object.getClass());
-
-    boolean altered = false;
-    
-    //go through all the fields in the object
-    for (String fieldName : fieldNames) {
-      String value = (String)GrouperUtil.fieldValue(object, fieldName);
-
-      //see if the value is a member id which has not been exported
-      if (memberUuidSubstituteMap.containsKey(value)) {
-        //assign the substitution
-        GrouperUtil.assignField(object, fieldName, memberUuidSubstituteMap.get(value));
-        altered = true;
-      }
-    }
-    return altered;
   }
 
   /** uuid of member */

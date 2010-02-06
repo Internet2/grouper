@@ -448,5 +448,19 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
     return xmlExportAttributeDefScope;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setId(theId);
+  }
+
 
 }

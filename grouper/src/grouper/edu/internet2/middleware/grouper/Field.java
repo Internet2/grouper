@@ -776,6 +776,20 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
     return xmlExportField;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getUuid();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setUuid(theId);
+  }
+  
 
 } // public class Field extends GrouperAPI implements Serializable
 

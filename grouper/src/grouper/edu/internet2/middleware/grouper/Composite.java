@@ -885,5 +885,20 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     
     return xmlExportComposite;
   }
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getUuid();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setUuid(theId);
+  }
+  
+
 } 
 

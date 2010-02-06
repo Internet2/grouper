@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
@@ -18,6 +19,7 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -36,6 +38,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  *
  */
 public class XmlExportMembership {
+
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_MEMBERSHIP_XPATH = "/grouperExport/memberships/XmlExportMembership";
+
+  /**
+   * 
+   */
+  private static final String MEMBERSHIPS_XPATH = "/grouperExport/memberships";
 
   /** uuid */
   private String uuid;
@@ -81,6 +93,11 @@ public class XmlExportMembership {
   
   /** mshipType */
   private String type;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportMembership.class);
 
   /**
    * member id
@@ -380,6 +397,57 @@ public class XmlExportMembership {
   }
 
   /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( MEMBERSHIPS_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( XML_EXPORT_MEMBERSHIP_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+
+              Element row = null;
+              try {
+                // process a ROW element
+                row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportMembership xmlExportMembershipFromFile = (XmlExportMembership)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                Membership membership = xmlExportMembershipFromFile.toMembership();
+                
+                XmlExportUtils.syncImportable(membership, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing membership: " + XmlExportUtils.toString(row), re);
+                throw re;
+              }
+            }
+        }
+    );
+  
+  }
+
+  /**
    * get db count
    * @return db count
    */
@@ -496,7 +564,7 @@ public class XmlExportMembership {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/memberships", 
+    xmlImportMain.getReader().addHandler( MEMBERSHIPS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -510,7 +578,7 @@ public class XmlExportMembership {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/memberships/XmlExportMembership", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_MEMBERSHIP_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

@@ -39,6 +39,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  */
 public class XmlExportGroupTypeTuple {
 
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_GROUP_TYPE_TUPLE_XPATH = "/grouperExport/groupTypeTuples/XmlExportGroupTypeTuple";
+
+  /**
+   * 
+   */
+  private static final String GROUP_TYPE_TUPLES_XPATH = "/grouperExport/groupTypeTuples";
+
   /** uuid */
   private String uuid;
   
@@ -192,7 +202,7 @@ public class XmlExportGroupTypeTuple {
    * @param xmlImportMain
    */
   public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/groupTypeTuples", 
+    xmlImportMain.getReader().addHandler( GROUP_TYPE_TUPLES_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -206,15 +216,17 @@ public class XmlExportGroupTypeTuple {
         }
     );
   
-    xmlImportMain.getReader().addHandler( "/grouperExport/groupTypeTuples/XmlExportGroupTypeTuple", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_GROUP_TYPE_TUPLE_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    
             }
             public void onEnd(ElementPath path) {
+
+              Element row = null;
               try {
                 // process a ROW element
-                Element row = path.getCurrent();
+                row = path.getCurrent();
   
                 // prune the tree
                 row.detach();
@@ -227,7 +239,7 @@ public class XmlExportGroupTypeTuple {
                 
                 xmlImportMain.incrementCurrentCount();
               } catch (RuntimeException re) {
-                LOG.error("Problem importing groupTypeTuples", re);
+                LOG.error("Problem importing groupTypeTuple: " + XmlExportUtils.toString(row), re);
                 throw re;
               }
             }
@@ -354,7 +366,7 @@ public class XmlExportGroupTypeTuple {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/groupTypeTuples", 
+    xmlImportMain.getReader().addHandler( GROUP_TYPE_TUPLES_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -368,7 +380,7 @@ public class XmlExportGroupTypeTuple {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/groupTypeTuples/XmlExportGroupTypeTuple", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_GROUP_TYPE_TUPLE_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

@@ -41,11 +41,21 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 public class XmlExportMember {
 
   /**
+   * 
+   */
+  private static final String XML_EXPORT_MEMBER_XPATH = "/grouperExport/members/XmlExportMember";
+
+  /**
+   * 
+   */
+  private static final String MEMBERS_XPATH = "/grouperExport/members";
+
+  /**
    * parse the xml file for members
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/members", 
+    xmlImportMain.getReader().addHandler( MEMBERS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -59,7 +69,7 @@ public class XmlExportMember {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/members/XmlExportMember", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_MEMBER_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    
@@ -365,7 +375,7 @@ public class XmlExportMember {
    * @param xmlImportMain
    */
   public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/members", 
+    xmlImportMain.getReader().addHandler( MEMBERS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -379,15 +389,17 @@ public class XmlExportMember {
         }
     );
   
-    xmlImportMain.getReader().addHandler( "/grouperExport/members/XmlExportMember", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_MEMBER_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    
             }
             public void onEnd(ElementPath path) {
+
+              Element row = null;
               try {
                 // process a ROW element
-                Element row = path.getCurrent();
+                row = path.getCurrent();
 
                 // prune the tree
                 row.detach();
@@ -400,7 +412,7 @@ public class XmlExportMember {
                 
                 xmlImportMain.incrementCurrentCount();
               } catch (RuntimeException re) {
-                LOG.error("Problem importing members", re);
+                LOG.error("Problem importing member: " + XmlExportUtils.toString(row), re);
                 throw re;
               }
             }

@@ -80,6 +80,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -2885,7 +2886,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           
           //note, we probably have to put more logic in here for implementations of custom privilege logic
           //probably throw a skip exception to get out of importing this...
-          Privilege privilege = Privilege.getInstance(field.getName());
+          Privilege privilege = AccessPrivilege.listToPriv(field.getName());
           group.internal_grantPriv(subject, privilege, false, this.getImmediateMembershipId());
           
         } else {
@@ -2962,4 +2963,20 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     xmlExportMembership.setViaCompositeId(this.getViaCompositeId());
     return xmlExportMembership;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getImmediateMembershipId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setImmediateMembershipId(theId);
+  }
+  
+
 }

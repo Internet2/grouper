@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
@@ -65,6 +66,9 @@ public class XmlExportUtils {
    * @param xmlImportMain
    */
   public static void syncImportable(XmlImportable xmlImportable, XmlImportMain xmlImportMain) {
+    
+    GrouperUtil.substituteStrings(xmlImportMain.getUuidTranslation(), xmlImportable);
+    
     XmlImportable dbObject = xmlImportable.xmlRetrieveByIdOrKey();
     //if not in db
     if (dbObject == null) {
@@ -72,6 +76,11 @@ public class XmlExportUtils {
     } else {
       //db is there, see if different
       if (xmlImportable.xmlDifferentBusinessProperties(dbObject)) {
+        if (!StringUtils.equals(xmlImportable.xmlGetId(), dbObject.xmlGetId())) {
+          //this is a translation
+          xmlImportMain.getUuidTranslation().put(xmlImportable.xmlGetId(), dbObject.xmlGetId());
+          xmlImportable.xmlSetId(dbObject.xmlGetId());
+        }
         xmlImportable.xmlCopyBusinessPropertiesToExisting(dbObject);
         dbObject = (XmlImportable)xmlImportable.xmlSaveBusinessProperties(dbObject);
       }
@@ -406,5 +415,36 @@ public class XmlExportUtils {
    */
   private static void registerClass(XStream xStream, Class<?> theClass) {
     xStream.alias(theClass.getSimpleName(), theClass);
+  }
+
+  /**
+   * take a multiple assign record from xml and sync with db
+   * @param xmlImportableMultiple
+   * @param xmlImportMain
+   */
+  public static void syncImportableMultiple(XmlImportableMultiple xmlImportableMultiple, XmlImportMain xmlImportMain) {
+
+    GrouperUtil.substituteStrings(xmlImportMain.getUuidTranslation(), xmlImportableMultiple);
+
+    XmlImportableMultiple dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlRetrieveByIdOrKey(xmlImportMain.getIdsToIgnore());
+    //if not in db
+    if (dbObject == null) {
+      dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
+    } else {
+      //db is there, see if different
+      if (xmlImportableMultiple.xmlDifferentBusinessProperties(dbObject)) {
+        if (!StringUtils.equals(xmlImportableMultiple.xmlGetId(), dbObject.xmlGetId())) {
+          //this is a translation
+          xmlImportMain.getUuidTranslation().put(xmlImportableMultiple.xmlGetId(), dbObject.xmlGetId());
+          xmlImportableMultiple.xmlSetId(dbObject.xmlGetId());
+        }
+        xmlImportableMultiple.xmlCopyBusinessPropertiesToExisting(dbObject);
+        dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
+      }
+    }
+    //see if update properties need work
+    if (xmlImportableMultiple.xmlDifferentUpdateProperties(dbObject)) {
+      xmlImportableMultiple.xmlSaveUpdateProperties();
+    }
   }
 }

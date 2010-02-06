@@ -9193,5 +9193,49 @@ public class GrouperUtil {
       throw new RuntimeException(ioe);
     }
   }
+
+  /**
+   * see if the object has string fields with members in them (by memberUuid), and if so, export that member
+   * @param object
+   * @param stringSubstituteMap
+   * @return if altered or not
+   */
+  public static boolean substituteStrings(Map<String, String> stringSubstituteMap, 
+      Object object) {
+  
+    Set<String> fieldNames = GrouperUtil.stringFieldNames(object.getClass());
+  
+    boolean altered = false;
+    
+    //go through all the fields in the object
+    for (String fieldName : fieldNames) {
+      String value = (String)fieldValue(object, fieldName);
+  
+      //see if the value is a member id which has not been exported
+      if (!StringUtils.isBlank(value) && stringSubstituteMap.containsKey(value)) {
+        //assign the substitution
+        assignField(object, fieldName, stringSubstituteMap.get(value));
+        altered = true;
+      }
+    }
+    return altered;
+  }
+
+  /** map of class to the list of fields which are string type */
+  public static Map<Class<?>, Set<String>> stringFieldNames = new HashMap<Class<?>, Set<String>>();
+
+
+  /**
+   * get the list of string field names based on class, and cache this
+   * @param theClass
+   * @return the set of field names
+   */
+  public static Set<String> stringFieldNames(Class<?> theClass) {
+    
+    if (!stringFieldNames.containsKey(theClass)) {
+      stringFieldNames.put(theClass, fieldNames(theClass, String.class, false));
+    }
+    return stringFieldNames.get(theClass);
+  }
   
 }

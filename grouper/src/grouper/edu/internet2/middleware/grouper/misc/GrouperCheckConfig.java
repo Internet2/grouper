@@ -428,9 +428,15 @@ public class GrouperCheckConfig {
     int i=0;
     
     GrouperSession grouperSession = null;
+    boolean startedGrouperSession = false;
     try {
-      grouperSession = GrouperSession.startRootSession();
-    
+      grouperSession = GrouperSession.staticGrouperSession(false);
+
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession();
+        startedGrouperSession = true;
+      }
+      
       while(true) {
         String groupName = null;
         try {
@@ -558,7 +564,9 @@ public class GrouperCheckConfig {
     } catch (SessionException se) {
       throw new RuntimeException(se);
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      if (startedGrouperSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
       if (!wasInCheckConfig) {
         inCheckConfig = false;
       }

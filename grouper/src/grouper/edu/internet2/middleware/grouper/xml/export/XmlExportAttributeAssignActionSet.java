@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
@@ -18,7 +19,9 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -37,6 +40,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  *
  */
 public class XmlExportAttributeAssignActionSet {
+
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_ATTRIBUTE_ASSIGN_ACTION_SET_XPATH = "/grouperExport/attributeAssignActionSets/XmlExportAttributeAssignActionSet";
+
+  /**
+   * 
+   */
+  private static final String ATTRIBUTE_ASSIGN_ACTION_SETS_XPATH = "/grouperExport/attributeAssignActionSets";
 
   /** uuid */
   private String uuid;
@@ -137,6 +150,11 @@ public class XmlExportAttributeAssignActionSet {
    * type
    */
   private String type;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportAttributeAssignActionSet.class);
   
   /**
    * type
@@ -287,6 +305,57 @@ public class XmlExportAttributeAssignActionSet {
   }
 
   /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( ATTRIBUTE_ASSIGN_ACTION_SETS_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_ASSIGN_ACTION_SET_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+  
+              Element row = null;
+              try {
+                // process a ROW element
+                row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSetFromFile = (XmlExportAttributeAssignActionSet)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                AttributeAssignActionSet attributeAssignActionSet = xmlExportAttributeAssignActionSetFromFile.toAttributeAssignActionSet();
+                
+                XmlExportUtils.syncImportable(attributeAssignActionSet, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing attributeAssignActionSet: " + XmlExportUtils.toString(row), re);
+                throw re;
+              }
+            }
+        }
+    );
+  
+  }
+
+  /**
    * get db count
    * @return db count
    */
@@ -412,7 +481,7 @@ public class XmlExportAttributeAssignActionSet {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeAssignActionSets", 
+    xmlImportMain.getReader().addHandler( ATTRIBUTE_ASSIGN_ACTION_SETS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -426,7 +495,7 @@ public class XmlExportAttributeAssignActionSet {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeAssignActionSets/XmlExportAttributeAssignActionSet", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_ASSIGN_ACTION_SET_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

@@ -359,7 +359,7 @@ public class XmlUserAuditImport {
     
     AuditType auditTypeFromFile = xmlAuditTypeFromFile.toAuditType();
   
-    XmlMember.substituteMemberId(this.memberIdTranslation, auditTypeFromFile);
+    GrouperUtil.substituteStrings(this.memberIdTranslation, auditTypeFromFile);
     
     XmlUserAuditImport.this.totalCount++;
     
@@ -412,7 +412,7 @@ public class XmlUserAuditImport {
 
     AuditEntry auditEntryFromFile = xmlAuditEntryFromFile.toAuditEntry();
 
-    boolean newMemberId = XmlMember.substituteMemberId(this.memberIdTranslation, auditEntryFromFile);
+    boolean newMemberId = GrouperUtil.substituteStrings(this.memberIdTranslation, auditEntryFromFile);
 
     XmlUserAuditImport.this.totalCount++;
     

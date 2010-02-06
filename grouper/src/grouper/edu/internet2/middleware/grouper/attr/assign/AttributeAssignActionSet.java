@@ -662,9 +662,11 @@ public class AttributeAssignActionSet extends GrouperAPI
       existingRecord = GrouperDAOFactory.getFactory().getAttributeAssignActionSet().findByIfThenImmediate(
           this.ifHasAttrAssignActionId, this.thenHasAttrAssignActionId, true);
     }
-    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
-    //if its an insert or update, then do the rest of the fields
-    existingRecord.saveOrUpdate();
+    //basically the set should not be updated.... the id's wont match since the self referential records arent
+    //exported/imported
+    //    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //    //if its an insert or update, then do the rest of the fields
+    //    existingRecord.saveOrUpdate();
     return existingRecord;
 
   }
@@ -701,5 +703,20 @@ public class AttributeAssignActionSet extends GrouperAPI
 
     return xmlExportAttributeAssignActionSet;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setId(theId);
+  }
+  
 
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
@@ -18,6 +19,7 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -36,6 +38,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  *
  */
 public class XmlExportAttributeAssignAction {
+
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_ATTRIBUTE_ASSIGN_ACTION_XPATH = "/grouperExport/attributeAssignActions/XmlExportAttributeAssignAction";
+
+  /**
+   * 
+   */
+  private static final String ATTRIBUTE_ASSIGN_ACTIONS_XPATH = "/grouperExport/attributeAssignActions";
 
   /** uuid */
   private String uuid;
@@ -57,6 +69,11 @@ public class XmlExportAttributeAssignAction {
 
   /** name */
   private String name;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportAttributeAssignAction.class);
   
   /**
    * name
@@ -220,6 +237,57 @@ public class XmlExportAttributeAssignAction {
   }
   
   /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( ATTRIBUTE_ASSIGN_ACTIONS_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_ASSIGN_ACTION_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+  
+              Element row = null;
+              try {
+                // process a ROW element
+                row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportAttributeAssignAction xmlExportAttributeAssignActionFromFile = (XmlExportAttributeAssignAction)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                AttributeAssignAction attributeAssignAction = xmlExportAttributeAssignActionFromFile.toAttributeAssignAction();
+                
+                XmlExportUtils.syncImportable(attributeAssignAction, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing attributeAssignAction: " + XmlExportUtils.toString(row), re);
+                throw re;
+              }
+            }
+        }
+    );
+  
+  }
+
+  /**
    * get db count
    * @return db count
    */
@@ -338,7 +406,7 @@ public class XmlExportAttributeAssignAction {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeAssignActions", 
+    xmlImportMain.getReader().addHandler( ATTRIBUTE_ASSIGN_ACTIONS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -352,7 +420,7 @@ public class XmlExportAttributeAssignAction {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeAssignActions/XmlExportAttributeAssignAction", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_ASSIGN_ACTION_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

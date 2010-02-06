@@ -1290,6 +1290,20 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     return xmlExportGroupType;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getUuid();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setUuid(theId);
+  }
+  
 
 
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
@@ -18,7 +19,9 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -36,6 +39,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  *
  */
 public class XmlExportAttributeDefScope {
+
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_ATTRIBUTE_DEF_SCOPE_XPATH = "/grouperExport/attributeDefScopes/XmlExportAttributeDefScope";
+
+  /**
+   * 
+   */
+  private static final String ATTRIBUTE_DEF_SCOPES_XPATH = "/grouperExport/attributeDefScopes";
 
   /** uuid */
   private String uuid;
@@ -97,6 +110,11 @@ public class XmlExportAttributeDefScope {
 
   /** scopeString2 */
   private String scopeString2;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportAttributeDefScope.class);
   
   /**
    * scopeString2
@@ -262,6 +280,57 @@ public class XmlExportAttributeDefScope {
   }
 
   /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( ATTRIBUTE_DEF_SCOPES_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_DEF_SCOPE_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+  
+              Element row = null;
+              try {
+                // process a ROW element
+                row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportAttributeDefScope xmlExportAttributeDefScopeFromFile = (XmlExportAttributeDefScope)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                AttributeDefScope attributeDefScope = xmlExportAttributeDefScopeFromFile.toAttributeDefScope();
+                
+                XmlExportUtils.syncImportableMultiple(attributeDefScope, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing group: " + XmlExportUtils.toString(row), re);
+                throw re;
+              }
+            }
+        }
+    );
+  
+  }
+
+  /**
    * get db count
    * @return db count
    */
@@ -379,7 +448,7 @@ public class XmlExportAttributeDefScope {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeDefScopes", 
+    xmlImportMain.getReader().addHandler( ATTRIBUTE_DEF_SCOPES_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -393,7 +462,7 @@ public class XmlExportAttributeDefScope {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeDefScopes/XmlExportAttributeDefScope", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_DEF_SCOPE_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

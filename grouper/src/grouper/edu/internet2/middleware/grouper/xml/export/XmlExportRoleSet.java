@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
@@ -18,7 +19,9 @@ import org.hibernate.Session;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -36,6 +39,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  *
  */
 public class XmlExportRoleSet {
+
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_ROLE_SET_XPATH = "/grouperExport/roleSets/XmlExportRoleSet";
+
+  /**
+   * 
+   */
+  private static final String ROLE_SETS_XPATH = "/grouperExport/roleSets";
 
   /** uuid */
   private String uuid;
@@ -136,7 +149,12 @@ public class XmlExportRoleSet {
    * type
    */
   private String type;
-  
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = GrouperUtil.getLog(XmlExportRoleSet.class);
+
   /**
    * type
    * @return type
@@ -286,6 +304,57 @@ public class XmlExportRoleSet {
   }
 
   /**
+   * parse the xml file for groups
+   * @param xmlImportMain
+   */
+  public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
+    xmlImportMain.getReader().addHandler( ROLE_SETS_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+            }
+            public void onEnd(ElementPath path) {
+                // process a ROW element
+                Element row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+            }
+        }
+    );
+  
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ROLE_SET_XPATH, 
+        new ElementHandler() {
+            public void onStart(ElementPath path) {
+                // do nothing here...    
+            }
+            public void onEnd(ElementPath path) {
+
+              Element row = null;
+              try {
+                // process a ROW element
+                row = path.getCurrent();
+  
+                // prune the tree
+                row.detach();
+  
+                XmlExportRoleSet xmlExportRoleSetFromFile = (XmlExportRoleSet)xmlImportMain.getXstream().unmarshal(new Dom4JReader(row));
+                
+                RoleSet roleSet = xmlExportRoleSetFromFile.toRoleSet();
+                
+                XmlExportUtils.syncImportable(roleSet, xmlImportMain);
+                
+                xmlImportMain.incrementCurrentCount();
+              } catch (RuntimeException re) {
+                LOG.error("Problem importing roleSet: " + XmlExportUtils.toString(row), re);
+                throw re;
+              }
+            }
+        }
+    );
+  
+  }
+
+  /**
    * get db count
    * @return db count
    */
@@ -403,7 +472,7 @@ public class XmlExportRoleSet {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/roleSets", 
+    xmlImportMain.getReader().addHandler( ROLE_SETS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -417,7 +486,7 @@ public class XmlExportRoleSet {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/roleSets/XmlExportRoleSet", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ROLE_SET_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

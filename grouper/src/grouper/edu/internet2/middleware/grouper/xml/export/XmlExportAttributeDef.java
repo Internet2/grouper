@@ -39,6 +39,16 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  */
 public class XmlExportAttributeDef {
 
+  /**
+   * 
+   */
+  private static final String XML_EXPORT_ATTRIBUTE_DEF_XPATH = "/grouperExport/attributeDefs/XmlExportAttributeDef";
+
+  /**
+   * 
+   */
+  private static final String ATTRIBUTE_DEFS_XPATH = "/grouperExport/attributeDefs";
+
   /** uuid */
   private String uuid;
   
@@ -651,7 +661,7 @@ public class XmlExportAttributeDef {
    * @param xmlImportMain
    */
   public static void processXmlSecondPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeDefs", 
+    xmlImportMain.getReader().addHandler( ATTRIBUTE_DEFS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -665,15 +675,17 @@ public class XmlExportAttributeDef {
         }
     );
   
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeDefs/XmlExportAttributeDef", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_DEF_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    
             }
             public void onEnd(ElementPath path) {
+
+              Element row = null;
               try {
                 // process a ROW element
-                Element row = path.getCurrent();
+                row = path.getCurrent();
   
                 // prune the tree
                 row.detach();
@@ -686,7 +698,7 @@ public class XmlExportAttributeDef {
                 
                 xmlImportMain.incrementCurrentCount();
               } catch (RuntimeException re) {
-                LOG.error("Problem importing groups", re);
+                LOG.error("Problem importing group: " + XmlExportUtils.toString(row), re);
                 throw re;
               }
             }
@@ -786,7 +798,7 @@ public class XmlExportAttributeDef {
    * @param xmlImportMain
    */
   public static void processXmlFirstPass(final XmlImportMain xmlImportMain) {
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeDefs", 
+    xmlImportMain.getReader().addHandler( ATTRIBUTE_DEFS_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
             }
@@ -800,7 +812,7 @@ public class XmlExportAttributeDef {
         }
     );
 
-    xmlImportMain.getReader().addHandler( "/grouperExport/attributeDefs/XmlExportAttributeDef", 
+    xmlImportMain.getReader().addHandler( XML_EXPORT_ATTRIBUTE_DEF_XPATH, 
         new ElementHandler() {
             public void onStart(ElementPath path) {
                 // do nothing here...    

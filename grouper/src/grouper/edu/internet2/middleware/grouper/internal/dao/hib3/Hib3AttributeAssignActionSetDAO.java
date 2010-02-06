@@ -240,9 +240,9 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
     try {
       AttributeAssignActionSet attributeAssignActionSet = HibernateSession.byHqlStatic()
         .createQuery("from AttributeAssignActionSet as theAttributeAssignActionSet where theAttributeAssignActionSet.id = :theId " +
-        		"or (theAttributeAssignActionSett.ifHasAttributeAssignActionId = :theIfHasAttributeAssignActionId " +
-            " and theAttributeAssignActionSet.thenHasAttributeAssignActionId = :theThenHasAttributeAssignActionId " +
-            "and theAttributeAssignActionSet.parentAttributeAssignActionSetId = :theParentAttributeAssignActionSetId " +
+        		"or (theAttributeAssignActionSet.ifHasAttrAssignActionId = :theIfHasAttributeAssignActionId " +
+            " and theAttributeAssignActionSet.thenHasAttrAssignActionId = :theThenHasAttributeAssignActionId " +
+            "and theAttributeAssignActionSet.parentAttrAssignActionSetId = :theParentAttributeAssignActionSetId " +
             " and theAttributeAssignActionSet.depth = :theDepth)")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuidOrKey")

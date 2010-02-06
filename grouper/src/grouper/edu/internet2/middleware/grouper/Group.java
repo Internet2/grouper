@@ -6102,8 +6102,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     //if its an insert, call the business method
     if (existingRecord == null) {
       Stem parent = this.getParentStem();
-      existingRecord = parent.internal_addChildGroup(
-          GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, this.description, null, null, false, this.typeOfGroup);
+      if (this.getTypeOfGroup() == null || this.getTypeOfGroup().equals(TypeOfGroup.group)) {
+        existingRecord = parent.internal_addChildGroup(
+            GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, this.description, null, null, false, this.typeOfGroup);
+      } else if (this.getTypeOfGroup().equals(TypeOfGroup.role)) {
+        existingRecord = (Group)parent.internal_addChildRole(this.extension, this.displayExtension, this.uuid);
+      } else {
+        throw new RuntimeException("Not expecting type of group: " + this.getTypeOfGroup());
+      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
@@ -6150,5 +6156,20 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
      
     return xmlExportGroup;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setId(theId);
+  }
+  
 
 }

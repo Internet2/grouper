@@ -7,7 +7,10 @@ package edu.internet2.middleware.grouper.xml.importXml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.dom4j.DocumentException;
@@ -72,7 +75,15 @@ public class XmlImportMain {
   private GrouperVersion importFileVersion = null;
 
   /** map from file uuid to registry uuid if there was a change for any and all uuids */
-  private Map<String, String> uuidTranslation = null;
+  private Map<String, String> uuidTranslation = new HashMap<String, String>();
+  
+  /**
+   * uuid translation when uuids are changed
+   * @return the uuidTranslation
+   */
+  public Map<String, String> getUuidTranslation() {
+    return this.uuidTranslation;
+  }
 
   /** count of objects in the db */
   private long originalDbCount = 0;
@@ -85,6 +96,17 @@ public class XmlImportMain {
   
   /** xstream object which does the object conversion */
   private XStream xstream = null;
+
+  /** for multiple assigned, ignore these ides which are further in the file */
+  private Set<String> idsToIgnore = new HashSet<String>();
+
+  /**
+   * ids to ignore  
+   * @return ids to ignore
+   */
+  public Set<String> getIdsToIgnore() {
+    return this.idsToIgnore;
+  }
 
   /**
    * logger 
@@ -249,7 +271,7 @@ public class XmlImportMain {
    */
   public void processXmlSecondPass(final File importFile) {
   
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.NONE, 
         AuditControl.WILL_AUDIT, new HibernateHandler() {
   
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -286,6 +308,15 @@ public class XmlImportMain {
               XmlExportComposite.processXmlSecondPass(XmlImportMain.this);
               XmlExportAttribute.processXmlSecondPass(XmlImportMain.this);
               XmlExportAttributeDef.processXmlSecondPass(XmlImportMain.this);
+              XmlExportMembership.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttributeDefName.processXmlSecondPass(XmlImportMain.this);
+              XmlExportRoleSet.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttributeAssignAction.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttributeAssignActionSet.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttributeAssign.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttributeAssignValue.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttributeDefNameSet.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAttributeDefScope.processXmlSecondPass(XmlImportMain.this);
   
               fileInputStream = new FileInputStream(importFile);
               
