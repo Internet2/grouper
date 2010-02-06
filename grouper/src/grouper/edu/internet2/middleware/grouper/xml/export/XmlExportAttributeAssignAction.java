@@ -337,7 +337,7 @@ public class XmlExportAttributeAssignAction {
                     try {
                       writer.write("\n    <!-- ");
                       
-                      XmlExportUtils.toStringAttributeDef(null, writer, attributeAssignAction.getAttributeDefId(), true);
+                      XmlExportUtils.toStringAttributeDef(null, writer, attributeAssignAction.getAttributeDefId(), false);
 
                       writer.write(" -->\n");
                       return null;

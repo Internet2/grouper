@@ -78,7 +78,6 @@ public class XmlExportRoleSetTest extends GrouperTest {
     xmlExportRoleSet.setIfHasRoleId("ifHasRoleId");
     xmlExportRoleSet.setHibernateVersionNumber(3L);
     xmlExportRoleSet.setModifierTime("modifierTime");
-    xmlExportRoleSet.setParentRoleSetId("parentRoleSetId");
     xmlExportRoleSet.setThenHasRoleId("thenHasRoleSetId");
     xmlExportRoleSet.setType("type");
     xmlExportRoleSet.setUuid("uuid");
@@ -93,7 +92,6 @@ public class XmlExportRoleSetTest extends GrouperTest {
     assertEquals("ifHasRoleId", xmlExportRoleSet.getIfHasRoleId());
     assertEquals(3L, xmlExportRoleSet.getHibernateVersionNumber());
     assertEquals("modifierTime", xmlExportRoleSet.getModifierTime());
-    assertEquals("parentRoleSetId", xmlExportRoleSet.getParentRoleSetId());
     assertEquals("thenHasRoleSetId", xmlExportRoleSet.getThenHasRoleId());
     assertEquals("type", xmlExportRoleSet.getType());
     assertEquals("uuid", xmlExportRoleSet.getUuid());

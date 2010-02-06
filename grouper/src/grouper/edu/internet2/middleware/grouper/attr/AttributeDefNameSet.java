@@ -540,7 +540,6 @@ public class AttributeDefNameSet extends GrouperAPI
     existingRecord.setDepth(this.depth);
     existingRecord.setId(this.id);
     existingRecord.setIfHasAttributeDefNameId(this.ifHasAttributeDefNameId);
-    existingRecord.setParentAttrDefNameSetId(this.parentAttrDefNameSetId);
     existingRecord.setThenHasAttributeDefNameId(this.thenHasAttributeDefNameId);
     existingRecord.setType(this.type);
   }
@@ -556,9 +555,6 @@ public class AttributeDefNameSet extends GrouperAPI
       return true;
     }
     if (!StringUtils.equals(this.ifHasAttributeDefNameId, other.ifHasAttributeDefNameId)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.parentAttrDefNameSetId, other.parentAttrDefNameSetId)) {
       return true;
     }
     if (!StringUtils.equals(this.thenHasAttributeDefNameId, other.thenHasAttributeDefNameId)) {
@@ -649,7 +645,6 @@ public class AttributeDefNameSet extends GrouperAPI
     xmlExportAttributeDefNameSet.setHibernateVersionNumber(this.getHibernateVersionNumber());
     xmlExportAttributeDefNameSet.setIfHasAttributeDefNameId(this.getIfHasAttributeDefNameId());
     xmlExportAttributeDefNameSet.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
-    xmlExportAttributeDefNameSet.setParentAttributeDefNameSetId(this.getParentAttrDefNameSetId());
     xmlExportAttributeDefNameSet.setThenHasAttributeDefNameId(this.getThenHasAttributeDefNameId());
     xmlExportAttributeDefNameSet.setType(this.getTypeDb());
     xmlExportAttributeDefNameSet.setUuid(this.getId());

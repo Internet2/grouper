@@ -70,25 +70,41 @@ public class XmlExportUtils {
     GrouperUtil.substituteStrings(xmlImportMain.getUuidTranslation(), xmlImportable);
     
     XmlImportable dbObject = xmlImportable.xmlRetrieveByIdOrKey();
+    boolean insert = false;
+    boolean update = false;
+    
     //if not in db
     if (dbObject == null) {
       dbObject = (XmlImportable)xmlImportable.xmlSaveBusinessProperties(dbObject);
+      insert = true;
     } else {
       //db is there, see if different
+      if (!StringUtils.equals(xmlImportable.xmlGetId(), dbObject.xmlGetId())) {
+        //this is a translation
+        xmlImportMain.getUuidTranslation().put(xmlImportable.xmlGetId(), dbObject.xmlGetId());
+        xmlImportable.xmlSetId(dbObject.xmlGetId());
+      }
       if (xmlImportable.xmlDifferentBusinessProperties(dbObject)) {
-        if (!StringUtils.equals(xmlImportable.xmlGetId(), dbObject.xmlGetId())) {
-          //this is a translation
-          xmlImportMain.getUuidTranslation().put(xmlImportable.xmlGetId(), dbObject.xmlGetId());
-          xmlImportable.xmlSetId(dbObject.xmlGetId());
-        }
+        update = true;
         xmlImportable.xmlCopyBusinessPropertiesToExisting(dbObject);
         dbObject = (XmlImportable)xmlImportable.xmlSaveBusinessProperties(dbObject);
       }
     }
     //see if update properties need work
     if (xmlImportable.xmlDifferentUpdateProperties(dbObject)) {
+      update = true;
       xmlImportable.xmlSaveUpdateProperties();
     }
+
+    //dont increment insert and update, if insert, do that one, else update
+    if (insert) {
+      xmlImportMain.incrementInsertCount();
+    } else if (update) {
+      xmlImportMain.incrementUpdateCount();
+    } else {
+      xmlImportMain.incrementSkipCount();
+    }
+    
   }
   
   /**
@@ -427,24 +443,39 @@ public class XmlExportUtils {
     GrouperUtil.substituteStrings(xmlImportMain.getUuidTranslation(), xmlImportableMultiple);
 
     XmlImportableMultiple dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlRetrieveByIdOrKey(xmlImportMain.getIdsToIgnore());
+    boolean insert = false;
+    boolean update = false;
+
     //if not in db
     if (dbObject == null) {
       dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
+      insert = true;
     } else {
       //db is there, see if different
+      if (!StringUtils.equals(xmlImportableMultiple.xmlGetId(), dbObject.xmlGetId())) {
+        //this is a translation
+        xmlImportMain.getUuidTranslation().put(xmlImportableMultiple.xmlGetId(), dbObject.xmlGetId());
+        xmlImportableMultiple.xmlSetId(dbObject.xmlGetId());
+      }
       if (xmlImportableMultiple.xmlDifferentBusinessProperties(dbObject)) {
-        if (!StringUtils.equals(xmlImportableMultiple.xmlGetId(), dbObject.xmlGetId())) {
-          //this is a translation
-          xmlImportMain.getUuidTranslation().put(xmlImportableMultiple.xmlGetId(), dbObject.xmlGetId());
-          xmlImportableMultiple.xmlSetId(dbObject.xmlGetId());
-        }
+        update = true;
         xmlImportableMultiple.xmlCopyBusinessPropertiesToExisting(dbObject);
         dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlSaveBusinessProperties(dbObject);
       }
     }
     //see if update properties need work
     if (xmlImportableMultiple.xmlDifferentUpdateProperties(dbObject)) {
+      update = true;
       xmlImportableMultiple.xmlSaveUpdateProperties();
+    }
+
+    //dont increment insert and update, if insert, do that one, else update
+    if (insert) {
+      xmlImportMain.incrementInsertCount();
+    } else if (update) {
+      xmlImportMain.incrementUpdateCount();
+    } else {
+      xmlImportMain.incrementSkipCount();
     }
   }
 }

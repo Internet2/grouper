@@ -78,7 +78,6 @@ public class XmlExportAttributeAssignActionSetTest extends GrouperTest {
     xmlExportAttributeAssignActionSet.setIfHasAttributeAssignActionId("ifHasAttributeAssignActionId");
     xmlExportAttributeAssignActionSet.setHibernateVersionNumber(3L);
     xmlExportAttributeAssignActionSet.setModifierTime("modifierTime");
-    xmlExportAttributeAssignActionSet.setParentAttributeAssignActionSetId("parentAttributeAssignActionSetId");
     xmlExportAttributeAssignActionSet.setThenHasAttributeAssignActionId("thenHasAttributeAssignActionSetId");
     xmlExportAttributeAssignActionSet.setType("type");
     xmlExportAttributeAssignActionSet.setUuid("uuid");
@@ -93,7 +92,6 @@ public class XmlExportAttributeAssignActionSetTest extends GrouperTest {
     assertEquals("ifHasAttributeAssignActionId", xmlExportAttributeAssignActionSet.getIfHasAttributeAssignActionId());
     assertEquals(3L, xmlExportAttributeAssignActionSet.getHibernateVersionNumber());
     assertEquals("modifierTime", xmlExportAttributeAssignActionSet.getModifierTime());
-    assertEquals("parentAttributeAssignActionSetId", xmlExportAttributeAssignActionSet.getParentAttributeAssignActionSetId());
     assertEquals("thenHasAttributeAssignActionSetId", xmlExportAttributeAssignActionSet.getThenHasAttributeAssignActionId());
     assertEquals("type", xmlExportAttributeAssignActionSet.getType());
     assertEquals("uuid", xmlExportAttributeAssignActionSet.getUuid());

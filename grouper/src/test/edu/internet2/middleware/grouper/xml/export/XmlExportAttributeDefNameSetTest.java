@@ -77,7 +77,6 @@ public class XmlExportAttributeDefNameSetTest extends GrouperTest {
     xmlExportAttributeDefNameSet.setIfHasAttributeDefNameId("ifHasAttributeDefNameId");
     xmlExportAttributeDefNameSet.setHibernateVersionNumber(3L);
     xmlExportAttributeDefNameSet.setModifierTime("modifierTime");
-    xmlExportAttributeDefNameSet.setParentAttributeDefNameSetId("parentAttributeDefNameSetId");
     xmlExportAttributeDefNameSet.setThenHasAttributeDefNameId("thenHasAttributeDefNameSetId");
     xmlExportAttributeDefNameSet.setType("type");
     xmlExportAttributeDefNameSet.setUuid("uuid");
@@ -92,7 +91,6 @@ public class XmlExportAttributeDefNameSetTest extends GrouperTest {
     assertEquals("ifHasAttributeDefNameId", xmlExportAttributeDefNameSet.getIfHasAttributeDefNameId());
     assertEquals(3L, xmlExportAttributeDefNameSet.getHibernateVersionNumber());
     assertEquals("modifierTime", xmlExportAttributeDefNameSet.getModifierTime());
-    assertEquals("parentAttributeDefNameSetId", xmlExportAttributeDefNameSet.getParentAttributeDefNameSetId());
     assertEquals("thenHasAttributeDefNameSetId", xmlExportAttributeDefNameSet.getThenHasAttributeDefNameId());
     assertEquals("type", xmlExportAttributeDefNameSet.getType());
     assertEquals("uuid", xmlExportAttributeDefNameSet.getUuid());

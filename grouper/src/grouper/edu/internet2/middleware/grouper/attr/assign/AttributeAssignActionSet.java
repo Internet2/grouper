@@ -585,7 +585,6 @@ public class AttributeAssignActionSet extends GrouperAPI
     existingRecord.setDepth(this.depth);
     existingRecord.setId(this.id);
     existingRecord.setIfHasAttrAssignActionId(this.ifHasAttrAssignActionId);
-    existingRecord.setParentAttrAssignActionSetId(this.parentAttrAssignActionSetId);
     existingRecord.setThenHasAttrAssignActionId(this.thenHasAttrAssignActionId);
     existingRecord.setType(this.type);
 
@@ -602,9 +601,6 @@ public class AttributeAssignActionSet extends GrouperAPI
       return true;
     }
     if (!StringUtils.equals(this.ifHasAttrAssignActionId, other.ifHasAttrAssignActionId)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.parentAttrAssignActionSetId, other.parentAttrAssignActionSetId)) {
       return true;
     }
     if (!StringUtils.equals(this.thenHasAttrAssignActionId, other.thenHasAttrAssignActionId)) {
@@ -696,7 +692,6 @@ public class AttributeAssignActionSet extends GrouperAPI
     xmlExportAttributeAssignActionSet.setHibernateVersionNumber(this.getHibernateVersionNumber());
     xmlExportAttributeAssignActionSet.setIfHasAttributeAssignActionId(this.getIfHasAttrAssignActionId());
     xmlExportAttributeAssignActionSet.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
-    xmlExportAttributeAssignActionSet.setParentAttributeAssignActionSetId(this.getParentAttrAssignActionSetId());
     xmlExportAttributeAssignActionSet.setThenHasAttributeAssignActionId(this.getThenHasAttrAssignActionId());
     xmlExportAttributeAssignActionSet.setType(this.getTypeDb());
     xmlExportAttributeAssignActionSet.setUuid(this.getId());

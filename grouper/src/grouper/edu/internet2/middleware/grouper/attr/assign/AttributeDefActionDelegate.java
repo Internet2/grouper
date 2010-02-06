@@ -72,6 +72,30 @@ public class AttributeDefActionDelegate {
   }
   
   /**
+   * retrieve an action
+   * @param name
+   * @param exceptionIfNull
+   * @return AttributeAssignAction
+   */
+  public AttributeAssignAction findAction(String name, boolean exceptionIfNull) {
+    Set<AttributeAssignAction> actions = this.allowedActions();
+    if (GrouperUtil.length(actions) == 0) {
+      return null;
+    }
+    
+    for (AttributeAssignAction attributeAssignAction : actions) {
+      if (StringUtils.equals(name, attributeAssignAction.getName())) {
+        return attributeAssignAction;
+      }
+    }
+    
+    if (exceptionIfNull) {
+      throw new RuntimeException("Cant find action: " + name + ", on attributeDef: " + this.attributeDef);
+    }
+    return null;
+  }
+  
+  /**
    * get action
    * @param exceptionWhenNotFound
    * @param action

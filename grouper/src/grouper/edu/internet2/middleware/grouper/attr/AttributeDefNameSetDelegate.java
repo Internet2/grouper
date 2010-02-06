@@ -5,10 +5,12 @@
 package edu.internet2.middleware.grouper.attr;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -37,6 +39,21 @@ public class AttributeDefNameSetDelegate implements Serializable {
   public Set<AttributeDefName> getAttributeDefNamesImpliedByThis() {
     return GrouperDAOFactory.getFactory().getAttributeDefNameSet().attributeDefNamesImpliedByThis(this.attributeDefName.getId());
   }
+  
+  /**
+   * get attribute def names implied by this
+   * @return names
+   */
+  public Set<String> getAttributeDefNameNamesImpliedByThis() {
+    
+    Set<String> names = new HashSet<String>();
+    for (AttributeDefName attributeDefName : GrouperUtil.nonNull(this.getAttributeDefNamesImpliedByThis())) {
+      names.add(attributeDefName.getName());
+    }
+    return names;
+    
+  }
+
 
   /**
    * get all the THEN rows from attributeDefNameSet about this id (immediate only).  The ones returned

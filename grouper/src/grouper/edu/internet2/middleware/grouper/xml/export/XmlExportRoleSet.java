@@ -21,7 +21,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -122,27 +121,6 @@ public class XmlExportRoleSet {
    */
   public void setThenHasRoleId(String thenHasRoleId1) {
     this.thenHasRoleId = thenHasRoleId1;
-  }
-
-  /**
-   * parentRoleSetId
-   */
-  private String parentRoleSetId;
-  
-  /**
-   * parentRoleSetId
-   * @return parentRoleSetId
-   */
-  public String getParentRoleSetId() {
-    return this.parentRoleSetId;
-  }
-
-  /**
-   * parentRoleSetId
-   * @param parentRoleSetId1
-   */
-  public void setParentRoleSetId(String parentRoleSetId1) {
-    this.parentRoleSetId = parentRoleSetId1;
   }
 
   /**
@@ -271,7 +249,6 @@ public class XmlExportRoleSet {
     roleSet.setHibernateVersionNumber(this.hibernateVersionNumber);
     roleSet.setIfHasRoleId(this.ifHasRoleId);
     roleSet.setLastUpdatedDb(GrouperUtil.dateLongValue(this.modifierTime));
-    roleSet.setParentRoleSetId(this.parentRoleSetId);
     roleSet.setThenHasRoleId(this.thenHasRoleId);
     roleSet.setTypeDb(this.type);
     roleSet.setId(this.uuid);
@@ -298,7 +275,6 @@ public class XmlExportRoleSet {
     XStream xStream = XmlExportUtils.xstream();
   
     CompactWriter compactWriter = new CompactWriter(writer);
-    
     xStream.marshal(this, compactWriter);
   
   }

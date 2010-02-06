@@ -5,10 +5,12 @@
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -38,6 +40,20 @@ public class AttributeAssignActionSetDelegate implements Serializable {
     return GrouperDAOFactory.getFactory().getAttributeAssignActionSet().attributeAssignActionsImpliedByThis(this.attributeAssignAction.getId());
   }
 
+  /**
+   * get action names implied by this
+   * @return names
+   */
+  public Set<String> getAttributeAssignActionNamesImpliedByThis() {
+    
+    Set<String> actions = new HashSet<String>();
+    for (AttributeAssignAction attributeAssignAction : GrouperUtil.nonNull(this.getAttributeAssignActionsImpliedByThis())) {
+      actions.add(attributeAssignAction.getName());
+    }
+    return actions;
+    
+  }
+  
   /**
    * get all the THEN rows from attributeAssignActionSet about this id (immediate only).  The ones returned
    * are implied if this one is assigned.  Those are the children, this is the parent

@@ -6076,9 +6076,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
       return true;
     }
-    if (!GrouperUtil.equals(this.lastMembershipChangeDb, other.lastMembershipChangeDb)) {
-      return true;
-    }
+    //dont check this since after the import it changes anyways perhaps, so just leave it
+//    if (!GrouperUtil.equals(this.lastMembershipChangeDb, other.lastMembershipChangeDb)) {
+//      return true;
+//    }
     if (!StringUtils.equals(this.modifierUUID, other.modifierUUID)) {
       return true;
     }
@@ -6145,7 +6146,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     xmlExportGroup.setExtension(this.getExtension());
     xmlExportGroup.setHibernateVersionNumber(this.getHibernateVersionNumber());
     //TODO make string
-    xmlExportGroup.setLastMembershipChange(this.getLastMembershipChangeDb());
     xmlExportGroup.setModifierId(this.getModifierUuid());
     xmlExportGroup.setModifierTime(GrouperUtil.dateStringValue(this.getModifyTime()));
     xmlExportGroup.setName(this.getName());

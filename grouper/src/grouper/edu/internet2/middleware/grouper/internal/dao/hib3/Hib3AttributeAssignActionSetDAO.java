@@ -189,8 +189,8 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
   public Set<AttributeAssignAction> attributeAssignActionsImpliedByThis(String attributeAssignActionId) {
     Set<AttributeAssignAction> attributeAssignActions = HibernateSession.byHqlStatic().createQuery(
         "select distinct adn from AttributeAssignActionSet as adns, AttributeAssignAction as adn " +
-        "where adn.ifHasAttrAssignActionId = :theId and adn.id = adns.thenHasAttrAssignActionId " +
-        "and adn.id != :theId order by adn.name")
+        "where adns.ifHasAttrAssignActionId = :theId and adn.id = adns.thenHasAttrAssignActionId " +
+        "and adn.id != :theId order by adn.nameDb")
         .setString("theId", attributeAssignActionId).listSet(AttributeAssignAction.class);
       return attributeAssignActions;
   }

@@ -126,27 +126,6 @@ public class XmlExportAttributeAssignActionSet {
   }
 
   /**
-   * parentAttributeAssignActionSetId
-   */
-  private String parentAttributeAssignActionSetId;
-  
-  /**
-   * parentAttributeAssignActionSetId
-   * @return parentAttributeAssignActionSetId
-   */
-  public String getParentAttributeAssignActionSetId() {
-    return this.parentAttributeAssignActionSetId;
-  }
-
-  /**
-   * parentAttributeAssignActionSetId
-   * @param parentAttributeAssignActionSetId
-   */
-  public void setParentAttributeAssignActionSetId(String parentAttributeAssignActionSetId) {
-    this.parentAttributeAssignActionSetId = parentAttributeAssignActionSetId;
-  }
-
-  /**
    * type
    */
   private String type;
@@ -272,7 +251,6 @@ public class XmlExportAttributeAssignActionSet {
     attributeAssignActionSet.setHibernateVersionNumber(this.hibernateVersionNumber);
     attributeAssignActionSet.setIfHasAttrAssignActionId(this.ifHasAttributeAssignActionId);
     attributeAssignActionSet.setLastUpdatedDb(GrouperUtil.dateLongValue(this.modifierTime));
-    attributeAssignActionSet.setParentAttrAssignActionSetId(this.parentAttributeAssignActionSetId);
     attributeAssignActionSet.setThenHasAttrAssignActionId(this.thenHasAttributeAssignActionId);
     attributeAssignActionSet.setTypeDb(this.type);
     attributeAssignActionSet.setId(this.uuid);

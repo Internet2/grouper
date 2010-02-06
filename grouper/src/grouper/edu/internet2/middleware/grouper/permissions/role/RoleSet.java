@@ -545,7 +545,6 @@ public class RoleSet extends GrouperAPI
     existingRecord.setDepth(this.depth);
     existingRecord.setId(this.id);
     existingRecord.setIfHasRoleId(this.ifHasRoleId);
-    existingRecord.setParentRoleSetId(this.parentRoleSetId);
     existingRecord.setThenHasRoleId(this.thenHasRoleId);
     existingRecord.setType(this.type);
   }
@@ -561,9 +560,6 @@ public class RoleSet extends GrouperAPI
       return true;
     }
     if (!StringUtils.equals(this.ifHasRoleId, other.ifHasRoleId)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.parentRoleSetId, other.parentRoleSetId)) {
       return true;
     }
     if (!StringUtils.equals(this.thenHasRoleId, other.thenHasRoleId)) {
@@ -656,7 +652,6 @@ public class RoleSet extends GrouperAPI
     xmlExportRoleSet.setHibernateVersionNumber(this.getHibernateVersionNumber());
     xmlExportRoleSet.setIfHasRoleId(this.getIfHasRoleId());
     xmlExportRoleSet.setModifierTime(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
-    xmlExportRoleSet.setParentRoleSetId(this.getParentRoleSetId());
     xmlExportRoleSet.setThenHasRoleId(this.getThenHasRoleId());
     xmlExportRoleSet.setType(this.getTypeDb());
     xmlExportRoleSet.setUuid(this.getId());

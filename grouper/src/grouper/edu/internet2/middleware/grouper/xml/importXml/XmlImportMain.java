@@ -64,7 +64,7 @@ public class XmlImportMain {
   }
 
   /** record number we are on */
-  private long currentCount = 0;
+  private long currentRecordIndex = 0;
   
   /** grouper's hibernate session */
   private HibernateSession hibernateSession = null;
@@ -88,6 +88,47 @@ public class XmlImportMain {
   /** count of objects in the db */
   private long originalDbCount = 0;
   
+  /** insert count */
+  private long insertCount = 0;
+  
+  /** update count */
+  private long updateCount = 0;
+  
+  /** skip count */
+  private long skipCount = 0;
+  
+  
+  /**
+   * @return the currentCount
+   */
+  public long getCurrentRecordIndex() {
+    return this.currentRecordIndex;
+  }
+
+  
+  /**
+   * @return the insertCount
+   */
+  public long getInsertCount() {
+    return this.insertCount;
+  }
+
+  
+  /**
+   * @return the updateCount
+   */
+  public long getUpdateCount() {
+    return this.updateCount;
+  }
+
+  
+  /**
+   * @return the skipCount
+   */
+  public long getSkipCount() {
+    return this.skipCount;
+  }
+
   /** session (hib object) */
   private Session session = null;
   
@@ -322,11 +363,13 @@ public class XmlImportMain {
               
               theReader.read(fileInputStream);
               
-              logInfoAndPrintToScreen("Ending import: processed " + XmlImportMain.this.currentCount + " records");
+              logInfoAndPrintToScreen("Ending import: processed " + XmlImportMain.this.currentRecordIndex + " records");
 
               long finalDbCount = XmlImportMain.this.dbCount();
               
               logInfoAndPrintToScreen("Ending import: database contains " + finalDbCount + " records");
+              logInfoAndPrintToScreen("Ending import: " + XmlImportMain.this.insertCount + " inserts, " 
+                  + XmlImportMain.this.updateCount + " updates, and " + XmlImportMain.this.skipCount + " skipped records");
               
             } catch (FileNotFoundException fnfe) {
               throw new RuntimeException("Problem reading file: " + GrouperUtil.fileCanonicalPath(importFile), fnfe);
@@ -342,7 +385,28 @@ public class XmlImportMain {
    * increment the file count
    */
   public void incrementCurrentCount() {
-    this.currentCount++;
+    this.currentRecordIndex++;
+  }
+
+  /**
+   * increment the insert count
+   */
+  public void incrementInsertCount() {
+    this.insertCount++;
+  }
+
+  /**
+   * increment the file count
+   */
+  public void incrementSkipCount() {
+    this.skipCount++;
+  }
+
+  /**
+   * increment the update count
+   */
+  public void incrementUpdateCount() {
+    this.updateCount++;
   }
 
   /**

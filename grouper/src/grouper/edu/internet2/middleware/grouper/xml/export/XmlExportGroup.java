@@ -85,9 +85,6 @@ public class XmlExportGroup {
   /** description */
   private String description;
 
-  /** lastMembershipChange */
-  private Long lastMembershipChange;
-  
   /** hibernateVersionNumber */
   private long hibernateVersionNumber;
 
@@ -318,22 +315,6 @@ public class XmlExportGroup {
   }
 
   /**
-   * lastMembershipChange
-   * @return lastMembershipChange
-   */
-  public Long getLastMembershipChange() {
-    return this.lastMembershipChange;
-  }
-
-  /**
-   * lastMembershipChange
-   * @param lastMembershipChange1
-   */
-  public void setLastMembershipChange(Long lastMembershipChange1) {
-    this.lastMembershipChange = lastMembershipChange1;
-  }
-
-  /**
    * hibernateVersionNumber
    * @return hibernateVersionNumber
    */
@@ -381,7 +362,6 @@ public class XmlExportGroup {
     group.setDisplayNameDb(this.displayName);
     group.setExtensionDb(this.extension);
     group.setHibernateVersionNumber(this.hibernateVersionNumber);
-    group.setLastMembershipChangeDb(this.lastMembershipChange);
     group.setModifierUuid(this.modifierId);
     group.setModifyTimeLong(GrouperUtil.dateLongValue(this.modifierTime));
     group.setNameDb(this.name);

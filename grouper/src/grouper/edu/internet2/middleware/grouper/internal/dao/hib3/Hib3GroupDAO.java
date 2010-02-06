@@ -1846,8 +1846,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         "creatorUuid = :theCreatorUuid, " +
         "createTimeLong = :theCreateTimeLong, " +
         "modifierUuid = :theModifierUuid, " +
-        "modifyTimeLong = :theModifyTimeLong, " +
-        "lastMembershipChangeDb = :theLastMembershipChangeDb " +
+        "modifyTimeLong = :theModifyTimeLong " +
         "where uuid = :theUuid")
         .setLong("theHibernateVersionNumber", group.getHibernateVersionNumber())
         .setString("theCreatorUuid", group.getCreatorUuid())
@@ -1855,8 +1854,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         .setString("theModifierUuid", group.getModifierUuid())
         .setLong("theModifyTimeLong", group.getModifyTimeLong())
         .setString("theContextId", group.getContextId())
-        .setString("theUuid", group.getUuid())
-        .setLong("theLastMembershipChangeDb", group.getLastMembershipChangeDb()).executeUpdate();
+        .setString("theUuid", group.getUuid()).executeUpdate();
   }
 
 } 

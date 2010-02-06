@@ -124,27 +124,6 @@ public class XmlExportAttributeDefNameSet {
   }
 
   /**
-   * parentAttributeAssignActionSetId
-   */
-  private String parentAttributeDefNameSetId;
-  
-  /**
-   * parentAttributeAssignActionSetId
-   * @return parentAttributeAssignActionSetId
-   */
-  public String getParentAttributeDefNameSetId() {
-    return this.parentAttributeDefNameSetId;
-  }
-
-  /**
-   * parentAttributeAssignActionSetId
-   * @param parentAttributeDefNameSetId1
-   */
-  public void setParentAttributeDefNameSetId(String parentAttributeDefNameSetId1) {
-    this.parentAttributeDefNameSetId = parentAttributeDefNameSetId1;
-  }
-
-  /**
    * type
    */
   private String type;
@@ -270,7 +249,6 @@ public class XmlExportAttributeDefNameSet {
     attributeDefNameSet.setHibernateVersionNumber(this.hibernateVersionNumber);
     attributeDefNameSet.setIfHasAttributeDefNameId(this.ifHasAttributeDefNameId);
     attributeDefNameSet.setLastUpdatedDb(GrouperUtil.dateLongValue(this.modifierTime));
-    attributeDefNameSet.setParentAttrDefNameSetId(this.parentAttributeDefNameSetId);
     attributeDefNameSet.setThenHasAttributeDefNameId(this.thenHasAttributeDefNameId);
     attributeDefNameSet.setTypeDb(this.type);
     attributeDefNameSet.setId(this.uuid);
