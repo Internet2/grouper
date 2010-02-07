@@ -4,8 +4,10 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /**
@@ -40,7 +42,7 @@ public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
    * reset the audit types
    * @param hibernateSession
    */
-  static void reset(HibernateSession hibernateSession) {
+  static void reset(@SuppressWarnings("unused") HibernateSession hibernateSession) {
     //i think we dont want to delete these in a reset...
     //hibernateSession.byHql().createQuery("delete from AuditType").executeUpdate();
     //tell the cache it is empty...
@@ -81,6 +83,51 @@ public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
     return HibernateSession.byHqlStatic().createQuery("from AuditType where auditCategory = :theAuditCategory")
       .setCacheable(true).setCacheRegion(KLASS + ".FindByCategory")
       .setString("theAuditCategory", categoryName).listSet(AuditType.class);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO#findByUuidOrName(java.lang.String, java.lang.String, java.lang.String, boolean)
+   */
+  public AuditType findByUuidOrName(String id, String auditCategory, String actionName, boolean exceptionIfNull) {
+    try {
+      AuditType auditType = HibernateSession.byHqlStatic()
+        .createQuery("from AuditType as theAuditType where theAuditType.id = :theId or " +
+        		"(theAuditType.auditCategory = :theAuditCategory and theAuditType.actionName = :theActionName)")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByUuidOrName")
+        .setString("theId", id)
+        .setString("theAuditCategory", auditCategory)
+        .setString("theActionName", actionName)
+        .uniqueResult(AuditType.class);
+      if (auditType == null && exceptionIfNull) {
+        throw new GroupNotFoundException("Can't find auditType by id: '" + id + "' or auditCategory '" + auditCategory 
+            + "', actionName: '" + actionName + "'");
+      }
+      return auditType;
+    } catch (GrouperDAOException e) {
+      String error = "Problem find audit type by id: '" + id + "' or auditCategory '" + auditCategory + "', actionName: '" 
+        + actionName + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO#saveUpdateProperties(edu.internet2.middleware.grouper.audit.AuditType)
+   */
+  public void saveUpdateProperties(AuditType auditType) {
+
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update AuditType " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "createdOnDb = :theCreateTimeLong, " +
+        "lastUpdatedDb = :theModifyTimeLong " +
+        "where id = :theUuid")
+        .setLong("theHibernateVersionNumber", auditType.getHibernateVersionNumber())
+        .setLong("theCreateTimeLong", auditType.getCreatedOnDb())
+        .setLong("theModifyTimeLong", auditType.getLastUpdatedDb())
+        .setString("theContextId", auditType.getContextId())
+        .setString("theUuid", auditType.getId()).executeUpdate();
   }
   
 } 

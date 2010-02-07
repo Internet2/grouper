@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 
 
 /**
@@ -40,4 +41,25 @@ public interface AuditTypeDAO extends GrouperDAO {
    */
   public void deleteEntriesAndTypesByCategoryAndAction(String category, String action);
   
+  
+  
+  
+  /**
+   * @param id 
+   * @param auditCategory 
+   * @param actionName 
+   * @param exceptionIfNull 
+   * @return the stem or null
+   * @throws GrouperDAOException 
+   * @throws GroupNotFoundException 
+   * @since   1.6.0
+   */
+  AuditType findByUuidOrName(String id, String auditCategory, String actionName, boolean exceptionIfNull);
+
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param auditType
+   */
+  public void saveUpdateProperties(AuditType auditType);
+
 }

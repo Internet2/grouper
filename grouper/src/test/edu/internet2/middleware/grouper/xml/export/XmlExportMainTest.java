@@ -21,10 +21,13 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
+import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 
@@ -144,6 +147,10 @@ public class XmlExportMainTest extends GrouperTest {
     attributeDefScope.setScopeString("whatever");
     attributeDefScope.saveOrUpdate();
     
+    AuditType auditType = new AuditType("exportCategoryTest", "exportActionTest", null, "labelString01", "labelString02", "labelString03");
+    GrouperDAOFactory.getFactory().getAuditType().saveOrUpdate(auditType);
+    AuditTypeFinder.clearCache();
+
     StringWriter stringWriter = new StringWriter();
     XmlExportMain xmlExportMain = new XmlExportMain();
     xmlExportMain.writeAllTables(stringWriter);
@@ -207,9 +214,15 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<attributeDefScopes>"));
     assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
         
+    assertTrue(xml, xml.contains("<auditTypes>"));
+    assertTrue(xml, xml.contains("<XmlExportAuditType>"));
+
+    assertTrue(xml, xml.contains("<auditEntries>"));
+    assertTrue(xml, xml.contains("<XmlExportAuditEntry>"));
+
     xmlExportMain.setIncludeComments(true);
     xmlExportMain.writeAllTables(stringWriter);
-    
+
     xml = stringWriter.toString();
     
     //TODO comment this out

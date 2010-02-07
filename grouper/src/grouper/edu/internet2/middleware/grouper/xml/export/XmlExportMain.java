@@ -143,6 +143,10 @@ public class XmlExportMain {
 
       XmlExportAttributeDefScope.exportAttributeDefScopes(writer, this);
 
+      XmlExportAuditType.exportAuditTypes(writer);
+
+      XmlExportAuditEntry.exportAuditEntries(writer, this);
+
       writer.write("</grouperExport>\n");
       writer.flush();
     } catch (IOException ioe) {

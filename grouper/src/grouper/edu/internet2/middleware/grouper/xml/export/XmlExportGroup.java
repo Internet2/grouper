@@ -462,7 +462,7 @@ public class XmlExportGroup {
    * @param writer
    */
   public static void exportGroups(final Writer writer) {
-    //get the members
+    //get the groups
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -470,7 +470,7 @@ public class XmlExportGroup {
   
         Session session = hibernateHandlerBean.getHibernateSession().getSession();
   
-        //select all members in order
+        //select all groups in order
         Query query = session.createQuery(
             "select theGroup from Group as theGroup order by theGroup.nameDb");
   
@@ -494,7 +494,7 @@ public class XmlExportGroup {
             HibUtils.closeQuietly(results);
           }
           
-          //end the members element 
+          //end the groups element 
           writer.write("  </groups>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming groups", ioe);

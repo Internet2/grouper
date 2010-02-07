@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDef;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDefName;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDefNameSet;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDefScope;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAuditEntry;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAuditType;
 import edu.internet2.middleware.grouper.xml.export.XmlExportComposite;
 import edu.internet2.middleware.grouper.xml.export.XmlExportField;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroup;
@@ -248,6 +250,8 @@ public class XmlImportMain {
               XmlExportAttributeAssignValue.processXmlFirstPass(XmlImportMain.this);
               XmlExportAttributeDefNameSet.processXmlFirstPass(XmlImportMain.this);
               XmlExportAttributeDefScope.processXmlFirstPass(XmlImportMain.this);
+              XmlExportAuditType.processXmlFirstPass(XmlImportMain.this);
+              XmlExportAuditEntry.processXmlFirstPass(XmlImportMain.this);
 
               fileInputStream = new FileInputStream(importFile);
               
@@ -295,6 +299,8 @@ public class XmlImportMain {
     total += XmlExportAttributeAssignValue.dbCount();
     total += XmlExportAttributeDefNameSet.dbCount();
     total += XmlExportAttributeDefScope.dbCount();
+    total += XmlExportAuditType.dbCount();
+    total += XmlExportAuditEntry.dbCount();
     return total;
   }
   
@@ -358,6 +364,8 @@ public class XmlImportMain {
               XmlExportAttributeAssignValue.processXmlSecondPass(XmlImportMain.this);
               XmlExportAttributeDefNameSet.processXmlSecondPass(XmlImportMain.this);
               XmlExportAttributeDefScope.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAuditType.processXmlSecondPass(XmlImportMain.this);
+              XmlExportAuditEntry.processXmlSecondPass(XmlImportMain.this);
   
               fileInputStream = new FileInputStream(importFile);
               

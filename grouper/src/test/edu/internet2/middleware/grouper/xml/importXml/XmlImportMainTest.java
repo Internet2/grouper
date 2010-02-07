@@ -26,6 +26,9 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -89,7 +92,7 @@ public class XmlImportMainTest extends GrouperTest {
 
     xmlImportMain.processXml(importfile);
 
-    assertEquals(75,xmlImportMain.getTotalImportFileCount());
+    assertEquals(134,xmlImportMain.getTotalImportFileCount());
     
     //probably at least 2 to get started
     assertTrue(2 < xmlImportMain.getOriginalDbCount());
@@ -104,7 +107,7 @@ public class XmlImportMainTest extends GrouperTest {
 
     xmlImportMain.processXml(importfile);
 
-    assertEquals(75,xmlImportMain.getTotalImportFileCount());
+    assertEquals(134,xmlImportMain.getTotalImportFileCount());
     
     //probably at least 2 to get started
     assertTrue(2 < xmlImportMain.getOriginalDbCount());
@@ -113,7 +116,7 @@ public class XmlImportMainTest extends GrouperTest {
 
     assertEquals(0, xmlImportMain.getInsertCount());
     assertEquals(0, xmlImportMain.getUpdateCount());
-    assertEquals(75, xmlImportMain.getSkipCount());
+    assertEquals(134, xmlImportMain.getSkipCount());
 
     
     GrouperSession.stopQuietly(grouperSession);
@@ -128,11 +131,11 @@ public class XmlImportMainTest extends GrouperTest {
   private void assertsFor_v1_6_0(GrouperSession grouperSession, String studentsAttrDefUuid) {
     
     Member groupAmember = MemberFinder.findBySubject(grouperSession, GroupFinder.findByName(grouperSession, "etc:b", true).toSubject(), false);
-    assertEquals("7117f54c035d481dbc88ef976c113b62", groupAmember.getContextId());
-    assertEquals("e581c4bd8e0245ba933c51e7fe13308b", groupAmember.getSubjectId());
+    assertEquals("36a51e854fd94884b294ff971c9313c6", groupAmember.getContextId());
+    assertEquals("e38a6d0920524551b0892e445552f99d", groupAmember.getSubjectId());
 
     Stem stemEtc = StemFinder.findByName(grouperSession, "etc", true);
-    assertEquals("2010/02/06 17:44:01.938", GrouperUtil.dateStringValue(stemEtc.getCreateTimeLong()));
+    assertEquals("2010/02/07 16:26:29.085", GrouperUtil.dateStringValue(stemEtc.getCreateTimeLong()));
     
     Group groupA = GroupFinder.findByName(grouperSession, "etc:a", false);
     Group groupB = GroupFinder.findByName(grouperSession, "etc:b", false);
@@ -142,7 +145,7 @@ public class XmlImportMainTest extends GrouperTest {
 
     GroupType groupTypeTest = GroupTypeFinder.find("test", true);
     
-    assertEquals("f29c514f9a8947f38fe489c43c896756", groupTypeTest.getUuid());
+    assertEquals("be755e1ffa104faabfc4a5b679863b91", groupTypeTest.getUuid());
     
     Field attrField = FieldFinder.find("attr", true);
     
@@ -167,7 +170,7 @@ public class XmlImportMainTest extends GrouperTest {
     assertEquals(new Long(1), studentsAttrDef.getHibernateVersionNumber());
 
     AttributeDef studentsAttrDef2 = AttributeDefFinder.findByName("etc:students2", true);
-    assertEquals("1e5403c5a1854589b9bc762caacda581", studentsAttrDef2.getUuid());
+    assertEquals("a7a987d55b2e4a39bd55f840cc467d99", studentsAttrDef2.getUuid());
     assertTrue(studentsAttrDef2.isAssignToGroupAssn());
 
     Set<String> actions = studentsAttrDef.getAttributeDefActionDelegate().allowedActionStrings();
@@ -183,7 +186,7 @@ public class XmlImportMainTest extends GrouperTest {
     assertTrue(someAction.getAttributeAssignActionSetDelegate().getAttributeAssignActionNamesImpliedByThis().contains("someAction2"));
     
     AttributeDefName studentsAttrName2 = AttributeDefNameFinder.findByName("etc:studentsName2", true);
-    assertEquals("f2c92493b8434e599218277410dfcfb4", studentsAttrName2.getId());
+    assertEquals("96e9263133f9455582d24cbbe05a209d", studentsAttrName2.getId());
 
     AttributeDefName studentsAttrName = AttributeDefNameFinder.findByName("etc:studentsName", true);
 
@@ -205,6 +208,14 @@ public class XmlImportMainTest extends GrouperTest {
     AttributeDefScope attributeDefScope = attributeDefScopes.iterator().next();
     assertEquals("whatever", attributeDefScope.getScopeString());
 
+    AuditType auditType = GrouperDAOFactory.getFactory().getAuditType().findByUuidOrName(null, "exportCategoryTest", "exportActionTest", true);
+    assertEquals("9bf61f2aaee64dd09c0c66e143090955", auditType.getContextId());
+    
+    AuditEntry auditEntry = GrouperDAOFactory.getFactory().getAuditEntry().findById("8f2f228dc3f04ae295f881ba69f284e2", true);
+    assertEquals(AuditTypeBuiltin.STEM_ADD.getAuditType().getId(), auditEntry.getAuditTypeId());
+    assertEquals("etc", auditEntry.retrieveStringValue("name"));
+    
+    
   }
   
 }

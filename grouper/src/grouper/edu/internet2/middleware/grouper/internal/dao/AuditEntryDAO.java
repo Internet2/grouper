@@ -26,4 +26,10 @@ public interface AuditEntryDAO extends GrouperDAO {
    */
   public AuditEntry findById(String id, boolean exceptionIfNotFound);
   
+  /**
+   * save the update properties which are auto saved when business method is called
+   * @param auditEntry
+   */
+  public void saveUpdateProperties(AuditEntry auditEntry);
+
 }

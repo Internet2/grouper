@@ -15,14 +15,18 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportAuditType;
+import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
 
 /**
  * type of audit
  */
 @SuppressWarnings("serial")
-public class AuditType extends GrouperAPI implements Hib3GrouperVersioned {
+public class AuditType extends GrouperAPI implements Hib3GrouperVersioned, XmlImportable<AuditType> {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -766,6 +770,183 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public GrouperAPI clone() {
     throw new RuntimeException("not implemented");
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportable#xmlRetrieveByIdOrKey()
+   */
+  public XmlImportable<AuditType> xmlRetrieveByIdOrKey() {
+    return GrouperDAOFactory.getFactory().getAuditType().findByUuidOrName(this.id, this.auditCategory, this.actionName, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlCopyBusinessPropertiesToExisting(java.lang.Object)
+   */
+  public void xmlCopyBusinessPropertiesToExisting(AuditType existingRecord) {
+    existingRecord.setActionName(this.actionName);
+    existingRecord.setAuditCategory(this.auditCategory);
+    existingRecord.setId(this.id);
+    existingRecord.setLabelInt01(this.labelInt01);
+    existingRecord.setLabelInt02(this.labelInt02);
+    existingRecord.setLabelInt03(this.labelInt03);
+    existingRecord.setLabelInt04(this.labelInt04);
+    existingRecord.setLabelInt05(this.labelInt05);
+    existingRecord.setLabelString01(this.labelString01);
+    existingRecord.setLabelString02(this.labelString02);
+    existingRecord.setLabelString03(this.labelString03);
+    existingRecord.setLabelString04(this.labelString04);
+    existingRecord.setLabelString05(this.labelString05);
+    existingRecord.setLabelString06(this.labelString06);
+    existingRecord.setLabelString07(this.labelString07);
+    existingRecord.setLabelString08(this.labelString08);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlDifferentBusinessProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentBusinessProperties(AuditType other) {
+    if (!StringUtils.equals(this.actionName, other.actionName)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.auditCategory, other.auditCategory)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.id, other.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelInt01, other.labelInt01)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelInt02, other.labelInt02)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelInt03, other.labelInt03)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelInt04, other.labelInt04)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelInt05, other.labelInt05)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelString01, other.labelString01)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelString02, other.labelString02)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelString03, other.labelString03)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelString04, other.labelString04)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelString05, other.labelString05)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelString06, other.labelString06)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelString07, other.labelString07)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.labelString08, other.labelString08)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlDifferentUpdateProperties(java.lang.Object)
+   */
+  public boolean xmlDifferentUpdateProperties(AuditType other) {
+    if (!StringUtils.equals(this.contextId, other.contextId)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.createdOnDb, other.createdOnDb)) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.getHibernateVersionNumber(), other.getHibernateVersionNumber())) {
+      return true;
+    }
+    if (!GrouperUtil.equals(this.lastUpdatedDb, other.lastUpdatedDb)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlGetId()
+   */
+  public String xmlGetId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSaveBusinessProperties(java.lang.Object)
+   */
+  public AuditType xmlSaveBusinessProperties(AuditType existingRecord) {
+    //if its an insert, call the business method
+    if (existingRecord == null) {
+      existingRecord = new AuditType();
+      existingRecord.setAuditCategory(this.auditCategory);
+      existingRecord.setActionName(this.actionName);
+      existingRecord.setId(this.id);
+    }
+    this.xmlCopyBusinessPropertiesToExisting(existingRecord);
+    //if its an insert or update, then do the rest of the fields
+    GrouperDAOFactory.getFactory().getAuditType().saveOrUpdate(existingRecord);
+    AuditTypeFinder.clearCache();
+    return existingRecord;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSaveUpdateProperties()
+   */
+  public void xmlSaveUpdateProperties() {
+    GrouperDAOFactory.getFactory().getAuditType().saveUpdateProperties(this);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlSetId(java.lang.String)
+   */
+  public void xmlSetId(String theId) {
+    this.setId(theId);
+  }
+
+  /**
+   * convert to xml bean for export
+   * @param grouperVersion
+   * @return xml bean
+   */
+  public XmlExportAuditType xmlToExportAuditType(GrouperVersion grouperVersion) {
+    if (grouperVersion == null) {
+      throw new RuntimeException();
+    }
+    
+    XmlExportAuditType xmlExportAuditType = new XmlExportAuditType();
+    xmlExportAuditType.setActionName(this.getActionName());
+    xmlExportAuditType.setAuditCategory(this.getAuditCategory());
+    xmlExportAuditType.setContextId(this.getContextId());
+    xmlExportAuditType.setCreatedOn(GrouperUtil.dateStringValue(this.getCreatedOnDb()));
+    xmlExportAuditType.setHibernateVersionNumber(GrouperUtil.longValue(this.getHibernateVersionNumber(), 0));
+    xmlExportAuditType.setId(this.getId());
+    xmlExportAuditType.setLabelInt01(this.getLabelInt01());
+    xmlExportAuditType.setLabelInt02(this.getLabelInt02());
+    xmlExportAuditType.setLabelInt03(this.getLabelInt03());
+    xmlExportAuditType.setLabelInt04(this.getLabelInt04());
+    xmlExportAuditType.setLabelInt05(this.getLabelInt05());
+    xmlExportAuditType.setLabelString01(this.getLabelString01());
+    xmlExportAuditType.setLabelString02(this.getLabelString02());
+    xmlExportAuditType.setLabelString03(this.getLabelString03());
+    xmlExportAuditType.setLabelString04(this.getLabelString04());
+    xmlExportAuditType.setLabelString05(this.getLabelString05());
+    xmlExportAuditType.setLabelString06(this.getLabelString06());
+    xmlExportAuditType.setLabelString07(this.getLabelString07());
+    xmlExportAuditType.setLabelString08(this.getLabelString08());
+    xmlExportAuditType.setLastUpdated(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
+    return xmlExportAuditType;
   }
 
 }

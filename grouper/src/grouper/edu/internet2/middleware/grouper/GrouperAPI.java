@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil.FieldValuable;
  * @version $Id: GrouperAPI.java,v 1.23 2009-11-01 14:57:22 mchyzer Exp $
  * @since   1.2.0
  */
+@SuppressWarnings("serial")
 public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
 
   /**

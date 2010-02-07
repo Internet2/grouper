@@ -33,6 +33,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
@@ -138,6 +140,8 @@ public class XmlExportUtils {
     registerClass(xStream, XmlExportAttributeDefName.class);
     registerClass(xStream, XmlExportAttributeDefNameSet.class);
     registerClass(xStream, XmlExportAttributeDefScope.class);
+    registerClass(xStream, XmlExportAuditType.class);
+    registerClass(xStream, XmlExportAuditEntry.class);
     registerClass(xStream, XmlExportComposite.class);
     registerClass(xStream, XmlExportField.class);
     registerClass(xStream, XmlExportGroup.class);
@@ -232,6 +236,29 @@ public class XmlExportUtils {
     }
     AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
     writer.write(attributeDefName.getName());
+    if (includeComma) {
+      writer.write(", ");
+    }
+  }
+  
+  /**
+   * @param prefix
+   * @param writer 
+   * @param auditTypeId
+   * @param includeComma 
+   * @throws IOException 
+   */
+  public static void toStringAuditType(String prefix, Writer writer, String auditTypeId, boolean includeComma) throws IOException {
+    if (!StringUtils.isBlank(prefix)) {
+      writer.write(prefix);
+      writer.write("AuditType: ");
+    } else {
+      writer.write("auditType: ");
+    }
+    AuditType auditType = AuditTypeFinder.find(auditTypeId, true);
+    writer.write(auditType.getAuditCategory());
+    writer.write(" - ");
+    writer.write(auditType.getActionName());
     if (includeComma) {
       writer.write(", ");
     }

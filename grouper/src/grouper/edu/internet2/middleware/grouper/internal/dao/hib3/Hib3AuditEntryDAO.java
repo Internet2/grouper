@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.AuditEntryNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
@@ -44,6 +43,26 @@ public class Hib3AuditEntryDAO extends Hib3DAO implements AuditEntryDAO {
       throw new AuditEntryNotFoundException("Cant find audit entry by id: " + id);
     }
     return auditEntry;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO#saveUpdateProperties(edu.internet2.middleware.grouper.audit.AuditEntry)
+   */
+  public void saveUpdateProperties(AuditEntry auditEntry) {
+
+    //run an update statement since the business methods affect these properties
+    HibernateSession.byHqlStatic().createQuery("update AuditEntry " +
+        "set hibernateVersionNumber = :theHibernateVersionNumber, " +
+        "contextId = :theContextId, " +
+        "createdOnDb = :theCreateTimeLong, " +
+        "lastUpdatedDb = :theModifyTimeLong " +
+        "where id = :theUuid")
+        .setLong("theHibernateVersionNumber", auditEntry.getHibernateVersionNumber())
+        .setLong("theCreateTimeLong", auditEntry.getCreatedOnDb())
+        .setLong("theModifyTimeLong", auditEntry.getLastUpdatedDb())
+        .setString("theContextId", auditEntry.getContextId())
+        .setString("theUuid", auditEntry.getId()).executeUpdate();
   }
 
 } 
