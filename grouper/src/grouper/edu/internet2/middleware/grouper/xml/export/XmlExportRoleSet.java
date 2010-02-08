@@ -378,8 +378,7 @@ public class XmlExportRoleSet {
                       throws GrouperDAOException {
                     try {
                       writer.write("\n    <!-- ");
-                      XmlExportUtils.toStringRole("ifHas", writer, roleSet.getIfHasRoleId(), true);
-                      XmlExportUtils.toStringRole("thenHas", writer, roleSet.getThenHasRoleId(), false);
+                      XmlExportUtils.toStringRoleSet(writer, roleSet, false);
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {

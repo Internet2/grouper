@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.io.StringWriter;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -555,5 +556,18 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
     this.setId(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    stringWriter.write("Attribute: " + this.id + ", ");
+    
+//    XmlExportUtils.toStringField(stringWriter, this.fieldId, false);
+    
+    return stringWriter.toString();
+    
+  }
+
 } 
 

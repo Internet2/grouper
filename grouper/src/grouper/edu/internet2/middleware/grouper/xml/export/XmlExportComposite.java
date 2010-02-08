@@ -375,9 +375,7 @@ public class XmlExportComposite {
                       throws GrouperDAOException {
                     try {
                       writer.write("\n    <!-- ");
-                      XmlExportUtils.toStringGroup("owner", writer, composite.getFactorOwnerUuid(), true);
-                      XmlExportUtils.toStringGroup("left", writer, composite.getLeftFactorUuid(), true);
-                      XmlExportUtils.toStringGroup("right", writer, composite.getRightFactorUuid(), false);
+                      XmlExportUtils.toStringComposite(writer, composite, false);
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {

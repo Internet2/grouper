@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.permissions.role;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
@@ -674,5 +675,18 @@ public class RoleSet extends GrouperAPI
     this.setId(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("RoleSet: " + this.getId());
+
+//    XmlExportUtils.toStringRoleSet(stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
+  }
 
 }

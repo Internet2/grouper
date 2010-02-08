@@ -297,8 +297,7 @@ public class XmlExportGroupTypeTuple {
                       throws GrouperDAOException {
                     try {
                       writer.write("\n    <!-- ");
-                      XmlExportUtils.toStringGroup(null, writer, groupTypeTuple.getGroupUuid(), true);
-                      XmlExportUtils.toStringType(writer, groupTypeTuple.getTypeUuid(), false);
+                      XmlExportUtils.toStringGroupTypeTuple(writer, groupTypeTuple, false);
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {

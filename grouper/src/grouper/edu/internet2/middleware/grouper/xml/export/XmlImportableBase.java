@@ -12,6 +12,12 @@ package edu.internet2.middleware.grouper.xml.export;
 public interface XmlImportableBase<T> {
 
   /**
+   * convert to string for log
+   * @return the string value for log
+   */
+  public String xmlToString();
+  
+  /**
    * see if the update cols are different (e.g. last updated)
    * @param other the one to compare with
    * @return true if so

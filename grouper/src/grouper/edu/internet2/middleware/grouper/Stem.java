@@ -3538,6 +3538,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   public void xmlSetId(String theId) {
     this.setUuid(theId);
   }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    return "Stem: " + this.uuid + ", " + this.name;
+  }
   
 
 }

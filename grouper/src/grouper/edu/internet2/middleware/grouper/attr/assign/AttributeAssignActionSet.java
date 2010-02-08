@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.attr.assign;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
@@ -80,6 +81,14 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 @SuppressWarnings("serial")
 public class AttributeAssignActionSet extends GrouperAPI 
     implements Hib3GrouperVersioned, GrouperSet, XmlImportable<AttributeAssignActionSet> {
+  
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return "AttributeAssignActionSet: " + this.id;
+  }
   
   /** logger */
   @SuppressWarnings("unused")
@@ -713,5 +722,18 @@ public class AttributeAssignActionSet extends GrouperAPI
     this.setId(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("AttributeAssignActionSet: " + this.getId());
+
+//    XmlExportUtils.toStringAttributeAssignActionSet(stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
+  }
 
 }

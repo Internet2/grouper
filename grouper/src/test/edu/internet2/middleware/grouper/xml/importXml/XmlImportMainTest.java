@@ -71,7 +71,7 @@ public class XmlImportMainTest extends GrouperTest {
    */
   public void testImport_v1_6_0() {
     
-    File importfile = GrouperUtil.fileFromResourceName("edu/internet2/middleware/grouper/xml/importXml/xmlImport_v1_6_0.xml");
+    File importFileXml = GrouperUtil.fileFromResourceName("edu/internet2/middleware/grouper/xml/importXml/xmlImport_v1_6_0.xml");
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -89,8 +89,16 @@ public class XmlImportMainTest extends GrouperTest {
     studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction");
     
     XmlImportMain xmlImportMain = new XmlImportMain();
+    
+    
+    xmlImportMain = new XmlImportMain();
+    xmlImportMain.setRecordReport(true);
 
-    xmlImportMain.processXml(importfile);
+    xmlImportMain.processXml(importFileXml);
+
+    File readonlyImportFile = new File(xmlImportMain.getRecordReportFileCanonicalPath());
+    assertTrue(readonlyImportFile.exists() || readonlyImportFile.length() > 0);
+    readonlyImportFile.delete();
 
     assertEquals(134,xmlImportMain.getTotalImportFileCount());
     
@@ -105,7 +113,7 @@ public class XmlImportMainTest extends GrouperTest {
     //now, lets do it again
     xmlImportMain = new XmlImportMain();
 
-    xmlImportMain.processXml(importfile);
+    xmlImportMain.processXml(importFileXml);
 
     assertEquals(134,xmlImportMain.getTotalImportFileCount());
     
@@ -118,6 +126,23 @@ public class XmlImportMainTest extends GrouperTest {
     assertEquals(0, xmlImportMain.getUpdateCount());
     assertEquals(134, xmlImportMain.getSkipCount());
 
+    //############################
+    //try record report again, should not find anything
+    xmlImportMain = new XmlImportMain();
+    
+    xmlImportMain.setRecordReport(true);
+    
+    xmlImportMain.processXml(importFileXml);
+
+    assertEquals(134,xmlImportMain.getTotalImportFileCount());
+
+    assertTrue(2 < xmlImportMain.getOriginalDbCount());
+
+    assertEquals(0, xmlImportMain.getInsertCount());
+    assertEquals(0, xmlImportMain.getUpdateCount());
+
+    readonlyImportFile = new File(xmlImportMain.getRecordReportFileCanonicalPath());
+    assertTrue(!readonlyImportFile.exists());
     
     GrouperSession.stopQuietly(grouperSession);
     

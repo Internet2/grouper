@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -3072,6 +3073,19 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.setUuid(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("Member: " + this.getUuid() + ", " + this.getSubjectSourceId() + " - " + this.getSubjectId());
+
+//    XmlExportUtils.toStringMember(null, stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
+  }
 
   
 } 

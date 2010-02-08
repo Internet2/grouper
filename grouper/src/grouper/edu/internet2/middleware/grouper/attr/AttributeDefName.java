@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Set;
 
@@ -689,5 +690,18 @@ public class AttributeDefName extends GrouperAPI
     this.setId(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("AttributeDefName: " + this.getId() + ", " + this.getName());
+
+//    XmlExportUtils.toStringAttributeDefName(null, stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
+  }
 
 }

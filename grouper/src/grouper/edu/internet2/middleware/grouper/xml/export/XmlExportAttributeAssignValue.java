@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -379,21 +378,8 @@ public class XmlExportAttributeAssignValue {
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     try {
-                      writer.write("\n    <!-- value: ");
-                      
-                      if (attributeAssignValue.getValueInteger() != null) {
-                        writer.write(attributeAssignValue.getValueInteger().toString());
-                      } else if (!StringUtils.isBlank(attributeAssignValue.getValueMemberId())) {
-                        XmlExportUtils.toStringMember("value", writer, attributeAssignValue.getValueMemberId(), false);
-                      } else if (attributeAssignValue.getValueString() != null) {
-                        writer.write(attributeAssignValue.getValueString());
-                      } else {
-                        writer.write("null");
-                      }
-                      writer.write(", ");
-                      
-                      XmlExportUtils.toStringAttributeAssign(null, writer, attributeAssignValue.getAttributeAssignId(), false);
-
+                      writer.write("\n    <!-- ");
+                      XmlExportUtils.toStringAttributeAssignValue(writer, attributeAssignValue, false);
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {

@@ -380,9 +380,8 @@ public class XmlExportAttributeDefNameSet {
                     try {
                       writer.write("\n    <!-- ");
 
-                      XmlExportUtils.toStringAttributeDefName("ifHas", writer, attributeDefNameSet.getIfHasAttributeDefNameId(), true);
-                      XmlExportUtils.toStringAttributeDefName("thenHas", writer, attributeDefNameSet.getThenHasAttributeDefNameId(), false);
-
+                      XmlExportUtils.toStringAttributeDefNameSet(writer, attributeDefNameSet, false);
+                      
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {

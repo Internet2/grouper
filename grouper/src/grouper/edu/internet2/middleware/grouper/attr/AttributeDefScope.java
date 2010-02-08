@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
@@ -460,6 +461,20 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
    */
   public void xmlSetId(String theId) {
     this.setId(theId);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("AttributeDefScope: " + this.getId() + ", scopeString: " + this.scopeString + ", ");
+
+//    XmlExportUtils.toStringAttributeDef(null, stringWriter, this.getAttributeDefId(), false);
+    
+    return stringWriter.toString();
+    
   }
 
 

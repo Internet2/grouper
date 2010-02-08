@@ -1933,6 +1933,16 @@ public class GrouperUtil {
   public static final String DATE_FORMAT = "yyyyMMdd";
 
   /**
+   * string format of dates for file names
+   */
+  public static final String TIMESTAMP_FILE_FORMAT = "yyyy_MM_dd__HH_mm_ss_SSS";
+
+  /**
+   * timestamp format, make sure to synchronize
+   */
+  final static SimpleDateFormat timestampFileFormat = new SimpleDateFormat(TIMESTAMP_FILE_FORMAT);
+
+  /**
    * string format of dates
    */
   public static final String DATE_FORMAT2 = "yyyy/MM/dd";
@@ -5319,6 +5329,18 @@ public class GrouperUtil {
       return null;
     }
     return timestampFormat.format(timestamp);
+  }
+
+  /**
+   * Convert a timestamp into a string: yyyy/MM/dd HH:mm:ss.SSS
+   * @param timestamp
+   * @return the string representation
+   */
+  public synchronized static String timestampToFileString(Date timestamp) {
+    if (timestamp == null) {
+      return null;
+    }
+    return timestampFileFormat.format(timestamp);
   }
 
   /**

@@ -17,10 +17,14 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -29,13 +33,17 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
@@ -93,7 +101,7 @@ public class XmlExportUtils {
       }
     }
     //see if update properties need work
-    if (xmlImportable.xmlDifferentUpdateProperties(dbObject)) {
+    if (dbObject != null && xmlImportable.xmlDifferentUpdateProperties(dbObject)) {
       update = true;
       xmlImportable.xmlSaveUpdateProperties();
     }
@@ -101,8 +109,14 @@ public class XmlExportUtils {
     //dont increment insert and update, if insert, do that one, else update
     if (insert) {
       xmlImportMain.incrementInsertCount();
+      if (xmlImportMain.isRecordReport()) {
+        xmlImportMain.readonlyWriteLogEntry("Insert: " + xmlImportable.xmlToString() + "\n");
+      }
     } else if (update) {
       xmlImportMain.incrementUpdateCount();
+      if (xmlImportMain.isRecordReport()) {
+        xmlImportMain.readonlyWriteLogEntry("Update: " + xmlImportable.xmlToString() + "\n");
+      }
     } else {
       xmlImportMain.incrementSkipCount();
     }
@@ -159,14 +173,36 @@ public class XmlExportUtils {
    * @param writer 
    * @param typeId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringType(Writer writer, String typeId, boolean includeComma) throws IOException {
-    writer.write("type: ");
-    GroupType groupType = GroupTypeFinder.findByUuid(typeId, true);
-    writer.write(groupType.getName());
-    if (includeComma) {
-      writer.write(", ");
+  public static void toStringType(Writer writer, String typeId, boolean includeComma) {
+    try {
+      writer.write("type: ");
+      GroupType groupType = GroupTypeFinder.findByUuid(typeId, true);
+      writer.write(groupType.getName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with typeId: " + typeId, ioe);
+    }
+  }
+
+  /**
+   * 
+   * @param writer 
+   * @param fieldId
+   * @param includeComma 
+   */
+  public static void toStringField(Writer writer, String fieldId, boolean includeComma) {
+    try {
+      writer.write("field: ");
+      Field field = FieldFinder.findById(fieldId, true);
+      writer.write(field.getName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with fieldId: " + fieldId, ioe);
     }
   }
 
@@ -175,27 +211,40 @@ public class XmlExportUtils {
    * @param writer 
    * @param memberId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringMember(String prefix, Writer writer, String memberId, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("Member: ");
-    } else {
-      writer.write("member: ");
-    }
+  public static void toStringMember(String prefix, Writer writer, String memberId, boolean includeComma) {
     Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true);
-    writer.write(member.getSubjectSourceId());
-    writer.write(" - ");
-    if ("g:gsa".equals(member.getSubjectSourceId())) {
-      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), member.getSubjectIdDb(), true);
-      String groupName = group == null ? member.getSubjectIdDb() : group.getName();
-      writer.write(groupName);
-    } else {
-      writer.write(member.getSubjectId());
-    }
-    if (includeComma) {
-      writer.write(", ");
+    toStringMember(prefix, writer, member, includeComma);
+  }
+
+  /**
+   * @param prefix
+   * @param writer 
+   * @param member
+   * @param includeComma 
+   */
+  public static void toStringMember(String prefix, Writer writer, Member member, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("Member: ");
+      } else {
+        writer.write("member: ");
+      }
+      writer.write(member.getSubjectSourceId());
+      writer.write(" - ");
+      if ("g:gsa".equals(member.getSubjectSourceId())) {
+        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), member.getSubjectIdDb(), true);
+        String groupName = group == null ? member.getSubjectIdDb() : group.getName();
+        writer.write(groupName);
+      } else {
+        writer.write(member.getSubjectId());
+      }
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with member: " + member, ioe);
     }
   }
   
@@ -204,19 +253,56 @@ public class XmlExportUtils {
    * @param writer 
    * @param attributeDefId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringAttributeDef(String prefix, Writer writer, String attributeDefId, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("AttributeDef: ");
-    } else {
-      writer.write("attributeDef: ");
-    }
+  public static void toStringAttributeDef(String prefix, Writer writer, String attributeDefId, boolean includeComma) {
     AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, true);
-    writer.write(attributeDef.getName());
-    if (includeComma) {
-      writer.write(", ");
+    toStringAttributeDef(prefix, writer, attributeDef, includeComma);
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param composite
+   * @param includeComma
+   */
+  public static void toStringComposite(Writer writer, Composite composite, boolean includeComma) {
+    XmlExportUtils.toStringGroup("owner", writer, composite.getFactorOwnerUuid(), true);
+    XmlExportUtils.toStringGroup("left", writer, composite.getLeftFactorUuid(), true);
+    XmlExportUtils.toStringGroup("right", writer, composite.getRightFactorUuid(), includeComma);
+    
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param groupTypeTuple
+   * @param includeComma
+   */
+  public static void toStringGroupTypeTuple(Writer writer, GroupTypeTuple groupTypeTuple, boolean includeComma) {
+    XmlExportUtils.toStringGroup(null, writer, groupTypeTuple.getGroupUuid(), true);
+    XmlExportUtils.toStringType(writer, groupTypeTuple.getTypeUuid(), includeComma);
+  }
+  
+  /**
+   * @param prefix
+   * @param writer 
+   * @param attributeDef
+   * @param includeComma 
+   */
+  public static void toStringAttributeDef(String prefix, Writer writer, AttributeDef attributeDef, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("AttributeDef: ");
+      } else {
+        writer.write("attributeDef: ");
+      }
+      writer.write(attributeDef.getName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with attributeDef: " + attributeDef, ioe);
     }
   }
   
@@ -225,19 +311,67 @@ public class XmlExportUtils {
    * @param writer 
    * @param attributeDefNameId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringAttributeDefName(String prefix, Writer writer, String attributeDefNameId, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("AttributeDefName: ");
-    } else {
-      writer.write("attributeDefName: ");
-    }
+  public static void toStringAttributeDefName(String prefix, Writer writer, String attributeDefNameId, boolean includeComma) {
     AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeDefNameId, true);
-    writer.write(attributeDefName.getName());
-    if (includeComma) {
-      writer.write(", ");
+    toStringAttributeDefName(prefix, writer, attributeDefName, includeComma);
+  }
+  
+
+  /**
+   * 
+   * @param writer
+   * @param roleSet
+   * @param includeComma
+   */
+  public static void toStringRoleSet(Writer writer, RoleSet roleSet, boolean includeComma) {
+//    try {
+
+    XmlExportUtils.toStringRole("ifHas", writer, roleSet.getIfHasRoleId(), true);
+    XmlExportUtils.toStringRole("thenHas", writer, roleSet.getThenHasRoleId(), includeComma);
+
+//    } catch (IOException ioe) {
+//      throw new RuntimeException("Problem with attributeDefNameSet: " + attributeDefNameSet, ioe);
+//    }
+  }
+  
+  /**
+   * 
+   * @param writer
+   * @param attributeDefNameSet
+   * @param includeComma
+   */
+  public static void toStringAttributeDefNameSet(Writer writer, AttributeDefNameSet attributeDefNameSet, boolean includeComma) {
+//    try {
+
+    XmlExportUtils.toStringAttributeDefName("ifHas", writer, attributeDefNameSet.getIfHasAttributeDefNameId(), true);
+    XmlExportUtils.toStringAttributeDefName("thenHas", writer, attributeDefNameSet.getThenHasAttributeDefNameId(), includeComma);
+
+//    } catch (IOException ioe) {
+//      throw new RuntimeException("Problem with attributeDefNameSet: " + attributeDefNameSet, ioe);
+//    }
+  }
+
+  /**
+   * @param prefix
+   * @param writer 
+   * @param attributeDefName
+   * @param includeComma 
+   */
+  public static void toStringAttributeDefName(String prefix, Writer writer, AttributeDefName attributeDefName, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("AttributeDefName: ");
+      } else {
+        writer.write("attributeDefName: ");
+      }
+      writer.write(attributeDefName.getName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with attributeDefName: " + attributeDefName, ioe);
     }
   }
   
@@ -246,21 +380,24 @@ public class XmlExportUtils {
    * @param writer 
    * @param auditTypeId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringAuditType(String prefix, Writer writer, String auditTypeId, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("AuditType: ");
-    } else {
-      writer.write("auditType: ");
-    }
-    AuditType auditType = AuditTypeFinder.find(auditTypeId, true);
-    writer.write(auditType.getAuditCategory());
-    writer.write(" - ");
-    writer.write(auditType.getActionName());
-    if (includeComma) {
-      writer.write(", ");
+  public static void toStringAuditType(String prefix, Writer writer, String auditTypeId, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("AuditType: ");
+      } else {
+        writer.write("auditType: ");
+      }
+      AuditType auditType = AuditTypeFinder.find(auditTypeId, true);
+      writer.write(auditType.getAuditCategory());
+      writer.write(" - ");
+      writer.write(auditType.getActionName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with auditTypeId: " + auditTypeId, ioe);
     }
   }
   
@@ -269,19 +406,22 @@ public class XmlExportUtils {
    * @param writer 
    * @param stemId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringStem(String prefix, Writer writer, String stemId, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("Stem: ");
-    } else {
-      writer.write("stem: ");
-    }
-    Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, true);
-    writer.write(stem.getName());
-    if (includeComma) {
-      writer.write(", ");
+  public static void toStringStem(String prefix, Writer writer, String stemId, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("Stem: ");
+      } else {
+        writer.write("stem: ");
+      }
+      Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, true);
+      writer.write(stem.getName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch(IOException ioe) {
+      throw new RuntimeException("Problem with stemId: " + stemId, ioe);
     }
   }
   
@@ -290,19 +430,22 @@ public class XmlExportUtils {
    * @param writer 
    * @param groupId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringGroup(String prefix, Writer writer, String groupId, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("Group: ");
-    } else {
-      writer.write("group: ");
-    }
-    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    writer.write(group.getName());
-    if (includeComma) {
-      writer.write(", ");
+  public static void toStringGroup(String prefix, Writer writer, String groupId, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("Group: ");
+      } else {
+        writer.write("group: ");
+      }
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
+      writer.write(group.getName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with groupId: " + groupId, ioe);
     }
   }
 
@@ -311,9 +454,8 @@ public class XmlExportUtils {
    * @param writer 
    * @param attributeAssignId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringAttributeAssign(String prefix, Writer writer, String attributeAssignId, boolean includeComma) throws IOException {
+  public static void toStringAttributeAssign(String prefix, Writer writer, String attributeAssignId, boolean includeComma) {
     AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true);
     toStringAttributeAssign(prefix, writer, attributeAssign, includeComma);
   }
@@ -323,38 +465,41 @@ public class XmlExportUtils {
    * @param writer 
    * @param attributeAssign
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringAttributeAssign(String prefix, Writer writer, AttributeAssign attributeAssign, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("AttributeAssign: ");
-    } else {
-      writer.write("attributeAssign: ");
-    }
-    XmlExportUtils.toStringAttributeDefName(null, writer, attributeAssign.getAttributeDefNameId(), true);
-    
-    if (!StringUtils.isBlank(attributeAssign.getOwnerStemId())) {
-      XmlExportUtils.toStringStem(null, writer, attributeAssign.getOwnerStemId(), false);
-    }
-    if (!StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
-      XmlExportUtils.toStringGroup(null, writer, attributeAssign.getOwnerGroupId(), false);
-    }
-    if (!StringUtils.isBlank(attributeAssign.getOwnerMemberId())) {
-      XmlExportUtils.toStringMember(null, writer, attributeAssign.getOwnerMemberId(), false);
-    }
-    if (!StringUtils.isBlank(attributeAssign.getOwnerMembershipId())) {
-      XmlExportUtils.toStringMembership(null, writer, attributeAssign.getOwnerMembershipId(), false);
-    }
-    if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeDefId())) {
-      XmlExportUtils.toStringAttributeDef(null, writer, attributeAssign.getOwnerAttributeDefId(), false);
-    }
-    if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
-      XmlExportUtils.toStringAttributeAssign("attrOn", writer, attributeAssign.getOwnerAttributeAssignId(), false);
-    }
-
-    if (includeComma) {
-      writer.write(", ");
+  public static void toStringAttributeAssign(String prefix, Writer writer, AttributeAssign attributeAssign, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("AttributeAssign: ");
+      } else {
+        writer.write("attributeAssign: ");
+      }
+      XmlExportUtils.toStringAttributeDefName(null, writer, attributeAssign.getAttributeDefNameId(), true);
+      
+      if (!StringUtils.isBlank(attributeAssign.getOwnerStemId())) {
+        XmlExportUtils.toStringStem(null, writer, attributeAssign.getOwnerStemId(), false);
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
+        XmlExportUtils.toStringGroup(null, writer, attributeAssign.getOwnerGroupId(), false);
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerMemberId())) {
+        XmlExportUtils.toStringMember(null, writer, attributeAssign.getOwnerMemberId(), false);
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerMembershipId())) {
+        XmlExportUtils.toStringMembership(null, writer, attributeAssign.getOwnerMembershipId(), false);
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeDefId())) {
+        XmlExportUtils.toStringAttributeDef(null, writer, attributeAssign.getOwnerAttributeDefId(), false);
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
+        XmlExportUtils.toStringAttributeAssign("attrOn", writer, attributeAssign.getOwnerAttributeAssignId(), false);
+      }
+  
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with: " + attributeAssign, ioe);
     }
   }
 
@@ -364,70 +509,145 @@ public class XmlExportUtils {
    * @param writer 
    * @param membershipId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringMembership(String prefix, Writer writer, String membershipId, boolean includeComma) throws IOException {
+  public static void toStringMembership(String prefix, Writer writer, String membershipId, boolean includeComma) {
     Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, true, false);
     toStringMembership(prefix, writer, membership, includeComma);
   }
 
   /**
+   * convert attribute assign value to string
+   * @param writer
+   * @param attributeAssignValue
+   * @param includeComma
+   */
+  public static void toStringAttributeAssignValue(Writer writer, AttributeAssignValue attributeAssignValue, boolean includeComma) {
+    try {
+      writer.write("value: ");
+      
+      if (attributeAssignValue.getValueInteger() != null) {
+        writer.write(attributeAssignValue.getValueInteger().toString());
+      } else if (!StringUtils.isBlank(attributeAssignValue.getValueMemberId())) {
+        XmlExportUtils.toStringMember(null, writer, attributeAssignValue.getValueMemberId(), false);
+      } else if (attributeAssignValue.getValueString() != null) {
+        writer.write(attributeAssignValue.getValueString());
+      } else {
+        writer.write("null");
+      }
+      writer.write(", ");
+      
+      XmlExportUtils.toStringAttributeAssign(null, writer, attributeAssignValue.getAttributeAssignId(), false);
+
+      if (includeComma) {
+        writer.write(", ");
+      }
+      
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with assign value: " + attributeAssignValue, ioe);
+    }
+  }
+  
+  /**
+   * 
+   * @param writer
+   * @param attributeAssignActionSet
+   * @param includeComma
+   */
+  public static void toStringAttributeAssignActionSet(Writer writer, AttributeAssignActionSet attributeAssignActionSet, boolean includeComma) {
+    try {
+      AttributeAssignAction attributeAssignAction = XmlExportUtils
+        .toStringAttributeAssignAction("ifHas", writer, 
+            attributeAssignActionSet.getIfHasAttrAssignActionId(), true);
+      XmlExportUtils
+        .toStringAttributeAssignAction("thenHas", writer, 
+          attributeAssignActionSet.getThenHasAttrAssignActionId(), true);
+      XmlExportUtils
+        .toStringAttributeDef(null, writer, 
+          attributeAssignAction.getAttributeDefId(), false);
+
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with attributeAssignActionSet: " + attributeAssignActionSet, ioe);
+    }
+  }
+  
+  /**
    * @param prefix
    * @param writer 
    * @param membership
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringMembership(String prefix, Writer writer, Membership membership, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("Membership: ");
-    } else {
-      writer.write("membership: ");
-    }
-    if (!StringUtils.isBlank(membership.getOwnerGroupId())) {
-      XmlExportUtils.toStringGroup(null, writer, membership.getOwnerGroupId(), true);
-    }
-    if (!StringUtils.isBlank(membership.getOwnerStemId())) {
-      XmlExportUtils.toStringStem(null, writer, membership.getOwnerStemId(), true);
-    }
-    if (!StringUtils.isBlank(membership.getOwnerAttrDefId())) {
-      XmlExportUtils.toStringAttributeDef(null, writer, membership.getOwnerAttrDefId(), true);
-    }
-    
-    writer.write("field: ");
-    writer.write(membership.getListName());
-    writer.write(", ");
-    XmlExportUtils.toStringMember(null, writer, membership.getMemberUuid(), false);
-
-    if (includeComma) {
+  public static void toStringMembership(String prefix, Writer writer, Membership membership, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("Membership: ");
+      } else {
+        writer.write("membership: ");
+      }
+      if (!StringUtils.isBlank(membership.getOwnerGroupId())) {
+        XmlExportUtils.toStringGroup(null, writer, membership.getOwnerGroupId(), true);
+      }
+      if (!StringUtils.isBlank(membership.getOwnerStemId())) {
+        XmlExportUtils.toStringStem(null, writer, membership.getOwnerStemId(), true);
+      }
+      if (!StringUtils.isBlank(membership.getOwnerAttrDefId())) {
+        XmlExportUtils.toStringAttributeDef(null, writer, membership.getOwnerAttrDefId(), true);
+      }
+      
+      writer.write("field: ");
+      writer.write(membership.getListName());
       writer.write(", ");
+      XmlExportUtils.toStringMember(null, writer, membership.getMemberUuid(), false);
+  
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with membership: " + membership, ioe);
     }
   }
   
-  
+
   /**
    * @param prefix
    * @param writer 
    * @param attributeAssignActionId
    * @param includeComma 
-   * @throws IOException 
    * @return the action
    */
-  public static AttributeAssignAction toStringAttributeAssignAction(String prefix, Writer writer, String attributeAssignActionId, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("Action: ");
-    } else {
-      writer.write("action: ");
-    }
+  public static AttributeAssignAction toStringAttributeAssignAction(String prefix, Writer writer, 
+      String attributeAssignActionId, boolean includeComma) {
     AttributeAssignAction attributeAssignAction = GrouperDAOFactory.getFactory().getAttributeAssignAction()
       .findById(attributeAssignActionId, true);
-    writer.write(attributeAssignAction.getName());
-    if (includeComma) {
-      writer.write(", ");
-    }
+    toStringAttributeAssignAction(prefix, writer, attributeAssignAction, includeComma);
     return attributeAssignAction;
+  }
+
+  /**
+   * @param prefix
+   * @param writer 
+   * @param attributeAssignAction
+   * @param includeComma 
+   */
+  public static void toStringAttributeAssignAction(String prefix, Writer writer, 
+      AttributeAssignAction attributeAssignAction, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("Action: ");
+      } else {
+        writer.write("action: ");
+      }
+      writer.write(attributeAssignAction.getName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with attributeAssignAction: " + attributeAssignAction, ioe);
+    }
   }
 
   /**
@@ -435,19 +655,22 @@ public class XmlExportUtils {
    * @param writer 
    * @param roleId
    * @param includeComma 
-   * @throws IOException 
    */
-  public static void toStringRole(String prefix, Writer writer, String roleId, boolean includeComma) throws IOException {
-    if (!StringUtils.isBlank(prefix)) {
-      writer.write(prefix);
-      writer.write("Role: ");
-    } else {
-      writer.write("role: ");
-    }
-    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), roleId, true);
-    writer.write(group.getName());
-    if (includeComma) {
-      writer.write(", ");
+  public static void toStringRole(String prefix, Writer writer, String roleId, boolean includeComma) {
+    try {
+      if (!StringUtils.isBlank(prefix)) {
+        writer.write(prefix);
+        writer.write("Role: ");
+      } else {
+        writer.write("role: ");
+      }
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), roleId, true);
+      writer.write(group.getName());
+      if (includeComma) {
+        writer.write(", ");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with roleId: " + roleId, ioe);
     }
   }  
   
@@ -466,7 +689,7 @@ public class XmlExportUtils {
    * @param xmlImportMain
    */
   public static void syncImportableMultiple(XmlImportableMultiple xmlImportableMultiple, XmlImportMain xmlImportMain) {
-
+    
     GrouperUtil.substituteStrings(xmlImportMain.getUuidTranslation(), xmlImportableMultiple);
 
     XmlImportableMultiple dbObject = (XmlImportableMultiple)xmlImportableMultiple.xmlRetrieveByIdOrKey(xmlImportMain.getIdsToIgnore());
@@ -491,7 +714,7 @@ public class XmlExportUtils {
       }
     }
     //see if update properties need work
-    if (xmlImportableMultiple.xmlDifferentUpdateProperties(dbObject)) {
+    if (dbObject != null && xmlImportableMultiple.xmlDifferentUpdateProperties(dbObject)) {
       update = true;
       xmlImportableMultiple.xmlSaveUpdateProperties();
     }
@@ -499,8 +722,14 @@ public class XmlExportUtils {
     //dont increment insert and update, if insert, do that one, else update
     if (insert) {
       xmlImportMain.incrementInsertCount();
+      if (xmlImportMain.isRecordReport()) {
+        xmlImportMain.readonlyWriteLogEntry("Insert: " + xmlImportableMultiple.xmlToString() + "\n");
+      }
     } else if (update) {
       xmlImportMain.incrementUpdateCount();
+      if (xmlImportMain.isRecordReport()) {
+        xmlImportMain.readonlyWriteLogEntry("Update: " + xmlImportableMultiple.xmlToString() + "\n");
+      }
     } else {
       xmlImportMain.incrementSkipCount();
     }

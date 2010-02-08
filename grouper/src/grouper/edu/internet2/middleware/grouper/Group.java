@@ -6170,6 +6170,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public void xmlSetId(String theId) {
     this.setId(theId);
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    return "Group: " + this.uuid + ", " + this.name;
+  }
   
+ 
 
 }

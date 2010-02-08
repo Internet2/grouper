@@ -124,7 +124,7 @@ public class XmlUserAuditImport {
                         Element userAudit = path.getCurrent();
                         XmlUserAuditImport.this.importFileVersion = userAudit.attributeValue("version");
                         XmlUserAuditExport.logInfoAndPrintToScreen(
-                            "userAudit import: reading document:            " + GrouperUtil.fileCanonicalPath(importFile) 
+                            "userAudit import: reading document: " + GrouperUtil.fileCanonicalPath(importFile) 
                              + ", version: " + XmlUserAuditImport.this.importFileVersion);
                       }
                       public void onEnd(ElementPath path) {

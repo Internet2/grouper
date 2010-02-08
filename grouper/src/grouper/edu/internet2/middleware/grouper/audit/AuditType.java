@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.audit;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -947,6 +948,18 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned, XmlIm
     xmlExportAuditType.setLabelString08(this.getLabelString08());
     xmlExportAuditType.setLastUpdated(GrouperUtil.dateStringValue(this.getLastUpdatedDb()));
     return xmlExportAuditType;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("AuditType: " + this.getId() + ", " + this.auditCategory + " - " + this.actionName);
+
+    return stringWriter.toString();
+    
   }
 
 }

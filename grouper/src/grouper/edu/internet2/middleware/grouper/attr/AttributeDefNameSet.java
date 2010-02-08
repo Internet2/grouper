@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.attr;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
@@ -370,6 +371,14 @@ public class AttributeDefNameSet extends GrouperAPI
   }
 
   /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return "AttributeDefNameSet: " + this.id;
+  }
+  
+  /**
    * @return depth
    */
   public int getDepth() {
@@ -666,5 +675,18 @@ public class AttributeDefNameSet extends GrouperAPI
     this.setId(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("AttributeDefNameSet: " + this.getId() + ", ");
+
+//    XmlExportUtils.toStringAttributeDefNameSet(stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
+  }
 
 }

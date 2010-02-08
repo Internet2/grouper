@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -523,6 +524,19 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
     this.setId(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("GroupTypeTuple: " + this.getId() + ", ");
+
+//    XmlExportUtils.toStringGroupTypeTuple(stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
+  }
 
 } 
 

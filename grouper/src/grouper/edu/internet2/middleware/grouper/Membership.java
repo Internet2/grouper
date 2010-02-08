@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
@@ -2978,5 +2979,17 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     this.setImmediateMembershipId(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    stringWriter.write("Membership: " + this.getImmediateMembershipId() + ", ");
+    
+//    XmlExportUtils.toStringMembership(null, stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
+  }
 
 }

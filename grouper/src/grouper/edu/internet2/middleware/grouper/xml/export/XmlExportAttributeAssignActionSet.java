@@ -21,8 +21,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -381,16 +379,7 @@ public class XmlExportAttributeAssignActionSet {
                       throws GrouperDAOException {
                     try {
                       writer.write("\n    <!-- ");
-                      AttributeAssignAction attributeAssignAction = XmlExportUtils
-                        .toStringAttributeAssignAction("ifHas", writer, 
-                            attributeAssignActionSet.getIfHasAttrAssignActionId(), true);
-                      XmlExportUtils
-                        .toStringAttributeAssignAction("thenHas", writer, 
-                          attributeAssignActionSet.getThenHasAttrAssignActionId(), true);
-                      XmlExportUtils
-                        .toStringAttributeDef(null, writer, 
-                          attributeAssignAction.getAttributeDefId(), false);
-
+                      XmlExportUtils.toStringAttributeAssignActionSet(writer, attributeAssignActionSet, false);
                       writer.write(" -->\n");
                       return null;
                     } catch (IOException ioe) {

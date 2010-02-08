@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
@@ -471,6 +472,20 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    */
   public void xmlSetId(String theId) {
     this.setId(theId);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("AttributeAssignValue: " + this.getId());
+
+//    XmlExportUtils.toStringAttributeAssignValue(stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
   }
 
 }

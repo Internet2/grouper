@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -899,6 +900,19 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     this.setUuid(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("Composite: " + this.getUuid() + ", ");
+
+//    XmlExportUtils.toStringComposite(stringWriter, this, false);
+    
+    return stringWriter.toString();
+    
+  }
 
 } 
 

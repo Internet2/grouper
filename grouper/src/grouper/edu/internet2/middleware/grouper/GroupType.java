@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -65,7 +66,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddFieldToGroupTypeValidator;
 import edu.internet2.middleware.grouper.validator.DeleteFieldFromGroupTypeValidator;
 import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
-import edu.internet2.middleware.grouper.xml.export.XmlExportGroup;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroupType;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 
@@ -659,6 +659,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @param exceptionIfExists
    * @param updateIfExists 
    * @param changedArray is an array of 1 if you want to know if this method changed anything, else null
+   * @param uuid 
    * @return the field
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
@@ -1305,5 +1306,16 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   }
   
 
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("GroupType: " + this.getUuid() + ", " + this.getName());
+
+    return stringWriter.toString();
+    
+  }
 
 }

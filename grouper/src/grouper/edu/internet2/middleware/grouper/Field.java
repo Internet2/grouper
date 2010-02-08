@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -790,6 +791,17 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
     this.setUuid(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("Field: " + this.getUuid() + ", " + this.getName());
+
+    return stringWriter.toString();
+    
+  }
 
 } // public class Field extends GrouperAPI implements Serializable
 

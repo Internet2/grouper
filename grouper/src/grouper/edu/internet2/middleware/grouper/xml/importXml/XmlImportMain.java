@@ -7,11 +7,16 @@ package edu.internet2.middleware.grouper.xml.importXml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -58,6 +63,19 @@ import edu.internet2.middleware.grouper.xml.export.XmlExportUtils;
  */
 public class XmlImportMain {
 
+  /**
+   * if readonly put a report here
+   */
+  private Writer recordReportWriter = null;
+  
+  /**
+   * if readonly put a report here
+   */
+  private String recordReportFileCanonicalPath = null;
+  
+  /** if doing a readonly report of registry */
+  private boolean recordReport;
+  
   /**
    * @param args
    */
@@ -170,8 +188,59 @@ public class XmlImportMain {
    * @param importFile 
    */
   public void processXml(final File importFile) {
-    processXmlFirstPass(importFile);
-    processXmlSecondPass(importFile);
+    File recordReportFile = null;
+    if (this.recordReport) {
+      String recordReportFileName = "grouperImportRecordReport_" + GrouperUtil.timestampToFileString(new Date()) + ".txt";
+      recordReportFile = new File(recordReportFileName);
+      this.recordReportFileCanonicalPath = GrouperUtil.fileCanonicalPath(recordReportFile);
+      try {
+        this.recordReportWriter = new FileWriter(recordReportFile);
+      } catch (IOException ioe) {
+        throw new RuntimeException("Problem opening file: " 
+            + this.recordReportFileCanonicalPath , ioe);
+      }
+    }
+    try {
+      processXmlFirstPass(importFile);
+      processXmlSecondPass(importFile);
+    } finally {
+      if (this.recordReport) {
+        GrouperUtil.closeQuietly(this.recordReportWriter);
+        if (!StringUtils.isBlank(this.recordReportFileCanonicalPath)) {
+          if (recordReportFile.exists() && recordReportFile.length() > 0) {
+            XmlImportMain.logInfoAndPrintToScreen("Wrote record report log to: " 
+                + this.recordReportFileCanonicalPath);
+          } else {
+            recordReportFile.delete();
+            XmlImportMain.logInfoAndPrintToScreen("There are no inserts or updates " +
+            		"from XML file, registry is in sync");
+          }
+        }
+      }
+    }
+  }
+  
+  
+  /**
+   * @return the readonlyFileCanonicalPath
+   */
+  public String getRecordReportFileCanonicalPath() {
+    return this.recordReportFileCanonicalPath;
+  }
+
+
+  /**
+   * @param entry
+   */
+  public void readonlyWriteLogEntry(String entry) {
+    try {
+      this.recordReportWriter.write(entry);
+      if (entry == null || !entry.endsWith("\n")) {
+        this.recordReportWriter.write("\n");
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Prblem writing entry to file: " + this.recordReportFileCanonicalPath);
+    }
   }
   
   /** parser for file */
@@ -198,7 +267,9 @@ public class XmlImportMain {
    */
   public void processXmlFirstPass(final File importFile) {
   
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+    GrouperTransactionType grouperTransactionType = GrouperTransactionType.NONE;
+    
+    HibernateSession.callbackHibernateSession(grouperTransactionType, 
         AuditControl.WILL_AUDIT, new HibernateHandler() {
   
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -223,7 +294,7 @@ public class XmlImportMain {
                         Element grouperExport = path.getCurrent();
                         XmlImportMain.this.importFileVersion = new GrouperVersion(grouperExport.attributeValue("version"));
                         XmlImportMain.logInfoAndPrintToScreen(
-                            "grouper import: reading document:            " + GrouperUtil.fileCanonicalPath(importFile) 
+                            "grouper import: reading document: " + GrouperUtil.fileCanonicalPath(importFile) 
                              + ", version: " + XmlImportMain.this.importFileVersion);
                       }
                       public void onEnd(ElementPath path) {
@@ -275,6 +346,24 @@ public class XmlImportMain {
     });
   }
   
+  
+  /**
+   * @return the readonly
+   */
+  public boolean isRecordReport() {
+    return this.recordReport;
+  }
+
+
+  
+  /**
+   * @param readonly the readonly to set
+   */
+  public void setRecordReport(boolean readonly) {
+    this.recordReport = readonly;
+  }
+
+
   /**
    * get a db count of exportable rows
    * @return db count
@@ -318,7 +407,9 @@ public class XmlImportMain {
    */
   public void processXmlSecondPass(final File importFile) {
   
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.NONE, 
+    GrouperTransactionType grouperTransactionType = GrouperTransactionType.NONE;
+    
+    HibernateSession.callbackHibernateSession(grouperTransactionType, 
         AuditControl.WILL_AUDIT, new HibernateHandler() {
   
           public Object callback(HibernateHandlerBean hibernateHandlerBean)

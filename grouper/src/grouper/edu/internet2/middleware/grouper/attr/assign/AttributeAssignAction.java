@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -552,5 +553,19 @@ public class AttributeAssignAction extends GrouperAPI
     this.setId(theId);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+
+    stringWriter.write("AttributeAssignAction: " + this.getId() + ", " + this.getName());
+
+//    XmlExportUtils.toStringAttributeAssignAction(null, stringWriter, this.getId(), false);
+    
+    return stringWriter.toString();
+    
+  }
+
 
 }

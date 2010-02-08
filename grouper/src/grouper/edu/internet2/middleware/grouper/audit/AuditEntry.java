@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.audit;
 
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Set;
@@ -1330,6 +1331,20 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
       throw new RuntimeException("Cant find string label: '" + label 
           + "' in audit type: " + auditType.getAuditCategory() + " - " + auditType.getActionName());
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.xml.export.XmlImportableBase#xmlToString()
+   */
+  public String xmlToString() {
+    StringWriter stringWriter = new StringWriter();
+    
+    stringWriter.write("AuditEntry: " + this.getId());
+    
+//    XmlExportUtils.toStringAuditType(null, stringWriter, this.getAuditTypeId(), false);
+    
+    return stringWriter.toString();
+    
   }
 
 }
