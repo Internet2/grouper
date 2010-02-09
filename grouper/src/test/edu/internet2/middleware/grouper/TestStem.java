@@ -96,7 +96,8 @@ public class TestStem extends GrouperTest {
       .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
       .assignName("a:d:r")
       .assignCreateParentStemsIfNotExist(true).save();
-    Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findParentsByGroups(GrouperUtil.toSet(group1, group2));
+    Set<Stem> stems = GrouperDAOFactory.getFactory().getStem()
+      .findParentsByGroups(GrouperUtil.toSet(group1, group2));
     Stem stem1 = StemFinder.findByName(grouperSession, ":", true);
     Stem stem2 = StemFinder.findByName(grouperSession, "a", true);
     Stem stem3 = StemFinder.findByName(grouperSession, "a:b", true);
@@ -108,8 +109,6 @@ public class TestStem extends GrouperTest {
     assertTrue(stems.contains(stem3));
     assertTrue(stems.contains(stem4));
     assertTrue(stems.contains(stem5));
-
-    
   }
   
   public void testRoot() {
