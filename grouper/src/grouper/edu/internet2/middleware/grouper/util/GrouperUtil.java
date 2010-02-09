@@ -102,6 +102,19 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class GrouperUtil {
 
   /**
+   * 
+   * @param number e.g. 12345678
+   * @return the string, e.g. 12,345,678
+   */
+  public static String formatNumberWithCommas(Long number) {
+    if (number == null) {
+      return "null";
+    }
+    DecimalFormat df = new DecimalFormat();
+    return df.format(number);
+  }
+  
+  /**
    * compare null safe
    * @param first
    * @param second

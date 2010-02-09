@@ -5,11 +5,14 @@
 package edu.internet2.middleware.grouper.xml.importXml;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,7 +26,6 @@ import org.dom4j.Element;
 import org.dom4j.ElementHandler;
 import org.dom4j.ElementPath;
 import org.dom4j.io.SAXReader;
-import org.hibernate.Session;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -86,9 +88,6 @@ public class XmlImportMain {
   /** record number we are on */
   private long currentRecordIndex = 0;
   
-  /** grouper's hibernate session */
-  private HibernateSession hibernateSession = null;
-
   /**
    * version of grouper which exported the export file
    */
@@ -149,9 +148,6 @@ public class XmlImportMain {
     return this.skipCount;
   }
 
-  /** session (hib object) */
-  private Session session = null;
-  
   /** count of members/audits/types in import file */
   private long totalImportFileCount = 0;
   
@@ -188,6 +184,26 @@ public class XmlImportMain {
    * @param importFile 
    */
   public void processXml(final File importFile) {
+    String filePath = GrouperUtil.fileCanonicalPath(importFile);
+    processXml(importFile, null, filePath);
+  }
+  
+  /**
+   * @param importString 
+   * 
+   */
+  public void processXml(String importString) {
+    processXml(null, importString, "string");
+  }
+  
+
+  
+  /**
+   * @param string
+   * @param file 
+   * @param filePath 
+   */
+  private void processXml(final File file, final String string, final String filePath) {
     File recordReportFile = null;
     if (this.recordReport) {
       String recordReportFileName = "grouperImportRecordReport_" + GrouperUtil.timestampToFileString(new Date()) + ".txt";
@@ -200,9 +216,24 @@ public class XmlImportMain {
             + this.recordReportFileCanonicalPath , ioe);
       }
     }
+    Reader reader = null;
     try {
-      processXmlFirstPass(importFile);
-      processXmlSecondPass(importFile);
+      
+      if (file != null && string != null) {
+        throw new RuntimeException("Cant have both not null");
+      }
+      if (file == null && string == null) {
+        throw new RuntimeException("Cant have both null");
+      }
+      reader = file != null ? new FileReader(file) : new StringReader(string);
+      
+      processXmlFirstPass(reader, filePath);
+
+      reader = file != null ? new FileReader(file) : new StringReader(string);
+      
+      processXmlSecondPass(reader, filePath);
+    } catch (FileNotFoundException fnfe) {
+      throw new RuntimeException("Cant find file: " + filePath);
     } finally {
       if (this.recordReport) {
         GrouperUtil.closeQuietly(this.recordReportWriter);
@@ -245,6 +276,9 @@ public class XmlImportMain {
   
   /** parser for file */
   private SAXReader reader;
+
+  /** if we are done writing */
+  private boolean done = false;
   
   /**
    * 
@@ -263,9 +297,10 @@ public class XmlImportMain {
   
   /**
    * 
-   * @param importFile 
+   * @param reader 
+   * @param filePath 
    */
-  public void processXmlFirstPass(final File importFile) {
+  private void processXmlFirstPass(final Reader reader, final String filePath) {
   
     GrouperTransactionType grouperTransactionType = GrouperTransactionType.NONE;
     
@@ -276,13 +311,9 @@ public class XmlImportMain {
               throws GrouperDAOException {
   
             SAXReader theReader = null;
-            FileInputStream fileInputStream = null;
             try {
               
               xstream = XmlExportUtils.xstream();
-              
-              XmlImportMain.this.hibernateSession = hibernateHandlerBean.getHibernateSession();
-              XmlImportMain.this.session = hibernateSession.getSession();
               
               theReader = new SAXReader();
               
@@ -294,7 +325,7 @@ public class XmlImportMain {
                         Element grouperExport = path.getCurrent();
                         XmlImportMain.this.importFileVersion = new GrouperVersion(grouperExport.attributeValue("version"));
                         XmlImportMain.logInfoAndPrintToScreen(
-                            "grouper import: reading document: " + GrouperUtil.fileCanonicalPath(importFile) 
+                            "grouper import: reading document: " + filePath
                              + ", version: " + XmlImportMain.this.importFileVersion);
                       }
                       public void onEnd(ElementPath path) {
@@ -324,22 +355,14 @@ public class XmlImportMain {
               XmlExportAuditType.processXmlFirstPass(XmlImportMain.this);
               XmlExportAuditEntry.processXmlFirstPass(XmlImportMain.this);
 
-              fileInputStream = new FileInputStream(importFile);
+              theReader.read(reader);
               
-              theReader.read(fileInputStream);
+              logInfoAndPrintToScreen("XML file contains " + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.totalImportFileCount) + " records");
               
-              logInfoAndPrintToScreen("XML file contains " + XmlImportMain.this.totalImportFileCount + " records");
+              XmlImportMain.this.originalDbCount = XmlImportMain.dbCount();
               
-              XmlImportMain.this.originalDbCount = XmlImportMain.this.dbCount();
-              
-              logInfoAndPrintToScreen("Beginning import: database contains " + XmlImportMain.this.originalDbCount + " records");
-              
-            } catch (FileNotFoundException fnfe) {
-              throw new RuntimeException("Problem reading file: " + GrouperUtil.fileCanonicalPath(importFile), fnfe);
             } catch (DocumentException de) {
-              throw new RuntimeException("Problem reading file: " + GrouperUtil.fileCanonicalPath(importFile), de);
-            } finally {
-              GrouperUtil.closeQuietly(fileInputStream);
+              throw new RuntimeException("Problem reading file: " + filePath, de);
             }
             return null;
           }
@@ -368,7 +391,7 @@ public class XmlImportMain {
    * get a db count of exportable rows
    * @return db count
    */
-  public int dbCount() {
+  public static int dbCount() {
     int total = 0;
     total += XmlExportMember.dbCount();
     total += XmlExportStem.dbCount();
@@ -403,81 +426,133 @@ public class XmlImportMain {
 
   /**
    * 
-   * @param importFile 
+   * @param reader 
+   * @param filePath 
    */
-  public void processXmlSecondPass(final File importFile) {
+  private void processXmlSecondPass(final Reader reader, final String filePath) {
   
-    GrouperTransactionType grouperTransactionType = GrouperTransactionType.NONE;
-    
-    HibernateSession.callbackHibernateSession(grouperTransactionType, 
-        AuditControl.WILL_AUDIT, new HibernateHandler() {
-  
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-  
-            SAXReader theReader = null;
-            FileInputStream fileInputStream = null;
-            try {
-              
-              XmlImportMain.this.hibernateSession = hibernateHandlerBean.getHibernateSession();
-              XmlImportMain.this.session = hibernateSession.getSession();
-              
-              theReader = new SAXReader();
-              
-              XmlImportMain.this.reader = theReader;
-              
-              theReader.addHandler( "/grouperExport", 
-                  new ElementHandler() {
-                      public void onStart(ElementPath path) {
-                        //not much to do
-                      }
-                      public void onEnd(ElementPath path) {
-                        //we done!
-                      }
-                  }
-              );
-              
-              XmlExportMember.processXmlSecondPass(XmlImportMain.this);
-              XmlExportStem.processXmlSecondPass(XmlImportMain.this);
-              XmlExportGroup.processXmlSecondPass(XmlImportMain.this);
-              XmlExportGroupType.processXmlSecondPass(XmlImportMain.this);
-              XmlExportField.processXmlSecondPass(XmlImportMain.this);
-              XmlExportGroupTypeTuple.processXmlSecondPass(XmlImportMain.this);
-              XmlExportComposite.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttribute.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttributeDef.processXmlSecondPass(XmlImportMain.this);
-              XmlExportMembership.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttributeDefName.processXmlSecondPass(XmlImportMain.this);
-              XmlExportRoleSet.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttributeAssignAction.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttributeAssignActionSet.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttributeAssign.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttributeAssignValue.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttributeDefNameSet.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAttributeDefScope.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAuditType.processXmlSecondPass(XmlImportMain.this);
-              XmlExportAuditEntry.processXmlSecondPass(XmlImportMain.this);
-  
-              fileInputStream = new FileInputStream(importFile);
-              
-              theReader.read(fileInputStream);
-              
-              logInfoAndPrintToScreen("Ending import: processed " + XmlImportMain.this.currentRecordIndex + " records");
+    this.done = false;
+    this.currentRecordIndex = 0;
+    Thread thread = null;
+    final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    final SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm");
 
-              long finalDbCount = XmlImportMain.this.dbCount();
-              
-              logInfoAndPrintToScreen("Ending import: database contains " + finalDbCount + " records");
-              logInfoAndPrintToScreen("Ending import: " + XmlImportMain.this.insertCount + " inserts, " 
-                  + XmlImportMain.this.updateCount + " updates, and " + XmlImportMain.this.skipCount + " skipped records");
-              
-            } catch (FileNotFoundException fnfe) {
-              throw new RuntimeException("Problem reading file: " + GrouperUtil.fileCanonicalPath(importFile), fnfe);
-            } catch (DocumentException de) {
-              throw new RuntimeException("Problem reading file: " + GrouperUtil.fileCanonicalPath(importFile), de);
+    final long startTime = System.currentTimeMillis();
+    
+    thread = new Thread(new Runnable() {
+      
+      public void run() {
+        while (true) {
+          //sleep for thirty seconds
+          for (int i=0;i<30;i++) {
+            if (XmlImportMain.this.done) {
+              return;
             }
-            return null;
+            try {
+              Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+              //nothing
+            }
           }
+          if (XmlImportMain.this.done) {
+            return;
+          }
+          
+          //give a status
+          long now = System.currentTimeMillis();
+          int percent = (int)Math.round(((double)XmlImportMain.this.currentRecordIndex*100D)/XmlImportMain.this.totalImportFileCount);
+          
+          long endTime = startTime + (long)((now-startTime) * (100D / percent));
+          
+          XmlImportMain.logInfoAndPrintToScreen(format.format(new Date(now)) + ": completed "
+              + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.currentRecordIndex) + " of " 
+              + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.totalImportFileCount) + " ("
+              + percent + "%) estimated time done: " + estFormat.format(new Date(endTime)));
+        }          
+      }
     });
+    
+    thread.start();
+
+    logInfoAndPrintToScreen(format.format(new Date()) + ": Beginning import: database contains " 
+        + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.originalDbCount) + " records");
+    
+    try {
+      GrouperTransactionType grouperTransactionType = GrouperTransactionType.NONE;
+      
+      HibernateSession.callbackHibernateSession(grouperTransactionType, 
+          AuditControl.WILL_AUDIT, new HibernateHandler() {
+    
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+    
+              SAXReader theReader = null;
+              try {
+                
+                theReader = new SAXReader();
+                
+                XmlImportMain.this.reader = theReader;
+                
+                theReader.addHandler( "/grouperExport", 
+                    new ElementHandler() {
+                        public void onStart(ElementPath path) {
+                          //not much to do
+                        }
+                        public void onEnd(ElementPath path) {
+                          //we done!
+                        }
+                    }
+                );
+                
+                XmlExportMember.processXmlSecondPass(XmlImportMain.this);
+                XmlExportStem.processXmlSecondPass(XmlImportMain.this);
+                XmlExportGroup.processXmlSecondPass(XmlImportMain.this);
+                XmlExportGroupType.processXmlSecondPass(XmlImportMain.this);
+                XmlExportField.processXmlSecondPass(XmlImportMain.this);
+                XmlExportGroupTypeTuple.processXmlSecondPass(XmlImportMain.this);
+                XmlExportComposite.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttribute.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttributeDef.processXmlSecondPass(XmlImportMain.this);
+                XmlExportMembership.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttributeDefName.processXmlSecondPass(XmlImportMain.this);
+                XmlExportRoleSet.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttributeAssignAction.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttributeAssignActionSet.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttributeAssign.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttributeAssignValue.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttributeDefNameSet.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAttributeDefScope.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAuditType.processXmlSecondPass(XmlImportMain.this);
+                XmlExportAuditEntry.processXmlSecondPass(XmlImportMain.this);
+    
+                theReader.read(reader);
+                
+                logInfoAndPrintToScreen("Ending import: processed " + XmlImportMain.this.currentRecordIndex + " records");
+  
+                long finalDbCount = XmlImportMain.dbCount();
+                
+                logInfoAndPrintToScreen("Ending import: database contains " + finalDbCount + " records");
+                logInfoAndPrintToScreen("Ending import: " + XmlImportMain.this.insertCount + " inserts, " 
+                    + XmlImportMain.this.updateCount + " updates, and " + XmlImportMain.this.skipCount + " skipped records");
+                
+              } catch (DocumentException de) {
+                throw new RuntimeException("Problem reading file: " + filePath, de);
+              }
+              return null;
+            }
+      });
+    } finally {
+      this.done = true;
+      if (thread != null) {
+        try {
+          thread.join(2000);
+        } catch (InterruptedException ie) {}
+      }
+
+    }
+    XmlImportMain.logInfoAndPrintToScreen("DONE: " + format.format(new Date()) + ": imported "
+        + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.currentRecordIndex) + " records from: " 
+        + filePath);
   }
 
   /**
@@ -485,6 +560,7 @@ public class XmlImportMain {
    */
   public void incrementCurrentCount() {
     this.currentRecordIndex++;
+    //GrouperUtil.sleep(2000);
   }
 
   /**

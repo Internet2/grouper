@@ -4,12 +4,17 @@
  */
 package edu.internet2.middleware.grouper.xml.export;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
 /**
@@ -17,6 +22,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class XmlExportMain {
 
+  
+  
   /** if comments should be included for foreign keys, note, this slows down the export */
   private boolean includeComments;
   
@@ -89,17 +96,95 @@ public class XmlExportMain {
     
     StringWriter stringWriter = new StringWriter();
     XmlExportMain xmlExportMain = new XmlExportMain();
-    xmlExportMain.writeAllTables(stringWriter);
+    xmlExportMain.writeAllTables(stringWriter, "a string");
     System.out.println(stringWriter);
+  }
+
+  /** if we are done writing */
+  private boolean done = false;
+
+  /** record count is the progress */
+  private long currentRecordIndex = 0;
+
+  /**
+   * 
+   */
+  public void incrementRecordCount() {
+    this.currentRecordIndex++;
+    
+  }
+  
+  /**
+   * 
+   * @param file
+   */
+  public void writeAllTables(File file) {
+    FileWriter fileWriter = null;
+    try {
+      fileWriter = new FileWriter(file);
+      
+      writeAllTables(fileWriter, GrouperUtil.fileCanonicalPath(file));
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem writing to file: " + GrouperUtil.fileCanonicalPath(file), ioe);
+    } finally {
+      GrouperUtil.closeQuietly(fileWriter);
+    }
   }
   
   /**
    * write the xml to a writer
    * @param writer
+   * @param fileName for logging
    */
-  public void writeAllTables(Writer writer) {
+  public void writeAllTables(Writer writer, String fileName) {
     
+    this.done = false;
+    this.currentRecordIndex = 0;
+    Thread thread = null;
+    final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    final SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm");
     try {
+
+      final long totalRecordCount = XmlImportMain.dbCount();
+      final long startTime = System.currentTimeMillis();
+      
+      XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported");
+      
+      thread = new Thread(new Runnable() {
+        
+        public void run() {
+          while (true) {
+            //sleep for thirty seconds
+            for (int i=0;i<30;i++) {
+              if (XmlExportMain.this.done) {
+                return;
+              }
+              try {
+                Thread.sleep(1000);
+              } catch (InterruptedException ie) {
+                //nothing
+              }
+            }
+            if (XmlExportMain.this.done) {
+              return;
+            }
+            
+            //give a status
+            long now = System.currentTimeMillis();
+            int percent = (int)Math.round(((double)XmlExportMain.this.currentRecordIndex*100D)/totalRecordCount);
+            
+            long endTime = startTime + (long)((now-startTime) * (100D / percent));
+            
+            XmlImportMain.logInfoAndPrintToScreen(format.format(new Date(now)) + ": completed "
+                + GrouperUtil.formatNumberWithCommas(XmlExportMain.this.currentRecordIndex) + " of " 
+                + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " ("
+                + percent + "%) estimated time done: " + estFormat.format(new Date(endTime)));
+          }          
+        }
+      });
+      
+      thread.start();
+      
       //note, cant use stax since you cant mix stax and non stax since it wont close elements
       writer.write("<?xml version=\"1.0\" ?>\n<grouperExport");
       GrouperUtil.xmlAttribute(writer, "version", GrouperVersion.GROUPER_VERSION);
@@ -109,11 +194,11 @@ public class XmlExportMain {
 
       XmlExportMember.exportMembers(writer, this);
 
-      XmlExportStem.exportStems(writer);
+      XmlExportStem.exportStems(writer, this);
       
-      XmlExportGroup.exportGroups(writer);
+      XmlExportGroup.exportGroups(writer, this);
       
-      XmlExportGroupType.exportGroupTypes(writer);
+      XmlExportGroupType.exportGroupTypes(writer, this);
 
       XmlExportField.exportFields(writer, this);
 
@@ -123,11 +208,11 @@ public class XmlExportMain {
 
       XmlExportAttribute.exportAttributes(writer, this);
 
-      XmlExportAttributeDef.exportAttributeDefs(writer);
+      XmlExportAttributeDef.exportAttributeDefs(writer, this);
 
       XmlExportMembership.exportMemberships(writer, this);
 
-      XmlExportAttributeDefName.exportAttributeDefNames(writer);
+      XmlExportAttributeDefName.exportAttributeDefNames(writer, this);
 
       XmlExportRoleSet.exportRoleSets(writer, this);
 
@@ -143,7 +228,7 @@ public class XmlExportMain {
 
       XmlExportAttributeDefScope.exportAttributeDefScopes(writer, this);
 
-      XmlExportAuditType.exportAuditTypes(writer);
+      XmlExportAuditType.exportAuditTypes(writer, this);
 
       XmlExportAuditEntry.exportAuditEntries(writer, this);
 
@@ -151,7 +236,18 @@ public class XmlExportMain {
       writer.flush();
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
+    } finally {
+      this.done = true;
+      if (thread != null) {
+        try {
+          thread.join(2000);
+        } catch (InterruptedException ie) {}
+      }
+
     }
+    XmlImportMain.logInfoAndPrintToScreen("DONE: " + format.format(new Date()) + ": exported "
+        + GrouperUtil.formatNumberWithCommas(XmlExportMain.this.currentRecordIndex) + " records to: " + fileName);
+
   }
   
 }

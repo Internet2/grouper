@@ -460,8 +460,9 @@ public class XmlExportGroup {
   /**
    * 
    * @param writer
+   * @param xmlExportMain 
    */
-  public static void exportGroups(final Writer writer) {
+  public static void exportGroups(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the groups
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -489,6 +490,7 @@ public class XmlExportGroup {
               writer.write("    ");
               xmlExportGroup.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

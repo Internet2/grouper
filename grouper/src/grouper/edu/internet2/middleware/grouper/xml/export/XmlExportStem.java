@@ -442,8 +442,9 @@ public class XmlExportStem {
   /**
    * 
    * @param writer
+   * @param xmlExportMain 
    */
-  public static void exportStems(final Writer writer) {
+  public static void exportStems(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -471,6 +472,7 @@ public class XmlExportStem {
               writer.write("    ");
               xmlExportStem.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

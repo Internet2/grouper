@@ -311,6 +311,7 @@ public class XmlExportGroupTypeTuple {
               writer.write("    ");
               xmlExportGroupTypeTuple.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

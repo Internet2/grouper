@@ -393,6 +393,7 @@ public class XmlExportAttributeAssignActionSet {
               writer.write("    ");
               xmlExportAttributeAssignActionSet.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

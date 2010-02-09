@@ -1111,7 +1111,7 @@ public class GrouperCheckConfig {
     checkJar("commons-logging.jar", 131078, "org.apache.commons.logging.impl.AvalonLogger", "1.1.1");
     checkJar("commons-math.jar", 174535, "org.apache.commons.math.distribution.ExponentialDistributionImpl", "1.1");
     checkJar("DdlUtils.jar", 713153, "org.apache.ddlutils.alteration.AddColumnChange", "1.0");
-    checkJar("dom4j.jar", 312668, "org.dom4j.Attribute", "0.1.0");
+    checkJar("dom4j.jar", 730604, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache.jar", 527332, "net.sf.ehcache.bootstrap.BootstrapCacheLoader", "1.4.0");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
     checkJar("hibernate.jar", 3770617, "org.hibernate.action.BulkOperationCleanupAction", "3.2.6.ga");

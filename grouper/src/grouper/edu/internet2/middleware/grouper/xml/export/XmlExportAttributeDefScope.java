@@ -394,6 +394,7 @@ public class XmlExportAttributeDefScope {
               writer.write("    ");
               xmlExportAttributeDefScope.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

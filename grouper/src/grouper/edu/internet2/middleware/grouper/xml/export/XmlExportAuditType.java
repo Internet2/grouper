@@ -438,8 +438,9 @@ public class XmlExportAuditType {
   /**
    * 
    * @param writer
+   * @param xmlExportMain 
    */
-  public static void exportAuditTypes(final Writer writer) {
+  public static void exportAuditTypes(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the audittypes
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -467,6 +468,7 @@ public class XmlExportAuditType {
               writer.write("    ");
               xmlExportAuditType.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

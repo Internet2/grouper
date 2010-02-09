@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
 
 /**
@@ -147,13 +148,15 @@ public class XmlExportMainTest extends GrouperTest {
     attributeDefScope.setScopeString("whatever");
     attributeDefScope.saveOrUpdate();
     
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_type where audit_category = 'exportCategoryTest'");
+    
     AuditType auditType = new AuditType("exportCategoryTest", "exportActionTest", null, "labelString01", "labelString02", "labelString03");
     GrouperDAOFactory.getFactory().getAuditType().saveOrUpdate(auditType);
     AuditTypeFinder.clearCache();
 
     StringWriter stringWriter = new StringWriter();
     XmlExportMain xmlExportMain = new XmlExportMain();
-    xmlExportMain.writeAllTables(stringWriter);
+    xmlExportMain.writeAllTables(stringWriter, "a string");
     
     String xml = stringWriter.toString();
     
@@ -220,8 +223,10 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<auditEntries>"));
     assertTrue(xml, xml.contains("<XmlExportAuditEntry>"));
 
+    stringWriter = new StringWriter();
+    
     xmlExportMain.setIncludeComments(true);
-    xmlExportMain.writeAllTables(stringWriter);
+    xmlExportMain.writeAllTables(stringWriter, "a string");
 
     xml = stringWriter.toString();
     
@@ -283,5 +288,12 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml, xml.contains("<attributeDefScopes>"));
     assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
         
+    
+    //lets try to import this
+    try {
+      new XmlImportMain().processXml(xml); 
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }

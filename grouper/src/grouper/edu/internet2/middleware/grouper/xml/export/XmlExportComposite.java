@@ -388,6 +388,7 @@ public class XmlExportComposite {
               writer.write("    ");
               xmlExportComposite.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

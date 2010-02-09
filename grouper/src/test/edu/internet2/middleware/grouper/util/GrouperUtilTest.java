@@ -31,9 +31,22 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testEncryptSha"));
+    TestRunner.run(new GrouperUtilTest("testFormatNumberWithCommas"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * 
+   */
+  public void testFormatNumberWithCommas() {
+    assertEquals("123", GrouperUtil.formatNumberWithCommas(123L));
+    assertEquals("1,234", GrouperUtil.formatNumberWithCommas(1234L));
+    assertEquals("12,345", GrouperUtil.formatNumberWithCommas(12345L));
+    assertEquals("123,456", GrouperUtil.formatNumberWithCommas(123456L));
+    assertEquals("1,234,567", GrouperUtil.formatNumberWithCommas(1234567L));
+    assertEquals("123,456,789,123,456,789", GrouperUtil.formatNumberWithCommas(123456789123456789L));
+
   }
   
   /**

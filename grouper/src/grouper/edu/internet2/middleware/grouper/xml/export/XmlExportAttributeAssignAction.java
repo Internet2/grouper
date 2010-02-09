@@ -352,6 +352,7 @@ public class XmlExportAttributeAssignAction {
               writer.write("    ");
               xmlExportRoleSet.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

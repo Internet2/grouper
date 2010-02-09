@@ -400,8 +400,9 @@ public class XmlExportAttributeDefName {
   /**
    * 
    * @param writer
+   * @param xmlExportMain 
    */
-  public static void exportAttributeDefNames(final Writer writer) {
+  public static void exportAttributeDefNames(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -429,6 +430,7 @@ public class XmlExportAttributeDefName {
               writer.write("    ");
               xmlExportAttributeDefName.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);

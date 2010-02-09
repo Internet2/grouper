@@ -152,6 +152,7 @@ public class XmlExportMember {
               writer.write("    ");
               xmlExportMember.toXml(grouperVersion, writer);
               writer.write("\n");
+              xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);
