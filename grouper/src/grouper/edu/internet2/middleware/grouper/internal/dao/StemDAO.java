@@ -16,7 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,8 +29,12 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -38,6 +45,24 @@ import edu.internet2.middleware.subject.Subject;
  */
 public interface StemDAO extends GrouperDAO {
 
+  /**
+   * find all stems by name
+   * @param names 
+   * @param exceptionOnNotFound 
+   * @return the stems
+   * @throws StemNotFoundException 
+   */
+  public Set<Stem> findByNames(Collection<String> names, boolean exceptionOnNotFound)
+      throws StemNotFoundException;
+
+  /**
+   * find all parent stems of groups (and grandparents, etc)
+   * @param groups
+   * @return the stems 
+   */
+  public Set<Stem> findParentsByGroups(Collection<Group> groups);
+
+  
   /**
    */
   void createChildAttributeDef(Stem _parent, AttributeDef _child)

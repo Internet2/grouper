@@ -82,6 +82,7 @@ import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -1568,6 +1569,48 @@ public class GrouperUtil {
     int arrraySize = length(collection);
     return batchNumberOfBatches(arrraySize, batchSize);
 
+  }
+
+  /**
+   * if the groups are: a:b:c:d and a:d:r, then return the strings:
+   * :, a, a:b, a:b:c, a:d
+   * 
+   * @param groups
+   * @return the set of stem names
+   */
+  public static Set<String> findParentStemNames(Collection<Group> groups) {
+    Set<String> result = new LinkedHashSet<String>();
+    if (groups == null || groups.size() == 0) {
+      return result;
+    }
+    for (Group group : groups) {
+      String name = group.getName();
+      result.addAll(findParentStemNames(name));
+    }
+    return result;
+  }
+  
+  /**
+   * if the groups are: a:b:c:d, then return the strings:
+   * :, a, a:b, a:b:c
+   * 
+   * @param objectName
+   * @return the set of stem names
+   */
+  public static Set<String> findParentStemNames(String objectName) {
+    Set<String> result = new LinkedHashSet<String>();
+    String currentName = objectName;
+    while(true) {
+      currentName = parentStemNameFromName(currentName);
+      if (isEmpty(currentName)) {
+        //add root
+        result.add(":");
+        break;
+      }
+      result.add(currentName);
+    }
+    
+    return result;
   }
 
   /**

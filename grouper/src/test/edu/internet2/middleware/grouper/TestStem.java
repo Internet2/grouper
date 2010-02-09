@@ -75,7 +75,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testCache"));
+    TestRunner.run(new TestStem("testFindParentStems"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -83,6 +83,35 @@ public class TestStem extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testFindParentStems() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group1 = new GroupSave(grouperSession)
+      .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("a:b:c:d")
+      .assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave(grouperSession)
+      .assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("a:d:r")
+      .assignCreateParentStemsIfNotExist(true).save();
+    Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findParentsByGroups(GrouperUtil.toSet(group1, group2));
+    Stem stem1 = StemFinder.findByName(grouperSession, ":", true);
+    Stem stem2 = StemFinder.findByName(grouperSession, "a", true);
+    Stem stem3 = StemFinder.findByName(grouperSession, "a:b", true);
+    Stem stem4 = StemFinder.findByName(grouperSession, "a:b:c", true);
+    Stem stem5 = StemFinder.findByName(grouperSession, "a:d", true);
+    assertEquals(5, stems.size());
+    assertTrue(stems.contains(stem1));
+    assertTrue(stems.contains(stem2));
+    assertTrue(stems.contains(stem3));
+    assertTrue(stems.contains(stem4));
+    assertTrue(stems.contains(stem5));
+
+    
+  }
+  
   public void testRoot() {
     LOG.info("testRoot");
     Stem  rootA = StemHelper.findRootStem(
