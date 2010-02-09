@@ -26,6 +26,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportGsh;
+import edu.internet2.middleware.grouper.xml.importXml.XmlImportGsh;
 
 /**
  * Grouper Management Shell.
@@ -43,12 +45,18 @@ public class GrouperShell {
   private static Map<String, String> mainLookups = new HashMap<String, String>();
   //TODO config file?
   static {
-	  mainLookups.put("-xmlimport", 
+	  mainLookups.put("-xmlimportold", 
 			  "edu.internet2.middleware.grouper.xml.XmlImporter");
 	  
-	  mainLookups.put("-xmlexport", 
+	  mainLookups.put("-xmlexportold", 
 			  "edu.internet2.middleware.grouper.xml.XmlExporter");
 	  
+    mainLookups.put("-xmlimport", 
+      XmlImportGsh.class.getName());
+
+    mainLookups.put("-xmlexport", 
+      XmlExportGsh.class.getName());
+
 	  mainLookups.put("-test",      
 			  "edu.internet2.middleware.grouper.AllTests");
 	  

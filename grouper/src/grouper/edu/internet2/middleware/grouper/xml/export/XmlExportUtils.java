@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouper.xml.export;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Element;
@@ -53,6 +55,64 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  */
 public class XmlExportUtils {
 
+  /**
+   * 
+   */
+  public static final String FILE_NAME_ARG = "fileName";
+
+  /**
+   * 
+   * @param args
+   * @return true if wants help
+   */
+  public static boolean internal_wantsHelp(String[] args) {
+    if (
+      args.length == 0
+      || 
+      "--h --? /h /? --help /help ${cmd}".indexOf(args[0]) > -1
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param args
+   * @return the map
+   */
+  public static Map<String, Object> internal_getXmlImportArgs(String args[]) {
+    return internal_getXmlExportArgs(args);
+  }
+  
+  /**
+   * 
+   * @param args
+   * @return the map
+   */
+  public static Map<String, Object> internal_getXmlExportArgs(String[] args) {
+    
+    Map<String, Object> argsMap = new HashMap<String, Object>();
+    String      arg;
+    int         pos       = 0;
+    while (pos < args.length) {
+      arg = args[pos];
+      if (arg.startsWith("-")) {
+        String argName = arg.substring(1);
+        argsMap.put(argName, Boolean.TRUE);
+        pos++;
+        continue;
+      }
+      //must be file name
+      if (argsMap.containsKey(FILE_NAME_ARG)) {
+        throw new RuntimeException("Enter only one filename: " + arg + ", " + argsMap.get(FILE_NAME_ARG));
+      }
+      argsMap.put(FILE_NAME_ARG, arg);
+      pos++;
+    }
+    return argsMap;
+  }
+  
   /**
    * 
    * @param element

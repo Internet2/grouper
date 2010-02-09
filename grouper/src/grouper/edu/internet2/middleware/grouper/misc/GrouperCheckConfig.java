@@ -192,7 +192,8 @@ public class GrouperCheckConfig {
       jarFileFullName = jarFile.getCanonicalPath();
       jarFileName = jarFile.getName();
       jarFileSize = jarFile.length();
-      jarVersion = jarVersion(sampleClass);
+      //in case null
+      jarVersion = jarVersion(sampleClass) + "";
       
       if (size == jarFileSize && StringUtils.equals(manifestVersion, jarVersion)
           && StringUtils.equals(name, jarFile.getName())) {

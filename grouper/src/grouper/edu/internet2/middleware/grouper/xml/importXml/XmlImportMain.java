@@ -29,6 +29,8 @@ import org.dom4j.io.SAXReader;
 
 import com.thoughtworks.xstream.XStream;
 
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -535,9 +537,18 @@ public class XmlImportMain {
                 logInfoAndPrintToScreen("Ending import: " + XmlImportMain.this.insertCount + " inserts, " 
                     + XmlImportMain.this.updateCount + " updates, and " + XmlImportMain.this.skipCount + " skipped records");
                 
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.XML_IMPORT, "fileName", 
+                    filePath);
+                auditEntry.setDescription("Imported xml: " + XmlImportMain.this.insertCount + " inserts, " 
+                    + XmlImportMain.this.updateCount + " updates, and " + XmlImportMain.this.skipCount + " skipped records (" 
+                    + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.currentRecordIndex) + " total records), dbRecords: "  + finalDbCount);
+                auditEntry.saveOrUpdate(true);
+
               } catch (DocumentException de) {
                 throw new RuntimeException("Problem reading file: " + filePath, de);
               }
+              
+              
               return null;
             }
       });
