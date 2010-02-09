@@ -38,6 +38,11 @@ public class XmlExportGsh {
   /**
    * 
    */
+  private static final String INCLUDE_COMMENTS_ARG = "includeComments";
+  
+  /**
+   * 
+   */
   private static final String NOPROMPT_ARG = "noprompt";
   /**
    * 
@@ -86,6 +91,10 @@ public class XmlExportGsh {
 
       XmlExportMain xmlExportMain = new XmlExportMain();
       
+      if (Boolean.TRUE.equals(argsMap.get(INCLUDE_COMMENTS_ARG))) {
+        xmlExportMain.setIncludeComments(true);
+      }
+      
       String fileName = (String)argsMap.get(XmlExportUtils.FILE_NAME_ARG);
       
       if (StringUtils.isBlank(fileName)) {
@@ -117,6 +126,7 @@ public class XmlExportGsh {
             + "      [-noprompt] filename"           + GrouperConfig.NL
             + "e.g.  gsh -xmlexport f:/temp/prod.xml"                 + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
+            + "  -includeComments,  Put comments about foreign keys in XML"+ GrouperConfig.NL
             + "  -noprompt,         Do not prompt user to confirm the database that"+ GrouperConfig.NL
             + "                     will be updated"                                + GrouperConfig.NL
             + "  filename,          The file to import"                             + GrouperConfig.NL
