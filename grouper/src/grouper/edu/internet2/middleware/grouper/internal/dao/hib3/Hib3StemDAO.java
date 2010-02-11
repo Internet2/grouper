@@ -17,8 +17,10 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -1299,5 +1302,64 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     		.setString("theUuid", stem.getUuid())
     		.setLong("theLastMembershipChangeDb", stem.getLastMembershipChangeDb()).executeUpdate();
   }
+  
+  /**
+   * find all parent stems by group
+   * @param groups
+   * @return the groups
+   */
+  public Set<Stem> findParentsByGroups(Collection<Group> groups) {
+    Set<String> names = GrouperUtil.findParentStemNames(groups);
+    Set<Stem> stems = findByNames(names, true);
+    return stems;
+  }
+    
+  /** batch size for stems (setable for testing) */
+  static int batchSize = 50;
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findByNames(java.util.Collection, boolean)
+   */
+  public Set<Stem> findByNames(Collection<String> names, boolean exceptionOnNotFound)
+      throws StemNotFoundException {
+    if (names == null) {
+      return null;
+    }
+    Set<Stem> stems = new LinkedHashSet<Stem>();
+    if (GrouperUtil.length(names) == 0) {
+      return stems;
+    }
+    //lets page through these
+    int pages = GrouperUtil.batchNumberOfBatches(names, batchSize);
+
+    for (int i=0; i<pages; i++) {
+      List<String> namePageList = GrouperUtil.batchList(names, batchSize, i);
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select theStem from Stem as theStem "
+          + " where theStem.nameDb in (");
+
+      //add all the uuids
+      byHqlStatic.setCollectionInClause(query, namePageList);
+      query.append(")");
+      Set<Stem> currentList = byHqlStatic.createQuery(query.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByNames")
+        .listSet(Stem.class);
+      if (exceptionOnNotFound && currentList.size() != namePageList.size()) {
+        throw new GroupNotFoundException("Didnt find all names: " + GrouperUtil.toStringForLog(namePageList)
+            + " , " + namePageList.size() + " != " + currentList.size());
+      }
+      
+      //we want to put these in in order...
+      for (String name : namePageList) {
+        name = StringUtils.equals(":", name) ? Stem.ROOT_NAME : name;
+        stems.add(GrouperUtil.retrieveByProperty(currentList, Stem.FIELD_NAME, name));
+      }
+      
+    }
+    return stems;
+  }
+
 } 
 

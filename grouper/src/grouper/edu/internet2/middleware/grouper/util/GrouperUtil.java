@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.util;
 import java.beans.PropertyDescriptor;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -82,6 +83,7 @@ import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -1680,6 +1682,48 @@ public class GrouperUtil {
   }
 
   /**
+   * if the groups are: a:b:c:d and a:d:r, then return the strings:
+   * :, a, a:b, a:b:c, a:d
+   * 
+   * @param groups
+   * @return the set of stem names
+   */
+  public static Set<String> findParentStemNames(Collection<Group> groups) {
+    Set<String> result = new LinkedHashSet<String>();
+    if (groups == null || groups.size() == 0) {
+      return result;
+    }
+    for (Group group : groups) {
+      String name = group.getName();
+      result.addAll(findParentStemNames(name));
+    }
+    return result;
+  }
+  
+  /**
+   * if the groups are: a:b:c:d, then return the strings:
+   * :, a, a:b, a:b:c
+   * 
+   * @param objectName
+   * @return the set of stem names
+   */
+  public static Set<String> findParentStemNames(String objectName) {
+    Set<String> result = new LinkedHashSet<String>();
+    String currentName = objectName;
+    while(true) {
+      currentName = parentStemNameFromName(currentName);
+      if (isEmpty(currentName)) {
+        //add root
+        result.add(":");
+        break;
+      }
+      result.add(currentName);
+    }
+    
+    return result;
+  }
+
+  /**
    * retrieve a batch by 0 index. Will return an array of size batchSize or
    * the remainder. the array will be full of elements. Note, this requires an
    * ordered input (so use linkedhashset not hashset if doing sets)
@@ -2111,7 +2155,8 @@ public class GrouperUtil {
   /**
    * cache the properties read from resource 
    */
-  private static Map<String, Properties> resourcePropertiesCache = new HashMap<String, Properties>();
+  private static GrouperCache<String, Properties> resourcePropertiesCache = new GrouperCache<String, Properties>(
+      GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
 
   /**
    * assign data to a field
@@ -6336,6 +6381,49 @@ public class GrouperUtil {
   }
 
   /**
+   * cache properties
+   */
+  private static GrouperCache<File, Properties> propertiesFromFileCache = new GrouperCache<File,Properties>(
+      GrouperUtil.class.getName() + ".propertiesFromFileCache", 200, false, 300, 300, false);
+  
+  /**
+   * properties from file
+   * @param file
+   * @param useCache
+   * @param exceptionIfNotExist
+   * @return properties
+   */
+  public synchronized static Properties propertiesFromFile(File file, boolean useCache, 
+      boolean exceptionIfNotExist) {
+    Properties properties = null;
+    if (useCache) {
+      properties = propertiesFromFileCache.get(file);
+      if (properties != null) {
+        return properties;
+      }
+    }
+    
+    FileInputStream fileInputStream = null;
+    
+    try {
+      fileInputStream = new FileInputStream(file);
+      properties = new Properties();
+      properties.load(fileInputStream);
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with file: " + file, ioe);
+    } finally {
+      
+      GrouperUtil.closeQuietly(fileInputStream);
+      
+    }
+    
+    if (useCache) {
+      propertiesFromFileCache.put(file, properties);      
+    }
+    return properties;
+  }
+  
+  /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
    * @param useCache 
@@ -6345,9 +6433,9 @@ public class GrouperUtil {
   public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache, 
       boolean exceptionIfNotExist) {
 
-    Properties properties = resourcePropertiesCache.get(resourceName);
+    Properties properties = resourcePropertiesCache == null ? null : resourcePropertiesCache.get(resourceName);
     
-    if (!useCache || !resourcePropertiesCache.containsKey(resourceName)) {
+    if (resourcePropertiesCache == null || !useCache || !resourcePropertiesCache.containsKey(resourceName)) {
   
       properties = new Properties();
 
@@ -6364,7 +6452,7 @@ public class GrouperUtil {
       } finally {
         closeQuietly(inputStream);
 
-        if (useCache) {
+        if (useCache && resourcePropertiesCache != null) {
           resourcePropertiesCache.put(resourceName, properties);
         }
       }

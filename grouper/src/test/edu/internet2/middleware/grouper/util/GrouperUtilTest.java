@@ -57,6 +57,39 @@ public class GrouperUtilTest extends TestCase {
   }
   
   /**
+   * 
+   */
+  public void testParentStemNames() {
+    Set<String> stemNames = GrouperUtil.findParentStemNames("a:b:c:d");
+    assertEquals(4, stemNames.size());
+    assertTrue(stemNames.contains(":"));
+    assertTrue(stemNames.contains("a"));
+    assertTrue(stemNames.contains("a:b"));
+    assertTrue(stemNames.contains("a:b:c"));
+    
+  }
+
+  /**
+   * 
+   */
+  public void testParentStemNames2() {
+    
+    Group group1 = new Group();
+    group1.setNameDb("a:b:c:d");
+    Group group2 = new Group();
+    group2.setNameDb("a:d:r");
+    
+    Set<String> stemNames = GrouperUtil.findParentStemNames(GrouperUtil.toSet(group1, group2));
+    assertEquals(5, stemNames.size());
+    assertTrue(stemNames.contains(":"));
+    assertTrue(stemNames.contains("a"));
+    assertTrue(stemNames.contains("a:b"));
+    assertTrue(stemNames.contains("a:b:c"));
+    assertTrue(stemNames.contains("a:d"));
+    
+  }
+  
+  /**
    * test strip suffix
    */
   public void testStringSuffix() {

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,24 @@ import edu.internet2.middleware.subject.Subject;
  */
 public interface StemDAO extends GrouperDAO {
 
+  /**
+   * find all stems by name
+   * @param names 
+   * @param exceptionOnNotFound 
+   * @return the stems
+   * @throws StemNotFoundException 
+   */
+  public Set<Stem> findByNames(Collection<String> names, boolean exceptionOnNotFound)
+      throws StemNotFoundException;
+
+  /**
+   * find all parent stems of groups (and grandparents, etc)
+   * @param groups
+   * @return the stems 
+   */
+  public Set<Stem> findParentsByGroups(Collection<Group> groups);
+
+  
   /**
    */
   void createChildAttributeDef(Stem _parent, AttributeDef _child)
