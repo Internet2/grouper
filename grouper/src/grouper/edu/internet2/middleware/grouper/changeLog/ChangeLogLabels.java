@@ -207,6 +207,67 @@ public class ChangeLogLabels {
   };
 
   /**
+   * label for attribute def add
+   */
+  public static enum ATTRIBUTE_DEF_ADD implements ChangeLogLabel {
+  
+    /** id of the attribute def */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** stem id */
+    stemId,
+    
+    /** description */
+    description;
+  }
+
+  /** labels for a attribute def update */
+  public static enum ATTRIBUTE_DEF_UPDATE implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** name */
+    name, 
+    
+    /** stem id */
+    stemId,
+    
+    /** description */
+    description,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+    
+    /** new value of the property */
+    propertyNewValue;
+  };
+
+  /**
+   * labels for attribute def delete
+   */
+  public static enum ATTRIBUTE_DEF_DELETE implements ChangeLogLabel {
+    
+    /** id of the attribute def */
+    id,
+    
+    /** name */
+    name,
+    
+    /** stem id */
+    stemId,
+    
+    /** description */
+    description;
+  };
+  
+  /**
    * label for stem add
    */
   public static enum STEM_ADD implements ChangeLogLabel {
@@ -304,7 +365,13 @@ public class ChangeLogLabels {
     groupId,
     
     /** groupName */
-    groupName;
+    groupName,
+    
+    /** member id */
+    memberId,
+    
+    /** field id */
+    fieldId;
   };
 
   /** labels for a membership update */
@@ -365,7 +432,13 @@ public class ChangeLogLabels {
     groupId,
     
     /** groupName */
-    groupName;
+    groupName,
+    
+    /** member id */
+    memberId,
+    
+    /** field id */
+    fieldId;
   };
   
   /**
@@ -395,7 +468,13 @@ public class ChangeLogLabels {
     ownerId,
     
     /** ownerName */
-    ownerName;
+    ownerName,
+    
+    /** member id */
+    memberId,
+    
+    /** field id */
+    fieldId;
   };
   
   /**
@@ -455,6 +534,12 @@ public class ChangeLogLabels {
     ownerId,
     
     /** ownerName */
-    ownerName;
+    ownerName,
+    
+    /** member id */
+    memberId,
+    
+    /** field id */
+    fieldId;
   };
 }

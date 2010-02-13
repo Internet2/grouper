@@ -103,7 +103,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBERSHIP_ADD.sourceId, 
       ChangeLogLabels.MEMBERSHIP_ADD.membershipType, 
       ChangeLogLabels.MEMBERSHIP_ADD.groupId, 
-      ChangeLogLabels.MEMBERSHIP_ADD.groupName)),
+      ChangeLogLabels.MEMBERSHIP_ADD.groupName,
+      ChangeLogLabels.MEMBERSHIP_ADD.memberId,
+      ChangeLogLabels.MEMBERSHIP_ADD.fieldId)),
   
   /**
    * update membership
@@ -130,7 +132,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBERSHIP_DELETE.sourceId, 
       ChangeLogLabels.MEMBERSHIP_DELETE.membershipType, 
       ChangeLogLabels.MEMBERSHIP_DELETE.groupId, 
-      ChangeLogLabels.MEMBERSHIP_DELETE.groupName)),
+      ChangeLogLabels.MEMBERSHIP_DELETE.groupName,
+      ChangeLogLabels.MEMBERSHIP_DELETE.memberId,
+      ChangeLogLabels.MEMBERSHIP_DELETE.fieldId)),
 
   /**
    * add privilege
@@ -143,7 +147,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.PRIVILEGE_ADD.privilegeType, 
       ChangeLogLabels.PRIVILEGE_ADD.ownerType, 
       ChangeLogLabels.PRIVILEGE_ADD.ownerId, 
-      ChangeLogLabels.PRIVILEGE_ADD.ownerName)),
+      ChangeLogLabels.PRIVILEGE_ADD.ownerName,
+      ChangeLogLabels.PRIVILEGE_ADD.memberId,
+      ChangeLogLabels.PRIVILEGE_ADD.fieldId)),
   
   /**
    * update privilege
@@ -169,7 +175,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.PRIVILEGE_DELETE.privilegeType, 
       ChangeLogLabels.PRIVILEGE_DELETE.ownerType, 
       ChangeLogLabels.PRIVILEGE_DELETE.ownerId, 
-      ChangeLogLabels.PRIVILEGE_DELETE.ownerName)),
+      ChangeLogLabels.PRIVILEGE_DELETE.ownerName,
+      ChangeLogLabels.PRIVILEGE_DELETE.memberId,
+      ChangeLogLabels.PRIVILEGE_DELETE.fieldId)),
   /**
    * add group
    */
@@ -194,6 +202,29 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description)),
   
   /**
+   * attribute def add
+   */
+  ATTRIBUTE_DEF_ADD(new ChangeLogType("attributeDef", "addAttributeDef", 
+      ChangeLogLabels.ATTRIBUTE_DEF_ADD.id, ChangeLogLabels.ATTRIBUTE_DEF_ADD.name, 
+      ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId, ChangeLogLabels.ATTRIBUTE_DEF_ADD.description)),
+
+  /**
+   * attribute def update
+   */
+  ATTRIBUTE_DEF_UPDATE(new ChangeLogType("attributeDef", "updateAttributeDef", 
+      ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name, 
+      ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description, 
+      ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyChanged, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyOldValue, 
+      ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.propertyNewValue)),
+  
+  /**
+   * attribute def delete
+   */
+  ATTRIBUTE_DEF_DELETE(new ChangeLogType("attributeDef", "deleteAttributeDef", 
+      ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name, 
+      ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description)),
+
+  /**
    * stem add
    */
   STEM_ADD(new ChangeLogType("stem", "addStem", 
@@ -215,6 +246,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   STEM_DELETE(new ChangeLogType("stem", "deleteStem", 
       ChangeLogLabels.STEM_DELETE.id, ChangeLogLabels.STEM_DELETE.name, ChangeLogLabels.STEM_DELETE.parentStemId,
       ChangeLogLabels.STEM_DELETE.displayName, ChangeLogLabels.STEM_DELETE.description)),
+
   
   /**
    * member change subject

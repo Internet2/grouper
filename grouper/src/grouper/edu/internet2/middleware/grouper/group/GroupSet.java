@@ -14,15 +14,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.MembershipHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
-import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
-import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -284,9 +278,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
-  /** we're using this to save effective memberships onPreSave and onPreDelete so they can be used onPostSave and onPostDelete */
-  private Set<Membership> effectiveMemberships;
-
   /** attr def id for attr def memberships.  this is the member. */
   private String memberAttrDefId;
 
@@ -303,7 +294,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
-    effectiveMemberships = new LinkedHashSet<Membership>();
 
     if (this.createTime == null) {
       this.createTime = System.currentTimeMillis();
@@ -318,21 +308,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     } else {
       this.memberFieldId = Group.getDefaultList().getUuid();
     }
-    
-    // now we need to take care of firing hooks for effective memberships
-    // note that effective membership hooks are also fired on pre and post events on Membership
-    if (this.getDepth() > 0) {
-      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndDepth(this.getMemberGroupId(), Group.getDefaultList(), 0, true);
-      Iterator<Membership> membershipsIter = memberships.iterator();
-      while (membershipsIter.hasNext()) {
-        Membership effectiveMembership = this.internal_createEffectiveMembershipObject(membershipsIter.next());
-        effectiveMemberships.add(effectiveMembership);
-        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
-            MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
-            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
-      }
-    }
   }
   
   /**
@@ -342,22 +317,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
-    
-    // hooks for effective memberships
-    // note that effective membership hooks are also fired on pre and post events on Membership
-    Iterator<Membership> effectiveMembershipsIter = this.effectiveMemberships.iterator();
-    while (effectiveMembershipsIter.hasNext()) {
-      Membership effectiveMembership = effectiveMembershipsIter.next();
-      
-      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
-          MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
-          effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
-
-      //do these second so the right object version is set, and dbVersion is ok
-      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
-          effectiveMembership, Membership.class);
-    }
     
     // take care of effective group sets
     if (this.getDepth() == 1 && this.getMemberGroupId() != null) {
@@ -381,40 +340,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       // update last membership change time
       this.updateLastMembershipChange(this, results);
     }
-    
-    // take care of the changelog
-    Membership.addMembershipAddChangeLogs(effectiveMemberships);
-    
-    this.effectiveMemberships = null;
   }
-  
-  
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  public void onPostDelete(HibernateSession hibernateSession) {
-    super.onPostDelete(hibernateSession);
-    
-    // hooks for effective memberships
-    // note that effective membership hooks are also fired on pre and post events on Membership
-    Iterator<Membership> effectiveMembershipsIter = this.effectiveMemberships.iterator();
-    while (effectiveMembershipsIter.hasNext()) {
-      Membership effectiveMembership = effectiveMembershipsIter.next();
-      
-      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_DELETE, HooksMembershipBean.class, 
-          effectiveMembership, Membership.class);
 
-      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
-          MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipBean.class, 
-          effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE, false, true);
-    }
-    
-    // take care of the changelog
-    Membership.addMembershipDeleteChangeLogs(effectiveMemberships, null);
-    
-    this.effectiveMemberships = null;
-  }
   
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
@@ -422,23 +349,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   @Override
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
-    effectiveMemberships = new LinkedHashSet<Membership>();
 
-    // now we need to take care of firing hooks for effective memberships
-    // note that effective membership hooks are also fired on pre and post events on Membership
-    if (this.getDepth() > 0) {
-      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndDepth(this.getMemberGroupId(), Group.getDefaultList(), 0, true);
-      Iterator<Membership> membershipsIter = memberships.iterator();
-      while (membershipsIter.hasNext()) {
-        Membership effectiveMembership = this.internal_createEffectiveMembershipObject(membershipsIter.next());
-        effectiveMemberships.add(effectiveMembership);
-        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
-            MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipBean.class, 
-            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE, false, false);
-      }
-    }
-    
     // take care of effective group sets
     if (this.getDepth() == 1) {
       Set<GroupSet> groupSetsToDelete = new LinkedHashSet<GroupSet>();
@@ -1047,6 +958,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
    * @param immediateOrCompositeMembership
    * @return membership
    */
+  /*
   public Membership internal_createEffectiveMembershipObject(Membership immediateOrCompositeMembership) {
     Membership effectiveMembership = immediateOrCompositeMembership.clone();
     effectiveMembership.setUuid(immediateOrCompositeMembership.getImmediateMembershipId() + ":" + this.getId());
@@ -1065,6 +977,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     
     return effectiveMembership;
   }
+  */
 
   /**
    * @return group id for the member if the member is a group

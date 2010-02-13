@@ -21,6 +21,9 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttributeDefDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionDelegate;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -221,7 +224,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ASSIGN_TO_ATTRIBUTE_DEF, FIELD_ASSIGN_TO_ATTRIBUTE_DEF_ASSN, FIELD_ASSIGN_TO_EFF_MEMBERSHIP, FIELD_ASSIGN_TO_EFF_MEMBERSHIP_ASSN, 
       FIELD_ASSIGN_TO_GROUP, FIELD_ASSIGN_TO_GROUP_ASSN, FIELD_ASSIGN_TO_IMM_MEMBERSHIP, FIELD_ASSIGN_TO_IMM_MEMBERSHIP_ASSN, 
@@ -338,8 +340,82 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     this.creatorId = GrouperSession.staticGrouperSession(true).getMemberUuid();
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD, 
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.id.name(), this.getUuid(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name(), this.getName(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name(), this.getStemId(),
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.description.name(), this.getDescription()).save();
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_DELETE, 
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id.name(), this.getUuid(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name.name(), this.getName(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId.name(), this.getStemId(),
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description.name(), this.getDescription()).save();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name(),this.getUuid(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(), this.getName(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name(), this.getStemId(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(), this.getDescription()),
+        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_STEM_ID),
+        GrouperUtil.toList(
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name()));   
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    
+    this.dbVersionReset();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+
+    this.dbVersionClear();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    
+    this.dbVersionReset();
+  }
+  
   /**
    * @param creatorId1 the creatorId to set
    */
@@ -1545,5 +1621,38 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
     return stringWriter.toString();
     
   }
+  
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public AttributeDef dbVersion() {
+    return (AttributeDef)this.dbVersion;
+  }
+  
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
 
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
+  
 }

@@ -39,6 +39,10 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
+import edu.internet2.middleware.grouper.internal.dao.FlatAttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.FlatStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
@@ -312,6 +316,26 @@ public abstract class GrouperDAOFactory {
    * @return group set dao
    */
   public abstract GroupSetDAO getGroupSet();
+  
+  /**
+   * @return flat membership dao
+   */
+  public abstract FlatMembershipDAO getFlatMembership();
+
+  /**
+   * @return flat group dao
+   */
+  public abstract FlatGroupDAO getFlatGroup();
+
+  /**
+   * @return flat stem dao
+   */
+  public abstract FlatStemDAO getFlatStem();
+
+  /**
+   * @return flat attribute def dao
+   */
+  public abstract FlatAttributeDefDAO getFlatAttributeDef();
 
 } 
 

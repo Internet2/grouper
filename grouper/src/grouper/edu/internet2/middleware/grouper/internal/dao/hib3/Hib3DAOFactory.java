@@ -37,6 +37,10 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
+import edu.internet2.middleware.grouper.internal.dao.FlatAttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.FlatStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
@@ -208,6 +212,38 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public GroupSetDAO getGroupSet() {
     return new Hib3GroupSetDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getFlatMembership()
+   */
+  @Override
+  public FlatMembershipDAO getFlatMembership() {
+    return new Hib3FlatMembershipDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getFlatGroup()
+   */
+  @Override
+  public FlatGroupDAO getFlatGroup() {
+    return new Hib3FlatGroupDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getFlatStem()
+   */
+  @Override
+  public FlatStemDAO getFlatStem() {
+    return new Hib3FlatStemDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getFlatAttributeDef()
+   */
+  @Override
+  public FlatAttributeDefDAO getFlatAttributeDef() {
+    return new Hib3FlatAttributeDefDAO();
   }
 
   /**
