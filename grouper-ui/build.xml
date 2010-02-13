@@ -87,6 +87,79 @@
 		</antcall>	
 	</target>
 	
+  <!-- make sure grouper dirs are set correctly -->
+  <target name="checkGrouper">
+
+    <available file="${grouper.jar.name}" property="grouper.file.exists" value="true" />
+  
+    <if>
+      <not>
+        <isset property="grouper.file.exists" />
+      </not>      
+      <then>
+        <fail message="Cant find grouper.jar from build.properties entry grouper.jar.name: ${grouper.jar.name}!" /> 
+      </then>
+    </if>
+  
+    <available file="${grouper.lib.dir}/commons-lang.jar" property="grouper.lib.dir.exists" value="true" />
+  
+    <if>
+      <not>
+        <isset property="grouper.lib.dir.exists" />
+      </not>      
+      <then>
+        <fail message="Cant find grouper lib dir jars (e.g. commons-lang.jar) from build.properties entry grouper.lib.dir: ${grouper.lib.dir}!" /> 
+      </then>
+    </if>
+  
+    <available file="${grouper.folder}/conf/grouper.properties" property="grouper.properties.file.exists" value="true" />
+  
+    <if>
+      <not>
+        <isset property="grouper.properties.file.exists" />
+      </not>      
+      <then>
+        <fail message="Cant find grouper conf dir (e.g. grouper.properties) from build.properties entry grouper.conf.dir: ${grouper.conf.dir}!" /> 
+      </then>
+    </if>
+  </target>
+
+
+  <target name="dev" description="copy libs to cvs webapp dir so the app can be run in dev, 
+    not, grouper and grouper-ws libs should not be there, note that if you set your local 
+    tomcat to grouper-ws-home/webapp is should run locally.  Note this should only need 
+    to be done once (unless non grouper jars change)" depends="checkGrouper">
+    <mkdir dir="${basedir}/webapp/WEB-INF/lib" />
+    <delete dir="${basedir}/webapp/WEB-INF/lib" includes="*.jar" />
+    <copy todir="${basedir}/webapp/WEB-INF/lib">
+      <fileset dir="${basedir}/java/lib" includes="*.jar" />
+      <fileset dir="${grouper.lib.dir}/../shibboleth">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${grouper.lib.dir}/../apacheds">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${grouper.lib.dir}/../vt-ldap">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${grouper.lib.dir}/../ldappc">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${grouper.lib.dir}/../jdbcSamples">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${grouper.lib.dir}">
+        <include name="*.jar"/>
+        <!-- this should be a linked source dir -->
+        <exclude name="grouper*.jar"/>
+      </fileset>
+    </copy>
+    <copy todir="${basedir}/webapp/WEB-INF">
+      <fileset file="${dist.home}/${webapp.name}/WEB-INF/web.xml" />
+    </copy>
+  </target>
+
+  
 	<!-- only copy resources - and restart webapp-->
 	<target name="niceres">
 		<antcall target="check-and-fix-tomcat-tasks"/>
@@ -244,7 +317,7 @@
 		<echo message="Copying ui resources to ${webapp.class.folder}/resources"/>
 		<mkdir dir="${webapp.class.folder}/resources"/>
 		<copy todir="${webapp.class.folder}/resources" overwrite="true" filtering="on">
-			<fileset dir="${ui.folder}/resources"/>
+			<fileset dir="${ui.folder}/conf/resources"/>
 		</copy>
 		<!-- If configured call a site specific build script -->
 		<antcall target="-additional-build">
@@ -761,7 +834,9 @@
 <echo>     Generate Javadoc - you must have done a 'default' build previously</echo>
 <echo>13) web</echo>
 <echo>     Copy the docroot to the dist dir</echo>
-<echo>14) exit</echo>
+<echo>14) dev</echo>
+<echo>     Copy libs to webapp dir if running from checkedout directory during development</echo>
+<echo>15) exit</echo>
 <echo>     Exit this menu without executing another target</echo>
 <echo></echo>
 

@@ -60,6 +60,15 @@ function processUrl() {
     //alert("invalid URL, no operation");
   } else {
     var ajaxUrl = '../app/' + urlArgObjectMap.operation;
+    
+    if (typeof urlArgObjectMap.subjectPickerName != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "subjectPickerName=" +  urlArgObjectMap.subjectPickerName;
+    }
+    if (typeof urlArgObjectMap.subjectPickerElementName != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "subjectPickerElementName=" +  urlArgObjectMap.subjectPickerElementName;
+    }
     ajax(ajaxUrl);
   }
 }
@@ -1670,5 +1679,33 @@ function guiSubmitFileForm(event, formJqueryHandle, operation) {
   //$.modal.close(); 
   //$.blockUI();  
   $(formJqueryHandle).ajaxSubmit(options);
+  return false;
+}
+
+/** add a css to the page */
+function guiAddCss(cssUrl) {
+  var linkElement=document.createElement("link");
+  linkElement.rel = "stylesheet";
+  linkElement.type = "text/css";
+  linkElement.href = cssUrl;
+    
+  var headElement = document.getElementsByTagName("head")[0];         
+  headElement.appendChild(linkElement);
+  
+}
+
+/** get the opener or give a friendly error */
+function guiOpener() {
+  if (opener == null) {
+    alert('Error: opener is null, was this screen opened from another application?'); 
+  }
+  return opener;
+}
+
+function guiWindowClose() {
+  if (opener == null) {
+    alert('Error: opener is null, was this screen opened from another application?'); 
+  }
+  window.close();
   return false;
 }

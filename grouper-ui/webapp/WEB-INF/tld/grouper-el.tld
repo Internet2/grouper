@@ -394,6 +394,19 @@
   </tag>
     <function>
     <description>
+      Escapes XML ( ampersand, lessthan, greater than, double quote), and single quote with slash
+    </description>
+    <name>escapeJavascript</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String escapeJavascript(java.lang.String)
+    </function-signature>
+    <example>
+      &lt;a onclick="alert('${grouper:escapeJavascript('somestuff')}'); return false;" ...
+    </example>
+  </function>
+    <function>
+    <description>
       Prints out a message from the nav bundle. String is the key, then boolean
       for if escape HTML,
       and then boolean for if escaping HTML, if single quotes should be

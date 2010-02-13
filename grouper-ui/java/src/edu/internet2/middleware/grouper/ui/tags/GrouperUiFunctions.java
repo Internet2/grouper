@@ -18,6 +18,17 @@ import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 public class GrouperUiFunctions {
 
   /**
+   * Escapes XML ( ampersand, lessthan, greater than, double quote), and single quote with slash
+   * @param input 
+   * @return the escaped string
+   */
+  public static String escapeJavascript(String input) {
+    
+    input = GrouperUiUtils.escapeJavascript(input, true);
+    return input;
+  }
+
+  /**
    * prints out a message, assumes it is there
    * @param key
    * @param escapeHtml (true to escape html)

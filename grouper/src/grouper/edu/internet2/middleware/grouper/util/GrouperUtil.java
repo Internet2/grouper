@@ -104,6 +104,36 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class GrouperUtil {
 
   /**
+   * shorten a set if it is too long
+   * @param <T>
+   * @param theSet
+   * @param maxSize
+   * @return the new set
+   */
+  public static <T> Set<T> setShorten(Set<T> theSet, int maxSize) {
+    
+    if (length(theSet) < maxSize) {
+      return theSet;
+    }
+    
+    //truncate the list
+    Set<T> newList = new LinkedHashSet<T>();
+    int i=0;
+
+    //TODO test this logic
+    for (T t : theSet) {
+      
+      if (i>=maxSize) {
+        break;
+      }
+      
+      newList.add(t);
+      i++;
+    }
+    return newList;
+  }
+  
+  /**
    * 
    * @param number e.g. 12345678
    * @return the string, e.g. 12,345,678
@@ -6390,11 +6420,9 @@ public class GrouperUtil {
    * properties from file
    * @param file
    * @param useCache
-   * @param exceptionIfNotExist
    * @return properties
    */
-  public synchronized static Properties propertiesFromFile(File file, boolean useCache, 
-      boolean exceptionIfNotExist) {
+  public synchronized static Properties propertiesFromFile(File file, boolean useCache) {
     Properties properties = null;
     if (useCache) {
       properties = propertiesFromFileCache.get(file);

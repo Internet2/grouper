@@ -4,6 +4,16 @@
 #Javadoc for the UI and the API
 grouper.folder=../grouper
 
+#if this is not a grouper source dir, might need to reset some of these
+#put the grouper lib dir here
+#note, any grouper*.jars here will be ignored.
+#e.g. from external:   C:/mchyzer/isc/dev/grouper-qs-1.2.0/grouper/lib/grouper
+grouper.lib.dir=${grouper.folder}/lib/grouper
+
+#put the grouper jar dir here
+#e.g. from external:   C:/mchyzer/isc/dev/grouper-qs-1.2.0/grouper/dist/lib/grouper.jar
+grouper.jar.name=${grouper.folder}/dist/lib/grouper.jar
+
 #By default the Grouper API log4j.properties file references a System property
 #grouper.home. Before building / deploying the UI you should ensure that your
 #application server e.g. Tomcat has a System property called grouper.home set*

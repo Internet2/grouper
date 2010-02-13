@@ -22,10 +22,13 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -677,6 +680,33 @@ public class SubjectFinder {
       }
       return null;
     }
+  }
+
+  /**
+   * convert a set of subjects to a set of subject that are in a group
+   * @param grouperSession 
+   * @param subjects to convert to members
+   * @param group that subjects must be in
+   * @param field that they must be in in the group (null will default to eh members list
+   * @param membershipType that they must be in in the group or null for any
+   * @return the subjects in the group (never null)
+   */
+  public static Set<Subject> findBySubjectsInGroup(GrouperSession grouperSession,
+      Set<Subject> subjects, Group group, Field field, MembershipType membershipType) {
+
+    Set<Member> members = MemberFinder.findBySubjectsInGroup(grouperSession, subjects, group, field, membershipType);
+
+    Set<Subject> subjectResults = new LinkedHashSet<Subject>();
+    
+    //convert members to subjects
+    if (GrouperUtil.length(members) != 0) {
+      
+      for (Member member : members) {
+        subjectResults.add(member.getSubject());
+      }
+      
+    }
+    return subjectResults;
   }
 
 }

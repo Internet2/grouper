@@ -29,6 +29,10 @@ public class Misc {
    */
   public void index(HttpServletRequest request, HttpServletResponse response) {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
+        "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
+
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
         "/WEB-INF/grouperUi/templates/misc/index.jsp"));
 

@@ -16,12 +16,15 @@ package edu.internet2.middleware.grouper.ui.tags;
 
 import java.io.IOException;
 
+import javax.enterprise.deploy.model.J2eeApplicationObject;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.strutsel.taglib.utils.EvalHelper;
+
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 /**
  * <pre>
@@ -95,10 +98,18 @@ public class GrouperInfodotTag extends BodyTagSupport {
 
     String altText = StringUtils.trim(TagUtils.navResourceString("groups.infodot.alt"));
 
+    String infodotPath = "grouper/images/infodot.gif";
+    
+    //this handles the html requests and the ajax requests (more important)
+    if (GrouperUiFilter.retrieveHttpServletRequest().getRequestURI().matches("^/[^/]+/grouperUi/.*$")) {
+      infodotPath = "../../" + infodotPath;
+    }
+    
+    
     String result = "<a href=\"#\" class=\"infodotLink\" onclick=\"return grouperHideShow(event, '"
         + this.hideShowHtmlId
         + "');\"><img \n"
-        + "src=\"grouper/images/infodot.gif\" border=\"0\" alt=\""
+        + "src=\"" + infodotPath + "\" border=\"0\" alt=\""
         + altText
         + "\" \n"
         + "class=\"infodotImage\" /></a>";

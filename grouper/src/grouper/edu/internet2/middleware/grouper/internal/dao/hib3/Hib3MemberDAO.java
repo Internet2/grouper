@@ -460,7 +460,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @param subjects to convert to members
    * @param group that subjects must be in
    * @param field that they must be in in the group (null will default to eh members list
-   * @param membershipType that they must be in in the group
+   * @param membershipType that they must be in in the group or null for any
    * @return the members in the group
    * @see MemberDAO#findBySubjectsInGroup(GrouperSession, Set, Group, Field, MembershipType)
    */

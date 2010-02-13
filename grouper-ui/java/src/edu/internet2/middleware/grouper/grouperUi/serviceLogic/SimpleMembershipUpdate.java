@@ -104,6 +104,12 @@ public class SimpleMembershipUpdate {
    */
   public void index(HttpServletRequest request, HttpServletResponse response) {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
+        + GrouperUiUtils.message("simpleMembershipUpdate.title", false) + "'"));
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
+        "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
+
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
         "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateIndex.jsp"));
 

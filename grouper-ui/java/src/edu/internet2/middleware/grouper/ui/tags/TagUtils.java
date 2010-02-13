@@ -113,7 +113,7 @@ public class TagUtils {
     } catch (Exception e) {
       //throw descriptive exception
       throw new RuntimeException("Invalid value: '" + valueString + "' for key '" + key + "' in media properties" +
-          " (or local or locale).  Should be true or false", e);
+          " (or local or locale).  Should be an int", e);
     }
   }
 

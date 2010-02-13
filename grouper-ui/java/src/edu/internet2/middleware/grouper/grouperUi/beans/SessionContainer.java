@@ -1,18 +1,21 @@
 /**
- * @author Kate
+ * @author mchyzer
  * $Id: SessionContainer.java,v 1.2 2009-10-11 22:04:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter.UiSection;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -31,6 +34,16 @@ public class SessionContainer implements Serializable {
    */
   private Subject subjectLoggedIn;
   
+  /** allowed ui sections */
+  private Set<UiSection> allowedUiSections = new HashSet<UiSection>();
+  
+  /**
+   * @return allowed ui sections
+   */
+  public Set<UiSection> getAllowedUiSections() {
+    return this.allowedUiSections;
+  }
+
   /**
    * logged in subject
    * @return the subjectLoggedIn
@@ -81,6 +94,8 @@ public class SessionContainer implements Serializable {
     return sessionContainer;
   }
 
+  
+  
   /**
    * store to session scope
    */

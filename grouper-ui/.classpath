@@ -5,6 +5,9 @@
 	<classpathentry kind="src" path="java/src"/>
 	<classpathentry kind="src" path="java/test"/>
 	<classpathentry kind="src" path="contrib/penn-auth/java/src"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_SOURCE"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_CONF"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="java/lib/commons-validator.jar"/>
 	<classpathentry exported="true" kind="lib" path="java/lib/jakarta-oro.jar"/>
@@ -25,5 +28,5 @@
 	<classpathentry kind="lib" path="java/lib/commons-jexl.jar"/>
 	<classpathentry kind="lib" path="java/lib/opencsv.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper_trunk"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

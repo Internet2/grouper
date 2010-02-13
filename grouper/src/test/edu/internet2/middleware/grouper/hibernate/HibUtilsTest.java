@@ -201,6 +201,17 @@ public class HibUtilsTest extends GrouperTest {
     assertEquals(SubjectTestHelper.SUBJ1_ID, ((Member)GrouperUtil.get(members, 1)).getSubjectId());
     assertEquals(SubjectTestHelper.SUBJ2_ID, ((Member)GrouperUtil.get(members, 2)).getSubjectId());
 
+    Set<Subject> subjectResults = SubjectFinder.findBySubjectsInGroup(grouperSession, subjects, group, null, null);
+    
+    assertEquals(3, subjectResults.size());
+    
+    Subject subject = (Subject)GrouperUtil.get(subjectResults, 0);
+    assertEquals("GrouperSystem", subject.getId());
+    assertEquals("jdbc", subject.getSourceId());
+    
+    assertEquals(SubjectTestHelper.SUBJ1_ID, ((Subject)GrouperUtil.get(subjectResults, 1)).getId());
+    assertEquals(SubjectTestHelper.SUBJ2_ID, ((Subject)GrouperUtil.get(subjectResults, 2)).getId());
+
   }
 
 }

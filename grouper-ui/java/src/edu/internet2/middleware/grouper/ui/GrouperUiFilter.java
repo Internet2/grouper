@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -55,6 +56,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.grouperUi.beans.ContextContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -70,7 +72,6 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Generic filter for ui for grouper (e.g. set hooks context)
@@ -216,49 +217,128 @@ public class GrouperUiFilter implements Filter {
     SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
     
     Subject subjectLoggedIn = sessionContainer.getSubjectLoggedIn();
-
-    if (subjectLoggedIn != null) {
-      return subjectLoggedIn;
-    }
-
     
-    //currently assumes user is in getUserPrincipal
     HttpServletRequest request = retrieveHttpServletRequest();
-    String userIdLoggedIn = request.getRemoteUser();
-    
-    if (StringUtils.isBlank(userIdLoggedIn)) {
-      if (request.getUserPrincipal() != null) {
-        userIdLoggedIn = request.getUserPrincipal().getName();
-      }
-    }
 
-    if (StringUtils.isBlank(userIdLoggedIn)) {
-      userIdLoggedIn = (String)request.getAttribute("REMOTE_USER");
-    }
-    
-    if (StringUtils.isBlank(userIdLoggedIn)) {
-      throw new RuntimeException("Cant find logged in user");
-    }
-    
-    try {
-      try {
-        subjectLoggedIn = SubjectFinder.findById(userIdLoggedIn);
-      } catch (SubjectNotFoundException snfe) {
-        // if not found, then try any identifier
-        subjectLoggedIn = SubjectFinder.findByIdentifier(userIdLoggedIn);
+    UiSection uiSectionForRequest = uiSectionForRequest(request);
+
+    //find out who the user is
+    if (subjectLoggedIn == null) {
+      
+      String userIdLoggedIn = request.getRemoteUser();
+      
+      if (StringUtils.isBlank(userIdLoggedIn)) {
+        if (request.getUserPrincipal() != null) {
+          userIdLoggedIn = request.getUserPrincipal().getName();
+        }
       }
-    } catch (Exception e) {
-      //this is probably a system error...  not a user error
-      throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
+  
+      if (StringUtils.isBlank(userIdLoggedIn)) {
+        userIdLoggedIn = (String)request.getAttribute("REMOTE_USER");
+      }
+  
+      if (StringUtils.isBlank(userIdLoggedIn)) {
+        userIdLoggedIn = request.getRemoteUser();
+      }
+  
+      if (StringUtils.isBlank(userIdLoggedIn)) {
+        userIdLoggedIn = (String)request.getSession().getAttribute("authUser");
+      }      
+      
+      if (StringUtils.isBlank(userIdLoggedIn) && UiSection.ANONYMOUS == uiSectionForRequest) {
+        return null;
+      }
+      
+      if (StringUtils.isBlank(userIdLoggedIn)) {
+        throw new RuntimeException("Cant find logged in user");
+      }
+      
+      try {
+        subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
+      } catch (Exception e) {
+        //this is probably a system error...  not a user error
+        throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
+      }
     }
+    
+    ensureUserAllowedInSection(uiSectionForRequest, subjectLoggedIn);
+    
+    sessionContainer.setSubjectLoggedIn(subjectLoggedIn);
+    
+    return subjectLoggedIn;
+
+  }
+
+  /**
+   * make sure user is allowed in this section
+   * @param uiSection
+   * @param subjectLoggedIn
+   */
+  private static void ensureUserAllowedInSection(UiSection uiSection, Subject subjectLoggedIn) {
+
+    //if the user is allowed in the admin ui, we are all good
+    Set<UiSection> uiSectionsThatAllowThisSection = GrouperUtil.nonNull(uiSection.getUiSectionsThatAllowThisSection());
+    for (UiSection currentSection : uiSectionsThatAllowThisSection) {
+      if (SessionContainer.retrieveFromSession().getAllowedUiSections().contains(currentSection)) {
+        return;
+      }
+    }
+    StringBuilder groups = new StringBuilder();
+    for (UiSection currentSection : uiSectionsThatAllowThisSection) {
+      String mediaKey = currentSection.getMediaKey();
+      if (!StringUtils.isBlank(mediaKey)) {
+        String thisError = requireUiGroup(mediaKey, subjectLoggedIn);
+        if (!StringUtils.isBlank(thisError)) {
+          groups.append(thisError).append(", ");
+        } else {
+          //this means allowed, we are all good
+          groups = new StringBuilder();
+          break;
+        }
+      }
+    }
+    
+    //if there is an error or more, that is bad
+    if (groups.length() > 0) {
+      //strip last comma
+      String groupsString = groups.substring(0,groups.length()-2);
+      String errorsString = GrouperUiUtils.message("ui.error.not.in.required.group", false, true, 
+          GrouperUtil.subjectToString(subjectLoggedIn), groupsString);
+      LOG.error(errorsString);
+      GrouperUiUtils.appendErrorToRequest(errorsString);
+      
+      if (RequestContainer.retrieveFromRequest().isAjaxRequest()) {
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newAlert(
+            GrouperUiUtils.message("simpleMembershipUpdate.notAllowedInUi")));
+        throw new ControllerDone();
+        
+      }
+      //ui request, just throw exception
+      throw new RuntimeException(errorsString);
+      
+    }
+    
+    //keep this in session so we dont have to keep checking
+    SessionContainer.retrieveFromSession().getAllowedUiSections().add(uiSection);
+  }
+  
+  /**
+   * use the media properties key to see if a group is required, then make sure the user is in that group
+   * @param mediaKeyOfGroup
+   * @param subjectLoggedIn
+   * @return the error message group name
+   */
+  private static String requireUiGroup(String mediaKeyOfGroup, Subject subjectLoggedIn) {
     
     //see if member of login group
-    String groupToRequire = TagUtils.mediaResourceString("require.group.for.logins");
+    String groupToRequire = TagUtils.mediaResourceString(mediaKeyOfGroup);
     if (!StringUtils.isBlank(groupToRequire)) {
-
+      
+      GrouperSession grouperSession = null;
+      
       //get a session, close it if you started it
       boolean startedSession = false;
-      grouperSession = null;
       try {
         grouperSession = GrouperSession.staticGrouperSession(false);
         if (grouperSession == null) {
@@ -268,35 +348,145 @@ public class GrouperUiFilter implements Filter {
         if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
           grouperSession = grouperSession.internal_getRootSession();
         }
-        Group group = GroupFinder.findByName(grouperSession, groupToRequire);
+        Group group = GroupFinder.findByName(grouperSession, groupToRequire, true);
         if (!group.hasMember(subjectLoggedIn)) {
-          String error = "User not in ui group: " + groupToRequire + ", " + subjectLoggedIn;
-          LOG.error(error);
-          GrouperUiUtils.appendErrorToRequest(error);
-          GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-          guiResponseJs.addAction(GuiScreenAction.newAlert(
-              GrouperUiUtils.message("simpleMembershipUpdate.notAllowedInUi")));
-          throw new ControllerDone();
           
+          String error = groupToRequire;
+          return error;
         }
-        
-      } catch (ControllerDone cd) {
-        throw cd;
+        return null;
       } catch (Exception e) {
-        throw new RuntimeException("Problem with user: " + userIdLoggedIn + ", " + groupToRequire, e);
+        throw new RuntimeException("Problem with user: " + GrouperUtil.subjectToString(subjectLoggedIn) + ", " + groupToRequire, e);
       } finally {
         if (startedSession) {
           GrouperSession.stopQuietly(grouperSession);
         }
       }
     }
-    
-    sessionContainer.setSubjectLoggedIn(subjectLoggedIn);
-    
-    return subjectLoggedIn;
-
+    return null;
   }
 
+  /**
+   * which UI section we are in
+   */
+  public static enum UiSection {
+    
+    /** doesnt require login yet */
+    ANONYMOUS(null, null),
+
+    /** normal admin ui */
+    ADMIN_UI("require.group.for.logins", null),
+
+    /** simple membership update */
+    SIMPLE_MEMBERSHIP_UPDATE("require.group.for.membershipUpdateLite.logins", GrouperUtil.toSet(ADMIN_UI)),
+    
+    /** subject picker */
+    SUBJECT_PICKER("require.group.for.subjectPicker.logins", GrouperUtil.toSet(ADMIN_UI, SIMPLE_MEMBERSHIP_UPDATE));
+    
+    /** media properties key */
+    private String mediaKey;
+
+    /** set of sections that allow this section */
+    private Set<UiSection> uiSectionsThatAllowThisSection;
+
+    /**
+     * get sections that if allowed in there, you are allowed in here.  includes "this"
+     * @return the sections
+     */
+    public Set<UiSection> getUiSectionsThatAllowThisSection() {
+      if (this.uiSectionsThatAllowThisSection == null) {
+        this.uiSectionsThatAllowThisSection = new LinkedHashSet<UiSection>();
+      }
+      if (!this.uiSectionsThatAllowThisSection.contains(this)) {
+        //insert this in the front of the list
+        Set<UiSection> newSet = new LinkedHashSet<UiSection>();
+        newSet.add(this);
+        newSet.addAll(GrouperUtil.nonNull(this.uiSectionsThatAllowThisSection));
+        this.uiSectionsThatAllowThisSection = newSet;
+      }
+      return this.uiSectionsThatAllowThisSection;
+    }
+    
+    /**
+     * 
+     * @param theMediaKey
+     * @param uiSections 
+     */
+    private UiSection(String theMediaKey, Set<UiSection> uiSections) {
+      this.mediaKey = theMediaKey;
+      this.uiSectionsThatAllowThisSection = uiSections;
+    }
+    
+    /**
+     * getter for media key
+     * @return media key
+     */
+    public String getMediaKey() {
+      return this.mediaKey;
+    }
+    
+  }
+  
+  /**
+   * get the ui section we are in
+   * @param httpServletRequest
+   * @return true if allowed anonymous
+   */
+  private static UiSection uiSectionForRequest(HttpServletRequest httpServletRequest) {
+    String uri = httpServletRequest.getRequestURI();
+    
+    //TODO might want to check the servlet param name from web.xml: ignore
+    if (uri.matches("^/[^/]+/index\\.jsp$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/populateIndex\\.do$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/callLogin\\.do$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/error\\.do$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/logout\\.do$")) {
+      return UiSection.ANONYMOUS;
+    }
+    
+    String operation = null;
+    
+   if (uri.matches("^/[^/]+/grouperUi/appHtml/grouper\\.html$")) {
+      
+      //must be in simple membership update or subject picker
+      operation = httpServletRequest.getParameter("operation");
+      
+      if (StringUtils.isBlank(operation)) {
+        
+        return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
+      }
+      
+    } else if (uri.matches("^/[^/]+/grouperUi/app/[^/]+$")) {
+      
+      //must be in simple membership update or subject picker
+      int lastLastIndex = uri.lastIndexOf('/');
+      operation = uri.substring(lastLastIndex+1);
+    }
+
+    if (!StringUtils.isBlank(operation)) {
+      
+      String theClass = GrouperUtil.prefixOrSuffix(operation, ".", true);
+      if (theClass.equals("Misc") || theClass.startsWith("SimpleMembershipUpdate")) {
+        return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
+      }
+      if (theClass.startsWith("SubjectPicker")) {
+        return UiSection.SUBJECT_PICKER;
+      }
+    }
+
+    //must be admin UI
+    return UiSection.ADMIN_UI;
+    
+  }
+  
   /**
    * 
    */
@@ -318,78 +508,92 @@ public class GrouperUiFilter implements Filter {
       FilterChain filterChain) throws IOException, ServletException {
 
     GrouperRequestWrapper httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) arg0);
-    
-    //servlet will set this...
-    threadLocalServlet.remove();
-    threadLocalRequest.set(httpServletRequest);
-    threadLocalResponse.set((HttpServletResponse) response);
-    threadLocalRequestStartMillis.set(System.currentTimeMillis());
-    
-    httpServletRequest.init();
-    
-    GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
-
-    HttpSession session = httpServletRequest.getSession();
-    
-    String remoteUser = httpServletRequest.getRemoteUser();
-    if (remoteUser == null || remoteUser.length() == 0) {
-      remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
-    }
-
-    HooksContext.clearThreadLocal();
-    
-    GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
-
-    Subject subject = null;
-
-    GrouperSession grouperSession = SessionInitialiser.getGrouperSession(session);
-    
-    if (grouperSession != null) {
-      subject = grouperSession.getSubject();
-    }
-    
-    if (subject == null && !StringUtils.isBlank(remoteUser)) {
-      try {
-        subject = SubjectFinder.findByIdOrIdentifier(remoteUser, true);
-      } catch (Exception e) {
-        //this is not really ok, but cant do much about it
-        String error = "Cant find login subject: " + remoteUser;
-        LOG.error(error, e);
-        throw new RuntimeException(error);
-      }
-    }
-    
-    HooksContext.assignSubjectLoggedIn(subject);
-    
-    //lets add the request, session, and response
-    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_REQUEST, httpServletRequest, false);
-    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, session, false);
-    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
-
-    GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
-        GrouperEngineBuiltin.UI, false, false);
-    
-    grouperContext.setCallerIpAddress(httpServletRequest.getRemoteAddr());
-    
-    GrouperSession rootSession = grouperSession == null ? 
-        GrouperSession.startRootSession(false) : grouperSession.internal_getRootSession();
-    
-    if (subject != null) {
-      //TODO also put this at the login step...
-      Member member = MemberFinder.findBySubject(rootSession, subject, true);
-      
-      grouperContext.setLoggedInMemberId(member.getUuid());
-    }
-
     try {
+      
+      //servlet will set this...
+      threadLocalServlet.remove();
+      threadLocalRequest.set(httpServletRequest);
+      threadLocalResponse.set((HttpServletResponse) response);
+      threadLocalRequestStartMillis.set(System.currentTimeMillis());
+      
+      httpServletRequest.init();
+      
+      String uri = httpServletRequest.getRequestURI();
+      
+      if (uri.matches("^/[^/]+/grouperUi/app/[^/]+$")) {
+        RequestContainer.retrieveFromRequest().setAjaxRequest(true);
+      }
+      
+      GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
+  
+      HttpSession session = httpServletRequest.getSession();
+      
+      HooksContext.clearThreadLocal();
+      
+      GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
+  
+      Subject subject = null;
+  
+      GrouperSession grouperSession = SessionInitialiser.getGrouperSession(session);
+      
+      if (grouperSession != null) {
+        subject = grouperSession.getSubject();
+      }
+      
+      if (subject == null) {
+        subject = retrieveSubjectLoggedIn();
+      }
+      
+      HooksContext.assignSubjectLoggedIn(subject);
+      
+      //lets add the request, session, and response
+      HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_REQUEST, httpServletRequest, false);
+      HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, session, false);
+      HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
+  
+      GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
+          GrouperEngineBuiltin.UI, false, false);
+      
+      grouperContext.setCallerIpAddress(httpServletRequest.getRemoteAddr());
+      
+      GrouperSession rootSession = grouperSession == null ? 
+          GrouperSession.startRootSession(false) : grouperSession.internal_getRootSession();
+      
+      if (subject != null) {
+        //TODO also put this at the login step...
+        Member member = MemberFinder.findBySubject(rootSession, subject, true);
+        
+        grouperContext.setLoggedInMemberId(member.getUuid());
+      }
 
 
       filterChain.doFilter(httpServletRequest, response);
       
-    } catch (RuntimeException re) {
-      GrouperUiUtils.appendErrorToRequest(ExceptionUtils.getFullStackTrace(re));
-      LOG.error(re);
-      throw re;
+    } catch (ControllerDone cd) {
+      //ignore
+    } catch (Throwable t) {      
+      GrouperUiUtils.appendErrorToRequest(ExceptionUtils.getFullStackTrace(t));
+      LOG.error("UI error", t);
+
+      //make a friendly response if not ajax
+      if (!RequestContainer.retrieveFromRequest().isAjaxRequest()) {
+      
+        String msg = t.getMessage();
+        httpServletRequest.setAttribute("seriousError",msg);
+        //for some reason this has to be able the getRequestDispatcher...
+        RequestDispatcher rd = httpServletRequest.getRequestDispatcher("/filterError.do");
+        try {
+          if (!response.isCommitted()) {
+            response.setContentType("text/html");
+            rd.forward(httpServletRequest, response);
+          } else {
+            rd.include(httpServletRequest, response);
+          }
+        }catch(Throwable tt) {
+          LOG.error("Failed to include error page:", tt);
+          ((HttpServletResponse)response).sendError(500);
+        }
+      }      
     } finally {
       sendErrorEmailIfNeeded();
       threadLocalRequest.remove();

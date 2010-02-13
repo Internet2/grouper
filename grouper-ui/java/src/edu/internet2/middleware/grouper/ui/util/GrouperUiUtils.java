@@ -393,6 +393,12 @@ public class GrouperUiUtils {
   /** array for converting HTML to string */
   public static final String[] HTML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
 
+  /** array for converting javascript to string */
+  private static final String[] JAVASCRIPT_REPLACE = new String[]{"&amp;","&lt;","&gt;","\\'","&quot;"};
+
+  /** array for converting javascript to string */
+  private static final String[] JAVASCRIPT_SEARCH = new String[]{"&","<",">","'","\""};
+
   /**
    * get request params (e.g. for logging), in one string, abbreviated
    * @return request params
@@ -446,6 +452,8 @@ public class GrouperUiUtils {
      * find subjects which are members of a group, and return those members.  Do this in few queries
      * since we might run out of bind variables
      * 
+     * NOTE, I DONT THINK IMMEDIATE ONLY AS FALSE WILL WORK, WILL ONLY WORK WITH IMMEDIATE ONLY
+     * 
      * @param grouperSession
      * @param group
      * @param subjects
@@ -467,12 +475,12 @@ public class GrouperUiUtils {
       for (int i=0;i<numberOfBatches;i++) {
         List<Subject> subjectBatch = GrouperUtil.batchList(subjects, 100, i);
         
-  //      select distinct gm.* 
-  //      from grouper_members gm, grouper_memberships gms
-  //      where gm.id = gms.member_id
-  //      and gms.field_id = 'abc' and gms.owner_id = '123'
-  //      and gm.subject_id in ('123','234')
-  //      and mship_type = 'immediate'
+        //      select distinct gm.* 
+        //      from grouper_members gm, grouper_memberships gms
+        //      where gm.id = gms.member_id
+        //      and gms.field_id = 'abc' and gms.owner_id = '123'
+        //      and gm.subject_id in ('123','234')
+        //      and mship_type = 'immediate'
         
         //lets turn the subjects into subjectIds
         Set<String> subjectIds = new LinkedHashSet<String>();
@@ -1546,6 +1554,23 @@ public class GrouperUiUtils {
       return GrouperUtil.replace(input, HTML_SEARCH_NO_SINGLE, HTML_REPLACE_NO_SINGLE);
     }
     return GrouperUtil.replace(input, HTML_REPLACE_NO_SINGLE, HTML_SEARCH_NO_SINGLE);
+    
+  }
+
+  /**
+   * Escapes XML ( ampersand, lessthan, greater than, double quote), and single quote with slash
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the Javascript converted string
+   */
+  public static String escapeJavascript(String input, boolean isEscape) {
+    if (isEscape) {
+      return GrouperUtil.replace(input, JAVASCRIPT_SEARCH, JAVASCRIPT_REPLACE);
+    }
+    return GrouperUtil.replace(input, JAVASCRIPT_REPLACE, JAVASCRIPT_SEARCH);
     
   }
 

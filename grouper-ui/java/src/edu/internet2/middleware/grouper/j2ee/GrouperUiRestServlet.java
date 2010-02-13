@@ -20,6 +20,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -85,6 +86,8 @@ public class GrouperUiRestServlet extends HttpServlet {
       throws ServletException, IOException {
 
     GrouperUiFilter.assignHttpServlet(this);
+    
+    RequestContainer.retrieveFromRequest().setAjaxRequest(true);
     
     List<String> urlStrings = extractUrlStrings(request);
     
@@ -216,12 +219,7 @@ public class GrouperUiRestServlet extends HttpServlet {
     if (!appState.isInitted()) {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.guiSettings", guiSettings));
-      guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
-          + GrouperUiUtils.message("simpleMembershipUpdate.title", false) + "'"));
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
-          "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
-  
+      guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.guiSettings", guiSettings));  
       
       guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.appState.initted", true));
     }
