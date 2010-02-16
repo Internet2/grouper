@@ -120,9 +120,8 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
           break;
         }
         
-        debugMap.put("entityIds." + index, entityId);
         entityId = GrouperKimUtils.translateEntityId(entityId);
-        debugMap.put("grouperGroupIds." + index, entityId);
+        debugMap.put("entityIds." + index, entityId);
 
 
         index++;
@@ -196,11 +195,110 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
   }
 
   /**
+   * Gets the name for the principals with ids in the given List.
+   * 
+   * <p>The resulting Map contains the principalId as the key and the name information as the value.
+   * When fetching names by principal id, the resulting name info contains the entity's name info
+   * as well as the principal's name info.
    * @see org.kuali.rice.kim.service.IdentityService#getDefaultNamesForPrincipalIds(java.util.List)
    */
   public Map<String, KimEntityNamePrincipalNameInfo> getDefaultNamesForPrincipalIds(
-      List<String> arg0) {
-    return null;
+      List<String> principalIds) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getDefaultNamesForPrincipalIds");
+    int principalIdsSize = GrouperClientUtils.length(principalIds);
+    debugMap.put("principalIds.size", principalIdsSize);
+    Map<String, KimEntityNamePrincipalNameInfo> result = new LinkedHashMap<String, KimEntityNamePrincipalNameInfo>();
+    boolean hadException = false;
+
+    try {
+    
+      if (principalIdsSize == 0) {
+        return result;
+      }
+      
+      int index = 0;
+
+      //log some of these
+      for (String principalId : principalIds) {
+        
+        //dont log all...
+        if (index > 20) {
+          break;
+        }
+        
+        principalId = GrouperKimUtils.translatePrincipalId(principalId);
+        debugMap.put("principalIds." + index, principalId);
+
+
+        index++;
+      }
+
+
+      GcGetSubjects gcGetSubjects = new GcGetSubjects();
+      
+      for (String principalId : principalIds) {
+        principalId = GrouperKimUtils.translateEntityId(principalId);
+
+        gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(null,null,principalId));
+        
+      }
+      
+      gcGetSubjects.assignIncludeSubjectDetail(true);
+      
+      WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
+      
+      //we did one assignment, we have one result
+      WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
+      
+      debugMap.put("resultNumberOfSubjects", GrouperClientUtils.length(wsSubjects));
+      
+            //map of subject id to ws subject object just to make sure they are in order
+      Map<String, WsSubject> wsSubjectMap = new LinkedHashMap<String, WsSubject>();
+
+      for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsSubjects, WsSubject.class)) {
+        wsSubjectMap.put(wsSubject.getIdentifierLookup(), wsSubject);
+      }
+
+      index = 0;
+      for (String principalId : principalIds) {
+        
+        WsSubject wsSubject = wsSubjectMap.get(principalId);
+        
+        if (wsSubject == null) {
+          throw new RuntimeException("Cant find subject for principal: " + principalId);
+        }
+        
+        String subjectIdentifier = wsSubject.getIdentifierLookup();
+
+        if (index < 20) {
+          debugMap.put("subjectResult." + index, subjectIdentifier + ", " + wsSubject.getName());
+        }
+        
+        KimEntityNamePrincipalNameInfo kimEntityNamePrincipalNameInfo = GrouperKimUtils.convertWsSubjectToPrincipalNameInfo(
+            wsSubject, wsGetSubjectsResults.getSubjectAttributeNames());
+        
+        if (!StringUtils.equals(principalId, subjectIdentifier)) {
+          throw new RuntimeException("Why is principalId: " + principalId + " not equal to " + subjectIdentifier);
+        }
+        
+        result.put(principalId, kimEntityNamePrincipalNameInfo);
+        index++;
+      }
+      
+      return result;
+
+    } catch (RuntimeException re) {
+      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
+      LOG.error(errorPrefix, re);
+      GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled() && !hadException) {
+        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+      }
+    }
   }
 
   /**
@@ -341,7 +439,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
    * @see org.kuali.rice.kim.service.IdentityService#lookupEntityInfo(java.util.Map, boolean)
    */
   public List<KimEntityInfo> lookupEntityInfo(Map<String, String> arg0, boolean arg1) {
-    return null;
+    throw new RuntimeException("Not implemented");
   }
 
 }

@@ -46,8 +46,12 @@ public class GrouperKimIdentitySourceProperties {
           //we found it
           String nameAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.nameAttribute." + i, true);
           grouperKimIdentitySourceProperties.setNameAttribute(nameAttribute);
+          String identifierAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.identifierAttribute." + i, false);
+          grouperKimIdentitySourceProperties.setIdentifierAttribute(identifierAttribute);
+          
           break;
         }
+        
       }
       grouperKimIdentitySourcePropertiesCache.put(sourceId, grouperKimIdentitySourceProperties);
     }
@@ -59,7 +63,27 @@ public class GrouperKimIdentitySourceProperties {
    */
   private String sourceId;
   
+  /**
+   * identifier attribute
+   */
+  private String identifierAttribute;
   
+  /**
+   * identifier attribute
+   * @return identifier attribute
+   */
+  public String getIdentifierAttribute() {
+    return this.identifierAttribute;
+  }
+
+  /**
+   * identifier attribute
+   * @param identifierAttribute1
+   */
+  public void setIdentifierAttribute(String identifierAttribute1) {
+    this.identifierAttribute = identifierAttribute1;
+  }
+
   /**
    * name attribute from a subject (attribute for subjects in this source which is the name of the subject)
    */

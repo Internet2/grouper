@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityNameInfo;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityNamePrincipalNameInfo;
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
 import org.kuali.rice.kim.bo.types.dto.AttributeSet;
 import org.kuali.rice.kim.bo.types.dto.KimTypeInfo;
@@ -487,5 +488,47 @@ public class GrouperKimUtils {
     }
     return kimEntityId;
   }
+  
+  /**
+   * translate a kim principal id to a grouper subject identifier
+   * @param kimPrincipalId
+   * @return the grouper subject identifier
+   */
+  public static String translatePrincipalId(String kimPrincipalId) {
+    String grouperSubjectIdentifier = GrouperClientUtils.propertiesValue("grouper.kim.kimEntityIdToSubjectIdentifier_" + kimPrincipalId, false);
+    if (!GrouperClientUtils.isBlank(grouperSubjectIdentifier)) {
+      return grouperSubjectIdentifier;
+    }
+    return kimPrincipalId;
+  }
+
+  /**
+     * convert a ws subject to an entity name info
+     * @param wsSubject
+     * @param attributeNames list of names in the 
+     * @return the entity name info
+     */
+    public static KimEntityNamePrincipalNameInfo convertWsSubjectToPrincipalNameInfo(WsSubject wsSubject, String[] attributeNames) {
+  
+      KimEntityNamePrincipalNameInfo kimEntityNamePrincipalNameInfo = new KimEntityNamePrincipalNameInfo();
+
+      //kimEntityNamePrincipalNameInfo.setDefaultEntityName()
+      
+      //NOTE if this isnt here, get from attribute
+      String identifier = wsSubject.getIdentifierLookup();
+      
+  
+      GrouperKimIdentitySourceProperties grouperKimIdentitySourceProperties = GrouperKimIdentitySourceProperties
+        .grouperKimIdentitySourceProperties(wsSubject.getSourceId());
+      
+      if (StringUtils.isBlank(identifier) && grouperKimIdentitySourceProperties != null 
+          && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getIdentifierAttribute()) ) {
+       identifier = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getIdentifierAttribute());
+      }
+      kimEntityNamePrincipalNameInfo.setPrincipalName(identifier);
+  
+      return kimEntityNamePrincipalNameInfo;
+      
+    }
   
 }

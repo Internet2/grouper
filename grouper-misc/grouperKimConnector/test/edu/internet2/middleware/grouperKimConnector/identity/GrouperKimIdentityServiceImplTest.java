@@ -4,13 +4,13 @@
  */
 package edu.internet2.middleware.grouperKimConnector.identity;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityNameInfo;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityNamePrincipalNameInfo;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -52,7 +52,7 @@ public class GrouperKimIdentityServiceImplTest extends GrouperTest {
   public static void main(String[] args) {
     
     //TestRunner.run(GrouperKimIdentityServiceImplTest.class);
-    TestRunner.run(new GrouperKimIdentityServiceImplTest("testGetDirectGroupIdsForPrincipal"));
+    TestRunner.run(new GrouperKimIdentityServiceImplTest("testGetDefaultNamesForPrincipalIds"));
   }
 
   /**
@@ -69,6 +69,8 @@ public class GrouperKimIdentityServiceImplTest extends GrouperTest {
     String[] attributeNameArray = GrouperUtil.nonNull(GrouperUtil.splitTrim(attributeNamesString, ","), String.class);
     assertTrue(attributeNamesString + ", NOTE, for this to work, you need this in grouper-ws.properties: "
       + " ws.subject.result.detail.attribute.names = lfname", ArrayUtils.contains(attributeNameArray, "lfname"));
+    assertTrue(attributeNamesString + ", NOTE, for this to work, you need this in grouper-ws.properties: "
+        + " ws.subject.result.detail.attribute.names = loginid", ArrayUtils.contains(attributeNameArray, "loginid"));
     
     this.grouperSession = GrouperSession.startRootSession();
   
@@ -97,7 +99,7 @@ public class GrouperKimIdentityServiceImplTest extends GrouperTest {
   /**
    * 
    */
-  public void testGetDirectGroupIdsForPrincipal() {
+  public void testGetDefaultNamesForEntityIds() {
     
     
     
@@ -111,6 +113,25 @@ public class GrouperKimIdentityServiceImplTest extends GrouperTest {
     KimEntityNameInfo kimEntityNameInfo1 = kimNameMap.get("test.subject.1");
 
     assertEquals("name.test.subject.1", kimEntityNameInfo1.getFormattedName());
+  }
+  
+  /**
+   * 
+   */
+  public void testGetDefaultNamesForPrincipalIds() {
+    
+    
+    
+    Map<String, KimEntityNamePrincipalNameInfo> kimNameMap = new GrouperKimIdentityServiceImpl()
+      .getDefaultNamesForPrincipalIds(GrouperClientUtils.toList("id.test.subject.0", "id.test.subject.1"));
+  
+    KimEntityNamePrincipalNameInfo kimEntityNamePrincipalNameInfo0 = kimNameMap.get("id.test.subject.0");
+    
+    assertEquals("id.test.subject.0", kimEntityNamePrincipalNameInfo0.getPrincipalName());
+    
+    KimEntityNamePrincipalNameInfo kimEntityNamePrincipalNameInfo1 = kimNameMap.get("id.test.subject.1");
+
+    assertEquals("id.test.subject.1", kimEntityNamePrincipalNameInfo1.getPrincipalName());
   }
   
 }
