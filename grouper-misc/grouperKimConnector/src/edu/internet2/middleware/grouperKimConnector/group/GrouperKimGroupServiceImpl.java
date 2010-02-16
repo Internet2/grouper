@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperKimConnector.groupUpdate.GrouperKimGroupUpdateServiceImpl;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
 
 
@@ -48,7 +49,7 @@ import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
  * https://test.kuali.org/rice/rice-api-1.0-javadocs/org/kuali/rice/kim/service/GroupService.html
  * </pre>
  */
-public class GrouperKimGroupServiceImpl implements GroupService {
+public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl implements GroupService {
 
   /**
    * logger
@@ -101,6 +102,9 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     debugMap.put("operation", "getDirectMemberGroupIds");
     debugMap.put("groupId", groupId);
     
+    groupId = GrouperKimUtils.translateGroupId(groupId);
+    debugMap.put("grouperGroupId", groupId);
+
     return getMemberIdsHelper(groupId, new String[]{"g:gsa"}, 
         WsMemberFilter.Immediate, debugMap);
   }
@@ -122,7 +126,10 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getDirectMemberPrincipalIds");
     debugMap.put("groupId", groupId);
-    
+    groupId = GrouperKimUtils.translateGroupId(groupId);
+    debugMap.put("grouperGroupId", groupId);
+
+
     return getMemberIdsHelper(groupId, GrouperKimUtils.subjectSourceIds(), 
         WsMemberFilter.Immediate, debugMap);
   }
@@ -144,6 +151,9 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getDirectParentGroupIds");
     debugMap.put("groupId", groupId);
+    groupId = GrouperKimUtils.translateGroupId(groupId);
+    debugMap.put("grouperGroupId", groupId);
+
 
     String stemName = GrouperKimUtils.kimStem();
 
@@ -343,13 +353,14 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     int groupIdsSize = GrouperClientUtils.length(groupIds);
     debugMap.put("groupIds.size", groupIdsSize);
     Map<String, GroupInfo> result = new LinkedHashMap<String, GroupInfo>();
-    if (groupIdsSize == 0) {
-      return result;
-    }
     boolean hadException = false;
     
     try {
       
+      if (groupIdsSize == 0) {
+        return result;
+      }
+
       int index = 0;
       
       //log some of these
@@ -361,7 +372,10 @@ public class GrouperKimGroupServiceImpl implements GroupService {
         }
         
         debugMap.put("groupIds." + index, groupId);
-        
+        groupId = GrouperKimUtils.translateGroupId(groupId);
+        debugMap.put("grouperGroupIds." + index, groupId);
+
+
         index++;
       }
 
@@ -372,6 +386,8 @@ public class GrouperKimGroupServiceImpl implements GroupService {
       }
       
       for (String groupId : groupIds) {
+        groupId = GrouperKimUtils.translateGroupId(groupId);
+
         gcFindGroups.addGroupUuid(groupId);
       }
       
@@ -448,13 +464,18 @@ public class GrouperKimGroupServiceImpl implements GroupService {
         }
         
         debugMap.put("groupIds." + index, groupId);
-        
+        groupId = GrouperKimUtils.translateGroupId(groupId);
+        debugMap.put("grouperGroupIds." + index, groupId);
+
+
         index++;
       }
       
       GcGetMemberships gcGetMemberships = new GcGetMemberships();
       
       for (String groupId : groupIds) {
+        groupId = GrouperKimUtils.translateGroupId(groupId);
+
         gcGetMemberships.addGroupUuid(groupId);
       }
       
@@ -746,6 +767,9 @@ public class GrouperKimGroupServiceImpl implements GroupService {
             
       debugMap.put("groupId", groupId);
 
+      groupId = GrouperKimUtils.translateGroupId(groupId);
+      debugMap.put("grouperGroupId", groupId);
+
       gcGetMembers.addGroupUuid(groupId);
       
       int sourceIdsLength = GrouperClientUtils.length(sourceIds);
@@ -835,6 +859,9 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getParentGroupIds");
     debugMap.put("groupId", groupId);
+    groupId = GrouperKimUtils.translateGroupId(groupId);
+    debugMap.put("grouperGroupId", groupId);
+
 
     String stemName = GrouperKimUtils.kimStem();
 
@@ -888,7 +915,10 @@ public class GrouperKimGroupServiceImpl implements GroupService {
     debugMap.put("wsMemberFilter", wsMemberFilter == null ? null : wsMemberFilter.name());
     
     try {
-      
+    
+      groupId = GrouperKimUtils.translateGroupId(groupId);
+      debugMap.put("grouperGroupId", groupId);
+
       GcHasMember gcHasMember = new GcHasMember();
       
       gcHasMember.assignGroupUuid(groupId);

@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityNameInfo;
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
 import org.kuali.rice.kim.bo.types.dto.AttributeSet;
 import org.kuali.rice.kim.bo.types.dto.KimTypeInfo;
@@ -24,12 +26,91 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
+import edu.internet2.middleware.grouperKimConnector.identity.GrouperKimIdentitySourceProperties;
 
 
 /**
  * utility methods for grouper kim integration
  */
 public class GrouperKimUtils {
+
+  /**
+   * get the first name from the name.  If the name has a space, do stuff before first space
+   * note, if there is only one name, that goes in the last name with blank first name
+   * @param name
+   * @return the first name
+   */
+  public static String firstName(String name) {
+    if (StringUtils.isBlank(name)) {
+      return name;
+    }
+    name = name.trim();
+    int spaceIndex = name.indexOf(' ');
+    if (spaceIndex == -1) {
+      // note, if there is only one name, that goes in the last name with blank first name
+      return null;
+    }
+    return name.substring(0,spaceIndex);
+  }
+  
+  /**
+   * get the last name from the name.  If the name has a space, do stuff after last space
+   * @param name
+   * @return the last name
+   */
+  public static String lastName(String name) {
+    if (StringUtils.isBlank(name)) {
+      return name;
+    }
+    name = name.trim();
+    int spaceIndex = name.lastIndexOf(' ');
+    if (spaceIndex == -1) {
+      // note, if there is only one name, that goes in the last name with blank first name
+      return name;
+    }
+    return name.substring(spaceIndex+1,name.length());
+  }
+  
+  /**
+   * get the middle name from the name.  If the name has two spaces, do stuff between the first and last names
+   * note this isnt precise, e.g. someone could have a spac in the last name
+   * @param name
+   * @return the last name
+   */
+  public static String middleName(String name) {
+    if (StringUtils.isBlank(name)) {
+      return name;
+    }
+    name = name.trim();
+    int spaceIndex = name.indexOf(' ');
+    if (spaceIndex == -1) {
+      return null;
+    }
+    String lastPart = name.substring(spaceIndex+1,name.length());
+    
+    if (StringUtils.isBlank(lastPart)) {
+      return null;
+    }
+    lastPart = lastPart.trim();
+    spaceIndex = lastPart.lastIndexOf(' ');
+    if (spaceIndex == -1) {
+      return null;
+    }
+    return lastPart.substring(0, spaceIndex);
+  }
+  
+  /**
+   * translate a kim group id to a grouper group id
+   * @param kimGroupId
+   * @return the grouper group id
+   */
+  public static String translateGroupId(String kimGroupId) {
+    String grouperGroupId = GrouperClientUtils.propertiesValue("grouper.kim.kimGroupIdToGrouperId_" + kimGroupId, false);
+    if (!GrouperClientUtils.isBlank(grouperGroupId)) {
+      return grouperGroupId;
+    }
+    return kimGroupId;
+  }
 
   /**
    * filter out subjects which are groups and not in the kim stem
@@ -264,6 +345,78 @@ public class GrouperKimUtils {
     return groupIds;
 
   }
+
+  /**
+   * get the attribute value of an attribute name of a subject
+   * @param wsSubject subject
+   * @param attributeNames list of attribute names in the subject
+   * @param attributeName to query
+   * @return the value or null
+   */
+  public static String subjectAttributeValue(WsSubject wsSubject, String[] attributeNames, String attributeName) {
+    for (int i=0;i<GrouperClientUtils.length(attributeNames);i++) {
+      
+      if (StringUtils.equals(attributeName, attributeNames[i])) {
+        //got it
+        return wsSubject.getAttributeValue(i);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * convert a ws subject to an entity name info
+   * @param wsSubject
+   * @param attributeNames list of names in the 
+   * @return the entity name info
+   */
+  public static KimEntityNameInfo convertWsSubjectToEntityNameInfo(WsSubject wsSubject, String[] attributeNames) {
+
+    KimEntityNameInfo kimEntityNameInfo = new KimEntityNameInfo();
+    
+    kimEntityNameInfo.setActive(true);
+    kimEntityNameInfo.setDefault(true);
+    kimEntityNameInfo.setEntityNameId(wsSubject.getId());
+    
+//    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+//    
+//    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+//
+//    String outputTemplate = GrouperClientUtils.propertiesValue("webService.addMember.output", true);
+//      
+//    String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+
+    GrouperKimIdentitySourceProperties grouperKimIdentitySourceProperties = GrouperKimIdentitySourceProperties
+      .grouperKimIdentitySourceProperties(wsSubject.getSourceId());
+    
+    String name = null;
+    if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getNameAttribute()) ) {
+     name = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getNameAttribute());
+    }
+    if (StringUtils.isBlank(name)) {
+      name = wsSubject.getName();
+    }
+    kimEntityNameInfo.setFormattedName(name);
+    
+//TODO    
+//    kimEntityNameInfo.setFirstName();
+//    kimEntityNameInfo.setFirstNameUnmasked();
+//    kimEntityNameInfo.setFormattedName();
+//    kimEntityNameInfo.setFormattedNameUnmasked();
+//    kimEntityNameInfo.setLastName();
+//    kimEntityNameInfo.setLastNameUnmasked();
+//    kimEntityNameInfo.setMiddleName();
+//    kimEntityNameInfo.setMiddleNameUnmasked();
+//    kimEntityNameInfo.setNameTypeCode();
+//    kimEntityNameInfo.setSuffix();
+//    kimEntityNameInfo.setSuffixUnmasked();
+//    kimEntityNameInfo.setSuppressName();
+//    kimEntityNameInfo.setTitle();
+//    kimEntityNameInfo.setTitleUnmasked();
+
+    return kimEntityNameInfo;
+    
+  }
   
   /**
    * convert a ws group to a group info
@@ -320,6 +473,19 @@ public class GrouperKimUtils {
     //add one for the colon
     String namespace = stem.substring(kimStem.length() + 1);
     return namespace;
+  }
+
+  /**
+   * translate a kim entity id to a grouper subject id
+   * @param kimEntityId
+   * @return the grouper subject id
+   */
+  public static String translateEntityId(String kimEntityId) {
+    String grouperSubjectId = GrouperClientUtils.propertiesValue("grouper.kim.kimEntityIdToSubjectId_" + kimEntityId, false);
+    if (!GrouperClientUtils.isBlank(grouperSubjectId)) {
+      return grouperSubjectId;
+    }
+    return kimEntityId;
   }
   
 }
