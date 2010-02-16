@@ -20,7 +20,8 @@ public class GrouperKimUtilsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(GrouperKimUtilsTest.class);
+    //TestRunner.run(GrouperKimUtilsTest.class);
+    TestRunner.run(new GrouperKimUtilsTest("testFirstLastMiddleName"));
   }
 
   /**
@@ -58,4 +59,25 @@ public class GrouperKimUtilsTest extends GrouperTest {
     assertEquals(null, GrouperKimUtils.calculateNamespaceCode("a:b:c"));
   }
   
+  /**
+   * 
+   */
+  public void testFirstLastMiddleName() {
+    assertEquals("Hyzer", GrouperKimUtils.lastName("Hyzer"));
+    assertEquals(null, GrouperKimUtils.firstName("Hyzer"));
+    assertEquals(null, GrouperKimUtils.middleName("Hyzer"));
+
+    assertEquals("Hyzer", GrouperKimUtils.lastName("Chris Hyzer"));
+    assertEquals("Chris", GrouperKimUtils.firstName("Chris Hyzer"));
+    assertEquals(null, GrouperKimUtils.middleName("Chris Hyzer"));
+  
+    assertEquals("Hyzer", GrouperKimUtils.lastName("Chris M. Hyzer"));
+    assertEquals("Chris", GrouperKimUtils.firstName("Chris M. Hyzer"));
+    assertEquals("M.", GrouperKimUtils.middleName("Chris M. Hyzer"));
+
+    assertEquals("Hyzer", GrouperKimUtils.lastName("Chris M. C. Hyzer"));
+    assertEquals("Chris", GrouperKimUtils.firstName("Chris M. C. Hyzer"));
+    assertEquals("M. C.", GrouperKimUtils.middleName("Chris M. C. Hyzer"));
+}
+
 }
