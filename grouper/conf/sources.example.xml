@@ -33,6 +33,8 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-value>${JDBCSourceAdapterTest.appendToSelf(subject.getAttributeValue('LOGINID'))}</param-value>
      </init-param>
   
+    The first virtual attribute is accessible via: subject.getAttributeValue("loginIdLfNameLoginId");
+  
    -->
   
   <!-- 
