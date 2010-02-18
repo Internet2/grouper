@@ -172,11 +172,13 @@ public class EhcacheController implements CacheController {
       return this.mgr.getCache(name);
     }
     if (useDefaultIfNotInConfigFile) {
-      LOG.info("cache not configured explicitly: " + name + ", to override default values, " +
-      		"configure in the resource /grouper.ehcache.xml.  Default values are:" +
-      		"maxElementsInMemory: " + defaultMaxElementsInMemory + ", eternal: " + defaultEternal
-      		+ ", timeToIdleSeconds: " + defaultTimeToIdleSeconds + ", timeToLiveSeconds: " 
-      		+ defaultTimeToLiveSeconds + ", overFlowToDisk: " + defaultOverflowToDisk);
+      if (LOG != null) {
+        LOG.info("cache not configured explicitly: " + name + ", to override default values, " +
+        		"configure in the resource /grouper.ehcache.xml.  Default values are:" +
+        		"maxElementsInMemory: " + defaultMaxElementsInMemory + ", eternal: " + defaultEternal
+        		+ ", timeToIdleSeconds: " + defaultTimeToIdleSeconds + ", timeToLiveSeconds: " 
+        		+ defaultTimeToLiveSeconds + ", overFlowToDisk: " + defaultOverflowToDisk);
+      }
       Cache cache = new Cache(name, defaultMaxElementsInMemory, defaultOverflowToDisk, 
           defaultEternal, defaultTimeToLiveSeconds, defaultTimeToIdleSeconds);
       //TODO CH 20081118, see if cache by name there already...

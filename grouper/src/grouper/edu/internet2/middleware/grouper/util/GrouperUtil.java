@@ -2185,8 +2185,19 @@ public class GrouperUtil {
   /**
    * cache the properties read from resource 
    */
-  private static GrouperCache<String, Properties> resourcePropertiesCache = new GrouperCache<String, Properties>(
-      GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
+  private static GrouperCache<String, Properties> resourcePropertiesCache = null;
+  
+  /**
+   * lazy load this since it prevents the class from loading
+   * @return the cache
+   */
+  private static GrouperCache<String, Properties> resourcePropertiesCache() {
+    if (resourcePropertiesCache == null) {
+      resourcePropertiesCache = new GrouperCache<String, Properties>(
+          GrouperUtil.class.getName() + ".resourcePropertiesCache", 200, false, 300, 300, false);
+    }
+    return resourcePropertiesCache;
+  }
 
   /**
    * assign data to a field
@@ -6413,8 +6424,19 @@ public class GrouperUtil {
   /**
    * cache properties
    */
-  private static GrouperCache<File, Properties> propertiesFromFileCache = new GrouperCache<File,Properties>(
-      GrouperUtil.class.getName() + ".propertiesFromFileCache", 200, false, 300, 300, false);
+  private static GrouperCache<File, Properties> propertiesFromFileCache = null;
+  
+  /**
+   * properties from File cache
+   * @return cache
+   */
+  private static GrouperCache<File, Properties> propertiesFromFileCache() {
+    if (propertiesFromFileCache == null) {
+      propertiesFromFileCache = new GrouperCache<File,Properties>(
+          GrouperUtil.class.getName() + ".propertiesFromFileCache", 200, false, 300, 300, false);
+    }
+    return propertiesFromFileCache;
+  }
   
   /**
    * properties from file
@@ -6425,7 +6447,7 @@ public class GrouperUtil {
   public synchronized static Properties propertiesFromFile(File file, boolean useCache) {
     Properties properties = null;
     if (useCache) {
-      properties = propertiesFromFileCache.get(file);
+      properties = propertiesFromFileCache().get(file);
       if (properties != null) {
         return properties;
       }
@@ -6446,7 +6468,7 @@ public class GrouperUtil {
     }
     
     if (useCache) {
-      propertiesFromFileCache.put(file, properties);      
+      propertiesFromFileCache().put(file, properties);      
     }
     return properties;
   }
@@ -6461,9 +6483,9 @@ public class GrouperUtil {
   public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache, 
       boolean exceptionIfNotExist) {
 
-    Properties properties = resourcePropertiesCache == null ? null : resourcePropertiesCache.get(resourceName);
+    Properties properties = resourcePropertiesCache() == null ? null : resourcePropertiesCache().get(resourceName);
     
-    if (resourcePropertiesCache == null || !useCache || !resourcePropertiesCache.containsKey(resourceName)) {
+    if (resourcePropertiesCache() == null || !useCache || !resourcePropertiesCache().containsKey(resourceName)) {
   
       properties = new Properties();
 
@@ -6480,8 +6502,8 @@ public class GrouperUtil {
       } finally {
         closeQuietly(inputStream);
 
-        if (useCache && resourcePropertiesCache != null) {
-          resourcePropertiesCache.put(resourceName, properties);
+        if (useCache && resourcePropertiesCache() != null) {
+          resourcePropertiesCache().put(resourceName, properties);
         }
       }
     }
