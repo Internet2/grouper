@@ -375,9 +375,9 @@ public class GrouperUtil {
    * 
    */
   public static final String LOG_ERROR = "Error trying to make parent dirs for logger or logging first statement, check to make " +
-            		"sure you have proper file permissions, and that your servlet container is giving " +
-            		"your app rights to access the log directory (e.g. for tomcat set TOMCAT5_SECURITY=no), g" +
-            		"oogle it for more info";
+                "sure you have proper file permissions, and that your servlet container is giving " +
+                "your app rights to access the log directory (e.g. for tomcat set TOMCAT5_SECURITY=no), g" +
+                "oogle it for more info";
 
   /**
    * The number of bytes in a kilobyte.
@@ -479,15 +479,15 @@ public class GrouperUtil {
         try {
           String fileName = properties.getProperty(key);
           if(fileName.startsWith("${grouper.home}")) {
-        	  if(grouperHome==null) {
-        		throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
-        				"however, it is not set.");  
-        	  }
-        	  if (!grouperHome.endsWith("/") && !grouperHome.endsWith("\\")) {
-        	    fileName = grouperHome + File.separator + fileName.substring(15);
-        	  } else {
-        	    fileName = grouperHome + fileName.substring(15);
-        	  }
+            if(grouperHome==null) {
+            throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
+                "however, it is not set.");  
+            }
+            if (!grouperHome.endsWith("/") && !grouperHome.endsWith("\\")) {
+              fileName = grouperHome + File.separator + fileName.substring(15);
+            } else {
+              fileName = grouperHome + fileName.substring(15);
+            }
           }
           File file = new File(fileName);
           File parent = file.getParentFile();
@@ -625,13 +625,13 @@ public class GrouperUtil {
       }
       if (!writesLogs || !rootLogger.isErrorEnabled()) {
         resultMessage.append("Grouper warning, it is detected that you are not logging errors for " +
-        		"package edu.internet2.middleware.grouper, you should enable logging at " +
-        		"least at the WARN level in log4j.properties\n");
+            "package edu.internet2.middleware.grouper, you should enable logging at " +
+            "least at the WARN level in log4j.properties\n");
       } else {
         if (rootLogger.isErrorEnabled() && !rootLogger.isWarnEnabled()) {
           resultMessage.append("Grouper warning, it is detected that you are logging " +
-          		"edu.internet2.middleware.grouper as ERROR and not WARN level.  It is " +
-          		"recommended to log at at least WARN level in log4j.properties\n");
+              "edu.internet2.middleware.grouper as ERROR and not WARN level.  It is " +
+              "recommended to log at at least WARN level in log4j.properties\n");
         }
         String logLevel = null;
         if (rootLogger.isTraceEnabled()) {
@@ -978,7 +978,7 @@ public class GrouperUtil {
     //check blacklist
     if (findGrouperPropertiesDbMatch(false, user, url)) {
       System.out.println("This " + dbType + " user '" + user + "' and url '" + url + "' are denied to be " +
-      		"changed in the grouper.properties");
+          "changed in the grouper.properties");
       System.exit(1);
 
     }
@@ -3051,7 +3051,6 @@ public class GrouperUtil {
         Array.set(clonedValue, i, cloneValue(Array.get(value, i)));
       }
       
-      
     } else {
 
       //this means lets add support for a new type of object
@@ -4443,37 +4442,37 @@ public class GrouperUtil {
    * @return the boolean
    */
   public static boolean booleanValue(Object object) {
-  	// first handle blanks
-  	if (nullOrBlank(object)) {
-  		throw new RuntimeException(
-  				"Expecting something which can be converted to boolean, but is null or blank: '"
-  						+ object + "'");
-  	}
-  	// its not blank, just convert
-  	if (object instanceof Boolean) {
-  		return (Boolean) object;
-  	}
-  	if (object instanceof String) {
-  		String string = (String) object;
-  		if (equalsIgnoreCase(string, "true")
-  				|| equalsIgnoreCase(string, "t")
-  				|| equalsIgnoreCase(string, "yes")
-  				|| equalsIgnoreCase(string, "y")) {
-  			return true;
-  		}
-  		if (equalsIgnoreCase(string, "false")
-  				|| equalsIgnoreCase(string, "f")
-  				|| equalsIgnoreCase(string, "no")
-  				|| equalsIgnoreCase(string, "n")) {
-  			return false;
-  		}
-  		throw new RuntimeException(
-  				"Invalid string to boolean conversion: '" + string
-  						+ "' expecting true|false or t|f or yes|no or y|n case insensitive");
+    // first handle blanks
+    if (nullOrBlank(object)) {
+      throw new RuntimeException(
+          "Expecting something which can be converted to boolean, but is null or blank: '"
+              + object + "'");
+    }
+    // its not blank, just convert
+    if (object instanceof Boolean) {
+      return (Boolean) object;
+    }
+    if (object instanceof String) {
+      String string = (String) object;
+      if (equalsIgnoreCase(string, "true")
+          || equalsIgnoreCase(string, "t")
+          || equalsIgnoreCase(string, "yes")
+          || equalsIgnoreCase(string, "y")) {
+        return true;
+      }
+      if (equalsIgnoreCase(string, "false")
+          || equalsIgnoreCase(string, "f")
+          || equalsIgnoreCase(string, "no")
+          || equalsIgnoreCase(string, "n")) {
+        return false;
+      }
+      throw new RuntimeException(
+          "Invalid string to boolean conversion: '" + string
+              + "' expecting true|false or t|f or yes|no or y|n case insensitive");
   
-  	}
-  	throw new RuntimeException("Cant convert object to boolean: "
-  			+ object.getClass());
+    }
+    throw new RuntimeException("Cant convert object to boolean: "
+        + object.getClass());
   
   }
 
@@ -4486,10 +4485,10 @@ public class GrouperUtil {
    * @return the boolean
    */
   public static boolean booleanValue(Object object, boolean defaultBoolean) {
-  	if (nullOrBlank(object)) {
-  		return defaultBoolean;
-  	}
-  	return booleanValue(object);
+    if (nullOrBlank(object)) {
+      return defaultBoolean;
+    }
+    return booleanValue(object);
   }
 
   /**
@@ -4512,14 +4511,14 @@ public class GrouperUtil {
    * @return true if null or blank
    */
   public static boolean nullOrBlank(Object object) {
-  	// first handle blanks and nulls
-  	if (object == null) {
-  		return true;
-  	}
-  	if (object instanceof String && isBlank(((String) object))) {
-  		return true;
-  	}
-  	return false;
+    // first handle blanks and nulls
+    if (object == null) {
+      return true;
+    }
+    if (object instanceof String && isBlank(((String) object))) {
+      return true;
+    }
+    return false;
   
   }
 
@@ -5042,7 +5041,7 @@ public class GrouperUtil {
   public static File newFileUniqueName(String parentDirName, String namePrefix, String nameSuffix, boolean createFile) {
     DateFormat fileNameFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss_SSS");
     if (!isBlank(parentDirName)) {
-    	parentDirName=fixRelativePath(parentDirName);
+      parentDirName=fixRelativePath(parentDirName);
       if (!parentDirName.endsWith("/") && !parentDirName.endsWith("\\")) {
         parentDirName += File.separator;
       }
@@ -5098,7 +5097,7 @@ public class GrouperUtil {
         }
       } catch (Exception e) {
         throw new RuntimeException("Cant create file: " + fileName + ", make sure " +
-        		"permissions and such are ok, or change file location in grouper.properties if applicable", e);
+            "permissions and such are ok, or change file location in grouper.properties if applicable", e);
       }
     }
     return theFile;
@@ -6457,9 +6456,9 @@ public class GrouperUtil {
         return properties;
       }
     }
-  
+    
     FileInputStream fileInputStream = null;
-  
+    
     try {
       fileInputStream = new FileInputStream(file);
       properties = new Properties();
@@ -6467,17 +6466,17 @@ public class GrouperUtil {
     } catch (IOException ioe) {
       throw new RuntimeException("Problem with file: " + file, ioe);
     } finally {
-  
+      
       GrouperUtil.closeQuietly(fileInputStream);
-  
+      
     }
-  
+    
     if (useCache) {
       propertiesFromFileCache().put(file, properties);      
-  }
+    }
     return properties;
   }
-
+  
   /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
@@ -6890,17 +6889,17 @@ public class GrouperUtil {
    * @return string
    */
   public static String fixRelativePath(String inPath) {
-	  if(grouperHome==null || inPath.matches("^(/|\\\\|\\w:).*")) {
-		  return inPath;
-	  }
-	  String sep = "";
-	  if(!grouperHome.matches(".*?(\\\\|/)$")) {
-		  sep = File.separator;
-	  }
-	  
-	  String outPath=grouperHome + sep + inPath;
-	  
-	  return outPath;
+    if(grouperHome==null || inPath.matches("^(/|\\\\|\\w:).*")) {
+      return inPath;
+    }
+    String sep = "";
+    if(!grouperHome.matches(".*?(\\\\|/)$")) {
+      sep = File.separator;
+    }
+    
+    String outPath=grouperHome + sep + inPath;
+    
+    return outPath;
   }
   
   /**
@@ -7998,7 +7997,6 @@ public class GrouperUtil {
       }
       return sw.getBuffer().toString();
   }
-
   /**
    * substitute an EL for objects
    * @param stringToParse
@@ -8057,7 +8055,6 @@ public class GrouperUtil {
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     }
   }
-
 
   /**
    * <p>Returns the list of <code>Throwable</code> objects in the
@@ -8641,8 +8638,8 @@ public class GrouperUtil {
       extraError = ", " + ExceptionUtils.getFullStackTrace(e);
     }
     String error = "Cant process property " + key + " in resource: " + resourceName + ", the current" +
-    		" value is '" + value + "', which should be of type: " 
-    		+ classType.getName() + extraError;
+        " value is '" + value + "', which should be of type: " 
+        + classType.getName() + extraError;
     System.err.println("Grouper error: " + error);
     LOG.error(error);
     return false;
@@ -9476,8 +9473,8 @@ public class GrouperUtil {
     }
     return stringFieldNames.get(theClass);
   }
-
-  /**
+  
+    /**
    * if theString is not blank, apppend it to the result, and if appending,
    * @param result to append to
    * add a prefix and suffix (if not null)
@@ -9638,5 +9635,5 @@ public class GrouperUtil {
     }
     return appendedAnything;
   }
-  
+ 
 }
