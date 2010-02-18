@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +31,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
@@ -353,31 +356,57 @@ public class SimpleMembershipUpdateImportExport {
   
       GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)httpServletRequest;
       
-      FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
+      Reader reader = null;
+      String fileName = null;
       
-      String fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
-  
-      String fileSize = importCsvFile == null ? "" : (" : " + FileUtils.byteCountToDisplaySize(importCsvFile.getSize()));
-      
-      fileName += fileSize;
-      
-      //validate the inputs, file is required
-      if (importCsvFile == null || importCsvFile.getSize() == 0 || 
-          importCsvFile.getName() == null 
-          || (!importCsvFile.getName().toLowerCase().endsWith(".csv")
-            &&  !importCsvFile.getName().toLowerCase().endsWith(".txt"))) {
+      GuiHideShow membershipLiteImportFileHideShow = GuiHideShow.retrieveHideShow("membershipLiteImportFile", true);
+      if (membershipLiteImportFileHideShow.isShowing()) {
         
-        guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
-            + GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile") + fileName + "</pre>"));
-        return;
+        FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
+        
+        fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
+    
+        String fileSize = importCsvFile == null ? "" : (" : " + FileUtils.byteCountToDisplaySize(importCsvFile.getSize()));
+        
+        fileName += fileSize;
+        
+        //validate the inputs, file is required
+        if (importCsvFile == null || importCsvFile.getSize() == 0 || 
+            importCsvFile.getName() == null 
+            || (!importCsvFile.getName().toLowerCase().endsWith(".csv")
+              &&  !importCsvFile.getName().toLowerCase().endsWith(".txt"))) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
+              + GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile") + fileName + "</pre>"));
+          return;
+        }
+        
+        reader = new InputStreamReader(importCsvFile.getInputStream());
+        
+      } else {
+        
+        //textarea import
+        String importCsvTextarea = grouperRequestWrapper.getParameter("importCsvTextarea");
+        
+        if (StringUtils.isBlank(importCsvTextarea)) {
+          guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
+              + GrouperUiUtils.message("simpleMembershipUpdate.importErrorBlankTextarea") + "</pre>"));
+          return;
+          
+        }
+        
+        fileName = "textareaInput";
+        
+        reader = new StringReader(importCsvTextarea);
       }
+      
       
       boolean importReplaceMembers = grouperRequestWrapper.getParameterBoolean("importReplaceMembers", false);
       
       //convert the import file to subjects
       List<String> subjectErrors = new ArrayList<String>();
       List<Subject> importedSubjectWrappers = parseCsvImportFile(
-          importCsvFile, fileName, subjectErrors);
+          reader, fileName, subjectErrors);
   
       GrouperUiUtils.removeOverlappingSubjects(existingMembers, importedSubjectWrappers);
       
@@ -506,94 +535,104 @@ public class SimpleMembershipUpdateImportExport {
   }
 
   /**
-   * @param importCsvFile
+   * Note, this will close the reader passed in
+   * @param originalReader
    * @param fileName
    * @param subjectErrors pass in a list and errors will be put in here
    * @return the list, never null
    */
   @SuppressWarnings("unchecked")
-  List<Subject> parseCsvImportFile(FileItem importCsvFile, String fileName, List<String> subjectErrors) {
+  List<Subject> parseCsvImportFile(Reader originalReader, String fileName, List<String> subjectErrors) {
     
     //convert from CSV to 
     CSVReader reader = null;
     
-    //note, the first row is the title
-    List<String[]> csvEntries = null;
-  
     try {
-      reader = new CSVReader(new InputStreamReader(importCsvFile.getInputStream()));
-      csvEntries = reader.readAll();
-    } catch (IOException ioe) {
-      throw new RuntimeException("Error processing file: " + fileName, ioe);
-    }
+      //note, the first row is the title
+      List<String[]> csvEntries = null;
     
-    List<Subject> uploadedSubjects = new ArrayList<Subject>();
-    
-    //lets get the headers
-    int sourceIdColumn = -1;
-    int subjectIdColumn = -1;
-    int subjectIdentifierColumn = -1;
-    int subjectIdOrIdentifierColumn = -1;
-    
-    //must have lines
-    if (GrouperUtil.length(csvEntries) <= 1) {
-      throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
-    }
-    
-    //lets go through the headers
-    String[] headers = csvEntries.get(0);
-    int headerSize = headers.length;
-    for (int i=0;i<headerSize;i++) {
-      if ("sourceId".equalsIgnoreCase(headers[i])) {
-        sourceIdColumn = i;
-      }
-      if ("subjectId".equalsIgnoreCase(headers[i]) || "entityId".equalsIgnoreCase(headers[i])) {
-        subjectIdColumn = i;
-      }
-      if ("subjectIdentifier".equalsIgnoreCase(headers[i]) || "entityIdentifier".equalsIgnoreCase(headers[i])) {
-        subjectIdentifierColumn = i;
-      }
-      if ("subjectIdOrIdentifier".equalsIgnoreCase(headers[i]) || "entityIdOrIdentifier".equalsIgnoreCase(headers[i])) {
-        subjectIdOrIdentifierColumn = i;
-      }
-    }
-    
-    //must pass in an id
-    if (subjectIdColumn == -1 && subjectIdentifierColumn == -1 && subjectIdOrIdentifierColumn == -1) {
-      throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoIdCol"));
-    }
-    
-    //ok, lets go through the rows, start after the headers
-    for (int i=1;i<csvEntries.size();i++) {
-      String[] csvEntry = csvEntries.get(i);
-      int row = i+1;
-      
-      //try catch each one and see where we get
       try {
-        String sourceId = null;
-        String subjectId = null;
-        String subjectIdentifier = null;
-        String subjectIdOrIdentifier = null;
-  
-        sourceId = sourceIdColumn == -1 ? null : csvEntry[sourceIdColumn]; 
-        subjectId = subjectIdColumn == -1 ? null : csvEntry[subjectIdColumn]; 
-        subjectIdentifier = subjectIdentifierColumn == -1 ? null : csvEntry[subjectIdentifierColumn]; 
-        subjectIdOrIdentifier = subjectIdOrIdentifierColumn == -1 ? null : csvEntry[subjectIdOrIdentifierColumn]; 
-        
-        ImportSubjectWrapper importSubjectWrapper = 
-          new ImportSubjectWrapper(row, sourceId, subjectId, subjectIdentifier, subjectIdOrIdentifier, csvEntry);
-        uploadedSubjects.add(importSubjectWrapper);
-        
-      } catch (Exception e) {
-        LOG.info(e);
-        subjectErrors.add("Error on " + ImportSubjectWrapper.errorLabelForRowStatic(row, csvEntry) + ": " +    e.getMessage());
+        reader = new CSVReader(originalReader);
+        csvEntries = reader.readAll();
+      } catch (IOException ioe) {
+        throw new RuntimeException("Error processing file: " + fileName, ioe);
       }
+      
+      List<Subject> uploadedSubjects = new ArrayList<Subject>();
+      
+      //lets get the headers
+      int sourceIdColumn = -1;
+      int subjectIdColumn = -1;
+      int subjectIdentifierColumn = -1;
+      int subjectIdOrIdentifierColumn = -1;
+      
+      //must have lines
+      if (GrouperUtil.length(csvEntries) <= 1) {
+        throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
+      }
+      
+      //lets go through the headers
+      String[] headers = csvEntries.get(0);
+      int headerSize = headers.length;
+      for (int i=0;i<headerSize;i++) {
+        if ("sourceId".equalsIgnoreCase(headers[i])) {
+          sourceIdColumn = i;
+        }
+        if ("subjectId".equalsIgnoreCase(headers[i]) || "entityId".equalsIgnoreCase(headers[i])) {
+          subjectIdColumn = i;
+        }
+        if ("subjectIdentifier".equalsIgnoreCase(headers[i]) || "entityIdentifier".equalsIgnoreCase(headers[i])) {
+          subjectIdentifierColumn = i;
+        }
+        if ("subjectIdOrIdentifier".equalsIgnoreCase(headers[i]) || "entityIdOrIdentifier".equalsIgnoreCase(headers[i])) {
+          subjectIdOrIdentifierColumn = i;
+        }
+      }
+      
+      //must pass in an id
+      if (subjectIdColumn == -1 && subjectIdentifierColumn == -1 && subjectIdOrIdentifierColumn == -1) {
+        throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoIdCol"));
+      }
+      
+      //ok, lets go through the rows, start after the headers
+      for (int i=1;i<csvEntries.size();i++) {
+        String[] csvEntry = csvEntries.get(i);
+        int row = i+1;
+        
+        //try catch each one and see where we get
+        try {
+          String sourceId = null;
+          String subjectId = null;
+          String subjectIdentifier = null;
+          String subjectIdOrIdentifier = null;
     
+          sourceId = sourceIdColumn == -1 ? null : csvEntry[sourceIdColumn]; 
+          subjectId = subjectIdColumn == -1 ? null : csvEntry[subjectIdColumn]; 
+          subjectIdentifier = subjectIdentifierColumn == -1 ? null : csvEntry[subjectIdentifierColumn]; 
+          subjectIdOrIdentifier = subjectIdOrIdentifierColumn == -1 ? null : csvEntry[subjectIdOrIdentifierColumn]; 
+          
+          ImportSubjectWrapper importSubjectWrapper = 
+            new ImportSubjectWrapper(row, sourceId, subjectId, subjectIdentifier, subjectIdOrIdentifier, csvEntry);
+          uploadedSubjects.add(importSubjectWrapper);
+          
+        } catch (Exception e) {
+          LOG.info(e);
+          subjectErrors.add("Error on " + ImportSubjectWrapper.errorLabelForRowStatic(row, csvEntry) + ": " +    e.getMessage());
+        }
+      
+      }
+      
+      return uploadedSubjects;
+      
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (Exception e) {
+          LOG.warn("error", e);
+        }
+      }
     }
-    
-    return uploadedSubjects;
-    
-    
     
   }
 

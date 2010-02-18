@@ -32,14 +32,20 @@
             <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.importReplaceExistingMembers" /></td>
             <td class="formTableRight"><input type="checkbox" name="importReplaceMembers" value="true" /></td>
           </tr> 
-          <tr class="formTableRow">
+          <tr class="formTableRow shows_membershipLiteImportFile" style="${grouper:hideShowStyle('membershipLiteImportFile', true)}">
             <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.importCommaSeparatedValuesFile" /></td>
             <td class="formTableRight"><input type="file" name="importCsvFile" /></td>
           </tr> 
+          <tr class="formTableRow hides_membershipLiteImportFile" style="${grouper:hideShowStyle('membershipLiteImportFile', false)}">
+            <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.importDirectInput" /></td>
+            <td class="formTableRight"><textarea rows="20" cols="40" name="importCsvTextarea"></textarea> </td>
+          </tr>
           <tr>
             <td colspan="2" align="right"  class="buttonRow">
-
-              <button class="simplemodal-close blueButton"><grouper:message key="simpleMembershipUpdate.importCancelButton" /></button> 
+              <a href="#" id="importFileOrDirectInputButton" class="buttons_membershipLiteImportFile"
+                onclick="return guiHideShow(event, 'membershipLiteImportFile');">${grouper:hideShowButtonText('membershipLiteImportFile')}</a>
+              &nbsp;
+              <button class="simplemodal-close blueButton"><grouper:message key="simpleMembershipUpdate.importCancelButton" /></button>
               &nbsp;
               <button class="blueButton" 
                 onclick="return guiSubmitFileForm(event, '#simpleMembershipUploadForm', '../app/SimpleMembershipUpdateImportExport.importCsv')"

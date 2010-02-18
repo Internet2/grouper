@@ -147,6 +147,13 @@ public class SimpleMembershipUpdate {
     
     GuiPaging.init("simpleMemberUpdateMembers");
 
+    boolean defaultImportFile = TagUtils.mediaResourceBoolean("simpleMembershipUpdate.defaultImportFile", true);
+    
+    GuiHideShow.init("membershipLiteImportFile", defaultImportFile, 
+        GrouperUiUtils.message("simpleMembershipUpdate.membershipLiteImportFileButton", false), 
+        GrouperUiUtils.message("simpleMembershipUpdate.membershipLiteImportTextfieldButton", false), true);
+
+    
     Group group = null;
     String groupName = null;
     GrouperSession grouperSession = null;
@@ -222,7 +229,7 @@ public class SimpleMembershipUpdate {
     Group group = null;
     try {
       if (!StringUtils.isBlank(id)) {
-        group = GroupFinder.findByUuid(grouperSession, id);
+        group = GroupFinder.findByUuid(grouperSession, id, true);
       } else if (!StringUtils.isBlank(name)) {
         group = GroupFinder.findByName(grouperSession, name, false);
       }
@@ -420,7 +427,7 @@ public class SimpleMembershipUpdate {
       grouperSession = GrouperSession.start(loggedInSubject);
       group = this.retrieveGroup(grouperSession);
       groupName = group.getName();
-      Member member = MemberFinder.findByUuid(grouperSession, memberId);
+      Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
       group.deleteMember(member);
       
       GuiMember guiMember = new GuiMember(member);
@@ -571,7 +578,7 @@ public class SimpleMembershipUpdate {
         currentMemberUuid = GrouperUtil.prefixOrSuffix(paramName, "deleteMultiple_", false);
         
         //this should be found
-        Member member = MemberFinder.findByUuid(grouperSession, currentMemberUuid);
+        Member member = MemberFinder.findByUuid(grouperSession, currentMemberUuid, true);
         
         if (group.deleteMember(member, false)) {
           deleteCount++;

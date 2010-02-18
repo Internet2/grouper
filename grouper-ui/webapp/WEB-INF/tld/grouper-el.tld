@@ -371,9 +371,6 @@
   </tag>
     <tag>
     <name>hideShowTarget</name>
-    <!--  description>
-        This will generate an infodot image which when clicked will hide/show some instructions
-    </description -->
     <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperHideShowTarget</tagclass>
     <bodycontent>empty</bodycontent>
     <attribute>
