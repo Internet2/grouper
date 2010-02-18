@@ -133,7 +133,10 @@ public class SimpleMembershipUpdate {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     //setup a hideShow
-    GuiHideShow.init("simpleMembershipUpdateDeleteMultiple", false, 
+    
+    boolean defaultDeleteMultiple = TagUtils.mediaResourceBoolean("simpleMembershipUpdate.defaultDeleteMultiple", false);
+    
+    GuiHideShow.init("simpleMembershipUpdateDeleteMultiple", defaultDeleteMultiple, 
         "", "", true);
     GuiHideShow.init("simpleMembershipUpdateMemberFilter", false, 
         "", "", true);
