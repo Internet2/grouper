@@ -134,7 +134,7 @@ public class PickerResultSubject implements Serializable, Comparable<PickerResul
         Map<String, Object> variableMap = new HashMap<String, Object>();
         variableMap.put("subject", this.subject);
         variableMap.put("pickerResultSubject", this);
-        this.screenLabel = GrouperUiUtils.substituteExpressionLanguage(subjectElForSource, variableMap);
+        this.screenLabel = GrouperUtil.substituteExpressionLanguage(subjectElForSource, variableMap);
       }
       
       //make sure there is something there

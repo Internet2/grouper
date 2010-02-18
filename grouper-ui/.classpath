@@ -25,7 +25,6 @@
 	<classpathentry exported="true" kind="lib" path="java/lib/xercesImpl.jar"/>
 	<classpathentry exported="true" kind="lib" path="java/lib/xml-apis.jar"/>
 	<classpathentry kind="lib" path="contrib/penn-auth/java/lib/fastWebsec.jar"/>
-	<classpathentry kind="lib" path="java/lib/commons-jexl.jar"/>
 	<classpathentry kind="lib" path="java/lib/opencsv.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper_trunk"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>

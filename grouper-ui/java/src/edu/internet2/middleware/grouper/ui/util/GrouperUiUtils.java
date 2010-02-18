@@ -40,10 +40,6 @@ import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.collections.set.ListOrderedSet;
-import org.apache.commons.jexl.Expression;
-import org.apache.commons.jexl.ExpressionFactory;
-import org.apache.commons.jexl.JexlContext;
-import org.apache.commons.jexl.JexlHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -924,65 +920,6 @@ public class GrouperUiUtils {
   }
 
 
-  /**
-   * substitute an EL for objects
-   * @param stringToParse
-   * @param variableMap
-   * @return the string
-   */
-  @SuppressWarnings("unchecked")
-  public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap) {
-    if (GrouperUtil.isBlank(stringToParse)) {
-      return stringToParse;
-    }
-    try {
-      JexlContext jc = JexlHelper.createContext();
-  
-      int index = 0;
-      
-      for (String key: variableMap.keySet()) {
-        jc.getVars().put(key, variableMap.get(key));
-      }
-      
-      //allow utility methods
-      jc.getVars().put("grouperUiUtils", new GrouperUiUtils());
-      
-      // matching ${ exp }   (non-greedy)
-      Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
-      Matcher matcher = pattern.matcher(stringToParse);
-      
-      StringBuilder result = new StringBuilder();
-  
-      //loop through and find each script
-      while(matcher.find()) {
-        result.append(stringToParse.substring(index, matcher.start()));
-        
-        //here is the script inside the curlies
-        String script = matcher.group(1);
-        
-        Expression e = ExpressionFactory.createExpression(script);
-  
-        //this is the result of the evaluation
-        Object o = e.evaluate(jc);
-  
-        if (o == null) {
-          LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
-              + GrouperUtil.toStringForLog(variableMap.keySet()));
-        }
-        
-        result.append(o);
-        
-        index = matcher.end();
-      }
-      
-      result.append(stringToParse.substring(index, stringToParse.length()));
-      return result.toString();
-      
-    } catch (Exception e) {
-      throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
-    }
-  }
-
 
   /**
    * convert a subject to string for screen
@@ -1041,7 +978,7 @@ public class GrouperUiUtils {
       String sourceId = matcher.group(1);
       String subjectId = matcher.group(2);
       Source source = SubjectFinder.getSource(sourceId);
-      return source.getSubject(subjectId);
+      return source.getSubject(subjectId, true);
     }
     
     //if not, then try to get by subjectId or identifier
@@ -1271,7 +1208,7 @@ public class GrouperUiUtils {
     //run the screen EL
     Map<String, Object> variableMap = new HashMap<String, Object>();
     variableMap.put("subject", subject);
-    return substituteExpressionLanguage(screenEl, variableMap);
+    return GrouperUtil.substituteExpressionLanguage(screenEl, variableMap);
   }
 
 
