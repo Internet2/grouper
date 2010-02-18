@@ -8,6 +8,33 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
 <sources>
 
   <!-- Group Subject Resolver -->
+  
+  <!-- 
+      You can make virtual attributes (attributes with formatting or based on other attributes) like this:
+      init-param name is subjectVirtualAttribute_<index>_<name> where index is the order to be processed
+      if some depend on others (0 to 99).  The value is the jexl expression language.  You can use subjectUtils
+      methods (aliased with "subjectUtils", or you can register your own class (must have default constructor).
+      Here are examples:
+  
+     <init-param>
+       <param-name>subjectVirtualAttribute_0_loginIdLfName</param-name>
+       <param-value>Hey ${subject.getAttributeValue('LOGINID')} and ${subject.getAttributeValue('LFNAME')}</param-value>
+     </init-param>
+     <init-param>
+       <param-name>subjectVirtualAttribute_1_loginIdLfNameLoginId</param-name>
+       <param-value>${subject.getAttributeValue('loginIdLfName')} Hey ${subject.getAttributeValue('LOGINID')} and ${subject.getAttributeValue('LFNAME')}</param-value>
+     </init-param>
+     <init-param>
+       <param-name>subjectVirtualAttributeVariable_JDBCSourceAdapterTest</param-name>
+       <param-value>edu.internet2.middleware.subject.provider.JDBCSourceAdapterTest</param-value>
+     </init-param>
+     <init-param>
+       <param-name>subjectVirtualAttribute_0_loginIdSquared</param-name>
+       <param-value>${JDBCSourceAdapterTest.appendToSelf(subject.getAttributeValue('LOGINID'))}</param-value>
+     </init-param>
+  
+   -->
+  
   <!-- 
     NOTE: It is recommended that you **not** change the default
           values for this source adapter.
