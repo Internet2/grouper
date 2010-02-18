@@ -33,14 +33,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.cglib.proxy.Enhancer;
 
+import org.apache.commons.jexl.Expression;
+import org.apache.commons.jexl.ExpressionFactory;
+import org.apache.commons.jexl.JexlContext;
+import org.apache.commons.jexl.JexlHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hsqldb.Session;
+
 
 
 /**
@@ -1701,4 +1708,78 @@ public class SubjectUtils {
     }
   }
 
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap) {
+    if (isBlank(stringToParse)) {
+      return stringToParse;
+    }
+    try {
+      JexlContext jc = JexlHelper.createContext();
+
+      int index = 0;
+      
+      for (String key: variableMap.keySet()) {
+        jc.getVars().put(key, variableMap.get(key));
+      }
+      
+      //allow utility methods
+      jc.getVars().put("subjectUtils", new SubjectUtils());
+      
+      // matching ${ exp }   (non-greedy)
+      Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
+      Matcher matcher = pattern.matcher(stringToParse);
+      
+      StringBuilder result = new StringBuilder();
+  
+      //loop through and find each script
+      while(matcher.find()) {
+        result.append(stringToParse.substring(index, matcher.start()));
+        
+        //here is the script inside the curlies
+        String script = matcher.group(1);
+        
+        Expression e = ExpressionFactory.createExpression(script);
+  
+        //this is the result of the evaluation
+        Object o = e.evaluate(jc);
+  
+        if (o == null) {
+          log.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
+              + toStringForLog(variableMap.keySet()));
+        }
+        
+        result.append(o);
+        
+        index = matcher.end();
+      }
+      
+      result.append(stringToParse.substring(index, stringToParse.length()));
+      return result.toString();
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
+    }
+  }
+
+  /**
+   * If false, throw an assertException, and give a reason
+   * 
+   * @param isTrue
+   * @param reason
+   */
+  public static void assertion(boolean isTrue, String reason) {
+    if (!isTrue) {
+      throw new RuntimeException(reason);
+    }
+
+  }
+
+
+  
 }

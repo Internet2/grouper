@@ -7,10 +7,16 @@ See doc/license.txt in this distribution.
  */
 package edu.internet2.middleware.subject.provider;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -20,6 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.SubjectUtils;
+import edu.internet2.middleware.subject.util.ExpirableCache;
 
 /**
  * Base Subject implementation.  Subclass this to change behavior
@@ -170,6 +178,7 @@ public class SubjectImpl implements Subject {
    * {@inheritDoc}
    */
   public String getAttributeValue(String name1) {
+    this.initAttributesIfNeeded();
     if (this.attributes == null) {
       return null;
     }
@@ -185,17 +194,197 @@ public class SubjectImpl implements Subject {
    * {@inheritDoc}
    */
   public Set<String> getAttributeValues(String name1) {
+    this.initAttributesIfNeeded();
     if (this.attributes == null) {
       return new LinkedHashSet<String>();
     }
     return this.attributes.get(name1);
   }
 
+  /** if we have initted the attributes */
+  private boolean attributesInitted = false;
 
+  /**
+   * 
+   */
+  private void initAttributesIfNeeded() {
+    if (!this.attributesInitted) {
+      //NOTE, there could be race conditions here (marking initted before initted), 
+      //but we get endless loops without this
+      this.attributesInitted = true;
+      initVirtualAttributes(this);
+    }
+  }
+
+  /**
+   * make sure the virtual attributes are setup for the subject
+   * @param subject
+   */
+  public static void initVirtualAttributes(Subject subject) {
+    Source source = subject.getSource();
+    Map<String, String> virtualAttributes = virtualAttributesForSource(source);
+    if (SubjectUtils.length(virtualAttributes) == 0) {
+      return;
+    }
+    
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("subject", subject);
+
+    Map<String, String> virtualAttributeVariables = virtualAttributeVariablesForSource(source);
+    if (SubjectUtils.length(virtualAttributeVariables) > 0) {
+      for (String name : virtualAttributeVariables.keySet()) {
+        
+        String className = virtualAttributeVariables.get(name);
+        Class<?> theClass = SubjectUtils.forName(className);
+        Object instance = SubjectUtils.newInstance(theClass);
+        variableMap.put(name, instance);
+      }
+    }
+    
+    //take each attribute and init it
+    for (String attributeName : virtualAttributes.keySet()) {
+      
+      String el = virtualAttributes.get(attributeName);
+      String value =  SubjectUtils.substituteExpressionLanguage(el, variableMap);
+      Set<String> valueSet = new HashSet<String>();
+      valueSet.add(value);
+      subject.getAttributes().put(attributeName, valueSet);
+    }
+    
+    
+  }
+
+  
+  /**
+   * get the ordered list of virtual attributes for a source
+   * @param source
+   * @return the ordered list
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<String, String> virtualAttributeVariablesForSource(Source source) {
+
+    Map<String, String> virtualAttributeVariables = virtualAttributeVariablesForSource.get(source.getId());
+    if (virtualAttributeVariables!=null) {
+      return virtualAttributeVariables;
+    }
+    
+    virtualAttributeVariables = new LinkedHashMap<String, String>();
+    Properties properties = source.getInitParams();
+    
+    //no virtuals
+    if (properties != null && properties.size() > 0) {
+      
+      //these are the virtual names:
+      Set<String> propertiesSet = new HashSet<String>((Set<String>)(Object)properties.keySet());
+      
+      Iterator<String> iterator = propertiesSet.iterator();
+      
+      Pattern pattern = Pattern.compile("^subjectVirtualAttributeVariable_(.*)$");
+
+      while (iterator.hasNext()) {
+        String property = iterator.next();
+        Matcher matcher = pattern.matcher(property);
+        if (matcher.matches()) {
+          String name = matcher.group(1);
+          if (!name.matches("[a-zA-Z0-9_]+")) {
+            String message = "Virtual attribute variable name (from sources.xml?) must be alphanumeric, or underscore: '" 
+              + name + "' for source: " + source.getId();
+            log.error(message);
+            throw new RuntimeException(message);
+          }
+          virtualAttributeVariables.put(name, properties.getProperty(property));
+        }
+      }
+    }
+    
+    virtualAttributeVariablesForSource.put(source.getId(), virtualAttributeVariables);
+    return virtualAttributeVariables;
+  }
+  
+  /** expirable cache will not look at configs all the time, but will refresh */
+  private static ExpirableCache<String, Map<String, String>> virtualAttributeVariablesForSource = 
+    new ExpirableCache<String, Map<String, String>>(2);
+  
+
+  /**
+   * get the ordered list of virtual attributes for a source
+   * @param source
+   * @return the ordered list
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<String, String> virtualAttributesForSource(Source source) {
+
+    Map<String, String> virtualAttributes = virtualAttributeForSource.get(source.getId());
+    if (virtualAttributes!=null) {
+      return virtualAttributes;
+    }
+    
+    virtualAttributes = new LinkedHashMap<String, String>();
+    Properties properties = source.getInitParams();
+    
+    //no virtuals
+    if (properties != null && properties.size() > 0) {
+      
+      //these are the virtual names:
+      Set<String> virtualKeys = new HashSet<String>((Set<String>)(Object)properties.keySet());
+      
+
+      Iterator<String> iterator = virtualKeys.iterator();
+      
+      while (iterator.hasNext()) {
+        String virtualKey = iterator.next();
+        if (!virtualKey.startsWith("subjectVirtualAttribute_")) {
+          iterator.remove();
+        }
+      }
+      
+      //look for virtuals, we need these in order since they might depend on each other
+      for (int i=0;i<100;i++) {
+
+        //maybe we are done
+        if (virtualKeys.size() == 0) {
+          break;
+        }
+        
+        iterator = virtualKeys.iterator();
+        
+        Pattern pattern = Pattern.compile("^subjectVirtualAttribute_" + i + "_(.*)$");
+        
+        //subjectVirtualAttribute_0_someName (name alphanumeric underscore) JEXL expression
+        while (iterator.hasNext()) {
+          String key = iterator.next();
+          Matcher matcher = pattern.matcher(key);
+          if (matcher.matches()) {
+            String name = matcher.group(1);
+            if (!name.matches("[a-zA-Z0-9_]+")) {
+              String message = "Virtual attribute name (from sources.xml?) must be alphanumeric, or underscore: '" 
+                + name + "' for source: " + source.getId();
+              log.error(message);
+              throw new RuntimeException(message);
+            }
+            virtualAttributes.put(name, properties.getProperty(key));
+            iterator.remove();
+          }
+        }
+      }
+      if (virtualKeys.size() > 0) {
+        log.error("Invalid virtual attribute keys: " + SubjectUtils.toStringForLog(virtualKeys) + ", for source: " + source.getId());
+      }
+    }
+    
+    virtualAttributeForSource.put(source.getId(), virtualAttributes);
+    return virtualAttributes;
+  }
+  
+  /** expirable cache will not look at configs all the time, but will refresh */
+  private static ExpirableCache<String, Map<String, String>> virtualAttributeForSource = 
+    new ExpirableCache<String, Map<String, String>>(2);
+  
   /**
    * {@inheritDoc}
    */
   public Map<String, Set<String>> getAttributes() {
+    this.initAttributesIfNeeded();
     return this.attributes;
   }
 
@@ -212,6 +401,7 @@ public class SubjectImpl implements Subject {
    */
   public void setAttributes(Map<String, Set<String>> attributes1) {
     this.attributes = attributes1;
+    this.attributesInitted = false;
   }
 
 
@@ -309,6 +499,7 @@ public class SubjectImpl implements Subject {
    * @see edu.internet2.middleware.subject.Subject#getAttributeValueOrCommaSeparated(java.lang.String)
    */
   public String getAttributeValueOrCommaSeparated(String attributeName) {
+    this.initAttributesIfNeeded();
     return attributeValueOrCommaSeparated(this, attributeName);
   }
 
@@ -331,6 +522,7 @@ public class SubjectImpl implements Subject {
    * @see edu.internet2.middleware.subject.Subject#getAttributeValueSingleValued(java.lang.String)
    */
   public String getAttributeValueSingleValued(String attributeName) {
+    this.initAttributesIfNeeded();
     if (this.attributes == null) {
       return null;
     }

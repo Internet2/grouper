@@ -82,7 +82,7 @@ public class SourceManager {
   private Map<SubjectType, Set<Source>> source2TypeMap = new HashMap<SubjectType, Set<Source>>();
 
   /** */
-  private Map<String, Source> sourceMap = new HashMap<String, Source>();
+  Map<String, Source> sourceMap = new HashMap<String, Source>();
 
   /**
    * Default constructor.

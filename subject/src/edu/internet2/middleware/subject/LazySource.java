@@ -6,6 +6,7 @@ package edu.internet2.middleware.subject;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -194,6 +195,22 @@ public class LazySource implements Source {
    */
   public void setName(String name) {
     this.getSource().setName(name);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getInitParam(java.lang.String)
+   */
+  @Override
+  public String getInitParam(String name1) {
+    return this.getSource().getInitParam(name1);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#getInitParams()
+   */
+  @Override
+  public Properties getInitParams() {
+    return this.getSource().getInitParams();
   }
 
 }

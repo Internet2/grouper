@@ -323,7 +323,7 @@ public abstract class BaseSourceAdapter implements Source {
    * @param name1
    * @return param
    */
-  protected String getInitParam(String name1) {
+  public String getInitParam(String name1) {
     return this.params.getProperty(name1);
   }
 
@@ -331,7 +331,7 @@ public abstract class BaseSourceAdapter implements Source {
    * (non-javadoc)
    * @return params
    */
-  protected Properties getInitParams() {
+  public Properties getInitParams() {
     return this.params;
   }
 

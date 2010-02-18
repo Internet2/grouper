@@ -42,6 +42,12 @@ public class JDBCSourceAdapterTest extends TestCase {
 
   /**
    * Constructor
+   */
+  public JDBCSourceAdapterTest() {
+    
+  }
+  /**
+   * Constructor
    * @param name 
    */
   public JDBCSourceAdapterTest(String name) {
@@ -76,6 +82,7 @@ public class JDBCSourceAdapterTest extends TestCase {
     this.source.addInitParam("SubjectID_AttributeType", "id");
     this.source.addInitParam("Name_AttributeType", "name");
     this.source.addInitParam("Description_AttributeType", "description");
+    SourceManager.getInstance().sourceMap.put("jdbc", this.source);
 
     Search search = null;
 
@@ -139,7 +146,7 @@ public class JDBCSourceAdapterTest extends TestCase {
    */
   public static void main(String args[]) {
     //TestRunner.run(JDBCSourceAdapterTest.class);
-    TestRunner.run(new JDBCSourceAdapterTest("testTooManyResults"));
+    TestRunner.run(new JDBCSourceAdapterTest("testVirtualAttribute2"));
   }
 
   /**
@@ -193,6 +200,45 @@ public class JDBCSourceAdapterTest extends TestCase {
     }
   }
 
+  /**
+   * A test of Subject identifier search capability.
+   */
+  public void testVirtualAttribute() {
+    //LOGINID=[babl], LFNAME=[Barry Blair]
+    this.source.addInitParam("subjectVirtualAttribute_2_loginIdLfName", "Hey ${subject.getAttributeValue('LOGINID')} and ${subject.getAttributeValue('LFNAME')}");
+    this.source.addInitParam("subjectVirtualAttribute_4_loginIdLfNameLoginId", "${subject.getAttributeValue('loginIdLfName')} Hey ${subject.getAttributeValue('LOGINID')} and ${subject.getAttributeValue('LFNAME')}");
+    Subject subject = null;
+    subject = this.source.getSubjectByIdentifier("babl", true);
+    assertEquals("babl", subject.getAttributeValue("LOGINID"));
+    assertEquals("Hey babl and Barry Blair", subject.getAttributeValue("loginIdLfName"));
+    assertEquals("Hey babl and Barry Blair Hey babl and Barry Blair", subject.getAttributeValue("loginIdLfNameLoginId"));
+    
+  }
+
+  /**
+   * A test of Subject identifier search capability.
+   */
+  public void testVirtualAttribute2() {
+    //LOGINID=[babl], LFNAME=[Barry Blair]
+    this.source.addInitParam("subjectVirtualAttributeVariable_JDBCSourceAdapterTest", "edu.internet2.middleware.subject.provider.JDBCSourceAdapterTest");
+    this.source.addInitParam("subjectVirtualAttribute_0_loginIdSquared", "${JDBCSourceAdapterTest.appendToSelf(subject.getAttributeValue('LOGINID'))}");
+    
+    Subject subject = null;
+    subject = this.source.getSubjectByIdentifier("babl", true);
+    assertEquals("babl", subject.getAttributeValue("LOGINID"));
+    assertEquals("bablbabl", subject.getAttributeValue("loginIdSquared"));
+    
+  }
+
+  /**
+   * 
+   * @param string
+   * @return the string appended to itself
+   */
+  public static String appendToSelf(String string) {
+    return string + string;
+  }
+  
   /**
    * test search on all pooling strategies
    * @throws Throwable 

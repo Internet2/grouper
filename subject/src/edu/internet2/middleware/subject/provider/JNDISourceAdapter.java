@@ -19,17 +19,13 @@ package edu.internet2.middleware.subject.provider;
  * @author esluss
  */
 
-import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -46,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.morphString.Morph;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;

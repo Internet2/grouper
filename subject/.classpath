@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="lib/p6spy.jar"/>
+	<classpathentry kind="lib" path="lib/commons-jexl.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

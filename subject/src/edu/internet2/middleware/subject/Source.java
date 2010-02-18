@@ -1,6 +1,7 @@
 package edu.internet2.middleware.subject;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 
@@ -156,4 +157,17 @@ public interface Source {
    * @return the info
    */
   public String printConfig();
+
+  /**
+   * get the init param e.g. from the sources.xml
+   * @param name1
+   * @return param
+   */
+  public String getInitParam(String name1);
+
+  /**
+   * get the init params e.g. from the sources.xml
+   * @return params
+   */
+  public Properties getInitParams();
 }
