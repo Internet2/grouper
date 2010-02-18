@@ -29,7 +29,7 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-value>edu.internet2.middleware.subject.provider.JDBCSourceAdapterTest</param-value>
      </init-param>
      <init-param>
-       <param-name>subjectVirtualAttribute_0_loginIdSquared</param-name>
+       <param-name>subjectVirtualAttribute_2_loginIdSquared</param-name>
        <param-value>${JDBCSourceAdapterTest.appendToSelf(subject.getAttributeValue('LOGINID'))}</param-value>
      </init-param>
   
