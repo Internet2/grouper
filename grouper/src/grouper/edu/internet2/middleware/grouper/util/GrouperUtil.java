@@ -67,6 +67,10 @@ import net.sf.json.util.PropertyFilter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.jexl.Expression;
+import org.apache.commons.jexl.ExpressionFactory;
+import org.apache.commons.jexl.JexlContext;
+import org.apache.commons.jexl.JexlHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
@@ -3046,6 +3050,7 @@ public class GrouperUtil {
       for (int i=0;i<Array.getLength(value);i++) {
         Array.set(clonedValue, i, cloneValue(Array.get(value, i)));
       }
+      
       
     } else {
 
@@ -6452,9 +6457,9 @@ public class GrouperUtil {
         return properties;
       }
     }
-    
+  
     FileInputStream fileInputStream = null;
-    
+  
     try {
       fileInputStream = new FileInputStream(file);
       properties = new Properties();
@@ -6462,17 +6467,17 @@ public class GrouperUtil {
     } catch (IOException ioe) {
       throw new RuntimeException("Problem with file: " + file, ioe);
     } finally {
-      
+  
       GrouperUtil.closeQuietly(fileInputStream);
-      
+  
     }
-    
+  
     if (useCache) {
       propertiesFromFileCache().put(file, properties);      
-    }
+  }
     return properties;
   }
-  
+
   /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
@@ -7993,6 +7998,67 @@ public class GrouperUtil {
       }
       return sw.getBuffer().toString();
   }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap) {
+    if (GrouperUtil.isBlank(stringToParse)) {
+      return stringToParse;
+    }
+    try {
+      JexlContext jc = JexlHelper.createContext();
+  
+      int index = 0;
+      
+      for (String key: variableMap.keySet()) {
+        jc.getVars().put(key, variableMap.get(key));
+      }
+      
+      //allow utility methods
+      jc.getVars().put("grouperUtil", new GrouperUtil());
+      
+      // matching ${ exp }   (non-greedy)
+      Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
+      Matcher matcher = pattern.matcher(stringToParse);
+      
+      StringBuilder result = new StringBuilder();
+  
+      //loop through and find each script
+      while(matcher.find()) {
+        result.append(stringToParse.substring(index, matcher.start()));
+        
+        //here is the script inside the curlies
+        String script = matcher.group(1);
+        
+        Expression e = ExpressionFactory.createExpression(script);
+  
+        //this is the result of the evaluation
+        Object o = e.evaluate(jc);
+  
+        if (o == null) {
+          LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
+              + GrouperUtil.toStringForLog(variableMap.keySet()));
+        }
+        
+        result.append(o);
+        
+        index = matcher.end();
+      }
+      
+      result.append(stringToParse.substring(index, stringToParse.length()));
+      return result.toString();
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
+    }
+  }
+
+
   /**
    * <p>Returns the list of <code>Throwable</code> objects in the
    * exception chain.</p>
@@ -9409,6 +9475,168 @@ public class GrouperUtil {
       stringFieldNames.put(theClass, fieldNames(theClass, String.class, false));
     }
     return stringFieldNames.get(theClass);
+  }
+
+  /**
+   * if theString is not blank, apppend it to the result, and if appending,
+   * @param result to append to
+   * add a prefix and suffix (if not null)
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @return true if something appended, false if not
+   */
+  public static boolean appendIfNotBlank(StringBuilder result, 
+      Object theStringOrArrayOrList) {
+    return appendIfNotBlank(result, null, theStringOrArrayOrList, null);
+  }
+
+  /**
+   * if theString is not Blank, apppend it to the result, and if appending,
+   * add a prefix (if not null)
+   * @param result to append to
+   * @param prefix
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @return true if something appended, false if not
+   */
+  public static boolean appendIfNotBlank(StringBuilder result, 
+      String prefix, Object theStringOrArrayOrList) {
+    return appendIfNotBlank(result, prefix, theStringOrArrayOrList, null);
+  }
+
+  /**
+   * if theString is not Blank, apppend it to the result, and if appending,
+   * add a prefix and suffix (if not null)
+   * @param result to append to, assumed to be not null
+   * @param prefix
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @param suffix
+   * @return true if anything appended, false if not
+   */
+  public static boolean appendIfNotBlank(StringBuilder result, 
+      String prefix, Object theStringOrArrayOrList, String suffix) {
+    return appendIfNotBlank(result, prefix, null, theStringOrArrayOrList, suffix);
+  }
+
+  /**
+   * if theString is not Blank, apppend it to the result, and if appending,
+   * add a prefix and suffix (if not null)
+   * @param result to append to, assumed to be not null
+   * @param prefix prepend this prefix always (when a result not empty).  Will be after the other prefix
+   * @param prefixIfNotBlank prepend this prefix if the result is not empty
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @param suffix
+   * @return true if anything appended, false if not
+   */
+  public static boolean appendIfNotBlank(StringBuilder result, 
+      String prefix, String prefixIfNotBlank, Object theStringOrArrayOrList, String suffix) {
+    int length = length(theStringOrArrayOrList);
+    Iterator iterator = iterator(theStringOrArrayOrList);
+    boolean appendedAnything = false;
+    
+    //these could be appending spaces, so only check to see if they are empty
+    boolean hasPrefix = !StringUtils.isEmpty(prefix);
+    boolean hasPrefixIfNotBlank = !StringUtils.isEmpty(prefixIfNotBlank);
+    boolean hasSuffix = !StringUtils.isEmpty(suffix);
+    for (int i=0;i<length;i++) {
+      String  current = (String) next(theStringOrArrayOrList, iterator, i);
+      
+      //only append if not empty
+      if (!StringUtils.isBlank(current)) {
+        
+        //keeping track if anything changed
+        appendedAnything = true;
+        if (hasPrefix) {
+          result.append(prefix);
+        }
+        if (hasPrefixIfNotBlank && result.length() > 0) {
+          result.append(prefixIfNotBlank);
+        }
+        result.append(current);
+        if (hasSuffix) {
+          result.append(suffix);
+        }
+      }
+    }
+    return appendedAnything;
+  }
+
+  /**
+     * if theString is not empty, apppend it to the result, and if appending,
+     * @param result to append to
+     * add a prefix and suffix (if not null)
+     * @param theStringOrArrayOrList is a string, array, list, or set of strings
+     * @return true if something appended, false if not
+     */
+    public static boolean appendIfNotEmpty(StringBuilder result, 
+        Object theStringOrArrayOrList) {
+      return appendIfNotEmpty(result, null, theStringOrArrayOrList, null);
+  }
+
+  /**
+   * if theString is not empty, apppend it to the result, and if appending,
+   * add a prefix (if not null)
+   * @param result to append to
+   * @param prefix
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @return true if something appended, false if not
+   */
+  public static boolean appendIfNotEmpty(StringBuilder result, 
+      String prefix, Object theStringOrArrayOrList) {
+    return appendIfNotEmpty(result, prefix, theStringOrArrayOrList, null);
+  }
+
+  /**
+   * if theString is not empty, apppend it to the result, and if appending,
+   * add a prefix and suffix (if not null)
+   * @param result to append to, assumed to be not null
+   * @param prefix
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @param suffix
+   * @return true if anything appended, false if not
+   */
+  public static boolean appendIfNotEmpty(StringBuilder result, 
+      String prefix, Object theStringOrArrayOrList, String suffix) {
+    return appendIfNotEmpty(result, prefix, null, theStringOrArrayOrList, suffix);
+  }
+
+  /**
+   * if theString is not empty, apppend it to the result, and if appending,
+   * add a prefix and suffix (if not null)
+   * @param result to append to, assumed to be not null
+   * @param prefix prepend this prefix always (when a result not empty).  Will be after the other prefix
+   * @param prefixIfNotEmpty prepend this prefix if the result is not empty
+   * @param theStringOrArrayOrList is a string, array, list, or set of strings
+   * @param suffix
+   * @return true if anything appended, false if not
+   */
+  public static boolean appendIfNotEmpty(StringBuilder result, 
+      String prefix, String prefixIfNotEmpty, Object theStringOrArrayOrList, String suffix) {
+    int length = length(theStringOrArrayOrList);
+    Iterator iterator = iterator(theStringOrArrayOrList);
+    boolean appendedAnything = false;
+    boolean hasPrefix = !StringUtils.isEmpty(prefix);
+    boolean hasPrefixIfNotEmpty = !StringUtils.isEmpty(prefixIfNotEmpty);
+    boolean hasSuffix = !StringUtils.isEmpty(suffix);
+    for (int i=0;i<length;i++) {
+      String  current = (String) next(theStringOrArrayOrList, iterator, i);
+      
+      //only append if not empty
+      if (!StringUtils.isEmpty(current)) {
+        
+        //keeping track if anything changed
+        appendedAnything = true;
+        if (hasPrefix) {
+          result.append(prefix);
+        }
+        if (hasPrefixIfNotEmpty && result.length() > 0) {
+          result.append(prefixIfNotEmpty);
+        }
+        result.append(current);
+        if (hasSuffix) {
+          result.append(suffix);
+        }
+      }
+    }
+    return appendedAnything;
   }
   
 }

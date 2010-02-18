@@ -434,10 +434,10 @@ public class GrouperCheckConfig {
       grouperSession = GrouperSession.staticGrouperSession(false);
 
       if (grouperSession == null) {
-        grouperSession = GrouperSession.startRootSession();
+      grouperSession = GrouperSession.startRootSession();
         startedGrouperSession = true;
       }
-      
+    
       while(true) {
         String groupName = null;
         try {
@@ -566,7 +566,7 @@ public class GrouperCheckConfig {
       throw new RuntimeException(se);
     } finally {
       if (startedGrouperSession) {
-        GrouperSession.stopQuietly(grouperSession);
+      GrouperSession.stopQuietly(grouperSession);
       }
       if (!wasInCheckConfig) {
         inCheckConfig = false;
@@ -1108,6 +1108,7 @@ public class GrouperCheckConfig {
     checkJar("commons-digester.jar", 136649, "org.apache.commons.digester.AbstractObjectCreationFactory", "0.1.0");
     checkJar("commons-discovery.jar", 76685, "org.apache.commons.discovery.ant.ServiceDiscoveryTask", "0.4");
     checkJar("commons-io.jar", 267413, "org.apache.commons.io.comparator.DefaultFileComparator", "null");
+    checkJar("commons-jexl.jar", 270163, "org.apache.commons.jexl.context.HashMapContext", "1.1");
     checkJar("commons-lang.jar", 468109, "org.apache.commons.lang.ArrayUtils", "2.1");
     checkJar("commons-logging.jar", 131078, "org.apache.commons.logging.impl.AvalonLogger", "1.1.1");
     checkJar("commons-math.jar", 174535, "org.apache.commons.math.distribution.ExponentialDistributionImpl", "1.1");
