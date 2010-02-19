@@ -59,7 +59,7 @@ public class typeAddAttr {
     catch (SchemaException eS)                  {
       GrouperShell.error(i, eS);
     }
-    throw new GrouperShellException(GshErrorMessages.TYPE_ADDATTR + name);
+    throw new GrouperShellException(GshErrorMessages.TYPE_ADDATTR + type);
   } // public static Field invoke(i, stack, type, name, read, write, req)
 
 } // public class typeAddAttr

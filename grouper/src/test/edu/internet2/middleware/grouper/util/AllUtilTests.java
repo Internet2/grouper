@@ -4,9 +4,9 @@
  */
 package edu.internet2.middleware.grouper.util;
 
-import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 
 /**
  * test suite for util pkg
@@ -20,6 +20,7 @@ public class AllUtilTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.util");
     //$JUnit-BEGIN$
+    suite.addTestSuite(GrouperHtmlFilterTest.class);
     suite.addTestSuite(GrouperUtilTest.class);
     suite.addTestSuite(GrouperCacheTest.class);
     suite.addTestSuite(XmlIndenterTest.class);
