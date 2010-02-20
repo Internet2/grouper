@@ -6441,6 +6441,40 @@ public class GrouperUtil {
     }
     return propertiesFromFileCache;
   }
+
+  /**
+   * this will get the properties from an external url.  It will cache these (failsafe),
+   * and will escape them based on grouper's properties escaper (configurable)
+   * @param urlString e.g. http://localhost:8090/grouper/test.properties
+   * @param useCache if should cache for 2 minutes
+   * @param useFailSafeCache if should use this cache for 1 day if the url cant connect
+   * @param grouperHtmlFilter 
+   * @return the properties
+   */
+  public static Properties propertiesFromUrl(String urlString, boolean useCache, 
+      boolean useFailSafeCache, GrouperHtmlFilter grouperHtmlFilter) {
+    InputStream inputStream = null;
+    try {
+      URL url = new URL(urlString);
+      Properties properties = new Properties();
+      inputStream = url.openConnection().getInputStream();
+      properties.load(inputStream);
+      
+      if (grouperHtmlFilter != null) {
+        for (Object key : properties.keySet()) {
+          String value = (String)properties.get(key);
+          String formattedValue = grouperHtmlFilter.filterHtml(value);
+          properties.put(key, formattedValue);
+        }
+      }
+      
+      return properties;
+    } catch (Exception e) {
+      throw new RuntimeException("Problem with url: " + urlString);
+    } finally {
+      closeQuietly(inputStream);
+    }
+  }
   
   /**
    * properties from file

@@ -31,9 +31,23 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testFormatNumberWithCommas"));
+    TestRunner.run(new GrouperUtilTest("atestUrlProperties"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * see that properties can be retrieved from url
+   */
+  public void atestUrlProperties() {
+    
+    //put test.properties at a url with these contents:
+    //test=testProp
+    //test2=hey<b> < what
+//    Properties properties = GrouperUtil.propertiesFromUrl("http://localhost:8090/grouper/test.properties");
+//    assertEquals("testProp", properties.get("test"));
+//    properties = GrouperUtil.propertiesFromUrl("http://localhost:8090/grouper/test.properties");
+//    assertEquals("testProp", properties.get("test"));
   }
   
   /**

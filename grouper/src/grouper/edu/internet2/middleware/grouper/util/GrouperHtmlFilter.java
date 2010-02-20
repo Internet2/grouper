@@ -93,7 +93,7 @@ public class GrouperHtmlFilter implements HtmlFilter {
     int index = 0;
 
     // matching < exp >   (non-greedy)
-    Pattern pattern = Pattern.compile("<(.*?)\\>");
+    Pattern pattern = Pattern.compile("<([^<]*?)\\>");
     Matcher matcher = pattern.matcher(html);
     
     StringBuilder result = new StringBuilder();
@@ -112,6 +112,11 @@ public class GrouperHtmlFilter implements HtmlFilter {
         result.append("<");
         result.append(tag);
         result.append(">");
+      } else {
+        result.append("&lt;");
+        result.append(escapeHtml(tag));
+        result.append("&gt;");
+        
       }
       
       index = matcher.end();

@@ -40,14 +40,14 @@ public class GrouperHtmlFilterTest extends GrouperTest {
     assertEquals("h<b>e</b>y", new GrouperHtmlFilter().filterHtml("h<b>e</b>y"));
     assertEquals("h<BR />ey", new GrouperHtmlFilter().filterHtml("h<BR />ey"));
     assertEquals("h<b>e</b>y", new GrouperHtmlFilter().filterHtml("h<b>e</b>y"));
-    assertEquals("hey", new GrouperHtmlFilter().filterHtml("h<script>e</script>y"));
-    assertEquals("hey", new GrouperHtmlFilter().filterHtml("h<form>e</form>y"));
-    assertEquals("hey", new GrouperHtmlFilter().filterHtml("h<a>e</a>y"));
-    assertEquals("hey", new GrouperHtmlFilter().filterHtml("h<button>e</button>y"));
+    assertEquals("h&lt;script&gt;e&lt;/script&gt;y", new GrouperHtmlFilter().filterHtml("h<script>e</script>y"));
+    assertEquals("h&lt;form&gt;e&lt;/form&gt;y", new GrouperHtmlFilter().filterHtml("h<form>e</form>y"));
+    assertEquals("h&lt;a&gt;e&lt;/a&gt;y", new GrouperHtmlFilter().filterHtml("h<a>e</a>y"));
+    assertEquals("h&lt;button&gt;e&lt;/button&gt;y", new GrouperHtmlFilter().filterHtml("h<button>e</button>y"));
     assertEquals("h<div>e</div>y", new GrouperHtmlFilter().filterHtml("h<div>e</div>y"));
-    assertEquals("he</div>y", new GrouperHtmlFilter().filterHtml("h<h<div>e</div>y"));
+    assertEquals("h&lt;h<div>e</div>y", new GrouperHtmlFilter().filterHtml("h<h<div>e</div>y"));
     assertEquals("h&lt;h<div>e</div>y", new GrouperHtmlFilter().filterHtml("h&lt;h<div>e</div>y"));
-    assertEquals("he</div>y", new GrouperHtmlFilter().filterHtml("h<div onclick=''>e</div>y"));
+    assertEquals("h&lt;div onclick=''&gt;e</div>y", new GrouperHtmlFilter().filterHtml("h<div onclick=''>e</div>y"));
   }
   
 }
