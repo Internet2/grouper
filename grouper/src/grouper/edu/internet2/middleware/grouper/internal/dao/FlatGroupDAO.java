@@ -30,4 +30,8 @@ public interface FlatGroupDAO extends GrouperDAO {
    */
   public FlatGroup findById(String flatGroupId);
   
+  /**
+   * @param flatGroupId
+   */
+  public void removeGroupForeignKey(String flatGroupId);
 }

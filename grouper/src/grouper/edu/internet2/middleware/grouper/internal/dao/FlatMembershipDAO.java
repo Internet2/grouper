@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.flat.FlatMembership;
 
 
@@ -51,4 +52,52 @@ public interface FlatMembershipDAO extends GrouperDAO {
    * @return flat membership
    */
   public FlatMembership findByOwnerAndMemberAndField(String ownerId, String memberId, String fieldId);
+  
+  /**
+   * @param ownerId
+   * @param fieldId
+   * @return set of members
+   */
+  public Set<Member> findMembersToAddByGroupOwnerAndField(String ownerId, String fieldId);
+  
+  /**
+   * @param ownerId
+   * @param fieldId
+   * @return set of members
+   */
+  public Set<Member> findMembersToAddByStemOwnerAndField(String ownerId, String fieldId);
+  
+  /**
+   * @param ownerId
+   * @param fieldId
+   * @return set of members
+   */
+  public Set<Member> findMembersToAddByAttrDefOwnerAndField(String ownerId, String fieldId);
+  
+  /**
+   * @param ownerId
+   * @param fieldId
+   * @return set of flat memberships that should be deleted
+   */
+  public Set<FlatMembership> findMembersToDeleteByGroupOwnerAndField(String ownerId, String fieldId);
+  
+  /**
+   * @param ownerId
+   * @param fieldId
+   * @return set of flat memberships that should be deleted
+   */
+  public Set<FlatMembership> findMembersToDeleteByStemOwnerAndField(String ownerId, String fieldId);
+  
+  /**
+   * @param ownerId
+   * @param fieldId
+   * @return set of flat memberships that should be deleted
+   */
+  public Set<FlatMembership> findMembersToDeleteByAttrDefOwnerAndField(String ownerId, String fieldId);
+  
+  /**
+   * @param memberId
+   * @return set of flat memberships
+   */
+  public Set<FlatMembership> findByMemberId(String memberId);
 }

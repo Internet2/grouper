@@ -181,6 +181,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             // delete group sets
             GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerGroup(_g);
             
+            // remove foreign keys in flat table
+            GrouperDAOFactory.getFactory().getFlatGroup().removeGroupForeignKey(_g.getUuid());
+            
             // delete group
             byObject.delete( _g );
             return null;

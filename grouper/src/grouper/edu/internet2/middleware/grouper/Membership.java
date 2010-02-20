@@ -303,6 +303,15 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   @Deprecated
   public static final String IMMEDIATE = "immediate";
+  
+  /** group owner type for change log */
+  public static final String OWNER_TYPE_GROUP = "group";
+  
+  /** stem owner type for change log */
+  public static final String OWNER_TYPE_STEM = "stem";
+  
+  /** attr def owner type for change log */
+  public static final String OWNER_TYPE_ATTRIBUTE_DEF = "attributeDef";
 
   /**
    * separator used in the uuid field to split immediate_membership_id and group_set_id
@@ -2600,7 +2609,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), this.getMember().getSubjectId(),
           ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
           ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), "group",
+          ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_GROUP,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.NAMING.getType())) {
@@ -2612,7 +2621,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), this.getMember().getSubjectId(),
           ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
           ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), "stem",
+          ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_STEM,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerStemId(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getStem().getName()).save();
     } else if (this.getListType().equals(FieldType.ATTRIBUTE_DEF.getType())) {
@@ -2624,7 +2633,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), this.getMember().getSubjectId(),
           ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
           ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), "attributeDef",
+          ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_ATTRIBUTE_DEF,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerAttrDefId(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getAttributeDef().getName()).save();
     } else {
@@ -2662,7 +2671,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), member.getSubjectId(),
           ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), member.getSubjectSourceId(),
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), "group",
+          ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_GROUP,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.NAMING.getType())) {
@@ -2674,7 +2683,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), member.getSubjectId(),
           ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), member.getSubjectSourceId(),
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), "stem",
+          ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_STEM,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerStemId(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getStem().getName()).save();
     } else if (this.getListType().equals(FieldType.ATTRIBUTE_DEF.getType())) {
@@ -2686,7 +2695,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), member.getSubjectId(),
           ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), member.getSubjectSourceId(),
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), "attributeDef",
+          ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_ATTRIBUTE_DEF,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerAttrDefId(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getAttributeDef().getName()).save();
     } else {

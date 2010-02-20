@@ -30,4 +30,8 @@ public interface FlatAttributeDefDAO extends GrouperDAO {
    */
   public FlatAttributeDef findById(String flatAttributeDefId);
   
+  /**
+   * @param flatAttributeDefId
+   */
+  public void removeAttributeDefForeignKey(String flatAttributeDefId);
 }

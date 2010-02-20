@@ -30,4 +30,8 @@ public interface FlatStemDAO extends GrouperDAO {
    */
   public FlatStem findById(String flatStemId);
   
+  /**
+   * @param flatStemId
+   */
+  public void removeStemForeignKey(String flatStemId);
 }

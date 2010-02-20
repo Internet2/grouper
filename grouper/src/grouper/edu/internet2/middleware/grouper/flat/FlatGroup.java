@@ -4,7 +4,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
-import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * $Id$
  */
 @SuppressWarnings("serial")
-public class FlatGroup extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class FlatGroup extends GrouperAPI implements Hib3GrouperVersioned {
   
   /** db id for this row */
   public static final String COLUMN_ID = "id";
@@ -109,6 +109,7 @@ public class FlatGroup extends GrouperAPI implements GrouperHasContext, Hib3Grou
    */
   public void setId(String id) {
     this.id = id;
+    this.groupId = id;
   }
 
   /**
@@ -126,4 +127,17 @@ public class FlatGroup extends GrouperAPI implements GrouperHasContext, Hib3Grou
     this.groupId = groupId;
   }
 
+  /**
+   * save this object
+   */
+  public void save() {
+    GrouperDAOFactory.getFactory().getFlatGroup().save(this);
+  }
+  
+  /**
+   * delete this object
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getFlatGroup().delete(this);
+  }
 }

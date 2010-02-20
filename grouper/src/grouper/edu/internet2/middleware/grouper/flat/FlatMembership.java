@@ -3,8 +3,10 @@ package edu.internet2.middleware.grouper.flat;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
-import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -13,7 +15,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * $Id$
  */
 @SuppressWarnings("serial")
-public class FlatMembership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class FlatMembership extends GrouperAPI implements Hib3GrouperVersioned {
   
   /** db id for this row */
   public static final String COLUMN_ID = "id";
@@ -118,6 +120,9 @@ public class FlatMembership extends GrouperAPI implements GrouperHasContext, Hib
 
   /** member id */
   private String memberId;
+  
+  /** member */
+  private Member member;
   
   
   /**
@@ -257,4 +262,43 @@ public class FlatMembership extends GrouperAPI implements GrouperHasContext, Hib
     }
   }
 
+  /**
+   * @return member
+   */
+  public Member getMember() {
+    
+    if (member != null) {
+      return member;
+    }
+
+    String uuid = this.getMemberId();
+    if (uuid == null) {
+      throw new MemberNotFoundException("flat membership does not have a member!");
+    }
+    
+    member = GrouperDAOFactory.getFactory().getMember().findByUuid(uuid, true) ;
+    return member;
+  } 
+  
+  /**
+   * set the member of this flat membership
+   * @param member
+   */
+  public void setMember(Member member) {
+    this.member = member;
+  }
+  
+  /**
+   * save this object
+   */
+  public void save() {
+    GrouperDAOFactory.getFactory().getFlatMembership().save(this);
+  }
+  
+  /**
+   * delete this object
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getFlatMembership().delete(this);
+  }
 }

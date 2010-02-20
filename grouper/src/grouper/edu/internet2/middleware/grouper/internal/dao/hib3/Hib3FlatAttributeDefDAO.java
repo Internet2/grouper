@@ -50,6 +50,16 @@ public class Hib3FlatAttributeDefDAO extends Hib3DAO implements FlatAttributeDef
     
     return flatAttributeDef;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatAttributeDefDAO#removeAttributeDefForeignKey(java.lang.String)
+   */
+  public void removeAttributeDefForeignKey(String flatAttributeDefId) {
+    HibernateSession.byHqlStatic()
+      .createQuery("update FlatAttributeDef set attributeDefId = null where id = :id")
+      .setString("id", flatAttributeDefId)
+      .executeUpdate();
+  }
   
 }
 

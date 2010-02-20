@@ -51,5 +51,15 @@ public class Hib3FlatGroupDAO extends Hib3DAO implements FlatGroupDAO {
     return flatGroup;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO#removeGroupForeignKey(java.lang.String)
+   */
+  public void removeGroupForeignKey(String flatGroupId) {
+    HibernateSession.byHqlStatic()
+      .createQuery("update FlatGroup set groupId = null where id = :id")
+      .setString("id", flatGroupId)
+      .executeUpdate();
+  }
+  
 }
 

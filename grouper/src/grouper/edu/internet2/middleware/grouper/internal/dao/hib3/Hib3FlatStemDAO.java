@@ -51,5 +51,15 @@ public class Hib3FlatStemDAO extends Hib3DAO implements FlatStemDAO {
     return flatStem;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatStemDAO#removeStemForeignKey(java.lang.String)
+   */
+  public void removeStemForeignKey(String flatStemId) {
+    HibernateSession.byHqlStatic()
+      .createQuery("update FlatStem set stemId = null where id = :id")
+      .setString("id", flatStemId)
+      .executeUpdate();
+  }
+  
 }
 
