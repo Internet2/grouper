@@ -31,23 +31,117 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("atestUrlProperties"));
+    TestRunner.run(new GrouperUtilTest("testUrlProperties"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
   
   /**
    * see that properties can be retrieved from url
+   * note, this is called atestUrlProperties since the URL might not be setup
    */
-  public void atestUrlProperties() {
+  public void testUrlProperties() {
     
     //put test.properties at a url with these contents:
     //test=testProp
     //test2=hey<b> < what
-//    Properties properties = GrouperUtil.propertiesFromUrl("http://localhost:8090/grouper/test.properties");
-//    assertEquals("testProp", properties.get("test"));
-//    properties = GrouperUtil.propertiesFromUrl("http://localhost:8090/grouper/test.properties");
-//    assertEquals("testProp", properties.get("test"));
+    
+    String url = "https://medley.isc-seo.upenn.edu/docroot/misc/grouperUnit.properties";
+    //different url in cache, but same principal
+    String url2 = url + "?";
+    
+    Properties properties = null;
+    
+    int propertiesFromUrlHttpCount = GrouperUtil.propertiesFromUrlHttpCount;
+    int propertiesFromUrlFailsafeGetCount = GrouperUtil.propertiesFromUrlFailsafeGetCount;
+    
+    properties = GrouperUtil.propertiesFromUrl(url, false, false, null);
+    
+    assertEquals("testProp", properties.get("test"));
+    assertEquals("hey<b> < what", properties.get("test2"));
+    
+    assertEquals(propertiesFromUrlHttpCount+1, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+
+    //go again, no cache:
+    properties = GrouperUtil.propertiesFromUrl(url, false, false, null);
+    
+    assertEquals("testProp", properties.get("test"));
+    assertEquals("hey<b> < what", properties.get("test2"));
+    
+    assertEquals(propertiesFromUrlHttpCount+2, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+
+    //lets cache
+    properties = GrouperUtil.propertiesFromUrl(url, true, false, null);
+    
+    assertEquals("testProp", properties.get("test"));
+    assertEquals("hey<b> < what", properties.get("test2"));
+    
+    assertEquals(propertiesFromUrlHttpCount+3, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+
+    //should get from cache
+    properties = GrouperUtil.propertiesFromUrl(url, true, false, null);
+    
+    assertEquals("testProp", properties.get("test"));
+    assertEquals("hey<b> < what", properties.get("test2"));
+    
+    assertEquals(propertiesFromUrlHttpCount+3, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+
+    //transform
+    properties = GrouperUtil.propertiesFromUrl(url, false, false, new GrouperHtmlFilter());
+    
+    assertEquals("testProp", properties.get("test"));
+    assertEquals("hey<b> &lt; what", properties.get("test2"));
+    
+    assertEquals(propertiesFromUrlHttpCount+4, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+
+    //failsafe
+    properties = GrouperUtil.propertiesFromUrl(url2, true, true, new GrouperHtmlFilter());
+    
+    assertEquals("testProp", properties.get("test"));
+    assertEquals("hey<b> &lt; what", properties.get("test2"));
+    
+    assertEquals(propertiesFromUrlHttpCount+5, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+
+    GrouperUtil.propertiesFromUrlFailForTest = true;
+    
+    //try a failure when not caching
+    try {
+      properties = GrouperUtil.propertiesFromUrl(url, false, false, new GrouperHtmlFilter());
+      fail();
+    } catch (Exception e) {
+      //good
+    }
+    assertEquals(propertiesFromUrlHttpCount+5, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+    
+    //try a failure when caching (second level)
+    GrouperUtil.propertiesFromUrlFailForTest = true;
+    GrouperUtil.propertiesFromUrlCache.clear();
+    properties = GrouperUtil.propertiesFromUrl(url2, true, true, new GrouperHtmlFilter());
+
+    assertEquals("testProp", properties.get("test"));
+    assertEquals("hey<b> &lt; what", properties.get("test2"));
+
+    assertEquals(propertiesFromUrlHttpCount+5, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount+1, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+
+    //should be in cache
+    properties = GrouperUtil.propertiesFromUrl(url2, true, true, new GrouperHtmlFilter());
+
+    assertEquals("testProp", properties.get("test"));
+    assertEquals("hey<b> &lt; what", properties.get("test2"));
+
+    assertEquals(propertiesFromUrlHttpCount+5, GrouperUtil.propertiesFromUrlHttpCount);
+    assertEquals(propertiesFromUrlFailsafeGetCount+1, GrouperUtil.propertiesFromUrlFailsafeGetCount);
+    
+    
+    
   }
   
   /**

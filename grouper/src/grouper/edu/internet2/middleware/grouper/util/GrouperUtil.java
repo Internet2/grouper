@@ -6443,6 +6443,49 @@ public class GrouperUtil {
   }
 
   /**
+   * cache properties
+   */
+  static GrouperCache<String, Properties> propertiesFromUrlCache = null;
+
+  /**
+   * properties from url cache
+   * @return cache
+   */
+  private static GrouperCache<String, Properties> propertiesFromUrlCache() {
+    if (propertiesFromUrlCache == null) {
+      propertiesFromUrlCache = new GrouperCache<String,Properties>(
+          GrouperUtil.class.getName() + ".propertiesFromUrlCache", 200, false, 300, 300, false);
+    }
+    return propertiesFromUrlCache;
+  }
+
+  /**
+   * cache properties
+   */
+  private static GrouperCache<String, Properties> propertiesFromUrlFailsafeCache = null;
+  
+  /**
+   * properties from url failsafe cache
+   * @return cache
+   */
+  private static GrouperCache<String, Properties> propertiesFromUrlFailsafeCache() {
+    if (propertiesFromUrlFailsafeCache == null) {
+      propertiesFromUrlFailsafeCache = new GrouperCache<String,Properties>(
+          GrouperUtil.class.getName() + ".propertiesFromUrlFailsafeCache", 200, false, 60*60*24, 60*60*24, false);
+    }
+    return propertiesFromUrlFailsafeCache;
+  }
+
+  /** variable for testing */
+  static int propertiesFromUrlHttpCount = 0;
+  
+  /** variable for testing */
+  static int propertiesFromUrlFailsafeGetCount = 0;
+  
+  /** variable for testing */
+  static boolean propertiesFromUrlFailForTest = false;
+  
+  /**
    * this will get the properties from an external url.  It will cache these (failsafe),
    * and will escape them based on grouper's properties escaper (configurable)
    * @param urlString e.g. http://localhost:8090/grouper/test.properties
@@ -6453,12 +6496,34 @@ public class GrouperUtil {
    */
   public static Properties propertiesFromUrl(String urlString, boolean useCache, 
       boolean useFailSafeCache, GrouperHtmlFilter grouperHtmlFilter) {
+    
+    Properties properties = null;
+    
+    if (useCache) {
+      properties = propertiesFromUrlCache().get(urlString);
+      if (properties != null) {
+        if (useFailSafeCache) {
+          //update this
+          propertiesFromUrlFailsafeCache().put(urlString, properties);
+        }
+        return properties;
+      }
+    }
+    
     InputStream inputStream = null;
     try {
+      if (propertiesFromUrlFailForTest) {
+        //reset
+        propertiesFromUrlFailForTest=false;
+        throw new RuntimeException("testing here!!!!");
+      }
       URL url = new URL(urlString);
-      Properties properties = new Properties();
+      properties = new Properties();
       inputStream = url.openConnection().getInputStream();
       properties.load(inputStream);
+      
+      //for testing
+      propertiesFromUrlHttpCount++;
       
       if (grouperHtmlFilter != null) {
         for (Object key : properties.keySet()) {
@@ -6467,15 +6532,42 @@ public class GrouperUtil {
           properties.put(key, formattedValue);
         }
       }
-      
-      return properties;
+
     } catch (Exception e) {
-      throw new RuntimeException("Problem with url: " + urlString);
+      //failsafe means if problem, keep on keeping on
+      if (useFailSafeCache) {
+        properties = propertiesFromUrlFailsafeCache().get(urlString);
+      }
+      String error = "Problem with url: " + urlString;
+      if (!useFailSafeCache || properties == null) {
+        throw new RuntimeException(error, e);
+      } 
+      //just log if got from failsafe
+      LOG.error(error, e);
+      if (useCache) {
+        propertiesFromUrlCache().put(urlString, properties);
+      }
+      //for testing
+      propertiesFromUrlFailsafeGetCount++;
+      //note: dont put in failsafe cache again...
+      return properties;
     } finally {
       closeQuietly(inputStream);
     }
+
+    //add to cache if should
+    if (useCache) {
+      propertiesFromUrlCache().put(urlString, properties);
+    }
+    if (useFailSafeCache) {
+      //update this
+      propertiesFromUrlFailsafeCache().put(urlString, properties);
+    }
+    return properties;
+
+
   }
-  
+
   /**
    * properties from file
    * @param file
