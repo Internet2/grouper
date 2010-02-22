@@ -133,7 +133,6 @@ public class SimpleMembershipUpdate {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     //setup a hideShow
-    
     GuiHideShow.init("simpleMembershipUpdateMemberFilter", false, 
         "", "", true);
     GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
