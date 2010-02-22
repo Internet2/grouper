@@ -101,7 +101,7 @@ contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
         </td>
         <td>
           <%-- add member button --%>
-          <input class="blueButton" type="submit" 
+          <input class="blueButton" type="submit" name="addMemberButton"
           onclick="ajax('../app/SimpleMembershipUpdate.addMember', {formIds: 'simpleMembershipUpdateAddMemberForm'}); return false;" 
           value="${grouper:message('simpleMembershipUpdate.addMemberButton', true, false) }" style="margin-top: 2px" />
         </td>

@@ -46,6 +46,31 @@ public class SimpleMembershipUpdateMenu {
      */
     public void advancedMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+      GrouperSession grouperSession = null;
+
+      Group group = null;
+
+      try {
+
+        grouperSession = GrouperSession.start(loggedInSubject);
+        
+        //make sure we are on the right group
+        group = new SimpleMembershipUpdate().retrieveGroup(grouperSession);      
+        
+      } catch (NoSessionException se) {
+        throw se;
+      } catch (ControllerDone cd) {
+        throw cd;
+      } catch (Exception se) {
+        throw new RuntimeException("Error advanced menu: " + group + ", " + se.getMessage(), se);
+      } finally {
+        GrouperSession.stopQuietly(grouperSession); 
+      }
+      
+      
       String menuItemId = httpServletRequest.getParameter("menuItemId");
       String menuEvent = httpServletRequest.getParameter("menuEvent");
       boolean isOnClick = StringUtils.equals("onClick", menuEvent);
@@ -173,6 +198,30 @@ public class SimpleMembershipUpdateMenu {
     @SuppressWarnings("unused")
     public void memberMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+      GrouperSession grouperSession = null;
+
+      Group group = null;
+
+      try {
+
+        grouperSession = GrouperSession.start(loggedInSubject);
+        
+        //make sure we are on the right group
+        group = new SimpleMembershipUpdate().retrieveGroup(grouperSession);      
+        
+      } catch (NoSessionException se) {
+        throw se;
+      } catch (ControllerDone cd) {
+        throw cd;
+      } catch (Exception se) {
+        throw new RuntimeException("Error member menu: " + group + ", " + se.getMessage(), se);
+      } finally {
+        GrouperSession.stopQuietly(grouperSession); 
+      }
+        
       String menuItemId = httpServletRequest.getParameter("menuItemId");
       String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
       //String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");

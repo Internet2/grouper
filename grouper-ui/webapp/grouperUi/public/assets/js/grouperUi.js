@@ -144,6 +144,9 @@ function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl ) 
        true,"../app/SimpleMembershipUpdate.filterUsers",false); */
   var theCombo=new dhtmlXCombo(
       divId,comboName,width, useImages ? 'image' : undefined);
+  
+  filterUrl = guiDecorateUrl(filterUrl);
+  
   theCombo.enableFilteringMode(true,filterUrl,false);
   //keep this so we can control it later
   allComboboxes[comboName] = theCombo;
@@ -180,7 +183,24 @@ function AllObjects() {
 /** starting point for all objects */
 var allObjects = new AllObjects();
 
+/**
+ * decoreate a url to add state
+ * @param url
+ * @return the url
+ */
+function guiDecorateUrl(theUrl) {
+  var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
 
+  if (typeof urlArgObjectMap.groupId != 'undefined') {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "groupId=" +  urlArgObjectMap.groupId;
+  }
+  if (typeof urlArgObjectMap.groupName != 'undefined') {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "groupName=" +  urlArgObjectMap.groupName;
+  }
+  return theUrl;
+}
 
 /** generic ajax method takes a url, callback function, and params or forms.
  * 
@@ -196,6 +216,8 @@ function ajax(theUrl, options) {
     theUrl = "../app/" + theUrl; 
   }
   
+  theUrl = guiDecorateUrl(theUrl);
+
   if (typeof options == 'undefined') {
     options = {};
   }
@@ -564,9 +586,6 @@ function eventCancelBubble(event) {
  * @param message
  */
 function grouperTooltip(message) {
-  if (!tooltipsEnabled()) {
-    return;
-  }
   //NOTE, we need to unescape the HTML, since it is in a javascript call...
   message = guiEscapeHtml(message, false);
   Tip(message, WIDTH, 400, FOLLOWMOUSE, false);
@@ -1118,6 +1137,9 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
     if (!guiStartsWith(structureOperation, "../app/" )) {
       structureOperation = "../app/" + structureOperation; 
     }
+    
+    structureOperation = guiDecorateUrl(structureOperation);
+    
     menu.loadXML(structureOperation);
     
     menu.attachEvent("onClick", function(id, zoneId, casState){

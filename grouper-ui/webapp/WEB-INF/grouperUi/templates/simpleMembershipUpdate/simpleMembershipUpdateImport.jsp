@@ -11,6 +11,18 @@
           name="simpleMembershipUploadForm" method="post" enctype="multipart/form-data">
         <div class="combohint"><grouper:message key="simpleMembershipUpdate.importLabel" /></div><br />
         
+        <%-- make sure too many browsers arent open at once --%>
+        <c:choose>
+          <c:when test="${! empty simpleMembershipUpdateContainer.guiGroup.group.id}">
+            <input name="groupId" type="hidden" value="${simpleMembershipUpdateContainer.guiGroup.group.id}" />
+          </c:when>
+          <c:otherwise>
+            <c:if test="${! empty simpleMembershipUpdateContainer.guiGroup.group.name}">
+              <input name="groupName" type="hidden" value="${simpleMembershipUpdateContainer.guiGroup.group.name}" />
+            </c:if>        
+          </c:otherwise>    
+        </c:choose>
+
         <table class="formTable" cellspacing="2" cellspacing="0">
           <tr class="formTableRow">
             <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.importAvailableSourceIds" /></td>
@@ -32,13 +44,19 @@
             <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.importReplaceExistingMembers" /></td>
             <td class="formTableRight"><input type="checkbox" name="importReplaceMembers" value="true" /></td>
           </tr> 
-          <tr class="formTableRow">
+          <tr class="formTableRow shows_membershipLiteImportFile" style="${grouper:hideShowStyle('membershipLiteImportFile', true)}">
             <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.importCommaSeparatedValuesFile" /></td>
             <td class="formTableRight"><input type="file" name="importCsvFile" /></td>
           </tr> 
+          <tr class="formTableRow hides_membershipLiteImportFile" style="${grouper:hideShowStyle('membershipLiteImportFile', false)}">
+            <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.importDirectInput" /></td>
+            <td class="formTableRight"><textarea rows="20" cols="40" name="importCsvTextarea"></textarea> </td>
+          </tr>
           <tr>
             <td colspan="2" align="right"  class="buttonRow">
-
+              <a href="#" id="importFileOrDirectInputButton" class="buttons_membershipLiteImportFile"
+                onclick="return guiHideShow(event, 'membershipLiteImportFile');">${grouper:hideShowButtonText('membershipLiteImportFile')}</a>
+              &nbsp;
               <button class="simplemodal-close blueButton"><grouper:message key="simpleMembershipUpdate.importCancelButton" /></button> 
               &nbsp;
               <button class="blueButton" 

@@ -127,8 +127,6 @@ public class SimpleMembershipUpdate {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     //setup a hideShow
-    GuiHideShow.init("simpleMembershipUpdateDeleteMultiple", false, 
-        "", "", true);
     GuiHideShow.init("simpleMembershipUpdateMemberFilter", false, 
         "", "", true);
     GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
@@ -146,6 +144,19 @@ public class SimpleMembershipUpdate {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       group = retrieveGroup(grouperSession);
+
+
+      boolean defaultDeleteMultiple = TagUtils.mediaResourceBoolean("simpleMembershipUpdate.defaultDeleteMultiple", false);
+      
+      GuiHideShow.init("simpleMembershipUpdateDeleteMultiple", defaultDeleteMultiple, 
+          "", "", true);
+
+      boolean defaultImportFile = TagUtils.mediaResourceBoolean("simpleMembershipUpdate.defaultImportFile", true);
+      
+      GuiHideShow.init("membershipLiteImportFile", defaultImportFile, 
+          GrouperUiUtils.message("simpleMembershipUpdate.membershipLiteImportFileButton", false), 
+          GrouperUiUtils.message("simpleMembershipUpdate.membershipLiteImportTextfieldButton", false), true);
+
       groupName = group.getName();
       
       if (simpleMembershipUpdateContainer.isCanReadGroup() && simpleMembershipUpdateContainer.isCanUpdateGroup()) {
@@ -175,12 +186,21 @@ public class SimpleMembershipUpdate {
    * @return the group
    */
   public Group retrieveGroup(GrouperSession grouperSession) {
+    Group group = retrieveGroupHelper(grouperSession);
+//    final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+//    System.out.println("testKey: " + simpleMembershipUpdateContainer.configValue("testKey"));
+//    System.out.println("testKey2: " + simpleMembershipUpdateContainer.configValue("testKey2"));
+    return group;
+  }
+    
+  /**
+   * get a group from app state
+   * @param grouperSession
+   * @return the group
+   */
+  private Group retrieveGroupHelper(GrouperSession grouperSession) {
     
     final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
-    
-    if (simpleMembershipUpdateContainer.getGuiGroup() != null) {
-      return simpleMembershipUpdateContainer.getGuiGroup().getGroup();
-    }
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -188,13 +208,34 @@ public class SimpleMembershipUpdate {
     //lets get the group
     String id = null;
     String name = null;
+
+    HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse();
+    HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
+
     if (appState.getUrlArgObjects() != null) {
       id = appState.getUrlArgObjects().get("groupId");
+      if (StringUtils.isBlank(id)) {
+        id = request.getParameter("groupId");
+      }
       name = appState.getUrlArgObjects().get("groupName");
+      if (StringUtils.isBlank(name)) {
+        name = request.getParameter("groupName");
+      }
     }
 
-    HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
-    HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse();
+    GuiGroup guiGroup = simpleMembershipUpdateContainer.getGuiGroup();
+    if (guiGroup != null && guiGroup.getGroup() != null) {
+    
+      //make sure two browser windows in the same session arent editing the same group
+      if ((!StringUtils.isBlank(id) && !StringUtils.equals(id, guiGroup.getGroup().getId()))
+          || (!StringUtils.isBlank(name) && !StringUtils.equals(name, guiGroup.getGroup().getName()))) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.errorTooManyBrowsers", false)));
+        init(request, response);
+        throw new ControllerDone(true);
+      }
+      
+      return guiGroup.getGroup();
+    }
     
     if (StringUtils.isBlank(id) && StringUtils.isBlank(name)) {
       //make sure the URL is ok
@@ -213,7 +254,7 @@ public class SimpleMembershipUpdate {
     Group group = null;
     try {
       if (!StringUtils.isBlank(id)) {
-        group = GroupFinder.findByUuid(grouperSession, id);
+        group = GroupFinder.findByUuid(grouperSession, id, true);
       } else if (!StringUtils.isBlank(name)) {
         group = GroupFinder.findByName(grouperSession, name, false);
       }
@@ -411,7 +452,7 @@ public class SimpleMembershipUpdate {
       grouperSession = GrouperSession.start(loggedInSubject);
       group = this.retrieveGroup(grouperSession);
       groupName = group.getName();
-      Member member = MemberFinder.findByUuid(grouperSession, memberId);
+      Member member = MemberFinder.findByUuid(grouperSession, memberId, true);
       group.deleteMember(member);
       
       GuiMember guiMember = new GuiMember(member);
@@ -444,7 +485,7 @@ public class SimpleMembershipUpdate {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
     GrouperSession grouperSession = null;
-
+    
     String comboValue = httpServletRequest.getParameter("simpleMembershipUpdateAddMember");
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -562,7 +603,7 @@ public class SimpleMembershipUpdate {
         currentMemberUuid = GrouperUtil.prefixOrSuffix(paramName, "deleteMultiple_", false);
         
         //this should be found
-        Member member = MemberFinder.findByUuid(grouperSession, currentMemberUuid);
+        Member member = MemberFinder.findByUuid(grouperSession, currentMemberUuid, true);
         
         if (group.deleteMember(member, false)) {
           deleteCount++;
