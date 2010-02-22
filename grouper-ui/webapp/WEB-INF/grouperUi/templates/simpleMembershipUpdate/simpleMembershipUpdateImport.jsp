@@ -11,6 +11,20 @@
           name="simpleMembershipUploadForm" method="post" enctype="multipart/form-data">
         <div class="combohint"><grouper:message key="simpleMembershipUpdate.importLabel" /></div><br />
         
+        <%-- make sure too many browsers arent open at once --%>
+        <c:choose>
+          <c:when test="${! empty simpleMembershipUpdateContainer.guiGroup.group.id}">
+            <input name="groupId" type="hidden" value="${simpleMembershipUpdateContainer.guiGroup.group.id}" />
+          </c:when>
+          <c:otherwise>
+            <c:if test="${! empty simpleMembershipUpdateContainer.guiGroup.group.name}">
+              <input name="groupName" type="hidden" value="${simpleMembershipUpdateContainer.guiGroup.group.name}" />
+            </c:if>        
+          </c:otherwise>    
+        </c:choose>
+
+        <input name="membershipLiteName" type="hidden" value="${simpleMembershipUpdateContainer.membershipLiteName}" />
+        
         <table class="formTable" cellspacing="2" cellspacing="0">
           <tr class="formTableRow">
             <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.importAvailableSourceIds" /></td>

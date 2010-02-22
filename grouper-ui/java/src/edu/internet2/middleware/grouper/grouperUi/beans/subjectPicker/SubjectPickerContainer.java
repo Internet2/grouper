@@ -45,16 +45,18 @@ public class SubjectPickerContainer implements Serializable {
     //lets see if this config file has a value
     String value = null;
     try {
-      value = SubjectPicker.configValue(subjectPickerName, key);
+      value = SubjectPicker.configFileValue(subjectPickerName, key);
     } catch (SubjectPickerConfigNotFoundException spcnfe) {
       //try the default
       String mediaPropertiesKey = "subjectPicker.defaultSettings." + key;
       try {
         value = TagUtils.mediaResourceString(mediaPropertiesKey);
       } catch (MissingResourceException mre) {
-        throw new  RuntimeException("cant find config for key '" + key + "' in subjectPicker config"
-            + " (or default in media.properties: " + mediaPropertiesKey + "), and subjectPickerName: " 
-            + subjectPickerName + ".\n" + ExceptionUtils.getFullStackTrace(spcnfe) , mre);
+        if (exceptionIfNotThere) {
+          throw new  RuntimeException("cant find config for key '" + key + "' in subjectPicker config"
+              + " (or default in media.properties: " + mediaPropertiesKey + "), and subjectPickerName: " 
+              + subjectPickerName + ".\n" + ExceptionUtils.getFullStackTrace(spcnfe) , mre);
+        }
       }
     }
     return value;
@@ -246,7 +248,7 @@ public class SubjectPickerContainer implements Serializable {
       throw new RuntimeException("Need to pass in subjectPickerName in URL");
     }
     if (!subjectPickerName.matches("^[a-zA-Z0-9_]+$")) {
-      throw new RuntimeException("Invalid subject picker name, but be alpha numeric or underscore");
+      throw new RuntimeException("Invalid subject picker name, but be alpha numeric or underscore: " + subjectPickerName);
     }
     return subjectPickerName;
   }

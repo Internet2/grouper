@@ -35,12 +35,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
+import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -77,6 +77,8 @@ public class SimpleMembershipUpdateImportExport {
   
     String currentMemberUuid = null;
     
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+    
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -88,7 +90,7 @@ public class SimpleMembershipUpdateImportExport {
       
       HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse(); 
       
-      String[] headers = GrouperUtil.splitTrim(TagUtils.mediaResourceString( 
+      String[] headers = GrouperUtil.splitTrim(simpleMembershipUpdateContainer.configValue(
           "simpleMembershipUpdate.exportAllSubjectFields"), ",");
       
       //note: isError is second to last col, error is the last column
@@ -97,7 +99,7 @@ public class SimpleMembershipUpdateImportExport {
       int sourceIdCol = -1;
       for (int i=0;i<headers.length;i++) {
         isAttribute[i] = !nonAttributeCols.contains(headers[i].toLowerCase());
-        if (StringUtils.equalsIgnoreCase(headers[i], TagUtils.mediaResourceString(
+        if (StringUtils.equalsIgnoreCase(headers[i], simpleMembershipUpdateContainer.configValue(
             "simpleMembershipUpdate.exportAllSortField"))) {
           sortCol = i;
         } else if (StringUtils.equalsIgnoreCase("sourceId", headers[i])) {

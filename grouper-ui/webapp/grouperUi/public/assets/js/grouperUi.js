@@ -60,7 +60,19 @@ function processUrl() {
     //alert("invalid URL, no operation");
   } else {
     var ajaxUrl = '../app/' + urlArgObjectMap.operation;
-    
+
+    if (typeof urlArgObjectMap.membershipLiteName != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "membershipLiteName=" +  urlArgObjectMap.membershipLiteName;
+    }
+    if (typeof urlArgObjectMap.groupId != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "groupId=" +  urlArgObjectMap.groupId;
+    }
+    if (typeof urlArgObjectMap.groupName != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "groupName=" +  urlArgObjectMap.groupName;
+    }
     if (typeof urlArgObjectMap.subjectPickerName != 'undefined') {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "subjectPickerName=" +  urlArgObjectMap.subjectPickerName;

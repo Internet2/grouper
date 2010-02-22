@@ -46,6 +46,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperTitleTag extends BodyTagSupport {
 
   /**
+   * if using value instead of key, this is the infodot value
+   */
+  private String infodotValue;
+  
+  /**
+   * 
+   * @param theValue
+   */
+  public void setInfodotValue(String theValue) {
+    this.infodotValue = theValue;
+  }
+  
+  /**
    * key of the nav.properties for text in title, mutually exclusive with label
    */
   private String key;
@@ -140,6 +153,10 @@ public class GrouperTitleTag extends BodyTagSupport {
         out.println("<!-- trying title infodot with nav.properties key: infodot.title." + this.key + ": " + hasInfodot + " -->");
       }
 
+      if (!StringUtils.isBlank(this.infodotValue)) {
+        hasInfodot = true;
+      }
+      
       //<!-- trying title infodot with nav.properties key: infodot.title.groups.my -->
       //
       //<h1 id="title">My memberships
@@ -213,14 +230,18 @@ public class GrouperTitleTag extends BodyTagSupport {
         //  /></div>
         out.print(" >");
         out.flush();
-        GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
-        grouperMessageTag.setPageContext(this.pageContext);
-        grouperMessageTag.setBundle("${nav}");
-        grouperMessageTag.setKey(infodotKey);
-        grouperMessageTag.setUseNewTermContext("true");
-        grouperMessageTag.doStartTag();
-        grouperMessageTag.doEndTag();
-        out.flush();
+        if (!StringUtils.isBlank(infodotKey)) {
+          GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
+          grouperMessageTag.setPageContext(this.pageContext);
+          grouperMessageTag.setBundle("${nav}");
+          grouperMessageTag.setKey(infodotKey);
+          grouperMessageTag.setUseNewTermContext("true");
+          grouperMessageTag.doStartTag();
+          grouperMessageTag.doEndTag();
+          out.flush();
+        } else {
+          out.print(this.infodotValue);
+        }
         
         out.print("</div>\n");
       }

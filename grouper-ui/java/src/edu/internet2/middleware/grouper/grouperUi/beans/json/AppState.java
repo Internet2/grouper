@@ -37,7 +37,9 @@ public class AppState implements Serializable {
   }
   
   /** placeholder since safari sends back this function
-   * return null */
+   * return null 
+   * @return url arg object map
+   */
   public Object getUrlArgObjectMap() {
     return null;
   }

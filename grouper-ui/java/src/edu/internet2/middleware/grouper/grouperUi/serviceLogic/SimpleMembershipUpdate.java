@@ -134,10 +134,6 @@ public class SimpleMembershipUpdate {
     
     //setup a hideShow
     
-    boolean defaultDeleteMultiple = TagUtils.mediaResourceBoolean("simpleMembershipUpdate.defaultDeleteMultiple", false);
-    
-    GuiHideShow.init("simpleMembershipUpdateDeleteMultiple", defaultDeleteMultiple, 
-        "", "", true);
     GuiHideShow.init("simpleMembershipUpdateMemberFilter", false, 
         "", "", true);
     GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
@@ -147,11 +143,6 @@ public class SimpleMembershipUpdate {
     
     GuiPaging.init("simpleMemberUpdateMembers");
 
-    boolean defaultImportFile = TagUtils.mediaResourceBoolean("simpleMembershipUpdate.defaultImportFile", true);
-    
-    GuiHideShow.init("membershipLiteImportFile", defaultImportFile, 
-        GrouperUiUtils.message("simpleMembershipUpdate.membershipLiteImportFileButton", false), 
-        GrouperUiUtils.message("simpleMembershipUpdate.membershipLiteImportTextfieldButton", false), true);
 
     
     Group group = null;
@@ -162,6 +153,28 @@ public class SimpleMembershipUpdate {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       group = retrieveGroup(grouperSession);
+
+      boolean defaultDeleteMultiple = simpleMembershipUpdateContainer.configValueBoolean("simpleMembershipUpdate.defaultDeleteMultiple", false);
+      
+      GuiHideShow.init("simpleMembershipUpdateDeleteMultiple", defaultDeleteMultiple, 
+          "", "", true);
+
+      boolean defaultImportFile = simpleMembershipUpdateContainer.configValueBoolean("simpleMembershipUpdate.defaultImportFile", true);
+      
+      GuiHideShow.init("membershipLiteImportFile", defaultImportFile, 
+          GrouperUiUtils.message("simpleMembershipUpdate.membershipLiteImportFileButton", false), 
+          GrouperUiUtils.message("simpleMembershipUpdate.membershipLiteImportTextfieldButton", false), true);
+
+      //init css if needed
+      String extraCssString = simpleMembershipUpdateContainer.configValue("simpleMembershipUpdate.extraCss", false);
+      if (!StringUtils.isBlank(extraCssString)) {
+        String[] extraCssArray = GrouperUtil.splitTrim(extraCssString, ",");
+        for (String extraCss : extraCssArray) {
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiAddCss('" + GrouperUiUtils.escapeJavascript(extraCss, true) + "');"));
+        }
+      }
+
+      
       groupName = group.getName();
       
       if (simpleMembershipUpdateContainer.isCanReadGroup() && simpleMembershipUpdateContainer.isCanUpdateGroup()) {
@@ -178,6 +191,8 @@ public class SimpleMembershipUpdate {
       GrouperSession.stopQuietly(grouperSession); 
     }
     
+//TODO    String cssUrl = simpleMembershipUpdateContainer
+    
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
         "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateMain.jsp"));
     
@@ -191,26 +206,57 @@ public class SimpleMembershipUpdate {
    * @return the group
    */
   public Group retrieveGroup(GrouperSession grouperSession) {
-    
+    Group group = retrieveGroupHelper(grouperSession);
+//    final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+//    System.out.println("testKey: " + simpleMembershipUpdateContainer.configValue("testKey"));
+//    System.out.println("testKey2: " + simpleMembershipUpdateContainer.configValue("testKey2"));
+    return group;
+  }
+
+  /**
+   * get a group from app state
+   * @param grouperSession
+   * @return the group
+   */
+  private Group retrieveGroupHelper(GrouperSession grouperSession) {
+
     final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
-    
-    if (simpleMembershipUpdateContainer.getGuiGroup() != null) {
-      return simpleMembershipUpdateContainer.getGuiGroup().getGroup();
-    }
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
     AppState appState = AppState.retrieveFromRequest();
+
     //lets get the group
     String id = null;
     String name = null;
+
+    HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse();
+    HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
+
     if (appState.getUrlArgObjects() != null) {
       id = appState.getUrlArgObjects().get("groupId");
+      if (StringUtils.isBlank(id)) {
+        id = request.getParameter("groupId");
+      }
       name = appState.getUrlArgObjects().get("groupName");
+      if (StringUtils.isBlank(name)) {
+        name = request.getParameter("groupName");
+      }
     }
 
-    HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
-    HttpServletResponse response = GrouperUiFilter.retrieveHttpServletResponse();
+    GuiGroup guiGroup = simpleMembershipUpdateContainer.getGuiGroup();
+    if (guiGroup != null && guiGroup.getGroup() != null) {
+
+      //make sure two browser windows in the same session arent editing the same group
+      if ((!StringUtils.isBlank(id) && !StringUtils.equals(id, guiGroup.getGroup().getId()))
+          || (!StringUtils.isBlank(name) && !StringUtils.equals(name, guiGroup.getGroup().getName()))) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.errorTooManyBrowsers", false)));
+        init(request, response);
+        throw new ControllerDone(true);
+      }
+      
+      return guiGroup.getGroup();
+    }
     
     if (StringUtils.isBlank(id) && StringUtils.isBlank(name)) {
       //make sure the URL is ok

@@ -2,7 +2,7 @@
 <!-- start simpleMembershipUpdateMain.jsp: main page on simpleMembershipUpdate screen -->
 <div id="simpleMain">
 <%--Group membership update lite --%>
-<grouper:title key="simpleMembershipUpdate.updateTitle" />
+<grouper:title label="${simpleMembershipUpdateContainer.text.updateTitle}"  infodotValue="${simpleMembershipUpdateContainer.text.updateTitleInfodot}" />
 <%-- grey box --%>
 <div class="section">
 <%-- Group --%>

@@ -104,10 +104,10 @@ public class SubjectPicker {
       for (int i=0;i<100;i++) {
         
         try {
-          String currentSourceId = configValue(subjectPickerName, "sourceProperties.sourceId." + i);
+          String currentSourceId = configFileValue(subjectPickerName, "sourceProperties.sourceId." + i);
           if (StringUtils.equals(sourceId, currentSourceId)) {
             //we found it
-            String subjectElForSource = configValue(subjectPickerName, "sourceProperties.subjectElForSource." + i);
+            String subjectElForSource = configFileValue(subjectPickerName, "sourceProperties.subjectElForSource." + i);
             subjectPickerSourceProperties.setSubjectElForSource(subjectElForSource);
             break;
           }
@@ -174,44 +174,59 @@ public class SubjectPicker {
   }
   
   /**
+   * cache of properties
+   */
+  private static GrouperCache<String, Properties> configCache = new GrouperCache<String, Properties>(
+      SubjectPicker.class.getName() + ".configCache", 1000, true, 120, 120, false);
+  
+  
+  /**
    * get a config from this finder's config file
    * @param subjectPickerName
    * @param key
    * @return the value
    * @throws SubjectPickerConfigNotFoundException 
    */
-  public static String configValue(String subjectPickerName, String key) throws SubjectPickerConfigNotFoundException {
-    File configFile = null;
-    String configFileName = null;
-    String classpathName = null;
-    try {
-      classpathName = "subjectPicker/" + subjectPickerName + ".properties";
-      configFile = GrouperUtil.fileFromResourceName(classpathName);
-    } catch (Exception e) {
-      //just ignore
-    }
-    if (configFile == null) {
-      String configDir = TagUtils.mediaResourceString("subjectPicker.confDir");
-      if (!configDir.endsWith("/") && !configDir.endsWith("\\")) {
-        configDir += File.separator;
+  public static String configFileValue(String subjectPickerName, String key) throws SubjectPickerConfigNotFoundException {
+    
+    Properties properties = configCache.get(subjectPickerName);
+    
+    String classpathName = "subjectPicker/" + subjectPickerName + ".properties";
+
+    if (properties == null) {
+      
+      File configFile = null;
+      String configFileName = null;
+      
+      try { 
+        configFile = GrouperUtil.fileFromResourceName(classpathName);
+      } catch (Exception e) {
+        //just ignore
       }
-      configFile = new File(configDir + subjectPickerName + ".properties");
-      configFileName = configFile.getAbsolutePath();
-      if (!configFile.exists()) {
-
-        //you must have a config file for each subject picker usage
-        throw new RuntimeException("Cant find config for: '" + subjectPickerName + "' in classpath as: " 
-            + classpathName + " or on file system in " + configFileName);
-
+      if (configFile == null) {
+        String configDir = TagUtils.mediaResourceString("subjectPicker.confDir");
+        if (!configDir.endsWith("/") && !configDir.endsWith("\\")) {
+          configDir += File.separator;
+        }
+        configFile = new File(configDir + subjectPickerName + ".properties");
+        configFileName = configFile.getAbsolutePath();
+        if (!configFile.exists()) {
+  
+          //you must have a config file for each subject picker usage
+          throw new RuntimeException("Cant find config for: '" + subjectPickerName + "' in classpath as: " 
+              + classpathName + " or on file system in " + configFileName);
+  
+        }
       }
+      properties = GrouperUtil.propertiesFromFile(configFile, true);
+      configCache.put(subjectPickerName, properties);
     }
-    Properties properties = GrouperUtil.propertiesFromFile(configFile, true);
-
     String value = properties.getProperty(key);
 
     if (value == null) {
       throw new SubjectPickerConfigNotFoundException("Cant find property: " + key + " for config name: " + subjectPickerName
-          + " on classpath: " + classpathName + " or in config file: " + configFileName);
+          + " on classpath: " + classpathName 
+          + " or in config file: media.properties[\"subjectPicker.confDir\"]/" + subjectPickerName + ".properties");
     }
     return value;
   }

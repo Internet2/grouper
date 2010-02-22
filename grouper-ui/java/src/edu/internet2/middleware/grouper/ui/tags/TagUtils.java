@@ -48,6 +48,19 @@ public class TagUtils {
   
   /**
    * based on request get a nav string
+   * @param key
+   * @return if contains
+   */
+  public static boolean navResourceContainsKey(String key) {
+    
+    LocalizationContext localizationContext = (LocalizationContext)GrouperUiFilter
+      .retrieveHttpServletRequest().getSession().getAttribute("nav");
+    ResourceBundle nav = localizationContext.getResourceBundle();
+    return nav.containsKey(key);
+  }
+  
+  /**
+   * based on request get a nav string
    * @param key 
    * @return value
    */

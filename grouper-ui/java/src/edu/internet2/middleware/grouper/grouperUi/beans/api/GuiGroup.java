@@ -5,7 +5,12 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 
 
@@ -20,6 +25,43 @@ public class GuiGroup implements Serializable {
   /** group */
   private Group group;
   
+  /** if there is an external config url */
+  private String configUrl;
+  
+  /** see if has a config url */
+  private Boolean hasMembershipConfigUrl = null;
+  
+  /**
+   * config url if set
+   * @return the config url if set
+   */
+  public String getMembershipConfigUrl() {
+    
+    if (this.hasMembershipConfigUrl == null) {
+      
+      if (this.group == null) {
+
+        //sidestep
+        return null;
+      }
+
+      //default to false
+      this.hasMembershipConfigUrl = false;
+      
+      if (TagUtils.mediaResourceBoolean("simpleMembershipUpdate.allowExternalUrlProperties", false)) {
+        
+        final GroupType groupType = GroupTypeFinder.find("grouperGroupMembershipSettings", false);
+        
+        if (groupType != null && GuiGroup.this.group.hasType(groupType)) {
+          this.configUrl = GuiGroup.this.group.getAttributeOrFieldValue("grouperGroupMshipSettingsUrl", false, false);
+          this.hasMembershipConfigUrl = !StringUtils.isBlank(this.configUrl);
+        }
+      }
+    }
+    
+    return this.hasMembershipConfigUrl ? this.configUrl : null;
+  }
+
   /**
    * return the group
    * @return the group
@@ -28,6 +70,15 @@ public class GuiGroup implements Serializable {
     return this.group;
   }
 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "" + this.group;
+  }
+  
   /**
    * 
    */

@@ -4,18 +4,26 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
+import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -28,6 +36,29 @@ public class SimpleMembershipUpdateContainer implements Serializable {
   /** member we are editing */
   private GuiMember enabledDisabledMember = null;
   
+  /**
+   * 
+   * @return the membership lite name
+   */
+  public String getMembershipLiteName() {
+    HttpServletRequest request = GrouperUiFilter.retrieveHttpServletRequest();
+    String membershipLiteName = request.getParameter("membershipLiteName");
+    if (!StringUtils.isBlank(membershipLiteName)) {
+      if (!membershipLiteName.matches("^[a-zA-Z0-9_]+$")) {
+        throw new RuntimeException("Invalid membership lite name, but be alpha numeric or underscore: " + membershipLiteName);
+      }
+    }
+    return membershipLiteName;
+  }
+  
+  /**
+   * 
+   * @return the css url for this group
+   */
+  public String getCssUrl() {
+    //TODO
+    return null;
+  }
   
   /**
    * member we are editing
@@ -104,6 +135,12 @@ public class SimpleMembershipUpdateContainer implements Serializable {
    * sourceId____subjectId, it would be friendlier
    */
   private String memberFilterForScreen;
+
+  /**
+   * cache of properties
+   */
+  private static GrouperCache<String, Properties> configCache = new GrouperCache<String, Properties>(
+      SimpleMembershipUpdateContainer.class.getName() + ".configCache", 1000, true, 120, 120, false);
   
   /**
    * if showing the user what is being filtered, put that here.  This wouldnt be
@@ -235,6 +272,196 @@ public class SimpleMembershipUpdateContainer implements Serializable {
    */
   public void setGuiMembers(GuiMember[] members1) {
     this.guiMembers = members1;
+  }
+
+  /**
+   * check config file or defaults
+   * @param key
+   * @return the value
+   */
+  public String configValue(String key) {
+    return configValue(key, true);
+  }
+
+  /**
+   * check config file or defaults
+   * @param key
+   * @param exceptionIfNotThere
+   * @return the value
+   */
+  public String configValue(String key, boolean exceptionIfNotThere) {
+    
+    //lets see if there is an external config
+    GuiGroup theGuiGroup = this.getGuiGroup();
+    String urlConfig = null;
+    if (theGuiGroup != null) {
+      
+      urlConfig = theGuiGroup.getMembershipConfigUrl();
+      
+      if (!StringUtils.isBlank(urlConfig)) {
+        
+        Properties properties = GrouperUtil.propertiesFromUrl(urlConfig, true, true, null);
+        if (properties != null && properties.containsKey(key)) {
+          return properties.getProperty(key);
+        }
+        
+      }
+    }
+    
+    
+    String membershipLiteName = this.getMembershipLiteName();
+    
+    //lets see if this config file has a value
+    String value = null;
+    if (!StringUtils.isBlank(membershipLiteName)) {
+      try {
+        value = SimpleMembershipUpdateContainer.configFileValue(membershipLiteName, key);
+        return value;
+      } catch (MembershipLiteConfigNotFoundException mlcnfe) {
+        //thats ok we will try somewhere else
+      }
+    }
+
+    //try the default
+    try {
+      value = TagUtils.mediaResourceString(key);
+    } catch (MissingResourceException mre) {
+      if (exceptionIfNotThere) {
+        throw new  RuntimeException("cant find config for key '" + key + "' in membershipLite config"
+            + " (or default in media.properties: " + key + "), and membershipLiteName: " 
+            + membershipLiteName + ", urlConfig: " + urlConfig, mre);
+      }
+    }
+    return value;
+  }
+
+  /**
+   * check config file or defaults
+   * @param key 
+   * @return true if true, false if false
+   */
+  public boolean configValueBoolean(
+      String key) {
+    return configValueBooleanHelper(key, null);
+  }
+
+  /**
+   * check config file or defaults
+   * @param key 
+   * @param defaultValue 
+   * @return true if true, false if false
+   */
+  public boolean configValueBoolean(
+      String key, boolean defaultValue) {
+    return configValueBooleanHelper(key, defaultValue);
+  }
+  
+  /** 
+   * text bean
+   * @return text bean
+   */
+  public SimpleMembershipUpdateText getText() {
+    return SimpleMembershipUpdateText.retrieveSingleton();
+  }
+  
+  /**
+   * check config file or defaults
+   * @param key 
+   * @param defaultValue or null if no default
+   * @return true if true, false if false
+   */
+  private boolean configValueBooleanHelper(
+      String key, Boolean defaultValue) {
+    
+    String valueString = configValue(key);
+    
+    if (StringUtils.equalsIgnoreCase(valueString, "true") || StringUtils.equalsIgnoreCase(valueString, "t")) {
+      return true;
+    }
+    
+    if (StringUtils.equalsIgnoreCase(valueString, "false") || StringUtils.equalsIgnoreCase(valueString, "f")) {
+      return false;
+    }
+    
+    if (StringUtils.isBlank(valueString) && defaultValue != null) {
+      return defaultValue;
+    }
+    
+    //throw descriptive exception
+    throw new RuntimeException("Invalid value: '" + valueString + "' for key '" + key + "' in membershipLite config" +
+        " (or default).  Should be true or false: '" + this.getGuiGroup() + "'");
+  }
+
+  /**
+   * based on request get a media int
+   * @param key 
+   * @return true if true, false if false
+   */
+  public int configValueInt(
+      String key) {
+    
+    String valueString = configValue(key);
+    
+    try {
+      return GrouperUtil.intValue(valueString);
+    } catch (Exception e) {
+      //throw descriptive exception
+      throw new RuntimeException("Invalid value: '" + valueString + "' for key '" + key + "' in membershipLite config" +
+          " (or default).  Should be an int", e);
+    }
+  }
+
+  
+  
+  /**
+   * get a config from this finder's config file
+   * @param membershipLiteName
+   * @param key
+   * @return the value
+   * @throws MembershipLiteConfigNotFoundException 
+   */
+  private static String configFileValue(String membershipLiteName, String key) throws MembershipLiteConfigNotFoundException {
+    
+    Properties properties = configCache.get(membershipLiteName);
+    
+    String classpathName = "membershipLiteName/" + membershipLiteName + ".properties";
+  
+    if (properties == null) {
+      
+      File configFile = null;
+      String configFileName = null;
+      
+      try { 
+        configFile = GrouperUtil.fileFromResourceName(classpathName);
+      } catch (Exception e) {
+        //just ignore
+      }
+      if (configFile == null) {
+        String configDir = TagUtils.mediaResourceString("simpleMembershipUpdate.confDir");
+        if (!configDir.endsWith("/") && !configDir.endsWith("\\")) {
+          configDir += File.separator;
+        }
+        configFile = new File(configDir + membershipLiteName + ".properties");
+        configFileName = configFile.getAbsolutePath();
+        if (!configFile.exists()) {
+  
+          //you must have a config file for each membership config usage
+          throw new RuntimeException("Cant find config for: '" + membershipLiteName + "' in classpath as: " 
+              + classpathName + " or on file system in " + configFileName);
+  
+        }
+      }
+      properties = GrouperUtil.propertiesFromFile(configFile, true);
+      configCache.put(membershipLiteName, properties);
+    }
+    String value = properties.getProperty(key);
+  
+    if (value == null) {
+      throw new MembershipLiteConfigNotFoundException("Cant find property: " + key + " for config name: " + membershipLiteName
+          + " on classpath: " + classpathName 
+          + " or in config file: media.properties[\"simpleMembershipUpdate.confDir\"]/" + membershipLiteName + ".properties");
+    }
+    return value;
   }
   
 }
