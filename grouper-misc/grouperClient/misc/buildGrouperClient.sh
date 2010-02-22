@@ -3,9 +3,9 @@
 if [ $# -ne "1" ]
 then
   echo
-  echo "Give the version to build as the command line argument!"
-  echo "e.g. HEAD, GROUPER_1_3_1, etc"
-  echo "e.g. buildGrouperBinary.sh HEAD"
+  echo "Give the tag to build as the command line argument!"
+  echo "e.g. GROUPER_1_5_1, etc"
+  echo "e.g. buildGrouperClient.sh GROUPER_1_5_1"
   echo
   exit 1
 fi  
@@ -30,17 +30,19 @@ fi
 
 cd $buildDir
 
-export CVSROOT=/home/cvs/i2mi
+#export CVSROOT=/home/cvs/i2mi
 
-/usr/bin/cvs export -r $1 grouper-misc/grouperClient
+#/usr/bin/cvs export -r $1 grouper-misc/grouperClient
 
-cd $buildDir/grouper-misc/grouperClient
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-misc/grouperClient/
 
-/home/mchyzer/ant/bin/ant distPackage
+cd $buildDir/grouperClient
 
-/home/mchyzer/ant/bin/ant distBinary
+$ANT_HOME/bin/ant distPackage
 
-mv $buildDir/grouper-misc/*.tar.gz $buildDir/
+$ANT_HOME/bin/ant distBinary
+
+#mv $buildDir/grouper-misc/*.tar.gz $buildDir/
 
 echo
 echo "regular result is in $buildDir/" 
