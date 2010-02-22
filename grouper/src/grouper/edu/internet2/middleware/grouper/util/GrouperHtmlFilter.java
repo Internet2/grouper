@@ -69,6 +69,7 @@ public class GrouperHtmlFilter implements HtmlFilter {
       allowTag("tt");
       allowTag("hr");
       allowTag("s");
+      allowTag("span");
 
     } catch (RuntimeException e) {
       LOG.error("error", e);
