@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/grouper-ws"/>
-	<classpathentry kind="src" path="GROUPER_HEAD_CONF"/>
-	<classpathentry kind="src" path="GROUPER_HEAD_SOURCE"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_CONF"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_SOURCE"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/commons-io-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
