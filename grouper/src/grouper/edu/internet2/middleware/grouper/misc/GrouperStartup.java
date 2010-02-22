@@ -102,6 +102,9 @@ public class GrouperStartup {
       //init loader types and attributes if configured
       initLoaderType();
       
+      //init membership lite config type
+      initMembershipLiteConfigType();
+      
       return true;
     } catch (RuntimeException re) {
       if (logErrorStatic) {
@@ -114,6 +117,50 @@ public class GrouperStartup {
       }
       throw re;
     }
+  }
+  
+  /**
+   * init membership lite config type
+   */
+  public static void initMembershipLiteConfigType() {
+    
+    if (GrouperConfig.getPropertyBoolean("membershipUpdateLiteTypeAutoCreate", false)) {
+      
+      GrouperSession grouperSession = null;
+
+      try {
+
+        grouperSession = GrouperSession.startRootSession(false);
+
+        GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+          public Object callback(GrouperSession grouperSession)
+              throws GrouperSessionException {
+            try {
+              
+              GroupType groupMembershipLiteSettingsType = GroupType.createType(grouperSession, "grouperGroupMembershipSettings", false);
+
+              groupMembershipLiteSettingsType.addAttribute(grouperSession,"grouperGroupMshipSettingsUrl", 
+                  AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false, false);
+              
+
+            } catch (Exception e) {
+              throw new RuntimeException(e.getMessage(), e);
+            } finally {
+              GrouperSession.stopQuietly(grouperSession);
+            }
+            return null;
+          }
+
+        });
+
+      } catch (Exception e) {
+        throw new RuntimeException("Problem adding membership lite type/attributes", e);
+      }
+
+      
+    }
+    
   }
   
   /**

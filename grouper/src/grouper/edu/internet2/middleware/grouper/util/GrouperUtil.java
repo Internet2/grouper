@@ -6539,11 +6539,15 @@ public class GrouperUtil {
         properties = propertiesFromUrlFailsafeCache().get(urlString);
       }
       String error = "Problem with url: " + urlString;
+      //always log since could have security problems with throwing exceptions
+      LOG.error(error, e);
+      
+      error = "Problem with url: " + StringUtils.abbreviate(urlString, 19);
+      
       if (!useFailSafeCache || properties == null) {
         throw new RuntimeException(error, e);
       } 
       //just log if got from failsafe
-      LOG.error(error, e);
       if (useCache) {
         propertiesFromUrlCache().put(urlString, properties);
       }
