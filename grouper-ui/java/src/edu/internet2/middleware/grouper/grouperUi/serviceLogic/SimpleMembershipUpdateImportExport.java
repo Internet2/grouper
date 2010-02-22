@@ -362,6 +362,7 @@ public class SimpleMembershipUpdateImportExport {
       String fileName = null;
       
       GuiHideShow membershipLiteImportFileHideShow = GuiHideShow.retrieveHideShow("membershipLiteImportFile", true);
+      
       if (membershipLiteImportFileHideShow.isShowing()) {
         
         FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
@@ -570,7 +571,11 @@ public class SimpleMembershipUpdateImportExport {
       
       //must have lines
       if (GrouperUtil.length(csvEntries) <= 1) {
-        throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
+        GuiHideShow membershipLiteImportFileHideShow = GuiHideShow.retrieveHideShow("membershipLiteImportFile", true);
+        if (membershipLiteImportFileHideShow.isShowing()) {
+          throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
+        }
+        throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorBlankTextarea"));
       }
       
       //lets go through the headers

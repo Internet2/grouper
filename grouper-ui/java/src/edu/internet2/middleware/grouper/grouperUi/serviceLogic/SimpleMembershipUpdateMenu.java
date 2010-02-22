@@ -200,18 +200,6 @@ public class SimpleMembershipUpdateMenu {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      String comboValue = httpServletRequest.getParameter("simpleMembershipUpdateAddMember");
-
-      //maybe they dont know how to use it
-      if (StringUtils.isBlank(comboValue)) {
-        guiResponseJs.addAction(GuiScreenAction.newAlert(
-            GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchNothingEntered", false)));
-        return;
-
-      }
-      
-      String subjectLabel = comboValue;
-
       final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
       GrouperSession grouperSession = null;

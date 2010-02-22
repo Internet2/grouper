@@ -191,8 +191,6 @@ public class SimpleMembershipUpdate {
       GrouperSession.stopQuietly(grouperSession); 
     }
     
-//TODO    String cssUrl = simpleMembershipUpdateContainer
-    
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
         "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateMain.jsp"));
     
