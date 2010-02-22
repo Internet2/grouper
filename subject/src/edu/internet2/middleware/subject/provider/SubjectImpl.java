@@ -208,6 +208,13 @@ public class SubjectImpl implements Subject {
    * 
    */
   private void initAttributesIfNeeded() {
+    
+    //if no source, cant init
+    //maybe we are just creating the subject or something...
+    if (StringUtils.isBlank(this.sourceId)) {
+      return;
+    }
+    
     if (!this.attributesInitted) {
       //NOTE, there could be race conditions here (marking initted before initted), 
       //but we get endless loops without this
@@ -221,6 +228,7 @@ public class SubjectImpl implements Subject {
    * @param subject
    */
   public static void initVirtualAttributes(Subject subject) {
+    
     Source source = subject.getSource();
     Map<String, String> virtualAttributes = virtualAttributesForSource(source);
     if (SubjectUtils.length(virtualAttributes) == 0) {
