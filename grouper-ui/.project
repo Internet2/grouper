@@ -18,12 +18,12 @@
 		<link>
 			<name>GROUPER_TRUNK_CONF</name>
 			<type>2</type>
-			<location>C:/mchyzer/grouper/trunk/grouper/conf</location>
+			<locationURI>GROUPER_TRUNK_CONF</locationURI>
 		</link>
 		<link>
 			<name>GROUPER_TRUNK_SOURCE</name>
 			<type>2</type>
-			<location>C:/mchyzer/grouper/trunk/grouper/src/grouper</location>
+			<locationURI>GROUPER_TRUNK_SOURCE</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

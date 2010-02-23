@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="contrib/struts-patch/java/src"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_SOURCE"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_CONF"/>
 	<classpathentry kind="src" path="contrib/yale-cas-auth/java/src"/>
 	<classpathentry kind="src" path="java/src"/>
 	<classpathentry kind="src" path="java/test"/>
 	<classpathentry kind="src" path="contrib/penn-auth/java/src"/>
 	<classpathentry kind="src" path="conf"/>
-	<classpathentry kind="src" path="GROUPER_TRUNK_SOURCE"/>
-	<classpathentry kind="src" path="GROUPER_TRUNK_CONF"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="java/lib/commons-validator.jar"/>
 	<classpathentry exported="true" kind="lib" path="java/lib/jakarta-oro.jar"/>
