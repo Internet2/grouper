@@ -10,7 +10,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -49,7 +48,7 @@ public class ImportSubjectWrapper implements Subject {
     if (this.wrapped == null) {
       try {
         this.wrapped = SourceManager.getInstance()
-          .getSource(this.sourceId).getSubject(this.subjectId);
+          .getSource(this.sourceId).getSubject(this.subjectId, true);
       } catch (Exception e) {
         throw new RuntimeException("Problem with subject: " + this.sourceId + ", " + this.subjectId, e);
       }
@@ -71,6 +70,7 @@ public class ImportSubjectWrapper implements Subject {
    * @param theSubjectId
    * @param subjectIdentifier
    * @param subjectIdOrIdentifier
+   * @param theRowData 
    * @throws SubjectNotFoundException 
    * @throws SubjectNotUniqueException 
    * @throws SourceUnavailableException 
@@ -80,6 +80,8 @@ public class ImportSubjectWrapper implements Subject {
       String subjectIdentifier, String subjectIdOrIdentifier, String[] theRowData) 
         throws SubjectNotFoundException, SubjectNotUniqueException, SourceUnavailableException,
         Exception {
+    
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
     this.row = theRow;
     this.rowData = theRowData;
     boolean hasSourceId = !StringUtils.isBlank(theSourceId);
@@ -100,7 +102,7 @@ public class ImportSubjectWrapper implements Subject {
     
     //if not, we have to do more
     if (!hasSourceId && hasSubjectId) {
-      subject = SubjectFinder.findById(this.subjectId);
+      subject = SubjectFinder.findById(this.subjectId, true);
       this.sourceId = subject.getSource().getId();
       return;
     }
@@ -110,7 +112,7 @@ public class ImportSubjectWrapper implements Subject {
     boolean hasSubjectIdOrIdentifier = !StringUtils.isBlank(subjectIdOrIdentifier);
     
     if (!hasSubjectId && !hasSubjectIdentifier && !hasSubjectIdOrIdentifier) {
-      throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoId"));
+      throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoId());
     }
     
     //ok, we have an id
@@ -118,14 +120,14 @@ public class ImportSubjectWrapper implements Subject {
       
       //try by identifier (e.g. loginid)
       if (hasSubjectIdentifier) {
-        subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdentifier);
+        subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdentifier, true);
       } else if (hasSubjectIdOrIdentifier) {
         //if not, first try by id, e.g. 12345
         try {
-          subject = SourceManager.getInstance().getSource(this.sourceId).getSubject(subjectIdOrIdentifier);
+          subject = SourceManager.getInstance().getSource(this.sourceId).getSubject(subjectIdOrIdentifier, true);
         } catch (SubjectNotFoundException snfe) {
           //and if not found, then 
-          subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdOrIdentifier);
+          subject = SourceManager.getInstance().getSource(this.sourceId).getSubjectByIdentifier(subjectIdOrIdentifier, true);
         }
         
       } else {
@@ -135,9 +137,9 @@ public class ImportSubjectWrapper implements Subject {
     } else {
       //we have no sourceId
       if (hasSourceId) {
-        subject = SubjectFinder.findById(this.subjectId);
+        subject = SubjectFinder.findById(this.subjectId, true);
       } else if (hasSubjectIdentifier) {
-        subject = SubjectFinder.findByIdentifier(subjectIdentifier);
+        subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
       } else if (hasSubjectIdOrIdentifier) {
         subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, true);
       } else {
@@ -181,14 +183,14 @@ public class ImportSubjectWrapper implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
    */
-  public Set getAttributeValues(String name) {
+  public Set<String> getAttributeValues(String name) {
     throw new RuntimeException("Dont call this method on an import subject");
   }
 
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributes()
    */
-  public Map getAttributes() {
+  public Map<String, Set<String>> getAttributes() {
     throw new RuntimeException("Dont call this method on an import subject");
   }
 

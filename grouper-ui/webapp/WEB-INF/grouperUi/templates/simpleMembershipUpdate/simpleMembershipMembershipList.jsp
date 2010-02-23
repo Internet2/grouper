@@ -2,7 +2,7 @@
 <!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.3 2009-11-02 08:50:40 mchyzer Exp $ -->
 <%-- this is the section of the screen which shows a box and the member list inside --%>
 <div class="section">
-  <grouper:subtitle key="simpleMembershipUpdate.membershipListSubtitle"/>
+  <grouper:subtitle label="${simpleMembershipUpdateContainer.text.membershipListSubtitle}" />
 <div class="sectionBody"><br />
 
   <%-- if showing member filter, then show the combobox --%>
@@ -11,7 +11,7 @@
     
     <form id="simpleMembershipMemberFilterForm" name="simpleMembershipUpdateAddMemberForm" action="whatever">
     <%-- describe the combobox, since it doesnt look like something you would type in to --%>
-    <div class="combohint"><grouper:message key="simpleMembershipUpdate.filterMemberCombohint"/></div>
+    <div class="combohint"><grouper:message value="${simpleMembershipUpdateContainer.text.filterMemberCombohint}"/></div>
     <%-- note, the combobox does not currently auto adjust its width, so just make it really wide --%>
     <table width="900" cellpadding="0" cellspacing="0">
       <tr valign="top">
@@ -24,7 +24,7 @@
           <%-- add member button --%>
           <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleMembershipUpdateFilter.retrieveMembersFilterButton', {formIds: 'simpleMembershipMemberFilterForm'}); return false;" 
-          value="${grouper:message('simpleMembershipUpdate.filterMemberButton', true, false) }" style="margin-top: 2px" />
+          value="${simpleMembershipUpdateContainer.text.filterMemberButton}" style="margin-top: 2px" />
         </td>
       </tr>
     </table>
@@ -36,12 +36,12 @@
       <table class="formTable" cellspacing="2">
         <tbody>
           <tr class="formTableRow">
-            <td class="formTableLeft"><grouper:message key="simpleMembershipUpdate.filterLabel" /></td>
+            <td class="formTableLeft"><grouper:message value="${simpleMembershipUpdateContainer.text.filterLabel}" /></td>
       
             <td class="formTableRight" style="white-space: nowrap;"><c:out value="${simpleMembershipUpdateContainer.memberFilterForScreen}" />
               &nbsp; &nbsp; <span class="simpleMembershipUpdateFilterClear"
               ><a href="#" class="smallLink" onclick="ajax('SimpleMembershipUpdateFilter.clearMemberFilter'); return false;"
-                ><grouper:message key="simpleMembershipUpdate.clearFilterButton" /></a></span>
+                ><grouper:message value="${simpleMembershipUpdateContainer.text.clearFilterButton}" /></a></span>
             </td>
           </tr>
       </tbody>
@@ -54,14 +54,14 @@
 
   <%-- paging summary shows which records, and page size --%>
   <div class="pagingSummary">
-    <grouper:message key="simpleMembershipUpdate.pagingLabelPrefix" />
+    <grouper:message value="${simpleMembershipUpdateContainer.text.pagingLabelPrefix}" />
     <grouper:paging refreshOperation="SimpleMembershipUpdate.retrieveMembers" 
       showSummaryOrButtons="true" pagingName="simpleMemberUpdateMembers"  />
   </div>
   
   <%-- message if no members --%>  
   <c:if test="${fn:length(simpleMembershipUpdateContainer.guiMembers) == 0}">
-    <grouper:message key="simpleMembershipUpdate.noMembersFound" />
+    <grouper:message value="${simpleMembershipUpdateContainer.text.noMembersFound}" />
   
   </c:if>
   
@@ -80,9 +80,9 @@
         <%-- image button to delete a member, if showing --%>
         <span class="hides_simpleMembershipUpdateDeleteMultiple" 
             style="${grouper:hideShowStyle('simpleMembershipUpdateDeleteMultiple', false)}">
-          <a href="#" onclick="if (confirm('${grouper:message('simpleMembershipUpdate.deleteConfirm', true, true) }')) {ajax('SimpleMembershipUpdate.deleteSingle?memberId=${guiMember.member.uuid}');} return false;" 
+          <a href="#" onclick="if (confirm('${simpleMembershipUpdateContainer.text.deleteConfirm}')) {ajax('SimpleMembershipUpdate.deleteSingle?memberId=${guiMember.member.uuid}');} return false;" 
           ><img src="../public/assets/images/page_cross.gif" height="14px" border="0" 
-          alt="${grouper:message('simpleMembershipUpdate.deleteImageAlt', true, true) }"/></a>
+          alt="${simpleMembershipUpdateContainer.text.deleteImageAlt }"/></a>
         </span>
         &nbsp;
         <%-- show an icon for the subject --%>
@@ -96,7 +96,7 @@
         <%-- show the triangle next to the member for more operations --%>
         <a class="memberMenuButton" href="#"
             ><img src="../public/assets/images/bullet_arrow_down.png" border="0" id="memberMenuButton_${guiMember.member.uuid}"
-            alt="${grouper:message('simpleMembershipUpdate.memberMenuAlt', true, true) }"/></a>
+            alt="${simpleMembershipUpdateContainer.text.memberMenuAlt}"/></a>
       </div> 
   
     </c:forEach>
@@ -112,17 +112,19 @@
       <br />
     <input class="blueButton" type="submit" 
       onclick="ajax('SimpleMembershipUpdate.deleteMultiple', {formIds: 'simpleMembershipUpdateDeleteMultipleForm'}); return false;" 
-      value="${grouper:message('simpleMembershipUpdate.deleteMultipleButton', true, false) }" 
-      onmouseover="Tip('${grouper:message('deleteMultipleTooltip', true, false)}')" onmouseout="UnTip()" />
+      value="${simpleMembershipUpdateContainer.text.deleteMultipleButton}" 
+      onmouseover="Tip('${grouper:escapeJavascript(simpleMembershipUpdateContainer.text.deleteMultipleTooltip)}')" 
+      onmouseout="UnTip()" />
     &nbsp;
     <input class="blueButton" type="submit" 
       onclick="ajax('SimpleMembershipUpdate.deleteAll'); return false;" 
-      value="${grouper:message('simpleMembershipUpdate.deleteAllButton', true, false) }" 
-      onmouseover="Tip('${grouper:message('deleteAllTooltip', true, false)}')" onmouseout="UnTip()" />    
+      value="${simpleMembershipUpdateContainer.text.deleteAllButton}" 
+      onmouseover="Tip('${grouper:escapeJavascript(simpleMembershipUpdateContainer.text.deleteAllTooltip)}')" 
+      onmouseout="UnTip()" />    
   </div>
   <%-- show the google like paging buttons at the bottom to pick a page to go to --%>
   <div class="pagingButtons">
-    <grouper:message key="simpleMembershipUpdate.pagingResultPrefix" />
+    <grouper:message value="${simpleMembershipUpdateContainer.text.pagingResultPrefix}" />
       <grouper:paging showSummaryOrButtons="false" pagingName="simpleMemberUpdateMembers" 
       refreshOperation="SimpleMembershipUpdate.retrieveMembers" />
   </div>

@@ -132,7 +132,7 @@ public class SimpleMembershipUpdateFilter {
   public void filterMembers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
   
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
     GrouperSession grouperSession = null;
   
     String searchTerm = httpServletRequest.getParameter("mask");
@@ -149,7 +149,8 @@ public class SimpleMembershipUpdateFilter {
       //minimum input length
       boolean[] tooManyResults = new boolean[]{false};
       if (StringUtils.defaultString(searchTerm).length() < 3) {
-        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterChars"), null);
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            simpleMembershipUpdateContainer.getText().getErrorNotEnoughFilterChars(), null);
         notEnoughChars = true;
       } else {
         GuiPaging guiPaging = new GuiPaging();
@@ -173,10 +174,10 @@ public class SimpleMembershipUpdateFilter {
       
       //this might not be correct, but probably is
       if (tooManyResults[0] || (!notEnoughChars && GrouperUtil.length(subjects) == maxSubjectsSort)) {
-        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, simpleMembershipUpdateContainer.getText().getErrorUserSearchTooManyResults(), 
             "bullet_error.png");
       } else if (!notEnoughChars && GrouperUtil.length(subjects) == 0) {
-        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", simpleMembershipUpdateContainer.getText().getErrorUserSearchNoResults(), "bullet_error.png");
       }
   
       xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
@@ -205,6 +206,8 @@ public class SimpleMembershipUpdateFilter {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+    
     GrouperSession grouperSession = null;
   
     String searchTerm = httpServletRequest.getParameter("mask");
@@ -222,7 +225,7 @@ public class SimpleMembershipUpdateFilter {
       boolean tooManyResults = false;
       if (StringUtils.defaultString(searchTerm).length() < 2) {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-            GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughSubjectChars"), null);
+            simpleMembershipUpdateContainer.getText().getErrorNotEnoughSubjectChars(), null);
       } else {
         try {
           subjects = SubjectFinder.findAll(searchTerm);
@@ -251,10 +254,12 @@ public class SimpleMembershipUpdateFilter {
   
       //maybe add one more if we hit the limit
       if (tooManyResults || queryPaging != null && GrouperUtil.length(subjects) < queryPaging.getTotalRecordCount()) {
-        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+            simpleMembershipUpdateContainer.getText().getErrorUserSearchTooManyResults(), 
             "bullet_error.png");
       } else if (GrouperUtil.length(subjects) == 0) {
-        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
+        GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            simpleMembershipUpdateContainer.getText().getErrorUserSearchNoResults(), "bullet_error.png");
       }
   
       xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
@@ -295,7 +300,7 @@ public class SimpleMembershipUpdateFilter {
     //lets do the subject search
     if (StringUtils.defaultString(filterString).length() < TagUtils.mediaResourceInt("simpleMembershipUpdate.filterComboMinChars", 3)) {
       guiResponseJs.addAction(GuiScreenAction.newAlert(
-          GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterCharsAlert")));
+          simpleMembershipUpdateContainer.getText().getErrorNotEnoughFilterCharsAlert()));
       return members;
     } 
     
@@ -331,7 +336,7 @@ public class SimpleMembershipUpdateFilter {
         }
         simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
         guiResponseJs.addAction(GuiScreenAction.newAlert(
-            GrouperUiUtils.message("simpleMembershipUpdate.errorMemberFilterTooManyResults")));
+            simpleMembershipUpdateContainer.getText().getErrorMemberFilterTooManyResults()));
         return members;
       }
       

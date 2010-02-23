@@ -9,6 +9,8 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -18,6 +20,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GroupBreadcrumbTag extends SimpleTagSupport  {
 
+  /**
+   * Text in the label if not simpleMembershipUpdate.find.browse.here
+   */
+  private String label;
+  
+  /**
+   * Text in the label if not simpleMembershipUpdate.find.browse.here
+   * @param theLabel
+   */
+  public void setLabel(String theLabel) {
+    this.label = theLabel;
+  }
+  
   /**
    * @see javax.servlet.jsp.tagext.SimpleTagSupport#doTag()
    */
@@ -35,7 +50,8 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
     //<span class="browseStemsLocationHere">
     //    <img onmouseover="grouperTooltip('Group - A collection of entities (members) which can be people, other groups or other things (e.g., resources)');" onmouseout="UnTip()" src="../public/assets/images/group.gif" class="groupIcon" alt="Folder">ldapUsers</span>
     //</div></div>
-    result.append("<div class=\"browseStemsLocation\"><strong>" + GrouperUiUtils.message("simpleMembershipUpdate.find.browse.here", false)
+    String theLabel = StringUtils.isBlank(this.label) ? GrouperUiUtils.message("simpleMembershipUpdate.find.browse.here", false) : this.label;
+    result.append("<div class=\"browseStemsLocation\"><strong>" + theLabel
         + " </strong> &nbsp; \n");
     String[] names = GrouperUtil.splitTrim(this.groupName, ":");
     for (int i=0; i<GrouperUtil.length(names); i++) {

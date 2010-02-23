@@ -4,7 +4,7 @@
 
   <div class="section">
   
-    <grouper:subtitle key="simpleMembershipUpdate.memberDetailsSubtitle" />
+    <grouper:subtitle label="${simpleMembershipUpdateContainer.text.memberDetailsSubtitle}" />
   
     <div class="sectionBody">
       <table class="formTable formTableSpaced SubjectInfo">

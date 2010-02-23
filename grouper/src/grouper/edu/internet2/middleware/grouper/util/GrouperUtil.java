@@ -59,6 +59,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -6221,6 +6224,20 @@ public class GrouperUtil {
       try {
         writer.close();
       } catch (IOException e) {
+        //swallow, its ok
+      }
+    }
+  }
+
+  /**
+   * close a writer quietly
+   * @param writer
+   */
+  public static void closeQuietly(XMLStreamWriter writer) {
+    if (writer != null) {
+      try {
+        writer.close();
+      } catch (XMLStreamException e) {
         //swallow, its ok
       }
     }

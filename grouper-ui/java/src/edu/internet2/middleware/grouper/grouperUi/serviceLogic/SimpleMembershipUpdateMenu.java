@@ -28,6 +28,8 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
+import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenu;
+import edu.internet2.middleware.grouper.ui.tags.menu.DhtmlxMenuItem;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -132,62 +134,93 @@ public class SimpleMembershipUpdateMenu {
     
     //get the text to add to html if showing details
     GuiHideShow showGroupDetails = GuiHideShow.retrieveHideShow("simpleMembershipUpdateGroupDetails", true);
-    String showGroupDetailsChecked = showGroupDetails.isShowing() ? " checked=\"true\"" : "";
     
     //get the text to add to html if showing multi delete
     GuiHideShow showMultiDelete = GuiHideShow.retrieveHideShow("simpleMembershipUpdateDeleteMultiple", true);
-    String showMultiDeleteChecked = showMultiDelete.isShowing() ? " checked=\"true\"" : "";
   
     //get the text to add to html if showing member filter
     GuiHideShow showMemberFilter = GuiHideShow.retrieveHideShow("simpleMembershipUpdateMemberFilter", true);
-    String showMemberFilterChecked = showMemberFilter.isShowing() ? " checked=\"true\"" : "";
   
-    GrouperUiUtils.printToScreen(
-        "<?xml version=\"1.0\"?>\n"
-        + "<menu>\n"
-        + "  <item id=\"multiDelete\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultiple"), true) 
-        + "\" type=\"checkbox\" " + showMultiDeleteChecked + "><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultipleTooltip"), true) + "</tooltip></item>\n"
-        + "  <item id=\"showGroupDetails\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetails"), true) 
-        + "\" type=\"checkbox\" " + showGroupDetailsChecked + "><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetailsTooltip"), true) + "</tooltip></item>\n"
-        
-        + "  <item id=\"showMemberFilter\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilter"), true) 
-        + "\" type=\"checkbox\" " + showMemberFilterChecked + "><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilterTooltip"), true) + "</tooltip></item>\n"
-  
-        + "  <item id=\"importExport\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuImportExport"), true) 
-        + "\" ><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuImportExportTooltip"), true) + "</tooltip>\n"
-        + "    <item id=\"export\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExport"), true) 
-        + "\" ><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportTooltip"), true) + "</tooltip>\n"
-        + "      <item id=\"exportSubjectIds\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIds"), true) 
-        + "\" ><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIdsTooltip"), true) + "</tooltip></item>\n"
-        + "      <item id=\"exportAll\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportAll"), true) 
-        + "\" ><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuExportAllTooltip"), true) + "</tooltip></item>\n"
-        //close the export
-        + "   </item>\n"
-        + "   <item id=\"import\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuImport"), true) 
-        + "\" ><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.advancedMenuImportTooltip"), true) + "</tooltip></item>\n"
-        //close the import/export
-        + "  </item>\n"
-        //+ "  <item id=\"m3\" text=\"Help\" type=\"checkbox\" checked=\"true\"/>\n"
-        //+ "  <item id=\"radio1\" text=\"Radio1\" type=\"radio\" group=\"hlm\"/>\n"
-        //+ "  <item id=\"radio2\" text=\"Radio2\" type=\"radio\" group=\"hlm\"/>\n"
-        + "</menu>", HttpContentType.TEXT_XML, false, false);
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+    
+    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
+
+    {
+      DhtmlxMenuItem multiDeleteMenuItem = new DhtmlxMenuItem();
+      multiDeleteMenuItem.setId("multiDelete");
+      multiDeleteMenuItem.setType("checkbox");
+      if (showMultiDelete.isShowing()) {
+        multiDeleteMenuItem.setChecked(showMultiDelete.isShowing());
+      }
+      multiDeleteMenuItem.setText(simpleMembershipUpdateContainer.getText().getAdvancedMenuDeleteMultiple());
+      multiDeleteMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getAdvancedMenuDeleteMultipleTooltip());
+      dhtmlxMenu.addDhtmlxItem(multiDeleteMenuItem);
+    }    
+    
+    {
+      DhtmlxMenuItem groupDetailsMenuItem = new DhtmlxMenuItem();
+      groupDetailsMenuItem.setId("showGroupDetails");
+      groupDetailsMenuItem.setType("checkbox");
+      if (showGroupDetails.isShowing()) {
+        groupDetailsMenuItem.setChecked(showGroupDetails.isShowing());
+      }
+      groupDetailsMenuItem.setText(simpleMembershipUpdateContainer.getText().getAdvancedMenuShowGroupDetails());
+      groupDetailsMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getAdvancedMenuShowGroupDetailsTooltip());
+      dhtmlxMenu.addDhtmlxItem(groupDetailsMenuItem);
+    }    
+
+    {
+      DhtmlxMenuItem memberFilterMenuItem = new DhtmlxMenuItem();
+      memberFilterMenuItem.setId("showMemberFilter");
+      memberFilterMenuItem.setType("checkbox");
+      if (showMemberFilter.isShowing()) {
+        memberFilterMenuItem.setChecked(showMemberFilter.isShowing());
+      }
+      memberFilterMenuItem.setText(simpleMembershipUpdateContainer.getText().getAdvancedMenuShowMemberFilter());
+      memberFilterMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getAdvancedMenuShowMemberFilterTooltip());
+      dhtmlxMenu.addDhtmlxItem(memberFilterMenuItem);
+    }    
+
+    DhtmlxMenuItem importExportMenuItem = new DhtmlxMenuItem();
+    importExportMenuItem.setId("importExport");
+    importExportMenuItem.setText(simpleMembershipUpdateContainer.getText().getAdvancedMenuImportExport());
+    importExportMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getAdvancedMenuImportExportTooltip());
+    dhtmlxMenu.addDhtmlxItem(importExportMenuItem);
+
+    DhtmlxMenuItem exportMenuItem = new DhtmlxMenuItem();
+    exportMenuItem.setId("export");
+    exportMenuItem.setText(simpleMembershipUpdateContainer.getText().getAdvancedMenuExport());
+    exportMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getAdvancedMenuExportTooltip());
+    importExportMenuItem.addDhtmlxItem(exportMenuItem);
+    
+    {
+      DhtmlxMenuItem exportSubjectIdsMenuItem = new DhtmlxMenuItem();
+      exportSubjectIdsMenuItem.setId("exportSubjectIds");
+      exportSubjectIdsMenuItem.setText(simpleMembershipUpdateContainer.getText().getAdvancedMenuExportSubjectIds());
+      exportSubjectIdsMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getAdvancedMenuExportSubjectIdsTooltip());
+      exportMenuItem.addDhtmlxItem(exportSubjectIdsMenuItem);
+    }    
+    
+    {
+      DhtmlxMenuItem exportAllMenuItem = new DhtmlxMenuItem();
+      exportAllMenuItem.setId("exportAll");
+      exportAllMenuItem.setText(simpleMembershipUpdateContainer.getText().getAdvancedMenuExportAll());
+      exportAllMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getAdvancedMenuExportAllTooltip());
+      exportMenuItem.addDhtmlxItem(exportAllMenuItem);
+    }    
+    
+    {
+      DhtmlxMenuItem importMenuItem = new DhtmlxMenuItem();
+      importMenuItem.setId("import");
+      importMenuItem.setText(simpleMembershipUpdateContainer.getText().getAdvancedMenuImport());
+      importMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getAdvancedMenuImportTooltip());
+      importExportMenuItem.addDhtmlxItem(importMenuItem);
+    }    
+
+    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + dhtmlxMenu.toXml(), 
+        HttpContentType.TEXT_XML, false, false);
     throw new ControllerDone();
+
   }
 
   /**
@@ -249,18 +282,29 @@ public class SimpleMembershipUpdateMenu {
    */
   public void memberMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
-    GrouperUiUtils.printToScreen(
-        "<?xml version=\"1.0\"?>\n"
-        + "<menu>\n"
-        + "  <item id=\"memberDetails\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuDetailsLabel"), true) 
-        + "\"><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuDetailsTooltip"), true) + "</tooltip></item>\n"
-        + "  <item id=\"enabledDisabled\" text=\"" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuEnabledDisabled"), true) 
-        + "\"><tooltip>" 
-        + GrouperUiUtils.escapeHtml(GrouperUiUtils.message("simpleMembershipUpdate.memberMenuEnabledDisabledTooltip"), true) + "</tooltip></item>\n"
-        + "</menu>", HttpContentType.TEXT_XML, false, false);
+    DhtmlxMenu dhtmlxMenu = new DhtmlxMenu();
+
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+    
+    {
+      DhtmlxMenuItem memberDetailsMenuItem = new DhtmlxMenuItem();
+      memberDetailsMenuItem.setId("memberDetails");
+      memberDetailsMenuItem.setText(simpleMembershipUpdateContainer.getText().getMemberMenuDetailsLabel());
+      memberDetailsMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getMemberMenuDetailsTooltip());
+      dhtmlxMenu.addDhtmlxItem(memberDetailsMenuItem);
+    }    
+
+    {
+      DhtmlxMenuItem memberEnabledMenuItem = new DhtmlxMenuItem();
+      memberEnabledMenuItem.setId("enabledDisabled");
+      memberEnabledMenuItem.setText(simpleMembershipUpdateContainer.getText().getMemberMenuEnabledDisabled());
+      memberEnabledMenuItem.setTooltip(simpleMembershipUpdateContainer.getText().getMemberMenuEnabledDisabledTooltip());
+      dhtmlxMenu.addDhtmlxItem(memberEnabledMenuItem);
+    }    
+
+    GrouperUiUtils.printToScreen("<?xml version=\"1.0\"?>\n" + 
+        dhtmlxMenu.toXml(), HttpContentType.TEXT_XML, false, false);
+
     throw new ControllerDone();
   }
 

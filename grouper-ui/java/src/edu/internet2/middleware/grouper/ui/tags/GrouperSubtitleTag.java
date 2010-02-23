@@ -25,7 +25,6 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.strutsel.taglib.utils.EvalHelper;
 
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
@@ -64,9 +63,15 @@ public class GrouperSubtitleTag extends BodyTagSupport {
   private String param2;
 
   /**
+   * if using value instead of key, this is the infodot value
+   */
+  private String infodotValue;
+
+  /**
    * reset field on construct or recycle
    */
   private void init() {
+    this.infodotValue = null;
     this.label = null;
     this.key = null;
     this.param1 = null;
@@ -133,6 +138,10 @@ public class GrouperSubtitleTag extends BodyTagSupport {
         
         hasInfodot = !StringUtils.isEmpty((String)mapBundleWrapper.get(infodotKey));
         
+      }
+
+      if (!StringUtils.isBlank(this.infodotValue)) {
+        hasInfodot = true;
       }
 
       //note, div didnt work since it didnt fully enclose the inner span
@@ -211,15 +220,18 @@ public class GrouperSubtitleTag extends BodyTagSupport {
         //  /></div>
         out.print(" >");
         out.flush();
-        GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
-        grouperMessageTag.setPageContext(this.pageContext);
-        grouperMessageTag.setBundle("${nav}");
-        grouperMessageTag.setKey(infodotKey);
-        grouperMessageTag.setUseNewTermContext("true");
-        grouperMessageTag.doStartTag();
-        grouperMessageTag.doEndTag();
-        out.flush();
-        
+        if (!StringUtils.isBlank(infodotKey)) {
+          GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
+          grouperMessageTag.setPageContext(this.pageContext);
+          grouperMessageTag.setBundle("${nav}");
+          grouperMessageTag.setKey(infodotKey);
+          grouperMessageTag.setUseNewTermContext("true");
+          grouperMessageTag.doStartTag();
+          grouperMessageTag.doEndTag();
+          out.flush();
+        } else {
+          out.print(this.infodotValue);
+        }
         out.print("</div>\n");
       }
     } catch (IOException ioe) {
@@ -290,6 +302,14 @@ public class GrouperSubtitleTag extends BodyTagSupport {
    */
   public void setLabel(String label1) {
     this.label = label1;
+  }
+
+  /**
+   * 
+   * @param theValue
+   */
+  public void setInfodotValue(String theValue) {
+    this.infodotValue = theValue;
   }
 
 }

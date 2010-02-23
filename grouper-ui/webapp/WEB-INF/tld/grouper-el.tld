@@ -59,6 +59,14 @@
       <required>true</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
+    <attribute>
+      <description>
+        Text in the label if not simpleMembershipUpdate.find.browse.here
+        </description>
+      <name>label</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
   </tag>
   
     <tag>
@@ -110,6 +118,11 @@
     </attribute>
     <attribute>
         <name>valueTooltipKey</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>valueTooltip</name>
         <required>false</required>
         <rtexprvalue>true</rtexprvalue>
     </attribute>
@@ -298,6 +311,11 @@
         This will generate an infodot image which when clicked will hide/show some instructions
     </description -->
     <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperSubtitleTag</tagclass>
+    <attribute>
+      <name>infodotValue</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
     <attribute>
         <name>key</name>
         <required>false</required>

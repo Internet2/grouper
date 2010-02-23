@@ -88,12 +88,10 @@ public class SimpleMembershipUpdate {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-    guiResponseJs.addAction(GuiScreenAction.newAlert(
-        GrouperUiUtils.message("simpleMembershipUpdate.enabledDisabledSuccess", false)));
+    guiResponseJs.addAction(GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getEnabledDisabledSuccess()));
 
     //refresh this list
     retrieveMembers(request, response);
-
 
   }
   
@@ -135,9 +133,7 @@ public class SimpleMembershipUpdate {
     //setup a hideShow
     GuiHideShow.init("simpleMembershipUpdateMemberFilter", false, 
         "", "", true);
-    GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
-        GrouperUiUtils.message("simpleMembershipUpdate.hideGroupDetailsButton", false),
-        GrouperUiUtils.message("simpleMembershipUpdate.showGroupDetailsButton", false), true);
+    GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, null, null, true);
     
     
     GuiPaging.init("simpleMemberUpdateMembers");
@@ -247,7 +243,7 @@ public class SimpleMembershipUpdate {
       //make sure two browser windows in the same session arent editing the same group
       if ((!StringUtils.isBlank(id) && !StringUtils.equals(id, guiGroup.getGroup().getId()))
           || (!StringUtils.isBlank(name) && !StringUtils.equals(name, guiGroup.getGroup().getName()))) {
-        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.errorTooManyBrowsers", false)));
+        guiResponseJs.addAction(GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getErrorTooManyBrowsers()));
         init(request, response);
         throw new ControllerDone(true);
       }
@@ -462,7 +458,7 @@ public class SimpleMembershipUpdate {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
     GrouperSession grouperSession = null;
     Group group = null;
     String groupName = null;
@@ -476,8 +472,9 @@ public class SimpleMembershipUpdate {
       GuiMember guiMember = new GuiMember(member);
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.successMemberDeleted",
-          false, true, guiMember.getGuiSubject().getScreenLabel())));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(
+          simpleMembershipUpdateContainer.getText().getSuccessMemberDeleted(
+              guiMember.getGuiSubject().getScreenLabel())));
       
     } catch (NoSessionException se) {
       throw se;
@@ -507,11 +504,12 @@ public class SimpleMembershipUpdate {
     String comboValue = httpServletRequest.getParameter("simpleMembershipUpdateAddMember");
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+    
     //maybe they dont know how to use it
     if (StringUtils.isBlank(comboValue)) {
       guiResponseJs.addAction(GuiScreenAction.newAlert(
-          GrouperUiUtils.message("simpleMembershipUpdate.errorUserSearchNothingEntered", false)));
+          simpleMembershipUpdateContainer.getText().getErrorUserSearchNothingEntered()));
       return;
 
     }
@@ -536,8 +534,9 @@ public class SimpleMembershipUpdate {
         //lets clear out the combobox:
         guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("simpleMembershipUpdateAddMember", null));
         
-        guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.warningSubjectAlreadyMember",
-            false, true, subjectLabel)));
+        guiResponseJs.addAction(
+            
+            GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getWarningSubjectAlreadyMember(subjectLabel)));
 
         return;
       }
@@ -548,8 +547,8 @@ public class SimpleMembershipUpdate {
       //lets clear out the combobox:
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("simpleMembershipUpdateAddMember", null));
       
-      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.successMemberAdded",
-          false, true, subjectLabel)));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(
+          simpleMembershipUpdateContainer.getText().getSuccessMemberAdded(subjectLabel)));
       
     } catch (NoSessionException se) {
       throw se;
@@ -558,18 +557,19 @@ public class SimpleMembershipUpdate {
     } catch (SubjectNotFoundException snfe) {
       
       guiResponseJs.addAction(GuiScreenAction.newAlert(
-          "Subject not found: '" + GrouperUiUtils.escapeHtml(subjectLabel, true, false) + "'"));
+          simpleMembershipUpdateContainer.getText().getErrorSubjectNotFound(subjectLabel)));
+
       return;
     } catch (SourceUnavailableException sue) {
       guiResponseJs.addAction(GuiScreenAction.newAlert(
-          GrouperUiUtils.message("simpleMembershipUpdate.errorSourceUnavailable", false)));
+          simpleMembershipUpdateContainer.getText().getErrorSourceUnavailable()));
       
       return;
 
     } catch (SubjectNotUniqueException snue) {
       
       guiResponseJs.addAction(GuiScreenAction.newAlert(
-          "Subject not unique: '" + GrouperUiUtils.escapeHtml(subjectLabel, true, false) + "'"));
+          simpleMembershipUpdateContainer.getText().getErrorSubjectNotUnique(subjectLabel)));
       return;
 
     } catch (Exception se) {
@@ -590,11 +590,13 @@ public class SimpleMembershipUpdate {
   public void deleteMultiple(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
     
     //lets get the selected members
     Set<String> paramNames = ((GrouperRequestWrapper)httpServletRequest).requestParameterNamesByPrefix("deleteMultiple_");
     if (paramNames.size() == 0) {
-      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.errorDeleteCheckboxRequired")));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(simpleMembershipUpdateContainer.getText().getErrorDeleteCheckboxRequired()));
       return;
     }
 
@@ -628,9 +630,9 @@ public class SimpleMembershipUpdate {
         }
       }      
       
-      guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleMembershipUpdate.successMembersDeleted",
-          false, true, Integer.toString(deleteCount))));
-      
+      guiResponseJs.addAction(GuiScreenAction.newAlert(
+          simpleMembershipUpdateContainer.getText().getSuccessMembersDeleted(deleteCount)));
+
     } catch (NoSessionException se) {
       throw se;
     } catch (ControllerDone cd) {

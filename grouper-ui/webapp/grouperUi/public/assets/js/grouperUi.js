@@ -1164,6 +1164,10 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
     menu.loadXML(structureOperation);
     
     menu.attachEvent("onClick", function(id, zoneId, casState){
+      var itemType = menu.getItemType(id);
+      if ("radio" == itemType || "checkbox" == itemType) {
+        return;
+      }
       menu.hideContextMenu();
       var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuEvent: 'onClick' };
       //if there is the same menu multiple places on the screen, we might want to know about it
@@ -1174,7 +1178,7 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
       ajax(operation, {requestParams: requestParams});
     });
     menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
-      menu.hideContextMenu();
+      //menu.hideContextMenu();
       var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state, menuEvent: 'onCheckboxClick' };
       //if there is the same menu multiple places on the screen, we might want to know about it
       if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
@@ -1185,7 +1189,7 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
       return true;
     });
     menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
-      menu.hideContextMenu();
+      //menu.hideContextMenu();
       var requestParams = {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked, menuEvent: 'onRadioClick' };
       //if there is the same menu multiple places on the screen, we might want to know about it
       if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {

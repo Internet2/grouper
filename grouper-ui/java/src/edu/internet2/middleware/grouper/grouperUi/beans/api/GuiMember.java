@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
@@ -91,7 +91,8 @@ public class GuiMember implements Serializable {
     if (format == null) {
       return null;
     }
-    return "("+ GrouperUiUtils.message("simpleMembershipUpdate.disabledPrefix", false) 
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+    return "("+ simpleMembershipUpdateContainer.getText().getDisabledPrefix() 
       + ": " + format + ")";
   }
 

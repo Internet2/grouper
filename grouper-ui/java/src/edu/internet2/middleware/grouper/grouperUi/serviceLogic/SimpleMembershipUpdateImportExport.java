@@ -346,7 +346,7 @@ public class SimpleMembershipUpdateImportExport {
     String groupName = null;
   
     try {
-  
+      SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
       grouperSession = GrouperSession.start(loggedInSubject);
   
       group = new SimpleMembershipUpdate().retrieveGroup(grouperSession);
@@ -379,8 +379,8 @@ public class SimpleMembershipUpdateImportExport {
             || (!importCsvFile.getName().toLowerCase().endsWith(".csv")
               &&  !importCsvFile.getName().toLowerCase().endsWith(".txt"))) {
           
-          guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
-              + GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile") + fileName + "</pre>"));
+          guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>"  + simpleMembershipUpdateContainer.getText().getImportErrorNoWrongFile()
+              + fileName + "</pre>"));
           return;
         }
         
@@ -393,7 +393,8 @@ public class SimpleMembershipUpdateImportExport {
         
         if (StringUtils.isBlank(importCsvTextarea)) {
           guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
-              + GrouperUiUtils.message("simpleMembershipUpdate.importErrorBlankTextarea") + "</pre>"));
+              + simpleMembershipUpdateContainer.getText().getImportErrorBlankTextarea()
+              + "</pre>"));
           return;
           
         }
@@ -473,30 +474,26 @@ public class SimpleMembershipUpdateImportExport {
       boolean hasError = errorSize > 0;
       if (!hasError) {
         
-        result.append("<b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importSuccessSummary")).append("</b><br /><br />\n");
+        result.append("<b>").append(simpleMembershipUpdateContainer.getText().getImportSuccessSummary()).append("</b><br /><br />\n");
         
       } else {
         
-        result.append("<b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importErrorSummary", 
-            false, false, Integer.toString(errorSize))).append("</b><br /><br />\n");
+        result.append("<b>").append(simpleMembershipUpdateContainer.getText().getImportErrorSummary(errorSize)).append("</b><br /><br />\n");
         
       }
       
       //give general summary
-      result.append(GrouperUiUtils.message("simpleMembershipUpdate.importSizeSummary", false, false, 
-          Integer.toString(existingCount), Integer.toString(newSize))).append("<br />\n");
+      result.append(simpleMembershipUpdateContainer.getText().getImportSizeSummary(existingCount, newSize)).append("<br />\n");
   
       if (didntImportDueToSubjects) {
-        result.append(GrouperUiUtils.message("simpleMembershipUpdate.importErrorSubjectProblems", false, false, 
-            Integer.toString(existingCount), Integer.toString(newSize))).append("<br />\n");
+        result.append(simpleMembershipUpdateContainer.getText().getImportErrorSubjectProblems()).append("<br />\n");
       }
       
       //adds, deletes
-      result.append(GrouperUiUtils.message("simpleMembershipUpdate.importAddsDeletesSummary", false, 
-          false, Integer.toString(addedCount), Integer.toString(deletedCount))).append("<br />\n");
+      result.append(simpleMembershipUpdateContainer.getText().getImportAddsDeletesSummary(addedCount, deletedCount)).append("<br />\n");
       
       if (GrouperUtil.length(subjectErrors) > 0) {
-        result.append("<br /><b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importSubjectErrorsLabel"))
+        result.append("<br /><b>").append(simpleMembershipUpdateContainer.getText().getImportSubjectErrorsLabel())
             .append("</b><br />\n");
         for (String error: subjectErrors) {
           result.append(error).append("<br />\n");
@@ -504,7 +501,7 @@ public class SimpleMembershipUpdateImportExport {
       }
       
       if (GrouperUtil.length(addErrors) > 0) {
-        result.append("<br /><b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importAddErrorsLabel"))
+        result.append("<br /><b>").append(simpleMembershipUpdateContainer.getText().getImportAddErrorsLabel())
             .append("</b><br />\n");
         for (String error: addErrors) {
           result.append(error).append("<br />\n");
@@ -512,7 +509,7 @@ public class SimpleMembershipUpdateImportExport {
       }
   
       if (GrouperUtil.length(deleteErrors) > 0) {
-        result.append("<br /><b>").append(GrouperUiUtils.message("simpleMembershipUpdate.importRemoveErrorsLabel"))
+        result.append("<br /><b>").append(simpleMembershipUpdateContainer.getText().getImportRemoveErrorsLabel())
           .append("</b><br />\n");
         for (String error: deleteErrors) {
           result.append(error).append("<br />\n");
@@ -546,6 +543,8 @@ public class SimpleMembershipUpdateImportExport {
    */
   @SuppressWarnings("unchecked")
   List<Subject> parseCsvImportFile(Reader originalReader, String fileName, List<String> subjectErrors) {
+    
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
     
     //convert from CSV to 
     CSVReader reader = null;
@@ -598,7 +597,7 @@ public class SimpleMembershipUpdateImportExport {
       
       //must pass in an id
       if (subjectIdColumn == -1 && subjectIdentifierColumn == -1 && subjectIdOrIdentifierColumn == -1) {
-        throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoIdCol"));
+        throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoIdCol());
       }
       
       //ok, lets go through the rows, start after the headers

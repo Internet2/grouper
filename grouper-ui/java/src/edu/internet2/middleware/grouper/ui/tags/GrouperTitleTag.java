@@ -82,6 +82,7 @@ public class GrouperTitleTag extends BodyTagSupport {
    * reset field on construct or recycle
    */
   private void init() {
+    this.infodotValue = null;
     this.label = null;
     this.key = null;
     this.param1 = null;

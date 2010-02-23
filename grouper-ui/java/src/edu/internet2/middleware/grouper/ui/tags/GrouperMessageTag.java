@@ -111,6 +111,17 @@ public class GrouperMessageTag extends MessageTag {
     this.init();
   }
   
+  /** if directly putting in the tooltip, do so here */
+  private String valueTooltip = null;
+  
+  /**
+   * if directly putting in the tooltip, do so here
+   * @param valueTooltip1
+   */
+  public void setValueTooltip(String valueTooltip1) {
+    this.valueTooltip = valueTooltip1;
+  }
+
   /** if specified use this value and not lookup in resource file */
   private String value = null;
 
@@ -130,6 +141,7 @@ public class GrouperMessageTag extends MessageTag {
     this.tooltipRef = null;
     this.ignoreTooltipStyle = null;
     this.value = null;
+    this.valueTooltip = null;
     this.valueTooltipKey = null;
   }
 
@@ -282,7 +294,7 @@ public class GrouperMessageTag extends MessageTag {
       tooltipKey = keyInput;
     }
     
-    if (!StringUtils.isBlank(tooltipKey)) {
+    if (!StringUtils.isBlank(tooltipKey) || !StringUtils.isBlank(this.valueTooltip)) {
       String targettedTooltipKey = TOOLTIP_TARGETTED_PREFIX + tooltipKey;
       String targettedTooltipRefKey = TOOLTIP_TARGETTED_REF_PREFIX + tooltipKey;
       
@@ -294,11 +306,6 @@ public class GrouperMessageTag extends MessageTag {
       String targettedTooltipValue = StringUtils.isNotBlank(this.tooltipRef) ?
           (String)mapBundleWrapper.get(this.tooltipRef) :(String)mapBundleWrapper.get(targettedTooltipKey);
       
-      //if there is a ref, but it doesnt exist, that is a problem
-      if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
-        LOG.error("Missing tooltip targetted ref in nav.properties: " + targettedTooltipRefKey);
-      }
-  
       if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
         LOG.warn("Duplicate tooltip target and ref in nav.properties: " + targettedTooltipKey 
             + ", " + targettedTooltipRefKey);
@@ -310,11 +317,23 @@ public class GrouperMessageTag extends MessageTag {
             + "', '" + targettedTooltipRefKey + "', '" + this.tooltipRef + "'");
       }
       
-      //first priority is a targetted ref, next priority is a target.  not sure why both would be there
-      targettedTooltipValue = StringUtils.isBlank(targettedTooltipRefValue) ? 
-          targettedTooltipValue : (String)mapBundleWrapper.get(targettedTooltipRefValue);
+      //first priority is value
+      targettedTooltipValue = StringUtils.isBlank(this.valueTooltip) ? targettedTooltipValue : this.valueTooltip;
       
-          
+      if (StringUtils.isBlank(targettedTooltipValue)) {
+      
+        //first priority is a targetted ref, next priority is a target.  not sure why both would be there
+        targettedTooltipValue = StringUtils.isBlank(targettedTooltipRefValue) ? 
+            targettedTooltipValue : (String)mapBundleWrapper.get(targettedTooltipRefValue);
+      
+        //if there is a ref, but it doesnt exist, that is a problem
+        if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isBlank(targettedTooltipValue)) {
+          LOG.error("Missing tooltip targetted ref in nav.properties: " + targettedTooltipRefValue);
+        }
+    
+
+      }
+      
       boolean isIgnoreTooltipStyle = GrouperUtil.booleanValue(this.ignoreTooltipStyle, false);
       boolean hasTooltip = StringUtils.isNotBlank(targettedTooltipValue);
       
@@ -328,7 +347,7 @@ public class GrouperMessageTag extends MessageTag {
           
         } else {
           
-          //CH 20080129 at this point we need to make the tooltip subsitutions
+          //CH 20080129 at this point we need to make the tooltip substitutions
           message = substituteTooltips(message, isIgnoreTooltipStyle);
           
         }
