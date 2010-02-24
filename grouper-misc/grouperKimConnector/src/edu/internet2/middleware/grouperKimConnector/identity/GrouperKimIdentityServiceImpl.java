@@ -302,30 +302,56 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
   }
 
   /**
+   * Gets the email type for the given email type code.
    * @see org.kuali.rice.kim.service.IdentityService#getEmailType(java.lang.String)
    */
-  public EmailTypeInfo getEmailType(String arg0) {
+  public EmailTypeInfo getEmailType(String code) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEmailType");
+    debugMap.put("code", code);
+    debugMap.put("result", "null");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+    }
     return null;
+
   }
 
   /**
+   * Gets the employment status for the given employment status code.
    * @see org.kuali.rice.kim.service.IdentityService#getEmploymentStatus(java.lang.String)
    */
-  public EmploymentStatusInfo getEmploymentStatus(String arg0) {
+  public EmploymentStatusInfo getEmploymentStatus(String code) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEmploymentStatus");
+    debugMap.put("code", code);
+    debugMap.put("result", "null");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+    }
     return null;
   }
 
   /**
+   * Gets the employment type for the given employment type code.
    * @see org.kuali.rice.kim.service.IdentityService#getEmploymentType(java.lang.String)
    */
-  public EmploymentTypeInfo getEmploymentType(String arg0) {
+  public EmploymentTypeInfo getEmploymentType(String code) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEmploymentType");
+    debugMap.put("code", code);
+    debugMap.put("result", "null");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+    }
     return null;
   }
 
   /**
+   *  Get the entity default info for the entity with the given id.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityDefaultInfo(java.lang.String)
    */
-  public KimEntityDefaultInfo getEntityDefaultInfo(String arg0) {
+  public KimEntityDefaultInfo getEntityDefaultInfo(String entityId) {
     return null;
   }
 

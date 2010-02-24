@@ -4,10 +4,9 @@
  */
 package edu.internet2.middleware.grouperKimConnector.util;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
 
 
 /**

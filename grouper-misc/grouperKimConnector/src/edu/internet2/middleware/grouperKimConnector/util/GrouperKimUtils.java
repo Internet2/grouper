@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
+import edu.internet2.middleware.grouperKimConnector.identity.GrouperKimEntityNameInfo;
 import edu.internet2.middleware.grouperKimConnector.identity.GrouperKimIdentitySourceProperties;
 
 
@@ -373,11 +374,11 @@ public class GrouperKimUtils {
    */
   public static KimEntityNameInfo convertWsSubjectToEntityNameInfo(WsSubject wsSubject, String[] attributeNames) {
 
-    KimEntityNameInfo kimEntityNameInfo = new KimEntityNameInfo();
+    GrouperKimEntityNameInfo grouperKimEntityNameInfo = new GrouperKimEntityNameInfo();
     
-    kimEntityNameInfo.setActive(true);
-    kimEntityNameInfo.setDefault(true);
-    kimEntityNameInfo.setEntityNameId(wsSubject.getId());
+    grouperKimEntityNameInfo.setActive(true);
+    grouperKimEntityNameInfo.setDefault(true);
+    grouperKimEntityNameInfo.setEntityNameId(wsSubject.getId());
     
 //    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
 //    
@@ -392,30 +393,29 @@ public class GrouperKimUtils {
     
     String name = null;
     if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getNameAttribute()) ) {
-     name = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getNameAttribute());
+      name = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getNameAttribute());
     }
     if (StringUtils.isBlank(name)) {
       name = wsSubject.getName();
     }
-    kimEntityNameInfo.setFormattedName(name);
-    
-//TODO    
-//    kimEntityNameInfo.setFirstName();
-//    kimEntityNameInfo.setFirstNameUnmasked();
-//    kimEntityNameInfo.setFormattedName();
-//    kimEntityNameInfo.setFormattedNameUnmasked();
-//    kimEntityNameInfo.setLastName();
-//    kimEntityNameInfo.setLastNameUnmasked();
-//    kimEntityNameInfo.setMiddleName();
-//    kimEntityNameInfo.setMiddleNameUnmasked();
-//    kimEntityNameInfo.setNameTypeCode();
-//    kimEntityNameInfo.setSuffix();
-//    kimEntityNameInfo.setSuffixUnmasked();
-//    kimEntityNameInfo.setSuppressName();
-//    kimEntityNameInfo.setTitle();
-//    kimEntityNameInfo.setTitleUnmasked();
+    grouperKimEntityNameInfo.setFormattedName(name);
 
-    return kimEntityNameInfo;
+    if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getFirstNameAttribute()) ) {
+      String firstName = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getFirstNameAttribute());
+      grouperKimEntityNameInfo.setFirstName(firstName);
+    }
+
+    if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getLastNameAttribute()) ) {
+      String lastName = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getLastNameAttribute());
+      grouperKimEntityNameInfo.setLastName(lastName);
+    }
+
+    if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getMiddleNameAttribute()) ) {
+      String middleName = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getMiddleNameAttribute());
+      grouperKimEntityNameInfo.setMiddleName(middleName);
+    }
+
+    return grouperKimEntityNameInfo;
     
   }
   

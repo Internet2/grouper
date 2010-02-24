@@ -44,10 +44,30 @@ public class GrouperKimIdentitySourceProperties {
         }
         if (StringUtils.equals(sourceId, currentSourceId)) {
           //we found it
-          String nameAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.nameAttribute." + i, true);
-          grouperKimIdentitySourceProperties.setNameAttribute(nameAttribute);
-          String identifierAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.identifierAttribute." + i, false);
-          grouperKimIdentitySourceProperties.setIdentifierAttribute(identifierAttribute);
+          {
+            String nameAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.nameAttribute." + i, false);
+            grouperKimIdentitySourceProperties.setNameAttribute(nameAttribute);
+          }
+          
+          {
+            String identifierAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.identifierAttribute." + i, false);
+            grouperKimIdentitySourceProperties.setIdentifierAttribute(identifierAttribute);
+          }
+          
+          {
+            String firstNameAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.firstNameAttribute." + i, false);
+            grouperKimIdentitySourceProperties.setFirstNameAttribute(firstNameAttribute);
+          }
+          
+          {
+            String lastNameAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.lastNameAttribute." + i, false);
+            grouperKimIdentitySourceProperties.setLastNameAttribute(lastNameAttribute);
+          }
+          
+          {
+            String middleNameAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.middleNameAttribute." + i, false);
+            grouperKimIdentitySourceProperties.setMiddleNameAttribute(middleNameAttribute);
+          }
           
           break;
         }
@@ -58,6 +78,55 @@ public class GrouperKimIdentitySourceProperties {
     return grouperKimIdentitySourceProperties;
   }
   
+  /**
+   * 
+   * @return first name attribute
+   */
+  public String getFirstNameAttribute() {
+    return this.firstNameAttribute;
+  }
+
+  /**
+   * 
+   * @param firstNameAttribute1
+   */
+  public void setFirstNameAttribute(String firstNameAttribute1) {
+    this.firstNameAttribute = firstNameAttribute1;
+  }
+
+  /**
+   * 
+   * @return last name attribute
+   */
+  public String getLastNameAttribute() {
+    return this.lastNameAttribute;
+  }
+
+  
+  /**
+   * 
+   * @param lastNameAttribute1
+   */
+  public void setLastNameAttribute(String lastNameAttribute1) {
+    this.lastNameAttribute = lastNameAttribute1;
+  }
+
+  /**
+   * 
+   * @return attribute
+   */
+  public String getMiddleNameAttribute() {
+    return this.middleNameAttribute;
+  }
+
+  /**
+   * 
+   * @param middleNameAttribute1
+   */
+  public void setMiddleNameAttribute(String middleNameAttribute1) {
+    this.middleNameAttribute = middleNameAttribute1;
+  }
+
   /**
    * source id
    */
@@ -89,7 +158,21 @@ public class GrouperKimIdentitySourceProperties {
    */
   private String nameAttribute;
 
-
+  /**
+   * first name attribute from a subject (attribute for subjects in this source which is the first name of the subject)
+   */
+  private String firstNameAttribute;
+  
+  /**
+   * last name attribute from a subject (attribute for subjects in this source which is the last name of the subject)
+   */
+  private String lastNameAttribute;
+  
+  /**
+   * middle name attribute from a subject (attribute for subjects in this source which is the middle name of the subject)
+   */
+  private String middleNameAttribute;
+  
   /**
    * source id
    * @return source id
