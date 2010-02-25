@@ -579,10 +579,9 @@ public class GrouperTest extends TestCase {
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
 
     GrouperLoaderConfig.testConfig.put("default.subject.source.id", null);
-    GrouperLoaderConfig.testConfig.put("configuration.autocreate.system.groups", "false");
-    GrouperLoaderConfig.testConfig.put("configuration.autocreate.system.groups", "false");
-    GrouperLoaderConfig.testConfig.put("groups.create.grant.all.read", "true");
-    GrouperLoaderConfig.testConfig.put("groups.create.grant.all.view", "true");
+    ApiConfig.testConfig.put("configuration.autocreate.system.groups", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
     
     
     GrouperCheckConfig.checkGroups();

@@ -2245,6 +2245,10 @@ public class GrouperDdlUtils {
       extraSchema = "public";
     }
   
+    if (platform.getName().toLowerCase().contains("mssql")) {
+      extraSchema = "dbo";
+    }
+  
     final boolean isHsqldb = platform.getName().toLowerCase().contains("hsql");
     //seems like this is best...
     if (isHsqldb) {
@@ -2356,4 +2360,21 @@ public class GrouperDdlUtils {
     }
   }
   
+  /**
+   * Returns the sql to concatenate these two fields separated by the separator
+   * @param field1
+   * @param field2
+   * @return sql for concatenation
+   */
+  public static String sqlConcatenation(String field1, String field2) {
+    if (GrouperDdlUtils.isSQLServer()) {
+      return field1 + " + " + field2;
+    } else if (GrouperDdlUtils.isMysql()) {
+      return "concat(" + field1 + "," + field2 + ")";
+    } else {
+      // this should work for Oracle, Hsql, and Postgres
+      return field1 + " || " + field2;
+    }
+  }
+
 }
