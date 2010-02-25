@@ -6,6 +6,8 @@ import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.RoleSetViewDAO;
 import edu.internet2.middleware.grouper.permissions.role.RoleSetView;
 
@@ -31,7 +33,17 @@ public class Hib3RoleSetViewDAO extends Hib3DAO implements RoleSetViewDAO {
     Criterion ifHasCriteria = Restrictions.in(RoleSetView.FIELD_IF_HAS_ROLE_NAME, roleNames);
     Criterion thenHasCriteria = Restrictions.in(RoleSetView.FIELD_THEN_HAS_ROLE_NAME, roleNames);
     
-    return HibernateSession.byCriteriaStatic().listSet(RoleSetView.class, 
+    QueryOptions queryOptions = new QueryOptions();
+    //ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name
+    QuerySort querySort = QuerySort.asc(RoleSetView.FIELD_PARENT_THEN_HAS_NAME);
+    querySort.addSort(RoleSetView.FIELD_PARENT_IF_HAS_NAME, true);
+    querySort.addSort(RoleSetView.FIELD_DEPTH, true);
+    querySort.addSort(RoleSetView.FIELD_THEN_HAS_ROLE_NAME, true);
+    querySort.addSort(RoleSetView.FIELD_IF_HAS_ROLE_NAME, true);
+    
+    queryOptions.sort(querySort);
+
+    return HibernateSession.byCriteriaStatic().options(queryOptions).listSet(RoleSetView.class, 
         HibUtils.listCritOr(ifHasCriteria, thenHasCriteria));
   }
 

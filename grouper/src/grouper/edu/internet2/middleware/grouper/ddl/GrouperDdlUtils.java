@@ -555,7 +555,12 @@ public class GrouperDdlUtils {
                 historyBuilder.insert(0, summary + ", ");
                 
                 String historyString = StringUtils.abbreviate(historyBuilder.toString(), 4000);
-      
+                
+                //mssql needs begin tx
+                if (platform.getName().toLowerCase().contains("mssql")) {
+                  result.append("\nbegin transaction");
+                }
+                
                 //see if already in db
                 if ((!containsDbRecord(objectName) || (version == 1 && theDropBeforeCreate)) 
                     && !alreadyInsertedForObjectName.contains(objectName)) {
@@ -764,7 +769,22 @@ public class GrouperDdlUtils {
     
     SQLExec sqlExec = new SQLExec();
     
+    boolean deleteScriptAfterward = false;
+    
+    if (url.contains(":sqlserver:")) {
+      
+      String script = GrouperUtil.readFileIntoString(scriptFile);
+      //we need to strip these out
+      if (script.contains("\ngo\n")) {
+        
+        script = StringUtils.replace(script, "\ngo\n", "\n");
+        scriptFile = new File(scriptFile.getAbsolutePath() + ".tmp");
+        GrouperUtil.saveStringIntoFile(scriptFile, script);
+      }
+      
+    }
     sqlExec.setSrc(scriptFile);
+    
     
     sqlExec.setDriver(driver);
     sqlExec.setUrl(url);
@@ -813,6 +833,10 @@ public class GrouperDdlUtils {
       if (internal_printDdlUpdateMessage) {
       System.out.println(logMessage);
     }
+    }
+    
+    if (deleteScriptAfterward) {
+      scriptFile.delete();
     }
     
     //clear all caches
@@ -1034,7 +1058,7 @@ public class GrouperDdlUtils {
 
   /**
    * drop all foreign keys (database dependent), and generate the script
-   * @param ddlVersionable 
+   * @param dbMetadataBean 
    * @param ddlVersionBean
    */
   public static void dropAllForeignKeysScript(DbMetadataBean dbMetadataBean, DdlVersionBean ddlVersionBean) {
@@ -1399,6 +1423,11 @@ public class GrouperDdlUtils {
 //    }
     
     fullSql += viewName + " (" + aliasesString + ") AS " + sql + ";\n";
+    if (ddlVersionBean.isSqlServer()) {
+      //need this since sql server cant output more than one view in a script without it
+      //http://www.tek-tips.com/viewthread.cfm?qid=1447087&page=14
+      fullSql = "\ngo\n" + fullSql + "go\n\n";
+    }
     ddlVersionBean.appendAdditionalScriptUnique(fullSql);
 
     ddlutilsViewComment(ddlVersionBean, viewName, viewComment);
@@ -1411,7 +1440,6 @@ public class GrouperDdlUtils {
       String columnComment = columnCommentsIterator.next();
       ddlutilsColumnComment(ddlVersionBean, viewName, alias, columnComment);
     }
-  
   }
   
   /**
