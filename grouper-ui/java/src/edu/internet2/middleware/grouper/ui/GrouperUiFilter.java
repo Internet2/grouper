@@ -224,17 +224,7 @@ public class GrouperUiFilter implements Filter {
     
     //currently assumes user is in getUserPrincipal
     HttpServletRequest request = retrieveHttpServletRequest();
-    String userIdLoggedIn = request.getRemoteUser();
-    
-    if (StringUtils.isBlank(userIdLoggedIn)) {
-      if (request.getUserPrincipal() != null) {
-        userIdLoggedIn = request.getUserPrincipal().getName();
-      }
-    }
-
-    if (StringUtils.isBlank(userIdLoggedIn)) {
-      userIdLoggedIn = (String)request.getAttribute("REMOTE_USER");
-    }
+    String userIdLoggedIn = remoteUser(request);
     
     if (StringUtils.isBlank(userIdLoggedIn)) {
       throw new RuntimeException("Cant find logged in user");
@@ -312,6 +302,30 @@ public class GrouperUiFilter implements Filter {
 
   /**
    * 
+   * @param httpServletRequest
+   * @return user name
+   */
+  public static String remoteUser(HttpServletRequest httpServletRequest) {
+    String remoteUser = httpServletRequest.getRemoteUser();
+    
+    if (StringUtils.isBlank(remoteUser)) {
+      //this is how mod_jk passes env vars
+      remoteUser = (String)httpServletRequest.getAttribute("REMOTE_USER");
+    }
+    
+    if (StringUtils.isBlank(remoteUser) && httpServletRequest.getUserPrincipal() != null) {
+      //this is how mod_jk passes env vars
+      remoteUser = httpServletRequest.getUserPrincipal().getName();
+    }
+    if (StringUtils.isBlank(remoteUser)) {
+      HttpSession session = httpServletRequest.getSession(false);
+      remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
+    }
+    return remoteUser;
+  }
+  
+  /**
+   * 
    * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
    */
   public void doFilter(ServletRequest arg0, ServletResponse response,
@@ -331,11 +345,8 @@ public class GrouperUiFilter implements Filter {
 
     HttpSession session = httpServletRequest.getSession();
     
-    String remoteUser = httpServletRequest.getRemoteUser();
-    if (remoteUser == null || remoteUser.length() == 0) {
-      remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
-    }
-
+    String remoteUser = remoteUser(httpServletRequest);
+    
     HooksContext.clearThreadLocal();
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
