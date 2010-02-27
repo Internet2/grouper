@@ -31,6 +31,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -181,7 +183,8 @@ public class ErrorFilter implements Filter {
 		requestCount=pad.substring(requestCount.length()) + requestCount;
 		GrouperSession s = (GrouperSession)session.getAttribute(
 				"edu.intenet2.middleware.grouper.ui.GrouperSession");
-		String remoteUser=request.getRemoteUser();
+		String remoteUser=GrouperUiFilter.remoteUser(request);
+				
 		String sessionId = session.getId();
 		StringBuffer ndc = new StringBuffer("< ");
 	    org.apache.log4j.NDC.clear();

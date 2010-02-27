@@ -8,6 +8,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSetView;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetViewDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 
 /**
  * Data Access Object for attribute def name set view
@@ -31,7 +33,17 @@ public class Hib3AttributeDefNameSetViewDAO extends Hib3DAO implements Attribute
     Criterion ifHasCriteria = Restrictions.in(AttributeDefNameSetView.FIELD_IF_HAS_ATTR_DEF_NAME_NAME, attributeDefNames);
     Criterion thenHasCriteria = Restrictions.in(AttributeDefNameSetView.FIELD_THEN_HAS_ATTR_DEF_NAME_NAME, attributeDefNames);
     
-    return HibernateSession.byCriteriaStatic().listSet(AttributeDefNameSetView.class, 
+    QueryOptions queryOptions = new QueryOptions();
+    //ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name
+    QuerySort querySort = QuerySort.asc(AttributeDefNameSetView.FIELD_PARENT_THEN_HAS_NAME);
+    querySort.addSort(AttributeDefNameSetView.FIELD_PARENT_IF_HAS_NAME, true);
+    querySort.addSort(AttributeDefNameSetView.FIELD_DEPTH, true);
+    querySort.addSort(AttributeDefNameSetView.FIELD_THEN_HAS_ATTR_DEF_NAME_NAME, true);
+    querySort.addSort(AttributeDefNameSetView.FIELD_IF_HAS_ATTR_DEF_NAME_NAME, true);
+    
+    queryOptions.sort(querySort);
+    
+    return HibernateSession.byCriteriaStatic().options(queryOptions).listSet(AttributeDefNameSetView.class, 
         HibUtils.listCritOr(ifHasCriteria, thenHasCriteria));
   }
 
