@@ -206,7 +206,7 @@ public class LoginCheckFilter implements Filter {
 			return;
 		}
 
-		String remoteUser = request.getRemoteUser();
+		String remoteUser = GrouperUiFilter.remoteUser(request);
 		if (remoteUser == null || remoteUser.length() == 0 || (!"*".equals(grouperRole) && !request.isUserInRole(grouperRole) && !"y".equals(request.getParameter("badRole")))) {
 			response.sendRedirect(request.getContextPath() + failureUrl + "?badRole=y"
 					+ moduleStr);
