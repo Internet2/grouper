@@ -97,11 +97,11 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * add membership
    */
   MEMBERSHIP_ADD(new ChangeLogType("membership", "addMembership", 
-      ChangeLogLabels.MEMBERSHIP_ADD.id, 
+      null, 
       ChangeLogLabels.MEMBERSHIP_ADD.fieldName,  
       ChangeLogLabels.MEMBERSHIP_ADD.subjectId, 
       ChangeLogLabels.MEMBERSHIP_ADD.sourceId, 
-      ChangeLogLabels.MEMBERSHIP_ADD.membershipType, 
+      null, 
       ChangeLogLabels.MEMBERSHIP_ADD.groupId, 
       ChangeLogLabels.MEMBERSHIP_ADD.groupName,
       ChangeLogLabels.MEMBERSHIP_ADD.memberId,
@@ -111,11 +111,11 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * update membership
    */
   MEMBERSHIP_UPDATE(new ChangeLogType("membership", "updateMembership", 
-      ChangeLogLabels.MEMBERSHIP_UPDATE.id, 
+      null, 
       ChangeLogLabels.MEMBERSHIP_UPDATE.fieldName,  
       ChangeLogLabels.MEMBERSHIP_UPDATE.subjectId, 
       ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId, 
-      ChangeLogLabels.MEMBERSHIP_UPDATE.membershipType, 
+      null, 
       ChangeLogLabels.MEMBERSHIP_UPDATE.groupId, 
       ChangeLogLabels.MEMBERSHIP_UPDATE.groupName,
       ChangeLogLabels.MEMBERSHIP_UPDATE.propertyChanged, 
@@ -126,11 +126,11 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * delete membership
    */
   MEMBERSHIP_DELETE(new ChangeLogType("membership", "deleteMembership", 
-      ChangeLogLabels.MEMBERSHIP_DELETE.id, 
+      null, 
       ChangeLogLabels.MEMBERSHIP_DELETE.fieldName,  
       ChangeLogLabels.MEMBERSHIP_DELETE.subjectId, 
       ChangeLogLabels.MEMBERSHIP_DELETE.sourceId, 
-      ChangeLogLabels.MEMBERSHIP_DELETE.membershipType, 
+      null, 
       ChangeLogLabels.MEMBERSHIP_DELETE.groupId, 
       ChangeLogLabels.MEMBERSHIP_DELETE.groupName,
       ChangeLogLabels.MEMBERSHIP_DELETE.memberId,
@@ -140,7 +140,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * add privilege
    */
   PRIVILEGE_ADD(new ChangeLogType("privilege", "addPrivilege", 
-      ChangeLogLabels.PRIVILEGE_ADD.id, 
+      null, 
       ChangeLogLabels.PRIVILEGE_ADD.privilegeName, 
       ChangeLogLabels.PRIVILEGE_ADD.subjectId, 
       ChangeLogLabels.PRIVILEGE_ADD.sourceId, 
@@ -155,7 +155,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * update privilege
    */
   PRIVILEGE_UPDATE(new ChangeLogType("privilege", "updatePrivilege",
-      ChangeLogLabels.PRIVILEGE_UPDATE.id, 
+      null, 
       ChangeLogLabels.PRIVILEGE_UPDATE.privilegeName, 
       ChangeLogLabels.PRIVILEGE_UPDATE.subjectId, 
       ChangeLogLabels.PRIVILEGE_UPDATE.sourceId, 
@@ -168,7 +168,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * delete privilege
    */
   PRIVILEGE_DELETE(new ChangeLogType("privilege", "deletePrivilege",
-      ChangeLogLabels.PRIVILEGE_DELETE.id, 
+      null, 
       ChangeLogLabels.PRIVILEGE_DELETE.privilegeName, 
       ChangeLogLabels.PRIVILEGE_DELETE.subjectId, 
       ChangeLogLabels.PRIVILEGE_DELETE.sourceId, 

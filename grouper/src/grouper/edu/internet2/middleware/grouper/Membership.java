@@ -82,6 +82,8 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -2591,48 +2593,43 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     
     if (this.getListType().equals(FieldType.LIST.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
-          ChangeLogLabels.MEMBERSHIP_ADD.id.name(), this.getUuid(), 
           ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), this.getField().getName(), 
           ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name(), this.getFieldId(), 
           ChangeLogLabels.MEMBERSHIP_ADD.memberId.name(), this.getMemberUuid(),
           ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), this.getMember().getSubjectId(),
           ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
-          ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), this.getType(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
-          ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getUuid(),
-          ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), this.getField().getName(), 
+          ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), AccessPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), this.getFieldId(), 
           ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), this.getMemberUuid(),
           ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), this.getMember().getSubjectId(),
           ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
-          ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), this.getType(),
+          ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.ACCESS.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_GROUP,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.NAMING.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
-          ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getUuid(),
-          ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), this.getField().getName(), 
+          ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), NamingPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), this.getFieldId(), 
           ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), this.getMemberUuid(),
           ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), this.getMember().getSubjectId(),
           ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
-          ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), this.getType(),
+          ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.NAMING.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_STEM,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerStemId(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getStem().getName()).save();
     } else if (this.getListType().equals(FieldType.ATTRIBUTE_DEF.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
-          ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getUuid(),
-          ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), this.getField().getName(), 
+          ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), AttributeDefPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), this.getFieldId(), 
           ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), this.getMemberUuid(),
           ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), this.getMember().getSubjectId(),
           ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
-          ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), this.getType(),
+          ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.ATTRIBUTE_DEF.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_ATTRIBUTE_DEF,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerAttrDefId(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getAttributeDef().getName()).save();
@@ -2653,48 +2650,43 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     
     if (this.getListType().equals(FieldType.LIST.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
-          ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), this.getUuid(), 
           ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), this.getField().getName(), 
           ChangeLogLabels.MEMBERSHIP_DELETE.fieldId.name(), this.getFieldId(), 
           ChangeLogLabels.MEMBERSHIP_DELETE.memberId.name(), this.getMemberUuid(),
           ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), member.getSubjectId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), member.getSubjectSourceId(),
-          ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
-          ChangeLogLabels.PRIVILEGE_DELETE.id.name(), this.getUuid(),
-          ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), this.getField().getName(), 
+          ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), AccessPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), this.getFieldId(), 
           ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), this.getMemberUuid(),
           ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), member.getSubjectId(),
           ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), member.getSubjectSourceId(),
-          ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), this.getType(),
+          ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.ACCESS.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_GROUP,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.NAMING.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
-          ChangeLogLabels.PRIVILEGE_DELETE.id.name(), this.getUuid(),
-          ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), this.getField().getName(), 
+          ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), NamingPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), this.getFieldId(), 
           ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), this.getMemberUuid(),
           ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), member.getSubjectId(),
           ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), member.getSubjectSourceId(),
-          ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), this.getType(),
+          ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.NAMING.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_STEM,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerStemId(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getStem().getName()).save();
     } else if (this.getListType().equals(FieldType.ATTRIBUTE_DEF.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
-          ChangeLogLabels.PRIVILEGE_DELETE.id.name(), this.getUuid(),
-          ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), this.getField().getName(), 
+          ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), AttributeDefPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), this.getFieldId(), 
           ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), this.getMemberUuid(),
           ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), member.getSubjectId(),
           ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), member.getSubjectSourceId(),
-          ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), this.getType(),
+          ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.ATTRIBUTE_DEF.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_ATTRIBUTE_DEF,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerAttrDefId(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getAttributeDef().getName()).save();

@@ -272,7 +272,11 @@ public class ChangeLogType extends GrouperAPI implements Hib3GrouperVersioned {
   private static String[] enumArrayToStringArray(ChangeLogLabel... enumStrings) {
     String[] labelStrings = new String[enumStrings.length];
     for (int i=0;i<enumStrings.length;i++) {
-      labelStrings[i] = enumStrings[i].name();
+      if (enumStrings[i] == null) {
+        labelStrings[i] = null;
+      } else {
+        labelStrings[i] = enumStrings[i].name();
+      }
     }
     return labelStrings;
   }

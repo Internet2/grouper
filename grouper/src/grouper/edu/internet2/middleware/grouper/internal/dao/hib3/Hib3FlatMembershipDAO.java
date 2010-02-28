@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.flat.FlatMembership;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO;
@@ -39,6 +40,10 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       save(iter.next());
     }
   }
+  
+  public void saveBatch(Set<FlatMembership> flatMemberships) {
+    HibernateSession.byObjectStatic().saveBatch(flatMemberships);
+  } 
   
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO#delete(edu.internet2.middleware.grouper.membership.FlatMembership)
@@ -221,6 +226,56 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .listSet(FlatMembership.class);
     
     return flatMemberships;
-  } 
+  }
+
+  public Set<FlatMembership> findBadFlatMemberships() {
+    Set<FlatMembership> mships = HibernateSession
+      .byHqlStatic()
+      .createQuery("select flatMship from FlatMembership flatMship where " +
+      		"not exists (select 1 from MembershipEntry ms " +
+      		"    where (flatMship.ownerId=ms.ownerGroupId or flatMship.ownerId=ms.ownerStemId or flatMship.ownerId=ms.ownerAttrDefId) " +
+      		"    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string06 = flatMship.ownerId and temp.string09=flatMship.fieldId " +
+          "    and type.actionName='deleteMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string07 = flatMship.ownerId and temp.string10=flatMship.fieldId " +
+          "    and type.actionName='deletePrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type, Member m, FlatMembership flatMship2 " +
+          "    where temp.string09=:fieldId and type.actionName='deleteMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId " +
+          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='g:gsa' " +
+          "    and flatMship2.memberId = m.uuid and flatMship.ownerId=flatMship2.ownerId and flatMship.fieldId = flatMship2.fieldId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBadFlatMemberships")
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(FlatMembership.class);
+    
+    return mships;
+  }
+
+  public Set<Membership> findMissingFlatMemberships() {
+    Set<Membership> mships = HibernateSession
+      .byHqlStatic()
+      .createQuery("select ms from MembershipEntry ms where " +
+          "not exists (select 1 from FlatMembership flatMship " +
+          "    where (flatMship.ownerId=ms.ownerGroupId or flatMship.ownerId=ms.ownerStemId or flatMship.ownerId=ms.ownerAttrDefId) " +
+          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string06 = ms.ownerGroupId and temp.string09=ms.fieldId " +
+          "    and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where (temp.string07 = ms.ownerGroupId or temp.string07 = ms.ownerStemId or temp.string07 = ms.ownerAttrDefId) and temp.string10=ms.fieldId " +
+          "    and type.actionName='addPrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type, Member m, MembershipEntry ms2 " +
+          "    where temp.string09=:fieldId and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId " +
+          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='g:gsa' " +
+          "    and ms2.memberUuid = m.uuid " +
+          "    and (ms.ownerGroupId is not null and ms.ownerGroupId=ms2.ownerGroupId " +
+          "         or ms.ownerStemId is not null and ms.ownerStemId=ms2.ownerStemId " +
+          "         or ms.ownerAttrDefId is not null and ms.ownerAttrDefId=ms2.ownerAttrDefId) " +
+          "    and ms.fieldId = ms2.fieldId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatMemberships")
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(Membership.class);
+    
+    return mships;
+  }
 }
 

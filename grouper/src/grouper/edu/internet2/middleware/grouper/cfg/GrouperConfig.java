@@ -257,4 +257,17 @@ public class GrouperConfig {
     return val;
   }
 
+  /**
+   * get the hibernate property value as an int, throw an exception if invalid value.
+   * @param property 
+   * @param defaultValue 
+   * @return int
+   */
+  public static int getHibernatePropertyInt(String property, int defaultValue) {
+    String value = getHibernateProperty(property);
+    if (StringUtils.isBlank(value)) {
+      return defaultValue;
+    }
+    return GrouperUtil.intValue(value, defaultValue);
+  }
 } 

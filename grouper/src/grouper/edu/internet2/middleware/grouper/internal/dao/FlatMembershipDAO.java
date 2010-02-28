@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.flat.FlatMembership;
 
 
@@ -20,6 +21,12 @@ public interface FlatMembershipDAO extends GrouperDAO {
    * @param flatMembership
    */
   public void save(FlatMembership flatMembership);
+  
+  /**
+   * insert a batch of flat membership objects
+   * @param flatMemberships
+   */
+  public void saveBatch(Set<FlatMembership> flatMemberships);
 
   /**
    * insert a set of flat membership objects
@@ -100,4 +107,16 @@ public interface FlatMembershipDAO extends GrouperDAO {
    * @return set of flat memberships
    */
   public Set<FlatMembership> findByMemberId(String memberId);
+  
+  /**
+   * find missing flat memberships
+   * @return set of memberships that need flat memberships
+   */
+  public Set<Membership> findMissingFlatMemberships();
+  
+  /**
+   * remove bad flat memberships
+   * @return set of flat memberships that should be removed
+   */
+  public Set<FlatMembership> findBadFlatMemberships();
 }

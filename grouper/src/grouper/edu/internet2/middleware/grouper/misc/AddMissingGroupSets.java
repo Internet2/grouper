@@ -66,7 +66,6 @@ public class AddMissingGroupSets {
 
   /**
    * Add all missing group sets
-   * @param reportOnly If true, no changes will actually be made.
    */
   public void addAllMissingGroupSets() {
         

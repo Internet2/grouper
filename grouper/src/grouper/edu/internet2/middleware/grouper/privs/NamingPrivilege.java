@@ -54,8 +54,8 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
 
   static {
-    list2priv.put( "create",  NamingPrivilege.CREATE);
-    list2priv.put( "stem",  NamingPrivilege.STEM);
+    list2priv.put( "creators",  NamingPrivilege.CREATE);
+    list2priv.put( "stemmers",  NamingPrivilege.STEM);
   }
 
   /** convert a list to a priv */
@@ -71,7 +71,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
    * @param privilege
    * @return the list name
    */
-  static String privToList(Privilege privilege) {
+  public static String privToList(Privilege privilege) {
     return priv2list.get(privilege);
   }
 
@@ -80,7 +80,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
    * @param list
    * @return the privilege
    */
-  static Privilege listToPriv(String list) {
+  public static Privilege listToPriv(String list) {
     return list2priv.get(list);
   }
 

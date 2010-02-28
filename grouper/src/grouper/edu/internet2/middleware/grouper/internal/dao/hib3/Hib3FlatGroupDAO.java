@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.flat.FlatGroup;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO;
@@ -27,6 +30,13 @@ public class Hib3FlatGroupDAO extends Hib3DAO implements FlatGroupDAO {
    */
   public void delete(FlatGroup flatGroup) {
     HibernateSession.byObjectStatic().delete(flatGroup);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO#saveBatch(java.util.Set)
+   */
+  public void saveBatch(Set<FlatGroup> flatGroups) {
+    HibernateSession.byObjectStatic().saveBatch(flatGroups);
   }
   
   /**
@@ -60,6 +70,29 @@ public class Hib3FlatGroupDAO extends Hib3DAO implements FlatGroupDAO {
       .setString("id", flatGroupId)
       .executeUpdate();
   }
-  
+
+  public Set<Group> findMissingFlatGroups() {
+    Set<Group> groups = HibernateSession
+      .byHqlStatic()
+      .createQuery("select g from Group g where not exists (select 1 from FlatGroup flatGroup where flatGroup.id=g.uuid) " +
+      		"and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string01 = g.uuid " +
+      		"and type.actionName='addGroup' and type.changeLogCategory='group' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatGroups")
+      .listSet(Group.class);
+    
+    return groups;
+  }
+
+  public Set<FlatGroup> findBadFlatGroups() {
+    Set<FlatGroup> groups = HibernateSession
+      .byHqlStatic()
+      .createQuery("select flatGroup from FlatGroup flatGroup where not exists (select 1 from Group g where flatGroup.id=g.uuid) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string01 = flatGroup.id " +
+          "and type.actionName='deleteGroup' and type.changeLogCategory='group' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindBadFlatGroups")
+      .listSet(FlatGroup.class);
+    
+    return groups;
+  }
 }
 
