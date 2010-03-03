@@ -1146,7 +1146,7 @@ public class GrouperUtil {
   }
   
   /**
-   * convert an object to json.  note this wraps the gson with the object simple name so it can be revived
+   * convert an object to json.
    * @param object
    * @return the string of json
    */
