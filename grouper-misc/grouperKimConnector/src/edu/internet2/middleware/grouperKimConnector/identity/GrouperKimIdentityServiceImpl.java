@@ -132,8 +132,10 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
       
       for (String entityId : entityIds) {
         entityId = GrouperKimUtils.translateEntityId(entityId);
-
-        gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(entityId,null, null));
+        String sourceId = GrouperKimUtils.separateSourceId(entityId);
+        String subjectId = GrouperKimUtils.separateSourceIdSuffix(entityId);
+        
+        gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(subjectId,sourceId, null));
         
       }
       
@@ -146,11 +148,11 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
       
       debugMap.put("resultNumberOfSubjects", GrouperClientUtils.length(wsSubjects));
       
-            //map of subject id to ws subject object just to make sure they are in order
+      //map of subject id to ws subject object just to make sure they are in order
       Map<String, WsSubject> wsSubjectMap = new LinkedHashMap<String, WsSubject>();
 
       for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsSubjects, WsSubject.class)) {
-        wsSubjectMap.put(wsSubject.getId(), wsSubject);
+        wsSubjectMap.put(GrouperKimUtils.concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId()), wsSubject);
       }
 
       index = 0;
@@ -169,10 +171,6 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
         }
         
         KimEntityNameInfo kimEntityNameInfo = GrouperKimUtils.convertWsSubjectToEntityNameInfo(wsSubject, wsGetSubjectsResults.getSubjectAttributeNames());
-        
-        if (!StringUtils.equals(entityId, subjectId)) {
-          throw new RuntimeException("Why is entityId: " + entityId + " not equal to " + subjectId);
-        }
         
         result.put(entityId, kimEntityNameInfo);
         index++;
@@ -352,77 +350,288 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
    * @see org.kuali.rice.kim.service.IdentityService#getEntityDefaultInfo(java.lang.String)
    */
   public KimEntityDefaultInfo getEntityDefaultInfo(String entityId) {
-    return null;
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    if (!debugMap.containsKey("operation")) {
+      debugMap.put("operation", "getEntityDefaultInfo");
+    }
+    
+    debugMap.put("entityId", entityId);
+    boolean hadException = false;
+    try {
+      entityId = GrouperKimUtils.translateEntityId(entityId);
+      debugMap.put("translatedEntityId", entityId);
+      
+      String sourceId = GrouperKimUtils.separateSourceId(entityId);
+      String subjectId = GrouperKimUtils.separateSourceIdSuffix(entityId);
+      
+      GcGetSubjects gcGetSubjects = new GcGetSubjects();
+      
+      gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(subjectId,sourceId, null));
+      
+      gcGetSubjects.assignIncludeSubjectDetail(true);
+      
+      WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
+      
+      //we did one assignment, we have one result
+      WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
+      
+      WsSubject wsSubject = GrouperClientUtils.length(wsSubjects) == 1 ? wsSubjects[0] : null;
+      
+      KimEntityDefaultInfo kimEntityDefaultInfo = null;
+      if (wsSubject == null) {
+        debugMap.put("wsSubject", "null");
+        debugMap.put("wsSubjects.length", GrouperClientUtils.length(wsSubjects));
+      } else {
+      
+        kimEntityDefaultInfo = GrouperKimUtils.convertWsSubjectToEntityDefaultInfo(
+            wsSubject, wsGetSubjectsResults.getSubjectAttributeNames());
+        
+        debugMap.put("result", kimEntityDefaultInfo.toString());
+      }
+      return kimEntityDefaultInfo;
+    } catch (RuntimeException re) {
+      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
+      LOG.error(errorPrefix, re);
+      GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled() && !hadException) {
+        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+      }
+    }
   }
 
   /**
+   * Get the entity default info for the entity of the principal with the given principal id.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityDefaultInfoByPrincipalId(java.lang.String)
    */
-  public KimEntityDefaultInfo getEntityDefaultInfoByPrincipalId(String arg0) {
-    return null;
+  public KimEntityDefaultInfo getEntityDefaultInfoByPrincipalId(String principalId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    if (!debugMap.containsKey("operation")) {
+      debugMap.put("operation", "getEntityDefaultInfoByPrincipalId");
+    }
+    debugMap.put("principalId", principalId);
+    boolean hadException = false;
+    try {
+      principalId = GrouperKimUtils.translatePrincipalId(principalId);
+      debugMap.put("translatedPrincipalId", principalId);
+      
+      String sourceId = GrouperKimUtils.separateSourceId(principalId);
+      String subjectIdentifier = GrouperKimUtils.separateSourceIdSuffix(principalId);
+      
+      GcGetSubjects gcGetSubjects = new GcGetSubjects();
+      
+      gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(null,sourceId, subjectIdentifier));
+      
+      gcGetSubjects.assignIncludeSubjectDetail(true);
+      
+      WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
+      
+      //we did one assignment, we have one result
+      WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
+      
+      WsSubject wsSubject = GrouperClientUtils.length(wsSubjects) == 1 ? wsSubjects[0] : null;
+      
+      KimEntityDefaultInfo kimEntityDefaultInfo = null;
+      if (wsSubject == null) {
+        debugMap.put("wsSubject", "null");
+        debugMap.put("wsSubjects.length", GrouperClientUtils.length(wsSubjects));
+      } else {
+      
+        kimEntityDefaultInfo = GrouperKimUtils.convertWsSubjectToEntityDefaultInfo(
+            wsSubject, wsGetSubjectsResults.getSubjectAttributeNames());
+        
+        debugMap.put("result", kimEntityDefaultInfo.toString());
+      }
+      return kimEntityDefaultInfo;
+    } catch (RuntimeException re) {
+      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
+      LOG.error(errorPrefix, re);
+      GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled() && !hadException) {
+        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+      }
+    }
   }
 
   /**
+   * Get the entity default info for the entity of the principal with the given principal name.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityDefaultInfoByPrincipalName(java.lang.String)
    */
-  public KimEntityDefaultInfo getEntityDefaultInfoByPrincipalName(String arg0) {
-    return null;
+  public KimEntityDefaultInfo getEntityDefaultInfoByPrincipalName(String principalName) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    if (!debugMap.containsKey("operation")) {
+      debugMap.put("operation", "getEntityDefaultInfoByPrincipalName");
+    }
+    debugMap.put("principalName", principalName);
+    boolean hadException = false;
+    try {
+      principalName = GrouperKimUtils.translatePrincipalName(principalName);
+      debugMap.put("translatedPrincipalName", principalName);
+      
+      String sourceId = GrouperKimUtils.separateSourceId(principalName);
+      String subjectIdentifier = GrouperKimUtils.separateSourceIdSuffix(principalName);
+      
+      GcGetSubjects gcGetSubjects = new GcGetSubjects();
+      
+      gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(null,sourceId, subjectIdentifier));
+      
+      gcGetSubjects.assignIncludeSubjectDetail(true);
+      
+      WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
+      
+      //we did one assignment, we have one result
+      WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
+      
+      WsSubject wsSubject = GrouperClientUtils.length(wsSubjects) == 1 ? wsSubjects[0] : null;
+      
+      KimEntityDefaultInfo kimEntityDefaultInfo = null;
+      if (wsSubject == null) {
+        debugMap.put("wsSubject", "null");
+        debugMap.put("wsSubjects.length", GrouperClientUtils.length(wsSubjects));
+      } else {
+      
+        kimEntityDefaultInfo = GrouperKimUtils.convertWsSubjectToEntityDefaultInfo(
+            wsSubject, wsGetSubjectsResults.getSubjectAttributeNames());
+        
+        debugMap.put("result", kimEntityDefaultInfo.toString());
+      }
+      return kimEntityDefaultInfo;
+    } catch (RuntimeException re) {
+      String errorPrefix = GrouperKimUtils.mapForLog(debugMap) + ", ";
+      LOG.error(errorPrefix, re);
+      GrouperClientUtils.injectInException(re, errorPrefix);
+      hadException = true;
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled() && !hadException) {
+        LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+      }
+    }
   }
 
   /**
+   * Get the entity info for the entity with the given id.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityInfo(java.lang.String)
    */
-  public KimEntityInfo getEntityInfo(String arg0) {
-    return null;
+  public KimEntityInfo getEntityInfo(String entityId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEntityInfo");
+    KimEntityDefaultInfo kimEntityDefaultInfo = getEntityDefaultInfo(entityId);
+    KimEntityInfo kimEntityInfo = GrouperKimUtils.convertKimEntityDefaultInfoToKimEntityInfo(kimEntityDefaultInfo);
+    return kimEntityInfo;
   }
 
   /**
+   * Get the entity info for the entity of the principal with the given principal id.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityInfoByPrincipalId(java.lang.String)
    */
-  public KimEntityInfo getEntityInfoByPrincipalId(String arg0) {
-    return null;
+  public KimEntityInfo getEntityInfoByPrincipalId(String principalId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEntityInfoByPrincipalId");
+    KimEntityDefaultInfo kimEntityDefaultInfo = getEntityDefaultInfoByPrincipalId(principalId);
+    KimEntityInfo kimEntityInfo = GrouperKimUtils.convertKimEntityDefaultInfoToKimEntityInfo(kimEntityDefaultInfo);
+    return kimEntityInfo;
   }
 
   /**
+   * Get the entity info for the entity of the principal with the given principal name.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityInfoByPrincipalName(java.lang.String)
    */
-  public KimEntityInfo getEntityInfoByPrincipalName(String arg0) {
-    return null;
+  public KimEntityInfo getEntityInfoByPrincipalName(String principalName) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEntityInfoByPrincipalName");
+    KimEntityDefaultInfo kimEntityDefaultInfo = getEntityDefaultInfoByPrincipalName(principalName);
+    KimEntityInfo kimEntityInfo = GrouperKimUtils.convertKimEntityDefaultInfoToKimEntityInfo(kimEntityDefaultInfo);
+    return kimEntityInfo;
   }
 
   /**
+   * Gets the entity name type for the given entity name type code.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityNameType(java.lang.String)
    */
-  public EntityNameTypeInfo getEntityNameType(String arg0) {
+  public EntityNameTypeInfo getEntityNameType(String code) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEntityNameType");
+    debugMap.put("code", code);
+    debugMap.put("result", "null");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+    }
     return null;
   }
 
   /**
+   *  Gets the privacy preferences for the entity with the given entity id.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityPrivacyPreferences(java.lang.String)
    */
-  public KimEntityPrivacyPreferencesInfo getEntityPrivacyPreferences(String arg0) {
+  public KimEntityPrivacyPreferencesInfo getEntityPrivacyPreferences(String entityId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEntityPrivacyPreferences");
+    debugMap.put("entityId", entityId);
+    debugMap.put("result", "null");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+    }
     return null;
   }
 
   /**
+   * Gets the entity type for the given entity type code.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityType(java.lang.String)
    */
-  public EntityTypeInfo getEntityType(String arg0) {
+  public EntityTypeInfo getEntityType(String code) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getEntityType");
+    debugMap.put("code", code);
+    debugMap.put("result", "null");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+    }
     return null;
   }
 
   /**
+   * Gets the external identifier type for the given external identifier type code.
    * @see org.kuali.rice.kim.service.IdentityService#getExternalIdentifierType(java.lang.String)
    */
-  public ExternalIdentifierTypeInfo getExternalIdentifierType(String arg0) {
+  public ExternalIdentifierTypeInfo getExternalIdentifierType(String code) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getExternalIdentifierType");
+    debugMap.put("code", code);
+    debugMap.put("result", "null");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+    }
     return null;
   }
 
   /**
+   * Returns a count of the number of entities that match the given search criteria.
    * @see org.kuali.rice.kim.service.IdentityService#getMatchingEntityCount(java.util.Map)
    */
-  public int getMatchingEntityCount(Map<String, String> arg0) {
-    return 0;
+  public int getMatchingEntityCount(Map<String, String> searchCriteria) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    debugMap.put("operation", "getMatchingEntityCount");
+    int searchCriteriaLength = GrouperClientUtils.length(searchCriteria);
+    debugMap.put("searchCriteria", searchCriteriaLength);
+    if (searchCriteriaLength > 0) {
+      for (String key: searchCriteria.keySet()) {
+        debugMap.put("key_" + key, searchCriteria.get(key));
+      }
+    }
+    int result = 0;
+    debugMap.put("result", result);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(GrouperKimUtils.mapForLog(debugMap));
+    }
+    return result;  
   }
 
   /**

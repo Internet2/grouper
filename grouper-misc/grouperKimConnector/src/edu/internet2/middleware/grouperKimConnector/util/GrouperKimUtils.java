@@ -13,8 +13,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityDefaultInfo;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityNameInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityNamePrincipalNameInfo;
+import org.kuali.rice.kim.bo.entity.dto.KimPrincipalInfo;
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
 import org.kuali.rice.kim.bo.types.dto.AttributeSet;
 import org.kuali.rice.kim.bo.types.dto.KimTypeInfo;
@@ -365,7 +368,68 @@ public class GrouperKimUtils {
     }
     return null;
   }
-
+  
+  
+  /**
+   * convert a ws subject to an entity default info
+   * @param wsSubject
+   * @param attributeNames list of names in the 
+   * @return the entity name info
+   */
+  public static KimEntityDefaultInfo convertWsSubjectToEntityDefaultInfo(WsSubject wsSubject, String[] attributeNames) {
+    KimEntityDefaultInfo kimEntityDefaultInfo = new KimEntityDefaultInfo();
+    kimEntityDefaultInfo.setActive(true);
+    kimEntityDefaultInfo.setAffiliations(null);
+    kimEntityDefaultInfo.setDefaultAffiliation(null);
+    
+    
+    kimEntityDefaultInfo.setDefaultName(convertWsSubjectToEntityNameInfo(wsSubject, attributeNames));
+    kimEntityDefaultInfo.setEntityId(concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId()));
+    kimEntityDefaultInfo.setEntityTypes(null);
+    kimEntityDefaultInfo.setExternalIdentifiers(null);
+    kimEntityDefaultInfo.setPrimaryEmployment(null);
+    
+    List<KimPrincipalInfo> kimPrincipalInfos = new ArrayList<KimPrincipalInfo>();
+    kimPrincipalInfos.add(convertWsSubjectToPrincipalInfo(wsSubject, attributeNames));
+    
+    kimEntityDefaultInfo.setPrincipals(kimPrincipalInfos);
+    kimEntityDefaultInfo.setPrivacyPreferences(null);
+    return kimEntityDefaultInfo;
+    
+  }
+  
+  /**
+   * convert a default info to an info
+   * @param kimEntityDefaultInfo
+   * @return the info
+   */
+  public static KimEntityInfo convertKimEntityDefaultInfoToKimEntityInfo(KimEntityDefaultInfo kimEntityDefaultInfo) {
+    if (kimEntityDefaultInfo == null) {
+      return null;
+    }
+    KimEntityInfo kimEntityInfo = new KimEntityInfo();
+    
+    kimEntityInfo.setActive(kimEntityDefaultInfo.isActive());
+    kimEntityInfo.setAffiliations(kimEntityDefaultInfo.getAffiliations());
+    kimEntityInfo.setBioDemographics(null);
+    kimEntityInfo.setCitizenships(null);
+    kimEntityInfo.setDefaultAffiliation(kimEntityDefaultInfo.getDefaultAffiliation());
+    kimEntityInfo.setDefaultName(kimEntityDefaultInfo.getDefaultName());
+    kimEntityInfo.setEmploymentInformation(null);
+    kimEntityInfo.setEntityId(kimEntityDefaultInfo.getEntityId());
+    kimEntityInfo.setEntityTypes(null);
+    kimEntityInfo.setEthnicities(null);
+    kimEntityInfo.setExternalIdentifiers(kimEntityDefaultInfo.getExternalIdentifiers());
+    kimEntityInfo.setNames(GrouperClientUtils.toList(kimEntityDefaultInfo.getDefaultName()));
+    kimEntityInfo.setPrimaryEmployment(kimEntityDefaultInfo.getPrimaryEmployment());
+    kimEntityInfo.setPrincipals(kimEntityDefaultInfo.getPrincipals());
+    kimEntityInfo.setPrivacyPreferences(kimEntityDefaultInfo.getPrivacyPreferences());
+    kimEntityInfo.setResidencies(null);
+    kimEntityInfo.setVisas(null);
+    return kimEntityInfo;
+  }
+  
+  
   /**
    * convert a ws subject to an entity name info
    * @param wsSubject
@@ -378,7 +442,7 @@ public class GrouperKimUtils {
     
     grouperKimEntityNameInfo.setActive(true);
     grouperKimEntityNameInfo.setDefault(true);
-    grouperKimEntityNameInfo.setEntityNameId(wsSubject.getId());
+    grouperKimEntityNameInfo.setEntityNameId(concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId()));
     
 //    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
 //    
@@ -479,7 +543,7 @@ public class GrouperKimUtils {
   /**
    * translate a kim entity id to a grouper subject id
    * @param kimEntityId
-   * @return the grouper subject id
+   * @return the grouper subject id or source/subject combined with separator
    */
   public static String translateEntityId(String kimEntityId) {
     String grouperSubjectId = GrouperClientUtils.propertiesValue("grouper.kim.kimEntityIdToSubjectId_" + kimEntityId, false);
@@ -492,43 +556,156 @@ public class GrouperKimUtils {
   /**
    * translate a kim principal id to a grouper subject identifier
    * @param kimPrincipalId
-   * @return the grouper subject identifier
+   * @return the grouper subject identifier or a sourceId/subject identifier with separator
    */
   public static String translatePrincipalId(String kimPrincipalId) {
-    String grouperSubjectIdentifier = GrouperClientUtils.propertiesValue("grouper.kim.kimEntityIdToSubjectIdentifier_" + kimPrincipalId, false);
+    String grouperSubjectIdentifier = GrouperClientUtils.propertiesValue("grouper.kim.kimPrincipalIdToSubjectIdentifier_" + kimPrincipalId, false);
     if (!GrouperClientUtils.isBlank(grouperSubjectIdentifier)) {
       return grouperSubjectIdentifier;
     }
     return kimPrincipalId;
   }
+  
+  /**
+   * translate a kim principal name to a grouper subject identifier
+   * @param kimPrincipalId
+   * @return the grouper subject identifier or a sourceId/subject identifier with separator
+   */
+  public static String translatePrincipalName(String kimPrincipalId) {
+    String grouperSubjectIdentifier = GrouperClientUtils.propertiesValue("grouper.kim.kimPrincipalNameToSubjectIdentifier_" + kimPrincipalId, false);
+    if (!GrouperClientUtils.isBlank(grouperSubjectIdentifier)) {
+      return grouperSubjectIdentifier;
+    }
+    return kimPrincipalId;
+  }
+  
+  /**
+   * if the input is sourceId::::entityId and the separator is :::: then return sourceId.
+   * If there is no separator configured, or none in entityId, then return the entityId
+   * @param entityId
+   * @return the sourceId
+   */
+  public static String separateSourceId(String entityId) {
+    if (StringUtils.isBlank(entityId)) {
+      return entityId;
+    }
+    String separator = GrouperClientUtils.propertiesValue("kuali.identity.sourceSeparator", false);
+    if (StringUtils.isBlank(separator)) {
+      return entityId;
+    }
+    
+    int separatorIndex = entityId.indexOf(separator);
+    
+    if (separatorIndex == -1) {
+      return entityId;
+    }
+    
+    String sourceId = entityId.substring(0, separatorIndex);
+    
+    return sourceId;
+    
+  }
+  
+  /**
+   * if the input is sourceId::::entityId and the separator is :::: then return sourceId.
+   * If there is no separator configured, or none in entityId, then return the entityId
+   * @param entityId
+   * @return the sourceId
+   */
+  public static String separateSourceIdSuffix(String entityId) {
+    
+    if (StringUtils.isBlank(entityId)) {
+      return entityId;
+    }
+    String separator = GrouperClientUtils.propertiesValue("kuali.identity.sourceSeparator", false);
+    if (StringUtils.isBlank(separator)) {
+      return entityId;
+    }
+    
+    int separatorIndex = entityId.indexOf(separator);
+    
+    if (separatorIndex == -1) {
+      return entityId;
+    }
+    
+    String suffixId = entityId.substring(separatorIndex + 1, entityId.length());
+    
+    return suffixId;
+
+  }
+  
+  
+  /**
+   * convert a ws subject to an entity name info
+   * @param wsSubject
+   * @param attributeNames list of names in the 
+   * @return the entity name info
+   */
+  public static KimEntityNamePrincipalNameInfo convertWsSubjectToPrincipalNameInfo(WsSubject wsSubject, String[] attributeNames) {
+
+    KimEntityNamePrincipalNameInfo kimEntityNamePrincipalNameInfo = new KimEntityNamePrincipalNameInfo();
+
+    String identifier = convertWsSubjectToPrincipalName(wsSubject, attributeNames);
+    
+    kimEntityNamePrincipalNameInfo.setPrincipalName(identifier);
+    
+    kimEntityNamePrincipalNameInfo.setDefaultEntityName(convertWsSubjectToEntityNameInfo(wsSubject, attributeNames));
+    
+    return kimEntityNamePrincipalNameInfo;
+    
+  }
 
   /**
-     * convert a ws subject to an entity name info
-     * @param wsSubject
-     * @param attributeNames list of names in the 
-     * @return the entity name info
-     */
-    public static KimEntityNamePrincipalNameInfo convertWsSubjectToPrincipalNameInfo(WsSubject wsSubject, String[] attributeNames) {
-  
-      KimEntityNamePrincipalNameInfo kimEntityNamePrincipalNameInfo = new KimEntityNamePrincipalNameInfo();
-
-      //kimEntityNamePrincipalNameInfo.setDefaultEntityName()
-      
-      //NOTE if this isnt here, get from attribute
-      String identifier = wsSubject.getIdentifierLookup();
-      
-  
-      GrouperKimIdentitySourceProperties grouperKimIdentitySourceProperties = GrouperKimIdentitySourceProperties
-        .grouperKimIdentitySourceProperties(wsSubject.getSourceId());
-      
-      if (StringUtils.isBlank(identifier) && grouperKimIdentitySourceProperties != null 
-          && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getIdentifierAttribute()) ) {
-       identifier = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getIdentifierAttribute());
-      }
-      kimEntityNamePrincipalNameInfo.setPrincipalName(identifier);
-  
-      return kimEntityNamePrincipalNameInfo;
-      
+   * if there is a source separator configured, and the other stuff is there, concatenate
+   * @param sourceId
+   * @param suffix
+   * @return the concatenation
+   */
+  public static String concatenateSourceSeparator(String sourceId, String suffix) {
+    String separator = GrouperClientUtils.propertiesValue("kuali.identity.sourceSeparator", false);
+    String result = suffix;
+    if (!StringUtils.isBlank(separator) && !StringUtils.isBlank(sourceId)) {
+      result = sourceId + separator + suffix;
     }
+    return result;
+  }
   
+  /**
+   * convert a ws subject to an entity name info
+   * @param wsSubject
+   * @param attributeNames list of names in the 
+   * @return the entity name info
+   */
+  public static KimPrincipalInfo convertWsSubjectToPrincipalInfo(WsSubject wsSubject, String[] attributeNames) {
+
+    KimPrincipalInfo kimPrincipalInfo = new KimPrincipalInfo();
+    kimPrincipalInfo.setActive(true);
+    kimPrincipalInfo.setEntityId(concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId()));
+    String principalName = convertWsSubjectToPrincipalName(wsSubject, attributeNames);
+    kimPrincipalInfo.setPrincipalId(concatenateSourceSeparator(wsSubject.getSourceId(), principalName));
+    kimPrincipalInfo.setPrincipalName(principalName);
+    return kimPrincipalInfo;
+  }
+
+  /**
+   * 
+   * @param wsSubject
+   * @param attributeNames
+   * @return the principal
+   */
+  public static String convertWsSubjectToPrincipalName(WsSubject wsSubject, String[] attributeNames) {
+    //NOTE if this isnt here, get from attribute
+    String identifier = wsSubject.getIdentifierLookup();
+    
+
+    GrouperKimIdentitySourceProperties grouperKimIdentitySourceProperties = GrouperKimIdentitySourceProperties
+      .grouperKimIdentitySourceProperties(wsSubject.getSourceId());
+    
+    if (StringUtils.isBlank(identifier) && grouperKimIdentitySourceProperties != null 
+        && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getIdentifierAttribute()) ) {
+     identifier = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getIdentifierAttribute());
+    }
+    return identifier;
+  }
+    
 }
