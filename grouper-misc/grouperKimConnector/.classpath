@@ -3,8 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/rice/rice-api-1.0.1.jar" sourcepath="/rice-1.0.1"/>
-	<classpathentry kind="lib" path="lib/rice/rice-impl-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/rice/rice-api-1.0.1.jar" sourcepath="/rice-1.0.1-src"/>
+	<classpathentry kind="lib" path="lib/rice/rice-impl-1.0.1.jar" sourcepath="/rice-1.0.1-src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper_trunk"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_trunk"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient_trunk"/>

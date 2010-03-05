@@ -4,11 +4,8 @@
  */
 package edu.internet2.middleware.grouperKimConnector.identity;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-
 
 /**
  * properties about a source, cached
@@ -22,7 +19,7 @@ public class GrouperKimIdentitySourceProperties {
     = new ExpirableCache<String, GrouperKimIdentitySourceProperties>(5);
 
   /**
-   * get the source properties for an app name (current app name)
+   * get the source properties for source name (current source name)
    * @param sourceId
    * @return properties for source and app name
    */
@@ -39,10 +36,10 @@ public class GrouperKimIdentitySourceProperties {
       for (int i=0;i<100;i++) {
         
         String currentSourceId = GrouperClientUtils.propertiesValue("kuali.identity.source.id." + i, false);
-        if (StringUtils.isBlank(currentSourceId)) {
+        if (GrouperClientUtils.isBlank(currentSourceId)) {
           break;
         }
-        if (StringUtils.equals(sourceId, currentSourceId)) {
+        if (GrouperClientUtils.equals(sourceId, currentSourceId)) {
           //we found it
           {
             String nameAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.nameAttribute." + i, false);
@@ -68,6 +65,17 @@ public class GrouperKimIdentitySourceProperties {
             String middleNameAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.middleNameAttribute." + i, false);
             grouperKimIdentitySourceProperties.setMiddleNameAttribute(middleNameAttribute);
           }
+          
+          {
+            String emailAttribute = GrouperClientUtils.propertiesValue("kuali.identity.source.emailAttribute." + i, false);
+            grouperKimIdentitySourceProperties.setEmailAttribute(emailAttribute);
+          }
+          
+          {
+            String entityTypeCode = GrouperClientUtils.propertiesValue("kuali.identity.source.entityTypeCode." + i, false);
+            grouperKimIdentitySourceProperties.setEntityTypeCode(entityTypeCode);
+          }
+          
           
           break;
         }
@@ -159,6 +167,27 @@ public class GrouperKimIdentitySourceProperties {
   private String nameAttribute;
 
   /**
+   * email attribute from a subject
+   */
+  private String emailAttribute;
+  
+  /**
+   * email attribute from a subject
+   * @return the emailAttribute
+   */
+  public String getEmailAttribute() {
+    return this.emailAttribute;
+  }
+  
+  /**
+   * email attribute from a subject
+   * @param emailAttribute1 the emailAttribute to set
+   */
+  public void setEmailAttribute(String emailAttribute1) {
+    this.emailAttribute = emailAttribute1;
+  }
+
+  /**
    * first name attribute from a subject (attribute for subjects in this source which is the first name of the subject)
    */
   private String firstNameAttribute;
@@ -174,13 +203,33 @@ public class GrouperKimIdentitySourceProperties {
   private String middleNameAttribute;
   
   /**
+   * entity type code is the type of entity, e.g. PERSON
+   */
+  private String entityTypeCode;
+  
+  /**
+   * entity type code is the type of entity, e.g. PERSON
+   * @return the entityTypeCode
+   */
+  public String getEntityTypeCode() {
+    return this.entityTypeCode;
+  }
+  
+  /**
+   * entity type code is the type of entity, e.g. PERSON
+   * @param entityTypeCode1 the entityTypeCode to set
+   */
+  public void setEntityTypeCode(String entityTypeCode1) {
+    this.entityTypeCode = entityTypeCode1;
+  }
+
+  /**
    * source id
    * @return source id
    */
   public String getSourceId() {
     return this.sourceId;
   }
-
 
   /**
    * source id
@@ -190,7 +239,6 @@ public class GrouperKimIdentitySourceProperties {
     this.sourceId = sourceId1;
   }
 
-
   /**
    * name attribute from a subject (attribute for subjects in this source which is the name of the subject)
    * @return name attribute
@@ -199,7 +247,6 @@ public class GrouperKimIdentitySourceProperties {
     return this.nameAttribute;
   }
 
-
   /**
    * name attribute from a subject (attribute for subjects in this source which is the name of the subject)
    * @param nameAttribute1
@@ -207,7 +254,5 @@ public class GrouperKimIdentitySourceProperties {
   public void setNameAttribute(String nameAttribute1) {
     this.nameAttribute = nameAttribute1;
   }
-
-  
   
 }

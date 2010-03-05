@@ -12,13 +12,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityDefaultInfo;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityEntityTypeDefaultInfo;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityEntityTypeInfo;
+import org.kuali.rice.kim.bo.entity.dto.KimEntityExternalIdentifierInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityNameInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityNamePrincipalNameInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimPrincipalInfo;
+import org.kuali.rice.kim.bo.entity.impl.KimEntityEmailImpl;
 import org.kuali.rice.kim.bo.group.dto.GroupInfo;
+import org.kuali.rice.kim.bo.reference.dto.EmailTypeInfo;
+import org.kuali.rice.kim.bo.reference.dto.EntityTypeInfo;
 import org.kuali.rice.kim.bo.types.dto.AttributeSet;
 import org.kuali.rice.kim.bo.types.dto.KimTypeInfo;
 import org.kuali.rice.kim.service.KIMServiceLocator;
@@ -46,7 +51,7 @@ public class GrouperKimUtils {
    * @return the first name
    */
   public static String firstName(String name) {
-    if (StringUtils.isBlank(name)) {
+    if (GrouperClientUtils.isBlank(name)) {
       return name;
     }
     name = name.trim();
@@ -64,7 +69,7 @@ public class GrouperKimUtils {
    * @return the last name
    */
   public static String lastName(String name) {
-    if (StringUtils.isBlank(name)) {
+    if (GrouperClientUtils.isBlank(name)) {
       return name;
     }
     name = name.trim();
@@ -83,7 +88,7 @@ public class GrouperKimUtils {
    * @return the last name
    */
   public static String middleName(String name) {
-    if (StringUtils.isBlank(name)) {
+    if (GrouperClientUtils.isBlank(name)) {
       return name;
     }
     name = name.trim();
@@ -93,7 +98,7 @@ public class GrouperKimUtils {
     }
     String lastPart = name.substring(spaceIndex+1,name.length());
     
-    if (StringUtils.isBlank(lastPart)) {
+    if (GrouperClientUtils.isBlank(lastPart)) {
       return null;
     }
     lastPart = lastPart.trim();
@@ -361,7 +366,7 @@ public class GrouperKimUtils {
   public static String subjectAttributeValue(WsSubject wsSubject, String[] attributeNames, String attributeName) {
     for (int i=0;i<GrouperClientUtils.length(attributeNames);i++) {
       
-      if (StringUtils.equals(attributeName, attributeNames[i])) {
+      if (GrouperClientUtils.equals(attributeName, attributeNames[i])) {
         //got it
         return wsSubject.getAttributeValue(i);
       }
@@ -384,9 +389,44 @@ public class GrouperKimUtils {
     
     
     kimEntityDefaultInfo.setDefaultName(convertWsSubjectToEntityNameInfo(wsSubject, attributeNames));
-    kimEntityDefaultInfo.setEntityId(concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId()));
-    kimEntityDefaultInfo.setEntityTypes(null);
-    kimEntityDefaultInfo.setExternalIdentifiers(null);
+    String entityId = concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId());
+    kimEntityDefaultInfo.setEntityId(entityId);
+    
+    GrouperKimIdentitySourceProperties grouperKimIdentitySourceProperties = GrouperKimIdentitySourceProperties
+      .grouperKimIdentitySourceProperties(wsSubject.getSourceId());
+    
+    String entityTypeCode = "PERSON";
+    
+    //see if overridden
+    if (!GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getEntityTypeCode())) {
+      entityTypeCode = grouperKimIdentitySourceProperties.getEntityTypeCode();
+    }
+    
+    KimEntityEntityTypeDefaultInfo kimEntityEntityTypeDefaultInfo = new KimEntityEntityTypeDefaultInfo();
+    kimEntityEntityTypeDefaultInfo.setEntityTypeCode(entityTypeCode);
+    
+    String emailAttribute = grouperKimIdentitySourceProperties.getEmailAttribute();
+    if (!GrouperClientUtils.isBlank(emailAttribute)) {
+      String emailAddress = GrouperKimUtils.subjectAttributeValue(wsSubject, attributeNames, emailAttribute);
+      if (!GrouperClientUtils.isBlank(emailAddress)) {
+        KimEntityEmailImpl kimEntityEmailImpl = new KimEntityEmailImpl();
+        kimEntityEmailImpl.setActive(true);
+        kimEntityEmailImpl.setDefault(true);
+        kimEntityEmailImpl.setEmailAddress(emailAddress);
+        EmailTypeInfo emailTypeInfo = KIMServiceLocator.getIdentityManagementService().getEmailType("WRK");
+        kimEntityEmailImpl.setEmailType(emailTypeInfo);
+        kimEntityEmailImpl.setEmailTypeCode("WRK");
+        kimEntityEmailImpl.setEntityId(entityId);
+        kimEntityEmailImpl.setEntityTypeCode(entityTypeCode);
+        kimEntityEntityTypeDefaultInfo.setDefaultEmailAddress(kimEntityEmailImpl);
+        kimEntityEntityTypeDefaultInfo.setEntityTypeCode(entityTypeCode);
+      }
+    }
+    
+    kimEntityDefaultInfo.setEntityTypes(GrouperClientUtils.toList(kimEntityEntityTypeDefaultInfo));
+    
+    //this is important, this cannot return null or will give an NPE...
+    kimEntityDefaultInfo.setExternalIdentifiers(new ArrayList<KimEntityExternalIdentifierInfo>());
     kimEntityDefaultInfo.setPrimaryEmployment(null);
     
     List<KimPrincipalInfo> kimPrincipalInfos = new ArrayList<KimPrincipalInfo>();
@@ -417,7 +457,36 @@ public class GrouperKimUtils {
     kimEntityInfo.setDefaultName(kimEntityDefaultInfo.getDefaultName());
     kimEntityInfo.setEmploymentInformation(null);
     kimEntityInfo.setEntityId(kimEntityDefaultInfo.getEntityId());
-    kimEntityInfo.setEntityTypes(null);
+    
+    if (kimEntityDefaultInfo.getEntityTypes() != null) {
+      List<KimEntityEntityTypeInfo> kimEntityEntityTypeInfos = new ArrayList<KimEntityEntityTypeInfo>();
+      kimEntityInfo.setEntityTypes(kimEntityEntityTypeInfos);
+
+      for (KimEntityEntityTypeDefaultInfo kimEntityEntityTypeDefaultInfo : kimEntityDefaultInfo.getEntityTypes()) {
+        KimEntityEntityTypeInfo kimEntityEntityTypeInfo = new KimEntityEntityTypeInfo();
+        kimEntityEntityTypeInfos.add(kimEntityEntityTypeInfo);
+        
+        kimEntityEntityTypeInfo.setActive(true);
+        kimEntityEntityTypeInfo.setAddresses(kimEntityEntityTypeDefaultInfo.getDefaultAddress() == null ? null 
+            : GrouperClientUtils.toList(kimEntityEntityTypeDefaultInfo.getDefaultAddress()));
+        kimEntityEntityTypeInfo.setDefaultAddress(kimEntityEntityTypeDefaultInfo.getDefaultAddress());
+        kimEntityEntityTypeInfo.setDefaultEmailAddress(kimEntityEntityTypeDefaultInfo.getDefaultEmailAddress());
+        kimEntityEntityTypeInfo.setDefaultPhoneNumber(kimEntityEntityTypeDefaultInfo.getDefaultPhoneNumber());
+        kimEntityEntityTypeInfo.setEmailAddresses(kimEntityEntityTypeDefaultInfo.getDefaultEmailAddress() == null ? null 
+            : GrouperClientUtils.toList(kimEntityEntityTypeDefaultInfo.getDefaultEmailAddress()));
+        
+        EntityTypeInfo entityTypeInfo = KIMServiceLocator.getIdentityManagementService()
+          .getEntityType(kimEntityEntityTypeDefaultInfo.getEntityTypeCode());
+        
+        kimEntityEntityTypeInfo.setEntityType(entityTypeInfo);
+        kimEntityEntityTypeInfo.setEntityTypeCode(kimEntityEntityTypeDefaultInfo.getEntityTypeCode());
+        kimEntityEntityTypeInfo.setPhoneNumbers(kimEntityEntityTypeDefaultInfo.getDefaultPhoneNumber() == null ? null 
+            : GrouperClientUtils.toList(kimEntityEntityTypeDefaultInfo.getDefaultPhoneNumber()));
+            
+      }
+      
+    }
+    
     kimEntityInfo.setEthnicities(null);
     kimEntityInfo.setExternalIdentifiers(kimEntityDefaultInfo.getExternalIdentifiers());
     kimEntityInfo.setNames(GrouperClientUtils.toList(kimEntityDefaultInfo.getDefaultName()));
@@ -456,25 +525,25 @@ public class GrouperKimUtils {
       .grouperKimIdentitySourceProperties(wsSubject.getSourceId());
     
     String name = null;
-    if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getNameAttribute()) ) {
+    if (grouperKimIdentitySourceProperties != null && !GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getNameAttribute()) ) {
       name = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getNameAttribute());
     }
-    if (StringUtils.isBlank(name)) {
+    if (GrouperClientUtils.isBlank(name)) {
       name = wsSubject.getName();
     }
     grouperKimEntityNameInfo.setFormattedName(name);
 
-    if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getFirstNameAttribute()) ) {
+    if (grouperKimIdentitySourceProperties != null && !GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getFirstNameAttribute()) ) {
       String firstName = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getFirstNameAttribute());
       grouperKimEntityNameInfo.setFirstName(firstName);
     }
 
-    if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getLastNameAttribute()) ) {
+    if (grouperKimIdentitySourceProperties != null && !GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getLastNameAttribute()) ) {
       String lastName = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getLastNameAttribute());
       grouperKimEntityNameInfo.setLastName(lastName);
     }
 
-    if (grouperKimIdentitySourceProperties != null && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getMiddleNameAttribute()) ) {
+    if (grouperKimIdentitySourceProperties != null && !GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getMiddleNameAttribute()) ) {
       String middleName = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getMiddleNameAttribute());
       grouperKimEntityNameInfo.setMiddleName(middleName);
     }
@@ -586,18 +655,18 @@ public class GrouperKimUtils {
    * @return the sourceId
    */
   public static String separateSourceId(String entityId) {
-    if (StringUtils.isBlank(entityId)) {
+    if (GrouperClientUtils.isBlank(entityId)) {
       return entityId;
     }
     String separator = GrouperClientUtils.propertiesValue("kuali.identity.sourceSeparator", false);
-    if (StringUtils.isBlank(separator)) {
-      return entityId;
+    if (GrouperClientUtils.isBlank(separator)) {
+      return null;
     }
     
     int separatorIndex = entityId.indexOf(separator);
     
     if (separatorIndex == -1) {
-      return entityId;
+      return null;
     }
     
     String sourceId = entityId.substring(0, separatorIndex);
@@ -614,11 +683,11 @@ public class GrouperKimUtils {
    */
   public static String separateSourceIdSuffix(String entityId) {
     
-    if (StringUtils.isBlank(entityId)) {
+    if (GrouperClientUtils.isBlank(entityId)) {
       return entityId;
     }
     String separator = GrouperClientUtils.propertiesValue("kuali.identity.sourceSeparator", false);
-    if (StringUtils.isBlank(separator)) {
+    if (GrouperClientUtils.isBlank(separator)) {
       return entityId;
     }
     
@@ -628,7 +697,7 @@ public class GrouperKimUtils {
       return entityId;
     }
     
-    String suffixId = entityId.substring(separatorIndex + 1, entityId.length());
+    String suffixId = entityId.substring(separatorIndex + separator.length(), entityId.length());
     
     return suffixId;
 
@@ -664,7 +733,7 @@ public class GrouperKimUtils {
   public static String concatenateSourceSeparator(String sourceId, String suffix) {
     String separator = GrouperClientUtils.propertiesValue("kuali.identity.sourceSeparator", false);
     String result = suffix;
-    if (!StringUtils.isBlank(separator) && !StringUtils.isBlank(sourceId)) {
+    if (!GrouperClientUtils.isBlank(separator) && !GrouperClientUtils.isBlank(sourceId)) {
       result = sourceId + separator + suffix;
     }
     return result;
@@ -701,8 +770,8 @@ public class GrouperKimUtils {
     GrouperKimIdentitySourceProperties grouperKimIdentitySourceProperties = GrouperKimIdentitySourceProperties
       .grouperKimIdentitySourceProperties(wsSubject.getSourceId());
     
-    if (StringUtils.isBlank(identifier) && grouperKimIdentitySourceProperties != null 
-        && !StringUtils.isBlank(grouperKimIdentitySourceProperties.getIdentifierAttribute()) ) {
+    if (GrouperClientUtils.isBlank(identifier) && grouperKimIdentitySourceProperties != null 
+        && !GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getIdentifierAttribute()) ) {
      identifier = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getIdentifierAttribute());
     }
     return identifier;

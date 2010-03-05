@@ -18,6 +18,8 @@ package edu.internet2.middleware.grouperKimConnector.xsl;
 import java.util.Properties;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperKimConnector.identity.GrouperKimIdentityServiceImpl;
 
 
 /**
@@ -28,8 +30,10 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public class XslUtils {
 
-  /** logger */
-  private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(XslUtils.class);
+  /**
+   * logger
+   */
+  private static final Log LOG = GrouperClientUtils.retrieveLog(GrouperKimIdentityServiceImpl.class);
 
   /**
    * This method retrieves properties from a resource on classpath,
@@ -49,5 +53,5 @@ public class XslUtils {
     }
   }
 
-  
+
 }

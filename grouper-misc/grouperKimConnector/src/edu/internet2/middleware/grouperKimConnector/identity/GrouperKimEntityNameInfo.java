@@ -4,10 +4,10 @@
  */
 package edu.internet2.middleware.grouperKimConnector.identity;
 
-import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.kim.bo.entity.KimEntityName;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityNameInfo;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
 
 
@@ -36,11 +36,11 @@ public class GrouperKimEntityNameInfo extends KimEntityNameInfo {
    */
   @Override
   public String getFirstName() {
-    if (!StringUtils.isBlank(this.firstName)) {
+    if (!GrouperClientUtils.isBlank(this.firstName)) {
       return this.firstName;
     }
     //if there is a formatted name and no first name, then break up the formatted name
-    if (!StringUtils.isBlank(this.formattedName) && StringUtils.isBlank(this.lastName)) {
+    if (!GrouperClientUtils.isBlank(this.formattedName) && GrouperClientUtils.isBlank(this.lastName)) {
       return GrouperKimUtils.firstName(this.formattedName);
     }
     return super.getFirstName();
@@ -52,11 +52,11 @@ public class GrouperKimEntityNameInfo extends KimEntityNameInfo {
    */
   @Override
   public String getFirstNameUnmasked() {
-    if (!StringUtils.isBlank(this.firstNameUnmasked)) {
+    if (!GrouperClientUtils.isBlank(this.firstNameUnmasked)) {
       return this.firstNameUnmasked;
     }
     String theFirstName = this.getFirstName();
-    if (!StringUtils.isBlank(theFirstName)) {
+    if (!GrouperClientUtils.isBlank(theFirstName)) {
       return theFirstName;
     }
     return super.getFirstNameUnmasked();
@@ -69,15 +69,15 @@ public class GrouperKimEntityNameInfo extends KimEntityNameInfo {
   @Override
   public String getFormattedNameUnmasked() {
     
-    if (!StringUtils.isBlank(this.formattedNameUnmasked)) {
+    if (!GrouperClientUtils.isBlank(this.formattedNameUnmasked)) {
       return this.formattedNameUnmasked;
     }
-    if (!StringUtils.isBlank(this.formattedName)) {
+    if (!GrouperClientUtils.isBlank(this.formattedName)) {
       return this.formattedName;
     }
     
     String theFormattedName = this.getFormattedName();
-    if (!StringUtils.isBlank(theFormattedName)) {
+    if (!GrouperClientUtils.isBlank(theFormattedName)) {
       return theFormattedName;
     }
     
@@ -91,16 +91,16 @@ public class GrouperKimEntityNameInfo extends KimEntityNameInfo {
   @Override
   public String getFormattedName() {
     
-    if (!StringUtils.isBlank(this.formattedName)) {
+    if (!GrouperClientUtils.isBlank(this.formattedName)) {
       return this.formattedName;
     }
     
-    if (!StringUtils.isBlank(this.formattedNameUnmasked)) {
+    if (!GrouperClientUtils.isBlank(this.formattedNameUnmasked)) {
       return this.formattedNameUnmasked;
     }
 
-    if (!StringUtils.isBlank(this.firstName) || !StringUtils.isBlank(this.lastName)) {
-      return StringUtils.trim(StringUtils.defaultString(this.firstName) + " " + StringUtils.defaultString(this.lastName));
+    if (!GrouperClientUtils.isBlank(this.firstName) || !GrouperClientUtils.isBlank(this.lastName)) {
+      return GrouperClientUtils.trim(GrouperClientUtils.defaultString(this.firstName) + " " + GrouperClientUtils.defaultString(this.lastName));
     }
     
     return super.getFormattedName();
@@ -112,11 +112,11 @@ public class GrouperKimEntityNameInfo extends KimEntityNameInfo {
    */
   @Override
   public String getLastName() {
-    if (!StringUtils.isBlank(this.lastName)) {
+    if (!GrouperClientUtils.isBlank(this.lastName)) {
       return this.lastName;
     }
     //if there is a formatted name and no first name, then break up the formatted name
-    if (!StringUtils.isBlank(this.formattedName) && StringUtils.isBlank(this.firstName)) {
+    if (!GrouperClientUtils.isBlank(this.formattedName) && GrouperClientUtils.isBlank(this.firstName)) {
       return GrouperKimUtils.lastName(this.formattedName);
     }
     return super.getLastName();
@@ -128,11 +128,11 @@ public class GrouperKimEntityNameInfo extends KimEntityNameInfo {
    */
   @Override
   public String getLastNameUnmasked() {
-    if (!StringUtils.isBlank(this.lastNameUnmasked)) {
+    if (!GrouperClientUtils.isBlank(this.lastNameUnmasked)) {
       return this.lastNameUnmasked;
     }
     String theLastName = this.getLastName();
-    if (!StringUtils.isBlank(theLastName)) {
+    if (!GrouperClientUtils.isBlank(theLastName)) {
       return theLastName;
     }
     return super.getLastNameUnmasked();
@@ -144,12 +144,12 @@ public class GrouperKimEntityNameInfo extends KimEntityNameInfo {
    */
   @Override
   public String getMiddleName() {
-    if (!StringUtils.isBlank(this.middleName)) {
+    if (!GrouperClientUtils.isBlank(this.middleName)) {
       return this.middleName;
     }
     //if there is a formatted name and no first name, then break up the formatted name
-    if (!StringUtils.isBlank(this.formattedName) && StringUtils.isBlank(this.firstName)
-        && StringUtils.isBlank(this.lastName)) {
+    if (!GrouperClientUtils.isBlank(this.formattedName) && GrouperClientUtils.isBlank(this.firstName)
+        && GrouperClientUtils.isBlank(this.lastName)) {
       return GrouperKimUtils.middleName(this.formattedName);
     }
     return super.getMiddleName();
@@ -161,11 +161,11 @@ public class GrouperKimEntityNameInfo extends KimEntityNameInfo {
    */
   @Override
   public String getMiddleNameUnmasked() {
-    if (!StringUtils.isBlank(this.middleNameUnmasked)) {
+    if (!GrouperClientUtils.isBlank(this.middleNameUnmasked)) {
       return this.middleNameUnmasked;
     }
     String theMiddleName = this.getMiddleName();
-    if (!StringUtils.isBlank(theMiddleName)) {
+    if (!GrouperClientUtils.isBlank(theMiddleName)) {
       return theMiddleName;
     }
     return super.getMiddleNameUnmasked();
