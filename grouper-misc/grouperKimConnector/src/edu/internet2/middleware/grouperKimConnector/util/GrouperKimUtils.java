@@ -623,6 +623,32 @@ public class GrouperKimUtils {
   }
   
   /**
+   * convert ws subject to string for log
+   * @param wsSubject
+   * @param attributeNames
+   * @return the string
+   */
+  public static String convertWsSubjectToStringForLog(WsSubject wsSubject, String[] attributeNames) {
+    
+    if (wsSubject == null) {
+      return "Subject: null";
+    }
+    
+    StringBuilder result = new StringBuilder();
+    result.append("Subject: id: ").append(wsSubject.getId());
+    if (!GrouperClientUtils.isBlank(wsSubject.getName())) {
+      result.append(", name: ").append(wsSubject.getName());
+    }
+    if (!GrouperClientUtils.isBlank(wsSubject.getIdentifierLookup())) {
+      result.append("\nidentifier lookup: ").append(wsSubject.getIdentifierLookup());
+    }
+    for (String attributeName : GrouperClientUtils.nonNull(attributeNames, String.class)) {
+      result.append("\n").append(attributeName).append(": ").append(subjectAttributeValue(wsSubject, attributeNames, attributeName));
+    }
+    return result.toString();
+  }
+  
+  /**
    * translate a kim principal id to a grouper subject identifier
    * @param kimPrincipalId
    * @return the grouper subject identifier or a sourceId/subject identifier with separator

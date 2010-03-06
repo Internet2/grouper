@@ -32,6 +32,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetSubjectsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperKimConnector.util.GrouperKimServiceUtils;
+import edu.internet2.middleware.grouperKimConnector.util.GrouperKimSubject;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
 
 
@@ -366,7 +368,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
     boolean hadException = false;
     try {
       
-      GrouperKimSubject grouperKimSubject = convertEntityIdToSubject(debugMap, entityId);
+      GrouperKimSubject grouperKimSubject = GrouperKimServiceUtils.convertEntityIdToSubject(debugMap, entityId);
       WsSubject wsSubject = grouperKimSubject.getWsSubject();
       
       KimEntityDefaultInfo kimEntityDefaultInfo = null;
@@ -392,177 +394,6 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
   }
 
   /**
-   * result includes the subject and attribute names
-   */
-  public static class GrouperKimSubject {
-    
-    /**
-     * 
-     */
-    public GrouperKimSubject() {
-      
-    }
-    
-    /**
-     * construct with subjects (array of 1)
-     * @param debugMap
-     * @param wsSubjects
-     * @param theSubjectAttributeNames
-     */
-    public GrouperKimSubject(Map<String, Object> debugMap, WsSubject[] wsSubjects, String[] theSubjectAttributeNames) {
-      
-      WsSubject theWsSubject = GrouperClientUtils.length(wsSubjects) == 1 ? wsSubjects[0] : null;
-
-      if (theWsSubject == null || !GrouperClientUtils.equals("T", theWsSubject.getSuccess())) {
-        if (theWsSubject != null) {
-          debugMap.put("resultCode", theWsSubject.getResultCode());
-        }
-        debugMap.put("wsSubject", "null");
-        debugMap.put("wsSubjects.length", GrouperClientUtils.length(wsSubjects));
-      } else {
-        this.setWsSubject(theWsSubject);
-        this.setSubjectAttributeNames(theSubjectAttributeNames);
-      }
-
-    }
-    
-    /** subject and attribute values */
-    private WsSubject wsSubject;
-    
-    /** subject attribute names */
-    private String[] subjectAttributeNames;
-
-    
-    /**
-     * @return the wsSubject
-     */
-    public WsSubject getWsSubject() {
-      return this.wsSubject;
-    }
-
-    
-    /**
-     * @param wsSubject1 the wsSubject to set
-     */
-    public void setWsSubject(WsSubject wsSubject1) {
-      this.wsSubject = wsSubject1;
-    }
-
-    
-    /**
-     * @return the subjectAttributeNames
-     */
-    public String[] getSubjectAttributeNames() {
-      return this.subjectAttributeNames;
-    }
-
-    
-    /**
-     * @param subjectAttributeNames1 the subjectAttributeNames to set
-     */
-    public void setSubjectAttributeNames(String[] subjectAttributeNames1) {
-      this.subjectAttributeNames = subjectAttributeNames1;
-    }
-    
-  }
-  
-  /**
-   * convert a principal id to a subject
-   * @param debugMap for logging
-   * @param principalId 
-   * @return the GrouperKimSubject which is never null, though the subject inside might be...
-   */
-  public static GrouperKimSubject convertPrincipalIdToSubject(Map<String, Object> debugMap, String principalId) {
-    debugMap.put("principalId", principalId);
-
-    principalId = GrouperKimUtils.translatePrincipalId(principalId);
-    debugMap.put("translatedPrincipalId", principalId);
-    
-    String sourceId = GrouperKimUtils.separateSourceId(principalId);
-    String subjectIdentifier = GrouperKimUtils.separateSourceIdSuffix(principalId);
-    
-    GcGetSubjects gcGetSubjects = new GcGetSubjects();
-    
-    gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(null,sourceId, subjectIdentifier));
-    
-    gcGetSubjects.assignIncludeSubjectDetail(true);
-    
-    WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
-    
-    //we did one assignment, we have one result
-    WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
-    
-    GrouperKimSubject grouperKimSubject = new GrouperKimSubject(debugMap, wsSubjects, wsGetSubjectsResults.getSubjectAttributeNames());
-        
-    return grouperKimSubject;
-
-  }
-  
-  /**
-   * convert a principal id to a subject
-   * @param debugMap for logging
-   * @param entityId 
-   * @return the GrouperKimSubject which is never null, though the subject inside might be...
-   */
-  public static GrouperKimSubject convertEntityIdToSubject(Map<String, Object> debugMap, String entityId) {
-    debugMap.put("entityId", entityId);
-
-    entityId = GrouperKimUtils.translateEntityId(entityId);
-    debugMap.put("translatedEntityId", entityId);
-    
-    String sourceId = GrouperKimUtils.separateSourceId(entityId);
-    String subjectId = GrouperKimUtils.separateSourceIdSuffix(entityId);
-    
-    GcGetSubjects gcGetSubjects = new GcGetSubjects();
-    
-    gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(subjectId, sourceId, null));
-    
-    gcGetSubjects.assignIncludeSubjectDetail(true);
-    
-    WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
-    
-    //we did one assignment, we have one result
-    WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
-    
-    GrouperKimSubject grouperKimSubject = new GrouperKimSubject(debugMap, wsSubjects, wsGetSubjectsResults.getSubjectAttributeNames());
-    return grouperKimSubject;
-  }
-  
-  /**
-   * convert principal name to subject result
-   * @param debugMap for logging
-   * @param principalName 
-   * @return the GrouperKimSubject which is never null, though the subject inside might be...
-   */
-  public static GrouperKimSubject convertPrincipalNameToSubject(Map<String, Object> debugMap, String principalName) {
-    debugMap.put("principalName", principalName);
-
-    principalName = GrouperKimUtils.translatePrincipalName(principalName);
-    debugMap.put("translatedPrincipalName", principalName);
-
-    String sourceId = GrouperKimUtils.separateSourceId(principalName);
-    String subjectIdentifier = GrouperKimUtils.separateSourceIdSuffix(principalName);
-
-    GcGetSubjects gcGetSubjects = new GcGetSubjects();
-
-    gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(null, sourceId, subjectIdentifier));
-
-    gcGetSubjects.assignIncludeSubjectDetail(true);
-
-    WsGetSubjectsResults wsGetSubjectsResults = gcGetSubjects.execute();
-
-    //we did one assignment, we have one result
-    WsSubject[] wsSubjects = wsGetSubjectsResults.getWsSubjects();
-
-    GrouperKimSubject grouperKimSubject = new GrouperKimSubject(debugMap, wsSubjects, wsGetSubjectsResults.getSubjectAttributeNames());
-    
-    return grouperKimSubject;
-
-  }
-  
-
-  
-  /**
    * Get the entity default info for the entity of the principal with the given principal id.
    * @see org.kuali.rice.kim.service.IdentityService#getEntityDefaultInfoByPrincipalId(java.lang.String)
    */
@@ -573,7 +404,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
     }
     boolean hadException = false;
     try {
-      GrouperKimSubject grouperKimSubject = convertPrincipalIdToSubject(debugMap, principalId);
+      GrouperKimSubject grouperKimSubject = GrouperKimServiceUtils.convertPrincipalIdToSubject(debugMap, principalId);
       
       WsSubject wsSubject = grouperKimSubject.getWsSubject();
       
@@ -610,7 +441,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
     }
     boolean hadException = false;
     try {
-      GrouperKimSubject grouperKimSubject = convertPrincipalNameToSubject(debugMap, principalName);
+      GrouperKimSubject grouperKimSubject = GrouperKimServiceUtils.convertPrincipalNameToSubject(debugMap, principalName);
       
       WsSubject wsSubject = grouperKimSubject.getWsSubject();
       
@@ -784,7 +615,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
     boolean hadException = false;
     try {
       
-      GrouperKimSubject grouperKimSubject = convertPrincipalIdToSubject(debugMap, principalId);
+      GrouperKimSubject grouperKimSubject = GrouperKimServiceUtils.convertPrincipalIdToSubject(debugMap, principalId);
       WsSubject wsSubject = grouperKimSubject.getWsSubject();
       
       KimPrincipalInfo kimPrincipalInfo = null;
@@ -825,7 +656,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
     boolean hadException = false;
     try {
       
-      GrouperKimSubject grouperKimSubject = convertPrincipalNameToSubject(debugMap, principalName);
+      GrouperKimSubject grouperKimSubject = GrouperKimServiceUtils.convertPrincipalNameToSubject(debugMap, principalName);
       WsSubject wsSubject = grouperKimSubject.getWsSubject();
       
       KimPrincipalInfo kimPrincipalInfo = null;
