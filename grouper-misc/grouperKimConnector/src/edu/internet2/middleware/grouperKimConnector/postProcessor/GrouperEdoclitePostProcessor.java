@@ -41,6 +41,17 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
       throws Exception {
     ProcessDocReport processDocReport =  super.doRouteStatusChange(event);
     
+    doRouteStatusChangeHelper(event, processDocReport);
+    
+    return processDocReport;
+  }
+
+  /**
+   * @param event
+   * @param processDocReport
+   */
+  public static void doRouteStatusChangeHelper(DocumentRouteStatusChange event,
+      ProcessDocReport processDocReport) {
     //if not an exception
     if (processDocReport.isSuccess()) {
       
@@ -131,8 +142,6 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
         
       }
     }
-    
-    return processDocReport;
   }
 
   
