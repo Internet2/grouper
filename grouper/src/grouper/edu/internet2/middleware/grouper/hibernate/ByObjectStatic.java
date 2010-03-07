@@ -469,6 +469,55 @@ public class ByObjectStatic extends ByQueryBase {
   
   /**
    * <pre>
+   * call hibernate method "save" on a collection of objects in batch
+   * 
+   * </pre>
+   * @param collection of objects
+   * @throws GrouperDAOException
+   */
+  public void saveBatch(final Collection<?> collection) throws GrouperDAOException {
+    try {
+      GrouperTransactionType grouperTransactionTypeToUse = 
+        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
+          new HibernateHandler() {
+  
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+              
+              GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
+              GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
+              
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.saveBatch(collection);
+              return null;
+            }
+        
+      });
+
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (MembershipAlreadyExistsException e) {
+      throw e;
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    }
+    
+  }
+  
+  /**
+   * <pre>
    * call hibernate method "delete" on a list of objects
    * 
    * HibernateSession.byObjectStatic().delete(collection);

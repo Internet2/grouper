@@ -208,6 +208,61 @@ public class ByObject extends HibernateDelegate {
     }
     
   }
+  
+  /**
+   * <pre>
+   * call hibernate method "save" on a collection of objects in batch
+   * 
+   * </pre>
+   * @param collection of objects to save
+   * @throws GrouperDAOException
+   */
+  public void saveBatch(final Collection<?> collection) throws GrouperDAOException {
+    try {
+      HibernateSession hibernateSession = this.getHibernateSession();
+      Session session = hibernateSession.getSession();
+
+      for (Object object : collection) {
+        if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
+          ((HibGrouperLifecycle)object).onPreSave(hibernateSession);
+        }
+      }
+      
+      for (Object object : collection) {
+        GrouperContext.incrementQueryCount();
+        
+        if (StringUtils.isBlank(this.entityName)) {
+          session.save(object);
+        } else {
+          session.save(this.entityName, object);
+        }
+      }
+
+      session.flush();
+      session.clear();
+      
+      for (Object object : collection) {
+        if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
+          ((HibGrouperLifecycle)object).onPostSave(hibernateSession);
+        }
+      }
+
+    } catch (HookVeto hookVeto) {
+      //just throw, this is ok
+      throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (MembershipAlreadyExistsException e) {
+      throw e;
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    }
+    
+  }
 
   /**
    * <pre>

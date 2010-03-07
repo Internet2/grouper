@@ -30,6 +30,12 @@ public interface GroupSetDAO extends GrouperDAO {
   public void save(Set<GroupSet> groupSets);
   
   /**
+   * insert a batch of group set objects
+   * @param groupSets
+   */
+  public void saveBatch(Set<GroupSet> groupSets);
+
+  /**
    * delete a group set object
    * @param groupSet
    */

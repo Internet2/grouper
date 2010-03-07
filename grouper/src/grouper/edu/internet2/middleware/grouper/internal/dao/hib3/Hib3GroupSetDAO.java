@@ -51,6 +51,13 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
   }
   
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#saveBatch(java.util.Set)
+   */
+  public void saveBatch(Set<GroupSet> groupSets) {
+    HibernateSession.byObjectStatic().saveBatch(groupSets);
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#delete(edu.internet2.middleware.grouper.group.GroupSet)
    */
   public void delete(final GroupSet groupSet) {
