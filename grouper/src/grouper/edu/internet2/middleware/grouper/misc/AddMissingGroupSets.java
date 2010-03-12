@@ -505,6 +505,7 @@ public class AddMissingGroupSets {
       
       public void run() {
         SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
         
         while (true) {
 
@@ -534,17 +535,17 @@ public class AddMissingGroupSets {
             if (currentTotalCount != 0) {
               long now = System.currentTimeMillis();
               long endTime = 0;
-              int percent = 0;
+              double percent = 0;
               
               if (currentProcessedCount > 0) {
-                percent = (int)Math.round(((double)currentProcessedCount * 100D) / currentTotalCount);
+                percent = ((double)currentProcessedCount * 100D) / currentTotalCount;
                 
-                if (percent > 0) {
+                if (percent > 1) {
                   endTime = startTime + (long)((now - startTime) * (100D / percent));
                 }
               }
               
-              System.out.print("Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + percent  + "%) of current phase.  ");
+              System.out.print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
               
               if (endTime != 0) {
                 System.out.print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
