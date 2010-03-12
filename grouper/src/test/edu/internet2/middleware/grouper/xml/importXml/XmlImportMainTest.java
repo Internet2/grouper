@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -77,7 +79,8 @@ public class XmlImportMainTest extends GrouperTest {
     
     GrouperCheckConfig.checkGroups();
 
-    Stem stem = StemFinder.findByName(grouperSession, "etc", true);
+    Stem stem = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("etc").save();
     AttributeDef studentsAttrDef = stem.addChildAttributeDef("students", AttributeDefType.attr);
     studentsAttrDef.setAssignToAttributeDef(true);
     studentsAttrDef.store();

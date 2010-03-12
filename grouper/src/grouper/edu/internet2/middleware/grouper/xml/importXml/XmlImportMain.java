@@ -462,14 +462,16 @@ public class XmlImportMain {
           
           //give a status
           long now = System.currentTimeMillis();
-          int percent = (int)Math.round(((double)XmlImportMain.this.currentRecordIndex*100D)/XmlImportMain.this.totalImportFileCount);
-          
+          double percent = ((double)XmlImportMain.this.currentRecordIndex*100D)/XmlImportMain.this.totalImportFileCount;
+          if (percent == 0.0) {
+            percent = 0.001;
+          }
           long endTime = startTime + (long)((now-startTime) * (100D / percent));
           
           XmlImportMain.logInfoAndPrintToScreen(format.format(new Date(now)) + ": completed "
               + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.currentRecordIndex) + " of " 
               + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.totalImportFileCount) + " ("
-              + percent + "%) estimated time done: " + estFormat.format(new Date(endTime)));
+              + Math.round(percent) + "%) estimated time done: " + estFormat.format(new Date(endTime)));
         }          
       }
     });
@@ -571,7 +573,7 @@ public class XmlImportMain {
    */
   public void incrementCurrentCount() {
     this.currentRecordIndex++;
-    //GrouperUtil.sleep(2000);
+    GrouperUtil.sleep(2000);
   }
 
   /**
