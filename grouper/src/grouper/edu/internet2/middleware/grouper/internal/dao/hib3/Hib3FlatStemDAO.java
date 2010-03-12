@@ -19,10 +19,10 @@ public class Hib3FlatStemDAO extends Hib3DAO implements FlatStemDAO {
   private static final String KLASS = Hib3FlatStemDAO.class.getName();
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FlatStemDAO#save(edu.internet2.middleware.grouper.flat.FlatStem)
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatStemDAO#saveOrUpdate(edu.internet2.middleware.grouper.flat.FlatStem)
    */
-  public void save(FlatStem flatStem) {
-    HibernateSession.byObjectStatic().save(flatStem);
+  public void saveOrUpdate(FlatStem flatStem) {
+    HibernateSession.byObjectStatic().saveOrUpdate(flatStem);
   }
 
   /**

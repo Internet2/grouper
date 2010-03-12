@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.List;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -32,6 +33,19 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
           ChangeLogEntry.CHANGE_LOG_ENTRY_ENTITY_NAME).save(changeLogEntry);
     }
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO#saveBatch(java.util.Set, boolean)
+   */
+  public void saveBatch(Set<ChangeLogEntry> changeLogEntries, boolean isTempBatch) {
+    if (isTempBatch) {
+      HibernateSession.byObjectStatic().setEntityName(
+          ChangeLogEntry.CHANGE_LOG_ENTRY_TEMP_ENTITY_NAME).saveBatch(changeLogEntries);
+    } else {
+      HibernateSession.byObjectStatic().setEntityName(
+          ChangeLogEntry.CHANGE_LOG_ENTRY_ENTITY_NAME).saveBatch(changeLogEntries);
+    }
   }
 
   /**

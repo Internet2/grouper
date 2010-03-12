@@ -126,6 +126,10 @@ public class ChangeLogTempToEntity {
     return count;
   }
   
+  /**
+   * If a group gets added, we need to add it to the flat table.
+   * @param changeLogEntry
+   */
   private static void processGroupAdd(ChangeLogEntry changeLogEntry) {
     FlatGroup flatGroup = new FlatGroup();
     flatGroup.setId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.id));
@@ -135,7 +139,7 @@ public class ChangeLogTempToEntity {
     }
     
     try {
-      flatGroup.save();
+      flatGroup.saveOrUpdate();
     } catch (GrouperDAOException e) {
       // if the group doesn't exist, it's okay.  otherwise, throw this exception.
       Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(
@@ -148,6 +152,10 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If a group gets deleted, then also delete from the flat table.
+   * @param changeLogEntry
+   */
   private static void processGroupDelete(ChangeLogEntry changeLogEntry) {
     FlatGroup flatGroup = GrouperDAOFactory.getFactory().getFlatGroup().findById(
         changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.id));
@@ -157,6 +165,10 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If a stem gets added, we need to add it to the flat table.
+   * @param changeLogEntry
+   */
   private static void processStemAdd(ChangeLogEntry changeLogEntry) {
     FlatStem flatStem = new FlatStem();
     flatStem.setId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.id));
@@ -166,7 +178,7 @@ public class ChangeLogTempToEntity {
     }
     
     try {
-      flatStem.save();
+      flatStem.saveOrUpdate();
     } catch (GrouperDAOException e) {
       // if the stem doesn't exist, it's okay.  otherwise, throw this exception.
       Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(
@@ -179,6 +191,10 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If a stem gets deleted, then also delete from the flat table.
+   * @param changeLogEntry
+   */
   private static void processStemDelete(ChangeLogEntry changeLogEntry) {
     FlatStem flatStem = GrouperDAOFactory.getFactory().getFlatStem().findById(
         changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_DELETE.id));
@@ -188,6 +204,10 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If an attribute def gets added, we need to add it to the flat table.
+   * @param changeLogEntry
+   */
   private static void processAttributeDefAdd(ChangeLogEntry changeLogEntry) {
     FlatAttributeDef flatAttributeDef = new FlatAttributeDef();
     flatAttributeDef.setId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.id));
@@ -197,7 +217,7 @@ public class ChangeLogTempToEntity {
     }
     
     try {
-      flatAttributeDef.save();
+      flatAttributeDef.saveOrUpdate();
     } catch (GrouperDAOException e) {
       // if the attr def doesn't exist, it's okay.  otherwise, throw this exception.
       AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(
@@ -210,6 +230,10 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If an attribute def gets deleted, then also delete from the flat table.
+   * @param changeLogEntry
+   */
   private static void processAttributeDefDelete(ChangeLogEntry changeLogEntry) {
     FlatAttributeDef flatAttributeDef = GrouperDAOFactory.getFactory().getFlatAttributeDef().findById(
         changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id));
@@ -219,6 +243,11 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If an access, naming, or attr def privilege gets added, the privilege needs to
+   * get added to the flat table if it's not already there.
+   * @param changeLogEntry
+   */
   private static void processPrivilegeAdd(ChangeLogEntry changeLogEntry) {
     String ownerType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType);
     String ownerName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName);
@@ -235,6 +264,17 @@ public class ChangeLogTempToEntity {
     processPrivilegeAdd(ownerType, ownerName, ownerId, fieldId, privilegeName, privilegeType, contextId);
   }
   
+  /**
+   * If an access, naming, or attr def privilege gets added, the privilege needs to
+   * get added to the flat table if it's not already there.
+   * @param ownerType
+   * @param ownerName
+   * @param ownerId
+   * @param fieldId
+   * @param privilegeName
+   * @param privilegeType
+   * @param contextId
+   */
   private static void processPrivilegeAdd(String ownerType, String ownerName, String ownerId, String fieldId,
       String privilegeName, String privilegeType, String contextId) {
   
@@ -279,7 +319,7 @@ public class ChangeLogTempToEntity {
       flatMship.setOwnerAttrDefId(ownerAttrDefId);
       flatMship.setOwnerGroupId(ownerGroupId);
       flatMship.setOwnerStemId(ownerStemId);
-      flatMship.save();
+      flatMship.saveOrUpdate();
       
       // now add the change log entry
       new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
@@ -295,6 +335,12 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If an access, naming, or attr def privilege gets deleted, the privilege needs to
+   * get deleted from the flat table if the member doesn't have the privilege in any
+   * other way.
+   * @param changeLogEntry
+   */
   private static void processPrivilegeDelete(ChangeLogEntry changeLogEntry) {
     String ownerType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType);
     String ownerName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName);
@@ -306,6 +352,17 @@ public class ChangeLogTempToEntity {
     processPrivilegeDelete(ownerType, ownerName, ownerId, fieldId, privilegeName, privilegeType);
   }
   
+  /**
+   * If an access, naming, or attr def privilege gets deleted, the privilege needs to
+   * get deleted from the flat table if the member doesn't have the privilege in any
+   * other way.
+   * @param ownerType
+   * @param ownerName
+   * @param ownerId
+   * @param fieldId
+   * @param privilegeName
+   * @param privilegeType
+   */
   private static void processPrivilegeDelete(String ownerType, String ownerName, String ownerId, String fieldId, 
       String privilegeName, String privilegeType) {
     Set<FlatMembership> flatMembershipsToRemove;
@@ -343,6 +400,15 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If a membership gets added, then the membership needs to
+   * get added to the flat table if it's not already there.
+   * @param groupId
+   * @param groupName
+   * @param fieldId
+   * @param fieldName
+   * @param contextId
+   */
   private static void processMembershipAdd(String groupId, String groupName, String fieldId, String fieldName,
       String contextId) {
     // get the members to add to the flat table
@@ -368,7 +434,7 @@ public class ChangeLogTempToEntity {
       flatMship.setFieldId(fieldId);
       flatMship.setMemberId(memberToAdd.getUuid());
       flatMship.setOwnerGroupId(groupId);
-      flatMship.save();
+      flatMship.saveOrUpdate();
       
       // now add the change log entry
       new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
@@ -382,6 +448,11 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If a membership gets added, then the membership needs to
+   * get added to the flat table if it's not already there.
+   * @param changeLogEntry
+   */
   private static void processMembershipAdd(ChangeLogEntry changeLogEntry) {
     String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId);
     String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
@@ -443,6 +514,12 @@ public class ChangeLogTempToEntity {
     }
   }
   
+  /**
+   * If a membership gets deleted, then the membership needs to
+   * get deleted from the flat table if the member doesn't have
+   * the membership in any other way.
+   * @param changeLogEntry
+   */
   private static void processMembershipDelete(ChangeLogEntry changeLogEntry) {
     String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId);
     String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
@@ -500,6 +577,15 @@ public class ChangeLogTempToEntity {
   }    
   
   
+  /**
+   * If a membership gets deleted, then the membership needs to
+   * get deleted from the flat table if the member doesn't have
+   * the membership in any other way.
+   * @param groupId
+   * @param groupName
+   * @param fieldId
+   * @param fieldName
+   */
   private static void processMembershipDelete(String groupId, String groupName, String fieldId, String fieldName) {
     // get the members to remove from the flat table
     Set<FlatMembership> flatMembershipsToRemove = GrouperDAOFactory.getFactory().getFlatMembership().findMembersToDeleteByGroupOwnerAndField(groupId, fieldId);

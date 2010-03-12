@@ -289,10 +289,10 @@ public class FlatMembership extends GrouperAPI implements Hib3GrouperVersioned {
   }
   
   /**
-   * save this object
+   * save or update this object
    */
-  public void save() {
-    GrouperDAOFactory.getFactory().getFlatMembership().save(this);
+  public void saveOrUpdate() {
+    GrouperDAOFactory.getFactory().getFlatMembership().saveOrUpdate(this);
   }
   
   /**

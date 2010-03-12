@@ -17,10 +17,10 @@ import edu.internet2.middleware.grouper.flat.FlatMembership;
 public interface FlatMembershipDAO extends GrouperDAO {
 
   /**
-   * insert a flat membership object
+   * insert or update a flat membership object
    * @param flatMembership
    */
-  public void save(FlatMembership flatMembership);
+  public void saveOrUpdate(FlatMembership flatMembership);
   
   /**
    * insert a batch of flat membership objects
@@ -29,10 +29,10 @@ public interface FlatMembershipDAO extends GrouperDAO {
   public void saveBatch(Set<FlatMembership> flatMemberships);
 
   /**
-   * insert a set of flat membership objects
+   * insert or update a set of flat membership objects
    * @param flatMemberships
    */
-  public void save(Set<FlatMembership> flatMemberships);
+  public void saveOrUpdate(Set<FlatMembership> flatMemberships);
   
   /**
    * delete a flat membership object

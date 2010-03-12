@@ -19,10 +19,10 @@ public class Hib3FlatAttributeDefDAO extends Hib3DAO implements FlatAttributeDef
   private static final String KLASS = Hib3FlatAttributeDefDAO.class.getName();
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FlatAttributeDefDAO#save(edu.internet2.middleware.grouper.flat.FlatAttributeDef)
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatAttributeDefDAO#saveOrUpdate(edu.internet2.middleware.grouper.flat.FlatAttributeDef)
    */
-  public void save(FlatAttributeDef flatAttributeDef) {
-    HibernateSession.byObjectStatic().save(flatAttributeDef);
+  public void saveOrUpdate(FlatAttributeDef flatAttributeDef) {
+    HibernateSession.byObjectStatic().saveOrUpdate(flatAttributeDef);
   }
 
   /**

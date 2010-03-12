@@ -25,19 +25,19 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
 
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO#save(edu.internet2.middleware.grouper.membership.FlatMembership)
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO#saveOrUpdate(edu.internet2.middleware.grouper.membership.FlatMembership)
    */
-  public void save(FlatMembership flatMembership) {
-    HibernateSession.byObjectStatic().save(flatMembership);
+  public void saveOrUpdate(FlatMembership flatMembership) {
+    HibernateSession.byObjectStatic().saveOrUpdate(flatMembership);
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO#save(java.util.Set)
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO#saveOrUpdate(java.util.Set)
    */
-  public void save(Set<FlatMembership> flatMemberships) {
+  public void saveOrUpdate(Set<FlatMembership> flatMemberships) {
     Iterator<FlatMembership> iter = flatMemberships.iterator();
     while (iter.hasNext()) {
-      save(iter.next());
+      saveOrUpdate(iter.next());
     }
   }
   

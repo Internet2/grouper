@@ -128,10 +128,10 @@ public class FlatAttributeDef extends GrouperAPI implements Hib3GrouperVersioned
   }
 
   /**
-   * save this object
+   * save or update this object
    */
-  public void save() {
-    GrouperDAOFactory.getFactory().getFlatAttributeDef().save(this);
+  public void saveOrUpdate() {
+    GrouperDAOFactory.getFactory().getFlatAttributeDef().saveOrUpdate(this);
   }
   
   /**

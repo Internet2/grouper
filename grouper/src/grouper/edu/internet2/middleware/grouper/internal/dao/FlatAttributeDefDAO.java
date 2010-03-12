@@ -16,10 +16,10 @@ import edu.internet2.middleware.grouper.flat.FlatAttributeDef;
 public interface FlatAttributeDefDAO extends GrouperDAO {
 
   /**
-   * insert a flat attribute def object
+   * insert or update a flat attribute def object
    * @param flatAttributeDef
    */
-  public void save(FlatAttributeDef flatAttributeDef);
+  public void saveOrUpdate(FlatAttributeDef flatAttributeDef);
 
   /**
    * insert a batch of flat attr def objects

@@ -128,10 +128,10 @@ public class FlatStem extends GrouperAPI implements Hib3GrouperVersioned {
   }
   
   /**
-   * save this object
+   * save or update this object
    */
-  public void save() {
-    GrouperDAOFactory.getFactory().getFlatStem().save(this);
+  public void saveOrUpdate() {
+    GrouperDAOFactory.getFactory().getFlatStem().saveOrUpdate(this);
   }
   
   /**

@@ -19,10 +19,10 @@ public class Hib3FlatGroupDAO extends Hib3DAO implements FlatGroupDAO {
   private static final String KLASS = Hib3FlatGroupDAO.class.getName();
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO#save(edu.internet2.middleware.grouper.flat.FlatGroup)
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO#saveOrUpdate(edu.internet2.middleware.grouper.flat.FlatGroup)
    */
-  public void save(FlatGroup flatGroup) {
-    HibernateSession.byObjectStatic().save(flatGroup);
+  public void saveOrUpdate(FlatGroup flatGroup) {
+    HibernateSession.byObjectStatic().saveOrUpdate(flatGroup);
   }
 
   /**

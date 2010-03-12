@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 
@@ -19,6 +20,13 @@ public interface ChangeLogEntryDAO extends GrouperDAO {
    * @param changeLogEntry 
    */
   public void save(ChangeLogEntry changeLogEntry);
+  
+  /**
+   * insert a batch of change log entry objects
+   * @param changeLogEntries
+   * @param isTempBatch
+   */
+  public void saveBatch(Set<ChangeLogEntry> changeLogEntries, boolean isTempBatch);
   
   /** 
    * update a change log entry object 

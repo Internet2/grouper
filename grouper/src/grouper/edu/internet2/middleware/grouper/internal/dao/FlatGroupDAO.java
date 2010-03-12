@@ -16,10 +16,10 @@ import edu.internet2.middleware.grouper.flat.FlatGroup;
 public interface FlatGroupDAO extends GrouperDAO {
 
   /**
-   * insert a flat group object
+   * insert or update a flat group object
    * @param flatGroup
    */
-  public void save(FlatGroup flatGroup);
+  public void saveOrUpdate(FlatGroup flatGroup);
   
   /**
    * insert a batch of flat group objects

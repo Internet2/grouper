@@ -128,10 +128,10 @@ public class FlatGroup extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * save this object
+   * save or update this object
    */
-  public void save() {
-    GrouperDAOFactory.getFactory().getFlatGroup().save(this);
+  public void saveOrUpdate() {
+    GrouperDAOFactory.getFactory().getFlatGroup().saveOrUpdate(this);
   }
   
   /**
