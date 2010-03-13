@@ -169,7 +169,7 @@ public class GrouperReport {
         PrintStream printStream = new PrintStream(baos);
         FindBadMemberships.clearResults();
         FindBadMemberships.checkAll(printStream);
-        badMembershipOutput = printStream.toString();
+        badMembershipOutput = baos.toString();
         badMembershipGshScript = FindBadMemberships.gshScript == null ? "" : FindBadMemberships.gshScript.toString();
         if (!StringUtils.isBlank(badMembershipGshScript)) {
           int theCount = StringUtils.countMatches(badMembershipGshScript, "\n");
