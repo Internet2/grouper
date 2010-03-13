@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.USDU;
@@ -31,6 +32,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class GrouperReport {
+  
+  /** whether to find unresolvable subjects */
+  private boolean findUnresolvables = false;
+  
+  /** whether to find bad memberships */
+  private boolean findBadMemberships = false;
+  
+  /** whether to sync flat tables */
+  private boolean syncFlatTables = false;
 
   /**
    * logger 
@@ -43,6 +53,36 @@ public class GrouperReport {
    */
   public static void main(String[] args) {
     System.out.println(report(true, true));
+  }
+  
+  /**
+   * Whether or not to find unresolvable subjects as part of the report.  Defaults to false.
+   * @param findUnresolvables
+   * @return GrouperReport
+   */
+  public GrouperReport findUnresolvables(boolean findUnresolvables) {
+    this.findUnresolvables = findUnresolvables;
+    return this;
+  }
+  
+  /**
+   * Whether or not to find bad memberships as part of the report.  Defaults to false.
+   * @param findBadMemberships
+   * @return GrouperReport
+   */
+  public GrouperReport findBadMemberships(boolean findBadMemberships) {
+    this.findBadMemberships = findBadMemberships;
+    return this;
+  }
+  
+  /**
+   * Whether or not to sync flat tables as part of the report.  Defaults to false.
+   * @param syncFlatTables
+   * @return GrouperReport
+   */
+  public GrouperReport syncFlatTables(boolean syncFlatTables) {
+    this.syncFlatTables = syncFlatTables;
+    return this;
   }
 
   /**
@@ -58,7 +98,7 @@ public class GrouperReport {
     String output = myFormatter.format(theLong);
     return output;
   }
-  
+
   /**
    * @param findUnresolvables 
    * @param findBadMemberships 
@@ -66,6 +106,16 @@ public class GrouperReport {
    * @throws GrouperReportException
    */
   public static String report(boolean findUnresolvables, boolean findBadMemberships) {
+    return new GrouperReport().findBadMemberships(findBadMemberships)
+      .findUnresolvables(findUnresolvables).syncFlatTables(false).runReport();
+  }
+  
+  /**
+   * @return the report
+   * @throws GrouperReportException
+   */
+  public String runReport() {
+
     GrouperStartup.startup();
 
     GrouperSession grouperSession = null;
@@ -133,6 +183,35 @@ public class GrouperReport {
         }
       }
       result.append("bad memberships:       ").append(badMembershipResults).append("\n");
+      
+      
+      String syncFlatTablesResults = "Not configured to compute this today";
+      String syncFlatTablesReport = null;
+      int syncFlatTablesCount = 0;
+      if (syncFlatTables) {
+        boolean saveUpdates = GrouperLoaderConfig.getPropertyBoolean("daily.report.syncFlatTables.saveUpdates", true);
+        SyncFlatTables sync = new SyncFlatTables();
+        syncFlatTablesCount = sync
+          .logDetails(true)
+          .createReport(true)
+          .showResults(false)
+          .sendNotifications(GrouperLoaderConfig.getPropertyBoolean("daily.report.syncFlatTables.sendNotifications", true))
+          .saveUpdates(saveUpdates)
+          .syncAllFlatTables();
+        syncFlatTablesReport = sync.getDetailedOutput();
+
+        if (syncFlatTablesCount == 0) {
+          syncFlatTablesResults = "No issues found";
+        } else {
+          syncFlatTablesResults = syncFlatTablesCount + " issues found";
+          if (saveUpdates) {
+            syncFlatTablesResults += " and fixed";
+          }
+          syncFlatTablesResults += ".  Report below.";
+        }
+      }
+      result.append("sync flat tables:      ").append(syncFlatTablesResults).append("\n");
+      
       
       result.append("\n----------------\n");
       result.append("WITHIN LAST DAY:\n");
@@ -295,6 +374,14 @@ public class GrouperReport {
         result.append(badMembershipGshScript);
         
       }
+      
+      if (syncFlatTablesCount > 0) {
+        result.append("\n----------------\n");
+        result.append("SYNC FLAT TABLES REPORT\n");
+        result.append("----------------\n");
+        result.append(syncFlatTablesReport);
+      }
+      
       result.append("\n----------------\n");
       result.append("GROUPER INFO\n");
       result.append("----------------\n");

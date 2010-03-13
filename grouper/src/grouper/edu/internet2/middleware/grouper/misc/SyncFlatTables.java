@@ -57,10 +57,13 @@ public class SyncFlatTables {
   private boolean saveUpdates = true;
   
   /** Whether or not to log details */
-  private boolean logDetails = false;
+  private boolean logDetails = true;
   
   /** Whether or not to send notifications */
-  private boolean sendNotifications = false;
+  private boolean sendNotifications = true;
+  
+  /** Whether or not to create a report for GrouperReport */
+  private boolean createReport = false;
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(SyncFlatTables.class);
@@ -79,6 +82,9 @@ public class SyncFlatTables {
   
   /** status thread */
   Thread statusThread = null;
+  
+  /** detailed output for grouper report */
+  private StringBuilder report = null;
   
   /**
    * Whether or not to print out results of what's being done.  Defaults to true.
@@ -101,7 +107,7 @@ public class SyncFlatTables {
   }
   
   /**
-   * Whether or not to log details.  Defaults to false.
+   * Whether or not to log details.  Defaults to true.
    * @param logDetails
    * @return AddMissingGroupSets
    */
@@ -111,7 +117,17 @@ public class SyncFlatTables {
   }
   
   /**
-   * Whether or not to send notifications.  Defaults to false.
+   * Whether or not to create a report.  Defaults to false.
+   * @param createReport
+   * @return AddMissingGroupSets
+   */
+  public SyncFlatTables createReport(boolean createReport) {
+    this.createReport = createReport;
+    return this;
+  }
+  
+  /**
+   * Whether or not to send notifications.  Defaults to true.
    * @param sendNotifications
    * @return SyncFlatTables
    */
@@ -125,6 +141,8 @@ public class SyncFlatTables {
    * @return the number of updates made
    */
   public int syncAllFlatTables() {
+        
+    clearReport();
     
     int count = 0;
     
@@ -138,6 +156,20 @@ public class SyncFlatTables {
     count += removeBadFlatAttributeDefs();
     
     return count;
+  }
+ 
+  /**
+   * @return detailed output of the sync
+   */
+  public String getDetailedOutput() {
+    return report.toString();
+  }
+  
+  /**
+   * clear report
+   */
+  public void clearReport() {
+    report = new StringBuilder();
   }
 
   /**
@@ -683,6 +715,10 @@ public class SyncFlatTables {
   private void logDetail(String detail) {
     if (logDetails) {
       LOG.info(detail);
+    }
+    
+    if (createReport && report != null) {
+      report.append(detail + "\n");
     }
   }
   
