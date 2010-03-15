@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.attr.assign;
+package edu.internet2.middleware.grouper.attr.value;
 
 import java.io.StringWriter;
 import java.sql.Timestamp;
@@ -12,8 +12,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -53,6 +57,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public static final String COLUMN_VALUE_STRING = "value_string";
 
   /** column */
+  public static final String COLUMN_VALUE_FLOATING = "value_floating";
+
+  /** column */
   public static final String COLUMN_VALUE_INTEGER = "value_integer";
 
   /** column */
@@ -78,6 +85,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
 
   /** constant for field name for: lastUpdatedDb */
   public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
+
+  /** constant for field name for: valueFloating */
+  public static final String FIELD_VALUE_FLOATING = "valueFloating";
 
   /** constant for field name for: valueInteger */
   public static final String FIELD_VALUE_INTEGER = "valueInteger";
@@ -123,9 +133,88 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   /** string value */
   private String valueString;
 
+  /** floating point value */
+  private Double valueFloating;
+
   /** integer value */
   private Long valueInteger;
 
+  /**
+   * floating point value
+   * @return floating point value
+   */
+  public Double getValueFloating() {
+    return this.valueFloating;
+  }
+
+  /**
+   * floating point value
+   * @param valueFloating1
+   */
+  public void setValueFloating(Double valueFloating1) {
+    this.valueFloating = valueFloating1;
+  }
+
+  /**
+   * assign a value to any type
+   * @param value
+   */
+  public void assignValue(String value) {
+    
+    AttributeAssign attributeAssign = this.getAttributeAssign();
+    AttributeDef attributeDef = attributeAssign.getAttributeDef();
+    
+    AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+    
+    this.clearValue();
+    
+    if (StringUtils.isBlank(value)) {
+      return;
+    }
+    
+    switch(attributeDefValueType) {
+      case floating:
+        this.valueFloating = GrouperUtil.doubleValue(value);
+        break;
+      case integer:
+        this.valueInteger = GrouperUtil.longValue(value);
+        break;
+      case marker:
+        throw new RuntimeException("Cant assign a value to a marker attribute: " 
+            + value + ", " + this.attributeAssignId); 
+      case memberId:
+        this.valueMemberId = value;
+        break;
+      case string:
+        this.valueString = value;
+        break;
+      default:
+        throw new RuntimeException("Not expecting type: " + attributeDefValueType);
+    }
+  }
+
+  /**
+   * clear all the values
+   */
+  public void clearValue() {
+    this.valueFloating = null;
+    this.valueInteger = null;
+    this.valueMemberId = null;
+    this.valueString = null;
+    
+  }
+  
+  /**
+   * clear all the values
+   * @param attributeAssignValue 
+   */
+  public void assignValue(AttributeAssignValue attributeAssignValue) {
+    this.valueFloating = attributeAssignValue.valueFloating;
+    this.valueInteger = attributeAssignValue.valueInteger;
+    this.valueMemberId = attributeAssignValue.valueMemberId;
+    this.valueString = attributeAssignValue.valueString;
+  }
+  
   /** member id value */
   private String valueMemberId;
 
@@ -146,6 +235,11 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * save or update this object
    */
   public void saveOrUpdate() {
+    
+    if (StringUtils.isBlank(this.id)) {
+      this.id = GrouperUuid.getUuid();
+    }
+    
     GrouperDAOFactory.getFactory().getAttributeAssignValue().saveOrUpdate(this);
   }
   
@@ -254,6 +348,17 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     return this.attributeAssignId;
   }
 
+  /**
+   * get the attribute assign
+   * @return the attribute assign
+   */
+  public AttributeAssign getAttributeAssign() {
+    if (StringUtils.isBlank(this.attributeAssignId)) {
+      return null;
+    }
+    //hopefully this is cached
+    return GrouperDAOFactory.getFactory().getAttributeAssign().findById(this.attributeAssignId, true);
+  }
   
   /**
    * attribute assignment in this value assignment
@@ -488,4 +593,160 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     
   }
 
+  /**
+   * if the argument has the same value as this
+   * @param attributeAssignValue
+   * @return if the argument has the same value as this
+   */
+  public boolean sameValue(AttributeAssignValue attributeAssignValue) {
+    if (attributeAssignValue == null) {
+      return false;
+    }
+    if (!GrouperUtil.equals(this.valueMemberId, attributeAssignValue.valueMemberId)) {
+      return false;
+    }
+    if (!GrouperUtil.equals(this.valueString, attributeAssignValue.valueString)) {
+      return false;
+    }
+    if (!GrouperUtil.equals(this.valueFloating, attributeAssignValue.valueFloating)) {
+      return false;
+    }
+    if (!GrouperUtil.equals(this.valueInteger, attributeAssignValue.valueInteger)) {
+      return false;
+    }
+    return true;
+  }
+ 
+  /**
+   * 
+   */
+  public static enum AttributeAssignValueType {
+    
+    /** has an integer value */
+    integerValue {
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType#compatibleWith(edu.internet2.middleware.grouper.attr.AttributeDefValueType)
+       */
+      @Override
+      public boolean compatibleWith(AttributeDefValueType attributeDefValueType) {
+        return attributeDefValueType == AttributeDefValueType.integer 
+          || attributeDefValueType == AttributeDefValueType.timestamp;
+      }
+      
+    },
+    
+    /** has a floating value */
+    floating {
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType#compatibleWith(edu.internet2.middleware.grouper.attr.AttributeDefValueType)
+       */
+      @Override
+      public boolean compatibleWith(AttributeDefValueType attributeDefValueType) {
+        return attributeDefValueType == AttributeDefValueType.floating;
+      }
+      
+    },
+    
+    /** has a string value */
+    string {
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType#compatibleWith(edu.internet2.middleware.grouper.attr.AttributeDefValueType)
+       */
+      @Override
+      public boolean compatibleWith(AttributeDefValueType attributeDefValueType) {
+        return attributeDefValueType == AttributeDefValueType.string;
+      }
+      
+    },
+    
+    /** has a member id */
+    memberId {
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType#compatibleWith(edu.internet2.middleware.grouper.attr.AttributeDefValueType)
+       */
+      @Override
+      public boolean compatibleWith(AttributeDefValueType attributeDefValueType) {
+        return attributeDefValueType == AttributeDefValueType.memberId;
+      }
+      
+    },
+    
+    /** doesnt have a value */
+    nullValue {
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType#compatibleWith(edu.internet2.middleware.grouper.attr.AttributeDefValueType)
+       */
+      @Override
+      public boolean compatibleWith(AttributeDefValueType attributeDefValueType) {
+        //this is ok for all types
+        return true;
+      }
+      
+    },
+    
+    /** has multi values, thats bad */
+    multiValueError {
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType#compatibleWith(edu.internet2.middleware.grouper.attr.AttributeDefValueType)
+       */
+      @Override
+      public boolean compatibleWith(AttributeDefValueType attributeDefValueType) {
+        //this is bad
+        return false;
+      }
+      
+    };
+    
+    /**
+     * 
+     * @param attributeDefValueType
+     * @return true if the value type is compatible with the def type
+     */
+    public abstract boolean compatibleWith(AttributeDefValueType attributeDefValueType);
+    
+  }
+
+  /**
+   * get the type of this value
+   * @return the type of this value
+   */
+  public AttributeAssignValueType getCurrentAssignValueType() {
+    int valueCount = 0;
+    valueCount += this.valueFloating != null ? 1 : 0;
+    valueCount += this.valueInteger != null ? 1 : 0;
+    valueCount += this.valueMemberId != null ? 1 : 0;
+    valueCount += !StringUtils.isEmpty(this.valueString) ? 1 : 0;
+    if (valueCount > 1) {
+      return AttributeAssignValueType.multiValueError;
+    }
+    if (valueCount == 0) {
+      return AttributeAssignValueType.nullValue;
+    }
+    if (this.valueFloating != null) {
+      return AttributeAssignValueType.floating;
+    }
+    if (this.valueInteger != null) {
+      return AttributeAssignValueType.integerValue;
+    }
+    if (this.valueMemberId != null) {
+      return AttributeAssignValueType.memberId;
+    }
+    if (!StringUtils.isEmpty(this.valueString)) {
+      return AttributeAssignValueType.string;
+    }
+    throw new RuntimeException("Why are we here? " + this);
+  }
+  
 }

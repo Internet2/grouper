@@ -5,8 +5,9 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Collection;
+import java.util.Set;
 
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
 
 /**
@@ -34,6 +35,13 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
    */
   public AttributeAssignValue findById(String id, boolean exceptionIfNotFound)
     throws AttributeAssignValueNotFoundException;
+
+  /**
+   * find values of assignment
+   * @param attributeAssignId
+   * @return the attribute assign values or empty if not there
+   */
+  public Set<AttributeAssignValue> findByAttributeAssignId(String attributeAssignId);
 
   /**
    * save the update properties which are auto saved when business method is called

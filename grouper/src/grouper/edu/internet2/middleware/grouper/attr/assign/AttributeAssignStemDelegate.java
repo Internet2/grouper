@@ -44,6 +44,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
    * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanReadAttributeDef(edu.internet2.middleware.grouper.attr.AttributeDef)
    */
   @Override
+  public
   void assertCanReadAttributeDef(final AttributeDef attributeDef) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
@@ -81,6 +82,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
    * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanUpdateAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
+  public
   void assertCanUpdateAttributeDefName(AttributeDefName attributeDefName) {
     final AttributeDef attributeDef = attributeDefName.getAttributeDef();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -160,6 +162,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
    * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanDelegateAttributeDefName(String, edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
+  public
   void assertCanDelegateAttributeDefName(String action, AttributeDefName attributeDefName) {
     throw new RuntimeException("Cannot delegate an attribute on stem assignment");
   }
@@ -168,6 +171,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
    * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanGrantAttributeDefName(String, edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
+  public
   void assertCanGrantAttributeDefName(String action, AttributeDefName attributeDefName) {
     throw new RuntimeException("Cannot grant an attribute on stem assignment");
   }

@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
@@ -50,7 +50,7 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#saveOrUpdate(edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#saveOrUpdate(edu.internet2.middleware.grouper.attr.value.AttributeAssignValue)
    */
   public void saveOrUpdate(AttributeAssignValue attributeAssignValue) {
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValue);
@@ -130,7 +130,7 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#saveUpdateProperties(edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#saveUpdateProperties(edu.internet2.middleware.grouper.attr.value.AttributeAssignValue)
    */
   public void saveUpdateProperties(AttributeAssignValue attributeAssignValue) {
 
@@ -150,10 +150,33 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#delete(edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#delete(edu.internet2.middleware.grouper.attr.value.AttributeAssignValue)
    */
   public void delete(AttributeAssignValue attributeAssignValue) {
     HibernateSession.byObjectStatic().delete(attributeAssignValue);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#findByAttributeAssignId(java.lang.String)
+   */
+  public Set<AttributeAssignValue> findByAttributeAssignId(String attributeAssignId) {
+    try {
+      Set<AttributeAssignValue> attributeAssignValues = HibernateSession.byHqlStatic()
+        .createQuery("from AttributeAssignValue as theAttributeAssignValue where " +
+            "theAttributeAssignValue.attributeAssignId = :theAttributeAssignId")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByAttributeAssignId")
+        .setString("theAttributeAssignId", attributeAssignId)
+        .listSet(AttributeAssignValue.class);
+      
+      //return result
+      return attributeAssignValues;
+    } catch (GrouperDAOException e) {
+      String error = "Problem find attributeAssignValue by attributeAssignId '" + attributeAssignId 
+             + ", " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+
   }
 
 } 

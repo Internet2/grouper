@@ -56,6 +56,7 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
    * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanReadAttributeDef(edu.internet2.middleware.grouper.attr.AttributeDef)
    */
   @Override
+  public
   void assertCanReadAttributeDef(final AttributeDef attributeDef) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     final Subject subject = grouperSession.getSubject();
@@ -84,6 +85,7 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
    * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#assertCanUpdateAttributeDefName(edu.internet2.middleware.grouper.attr.AttributeDefName)
    */
   @Override
+  public
   void assertCanUpdateAttributeDefName(AttributeDefName attributeDefName) {
     final AttributeDef attributeDef = attributeDefName.getAttributeDef();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();

@@ -15,6 +15,9 @@ public enum AttributeDefValueType {
   /** whole number type, can be used for date/timestamp or other things */
   integer,
   
+  /** timestamp stored in integer */
+  timestamp,
+  
   /** text */
   string,
   

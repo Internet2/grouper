@@ -22,7 +22,7 @@
 
 <!-- $Id: Hib3AttributeAssignValueDAO.hbm.xml,v 1.2 2009-09-28 05:06:46 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.attr.assign">
+<hibernate-mapping package="edu.internet2.middleware.grouper.attr.value">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
@@ -44,6 +44,7 @@
     <property name="createdOnDb" column="created_on"/>
     <property name="lastUpdatedDb" column="last_updated"/>
     <property name="valueString" column="value_string"/>
+    <property name="valueFloating" column="value_floating"/>
     <property name="valueInteger" column="value_integer"/>
     <property name="valueMemberId" column="value_member_id"/>
   </class>

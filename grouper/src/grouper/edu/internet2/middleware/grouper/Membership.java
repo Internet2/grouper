@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -105,7 +106,8 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: Membership.java,v 1.141 2009-12-21 06:15:02 mchyzer Exp $
  */
-public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Membership> {
+public class Membership extends GrouperAPI implements 
+    GrouperHasContext, Hib3GrouperVersioned, XmlImportable<Membership>, AttributeAssignable {
 
   /**
    * 

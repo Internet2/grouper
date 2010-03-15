@@ -24,7 +24,6 @@ public class AllAttributeTests {
     suite.addTestSuite(GroupAttributeSecurityTest.class);
     suite.addTestSuite(AttrAssignAttributeSecurityTest.class);
     suite.addTestSuite(AttributeDefNameSetTest.class);
-    suite.addTestSuite(AttributeAssignValueTest.class);
     suite.addTestSuite(AttributeAssignTest.class);
     suite.addTestSuite(MembershipAttributeSecurityTest.class);
     suite.addTestSuite(AttributeDefTest.class);

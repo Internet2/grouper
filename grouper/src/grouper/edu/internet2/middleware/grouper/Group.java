@@ -43,6 +43,8 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignGroupDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -142,7 +144,8 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @version $Id: Group.java,v 1.269 2009-12-15 06:47:06 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable<Group>, XmlImportable<Group> {
+public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner, 
+    Hib3GrouperVersioned, Comparable<Group>, XmlImportable<Group>, AttributeAssignable {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -424,6 +427,21 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       this.attributeAssignGroupDelegate = new AttributeAssignGroupDelegate(this);
     }
     return this.attributeAssignGroupDelegate;
+  }
+  
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeValueDelegate attributeValueDelegate;
+  
+  /**
+   * this delegate works on attributes and values at the same time
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegate() {
+    if (this.attributeValueDelegate == null) {
+      this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
+    }
+    return this.attributeValueDelegate;
   }
   
   /**
@@ -5681,6 +5699,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * cache this for performance.  delegate calls to this class for role hierarchy stuff
    */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private RoleInheritanceDelegate roleInheritanceDelegate = null;
   
   /**
@@ -5697,6 +5716,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * cache this for performance.  delegate calls to this class for role hierarchy stuff
    */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private PermissionRoleDelegate permissionRoleDelegate = null;
 
   /**

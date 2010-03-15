@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttributeDefDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionDelegate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
@@ -49,7 +50,8 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 @SuppressWarnings("serial")
-public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef> {
+public class AttributeDef extends GrouperAPI implements GrouperHasContext, 
+    Hib3GrouperVersioned, Owner, XmlImportable<AttributeDef>, AttributeAssignable {
 
   /** default action */
   public static final String ACTION_DEFAULT = "assign";

@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -510,6 +510,8 @@ public enum GrouperDdl implements DdlVersionable {
 
       addFlatTables(ddlVersionBean, database);
       
+      addAttributeFloatValueCol(database);
+
     }
   },
   
@@ -4998,6 +5000,20 @@ public enum GrouperDdl implements DdlVersionable {
   }
 
   /**
+   * 
+   * @param database
+   */
+  private static void addAttributeFloatValueCol(Database database) {
+    
+    Table attributeAssignValueTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+        database, AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+        AttributeAssignValue.COLUMN_VALUE_FLOATING, Types.FLOAT, "20,5", false, false);
+
+  }
+  
+  /**
    * @param database
    */
   private static void addContextIdCols(Database database) {
@@ -5107,7 +5123,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param requireNewMembershipColumns 
    */
   private static void runMembershipAndGroupSetConversion(Database database, 
-      DdlVersionBean ddlVersionBean,
+      @SuppressWarnings("unused") DdlVersionBean ddlVersionBean,
       boolean requireNewMembershipColumns) {
 
     Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
@@ -5356,7 +5372,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean
    * @param database
    */
-  private static void addGroupNameColumns(DdlVersionBean ddlVersionBean, Database database) {
+  private static void addGroupNameColumns(@SuppressWarnings("unused") DdlVersionBean ddlVersionBean, Database database) {
     
     if (!addGroupNameColumns) {
       return;
@@ -6216,6 +6232,11 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssignValue.COLUMN_VALUE_INTEGER, Types.BIGINT, "20", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_VALUE_FLOATING, Types.FLOAT, "20,5", false, false);
+
+      addAttributeFloatValueCol(database);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
           AttributeAssignValue.COLUMN_VALUE_STRING, Types.VARCHAR, "4000", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
@@ -6565,17 +6586,5 @@ public enum GrouperDdl implements DdlVersionable {
         //dont worry if exception, the table probably isnt there,and will get initted in good time
       }
     }
-
-    
-    
-    
-    
-    
-    
-
-
-    
-    
-
   }
 }

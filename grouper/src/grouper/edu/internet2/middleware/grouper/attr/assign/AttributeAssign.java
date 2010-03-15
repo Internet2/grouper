@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -46,7 +47,8 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportableMultiple;
  *
  */
 @SuppressWarnings("serial")
-public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, XmlImportableMultiple<AttributeAssign> {
+public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, 
+    XmlImportableMultiple<AttributeAssign>, AttributeAssignable {
 
   /** logger */
   @SuppressWarnings("unused")
@@ -1316,5 +1318,69 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
   }
 
-
+  /**
+   * get the delegate that relates the object with the the assignment
+   * @return the delegate
+   */
+  public AttributeAssignable retrieveAttributeAssignable() {
+    AttributeDef attributeDef = this.getAttributeDef();
+    if (attributeDef.isAssignToGroup()) {
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
+      return group;
+    }
+    if (attributeDef.isAssignToStem()) {
+      Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerStemId, true);
+      return stem;
+    }
+    if (attributeDef.isAssignToMember()) {
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
+      return member;
+    }
+    if (attributeDef.isAssignToAttributeDef()) {
+      AttributeDef attributeDefOwner = AttributeDefFinder.findById(this.ownerAttributeDefId, true);
+      return attributeDefOwner;
+    }
+    if (attributeDef.isAssignToEffMembership()) {
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
+      return new EffectiveMembershipWrapper(group, member);
+    }
+    if (attributeDef.isAssignToImmMembership()) {
+      Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
+      return membership;
+    }
+    if (attributeDef.isAssignToAttributeDefAssn() || attributeDef.isAssignToEffMembershipAssn() 
+        || attributeDef.isAssignToGroupAssn() || attributeDef.isAssignToImmMembershipAssn()
+        || attributeDef.isAssignToMemberAssn() || attributeDef.isAssignToStemAssn()) {
+      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findById(this.ownerAttributeAssignId, true);
+      return attributeAssign;
+    }
+    throw new RuntimeException("Cannot find assign delegate for assignment and attributeDef: " 
+        + this.id + ", " + attributeDef.getName());
+    
+  }
+  
+  /**
+   * get the delegate that relates the object with the the assignment
+   * @return the delegate
+   */
+  public AttributeAssignBaseDelegate retrieveAttributeAssignDelegate() {
+    return this.retrieveAttributeAssignable().getAttributeDelegate();
+  }
+  
+  /** delegate to manage values on this assignment */
+  private AttributeAssignValueDelegate valueDelegate;
+  
+  /**
+   * 
+   * @return the value delegate
+   */
+  public AttributeAssignValueDelegate getValueDelegate() {
+    if  (this.valueDelegate == null) {
+      this.valueDelegate = new AttributeAssignValueDelegate(this);
+    }
+    return this.valueDelegate;
+  }
+  
 }

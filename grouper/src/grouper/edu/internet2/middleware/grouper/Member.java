@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMemberDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -97,7 +98,8 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * @author  blair christensen.
  * @version $Id: Member.java,v 1.135 2009-12-28 06:08:37 mchyzer Exp $
  */
-public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, Comparable<Member>, XmlImportable<Member> {
+public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, 
+    Comparable<Member>, XmlImportable<Member>, AttributeAssignable {
 
   /** */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant

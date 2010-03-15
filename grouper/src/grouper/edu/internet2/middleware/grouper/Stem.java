@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignStemDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -122,7 +123,8 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * @version $Id: Stem.java,v 1.209 2009-12-15 06:47:06 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem> {
+public class Stem extends GrouperAPI implements GrouperHasContext, Owner, 
+    Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable {
 
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";

@@ -1,0 +1,1089 @@
+/**
+ * @author mchyzer
+ * $Id$
+ */
+package edu.internet2.middleware.grouper.attr.value;
+
+import java.sql.BatchUpdateException;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+
+import junit.textui.TestRunner;
+
+import org.hibernate.exception.SQLGrammarException;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeAssignTest;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+
+/**
+ *
+ */
+public class AttributeAssignValueTest extends GrouperTest {
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new AttributeAssignValueTest("testAttributeValueTimestamp"));
+  }
+  
+  /**
+   * 
+   */
+  public AttributeAssignValueTest() {
+    super();
+  }
+
+  /**
+   * 
+   * @param name
+   */
+  public AttributeAssignValueTest(String name) {
+    super(name);
+  }
+
+  /** grouper session */
+  private GrouperSession grouperSession;
+  
+  /** root stem */
+  private Stem root;
+  
+  /** top stem */
+  private Stem top;
+
+  /**
+   * 
+   */
+  public void setUp() {
+    super.setUp();
+    this.grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
+    this.root = StemFinder.findRootStem(this.grouperSession);
+    this.top = this.root.addChildStem("top", "top display name");
+  }
+  
+  /**
+   * attribute def
+   */
+  public void testHibernate() {
+    AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
+    attributeDef.setAssignToStem(true);
+    attributeDef.store();
+    
+    AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
+
+    AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName, null);
+    attributeAssign.saveOrUpdate();
+    
+    AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+    attributeAssignValue.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue.setValueString("hello");
+    attributeAssignValue.setId(GrouperUuid.getUuid());
+    try {
+      attributeAssignValue.saveOrUpdate();
+    } catch (RuntimeException e) {
+      
+      Throwable cause = e.getCause();
+      if (cause instanceof SQLGrammarException) {
+        cause = cause.getCause();
+      }
+      if (cause instanceof BatchUpdateException) {
+        SQLException sqlException = ((BatchUpdateException)cause).getNextException();
+        if (sqlException != null) {
+          sqlException.printStackTrace();
+        }
+      }
+      
+      throw e;
+      
+    }
+  }
+
+  /**
+   * make an example AttributeDefScope for testing
+   * @return an example AttributeDefScope
+   */
+  public static AttributeAssignValue exampleAttributeAssignValue() {
+    AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+    attributeAssignValue.setAttributeAssignId("attributeAssignId");
+    attributeAssignValue.setContextId("contextId");
+    attributeAssignValue.setCreatedOnDb(5L);
+    attributeAssignValue.setHibernateVersionNumber(3L);
+    attributeAssignValue.setLastUpdatedDb(6L);
+    attributeAssignValue.setId("uuid");
+    attributeAssignValue.setValueInteger(7L);
+    attributeAssignValue.setValueMemberId("valueMemberId");
+    attributeAssignValue.setValueString("valueString");
+    return attributeAssignValue;
+  }
+  
+  /**
+   * make an example AttributeAssignValue from db for testing
+   * @return an example AttributeAssignValue
+   */
+  public static AttributeAssignValue exampleAttributeAssignValueDb() {
+    AttributeAssign attributeAssign = AttributeAssignTest.exampleAttributeAssignDb();
+    AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory()
+      .getAttributeAssignValue().findByUuidOrKey(null, null, attributeAssign.getId(), false, null, null, null);
+    if (attributeAssignValue == null) {
+      //create a new one
+      attributeAssignValue = new AttributeAssignValue();
+      attributeAssignValue.setId(GrouperUuid.getUuid());
+      attributeAssignValue.setAttributeAssignId(attributeAssign.getId());
+      attributeAssignValue.saveOrUpdate();
+    }
+    return attributeAssignValue;
+  }
+
+  
+  /**
+   * retrieve example AttributeAssignValue from db for testing
+   * @return an example AttributeAssignValue
+   */
+  public static AttributeAssignValue exampleRetrieveAttributeAssignValueDb() {
+    AttributeAssign attributeAssign = AttributeAssignTest.exampleAttributeAssignDb();
+    AttributeAssignValue attributeAssignValue = GrouperDAOFactory.getFactory()
+      .getAttributeAssignValue().findByUuidOrKey(null, null, attributeAssign.getId(), true, null, null, null);
+    return attributeAssignValue;
+  }
+
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testRetrieveMultiple() {
+    
+    AttributeAssign attributeAssign = AttributeAssignTest.exampleAttributeAssignDb();
+    
+    AttributeAssignValue attributeAssignValue1 = new AttributeAssignValue();
+    attributeAssignValue1.setId(GrouperUuid.getUuid());
+    attributeAssignValue1.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue1.setValueInteger(55L);
+    attributeAssignValue1.saveOrUpdate();
+
+    AttributeAssignValue attributeAssignValue2 = new AttributeAssignValue();
+    attributeAssignValue2.setId(GrouperUuid.getUuid());
+    attributeAssignValue2.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue2.setValueString("abc");
+    attributeAssignValue2.saveOrUpdate();
+
+    AttributeAssignValue attributeAssignValue3 = new AttributeAssignValue();
+    attributeAssignValue3.setId(GrouperUuid.getUuid());
+    attributeAssignValue3.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue3.setValueMemberId(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, true).getUuid());
+    attributeAssignValue3.saveOrUpdate();
+    
+    //get by id
+    AttributeAssignValue attributeAssignValue = attributeAssignValue1.xmlRetrieveByIdOrKey(null);
+    assertEquals(attributeAssignValue1.getId(), attributeAssignValue.getId());
+
+    attributeAssignValue = attributeAssignValue2.xmlRetrieveByIdOrKey(null);
+    assertEquals(attributeAssignValue2.getId(), attributeAssignValue.getId());
+
+    attributeAssignValue = attributeAssignValue3.xmlRetrieveByIdOrKey(null);
+    assertEquals(attributeAssignValue3.getId(), attributeAssignValue.getId());
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlInsert() {
+    
+    GrouperSession.startRootSession();
+    
+    AttributeAssignValue attributeAssignValueOriginal = exampleAttributeAssignValueDb();
+    
+    //not sure why I need to sleep, but the last membership update gets messed up...
+    GrouperUtil.sleep(1000);
+    
+    //do this because last membership update isnt there, only in db
+    attributeAssignValueOriginal = exampleRetrieveAttributeAssignValueDb();
+    AttributeAssignValue attributeAssignValueCopy = exampleRetrieveAttributeAssignValueDb();
+    AttributeAssignValue attributeAssignValueCopy2 = exampleRetrieveAttributeAssignValueDb();
+    attributeAssignValueCopy.delete();
+    
+    //lets insert the original
+    attributeAssignValueCopy2.xmlSaveBusinessProperties(null);
+    attributeAssignValueCopy2.xmlSaveUpdateProperties();
+
+    //refresh from DB
+    attributeAssignValueCopy = exampleRetrieveAttributeAssignValueDb();
+    
+    assertFalse(attributeAssignValueCopy == attributeAssignValueOriginal);
+    assertFalse(attributeAssignValueCopy.xmlDifferentBusinessProperties(attributeAssignValueOriginal));
+    assertFalse(attributeAssignValueCopy.xmlDifferentUpdateProperties(attributeAssignValueOriginal));
+    
+  }
+  
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testXmlDifferentUpdateProperties() {
+    
+    @SuppressWarnings("unused")
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeAssignValue attributeAssignValue = null;
+    AttributeAssignValue exampleAttributeAssignValue = null;
+    
+    //TEST UPDATE PROPERTIES
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      attributeAssignValue.setContextId("abc");
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertTrue(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setContextId(exampleAttributeAssignValue.getContextId());
+      attributeAssignValue.xmlSaveUpdateProperties();
+
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+      
+    }
+    
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+
+      attributeAssignValue.setCreatedOnDb(99L);
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertTrue(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setCreatedOnDb(exampleAttributeAssignValue.getCreatedOnDb());
+      attributeAssignValue.xmlSaveUpdateProperties();
+      
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+    }
+    
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+
+      attributeAssignValue.setLastUpdatedDb(99L);
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertTrue(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setLastUpdatedDb(exampleAttributeAssignValue.getLastUpdatedDb());
+      attributeAssignValue.xmlSaveUpdateProperties();
+      
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+    }
+
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+
+      attributeAssignValue.setHibernateVersionNumber(99L);
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertTrue(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setHibernateVersionNumber(exampleAttributeAssignValue.getHibernateVersionNumber());
+      attributeAssignValue.xmlSaveUpdateProperties();
+      
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+    }
+    //TEST BUSINESS PROPERTIES
+    
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+
+      attributeAssignValue.setAttributeAssignId("abc");
+      
+      assertTrue(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setAttributeAssignId(exampleAttributeAssignValue.getAttributeAssignId());
+      attributeAssignValue.xmlSaveBusinessProperties(exampleAttributeAssignValue.clone());
+      attributeAssignValue.xmlSaveUpdateProperties();
+      
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+    
+    }
+    
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+
+      attributeAssignValue.setId("abc");
+      
+      assertTrue(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setId(exampleAttributeAssignValue.getId());
+      attributeAssignValue.xmlSaveBusinessProperties(exampleAttributeAssignValue.clone());
+      attributeAssignValue.xmlSaveUpdateProperties();
+      
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+    
+    }
+    
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+
+      attributeAssignValue.setValueInteger(99L);
+      
+      assertTrue(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setValueInteger(exampleAttributeAssignValue.getValueInteger());
+      attributeAssignValue.xmlSaveBusinessProperties(exampleAttributeAssignValue.clone());
+      attributeAssignValue.xmlSaveUpdateProperties();
+      
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+    
+    }
+    
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+
+      attributeAssignValue.setValueMemberId("abc");
+      
+      assertTrue(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setValueMemberId(exampleAttributeAssignValue.getValueMemberId());
+      attributeAssignValue.xmlSaveBusinessProperties(exampleAttributeAssignValue.clone());
+      attributeAssignValue.xmlSaveUpdateProperties();
+      
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+    
+    }
+    
+    {
+      attributeAssignValue = exampleAttributeAssignValueDb();
+      exampleAttributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+
+      attributeAssignValue.setValueString("abc");
+      
+      assertTrue(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+
+      attributeAssignValue.setValueString(exampleAttributeAssignValue.getValueString());
+      attributeAssignValue.xmlSaveBusinessProperties(exampleAttributeAssignValue.clone());
+      attributeAssignValue.xmlSaveUpdateProperties();
+      
+      attributeAssignValue = exampleRetrieveAttributeAssignValueDb();
+      
+      assertFalse(attributeAssignValue.xmlDifferentBusinessProperties(exampleAttributeAssignValue));
+      assertFalse(attributeAssignValue.xmlDifferentUpdateProperties(exampleAttributeAssignValue));
+    
+    }
+    
+  }
+
+  /**
+   * 
+   */
+  public void testMultiAttributeAssign() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignMultiDefName");
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrMultiAssign").assignName("test:groupTestAttrMultiAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    //this is ok
+    group.getAttributeDelegate().assignAttribute(attributeDefName);
+
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+
+    //add again, we need it
+    group.getAttributeDelegate().assignAttribute(attributeDefName);
+
+    assertTrue(group.getAttributeDelegate().hasAttribute(attributeDefName));
+    
+    //flag as multi-assign
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    attributeDef.setMultiAssignable(true);
+    attributeDef.store();
+
+    //this will work but is a no-op
+    group.getAttributeDelegate().assignAttribute(attributeDefName);
+    group.getAttributeDelegate().assignAttribute(attributeDefName);
+    assertEquals(1, group.getAttributeDelegate().retrieveAssignments(attributeDefName).size());
+    
+    assertTrue(group.getAttributeDelegate().hasAttribute(attributeDefName));
+
+    //should still work, will remove all
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    
+    //should be ok
+    group.getAttributeDelegate().retrieveAssignments(attributeDefName);
+    
+    assertEquals(0, group.getAttributeDelegate().retrieveAssignments(attributeDefName).size());
+    
+    //add a couple of assignments
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().addAttribute(attributeDefName);
+    @SuppressWarnings("unused")
+    AttributeAssignResult attributeAssignResult2 = group.getAttributeDelegate().addAttribute(attributeDefName);
+    
+    assertEquals(2, group.getAttributeDelegate().retrieveAssignments(attributeDefName).size());
+    
+    //this is how to delete an assignment
+    attributeAssignResult.getAttributeAssign().delete();
+    
+    assertEquals(1, group.getAttributeDelegate().retrieveAssignments(attributeDefName).size());
+    
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueSecurity() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    
+    //might be assigned to all, lets revoke
+    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.VIEW);
+    
+    attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1,AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2,AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    //GrouperSystem, ok
+    attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueInteger();
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueInteger();
+      fail("Cant admin the attribute def");
+    } catch (Exception e) {
+      //good
+    }
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ1);
+    try {
+      attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueInteger();
+      fail("Cant admin the group");
+    } catch (Exception e) {
+      //good
+    }
+
+    GrouperSession.start(SubjectTestHelper.SUBJ2);
+    attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueInteger();
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ3);
+    try {
+      attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueInteger();
+      fail("Cant admin the attribute def or the group");
+    } catch (Exception e) {
+      //good
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testAttributeValue() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+
+    attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueInteger();
+
+  }
+  
+  /**
+   * 
+   */
+  public void testExceptions() {
+
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.integer);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueInteger(0L).getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+
+    try {
+      attributeAssign.getValueDelegate().addValueInteger(0L);
+      fail("Cant assign multiple to a single valued attribute");
+    } catch (Exception e) {
+      //good, not multi valued
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testExceptions2() {
+
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.integer);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    try {
+      attributeAssign.getValueDelegate().assignValueString("hey");
+      fail("Cant assign string to an integer valued attribute");
+    } catch (Exception e) {
+      //good, not multi valued
+    }
+    
+    try {
+      attributeAssign.getValueDelegate().addValueString("hey");
+      fail("Cant add string to an integer valued attribute");
+    } catch (Exception e) {
+      //good, not multi valued
+    }
+    
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueInteger() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.integer);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueInteger(0L).getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+    attributeAssign.getValueDelegate().addValueInteger(0L);
+    
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+    
+    attributeAssign.getValueDelegate().assignValueInteger(0L);
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+
+    attributeAssign.getValueDelegate().deleteValue(attributeAssignValue0find);
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+
+    attributeAssign.getValueDelegate().addValueInteger(0L);
+    attributeAssign.getValueDelegate().deleteValueInteger(0L);
+    
+    assertEquals(0, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+    
+    attributeAssign.getValueDelegate().addValueInteger(2L);
+    attributeAssign.getValueDelegate().addValueInteger(3L);
+    
+    attributeAssign.getValueDelegate().assignValuesInteger(GrouperUtil.toSet(3L, 4L, 5L), true);
+
+    assertEquals(3, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+
+    attributeAssign.getValueDelegate().addValuesInteger(GrouperUtil.toSet(5L, 6L));
+    
+    assertEquals(5, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+    
+    attributeAssign.getValueDelegate().deleteValuesInteger(GrouperUtil.toSet(4L, 5L, 6L));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesInteger().size());
+    assertEquals(new Long(3L), attributeAssign.getValueDelegate().retrieveValuesInteger().iterator().next());
+  }
+  
+  /**
+   * 
+   */
+  public void testValueEquals() {
+    AttributeAssignValue attributeAssignValue1 = new AttributeAssignValue();
+    AttributeAssignValue attributeAssignValue2 = new AttributeAssignValue();
+    
+    assertTrue(attributeAssignValue1.sameValue(attributeAssignValue2));
+    
+    attributeAssignValue1.setValueFloating(1.3);
+    assertFalse(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    attributeAssignValue2.setValueFloating(2.3);
+    assertFalse(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    attributeAssignValue1.setValueFloating(null);
+    attributeAssignValue2.setValueFloating(null);
+    assertTrue(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    
+    attributeAssignValue1.setValueInteger(4L);
+    assertFalse(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    attributeAssignValue2.setValueInteger(6L);
+    assertFalse(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    attributeAssignValue1.setValueInteger(null);
+    attributeAssignValue2.setValueInteger(null);
+    assertTrue(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    
+    
+    attributeAssignValue1.setValueMemberId("abc");
+    assertFalse(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    attributeAssignValue2.setValueMemberId("bcd");
+    assertFalse(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    attributeAssignValue1.setValueMemberId(null);
+    attributeAssignValue2.setValueMemberId(null);
+    assertTrue(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    
+    
+    attributeAssignValue1.setValueString("abc");
+    assertFalse(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    attributeAssignValue2.setValueString("bcd");
+    assertFalse(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    attributeAssignValue1.setValueString(null);
+    attributeAssignValue2.setValueString(null);
+    assertTrue(attributeAssignValue1.sameValue(attributeAssignValue2));
+
+    
+    
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueAddSecurity() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+    
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+    
+    //might be assigned to all, lets revoke
+    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    group.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
+    
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+  
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN);
+    group.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+    
+    attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1,AttributeDefPrivilege.ATTR_ADMIN, false);
+    attributeDefName.getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2,AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    //GrouperSystem, ok
+    attributeAssignResult.getAttributeAssign().getValueDelegate().addValue("hey");
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ0);
+    try {
+      attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueString();
+      fail("Cant admin the attribute def");
+    } catch (Exception e) {
+      //good
+    }
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ1);
+    try {
+      attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueString();
+      fail("Cant admin the group");
+    } catch (Exception e) {
+      //good
+    }
+  
+    GrouperSession.start(SubjectTestHelper.SUBJ2);
+    attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueString();
+    
+    GrouperSession.start(SubjectTestHelper.SUBJ3);
+    try {
+      attributeAssignResult.getAttributeAssign().getValueDelegate().retrieveValueString();
+      fail("Cant admin the attribute def or the group");
+    } catch (Exception e) {
+      //good
+    }
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueFloating() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.floating);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueFloating(0D).getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+    attributeAssign.getValueDelegate().addValueFloating(0D);
+    
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+    
+    attributeAssign.getValueDelegate().assignValueFloating(0D);
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+  
+    attributeAssign.getValueDelegate().deleteValue(attributeAssignValue0find);
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+  
+    attributeAssign.getValueDelegate().addValueFloating(0D);
+    attributeAssign.getValueDelegate().deleteValueFloating(0D);
+    
+    assertEquals(0, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+    
+    attributeAssign.getValueDelegate().addValueFloating(2D);
+    attributeAssign.getValueDelegate().addValueFloating(3D);
+    
+    attributeAssign.getValueDelegate().assignValuesFloating(GrouperUtil.toSet(3D, 4D, 5D), true);
+  
+    assertEquals(3, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+  
+    attributeAssign.getValueDelegate().addValuesFloating(GrouperUtil.toSet(5D, 6D));
+    
+    assertEquals(5, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+    
+    attributeAssign.getValueDelegate().deleteValuesFloating(GrouperUtil.toSet(4D, 5D, 6D));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+    assertEquals(new Double(3D), attributeAssign.getValueDelegate().retrieveValuesFloating().iterator().next());
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueString() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueString("0").getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesString().size());
+    attributeAssign.getValueDelegate().addValueString("0");
+    
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesString().size());
+    
+    attributeAssign.getValueDelegate().assignValueString("0");
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesString().size());
+  
+    attributeAssign.getValueDelegate().deleteValue(attributeAssignValue0find);
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesString().size());
+  
+    attributeAssign.getValueDelegate().addValueString("0");
+    attributeAssign.getValueDelegate().deleteValueString("0");
+    
+    assertEquals(0, attributeAssign.getValueDelegate().retrieveValuesString().size());
+    
+    attributeAssign.getValueDelegate().addValueString("2");
+    attributeAssign.getValueDelegate().addValueString("3");
+    
+    attributeAssign.getValueDelegate().assignValuesString(GrouperUtil.toSet("3", "4", "5"), true);
+  
+    assertEquals(3, attributeAssign.getValueDelegate().retrieveValuesString().size());
+  
+    attributeAssign.getValueDelegate().addValuesString(GrouperUtil.toSet("5", "6"));
+    
+    assertEquals(5, attributeAssign.getValueDelegate().retrieveValuesString().size());
+    
+    attributeAssign.getValueDelegate().deleteValuesString(GrouperUtil.toSet("4", "5", "6"));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesString().size());
+    assertEquals("3", attributeAssign.getValueDelegate().retrieveValuesString().iterator().next());
+    
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueMember() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.memberId);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    Member member0 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    Member member2 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ4, true);
+    Member member5 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ5, true);
+    Member member6 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ6, true);
+    
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueMember(member0).getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesMember().size());
+    attributeAssign.getValueDelegate().addValueMember(member0);
+    
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesMember().size());
+    
+    attributeAssign.getValueDelegate().assignValueMember(member0);
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesMember().size());
+  
+    attributeAssign.getValueDelegate().deleteValue(attributeAssignValue0find);
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesMember().size());
+  
+    attributeAssign.getValueDelegate().addValueMember(member0);
+    attributeAssign.getValueDelegate().deleteValueMember(member0);
+    
+    assertEquals(0, attributeAssign.getValueDelegate().retrieveValuesMember().size());
+    
+    attributeAssign.getValueDelegate().addValueMember(member2);
+    attributeAssign.getValueDelegate().addValueMember(member3);
+    
+    attributeAssign.getValueDelegate().assignValuesMember(GrouperUtil.toSet(member3, member4, member5), true);
+  
+    assertEquals(3, attributeAssign.getValueDelegate().retrieveValuesMember().size());
+  
+    attributeAssign.getValueDelegate().addValuesMember(GrouperUtil.toSet(member5, member6));
+    
+    assertEquals(5, attributeAssign.getValueDelegate().retrieveValuesMember().size());
+    
+    attributeAssign.getValueDelegate().deleteValuesMember(GrouperUtil.toSet(member4, member5, member6));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesMember().size());
+    assertEquals(member3, attributeAssign.getValueDelegate().retrieveValuesMember().iterator().next());
+    
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueMemberId() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.memberId);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    Member member0 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ0, true);
+  
+    Member member2 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ4, true);
+    Member member5 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ5, true);
+    Member member6 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ6, true);
+    
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueMember(member0.getUuid()).getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesMemberId().size());
+    attributeAssign.getValueDelegate().addValueMember(member0.getUuid());
+    
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesMemberId().size());
+    
+    attributeAssign.getValueDelegate().assignValueMember(member0.getUuid());
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesMemberId().size());
+  
+    attributeAssign.getValueDelegate().deleteValue(attributeAssignValue0find);
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesMemberId().size());
+  
+    attributeAssign.getValueDelegate().addValueMember(member0.getUuid());
+    attributeAssign.getValueDelegate().deleteValueMember(member0.getUuid());
+    
+    assertEquals(0, attributeAssign.getValueDelegate().retrieveValuesMemberId().size());
+    
+    attributeAssign.getValueDelegate().addValueMember(member2.getUuid());
+    attributeAssign.getValueDelegate().addValueMember(member3.getUuid());
+    
+    attributeAssign.getValueDelegate().assignValuesMemberIds(GrouperUtil.toSet(member3.getUuid(), member4.getUuid(), member5.getUuid()), true);
+  
+    assertEquals(3, attributeAssign.getValueDelegate().retrieveValuesMemberId().size());
+  
+    attributeAssign.getValueDelegate().addValuesMemberIds(GrouperUtil.toSet(member5.getUuid(), member6.getUuid()));
+    
+    assertEquals(5, attributeAssign.getValueDelegate().retrieveValuesMemberId().size());
+    
+    attributeAssign.getValueDelegate().deleteValuesMemberIds(GrouperUtil.toSet(member4.getUuid(), member5.getUuid(), member6.getUuid()));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesMemberId().size());
+    assertEquals(member3.getUuid(), attributeAssign.getValueDelegate().retrieveValuesMemberId().iterator().next());
+    
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueTimestamp() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.timestamp);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueTimestamp(new Timestamp(0L)).getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
+    attributeAssign.getValueDelegate().addValueTimestamp(new Timestamp(0L));
+    
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
+    
+    attributeAssign.getValueDelegate().assignValueTimestamp(new Timestamp(0L));
+    assertEquals(2, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
+  
+    attributeAssign.getValueDelegate().deleteValue(attributeAssignValue0find);
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
+  
+    attributeAssign.getValueDelegate().addValueTimestamp(new Timestamp(0L));
+    attributeAssign.getValueDelegate().deleteValueTimestamp(new Timestamp(0L));
+    
+    assertEquals(0, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
+    
+    attributeAssign.getValueDelegate().addValueTimestamp(new Timestamp(2L));
+    attributeAssign.getValueDelegate().addValueTimestamp(new Timestamp(3L));
+    
+    attributeAssign.getValueDelegate().assignValuesTimestamp(GrouperUtil.toSet(new Timestamp(3L), new Timestamp(4L), new Timestamp(5L)), true);
+  
+    assertEquals(3, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
+  
+    attributeAssign.getValueDelegate().addValuesTimestamp(GrouperUtil.toSet(new Timestamp(5L), new Timestamp(6L)));
+    
+    assertEquals(5, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
+    
+    attributeAssign.getValueDelegate().deleteValuesTimestamp(GrouperUtil.toSet(new Timestamp(4L), new Timestamp(5L), new Timestamp(6L)));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
+    assertEquals(new Timestamp(3L), attributeAssign.getValueDelegate().retrieveValuesTimestamp().iterator().next());
+  }
+  
+}

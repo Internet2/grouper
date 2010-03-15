@@ -9536,7 +9536,26 @@ public class GrouperUtil {
         + " was returned when only one was expected. (size:" + size +")" );
   }
   
-
+  /**
+   * Return the zero element of the list, if it exists, null if the list is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param collection is the container of objects to get the first of.
+   * @param exceptionIfMoreThanOne will throw exception if there is more than one item in list
+   * @return the first object, null, or exception.
+   */
+  public static <T> T collectionPopOne(Collection<T> collection, boolean exceptionIfMoreThanOne) {
+    int size = length(collection);
+    if (size > 1 && exceptionIfMoreThanOne) {
+      throw new RuntimeException("More than one object of type " + className(get(collection, 0))
+          + " was returned when only one was expected. (size:" + size +")" );
+    }
+    if (size == 0) {
+      return null;
+    }
+    return collection.iterator().next();
+  }
+  
   /** array for converting HTML to string */
   private static final String[] XML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
 

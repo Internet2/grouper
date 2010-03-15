@@ -43,7 +43,7 @@ public abstract class AttributeAssignBaseDelegate {
    * make sure the user can read the attribute (including looking at object if necessary)
    * @param attributeDefName
    */
-  void assertCanReadAttributeDefName(AttributeDefName attributeDefName) {
+  public void assertCanReadAttributeDefName(AttributeDefName attributeDefName) {
     AttributeDef attributeDef = attributeDefName.getAttributeDef();
     assertCanReadAttributeDef(attributeDef);
   }
@@ -52,13 +52,13 @@ public abstract class AttributeAssignBaseDelegate {
    * make sure the user can read the attribute (including looking at object if necessary)
    * @param attributeDef
    */
-  abstract void assertCanReadAttributeDef(AttributeDef attributeDef);
+  public abstract void assertCanReadAttributeDef(AttributeDef attributeDef);
 
   /**
    * make sure the user can update the attribute (including looking at object if necessary)
    * @param attributeDefName
    */
-  abstract void assertCanUpdateAttributeDefName(AttributeDefName attributeDefName);
+  public abstract void assertCanUpdateAttributeDefName(AttributeDefName attributeDefName);
 
   /** delegatable result */
   private AttributeAssignDelegatable attributeAssignDelegatable = null;
@@ -68,7 +68,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @param action
    * @param attributeDefName
    */
-  void assertCanDelegateAttributeDefName(String action, AttributeDefName attributeDefName) {
+  public void assertCanDelegateAttributeDefName(String action, AttributeDefName attributeDefName) {
     if (this.attributeAssignDelegatable == null) {
       this.attributeAssignDelegatable = this.retrieveDelegatable(action, attributeDefName);
     }
@@ -119,7 +119,7 @@ public abstract class AttributeAssignBaseDelegate {
    * @param action
    * @param attributeDefName
    */
-  void assertCanGrantAttributeDefName(String action, AttributeDefName attributeDefName) {
+  public void assertCanGrantAttributeDefName(String action, AttributeDefName attributeDefName) {
     if (this.attributeAssignDelegatable == null) {
       this.attributeAssignDelegatable = this.retrieveDelegatable(action, attributeDefName);
     }
@@ -399,6 +399,8 @@ public abstract class AttributeAssignBaseDelegate {
   public AttributeAssignResult internal_assignAttributeHelper(String action, 
       AttributeDefName attributeDefName, boolean checkSecurity, String uuid) {
     
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
     if (checkSecurity) {
       this.assertCanUpdateAttributeDefName(attributeDefName);
     }
@@ -412,8 +414,8 @@ public abstract class AttributeAssignBaseDelegate {
     attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
     
     if (StringUtils.isBlank(attributeAssign.getAttributeAssignActionId())) {
-      attributeAssign.setAttributeAssignActionId(attributeDefName.getAttributeDef()
-          .getAttributeDefActionDelegate().allowedAction(AttributeDef.ACTION_DEFAULT, true).getId());
+      attributeAssign.setAttributeAssignActionId(attributeDef
+          .getAttributeDefActionDelegate().allowedAction(action, true).getId());
     }
     
     attributeAssign.saveOrUpdate();
@@ -586,6 +588,15 @@ public abstract class AttributeAssignBaseDelegate {
    */
   public AttributeAssignResult delegateAttribute(final String action, final AttributeDefName attributeDefName, final boolean assign, 
       final AttributeAssignDelegateOptions attributeAssignDelegateOptions) {
+    
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    if (attributeDef.isMultiAssignable()) {
+      throw new RuntimeException("This attribute must not be multi-assignable to call " +
+      		"this method, use the multi-assign methods: " + attributeDefName.getName());
+    }
+
+    
     this.assertCanDelegateAttributeDefName(action, attributeDefName);
     
     if (attributeAssignDelegateOptions != null && attributeAssignDelegateOptions.isAssignAttributeAssignDelegatable() ) {
@@ -685,6 +696,105 @@ public abstract class AttributeAssignBaseDelegate {
     AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
       .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
     return delegateAttribute(action, attributeDefName, assign, attributeAssignDelegateOptions);
+  
+  }
+
+  /**
+   * add a multi assignable attribute
+   * @param attributeDefName
+   * @return the result including if added or already there
+   */
+  public AttributeAssignResult addAttribute(AttributeDefName attributeDefName) {
+  
+    return addAttribute(null, attributeDefName);
+  }
+
+  /**
+   * add a multi assignable attribute
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefName
+   * @return the result including if added or already there
+   */
+  public AttributeAssignResult addAttribute(String action, AttributeDefName attributeDefName) {
+    return this.internal_addAttributeHelper(action, attributeDefName, true, null);
+  
+  }
+
+  /**
+   * add a multi assignable attribute
+   * @param attributeDefNameId
+   * @return the result including if added or already there
+   */
+  public AttributeAssignResult addAttributeById(String attributeDefNameId) {
+    return this.addAttributeById(null, attributeDefNameId);
+  }
+
+  /**
+   * add a multi assignable attribute
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefNameId
+   * @return the result including if added or already there
+   */
+  public AttributeAssignResult addAttributeById(String action, String attributeDefNameId) {
+    
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByIdSecure(attributeDefNameId, true);
+    return addAttribute(action, attributeDefName);
+  
+  }
+
+  /**
+   * add a multi assignable attribute
+   * @param attributeDefNameName
+   * @return the result including if added or already there
+   */
+  public AttributeAssignResult addAttributeByName(String attributeDefNameName) {
+    return addAttributeByName(null, attributeDefNameName);
+  }
+
+  /**
+   * add a multi assignable attribute
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefNameName
+   * @return the result including if added or already there
+   */
+  public AttributeAssignResult addAttributeByName(String action, String attributeDefNameName) {
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory()
+      .getAttributeDefName().findByNameSecure(attributeDefNameName, true);
+    return addAttribute(action, attributeDefName);
+  
+  }
+
+  /**
+   * add a multi assignable attribute
+   * @param action is the action on the assignment (null means default action)
+   * @param attributeDefName
+   * @param checkSecurity
+   * @param uuid uuid of the assignment
+   * @return the result including if added or already there
+   */
+  public AttributeAssignResult internal_addAttributeHelper(String action, 
+      AttributeDefName attributeDefName, boolean checkSecurity, String uuid) {
+    
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    if (!attributeDef.isMultiAssignable()) {
+      throw new RuntimeException("This attribute must be multi-assignable to call this method, use the non multi-assign method: " + attributeDefName.getName());
+    }
+    
+    if (checkSecurity) {
+      this.assertCanUpdateAttributeDefName(attributeDefName);
+    }
+  
+    AttributeAssign attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
+    
+    if (StringUtils.isBlank(attributeAssign.getAttributeAssignActionId())) {
+      attributeAssign.setAttributeAssignActionId(attributeDef
+          .getAttributeDefActionDelegate().allowedAction(action, true).getId());
+    }
+    
+    attributeAssign.saveOrUpdate();
+  
+    return new AttributeAssignResult(true, attributeAssign);
   
   }
 
