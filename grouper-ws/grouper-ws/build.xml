@@ -468,8 +468,6 @@
 		<!-- all the webapp axis stuff like services dir and conf dir -->
 		<copy todir="${webapp.folder}">
 			<fileset dir="${basedir}/webapp">
-        <exclude name="lib/**" />
-        <exclude name="classes/**" />
         <exclude name="WEB-INF/lib/**" />
         <exclude name="WEB-INF/classes/**" />
 			</fileset>
