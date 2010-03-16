@@ -25,5 +25,15 @@
 			<type>2</type>
 			<location>C:/mchyzer/grouper/HEAD/grouper/src/grouper</location>
 		</link>
+		<link>
+			<name>GROUPER_V1_5_CONF</name>
+			<type>2</type>
+			<locationURI>GROUPER_V1_5_CONF</locationURI>
+		</link>
+		<link>
+			<name>GROUPER_V1_5_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_V1_5_SOURCE</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>
