@@ -21,9 +21,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.Properties;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.filter.ChildGroupFilter;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -70,9 +72,9 @@ public class TestGsh extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    //TestRunner.run(new TestGsh("testGshPrivs"));
+    TestRunner.run(new TestGsh("testGshGroups"));
 
-    TestRunner.run(TestGsh.class);
+    //TestRunner.run(TestGsh.class);
   }
 
   /**
@@ -96,7 +98,10 @@ public class TestGsh extends GrouperTest {
    * @throws GrouperShellException 
    */
   public void testGshGroups() throws GrouperShellException {
-    runGshScriptHelper("groups.gsh");
+    Properties  properties = GrouperUtil.propertiesFromResourceName(GrouperConfig.HIBERNATE_CF);
+    if (!((String)properties.get("hibernate.connection.url")).contains(":sqlserver:")) {
+      runGshScriptHelper("groups.gsh");
+    }
   }
 
   /**

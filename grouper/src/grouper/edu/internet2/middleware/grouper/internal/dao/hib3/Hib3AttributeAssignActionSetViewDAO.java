@@ -8,6 +8,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSetView
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignActionSetViewDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 
 /**
  * Data Access Object for attribute assign action set view
@@ -31,7 +33,17 @@ public class Hib3AttributeAssignActionSetViewDAO extends Hib3DAO implements Attr
     Criterion ifHasCriteria = Restrictions.in(AttributeAssignActionSetView.FIELD_IF_HAS_ATTR_ASSIGN_ACTION_NAME, attributeAssignActions);
     Criterion thenHasCriteria = Restrictions.in(AttributeAssignActionSetView.FIELD_THEN_HAS_ATTR_ASSIGN_ACTION_NAME, attributeAssignActions);
     
-    return HibernateSession.byCriteriaStatic().listSet(AttributeAssignActionSetView.class, 
+    QueryOptions queryOptions = new QueryOptions();
+    //ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name
+    QuerySort querySort = QuerySort.asc(AttributeAssignActionSetView.FIELD_PARENT_THEN_HAS_NAME);
+    querySort.addSort(AttributeAssignActionSetView.FIELD_PARENT_IF_HAS_NAME, true);
+    querySort.addSort(AttributeAssignActionSetView.FIELD_DEPTH, true);
+    querySort.addSort(AttributeAssignActionSetView.FIELD_THEN_HAS_ATTR_ASSIGN_ACTION_NAME, true);
+    querySort.addSort(AttributeAssignActionSetView.FIELD_IF_HAS_ATTR_ASSIGN_ACTION_NAME, true);
+    
+    queryOptions.sort(querySort);
+
+    return HibernateSession.byCriteriaStatic().options(queryOptions).listSet(AttributeAssignActionSetView.class, 
         HibUtils.listCritOr(ifHasCriteria, thenHasCriteria));
   }
 

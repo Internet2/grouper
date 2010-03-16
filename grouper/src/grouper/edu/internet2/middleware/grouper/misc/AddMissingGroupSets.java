@@ -14,9 +14,14 @@
 
 package edu.internet2.middleware.grouper.misc;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
@@ -25,9 +30,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -43,6 +50,27 @@ public class AddMissingGroupSets {
   
   /** Whether or not to actually save updates */
   private boolean saveUpdates = true;
+  
+  /** Whether or not to log details */
+  private boolean logDetails = false;
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(AddMissingGroupSets.class);
+  
+  /** total count for current phase */
+  private long totalCount = 0;
+  
+  /** processed count for current phase */
+  private long processedCount = 0;
+  
+  /** if we're done processing a phase */
+  private boolean donePhase = false;
+  
+  /** start time of script */
+  private long startTime = 0;
+  
+  /** status thread */
+  Thread statusThread = null;
   
   /**
    * Whether or not to print out results of what's being done
@@ -65,41 +93,56 @@ public class AddMissingGroupSets {
   }
 
   /**
+   * Whether or not to log details
+   * @param logDetails
+   * @return AddMissingGroupSets
+   */
+  public AddMissingGroupSets logDetails(boolean logDetails) {
+    this.logDetails = logDetails;
+    return this;
+  }
+
+  /**
    * Add all missing group sets
    */
   public void addAllMissingGroupSets() {
         
+    addMissingSelfGroupSetsForAttrDefs();
+
     addMissingSelfGroupSetsForGroups();
     
     addMissingSelfGroupSetsForStems();
     
-    addMissingSelfGroupSetsForAttrDefs();
+    addMissingImmediateGroupSetsForAttrDefOwners();
 
     addMissingImmediateGroupSetsForGroupOwners();
     
     addMissingImmediateGroupSetsForStemOwners();
-
-    addMissingImmediateGroupSetsForAttrDefOwners();
   }
   
   /**
    * Add missing self group sets for groups
    */
   public void addMissingSelfGroupSetsForGroups() {
+    showStatus("\n\nSearching for all composite groups to cache for later use");
     cacheCompositeOwners();
     
+    showStatus("Searching for missing self groupSets for groups");
     Set<Object[]> groupsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForGroups();
+    totalCount = groupsAndFields.size();
+    showStatus("Found " + totalCount + " missing groupSets");
+    
+    Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
+    int batchSize = getBatchSize();
+
+    try {
+      reset();
     Iterator<Object[]> groupsAndFieldsIter = groupsAndFields.iterator();
     while (groupsAndFieldsIter.hasNext()) {
       Object[] groupAndField = groupsAndFieldsIter.next();
       Group group = (Group)groupAndField[0];
       Field field = (Field)groupAndField[1];
       
-      if (showResults) {
-        System.out.println("Adding self groupSet for " + group.getName() + " for field " + field.getTypeString() + " / " + field.getName());
-      }
-      
-      if (saveUpdates) {
         GroupSet groupSet = new GroupSet();
         groupSet.setId(GrouperUuid.getUuid());
         groupSet.setCreatorId(group.getCreatorUuid());
@@ -115,8 +158,24 @@ public class AddMissingGroupSets {
           groupSet.setType(MembershipType.COMPOSITE.getTypeString());
         }
         
-        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+        batch.add(groupSet);
+        logDetail("Adding self groupSet for " + group.getName() + " for field " + field.getTypeString() + " / " + field.getName());
+
+        if (batch.size() % batchSize == 0 || !groupsAndFieldsIter.hasNext()) {
+          if (saveUpdates) {
+            GrouperDAOFactory.getFactory().getGroupSet().saveBatch(batch);
+          }
+          batch.clear();
+        }
+        
+        processedCount++;
       }
+      
+      if (groupsAndFields.size() > 0 && saveUpdates) {
+        showStatus("Done making " + totalCount + " updates");
+      }
+    } finally {
+      stopStatusThread();
     }
   }
   
@@ -124,24 +183,29 @@ public class AddMissingGroupSets {
    * Add missing self group sets for stems
    */
   public void addMissingSelfGroupSetsForStems() {
+    showStatus("\n\nSearching for missing self groupSets for stems");
     Set<Object[]> stemsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForStems();
+    totalCount = stemsAndFields.size();
+    showStatus("Found " + totalCount + " missing groupSets");
+    
+    Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
+    int batchSize = getBatchSize();
+
+    try {
+      reset();
     Iterator<Object[]> stemsAndFieldsIter = stemsAndFields.iterator();
     while (stemsAndFieldsIter.hasNext()) {
       Object[] stemAndField = stemsAndFieldsIter.next();
       Stem stem = (Stem)stemAndField[0];
       Field field = (Field)stemAndField[1];
       
-      if (showResults) {
         String stemName = null;
         if (stem.isRootStem()) {
           stemName = "{rootStem}";
         } else {
           stemName = stem.getName();
         }
-        System.out.println("Adding self groupSet for " + stemName + " for field " + field.getTypeString() + " / " + field.getName());
-      }
       
-      if (saveUpdates) {
         GroupSet groupSet = new GroupSet();
         groupSet.setId(GrouperUuid.getUuid());
         groupSet.setCreatorId(stem.getCreatorUuid());
@@ -151,8 +215,25 @@ public class AddMissingGroupSets {
         groupSet.setOwnerStemId(stem.getUuid());
         groupSet.setParentId(groupSet.getId());
         groupSet.setFieldId(field.getUuid());
-        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+        
+        batch.add(groupSet);
+        logDetail("Adding self groupSet for " + stemName + " for field " + field.getTypeString() + " / " + field.getName());
+
+        if (batch.size() % batchSize == 0 || !stemsAndFieldsIter.hasNext()) {
+          if (saveUpdates) {
+            GrouperDAOFactory.getFactory().getGroupSet().saveBatch(batch);
+          }
+          batch.clear();
+        }
+        
+        processedCount++;
       }
+      
+      if (stemsAndFields.size() > 0 && saveUpdates) {
+        showStatus("Done making " + totalCount + " updates");
+      }
+    } finally {
+      stopStatusThread();
     }
   }
   
@@ -160,19 +241,22 @@ public class AddMissingGroupSets {
    * Add missing group sets for immediate memberships where the owner is a group
    */
   public void addMissingImmediateGroupSetsForGroupOwners() {
+    showStatus("\n\nSearching for missing immediate groupSets where the owner is a group");
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findMissingImmediateGroupSetsForGroupOwners();
+    totalCount = mships.size();
+    showStatus("Found " + totalCount + " missing groupSets");
+    
+    Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
+    int batchSize = getBatchSize();
+
+    try {
+      reset();
     Iterator<Membership> mshipsIter = mships.iterator();
     
     while (mshipsIter.hasNext()) {
       Membership mship = mshipsIter.next();
       Field field = FieldFinder.findById(mship.getFieldId(), true);
       
-      if (showResults) {
-        System.out.println("Adding groupSet for ownerGroupId = " + mship.getOwnerGroupId() + 
-            ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
-      }
-      
-      if (saveUpdates) {
         GroupSet immediateGroupSet = new GroupSet();
         immediateGroupSet.setId(GrouperUuid.getUuid());
         immediateGroupSet.setCreatorId(mship.getCreatorUuid());
@@ -184,8 +268,30 @@ public class AddMissingGroupSets {
         immediateGroupSet.setOwnerGroupId(mship.getOwnerGroupId());
         immediateGroupSet.setParentId(GrouperDAOFactory.getFactory().getGroupSet()
             .findSelfGroup(mship.getOwnerGroupId(), mship.getFieldId()).getId());
-        GrouperDAOFactory.getFactory().getGroupSet().save(immediateGroupSet);
+        
+        batch.add(immediateGroupSet);
+        logDetail("Adding groupSet for ownerGroupId = " + mship.getOwnerGroupId() + 
+            ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
+
+        if (batch.size() % batchSize == 0 || !mshipsIter.hasNext()) {
+          if (saveUpdates) {
+            // We're not doing batch inserts here because the onPostSave 
+            // of one groupSet insert might insert another groupSet in a child 
+            // transaction that the parent transaction needs to know about
+            // for the next batch insert.
+            GrouperDAOFactory.getFactory().getGroupSet().save(batch);
+          }
+          batch.clear();
+        }
+        
+        processedCount++;
       }
+      
+      if (mships.size() > 0 && saveUpdates) {
+        showStatus("Done making " + totalCount + " updates");
+      }
+    } finally {
+      stopStatusThread();
     }
   }
   
@@ -193,19 +299,22 @@ public class AddMissingGroupSets {
    * Add missing group sets for immediate memberships where the owner is a stem
    */
   public void addMissingImmediateGroupSetsForStemOwners() {
+    showStatus("\n\nSearching for missing immediate groupSets where the owner is a stem");
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findMissingImmediateGroupSetsForStemOwners();
+    totalCount = mships.size();
+    showStatus("Found " + totalCount + " missing groupSets");
+    
+    Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
+    int batchSize = getBatchSize();
+
+    try {
+      reset();
     Iterator<Membership> mshipsIter = mships.iterator();
     
     while (mshipsIter.hasNext()) {
       Membership mship = mshipsIter.next();
       Field field = FieldFinder.findById(mship.getFieldId(), true);
       
-      if (showResults) {
-        System.out.println("Adding groupSet for ownerStemId = " + mship.getOwnerStemId() + 
-            ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
-      }
-      
-      if (saveUpdates) {
         GroupSet immediateGroupSet = new GroupSet();
         immediateGroupSet.setId(GrouperUuid.getUuid());
         immediateGroupSet.setCreatorId(mship.getCreatorUuid());
@@ -217,8 +326,30 @@ public class AddMissingGroupSets {
         immediateGroupSet.setOwnerStemId(mship.getOwnerStemId());
         immediateGroupSet.setParentId(GrouperDAOFactory.getFactory().getGroupSet()
             .findSelfStem(mship.getOwnerStemId(), mship.getFieldId()).getId());
-        GrouperDAOFactory.getFactory().getGroupSet().save(immediateGroupSet);
+        
+        batch.add(immediateGroupSet);
+        logDetail("Adding groupSet for ownerStemId = " + mship.getOwnerStemId() + 
+            ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
+
+        if (batch.size() % batchSize == 0 || !mshipsIter.hasNext()) {
+          if (saveUpdates) {
+            // We're not doing batch inserts here because the onPostSave 
+            // of one groupSet insert might insert another groupSet in a child 
+            // transaction that the parent transaction needs to know about
+            // for the next batch insert.
+            GrouperDAOFactory.getFactory().getGroupSet().save(batch);
+          }
+          batch.clear();
+        }
+        
+        processedCount++;
       }
+      
+      if (mships.size() > 0 && saveUpdates) {
+        showStatus("Done making " + totalCount + " updates");
+      }
+    } finally {
+      stopStatusThread();
     }
   }
   
@@ -238,8 +369,17 @@ public class AddMissingGroupSets {
   /**
    * Add missing group sets for immediate memberships where the owner is a stem
    */
-  public static void addMissingImmediateGroupSetsForAttrDefOwners() {
+  public void addMissingImmediateGroupSetsForAttrDefOwners() {
+    showStatus("\n\nSearching for missing immediate groupSets where the owner is an attribute def");
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findMissingImmediateGroupSetsForAttrDefOwners();
+    totalCount = mships.size();
+    showStatus("Found " + totalCount + " missing groupSets");
+    
+    Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
+    int batchSize = getBatchSize();
+
+    try {
+      reset();
     Iterator<Membership> mshipsIter = mships.iterator();
     
     while (mshipsIter.hasNext()) {
@@ -257,18 +397,47 @@ public class AddMissingGroupSets {
       immediateGroupSet.setOwnerAttrDefId(mship.getOwnerAttrDefId());
       immediateGroupSet.setParentId(GrouperDAOFactory.getFactory().getGroupSet()
           .findSelfStem(mship.getOwnerAttrDefId(), mship.getFieldId()).getId());
-      GrouperDAOFactory.getFactory().getGroupSet().save(immediateGroupSet);
       
-      System.out.println("Added groupSet for ownerAttrDefId = " + mship.getOwnerStemId() + 
+        batch.add(immediateGroupSet);
+        logDetail("Adding groupSet for ownerAttrDefId = " + mship.getOwnerStemId() + 
           ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
+
+        if (batch.size() % batchSize == 0 || !mshipsIter.hasNext()) {
+          if (saveUpdates) {
+            // We're not doing batch inserts here because the onPostSave 
+            // of one groupSet insert might insert another groupSet in a child 
+            // transaction that the parent transaction needs to know about
+            // for the next batch insert.
+            GrouperDAOFactory.getFactory().getGroupSet().save(batch);      
+          }
+          batch.clear();
+    }
+        
+        processedCount++;
+  }
+
+      if (mships.size() > 0 && saveUpdates) {
+        showStatus("Done making " + totalCount + " updates");
+      }
+    } finally {
+      stopStatusThread();
     }
   }
 
   /**
    * Add missing self group sets for stems
    */
-  public static void addMissingSelfGroupSetsForAttrDefs() {
+  public void addMissingSelfGroupSetsForAttrDefs() {
+    showStatus("\n\nSearching for missing self groupSets for attribute defs");
     Set<Object[]> attrDefsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForAttrDefs();
+    totalCount = attrDefsAndFields.size();
+    showStatus("Found " + totalCount + " missing groupSets");
+    
+    Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
+    int batchSize = getBatchSize();
+
+    try {
+      reset();
     Iterator<Object[]> attrDefsAndFieldsIter = attrDefsAndFields.iterator();
     while (attrDefsAndFieldsIter.hasNext()) {
       Object[] attrDefAndField = attrDefsAndFieldsIter.next();
@@ -284,9 +453,125 @@ public class AddMissingGroupSets {
       groupSet.setOwnerStemId(attributeDef.getId());
       groupSet.setParentId(groupSet.getId());
       groupSet.setFieldId(field.getUuid());
-      GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
       
-      System.out.println("Added self groupSet for " + attributeDef.getName() + " for field " + field.getTypeString() + " / " + field.getName());
+        batch.add(groupSet);
+        logDetail("Adding self groupSet for " + attributeDef.getName() + " for field " + field.getTypeString() + " / " + field.getName());
+
+        if (batch.size() % batchSize == 0 || !attrDefsAndFieldsIter.hasNext()) {
+          if (saveUpdates) {
+            GrouperDAOFactory.getFactory().getGroupSet().saveBatch(batch);      
+          }
+          batch.clear();
+        }
+        
+        processedCount++;
+      }
+      
+      if (attrDefsAndFields.size() > 0 && saveUpdates) {
+        showStatus("Done making " + totalCount + " updates");
+      }
+    } finally {
+      stopStatusThread();
+    }
+  }
+  
+  private int getBatchSize() {
+    int size = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+    if (size <= 0) {
+      size = 1;
+    }
+
+    return size;
+  }
+
+  private void showStatus(String message) {
+    if (showResults) {
+      System.out.println(message);
+    }
+  }
+  
+  private void logDetail(String detail) {
+    if (logDetails) {
+      LOG.info(detail);
+    }
+  }
+  
+  private void reset() {
+    processedCount = 0;
+    donePhase = false;
+    startTime = System.currentTimeMillis();
+    
+    // status thread
+    statusThread = new Thread(new Runnable() {
+      
+      public void run() {
+        SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+        
+        while (true) {
+
+          // sleep 30 seconds between status messages
+          for (int i = 0; i < 30; i++) {
+            
+            if (donePhase) {
+              return;
+            }
+            
+            try {
+              Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+              // ignore this
+            }
+          }
+          if (donePhase) {
+            return;
+          }
+          
+          if (showResults) {
+            
+            // print results
+            long currentTotalCount = totalCount;              
+            long currentProcessedCount = processedCount;
+            
+            if (currentTotalCount != 0) {
+              long now = System.currentTimeMillis();
+              long endTime = 0;
+              double percent = 0;
+              
+              if (currentProcessedCount > 0) {
+                percent = ((double)currentProcessedCount * 100D) / currentTotalCount;
+                
+                if (percent > 1) {
+                  endTime = startTime + (long)((now - startTime) * (100D / percent));
+                }
+              }
+              
+              System.out.print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
+              
+              if (endTime != 0) {
+                System.out.print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
+              }
+              
+              System.out.print("\n");
+            }
+          }
+        }          
+      }
+    });
+    
+    statusThread.start();
+  }
+  
+  private void stopStatusThread() {
+    donePhase = true;
+    if (statusThread != null) {
+      try {
+        statusThread.join(2000);
+      } catch (InterruptedException ie) {
+        // ignore this
+      }
+      
+      statusThread = null;
     }
   }
 }

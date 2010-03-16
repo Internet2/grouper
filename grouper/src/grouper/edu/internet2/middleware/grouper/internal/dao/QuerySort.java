@@ -29,7 +29,7 @@ public class QuerySort {
   } 
   
   /** max cols to store */
-  private int maxCols = 2;
+  private int maxCols = 10;
 
   /**
    * max cols to store

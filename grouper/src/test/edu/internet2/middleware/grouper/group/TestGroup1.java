@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.group;
+import java.util.Properties;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -42,6 +43,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -76,21 +78,12 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * @author  blair christensen.
  * @version $Id: TestGroup1.java,v 1.3 2009-09-17 15:33:05 shilen Exp $
  */
-public class TestGroup1 extends TestCase {
+public class TestGroup1 extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(TestGroup1.class);
 
   public TestGroup1(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testDeleteGroupMemberWithNonGroupMember() {
@@ -1353,7 +1346,11 @@ public class TestGroup1 extends TestCase {
    * @throws Exception if problem
    */
   public void testStaticSaveGroupTransactions() throws Exception {
-  
+    Properties  properties = GrouperUtil.propertiesFromResourceName(GrouperConfig.HIBERNATE_CF);
+    //doesnt work with sql server
+    if (((String)properties.get("hibernate.connection.url")).contains(":sqlserver:")) {
+      return;
+    }
     //THIS WILL FAIL WITH HIBERNATE2!!!!!
     
     R.populateRegistry(2, 2, 0);

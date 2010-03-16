@@ -208,14 +208,14 @@
   
   <target name="distPackage" description="build tar gz on internet2 box">
   
-    <copy todir="${basedir}/../grouper-api-${version}">
+    <copy todir="${basedir}/../grouper.api-${version}">
       <fileset dir="${basedir}/../grouper" />
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../grouper-api-${version}.tar.gz" compression="gzip" longfile="gnu">
+    <tar destfile="${basedir}/../grouper.api-${version}.tar.gz" compression="gzip" longfile="gnu">
       <tarfileset dir="${basedir}/.." >
-        <include name="grouper-api-${version}/**"/>
+        <include name="grouper.api-${version}/**"/>
       </tarfileset>
     </tar>            
     
@@ -224,7 +224,7 @@
   <!--  -->
   <target name="distBinary" depends="clean, init.conf, javadoc, dist" description="make a binary distribution">
     
-    <property name="dist.binary.zip" value="${dist.binary}/grouper.binary.${version}" />
+    <property name="dist.binary.zip" value="${dist.binary}/grouper.apiBinary-${version}" />
     
     <mkdir dir="${dist.binary.zip}"/>
     <copy tofile="${dist.binary.zip}/README.txt" file="${basedir}/misc/BINARY-README.txt" />
@@ -442,38 +442,24 @@
         <if>
           <available file="/bin/tar" />
           <then>
-            <exec command="/bin/tar -czC ${dist.binary} -f ${dist.binary}/grouper.binary.${version}.tar.gz grouper.binary.${version}" />
+            <exec command="/bin/tar -czC ${dist.binary} -f ${dist.binary}/grouper.apiBinary-${version}.tar.gz grouper.apiBinary-${version}" />
           </then>
           <else>          	
-          	<tar basedir="${dist.binary}" compression="gzip" destfile="${dist.binary}/grouper.binary.${version}.tar.gz">
-          		<include name="grouper.binary.${version}/**" />
+          	<tar basedir="${dist.binary}" compression="gzip" destfile="${dist.binary}/grouper.apiBinary-${version}.tar.gz">
+          		<include name="grouper.apiBinary-${version}/**" />
           	</tar>          	
           </else>
         </if>
       	-->          	
-      	<tar destfile="${dist.binary}/grouper.binary.${version}.tar.gz" compression="gzip" longfile="gnu">
+      	<tar destfile="${dist.binary}/grouper.apiBinary-${version}.tar.gz" compression="gzip" longfile="gnu">
       		<tarfileset dir="${dist.binary}" mode="755" >
-      			<include name="grouper.binary.${version}/bin/**" />
+      			<include name="grouper.apiBinary-${version}/bin/**" />
       		</tarfileset>
       		<tarfileset dir="${dist.binary}" >
-      			<exclude name="grouper.binary.${version}/bin/**"/>
-      			<include name="grouper.binary.${version}/**"/>
+      			<exclude name="grouper.apiBinary-${version}/bin/**"/>
+      			<include name="grouper.apiBinary-${version}/**"/>
       		</tarfileset>
       	</tar>
-        <!-- exec command="/usr/bin/zip -r grouper.binary.1.4.0.zip grouper.binary.1.4.0" dir="/tmp/grouper/build_mchyzer/grouper/dist/binary"  / -->
-        <!-- exec command="/bin/bash -c &quot;cd /tmp/grouper/build_mchyzer/grouper/dist/binary; /usr/bin/zip -r grouper.binary.1.4.\
-0.zip grouper.binary.1.4.0&quot;"  / --> 
-        <!-- if>
-          <available file="/usr/bin/zip" />
-         <then>
-           <exec command="/bin/bash -c &quot;cd ${dist.binary}; /usr/bin/zip -r grouper.binary.${version}.zip grouper.binary.${version}&quot;"/>
-         </then>
-         <else>
-         	<zip basedir="${dist.binary}" destfile="${dist.binary}/grouper.binary.${version}.zip">
-         		<include name="grouper.binary.${version}/**" />
-         	</zip>
-         </else>
-        </if -->
       </then>
     </if>
   </target>

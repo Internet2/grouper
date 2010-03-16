@@ -331,7 +331,10 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         .setCacheRegion(KLASS + ".FindBySubjectId").setString("sid", subjectId)
         .list(Member.class);
     if (GrouperUtil.length(members) ==0) {
-      throw new MemberNotFoundException("Cant find member with subjectId: '" + subjectId + "'");
+      if (exceptionIfNull) {
+        throw new MemberNotFoundException("Cant find member with subjectId: '" + subjectId + "'");
+      }
+      return null;
     }
     if (GrouperUtil.length(members) > 1) {
       throw new MemberNotUniqueException("Subject id '" + subjectId + "' is not unique in the members table");

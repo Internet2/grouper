@@ -10,6 +10,8 @@ import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.platform.SqlBuilder;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+
 
 /**
  * bean to pass to versions to update stuff
@@ -58,6 +60,14 @@ public class DdlVersionBean {
   public boolean isMysql() {
     return this.getPlatform().getName().toLowerCase().contains("mysql");
   }
+
+  /**
+   * if small indexes
+   * @return true if small indexes
+   */
+  public boolean isSmallIndexes() {
+    return this.isMysql();
+  }
   
   /**
    * @return true if postgres
@@ -71,6 +81,13 @@ public class DdlVersionBean {
    */
   public boolean isHsql() {
     return this.getPlatform().getName().toLowerCase().contains("hsqldb");
+  }
+  
+  /**
+   * @return true if hsql
+   */
+  public boolean isSqlServer() {
+    return this.getPlatform().getName().toLowerCase().contains("mssql");
   }
   
   /**
