@@ -47,7 +47,7 @@ public class SubjectImpl implements Subject {
       }
       for (int i=0;i<strings.length;i+=2) {
         Set<String> set = new LinkedHashSet<String>();
-        set.add(strings[i+2]);
+        set.add(strings[i+1]);
         map.put(strings[i], set);
       }
     }
