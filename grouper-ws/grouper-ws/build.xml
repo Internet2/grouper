@@ -310,14 +310,14 @@
   
     <antcall target="javadoc" />
     
-    <copy todir="${basedir}/../../grouper-ws-${version}">
+    <copy todir="${basedir}/../../grouper.ws-${version}">
       <fileset dir="${basedir}/../../grouper-ws" />
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../../grouper-ws-${version}.tar.gz" compression="gzip">
+    <tar destfile="${basedir}/../../grouper.ws-${version}.tar.gz" compression="gzip">
       <tarfileset dir="${basedir}/../.." >
-        <include name="grouper-ws-${version}/**"/>
+        <include name="grouper.ws-${version}/**"/>
       </tarfileset>
     </tar>            
 
@@ -470,6 +470,8 @@
 			<fileset dir="${basedir}/webapp">
         <exclude name="lib/**" />
         <exclude name="classes/**" />
+        <exclude name="WEB-INF/lib/**" />
+        <exclude name="WEB-INF/classes/**" />
 			</fileset>
 		</copy>
 
@@ -481,8 +483,14 @@
           tofile="${webapp.folder}/WEB-INF/services/GrouperService.aar.ondeck"  />
       </then>
       <else>
-        <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar" 
-          tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar.ondeck"  />
+        <if>
+          <!-- might not be there if not there all the time for steady state -->
+          <available file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar" />
+          <then>
+            <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar" 
+              tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar.ondeck"  />
+          </then>
+        </if>
       </else>
     </if>
 		<!-- make a war file -->
