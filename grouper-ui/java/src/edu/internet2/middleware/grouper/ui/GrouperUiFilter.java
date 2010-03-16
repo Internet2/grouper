@@ -222,43 +222,27 @@ public class GrouperUiFilter implements Filter {
 
     UiSection uiSectionForRequest = uiSectionForRequest(request);
 
-    //find out who the user is
-    if (subjectLoggedIn == null) {
-      
-      String userIdLoggedIn = request.getRemoteUser();
-      
-      if (StringUtils.isBlank(userIdLoggedIn)) {
-        if (request.getUserPrincipal() != null) {
-          userIdLoggedIn = request.getUserPrincipal().getName();
-        }
-      }
+    if (subjectLoggedIn != null) {
+      return subjectLoggedIn;
+    }
   
-      if (StringUtils.isBlank(userIdLoggedIn)) {
-        userIdLoggedIn = (String)request.getAttribute("REMOTE_USER");
-      }
   
-      if (StringUtils.isBlank(userIdLoggedIn)) {
-        userIdLoggedIn = request.getRemoteUser();
-      }
-  
-      if (StringUtils.isBlank(userIdLoggedIn)) {
-        userIdLoggedIn = (String)request.getSession().getAttribute("authUser");
-      }      
-      
-      if (StringUtils.isBlank(userIdLoggedIn) && UiSection.ANONYMOUS == uiSectionForRequest) {
-        return null;
-      }
-      
-      if (StringUtils.isBlank(userIdLoggedIn)) {
-        throw new RuntimeException("Cant find logged in user");
-      }
-      
-      try {
-        subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
-      } catch (Exception e) {
-        //this is probably a system error...  not a user error
-        throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
-      }
+    //currently assumes user is in getUserPrincipal
+    String userIdLoggedIn = remoteUser(request);
+
+    if (StringUtils.isBlank(userIdLoggedIn) && UiSection.ANONYMOUS == uiSectionForRequest) {
+      return null;
+    }
+
+    if (StringUtils.isBlank(userIdLoggedIn)) {
+      throw new RuntimeException("Cant find logged in user");
+    }
+
+    try {
+      subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
+    } catch (Exception e) {
+      //this is probably a system error...  not a user error
+      throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
     }
     
     ensureUserAllowedInSection(uiSectionForRequest, subjectLoggedIn);
@@ -426,6 +410,31 @@ public class GrouperUiFilter implements Filter {
     }
     
   }
+
+  /**
+   * 
+   * @param httpServletRequest
+   * @return user name
+   */
+  public static String remoteUser(HttpServletRequest httpServletRequest) {
+    String remoteUser = httpServletRequest.getRemoteUser();
+    
+    if (StringUtils.isBlank(remoteUser)) {
+      //this is how mod_jk passes env vars
+      remoteUser = (String)httpServletRequest.getAttribute("REMOTE_USER");
+    }
+    
+    if (StringUtils.isBlank(remoteUser) && httpServletRequest.getUserPrincipal() != null) {
+      //this is how mod_jk passes env vars
+      remoteUser = httpServletRequest.getUserPrincipal().getName();
+    }
+    if (StringUtils.isBlank(remoteUser)) {
+      HttpSession session = httpServletRequest.getSession(false);
+      remoteUser = (String)(session == null ? null : session.getAttribute("authUser"));
+    }
+    return remoteUser;
+  }
+  
   
   /**
    * get the ui section we are in
@@ -528,6 +537,8 @@ public class GrouperUiFilter implements Filter {
   
       HttpSession session = httpServletRequest.getSession();
       
+      String remoteUser = remoteUser(httpServletRequest);
+    
       HooksContext.clearThreadLocal();
       
       GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
@@ -540,8 +551,15 @@ public class GrouperUiFilter implements Filter {
         subject = grouperSession.getSubject();
       }
       
-      if (subject == null) {
-        subject = retrieveSubjectLoggedIn();
+      if (subject == null && !StringUtils.isBlank(remoteUser)) {
+        try {
+          subject = SubjectFinder.findByIdOrIdentifier(remoteUser, true);
+        } catch (Exception e) {
+          //this is not really ok, but cant do much about it
+          String error = "Cant find login subject: " + remoteUser;
+          LOG.error(error, e);
+          throw new RuntimeException(error);
+        }
       }
       
       HooksContext.assignSubjectLoggedIn(subject);

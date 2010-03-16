@@ -569,7 +569,7 @@ public class SimpleMembershipUpdateImportExport {
       int subjectIdOrIdentifierColumn = -1;
       
       //must have lines
-      if (GrouperUtil.length(csvEntries) <= 1) {
+      if (GrouperUtil.length(csvEntries) == 0) {
         GuiHideShow membershipLiteImportFileHideShow = GuiHideShow.retrieveHideShow("membershipLiteImportFile", true);
         if (membershipLiteImportFileHideShow.isShowing()) {
           throw new RuntimeException(GrouperUiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
@@ -580,28 +580,42 @@ public class SimpleMembershipUpdateImportExport {
       //lets go through the headers
       String[] headers = csvEntries.get(0);
       int headerSize = headers.length;
+      boolean foundHeader = false;
       for (int i=0;i<headerSize;i++) {
         if ("sourceId".equalsIgnoreCase(headers[i])) {
+          foundHeader = true;
           sourceIdColumn = i;
         }
         if ("subjectId".equalsIgnoreCase(headers[i]) || "entityId".equalsIgnoreCase(headers[i])) {
+          foundHeader = true;
           subjectIdColumn = i;
         }
         if ("subjectIdentifier".equalsIgnoreCase(headers[i]) || "entityIdentifier".equalsIgnoreCase(headers[i])) {
+          foundHeader = true;
           subjectIdentifierColumn = i;
         }
         if ("subjectIdOrIdentifier".equalsIgnoreCase(headers[i]) || "entityIdOrIdentifier".equalsIgnoreCase(headers[i])) {
+          foundHeader = true;
           subjectIdOrIdentifierColumn = i;
         }
       }
       
+      //normally start on index 1, if the first row is header
+      int startIndex = 1;
+      
       //must pass in an id
       if (subjectIdColumn == -1 && subjectIdentifierColumn == -1 && subjectIdOrIdentifierColumn == -1) {
-        throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoIdCol());
+        if (!foundHeader && headerSize == 1) {
+          //there was no header, so pretend like it was subjectIdOrIdentifier
+          subjectIdOrIdentifierColumn = 0;
+          startIndex = 0;
+        } else {
+          throw new RuntimeException(simpleMembershipUpdateContainer.getText().getImportErrorNoIdCol());
+        }
       }
       
       //ok, lets go through the rows, start after the headers
-      for (int i=1;i<csvEntries.size();i++) {
+      for (int i=startIndex;i<csvEntries.size();i++) {
         String[] csvEntry = csvEntries.get(i);
         int row = i+1;
         
