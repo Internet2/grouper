@@ -1577,6 +1577,15 @@ public class AttributeAssignValueDelegate {
   }
 
   /**
+   * get the member id value (must be member type)
+   * @return the member value
+   */
+  public String retrieveValueMemberId() {
+    AttributeAssignValue attributeAssignValue = retrieveValue();
+    return convertToMemberId(attributeAssignValue); 
+  }
+
+  /**
    * convert to member
    * @param attributeAssignValue
    * @return member
@@ -1592,6 +1601,27 @@ public class AttributeAssignValueDelegate {
         return null;
       }
       return MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true);
+    }
+    throw new RuntimeException("Expecting type member, but was: " + attributeDef.getValueType() 
+        + ", " + this.attributeAssign);
+  }
+  
+  /**
+   * convert to member
+   * @param attributeAssignValue
+   * @return member
+   */
+  private String convertToMemberId(AttributeAssignValue attributeAssignValue) {
+    if (attributeAssignValue == null) {
+      return null;
+    }
+    AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
+    if (attributeDef.getValueType() == AttributeDefValueType.memberId) {
+      String memberId = attributeAssignValue.getValueMemberId();
+      if (StringUtils.isBlank(memberId)) {
+        return null;
+      }
+      return memberId;
     }
     throw new RuntimeException("Expecting type member, but was: " + attributeDef.getValueType() 
         + ", " + this.attributeAssign);

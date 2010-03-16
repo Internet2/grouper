@@ -206,7 +206,7 @@ public class AttributeDefName extends GrouperAPI
    * @return the stem id
    */
   public String getStemId() {
-    return stemId;
+    return this.stemId;
   }
 
   /**
@@ -238,7 +238,7 @@ public class AttributeDefName extends GrouperAPI
    * @return id
    */
   public String getId() {
-    return id;
+    return this.id;
   }
 
   /**
@@ -255,7 +255,7 @@ public class AttributeDefName extends GrouperAPI
    * @return the name
    */
   public String getName() {
-    return name;
+    return this.name;
   }
 
   /**
@@ -271,7 +271,7 @@ public class AttributeDefName extends GrouperAPI
    * @return the name
    */
   public String getNameDb() {
-    return name;
+    return this.name;
   }
 
   /**
@@ -288,7 +288,7 @@ public class AttributeDefName extends GrouperAPI
    * @return the description
    */
   public String getDescription() {
-    return description;
+    return this.description;
   }
 
   /**
@@ -305,7 +305,7 @@ public class AttributeDefName extends GrouperAPI
    * @return display extension
    */
   public String getDisplayExtension() {
-    return displayExtension;
+    return this.displayExtension;
   }
 
   /**
@@ -321,7 +321,7 @@ public class AttributeDefName extends GrouperAPI
    * @return display name
    */
   public String getDisplayName() {
-    return displayName;
+    return this.displayName;
   }
 
   /**
@@ -337,7 +337,7 @@ public class AttributeDefName extends GrouperAPI
    * @return extension
    */
   public String getExtension() {
-    return extension;
+    return this.extension;
   }
 
   /**
@@ -353,7 +353,7 @@ public class AttributeDefName extends GrouperAPI
    * @return extension
    */
   public String getExtensionDb() {
-    return extension;
+    return this.extension;
   }
 
   /**
@@ -433,7 +433,7 @@ public class AttributeDefName extends GrouperAPI
    * @return display extension
    */
   public String getDisplayExtensionDb() {
-    return displayExtension;
+    return this.displayExtension;
   }
 
   /**
@@ -449,7 +449,7 @@ public class AttributeDefName extends GrouperAPI
    * @return display name
    */
   public String getDisplayNameDb() {
-    return displayName;
+    return this.displayName;
   }
 
   /**
@@ -465,15 +465,15 @@ public class AttributeDefName extends GrouperAPI
    * @return the attribute def id
    */
   public String getAttributeDefId() {
-    return attributeDefId;
+    return this.attributeDefId;
   }
 
   /**
    * attribute def id that this is related to
-   * @param attributeDefId
+   * @param attributeDefId1
    */
-  public void setAttributeDefId(String attributeDefId) {
-    this.attributeDefId = attributeDefId;
+  public void setAttributeDefId(String attributeDefId1) {
+    this.attributeDefId = attributeDefId1;
     this.attributeDef = null;
   }
   
@@ -534,6 +534,7 @@ public class AttributeDefName extends GrouperAPI
    * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
+  @Override
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -548,6 +549,7 @@ public class AttributeDefName extends GrouperAPI
    * @return hashcode
    * @since   1.2.0
    */
+  @Override
   public int hashCode() {
     return new HashCodeBuilder()
       .append( this.getName() )
