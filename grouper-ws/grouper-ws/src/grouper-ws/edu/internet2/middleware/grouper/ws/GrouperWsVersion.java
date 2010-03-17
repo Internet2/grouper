@@ -24,7 +24,7 @@ public enum GrouperWsVersion {
   /**
    * grouper version 1.5.2
    */
-  v1_5_002(true),
+  v1_5_002(false),
 
   /**
    * grouper version 1.5.1
