@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -407,6 +408,21 @@ public class Membership extends GrouperAPI implements
     return this.attributeAssignMembershipDelegate;
   }
 
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeValueDelegate attributeValueDelegate;
+  
+  /**
+   * this delegate works on attributes and values at the same time
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegate() {
+    if (this.attributeValueDelegate == null) {
+      this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
+    }
+    return this.attributeValueDelegate;
+  }
+  
   /**
    * Is this membership enabled?  Only applies to immediate memberships.
    * @return boolean
@@ -441,6 +457,9 @@ public class Membership extends GrouperAPI implements
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
             //set enabled temporarily to clean out what is there
             Membership.this.enabled = true;
+            
+            //TODO deal with attributes
+            
             GrouperDAOFactory.getFactory().getMembership().delete(Membership.this);
             //recalculate
             Membership.this.enabled = Membership.this.isEnabled();

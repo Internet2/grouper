@@ -131,8 +131,8 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3RoleSetDAO.reset(hibernateSession);
             Hib3AttributeAssignValueDAO.reset(hibernateSession);
             Hib3AttributeAssignActionSetDAO.reset(hibernateSession);
-            Hib3AttributeAssignActionDAO.reset(hibernateSession);
             Hib3AttributeAssignDAO.reset(hibernateSession);
+            Hib3AttributeAssignActionDAO.reset(hibernateSession);
             Hib3AttributeDefNameSetDAO.reset(hibernateSession);
             Hib3AttributeDefNameDAO.reset(hibernateSession);
             Hib3AttributeDefScopeDAO.reset(hibernateSession);

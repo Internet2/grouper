@@ -234,7 +234,10 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").delete(memberships);
         
         Set<AttributeAssignAction> attributeAssignActions = GrouperDAOFactory.getFactory().getAttributeAssignAction().findByAttributeDefId(attributeDef.getId());
-        hibernateHandlerBean.getHibernateSession().byObject().delete(attributeAssignActions);
+        
+        for (AttributeAssignAction attributeAssignAction : attributeAssignActions) {
+          attributeAssignAction.delete();
+        }
         
         GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerAttrDef(attributeDef.getId());
         

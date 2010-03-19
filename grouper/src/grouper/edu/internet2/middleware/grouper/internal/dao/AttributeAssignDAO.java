@@ -124,6 +124,44 @@ public interface AttributeAssignDAO extends GrouperDAO {
   public Set<AttributeAssign> findByAttributeDefIdAndAttributeDefNameId(String attributeDefIdToAssignTo, String attributeDefNameIdToAssign);
 
   /**
+   * @param ownerAttributeAssignId
+   * @return the attribute assigns or empty if not there
+   */
+  public Set<AttributeAssign> findByOwnerAttributeAssignId(String ownerAttributeAssignId);
+
+  /**
+   * @param ownerAttributeDefId
+   * @return the attribute assigns or empty if not there
+   */
+  public Set<AttributeAssign> findByOwnerAttributeDefId(String ownerAttributeDefId);
+
+  /**
+   * @param ownerGroupId
+   * @return the attribute assigns or empty if not there
+   */
+  public Set<AttributeAssign> findByOwnerGroupId(String ownerGroupId);
+
+  /**
+   * @param ownerStemId
+   * @return the attribute assigns or empty if not there
+   */
+  public Set<AttributeAssign> findByOwnerStemId(String ownerStemId);
+
+  /**
+   * @param ownerMemberId
+   * @return the attribute assigns or empty if not there
+   */
+  public Set<AttributeAssign> findByOwnerMemberId(String ownerMemberId);
+
+  /**
+   * @param ownerMembershipId
+   * @return the attribute assigns or empty if not there
+   */
+  public Set<AttributeAssign> findByOwnerMembershipId(String ownerMembershipId);
+
+
+
+  /**
    * find attribute def names (distinct) by attribute def id
    * @param membershipIdToAssignTo
    * @param attributeDefIdToAssign
@@ -167,6 +205,13 @@ public interface AttributeAssignDAO extends GrouperDAO {
    */
   public Set<AttributeAssign> findByAttrAssignIdAndAttributeDefId(
       String attrAssignIdToAssignTo, String attributeDefIdToAssign);
+
+  /**
+   * @param attributeDefNameId
+   * @return the attribute assigns or empty if not there
+   */
+  public Set<AttributeAssign> findByAttributeDefNameId(
+      String attributeDefNameId);
 
   /**
    * @param attrAssignIdToAssignTo
@@ -235,4 +280,10 @@ public interface AttributeAssignDAO extends GrouperDAO {
       String ownerMemberId, String ownerMembershipId, String ownerStemId, boolean exceptionIfNull, 
       Long disabledTimeDb, Long enabledTimeDb, String notes) throws GrouperDAOException;
 
+  /**
+   * @param actionId 
+   * @return the assignments
+   */
+  Set<AttributeAssign> findByActionId(String actionId);
+  
 }

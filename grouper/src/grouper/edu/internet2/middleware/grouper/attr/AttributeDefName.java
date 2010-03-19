@@ -5,6 +5,10 @@ package edu.internet2.middleware.grouper.attr;
 
 import java.io.StringWriter;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,8 +23,15 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -499,7 +510,70 @@ public class AttributeDefName extends GrouperAPI
    * save or update this object
    */
   public void delete() {
-    GrouperDAOFactory.getFactory().getAttributeDefName().delete(this);
+    
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+
+        hibernateSession.setCachingEnabled(false);
+        
+        //we need to find all sets related to this node, and delete them (in reverse order since
+        //parents might point back)
+        Set<AttributeDefNameSet> attributeDefNameSets = GrouperDAOFactory.getFactory()
+          .getAttributeDefNameSet()
+          .findByIfThenHasAttributeDefNameId(AttributeDefName.this.id, 
+              AttributeDefName.this.id);
+
+        List<AttributeDefNameSet> attributeDefNameSetsList = 
+          new ArrayList<AttributeDefNameSet>(attributeDefNameSets);
+        
+        //sort in reverse depth
+        Collections.sort(attributeDefNameSetsList, new Comparator<AttributeDefNameSet>() {
+          
+          /**
+           * compare two items
+           * @param first first item
+           * @param second item
+           * @return -1, 0, 1
+           */
+          public int compare(AttributeDefNameSet first, AttributeDefNameSet second) {
+            if (first == second) {
+              return 0;
+            }
+            if (first == null) {
+              return -1;
+            }
+            if (second == null) {
+              return 1;
+            }
+            return ((Integer)first.getDepth()).compareTo(second.getDepth());
+          }
+        });
+        
+        Collections.reverse(attributeDefNameSetsList);
+        
+        for(AttributeDefNameSet attributeDefNameSet : attributeDefNameSetsList) {
+          //I believe mysql has problems deleting self referential foreign keys
+          attributeDefNameSet.setParentAttrDefNameSetId(null);
+          attributeDefNameSet.saveOrUpdate();
+          attributeDefNameSet.delete();
+        }
+
+        Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameId(AttributeDefName.this.getId());
+        
+        //delete all assignments
+        for(AttributeAssign attributeAssign : attributeAssigns) {
+          attributeAssign.delete();
+        }
+        
+        GrouperDAOFactory.getFactory().getAttributeDefName().delete(AttributeDefName.this);
+        return null;
+      }
+    });
+    
   }
 
   /**

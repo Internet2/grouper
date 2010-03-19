@@ -17,6 +17,22 @@ public class AttributeValueResult {
   private AttributeAssignResult attributeAssignResult;
 
   /**
+   * @param attributeAssignValueResult
+   */
+  public AttributeValueResult(AttributeAssignValueResult attributeAssignValueResult) {
+    super();
+    this.attributeAssignValueResult = attributeAssignValueResult;
+  }
+
+  /**
+   * @param attributeAssignValuesResult
+   */
+  public AttributeValueResult(AttributeAssignValuesResult attributeAssignValuesResult) {
+    super();
+    this.attributeAssignValuesResult = attributeAssignValuesResult;
+  }
+
+  /**
    * @param attributeAssignResult
    * @param attributeAssignValueResult
    */

@@ -228,6 +228,14 @@ public class AttributeAssignAction extends GrouperAPI
                 attributeAssignActionSet.delete();
               }
               
+              //delete assignments that use this action
+              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
+                .getAttributeAssign().findByActionId(AttributeAssignAction.this.getId());
+              
+              for (AttributeAssign attributeAssign : attributeAssigns) {
+                attributeAssign.delete();
+              }
+              
               GrouperDAOFactory.getFactory().getAttributeAssignAction().delete(AttributeAssignAction.this);
               
               hibernateSession.misc().flush();

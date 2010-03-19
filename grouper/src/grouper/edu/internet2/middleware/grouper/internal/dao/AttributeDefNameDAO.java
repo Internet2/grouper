@@ -47,9 +47,16 @@ public interface AttributeDefNameDAO extends GrouperDAO {
   /**
    * Find all that have the given stem id.
    * @param id
-   * @return set of stems
+   * @return set of attribute def names
    */
   public Set<AttributeDefName> findByStem(String id);
+ 
+  /**
+   * Find all that have the given attribute def id.
+   * @param id
+   * @return set of attribute def names
+   */
+  public Set<AttributeDefName> findByAttributeDef(String id);
  
   /**
    * find a record by uuid or name

@@ -19,9 +19,11 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttributeDefDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionDelegate;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -287,7 +289,20 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     return this.attributeAssignAttributeDefDelegate;
   }
 
-
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeValueDelegate attributeValueDelegate;
+  
+  /**
+   * this delegate works on attributes and values at the same time
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegate() {
+    if (this.attributeValueDelegate == null) {
+      this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
+    }
+    return this.attributeValueDelegate;
+  }
   
   /** delegate */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
@@ -1394,7 +1409,32 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * delete this record (and security and actions etc, but not attribute def names yet)
    */
   public void delete() {
-    GrouperDAOFactory.getFactory().getAttributeDef().delete(this);
+    
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        //delete any attributes on this def
+        Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeDefId(AttributeDef.this.getId());
+        
+        for (AttributeAssign attributeAssign : attributeAssigns) {
+          attributeAssign.delete();
+        }
+
+        
+        //find the names that use this def
+        Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(AttributeDef.this.getId());
+        
+        for (AttributeDefName attributeDefName : attributeDefNames) {
+          attributeDefName.delete();
+        }
+        
+        GrouperDAOFactory.getFactory().getAttributeDef().delete(AttributeDef.this);
+        return null;
+      }
+    });
+    
   }
 
   /**

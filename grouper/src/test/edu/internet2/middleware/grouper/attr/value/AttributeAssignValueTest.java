@@ -48,7 +48,7 @@ public class AttributeAssignValueTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignValueTest("testAttributeValueTimestamp"));
+    TestRunner.run(new AttributeAssignValueTest("testAttributeValueDeleteCascade2"));
   }
   
   /**
@@ -846,6 +846,60 @@ public class AttributeAssignValueTest extends GrouperTest {
   /**
    * 
    */
+  public void testValueFloating() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.floating);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok    
+    AttributeAssignValue attributeAssignValue0 = group.getAttributeValueDelegate().assignValueFloating(
+        "test:testAttributeAssignValueDefName", 0D).getAttributeAssignValueResult().getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = group.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").size());
+    group.getAttributeValueDelegate().addValueFloating("test:testAttributeAssignValueDefName", 0D);
+    
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().assignValueFloating("test:testAttributeAssignValueDefName", 0D);
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().deleteValue("test:testAttributeAssignValueDefName", attributeAssignValue0find);
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValueFloating("test:testAttributeAssignValueDefName", 0D);
+    group.getAttributeValueDelegate().deleteValueFloating("test:testAttributeAssignValueDefName", 0D);
+    
+    assertEquals(0, group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().addValueFloating("test:testAttributeAssignValueDefName", 2D);
+    group.getAttributeValueDelegate().addValueFloating("test:testAttributeAssignValueDefName", 3D);
+    
+    group.getAttributeValueDelegate().assignValuesFloating("test:testAttributeAssignValueDefName", GrouperUtil.toSet(3D, 4D, 5D), true);
+  
+    assertEquals(3, group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValuesFloating("test:testAttributeAssignValueDefName", GrouperUtil.toSet(5D, 6D));
+    
+    assertEquals(5, group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().deleteValuesFloating("test:testAttributeAssignValueDefName", GrouperUtil.toSet(4D, 5D, 6D));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").size());
+    assertEquals(new Double(3D), group.getAttributeValueDelegate().retrieveValuesFloating("test:testAttributeAssignValueDefName").iterator().next());
+  }
+
+  /**
+   * 
+   */
   public void testAttributeValueString() {
     AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
   
@@ -1043,7 +1097,7 @@ public class AttributeAssignValueTest extends GrouperTest {
     Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
       .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
       .assignDescription("description").save();
-  
+
     //this is ok
     AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
     AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
@@ -1084,6 +1138,352 @@ public class AttributeAssignValueTest extends GrouperTest {
     
     assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesTimestamp().size());
     assertEquals(new Timestamp(3L), attributeAssign.getValueDelegate().retrieveValuesTimestamp().iterator().next());
+  }
+
+  /**
+   * 
+   */
+  public void testValueInteger() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.integer);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok    
+    AttributeAssignValue attributeAssignValue0 = group.getAttributeValueDelegate().assignValueInteger(
+        "test:testAttributeAssignValueDefName", 0L).getAttributeAssignValueResult().getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = group.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").size());
+    group.getAttributeValueDelegate().addValueInteger("test:testAttributeAssignValueDefName", 0L);
+    
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().assignValueInteger("test:testAttributeAssignValueDefName", 0L);
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().deleteValue("test:testAttributeAssignValueDefName", attributeAssignValue0find);
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValueInteger("test:testAttributeAssignValueDefName", 0L);
+    group.getAttributeValueDelegate().deleteValueInteger("test:testAttributeAssignValueDefName", 0L);
+    
+    assertEquals(0, group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().addValueInteger("test:testAttributeAssignValueDefName", 2L);
+    group.getAttributeValueDelegate().addValueInteger("test:testAttributeAssignValueDefName", 3L);
+    
+    group.getAttributeValueDelegate().assignValuesInteger("test:testAttributeAssignValueDefName", GrouperUtil.toSet(3L, 4L, 5L), true);
+  
+    assertEquals(3, group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValuesInteger("test:testAttributeAssignValueDefName", GrouperUtil.toSet(5L, 6L));
+    
+    assertEquals(5, group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().deleteValuesInteger("test:testAttributeAssignValueDefName", GrouperUtil.toSet(4L, 5L, 6L));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").size());
+    assertEquals(new Long(3L), group.getAttributeValueDelegate().retrieveValuesInteger("test:testAttributeAssignValueDefName").iterator().next());
+  }
+
+  /**
+   * 
+   */
+  public void testValueString() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.string);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok    
+    AttributeAssignValue attributeAssignValue0 = group.getAttributeValueDelegate().assignValueString(
+        "test:testAttributeAssignValueDefName", "a").getAttributeAssignValueResult().getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = group.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    group.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "a");
+    
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().assignValueString("test:testAttributeAssignValueDefName", "a");
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().deleteValue("test:testAttributeAssignValueDefName", attributeAssignValue0find);
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "a");
+    group.getAttributeValueDelegate().deleteValueString("test:testAttributeAssignValueDefName", "a");
+    
+    assertEquals(0, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "b");
+    group.getAttributeValueDelegate().addValueString("test:testAttributeAssignValueDefName", "c");
+    
+    group.getAttributeValueDelegate().assignValuesString("test:testAttributeAssignValueDefName", GrouperUtil.toSet("c", "d", "e"), true);
+  
+    assertEquals(3, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValuesString("test:testAttributeAssignValueDefName", GrouperUtil.toSet("e", "f"));
+    
+    assertEquals(5, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().deleteValuesString("test:testAttributeAssignValueDefName", GrouperUtil.toSet("d", "e", "f"));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").size());
+    assertEquals(new String("c"), group.getAttributeValueDelegate().retrieveValuesString("test:testAttributeAssignValueDefName").iterator().next());
+  }
+
+  /**
+   * 
+   */
+  public void testValueTimestamp() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.timestamp);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok    
+    AttributeAssignValue attributeAssignValue0 = group.getAttributeValueDelegate().assignValueTimestamp(
+        "test:testAttributeAssignValueDefName", new Timestamp(0)).getAttributeAssignValueResult().getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = group.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").size());
+    group.getAttributeValueDelegate().addValueTimestamp("test:testAttributeAssignValueDefName", new Timestamp(0));
+    
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().assignValueTimestamp("test:testAttributeAssignValueDefName", new Timestamp(0));
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().deleteValue("test:testAttributeAssignValueDefName", attributeAssignValue0find);
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValueTimestamp("test:testAttributeAssignValueDefName", new Timestamp(0));
+    group.getAttributeValueDelegate().deleteValueTimestamp("test:testAttributeAssignValueDefName", new Timestamp(0));
+    
+    assertEquals(0, group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().addValueTimestamp("test:testAttributeAssignValueDefName", new Timestamp(2));
+    group.getAttributeValueDelegate().addValueTimestamp("test:testAttributeAssignValueDefName", new Timestamp(3));
+    
+    group.getAttributeValueDelegate().assignValuesTimestamp("test:testAttributeAssignValueDefName", GrouperUtil.toSet(new Timestamp(3), new Timestamp(4), new Timestamp(5)), true);
+  
+    assertEquals(3, group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValuesTimestamp("test:testAttributeAssignValueDefName", GrouperUtil.toSet(new Timestamp(5), new Timestamp(6)));
+    
+    assertEquals(5, group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().deleteValuesTimestamp("test:testAttributeAssignValueDefName", GrouperUtil.toSet(new Timestamp(4), new Timestamp(5), new Timestamp(6)));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").size());
+    assertEquals(new Timestamp(3), group.getAttributeValueDelegate().retrieveValuesTimestamp("test:testAttributeAssignValueDefName").iterator().next());
+  }
+
+  /**
+   * 
+   */
+  public void testValueMember() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.memberId);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    Member member0 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    Member member2 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ4, true);
+    Member member5 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ5, true);
+    Member member6 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ6, true);
+
+    //this is ok    
+    AttributeAssignValue attributeAssignValue0 = group.getAttributeValueDelegate().assignValueMember(
+        "test:testAttributeAssignValueDefName", member0).getAttributeAssignValueResult().getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = group.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    group.getAttributeValueDelegate().addValueMember("test:testAttributeAssignValueDefName", member0);
+    
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().assignValueMember("test:testAttributeAssignValueDefName", member0);
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().deleteValue("test:testAttributeAssignValueDefName", attributeAssignValue0find);
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValueMember("test:testAttributeAssignValueDefName", member0);
+    group.getAttributeValueDelegate().deleteValueMember("test:testAttributeAssignValueDefName", member0);
+    
+    assertEquals(0, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().addValueMember("test:testAttributeAssignValueDefName", member2);
+    group.getAttributeValueDelegate().addValueMember("test:testAttributeAssignValueDefName", member3);
+    
+    group.getAttributeValueDelegate().assignValuesMember("test:testAttributeAssignValueDefName", GrouperUtil.toSet(member3, member4, member5), true);
+  
+    assertEquals(3, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValuesMember("test:testAttributeAssignValueDefName", GrouperUtil.toSet(member5, member6));
+    
+    assertEquals(5, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().deleteValuesMember("test:testAttributeAssignValueDefName", GrouperUtil.toSet(member4, member5, member6));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    assertEquals(member3, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").iterator().next());
+  }
+
+  /**
+   * 
+   */
+  public void testValueMemberId() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.memberId);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    Member member0 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ0, true);
+  
+    Member member2 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ4, true);
+    Member member5 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ5, true);
+    Member member6 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ6, true);
+  
+    //this is ok    
+    AttributeAssignValue attributeAssignValue0 = group.getAttributeValueDelegate().assignValueMember(
+        "test:testAttributeAssignValueDefName", member0.getUuid()).getAttributeAssignValueResult().getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = group.getAttributeValueDelegate().findValue("test:testAttributeAssignValueDefName", attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    group.getAttributeValueDelegate().addValueMember("test:testAttributeAssignValueDefName", member0.getUuid());
+    
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().assignValueMember("test:testAttributeAssignValueDefName", member0.getUuid());
+    assertEquals(2, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().deleteValue("test:testAttributeAssignValueDefName", attributeAssignValue0find);
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValueMember("test:testAttributeAssignValueDefName", member0.getUuid());
+    group.getAttributeValueDelegate().deleteValueMember("test:testAttributeAssignValueDefName", member0.getUuid());
+    
+    assertEquals(0, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().addValueMember("test:testAttributeAssignValueDefName", member2.getUuid());
+    group.getAttributeValueDelegate().addValueMember("test:testAttributeAssignValueDefName", member3.getUuid());
+    
+    group.getAttributeValueDelegate().assignValuesMemberIds("test:testAttributeAssignValueDefName", GrouperUtil.toSet(member3.getUuid(), member4.getUuid(), member5.getUuid()), true);
+  
+    assertEquals(3, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+  
+    group.getAttributeValueDelegate().addValuesMemberIds("test:testAttributeAssignValueDefName", GrouperUtil.toSet(member5.getUuid(), member6.getUuid()));
+    
+    assertEquals(5, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    
+    group.getAttributeValueDelegate().deleteValuesMemberIds("test:testAttributeAssignValueDefName", GrouperUtil.toSet(member4.getUuid(), member5.getUuid(), member6.getUuid()));
+    
+    assertEquals(1, group.getAttributeValueDelegate().retrieveValuesMember("test:testAttributeAssignValueDefName").size());
+    assertEquals(member3.getUuid(), group.getAttributeValueDelegate().retrieveValuesMemberId("test:testAttributeAssignValueDefName").iterator().next());
+  }
+
+  /**
+   * 
+   */
+  public void testAttributeValueDeleteCascade() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.floating);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueFloating(0D).getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+    
+    group.getAttributeDelegate().removeAttributeByName("test:testAttributeAssignValueDefName");
+    
+    assertEquals(0, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testAttributeValueDeleteCascade2() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignValueDefName");
+  
+    attributeDefName.getAttributeDef().setValueType(AttributeDefValueType.floating);
+    attributeDefName.getAttributeDef().setMultiValued(true);
+    attributeDefName.getAttributeDef().store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrValue").assignName("test:groupTestAttrValue").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+    //this is ok
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    AttributeAssignValue attributeAssignValue0 = attributeAssign.getValueDelegate().assignValueFloating(0D).getAttributeAssignValue();
+    
+    AttributeAssignValue attributeAssignValue0find = attributeAssign.getValueDelegate().findValue(attributeAssignValue0);
+    assertTrue(attributeAssignValue0.sameValue(attributeAssignValue0find));
+    
+    assertEquals(1, attributeAssign.getValueDelegate().retrieveValuesFloating().size());
+    
+    attributeDefName.getAttributeDef().delete();
+    
   }
   
 }

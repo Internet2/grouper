@@ -2791,9 +2791,58 @@ public enum GrouperDdl implements DdlVersionable {
           "fk_attributes_field_id", Field.TABLE_GROUPER_FIELDS, "field_id", "id");
     }
 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE, 
+        "fk_attr_def_scope_def_id", AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+        AttributeDefScope.COLUMN_ATTRIBUTE_DEF_ID, AttributeDef.COLUMN_ID);
+
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+        "fk_attr_action_set_parent", AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+        AttributeAssignActionSet.COLUMN_PARENT_ATTR_ASSN_ACTION_ID, AttributeDefNameSet.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+        "fk_attr_action_set_if", AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+        AttributeAssignActionSet.COLUMN_IF_HAS_ATTR_ASSN_ACTION_ID, AttributeAssignAction.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssignActionSet.TABLE_GROUPER_ATTR_ASSIGN_ACTION_SET, 
+        "fk_attr_action_set_then", AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+        AttributeAssignActionSet.COLUMN_THEN_HAS_ATTR_ASSN_ACTION_ID, AttributeAssignAction.COLUMN_ID);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        "fk_attr_assign_action_id", AttributeAssignAction.TABLE_GROUPER_ATTR_ASSIGN_ACTION, 
+        AttributeAssign.COLUMN_ATTRIBUTE_ASSIGN_ACTION_ID, AttributeAssign.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        "fk_attr_assign_def_name_id", AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+        AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, AttributeDefName.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        "fk_attr_assign_owner_assign_id", AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, AttributeAssign.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        "fk_attr_assign_owner_def_id", AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+        AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, AttributeDef.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        "fk_attr_assign_owner_group_id", Group.TABLE_GROUPER_GROUPS, 
+        AttributeAssign.COLUMN_OWNER_GROUP_ID, Group.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        "fk_attr_assign_owner_member_id", Member.TABLE_GROUPER_MEMBERS, 
+        AttributeAssign.COLUMN_OWNER_MEMBER_ID, Member.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        "fk_attr_assign_owner_mship_id", Membership.TABLE_GROUPER_MEMBERSHIPS, 
+        AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, Membership.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        "fk_attr_assign_owner_stem_id", Stem.TABLE_GROUPER_STEMS, 
+        AttributeAssign.COLUMN_OWNER_STEM_ID, Stem.COLUMN_ID);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE, 
+        "fk_attr_assign_value_assign_id", AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, 
+        AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, AttributeAssign.COLUMN_ID);
+    
+    
+    
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
         "fk_attr_def_name_stem", Stem.TABLE_GROUPER_STEMS, 
         AttributeDefName.COLUMN_STEM_ID, Stem.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+        "fk_attr_def_name_def_id", AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+        AttributeDefName.COLUMN_ATTRIBUTE_DEF_ID, AttributeDef.COLUMN_ID);
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
         "fk_attr_def_stem", Stem.TABLE_GROUPER_STEMS, 
         AttributeDef.COLUMN_STEM_ID, Stem.COLUMN_ID);
@@ -5833,7 +5882,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean
    * @param database
    */
-  private static void addFlatTables(DdlVersionBean ddlVersionBean, Database database) {
+  private static void addFlatTables(@SuppressWarnings("unused") DdlVersionBean ddlVersionBean, Database database) {
     {
       Table flatMembershipsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS);

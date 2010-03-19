@@ -40,6 +40,7 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignGroupDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
@@ -1180,6 +1181,12 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               GrouperSession.staticGrouperSession().internal_getRootSession()
                   .getNamingResolver().revokeAllPrivilegesForSubject(groupSubject);
               
+              //delete any attributes on this group
+              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
+              
+              for (AttributeAssign attributeAssign : attributeAssigns) {
+                attributeAssign.delete();
+              }
 
               //deletes.add(this);            // ... And add the group last for good luck    
               String name = Group.this.getName(); // Preserve name for logging

@@ -198,5 +198,20 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
         .setString("theId", attributeDefName.getId()).executeUpdate();
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findByAttributeDef(java.lang.String)
+   */
+  public Set<AttributeDefName> findByAttributeDef(String id) {
+    Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic()
+      .createQuery("from AttributeDefName where attributeDefId = :id")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByAttributeDef")
+      .setString("id", id)
+      .listSet(AttributeDefName.class);
+  
+    return attributeDefNames;
+
+  }
+
 } 
 

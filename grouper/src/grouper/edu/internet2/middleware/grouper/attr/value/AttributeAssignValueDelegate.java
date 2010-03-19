@@ -59,7 +59,7 @@ public class AttributeAssignValueDelegate {
    * @param filterInvalidTypes if values of invalid types should be filtered out
    * @return the values
    */
-  private Set<AttributeAssignValue> internal_retrieveValues(boolean checkSecurity, boolean filterInvalidTypes) {
+  public Set<AttributeAssignValue> internal_retrieveValues(boolean checkSecurity, boolean filterInvalidTypes) {
     
     if (checkSecurity) {
       //make sure can read
@@ -110,7 +110,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity 
    * @return the value
    */
-  private AttributeAssignValueResult internal_assignValue(AttributeAssignValue attributeAssignValue, boolean checkSecurity) {
+  public AttributeAssignValueResult internal_assignValue(AttributeAssignValue attributeAssignValue, boolean checkSecurity) {
     
     if (checkSecurity) {
       //make sure can edit
@@ -289,7 +289,7 @@ public class AttributeAssignValueDelegate {
    * @param attributeDefValueType 
    * @return the value object
    */
-  private AttributeAssignValueResult internal_assignValueInteger(Long value, AttributeDefValueType attributeDefValueType) {
+  public AttributeAssignValueResult internal_assignValueInteger(Long value, AttributeDefValueType attributeDefValueType) {
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
     AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
@@ -394,7 +394,7 @@ public class AttributeAssignValueDelegate {
    * @param attributeDefValueType 
    * @return the value object
    */
-  private AttributeAssignValuesResult internal_addValuesInteger(Collection<Long> values,
+  public AttributeAssignValuesResult internal_addValuesInteger(Collection<Long> values,
       AttributeDefValueType attributeDefValueType) {
     
     AttributeAssignValuesResult attributeAssignValuesResult = new AttributeAssignValuesResult();
@@ -501,7 +501,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity 
    * @return result
    */
-  private AttributeAssignValuesResult internal_addValues(Collection<AttributeAssignValue> attributeAssignValues, boolean checkSecurity) {
+  public AttributeAssignValuesResult internal_addValues(Collection<AttributeAssignValue> attributeAssignValues, boolean checkSecurity) {
 
     if (checkSecurity) {
       //make sure can edit
@@ -545,8 +545,8 @@ public class AttributeAssignValueDelegate {
    * @param value
    * @return the strings that were deleted
    */
-  public boolean deleteValue(String value) {
-    return GrouperUtil.nonNull(deleteValues(GrouperUtil.toSet(value))).size() > 0;
+  public AttributeAssignValueResult deleteValue(String value) {
+    return deleteValuesAnyType(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
   }
   
   /**
@@ -554,8 +554,8 @@ public class AttributeAssignValueDelegate {
    * @param value
    * @return the strings that were deleted
    */
-  public boolean deleteValueInteger(Long value) {
-    return GrouperUtil.nonNull(deleteValuesInteger(GrouperUtil.toSet(value))).size() > 0;
+  public AttributeAssignValueResult deleteValueInteger(Long value) {
+    return deleteValuesInteger(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
   }
   
   /**
@@ -563,8 +563,8 @@ public class AttributeAssignValueDelegate {
    * @param value
    * @return the strings that were deleted
    */
-  public boolean deleteValueFloating(Double value) {
-    return GrouperUtil.nonNull(deleteValuesFloating(GrouperUtil.toSet(value))).size() > 0;
+  public AttributeAssignValueResult deleteValueFloating(Double value) {
+    return deleteValuesFloating(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
   }
   
   /**
@@ -572,8 +572,8 @@ public class AttributeAssignValueDelegate {
    * @param value
    * @return the strings that were deleted
    */
-  public boolean deleteValueString(String value) {
-    return GrouperUtil.nonNull(deleteValuesString(GrouperUtil.toSet(value))).size() > 0;
+  public AttributeAssignValueResult deleteValueString(String value) {
+    return deleteValuesString(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
   }
   
   /**
@@ -581,8 +581,8 @@ public class AttributeAssignValueDelegate {
    * @param value
    * @return the strings that were deleted
    */
-  public boolean deleteValueTimestamp(Timestamp value) {
-    return deleteValueInteger(value == null ? null : value.getTime());
+  public AttributeAssignValueResult deleteValueTimestamp(Timestamp value) {
+    return deleteValuesTimestamp(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
   }
   
   /**
@@ -590,8 +590,8 @@ public class AttributeAssignValueDelegate {
    * @param value
    * @return the strings that were deleted
    */
-  public boolean deleteValueMember(Member value) {
-    return GrouperUtil.nonNull(deleteValuesMember(GrouperUtil.toSet(value))).size() > 0;
+  public AttributeAssignValueResult deleteValueMember(Member value) {
+    return deleteValuesMember(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
   }
   
   /**
@@ -599,8 +599,8 @@ public class AttributeAssignValueDelegate {
    * @param value
    * @return the strings that were deleted
    */
-  public boolean deleteValueMember(String value) {
-    return GrouperUtil.nonNull(deleteValuesMemberIds(GrouperUtil.toSet(value))).size() > 0;
+  public AttributeAssignValueResult deleteValueMember(String value) {
+    return deleteValuesMemberIds(GrouperUtil.toSet(value)).getAttributeAssignValueResults().iterator().next();
   }
   
   /**
@@ -608,7 +608,7 @@ public class AttributeAssignValueDelegate {
    * @param values
    * @return the strings that were deleted
    */
-  public Set<Long> deleteValuesInteger(Collection<Long> values) {
+  public AttributeAssignValuesResult deleteValuesInteger(Collection<Long> values) {
     
     //make sure can edit
     this.attributeAssign.retrieveAttributeAssignable()
@@ -627,9 +627,8 @@ public class AttributeAssignValueDelegate {
       }
       
     }
-    internal_deleteValues(attributeAssignValues, false);
+    return internal_deleteValues(attributeAssignValues, false);
     
-    return result;
   }
 
   /**
@@ -637,7 +636,7 @@ public class AttributeAssignValueDelegate {
    * @param values
    * @return the strings that were deleted
    */
-  public Set<Double> deleteValuesFloating(Collection<Double> values) {
+  public AttributeAssignValuesResult deleteValuesFloating(Collection<Double> values) {
     
     //make sure can edit
     this.attributeAssign.retrieveAttributeAssignable()
@@ -656,9 +655,8 @@ public class AttributeAssignValueDelegate {
       }
       
     }
-    internal_deleteValues(attributeAssignValues, false);
+    return internal_deleteValues(attributeAssignValues, false);
     
-    return result;
   }
 
   /**
@@ -666,7 +664,7 @@ public class AttributeAssignValueDelegate {
    * @param values
    * @return the timestamps that were deleted
    */
-  public Set<Timestamp> deleteValuesTimestamp(Collection<Timestamp> values) {
+  public AttributeAssignValuesResult deleteValuesTimestamp(Collection<Timestamp> values) {
     
     //make sure can edit
     this.attributeAssign.retrieveAttributeAssignable()
@@ -685,9 +683,7 @@ public class AttributeAssignValueDelegate {
       }
       
     }
-    internal_deleteValues(attributeAssignValues, false);
-    
-    return result;
+    return internal_deleteValues(attributeAssignValues, false);
   }
 
   /**
@@ -945,7 +941,7 @@ public class AttributeAssignValueDelegate {
    * @param values
    * @return the strings that were deleted
    */
-  public Set<String> deleteValuesString(Collection<String> values) {
+  public AttributeAssignValuesResult deleteValuesString(Collection<String> values) {
     
     //make sure can edit
     this.attributeAssign.retrieveAttributeAssignable()
@@ -964,9 +960,7 @@ public class AttributeAssignValueDelegate {
       }
       
     }
-    internal_deleteValues(attributeAssignValues, false);
-    
-    return result;
+    return internal_deleteValues(attributeAssignValues, false);
   }
 
   /**
@@ -974,7 +968,7 @@ public class AttributeAssignValueDelegate {
    * @param memberIds
    * @return the strings that were deleted
    */
-  public Set<String> deleteValuesMemberIds(Collection<String> memberIds) {
+  public AttributeAssignValuesResult deleteValuesMemberIds(Collection<String> memberIds) {
     
     //make sure can edit
     this.attributeAssign.retrieveAttributeAssignable()
@@ -993,9 +987,8 @@ public class AttributeAssignValueDelegate {
       }
       
     }
-    internal_deleteValues(attributeAssignValues, false);
+    return internal_deleteValues(attributeAssignValues, false);
     
-    return result;
   }
 
   /**
@@ -1003,7 +996,7 @@ public class AttributeAssignValueDelegate {
    * @param members
    * @return the strings that were deleted
    */
-  public Set<Member> deleteValuesMember(Collection<Member> members) {
+  public AttributeAssignValuesResult deleteValuesMember(Collection<Member> members) {
     
     //make sure can edit
     this.attributeAssign.retrieveAttributeAssignable()
@@ -1022,9 +1015,7 @@ public class AttributeAssignValueDelegate {
       }
       
     }
-    internal_deleteValues(attributeAssignValues, false);
-    
-    return result;
+    return internal_deleteValues(attributeAssignValues, false);
   }
 
   /**
@@ -1032,7 +1023,7 @@ public class AttributeAssignValueDelegate {
    * @param values
    * @return the strings that were deleted
    */
-  public Set<String> deleteValues(Collection<String> values) {
+  public AttributeAssignValuesResult deleteValuesAnyType(Collection<String> values) {
 
     //make sure can edit
     this.attributeAssign.retrieveAttributeAssignable()
@@ -1051,25 +1042,27 @@ public class AttributeAssignValueDelegate {
       }
       
     }
-    internal_deleteValues(attributeAssignValues, false);
+    return internal_deleteValues(attributeAssignValues, false);
     
-    return result;
   }
   
   /**
    * remove this value
    * @param attributeAssignValue
+   * @return the result
    */
-  public void deleteValue(AttributeAssignValue attributeAssignValue) {
-    this.internal_deleteValues(GrouperUtil.toSet(attributeAssignValue), true);
+  public AttributeAssignValueResult deleteValue(AttributeAssignValue attributeAssignValue) {
+    return this.internal_deleteValues(GrouperUtil.toSet(attributeAssignValue), true)
+      .getAttributeAssignValueResults().iterator().next();
   }
   
   /**
    * remove this value
    * @param attributeAssignValues
+   * @return result
    */
-  public void deleteValues(Collection<AttributeAssignValue> attributeAssignValues) {
-    this.internal_deleteValues(attributeAssignValues, true);
+  public AttributeAssignValuesResult deleteValues(Collection<AttributeAssignValue> attributeAssignValues) {
+    return this.internal_deleteValues(attributeAssignValues, true);
   }
   
   /**
@@ -1114,7 +1107,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity 
    * @return the value if found, or empty if not
    */
-  private Set<AttributeAssignValue> internal_findValues(String value, boolean checkSecurity) {
+  public Set<AttributeAssignValue> internal_findValues(String value, boolean checkSecurity) {
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
@@ -1147,7 +1140,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity 
    * @return the value if found, or empty if not
    */
-  private Set<AttributeAssignValue> internal_findValuesFloating(Double value, boolean checkSecurity) {
+  public Set<AttributeAssignValue> internal_findValuesFloating(Double value, boolean checkSecurity) {
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setValueFloating(value);
@@ -1197,7 +1190,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity
    * @return the value if found, or empty if not
    */
-  private Set<AttributeAssignValue> internal_findValuesInteger(Long value, boolean checkSecurity) {
+  public Set<AttributeAssignValue> internal_findValuesInteger(Long value, boolean checkSecurity) {
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setValueInteger(value);
@@ -1211,7 +1204,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity
    * @return the value if found, or empty if not
    */
-  private Set<AttributeAssignValue> internal_findValuesString(String value, boolean checkSecurity) {
+  public Set<AttributeAssignValue> internal_findValuesString(String value, boolean checkSecurity) {
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setValueString(value);
@@ -1243,7 +1236,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity
    * @return the value if found, or empty if not
    */
-  private Set<AttributeAssignValue> internal_findValuesMember(String value, boolean checkSecurity) {
+  public Set<AttributeAssignValue> internal_findValuesMember(String value, boolean checkSecurity) {
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setValueMemberId(value);
@@ -1275,7 +1268,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity 
    * @return the value if found, or empty if not
    */
-  private Set<AttributeAssignValue> internal_findValuesTimestamp(Timestamp value, boolean checkSecurity) {
+  public Set<AttributeAssignValue> internal_findValuesTimestamp(Timestamp value, boolean checkSecurity) {
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setValueInteger(value == null ? null : value.getTime());
@@ -1298,7 +1291,7 @@ public class AttributeAssignValueDelegate {
    * @param checkSecurity 
    * @return the value if found, or empty if not
    */
-  private Set<AttributeAssignValue> internal_findValuesMember(Member value, boolean checkSecurity) {
+  public Set<AttributeAssignValue> internal_findValuesMember(Member value, boolean checkSecurity) {
     return internal_findValuesMember(value == null ? null : value.getUuid(), checkSecurity);
   }
   
@@ -1347,8 +1340,11 @@ public class AttributeAssignValueDelegate {
    * remove these values
    * @param attributeAssignValues
    * @param checkSecurity 
+   * @return the result
    */
-  private void internal_deleteValues(Collection<AttributeAssignValue> attributeAssignValues, boolean checkSecurity) {
+  public AttributeAssignValuesResult internal_deleteValues(Collection<AttributeAssignValue> attributeAssignValues, boolean checkSecurity) {
+
+    Set<AttributeAssignValueResult> attributeAssignValueResults = new LinkedHashSet<AttributeAssignValueResult>();
 
     if (checkSecurity) {
       //make sure can edit
@@ -1357,10 +1353,15 @@ public class AttributeAssignValueDelegate {
             this.attributeAssign.getAttributeDefName());
     }
     
+    boolean changed = false;
+    
     for (AttributeAssignValue current : attributeAssignValues) {
+      changed = true;
+      attributeAssignValueResults.add(new AttributeAssignValueResult(true, true, current));
       current.delete();
     }
     
+    return new AttributeAssignValuesResult(changed, attributeAssignValueResults);
   }
   
   /**

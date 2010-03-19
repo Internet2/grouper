@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMemberDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -116,6 +117,21 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     return this.attributeAssignMemberDelegate;
   }
 
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeValueDelegate attributeValueDelegate;
+  
+  /**
+   * this delegate works on attributes and values at the same time
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegate() {
+    if (this.attributeValueDelegate == null) {
+      this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
+    }
+    return this.attributeValueDelegate;
+  }
+  
   /**
    * print out a collection of members
    * @param collection
@@ -141,6 +157,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
   /** uuid col in db */
   public static final String COLUMN_MEMBER_UUID = "member_uuid";
+  
+  /** new uuid col in db */
+  public static final String COLUMN_ID = "id";
   
   /** old id col for id conversion */
   public static final String COLUMN_OLD_ID = "old_id";
@@ -580,8 +599,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
             }
             
             //finally delete this member object
+            //TODO note, we should move over the attributes
             if (deleteOldMember) {
               if (report == null) {
+                
                 hibernateSession.getSession().flush();          
                 hibernateSession.byObject().delete(Member.this);
               } else {

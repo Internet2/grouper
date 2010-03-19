@@ -28,9 +28,15 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -434,7 +440,34 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * delete this object
    */
   public void delete() {
-    GrouperDAOFactory.getFactory().getAttributeAssign().delete(this);
+    
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        //delete other assignments on this assignment
+        Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignId(AttributeAssign.this.getId());
+        
+        for (AttributeAssign attributeAssign : attributeAssigns) {
+          attributeAssign.delete();
+        }
+
+        //delete any values based on this assignment
+        Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory().getAttributeAssignValue().findByAttributeAssignId(AttributeAssign.this.getId());
+        
+        for (AttributeAssignValue attributeAssignValue : attributeAssignValues) {
+          attributeAssignValue.delete();
+        }
+
+        
+        //delete the assignment
+        GrouperDAOFactory.getFactory().getAttributeAssign().delete(AttributeAssign.this);
+        return null;
+      }
+    });
+    
   }
   
   /**
