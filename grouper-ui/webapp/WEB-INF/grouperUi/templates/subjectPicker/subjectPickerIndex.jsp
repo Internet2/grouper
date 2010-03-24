@@ -8,7 +8,6 @@
   &nbsp; &nbsp; &nbsp; &nbsp; 
   &nbsp; &nbsp; &nbsp; &nbsp; 
   &nbsp; &nbsp; &nbsp; &nbsp; 
-  
   <a href="#" onclick="guiWindowClose(); return false;" class="smallLink">${subjectPickerContainer.cancelText}</a>
   </grouper:subtitle>
   <div class="sectionBody">
@@ -21,6 +20,17 @@
     </form>
   </div>
 </div>
+
+<c:if test="${subjectPickerContainer.submitToUrl}">
+
+  <%-- if submitting to url, this is the form to submit --%>
+  <form name="submitToUrlFormName" action="${subjectPickerContainer.submitResultToUrl }" id="submitToUrlFormId" method="get">
+    <input type="hidden" name="subject.id" id="subject.id.elementId" />
+    <input type="hidden" name="subject.subjectPickerElementName" id="subject.subjectPickerElementName.elementId" />
+    <input type="hidden" name="subject.screenLabel" id="subject.screenLabel.elementId" />
+  </form>
+
+</c:if>
 
 <div id="searchResultsDiv">
 

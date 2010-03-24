@@ -9,7 +9,14 @@
         <div>
           <%-- show an icon for the subject --%>
           <grouper:subjectIcon subject="${pickerResultSubject.subject}" /> 
-          ${fn:escapeXml(pickerResultSubject.screenLabel) } (<a href="#" onclick="guiOpener().grouperSubjectSelected('${subjectPickerContainer.subjectPickerElementName}', '${grouper:escapeJavascript(pickerResultSubject.subjectId) }','${grouper:escapeJavascript(pickerResultSubject.screenLabel) }', ${pickerResultSubject.subjectObjectName} ); window.close(); return false;">Select</a>)
+          ${fn:escapeXml(pickerResultSubject.screenLabel) } 
+          <c:if test="${subjectPickerContainer.submitToUrl}">
+            (<a href="#" onclick="return guiSubmitSubjectPickerToUrl('${subjectPickerContainer.subjectPickerElementName}', '${grouper:escapeJavascript(pickerResultSubject.subjectId) }','${grouper:escapeJavascript(pickerResultSubject.screenLabel) }' ); ">Select</a>)
+          </c:if>
+          <c:if test="${!subjectPickerContainer.submitToUrl}">
+            (<a href="#" onclick="guiOpener().grouperSubjectSelected('${subjectPickerContainer.subjectPickerElementName}', '${grouper:escapeJavascript(pickerResultSubject.subjectId) }','${grouper:escapeJavascript(pickerResultSubject.screenLabel) }', ${pickerResultSubject.subjectObjectName} ); window.close(); return false;">Select</a>)
+          </c:if>
+          
         </div>
       </c:forEach>
     </ul>
@@ -18,9 +25,5 @@
 
 <%-- all the subject objects converted to javascript --%>
 ${subjectPickerContainer.subjectsScript }
-
-<div id="searchResultsDiv">
-
-</div>
 
 <!-- end subjectPicker/subjectPickerResults.jsp: search results page -->

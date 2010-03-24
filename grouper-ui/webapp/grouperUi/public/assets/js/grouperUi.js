@@ -126,7 +126,10 @@ function AppState() {
       }
     }
     var poundString = url.substring(poundIndex + 1, url.length);
+    
+    //not sure why this is here... it should decode after splitting out the ampersands
     poundString = URLDecode(poundString);
+    
     //split out by ampersand
     var args = guiSplitTrim(poundString, "&");
     for (var i=0;i<args.length;i++) {
@@ -730,6 +733,9 @@ function guiHideShow(event, hideShowName, shouldShow) {
 //  }
 //}
 
+/**
+ * split and trim a string to an array of strings
+ */
 function guiSplitTrim(input, separator) {
  if (input == null) {
    return input;
@@ -747,7 +753,9 @@ function guiSplitTrim(input, separator) {
   return theArray; 
 }
 
-//trim all whitespace off a string
+/**
+ * trim all whitespace off a string
+ */
 function guiTrim(x) {
   if (!x) {
     return x;
@@ -1734,6 +1742,7 @@ function guiAddCss(cssUrl) {
 
 /** get the opener or give a friendly error */
 function guiOpener() {
+  
   if (opener == null) {
     alert('Error: opener is null, was this screen opened from another application?'); 
   }
@@ -1745,5 +1754,21 @@ function guiWindowClose() {
     alert('Error: opener is null, was this screen opened from another application?'); 
   }
   window.close();
+  return false;
+}
+
+/**
+ * submit the subject to a url
+ * @param subjectId
+ * @param sourceId
+ * @param name
+ * @param description
+ * @return false
+ */
+function guiSubmitSubjectPickerToUrl(subjectPickerElementName, subjectId, screenLabel) {
+  document.getElementById("subject.subjectPickerElementName.elementId").value = subjectPickerElementName;
+  document.getElementById("subject.id.elementId").value = subjectId;
+  document.getElementById("subject.screenLabel.elementId").value = screenLabel;
+  document.getElementById("submitToUrlFormId").submit();
   return false;
 }

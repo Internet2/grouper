@@ -163,6 +163,26 @@ public class PickerResultSubject implements Serializable, Comparable<PickerResul
   }
 
   /**
+   * get subject id for  caller
+   * @return subject id
+   */
+  public String getSourceId() {
+    
+    String sourceId = this.subject.getSourceId();
+    return sourceId;
+  }
+
+  /**
+   * get subject id for  caller
+   * @return subject id
+   */
+  public String getName() {
+    
+    String name = this.subject.getName();
+    return name;
+  }
+
+  /**
    * subject
    * @return the subject
    */

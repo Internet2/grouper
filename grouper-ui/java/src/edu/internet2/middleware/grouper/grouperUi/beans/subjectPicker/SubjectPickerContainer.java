@@ -201,6 +201,21 @@ public class SubjectPickerContainer implements Serializable {
     this.searchString = searchString1;
   }
 
+  /**
+   * if we are submitting to a URL instead of using opener
+   * @return the url
+   */
+  public boolean isSubmitToUrl() {
+    return !StringUtils.isBlank(this.getSubmitResultToUrl());
+  }
+
+  /**
+   * the url to submit to or blank to use opener (same domain)
+   * @return the url to submit to or blank to use opener (same domain)
+   */
+  public String getSubmitResultToUrl() {
+    return this.configValue("submitResultToUrl");
+  }
   
   /**
    * if there is an error in the search (e.g. too many results
