@@ -97,7 +97,7 @@ public class WheelNamingResolver extends NamingResolverDecorator {
           loggedWheelNotThere = true;
         }
         //exception stack is not that interesting
-        LOG.info(error, e);
+        LOG.debug(error, e);
         this.useWheel = false;
       }
     }
