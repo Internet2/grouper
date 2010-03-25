@@ -19,10 +19,11 @@ package edu.internet2.middleware.grouper.xml;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /**
  * Create XML representation of the Groups Registry.
@@ -63,7 +64,7 @@ class XmlWriter {
   // @since   1.2.0
   protected String internal_comment(String s) 
   {
-    return "<!-- " + s + " -->";
+    return "<!-- " + StringEscapeUtils.escapeXml(s) + " -->";
   } // protected String internal_comment(s)
 
   // @since   1.2.0

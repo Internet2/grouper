@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -54,7 +55,7 @@ import edu.internet2.middleware.subject.Subject;
 public class TestXml extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
+    TestRunner.run(new TestXml("testFullExportFullImportFullGroupInternational"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestXml.class);
@@ -400,6 +401,76 @@ public class TestXml extends GrouperTest {
       T.e(e);
     }
   } // public void testFullExportFullImportFullGroup()
+
+  public void testFullExportFullImportFullGroupInternational() {
+    LOG.info("testFullExportFullImportFullGroupInternational");
+    try {
+      // Populate Registry And Verify
+      R     r   = R.populateRegistry(1, 1, 0);
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      Group gA = new GroupSave(grouperSession).assignGroupNameToEdit("tést:àGroup").assignName("tést:àGroup")
+        .assignDisplayName("tést:àGroup").assignDescription("tést:àGroup").assignCreateParentStemsIfNotExist(true).save();
+      
+      // For Later Validation
+      boolean has_a   = gA.hasAdmin( SubjectFinder.findAllSubject() );
+      boolean has_oi  = gA.hasOptin( SubjectFinder.findAllSubject() );
+      boolean has_oo  = gA.hasOptout( SubjectFinder.findAllSubject() );
+      boolean has_r   = gA.hasRead( SubjectFinder.findAllSubject() );
+      boolean has_u   = gA.hasUpdate( SubjectFinder.findAllSubject() );
+      boolean has_v   = gA.hasView( SubjectFinder.findAllSubject() );
+      Subject val_c   = gA.getCreateSubject();
+      Date    val_ct  = gA.getCreateTime();
+      String  val_d   = gA.getDescription();
+      String  val_de  = gA.getDisplayExtension();
+      String  val_dn  = gA.getDisplayName();
+      String  val_e   = gA.getExtension();
+      String  val_n   = gA.getName();
+      String  val_u   = gA.getUuid();
+      r.rs.stop();
+  
+      // Export
+      GrouperSession  s         = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Writer          w         = new StringWriter();
+      XmlExporter     exporter  = new XmlExporter(s, new Properties());
+      exporter.export(w);
+      String          xml       = w.toString();
+      s.stop();
+  
+      // Reset And Verify
+      RegistryReset.reset();
+      s = GrouperSession.start( SubjectFinder.findRootSubject() );
+      assertDoNotFindGroupByName( s, "tést:àGroup" );
+      s.stop();
+  
+      // Import 
+      s = GrouperSession.start( SubjectFinder.findRootSubject() );
+      XmlImporter importer = new XmlImporter(s, new Properties());
+      importer.load( XmlReader.getDocumentFromString(xml) );
+      s.stop();
+  
+      // Verify
+      s   = GrouperSession.start( SubjectFinder.findRootSubject() );
+      gA  = assertFindGroupByName( s, "tést:àGroup" );
+      assertGroupHasAdmin( gA, SubjectFinder.findAllSubject(), has_a );
+      assertGroupHasOptin( gA, SubjectFinder.findAllSubject(), has_oi );
+      assertGroupHasOptout( gA, SubjectFinder.findAllSubject(), has_oo );
+      assertGroupHasRead( gA, SubjectFinder.findAllSubject(), has_r );
+      assertGroupHasUpdate( gA, SubjectFinder.findAllSubject(), has_u );
+      assertGroupHasView( gA, SubjectFinder.findAllSubject(), has_v );
+      assertGroupCreateSubject( gA, val_c );
+      assertGroupCreateTime( gA, val_ct );
+      assertGroupDescription( gA, val_d );
+      assertGroupDisplayExtension( gA, val_de );
+      assertGroupDisplayName( gA, val_dn );
+      assertGroupExtension( gA, val_e );
+      assertGroupName( gA, val_n );
+      assertGroupUuid( gA, val_u );
+      s.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testFullExportFullImportFullGroupInternational()
 
   public void testFullExportFullImportFullMemberships() {
     LOG.info("testFullExportFullImportFullMemberships");
