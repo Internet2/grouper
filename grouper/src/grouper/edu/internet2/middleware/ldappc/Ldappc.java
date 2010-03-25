@@ -1373,7 +1373,7 @@ public final class Ldappc extends TimerTask {
       //
       stemDn = stemDn.add(OrganizationalUnit.Attribute.OU + "=" + rdnValue);
 
-      names.add(stemDn);
+      names.add((Name) stemDn.clone());      
     }
 
     return names;
