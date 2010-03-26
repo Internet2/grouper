@@ -79,12 +79,16 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public void delete(final Object object) throws GrouperDAOException {
+    
     //dont fail if collection in there
     if (object instanceof Collection) {
       delete((Collection)object);
       return;
     }
     try {
+
+      HibernateSession.assertNotGrouperReadonly();
+
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
       
@@ -163,12 +167,16 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public Serializable save(final Object object) throws GrouperDAOException {
+
     //dont fail if collection in there
     if (object instanceof Collection) {
       save((Collection)object);
       return null;
     }
     try {
+
+      HibernateSession.assertNotGrouperReadonly();
+      
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
 
@@ -308,12 +316,16 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public void saveOrUpdate(final Object object) throws GrouperDAOException {
+
     //dont fail if collection in there
     if (object instanceof Collection) {
       saveOrUpdate((Collection)object);
       return;
     }
     try {
+
+      HibernateSession.assertNotGrouperReadonly();
+      
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
 
@@ -439,7 +451,10 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public void update(final Object object) throws GrouperDAOException {
+
     try {
+
+      HibernateSession.assertNotGrouperReadonly();
 
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();

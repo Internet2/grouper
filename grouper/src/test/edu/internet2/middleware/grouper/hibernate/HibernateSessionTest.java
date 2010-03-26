@@ -12,6 +12,7 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -565,6 +567,35 @@ public class HibernateSessionTest extends GrouperTest {
     
     
   }
+
+  /**
+   * @throws Exception 
+   * 
+   */
+  public void testReadonly() throws Exception {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem root = StemHelper.findRootStem(grouperSession);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group i2 = StemHelper.addChildGroup(edu, "i2", "internet2");
+
+    ApiConfig.testConfig.put("grouper.api.readonly", "true");
+
+    i2 = GroupFinder.findByName(grouperSession, "edu:i2", true);
+    
+    assertEquals("edu:i2", i2.getName());
+    
+    try {
+      StemHelper.addChildGroup(edu, "i3", "internet2");
+      fail("shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    GrouperSession.stopQuietly(grouperSession);
+  }
+
   
   /**
    * test paging/sorting
