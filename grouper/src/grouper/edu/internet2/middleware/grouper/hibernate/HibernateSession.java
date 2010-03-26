@@ -14,6 +14,7 @@ import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -34,6 +35,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  */
 public class HibernateSession {
+
+  /**
+   * error message when readonly mode
+   */
+  private static final String READONLY_ERROR = "Grouper is in readonly mode (perhaps due to maintenance), you cannot perform an operation which changes the data!";
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(HibernateSession.class);
@@ -65,6 +71,13 @@ public class HibernateSession {
     if (!GrouperDdlUtils.okToUseHibernate()) {
       if (GrouperConfig.getPropertyBoolean("ddlutils.failIfNotRightVersion", true)) {
         throw new RuntimeException("Database schema ddl is not up to date, or has issues, check logs and config ddl in grouper.properties and run: gsh -registry -check");
+      }
+    }
+
+    //if readonly, then dont allow read/write transactions
+    if (GrouperConfig.getPropertyBoolean("grouper.api.readonly", false)) {
+      if (grouperTransactionType != null && grouperTransactionType.isTransactional()) {
+        grouperTransactionType = GrouperTransactionType.READONLY_OR_USE_EXISTING;
       }
     }
     
@@ -280,6 +293,9 @@ public class HibernateSession {
     // then commit.
     if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()
         && hibernateSession.immediateTransaction.isActive()) {
+      
+      assertNotGrouperReadonly();
+      
       hibernateSession.immediateTransaction.commit();
 
     } else {
@@ -294,6 +310,15 @@ public class HibernateSession {
       }
     }
     
+  }
+
+  /**
+   * make sure not readonly mode
+   */
+  public static void assertNotGrouperReadonly() {
+    if (GrouperConfig.getPropertyBoolean("grouper.api.readonly", false)) {
+      throw new GrouperReadonlyException(READONLY_ERROR);
+    }
   }
 
   /**
@@ -535,6 +560,9 @@ public class HibernateSession {
    * @return true if committed, false if not
    */
   public boolean commit(GrouperCommitType grouperCommitType) {
+
+    assertNotGrouperReadonly();
+    
     switch (grouperCommitType) {
       case COMMIT_IF_NEW_TRANSACTION:
         if (this.isNewHibernateSession()) {

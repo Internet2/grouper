@@ -399,6 +399,10 @@
 			  <include name="*.jar"/>
         <exclude name="grouper*.jar"/>
 			</fileset>
+	    <!-- not sure why we need this but we do -->
+      <fileset dir="${basedir}/lib/test">
+        <include name="junit*.jar"/>
+      </fileset>
       <fileset file="${grouper.jar.name}" />
 			<fileset dir="${basedir}/lib/grouper-ws" includes="*.jar" />
       <fileset dir="${basedir}/lib/custom" includes="*.jar" />
