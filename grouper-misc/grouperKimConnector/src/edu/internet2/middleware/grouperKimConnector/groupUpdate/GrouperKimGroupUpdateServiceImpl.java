@@ -74,12 +74,18 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
     boolean hadException = false;
     
     try {
-      
-      
+      debugMap.put("subjectId", subjectId);
+
+      subjectId = GrouperKimUtils.translatePrincipalId(subjectId);
+
+      debugMap.put("subjectIdTranslated", subjectId);
+
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
       wsSubjectLookup.setSubjectId(subjectId);
       if (!GrouperClientUtils.isBlank(sourceId)) {
         wsSubjectLookup.setSubjectSourceId(sourceId);
+      } else {
+        wsSubjectLookup.setSubjectSourceId(GrouperKimUtils.separateSourceId(subjectId));
       }
       debugMap.put("sourceId", sourceId);
 
@@ -368,10 +374,18 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
     
     try {
 
+      debugMap.put("subjectId", subjectId);
+
+      subjectId = GrouperKimUtils.translatePrincipalId(subjectId);
+
+      debugMap.put("subjectIdTranslated", subjectId);
+
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
       wsSubjectLookup.setSubjectId(subjectId);
       if (!GrouperClientUtils.isBlank(sourceId)) {
         wsSubjectLookup.setSubjectSourceId(sourceId);
+      } else {
+        wsSubjectLookup.setSubjectSourceId(GrouperKimUtils.separateSourceId(subjectId));
       }
       debugMap.put("sourceId", sourceId);
 
@@ -430,6 +444,11 @@ public class GrouperKimGroupUpdateServiceImpl implements GroupUpdateService {
       throws UnsupportedOperationException {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("principalId", principalId);
+    
+    principalId = GrouperKimUtils.translatePrincipalId(principalId);
+
+    debugMap.put("principalIdTranslated", principalId);
+    
     debugMap.put("groupId", groupId);
     debugMap.put("operation", "removePrincipalFromGroup");
     

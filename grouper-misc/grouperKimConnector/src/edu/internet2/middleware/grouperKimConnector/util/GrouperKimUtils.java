@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.kuali.rice.kim.bo.entity.dto.KimEntityDefaultInfo;
@@ -29,6 +30,7 @@ import org.kuali.rice.kim.bo.types.dto.KimTypeInfo;
 import org.kuali.rice.kim.service.KIMServiceLocator;
 
 import edu.internet2.middleware.grouperClient.api.GcFindGroups;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
@@ -118,6 +120,19 @@ public class GrouperKimUtils {
     String grouperGroupId = GrouperClientUtils.propertiesValue("grouper.kim.kimGroupIdToGrouperId_" + kimGroupId, false);
     if (!GrouperClientUtils.isBlank(grouperGroupId)) {
       return grouperGroupId;
+    }
+    return kimGroupId;
+  }
+
+  /**
+   * translate a kim group id to a grouper group name
+   * @param kimGroupId
+   * @return the grouper group name
+   */
+  public static String translateGroupName(String kimGroupId) {
+    String grouperGroupName = GrouperClientUtils.propertiesValue("grouper.kim.kimGroupIdToGrouperName_" + kimGroupId, false);
+    if (!GrouperClientUtils.isBlank(grouperGroupName)) {
+      return grouperGroupName;
     }
     return kimGroupId;
   }
@@ -389,7 +404,7 @@ public class GrouperKimUtils {
     
     
     kimEntityDefaultInfo.setDefaultName(convertWsSubjectToEntityNameInfo(wsSubject, attributeNames));
-    String entityId = concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId());
+    String entityId = untranslatePrincipalId(wsSubject.getSourceId(), wsSubject.getId());
     kimEntityDefaultInfo.setEntityId(entityId);
     
     GrouperKimIdentitySourceProperties grouperKimIdentitySourceProperties = GrouperKimIdentitySourceProperties
@@ -511,7 +526,7 @@ public class GrouperKimUtils {
     
     grouperKimEntityNameInfo.setActive(true);
     grouperKimEntityNameInfo.setDefault(true);
-    grouperKimEntityNameInfo.setEntityNameId(concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId()));
+    grouperKimEntityNameInfo.setEntityNameId(untranslatePrincipalId(wsSubject.getSourceId(), wsSubject.getId()));
     
 //    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
 //    
@@ -610,16 +625,56 @@ public class GrouperKimUtils {
   }
 
   /**
-   * translate a kim entity id to a grouper subject id
-   * @param kimEntityId
-   * @return the grouper subject id or source/subject combined with separator
+   * use the field cache, expire every day (just to be sure no leaks)
    */
-  public static String translateEntityId(String kimEntityId) {
-    String grouperSubjectId = GrouperClientUtils.propertiesValue("grouper.kim.kimEntityIdToSubjectId_" + kimEntityId, false);
-    if (!GrouperClientUtils.isBlank(grouperSubjectId)) {
-      return grouperSubjectId;
+  private static ExpirableCache<Boolean, Map<String,String>> subjectIdToPrincipalIdCache = null;
+
+  /**
+   * clear this cache (e.g. for testing)
+   */
+  public static void subjectIdToPrincipalIdCacheClear() {
+    subjectIdToPrincipalIdCache().clear();
+  }
+
+  /**
+   * lazy load
+   * @return field set cache
+   */
+  private static ExpirableCache<Boolean, Map<String,String>> subjectIdToPrincipalIdCache() {
+    if (subjectIdToPrincipalIdCache == null) {
+      subjectIdToPrincipalIdCache = new ExpirableCache<Boolean, Map<String,String>>(2);
     }
-    return kimEntityId;
+    return subjectIdToPrincipalIdCache;
+  }
+
+  /**
+   * 
+   * @return the map
+   */
+  private static Map<String,String> subjectIdToPrincipalIdMap() {
+    Map<String,String> map = subjectIdToPrincipalIdCache().get(Boolean.TRUE);
+    if (map == null) {
+      
+      map = new HashMap<String, String>();
+      
+      Properties properties = GrouperClientUtils.grouperClientProperties();
+
+      //add test properties 
+      properties.putAll(GrouperClientUtils.grouperClientOverrideMap());
+      
+      //reverse lookup the mapping
+      //NOTE: this can be more efficient
+      for (Object keyObject : properties.keySet()) {
+        String keyString = GrouperClientUtils.trimToEmpty((String)keyObject);
+        if (keyString.startsWith("grouper.kim.kimPrincipalIdToSubjectId_")) {
+          map.put(properties.getProperty(keyString), 
+              keyString.substring("grouper.kim.kimPrincipalIdToSubjectId_".length(), keyString.length()));
+        }
+      }
+      
+      subjectIdToPrincipalIdCache().put(Boolean.TRUE, map);
+    }
+    return map;
   }
   
   /**
@@ -649,29 +704,30 @@ public class GrouperKimUtils {
   }
   
   /**
-   * translate a kim principal id to a grouper subject identifier
+   * translate a kim principal id to a grouper subject id.  perhaps cut off source prefix
    * @param kimPrincipalId
-   * @return the grouper subject identifier or a sourceId/subject identifier with separator
+   * @return the grouper subject id
    */
   public static String translatePrincipalId(String kimPrincipalId) {
-    String grouperSubjectIdentifier = GrouperClientUtils.propertiesValue("grouper.kim.kimPrincipalIdToSubjectIdentifier_" + kimPrincipalId, false);
-    if (!GrouperClientUtils.isBlank(grouperSubjectIdentifier)) {
-      return grouperSubjectIdentifier;
+    String grouperSubjectId = GrouperClientUtils.propertiesValue("grouper.kim.kimPrincipalIdToSubjectId_" + kimPrincipalId, false);
+    if (!GrouperClientUtils.isBlank(grouperSubjectId)) {
+      return grouperSubjectId;
     }
+    kimPrincipalId = separateSourceIdSuffix(kimPrincipalId);
     return kimPrincipalId;
   }
   
   /**
    * translate a kim principal name to a grouper subject identifier
-   * @param kimPrincipalId
+   * @param kimPrincipalName
    * @return the grouper subject identifier or a sourceId/subject identifier with separator
    */
-  public static String translatePrincipalName(String kimPrincipalId) {
-    String grouperSubjectIdentifier = GrouperClientUtils.propertiesValue("grouper.kim.kimPrincipalNameToSubjectIdentifier_" + kimPrincipalId, false);
+  public static String translatePrincipalName(String kimPrincipalName) {
+    String grouperSubjectIdentifier = GrouperClientUtils.propertiesValue("grouper.kim.kimPrincipalNameToSubjectIdentifier_" + kimPrincipalName, false);
     if (!GrouperClientUtils.isBlank(grouperSubjectIdentifier)) {
       return grouperSubjectIdentifier;
     }
-    return kimPrincipalId;
+    return kimPrincipalName;
   }
   
   /**
@@ -775,9 +831,9 @@ public class GrouperKimUtils {
 
     KimPrincipalInfo kimPrincipalInfo = new KimPrincipalInfo();
     kimPrincipalInfo.setActive(true);
-    kimPrincipalInfo.setEntityId(concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId()));
+    kimPrincipalInfo.setEntityId(untranslatePrincipalId(wsSubject.getSourceId(), wsSubject.getId()));
+    kimPrincipalInfo.setPrincipalId(kimPrincipalInfo.getEntityId());
     String principalName = convertWsSubjectToPrincipalName(wsSubject, attributeNames);
-    kimPrincipalInfo.setPrincipalId(concatenateSourceSeparator(wsSubject.getSourceId(), principalName));
     kimPrincipalInfo.setPrincipalName(principalName);
     return kimPrincipalInfo;
   }
@@ -802,5 +858,43 @@ public class GrouperKimUtils {
     }
     return identifier;
   }
+
+  /**
+   * untranslate a kim principal id from a grouper subject identifier
+   * @param sourceId
+   * @param subjectId
+   * @return the kim entity id from the grouper subject id
+   */
+  public static String untranslatePrincipalId(String sourceId, String subjectId) {
     
+    Map<String,String> subjectIdToEntityIdMap = subjectIdToPrincipalIdMap();
+    
+    //if we are translating, do that here
+    if (subjectIdToEntityIdMap.containsKey(subjectId)) {
+      return subjectIdToEntityIdMap.get(subjectId);
+    }
+
+    if (GrouperClientUtils.propertiesValueBoolean("kuali.identity.ignoreSourceAppend", false, false)) {
+      return subjectId;
+    }
+    
+    //see if we are ignoring concatenating this one
+    String ignoreIdsString = GrouperClientUtils.propertiesValue(
+        "kuali.identity.ignoreSourceAppend.principalIds", false);
+    if (!GrouperClientUtils.isBlank(ignoreIdsString)) {
+      String[] ignoreIds = GrouperClientUtils.splitTrim(ignoreIdsString, ",");
+      if (GrouperClientUtils.contains(ignoreIds, subjectId)) {
+        return subjectId;
+      }
+    }
+    
+    if (GrouperClientUtils.equals("g:gsa", sourceId)) {
+      return subjectId;
+    }
+    
+    //if they are equal, then append the source
+    return GrouperKimUtils.concatenateSourceSeparator(sourceId,
+        subjectId);
+  }
+
 }

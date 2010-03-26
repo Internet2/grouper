@@ -121,7 +121,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
           break;
         }
         
-        entityId = GrouperKimUtils.translateEntityId(entityId);
+        entityId = GrouperKimUtils.translatePrincipalId(entityId);
         debugMap.put("entityIds." + index, entityId);
 
 
@@ -132,7 +132,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
       GcGetSubjects gcGetSubjects = new GcGetSubjects();
       
       for (String entityId : entityIds) {
-        entityId = GrouperKimUtils.translateEntityId(entityId);
+        entityId = GrouperKimUtils.translatePrincipalId(entityId);
         String sourceId = GrouperKimUtils.separateSourceId(entityId);
         String subjectId = GrouperKimUtils.separateSourceIdSuffix(entityId);
         
@@ -153,7 +153,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
       Map<String, WsSubject> wsSubjectMap = new LinkedHashMap<String, WsSubject>();
 
       for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsSubjects, WsSubject.class)) {
-        wsSubjectMap.put(GrouperKimUtils.concatenateSourceSeparator(wsSubject.getSourceId(), wsSubject.getId()), wsSubject);
+        wsSubjectMap.put(GrouperKimUtils.untranslatePrincipalId(wsSubject.getSourceId(), wsSubject.getId()), wsSubject);
       }
 
       index = 0;
@@ -241,7 +241,7 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
       GcGetSubjects gcGetSubjects = new GcGetSubjects();
       
       for (String principalId : principalIds) {
-        principalId = GrouperKimUtils.translateEntityId(principalId);
+        principalId = GrouperKimUtils.translatePrincipalId(principalId);
 
         gcGetSubjects.addWsSubjectLookup(new WsSubjectLookup(null,null,principalId));
         

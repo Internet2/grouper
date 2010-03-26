@@ -20,7 +20,7 @@ public class GrouperKimUtilsTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperKimUtilsTest.class);
-    TestRunner.run(new GrouperKimUtilsTest("testFirstLastMiddleName"));
+    TestRunner.run(new GrouperKimUtilsTest("testTranslateIds"));
   }
 
   /**
@@ -56,6 +56,42 @@ public class GrouperKimUtilsTest extends GrouperTest {
     GrouperClientUtils.grouperClientOverrideMap().put("kim.stem", "a:b");
     assertEquals("c", GrouperKimUtils.calculateNamespaceCode("a:b:c:d"));
     assertEquals(null, GrouperKimUtils.calculateNamespaceCode("a:b:c"));
+  }
+  
+  /**
+   * translate and untranslate various ids
+   */
+  public void testTranslateIds() {
+
+    GrouperClientUtils.grouperClientOverrideMap().put("kuali.identity.sourceSeparator", "::::");
+    assertEquals("a", GrouperKimUtils.translatePrincipalId("a"));
+    assertEquals("b", GrouperKimUtils.translatePrincipalId("a::::b"));
+    assertEquals("a::::b", GrouperKimUtils.untranslatePrincipalId("a", "b"));
+    assertEquals("a", GrouperKimUtils.separateSourceId("a::::b"));
+    assertEquals(null, GrouperKimUtils.separateSourceId("a"));
+
+    //test skip the prepend source
+    GrouperClientUtils.grouperClientOverrideMap().put("kuali.identity.ignoreSourceAppend", "true");
+
+    assertEquals("b", GrouperKimUtils.untranslatePrincipalId("a", "b"));
+    
+    GrouperClientUtils.grouperClientOverrideMap().remove("kuali.identity.ignoreSourceAppend");
+    
+    GrouperClientUtils.grouperClientOverrideMap().put("grouper.kim.kimEntityIdToSubjectId_c", "123");
+    GrouperClientUtils.propertiesCacheClear();
+    GrouperKimUtils.subjectIdToPrincipalIdCacheClear();
+    
+    assertEquals("123", GrouperKimUtils.translatePrincipalId("c"));
+    assertEquals("c", GrouperKimUtils.untranslatePrincipalId("a", "123"));
+
+    assertEquals("a::::admin", GrouperKimUtils.untranslatePrincipalId("a", "admin"));
+    GrouperClientUtils.grouperClientOverrideMap().put("kuali.identity.ignoreSourceAppend.subjectIds", "admin");
+    GrouperClientUtils.propertiesCacheClear();
+
+    assertEquals("admin", GrouperKimUtils.untranslatePrincipalId("a", "admin"));
+    
+    
+    
   }
   
   /**

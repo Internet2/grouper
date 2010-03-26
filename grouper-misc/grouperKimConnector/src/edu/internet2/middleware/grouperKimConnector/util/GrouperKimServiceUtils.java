@@ -82,7 +82,7 @@ public class GrouperKimServiceUtils {
       debugMap.put("entityId", entityId);
     }
   
-    entityId = GrouperKimUtils.translateEntityId(entityId);
+    entityId = GrouperKimUtils.translatePrincipalId(entityId);
   
     if (debugMap != null) {
       debugMap.put("translatedEntityId", entityId);

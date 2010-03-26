@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouperKimConnector.group;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
 
     String stemName = GrouperKimUtils.kimStem();
 
-    List<GroupInfo> groupInfos = getGroupsHelper(principalId, sourceId, stemName, 
+    List<GroupInfo> groupInfos = getGroupsHelper(principalId, sourceId, null, stemName, 
         StemScope.ALL_IN_SUBTREE, WsMemberFilter.Immediate, debugMap);
     
     return GrouperKimUtils.convertGroupInfosToGroupIds(groupInfos);
@@ -100,10 +101,6 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
   public List<String> getDirectMemberGroupIds(String groupId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getDirectMemberGroupIds");
-    debugMap.put("groupId", groupId);
-    
-    groupId = GrouperKimUtils.translateGroupId(groupId);
-    debugMap.put("grouperGroupId", groupId);
 
     return getMemberIdsHelper(groupId, new String[]{"g:gsa"}, 
         WsMemberFilter.Immediate, debugMap);
@@ -125,10 +122,6 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
   public List<String> getDirectMemberPrincipalIds(String groupId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getDirectMemberPrincipalIds");
-    debugMap.put("groupId", groupId);
-    groupId = GrouperKimUtils.translateGroupId(groupId);
-    debugMap.put("grouperGroupId", groupId);
-
 
     return getMemberIdsHelper(groupId, GrouperKimUtils.subjectSourceIds(), 
         WsMemberFilter.Immediate, debugMap);
@@ -150,14 +143,10 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
   public List<String> getDirectParentGroupIds(String groupId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getDirectParentGroupIds");
-    debugMap.put("groupId", groupId);
-    groupId = GrouperKimUtils.translateGroupId(groupId);
-    debugMap.put("grouperGroupId", groupId);
-
 
     String stemName = GrouperKimUtils.kimStem();
 
-    List<GroupInfo> groupInfos = getGroupsHelper(groupId, "g:gsa", stemName, 
+    List<GroupInfo> groupInfos = getGroupsHelper(groupId, "g:gsa", null, stemName, 
         StemScope.ALL_IN_SUBTREE, WsMemberFilter.Immediate, debugMap);
     
     return GrouperKimUtils.convertGroupInfosToGroupIds(groupInfos);
@@ -213,7 +202,8 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
 
     String stemName = GrouperKimUtils.kimStem();
 
-    List<GroupInfo> groupInfos = getGroupsHelper(principalId, sourceId, stemName, StemScope.ALL_IN_SUBTREE, null, debugMap);
+    List<GroupInfo> groupInfos = getGroupsHelper(principalId, sourceId, null, 
+        stemName, StemScope.ALL_IN_SUBTREE, null, debugMap);
     
     return GrouperKimUtils.convertGroupInfosToGroupIds(groupInfos);
   }
@@ -239,7 +229,8 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
 
     String stemName = GrouperKimUtils.kimStem() + ":" + namespaceCode;
 
-    List<GroupInfo> groupInfos = getGroupsHelper(principalId, sourceId, stemName, StemScope.ONE_LEVEL, null, debugMap);
+    List<GroupInfo> groupInfos = getGroupsHelper(principalId, sourceId, null, 
+        stemName, StemScope.ONE_LEVEL, null, debugMap);
     
     return GrouperKimUtils.convertGroupInfosToGroupIds(groupInfos);
   }
@@ -372,9 +363,25 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
         }
         
         debugMap.put("groupIds." + index, groupId);
+        
+        String groupIdOriginal = groupId;
         groupId = GrouperKimUtils.translateGroupId(groupId);
         debugMap.put("grouperGroupIds." + index, groupId);
-
+        
+        String groupName = null;
+        
+        if (GrouperClientUtils.equals(groupIdOriginal, groupId)) {
+          //see if different name to override group
+          groupName = GrouperKimUtils.translateGroupName(groupId);
+          if (!GrouperClientUtils.equals(groupName, groupId)) {
+            groupId = null;
+          } else {
+            groupName = null;
+          }
+        }
+        
+        debugMap.put("grouperGroupId." + index, groupId);
+        debugMap.put("grouperGroupName." + index, groupName);
 
         index++;
       }
@@ -385,10 +392,26 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
         gcFindGroups.assignIncludeGroupDetail(retrieveGroupDetail);
       }
       
+      Map<String, String> nameToOldIdMap = new HashMap<String, String>();
+      
       for (String groupId : groupIds) {
+        
+        String groupIdOriginal = groupId;
         groupId = GrouperKimUtils.translateGroupId(groupId);
+        
+        String groupName = null;
+        
+        if (GrouperClientUtils.equals(groupIdOriginal, groupId)) {
+          //see if different name to override group
+          groupName = GrouperKimUtils.translateGroupName(groupId);
+          if (!GrouperClientUtils.equals(groupName, groupId)) {
+            nameToOldIdMap.put(groupName, groupId);
+            gcFindGroups.addGroupName(groupName);
+          } else {
+            gcFindGroups.addGroupUuid(groupId);
+          }
+        }
 
-        gcFindGroups.addGroupUuid(groupId);
       }
       
       WsFindGroupsResults wsFindGroupsResults = gcFindGroups.execute();
@@ -406,7 +429,14 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
         }
         
         GroupInfo groupInfo = GrouperKimUtils.convertWsGroupToGroupInfo(wsGroup);
-        result.put(groupInfo.getGroupId(), groupInfo);
+        
+        //might need to translate back to the ID before the concifg file interfered
+        String groupId = groupInfo.getGroupId();
+        if (nameToOldIdMap.containsKey(wsGroup.getName())) {
+          groupId = nameToOldIdMap.get(wsGroup.getName());
+        }
+        
+        result.put(groupId, groupInfo);
         index++;
       }
       
@@ -462,21 +492,54 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
         if (index > 20) {
           break;
         }
-        
+
         debugMap.put("groupIds." + index, groupId);
+        
+        String groupIdOriginal = groupId;
         groupId = GrouperKimUtils.translateGroupId(groupId);
         debugMap.put("grouperGroupIds." + index, groupId);
+        
+        String groupName = null;
+        
+        if (GrouperClientUtils.equals(groupIdOriginal, groupId)) {
+          //see if different name to override group
+          groupName = GrouperKimUtils.translateGroupName(groupId);
+          if (!GrouperClientUtils.equals(groupName, groupId)) {
+            groupId = null;
+          } else {
+            groupName = null;
+          }
+        }
+        
+        debugMap.put("grouperGroupId." + index, groupId);
+        debugMap.put("grouperGroupName." + index, groupName);
 
-
+        
         index++;
       }
       
       GcGetMemberships gcGetMemberships = new GcGetMemberships();
       
-      for (String groupId : groupIds) {
-        groupId = GrouperKimUtils.translateGroupId(groupId);
+      Map<String, String> nameToOldIdMap = new HashMap<String, String>();
 
-        gcGetMemberships.addGroupUuid(groupId);
+      for (String groupId : groupIds) {
+
+        String groupIdOriginal = groupId;
+        groupId = GrouperKimUtils.translateGroupId(groupId);
+        
+        String groupName = null;
+        
+        if (GrouperClientUtils.equals(groupIdOriginal, groupId)) {
+          //see if different name to override group
+          groupName = GrouperKimUtils.translateGroupName(groupId);
+          if (!GrouperClientUtils.equals(groupName, groupId)) {
+            nameToOldIdMap.put(groupName, groupId);
+            gcGetMemberships.addGroupName(groupName);
+          } else {
+            gcGetMemberships.addGroupUuid(groupId);
+          }
+        }
+
       }
       
       //only get subjects from the right sources
@@ -513,6 +576,11 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
         }
         
         String groupId = wsMembership.getGroupId();
+        
+        if (nameToOldIdMap.containsKey(wsMembership.getGroupName())) {
+          groupId = nameToOldIdMap.get(wsMembership.getGroupName());
+        }
+        
         String groupMemberId = wsMembership.getMembershipId();
         String memberId = wsMembership.getSubjectId();
         String memberTypeCode = null;
@@ -584,7 +652,8 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
 
     String stemName = GrouperKimUtils.kimStem();
 
-    return getGroupsHelper(principalId, sourceId, stemName, StemScope.ALL_IN_SUBTREE, null, debugMap);
+    return getGroupsHelper(principalId, sourceId, null, 
+        stemName, StemScope.ALL_IN_SUBTREE, null, debugMap);
 
   }
 
@@ -592,13 +661,16 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
    * get groups for a subject
    * @param subjectId
    * @param sourceId or null to not specify
+   * @param subjectIdentifier
    * @param stemName to search in (required)
    * @param stemScope scope in stem
    * @param wsMemberFilter is if all, immediate, effective, etc  null means all
    * @param debugMap
    * @return the group infos
    */
-  private List<GroupInfo> getGroupsHelper(String subjectId, String sourceId, String stemName, 
+  private List<GroupInfo> getGroupsHelper(String subjectId, String sourceId, 
+      String subjectIdentifier,
+      String stemName, 
       StemScope stemScope, WsMemberFilter wsMemberFilter, Map<String, Object> debugMap) {
     boolean hadException = false;
     
@@ -609,17 +681,54 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
       GcGetGroups gcGetGroups = new GcGetGroups();
       
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-      
-      wsSubjectLookup.setSubjectId(subjectId);
-      gcGetGroups.addSubjectLookup(wsSubjectLookup);
-      
-      debugMap.put("subjectId", subjectId);
-      debugMap.put("sourceId", sourceId);
 
-      if (!GrouperClientUtils.isBlank(sourceId)) {
-        wsSubjectLookup.setSubjectSourceId(sourceId);
+      debugMap.put("subjectId", subjectId);
+      debugMap.put("subjectIdentifier", subjectIdentifier);
+      
+      subjectId = GrouperKimUtils.translatePrincipalId(subjectId);
+      
+      //lets see if we should move the subjectId to subjectIdentifier...
+      
+      if (GrouperClientUtils.equals(sourceId, "g:gsa")) {
+        debugMap.put("groupId", subjectId);
+        
+        String groupIdOriginal = subjectId;
+        String groupName = null;
+        
+        subjectId = GrouperKimUtils.translateGroupId(subjectId);
+        if (GrouperClientUtils.equals(groupIdOriginal, subjectId)) {
+          //see if different name to override group
+          groupName = GrouperKimUtils.translateGroupName(subjectId);
+          if (!GrouperClientUtils.equals(groupName, subjectId)) {
+            subjectId = null;
+          } else {
+            groupName = null;
+          }
+        }
+        
+        debugMap.put("grouperGroupId", subjectId);
+        debugMap.put("grouperGroupName", groupName);
+        subjectIdentifier = groupName;
+        
       }
       
+      
+      debugMap.put("subjectIdentifierTranslated", subjectIdentifier);
+      
+      debugMap.put("subjectIdTranslated", subjectId);
+
+      wsSubjectLookup.setSubjectId(subjectId);
+      wsSubjectLookup.setSubjectIdentifier(subjectIdentifier);
+      gcGetGroups.addSubjectLookup(wsSubjectLookup);
+      
+      debugMap.put("sourceId", sourceId);
+
+      if (!GrouperClientUtils.isBlank(GrouperKimUtils.separateSourceId(subjectId))) {
+        wsSubjectLookup.setSubjectSourceId(GrouperKimUtils.separateSourceId(subjectId));
+      } else if (!GrouperClientUtils.isBlank(sourceId)) {
+        wsSubjectLookup.setSubjectSourceId(sourceId);
+      }
+
       debugMap.put("stemName", stemName);
       debugMap.put("stemScope", stemScope == null ? null : stemScope.name());
       
@@ -709,7 +818,7 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
 
     String stemName = GrouperKimUtils.kimStem() + ":" + namespaceCode;
 
-    return getGroupsHelper(principalId, sourceId, stemName, StemScope.ONE_LEVEL, null, debugMap);
+    return getGroupsHelper(principalId, sourceId, null, stemName, StemScope.ONE_LEVEL, null, debugMap);
   }
 
   /**
@@ -721,7 +830,6 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getMemberPrincipalIds");
-    debugMap.put("groupId", groupId);
     
     return getMemberIdsHelper(groupId, new String[]{"g:gsa"}, null, debugMap);
 
@@ -741,7 +849,6 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getMemberPrincipalIds");
-    debugMap.put("groupId", groupId);
     
     return getMemberIdsHelper(groupId, GrouperKimUtils.subjectSourceIds(), null, debugMap);
     
@@ -749,13 +856,15 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
 
   /**
    * get member ids from a group
-   * @param groupId
+   * @param groupId to search by groupId, mutually exclusive with groupName
    * @param sourceIds 
    * @param wsMemberFilter null for all, or immediate, or nonimmediate
    * @param debugMap 
    * @return the member ids
    */
-  private List<String> getMemberIdsHelper(String groupId, String[] sourceIds, WsMemberFilter wsMemberFilter, Map<String, Object> debugMap ) {
+  private List<String> getMemberIdsHelper(String groupId,
+      String[] sourceIds, WsMemberFilter wsMemberFilter, 
+      Map<String, Object> debugMap ) {
     
     boolean hadException = false;
     
@@ -766,11 +875,29 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
       GcGetMembers gcGetMembers = new GcGetMembers();
             
       debugMap.put("groupId", groupId);
-
+      
+      String groupIdOriginal = groupId;
+      String groupName = null;
+      
       groupId = GrouperKimUtils.translateGroupId(groupId);
+      if (GrouperClientUtils.equals(groupIdOriginal, groupId)) {
+        //see if different name to override group
+        groupName = GrouperKimUtils.translateGroupName(groupId);
+        if (!GrouperClientUtils.equals(groupName, groupId)) {
+          groupId = null;
+        } else {
+          groupName = null;
+        }
+      }
+      
       debugMap.put("grouperGroupId", groupId);
-
-      gcGetMembers.addGroupUuid(groupId);
+      debugMap.put("grouperGroupName", groupName);
+      
+      if (!GrouperClientUtils.isBlank(groupId)) {
+        gcGetMembers.addGroupUuid(groupId);
+      } else if (!GrouperClientUtils.isBlank(groupName)) {
+        gcGetMembers.addGroupName(groupName);
+      }
       
       int sourceIdsLength = GrouperClientUtils.length(sourceIds);
       
@@ -821,11 +948,17 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
       
       for (int i=0;i<GrouperClientUtils.length(wsSubjectList);i++) {
 
+        WsSubject wsSubject = wsSubjectList.get(i);
         if (i < 20) {
-          debugMap.put("result." + index, wsSubjectList.get(i));
+          debugMap.put("result." + index, wsSubject);
         }
 
-        results.add(wsSubjectList.get(i).getId());
+        String currentSubjectId = wsSubject.getId();
+        
+        String translatedCurrentSubjectId = GrouperKimUtils.untranslatePrincipalId(
+            wsSubject.getSourceId(), currentSubjectId);
+        
+        results.add(translatedCurrentSubjectId);
       }
       
       return results;
@@ -858,14 +991,10 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
   public List<String> getParentGroupIds(String groupId) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     debugMap.put("operation", "getParentGroupIds");
-    debugMap.put("groupId", groupId);
-    groupId = GrouperKimUtils.translateGroupId(groupId);
-    debugMap.put("grouperGroupId", groupId);
-
 
     String stemName = GrouperKimUtils.kimStem();
 
-    List<GroupInfo> groupInfos = getGroupsHelper(groupId, "g:gsa", stemName, 
+    List<GroupInfo> groupInfos = getGroupsHelper(groupId, "g:gsa", null, stemName, 
         StemScope.ALL_IN_SUBTREE, null, debugMap);
     
     return GrouperKimUtils.convertGroupInfosToGroupIds(groupInfos);
@@ -893,7 +1022,7 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
 
     String sourceId = GrouperKimUtils.subjectSourceId();
     
-    return isMemberHelper(principalId, sourceId, groupId, WsMemberFilter.Immediate, debugMap);
+    return isMemberHelper(principalId, sourceId, null, groupId, WsMemberFilter.Immediate, debugMap);
     
   }
 
@@ -901,34 +1030,88 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
    * 
    * @param subjectId
    * @param sourceId or null to search all
+   * @param subjectIdentifier 
    * @param groupId
    * @param wsMemberFilter null for all, or immediate, etc
    * @param debugMap 
    * @return if has member
    */
-  private boolean isMemberHelper(String subjectId, String sourceId, String groupId, WsMemberFilter wsMemberFilter, Map<String, Object> debugMap) {
+  private boolean isMemberHelper(String subjectId, String sourceId, String subjectIdentifier, String groupId, WsMemberFilter wsMemberFilter, Map<String, Object> debugMap) {
     boolean hadException = false;
     
     debugMap.put("subjectId", subjectId);
+    debugMap.put("subjectIdentifier", subjectIdentifier);
+    String subjectIdOriginal = subjectId;
+    subjectId = GrouperKimUtils.translatePrincipalId(subjectId);
+
+    debugMap.put("subjectIdTranslated", subjectId);
+
     debugMap.put("sourceId", sourceId);
     debugMap.put("groupId", groupId);
     debugMap.put("wsMemberFilter", wsMemberFilter == null ? null : wsMemberFilter.name());
     
     try {
     
+      String groupIdOriginal = groupId;
+      String groupName = null;
+      
       groupId = GrouperKimUtils.translateGroupId(groupId);
+      if (GrouperClientUtils.equals(groupIdOriginal, groupId)) {
+        //see if different name to override group
+        groupName = GrouperKimUtils.translateGroupName(groupId);
+        if (!GrouperClientUtils.equals(groupName, groupId)) {
+          groupId = null;
+        } else {
+          groupName = null;
+        }
+      }
+      
       debugMap.put("grouperGroupId", groupId);
+      debugMap.put("grouperGroupName", groupName);
 
       GcHasMember gcHasMember = new GcHasMember();
       
-      gcHasMember.assignGroupUuid(groupId);
+      if (!GrouperClientUtils.isBlank(groupId)) {
+        gcHasMember.assignGroupUuid(groupId);
+      } else if (!GrouperClientUtils.isBlank(groupName)) {
+        gcHasMember.assignGroupName(groupName);
+      }
       
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-      wsSubjectLookup.setSubjectId(subjectId);
       
-      if (!GrouperClientUtils.isBlank(sourceId)) {
+      
+      if (!GrouperClientUtils.isBlank(GrouperKimUtils.separateSourceId(subjectIdOriginal))) {
+        wsSubjectLookup.setSubjectSourceId(GrouperKimUtils.separateSourceId(subjectIdOriginal));
+      } else if (!GrouperClientUtils.isBlank(sourceId)) {
         wsSubjectLookup.setSubjectSourceId(sourceId);
       }
+
+      if (GrouperClientUtils.equals("g:gsa", wsSubjectLookup.getSubjectSourceId())) {
+        
+        subjectIdOriginal = subjectId;
+        
+        subjectId = GrouperKimUtils.translateGroupId(subjectId);
+        
+        if (GrouperClientUtils.equals(subjectIdOriginal, subjectId)) {
+          //see if different name to override group
+          subjectId = GrouperKimUtils.translateGroupName(subjectId);
+          if (!GrouperClientUtils.equals(subjectId, subjectIdOriginal)) {
+            subjectIdentifier = subjectId;
+            subjectId = null;
+          } 
+        }
+      }
+      
+      wsSubjectLookup.setSubjectId(subjectId);
+      
+      if (GrouperClientUtils.isBlank(subjectId)) {
+                
+        subjectIdentifier = GrouperKimUtils.separateSourceIdSuffix(subjectIdentifier);
+        debugMap.put("subjectIdentifier", subjectIdentifier);
+        
+        wsSubjectLookup.setSubjectIdentifier(subjectIdentifier);
+      }
+
       
       gcHasMember.addSubjectLookup(wsSubjectLookup);
       
@@ -1021,7 +1204,7 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
     debugMap.put("groupMemberId", groupMemberId);
     debugMap.put("groupId", groupId);
 
-    return isMemberHelper(groupMemberId, "g:gsa", groupId, null, debugMap);
+    return isMemberHelper(groupMemberId, "g:gsa", null, groupId, null, debugMap);
   }
 
   /**
@@ -1045,7 +1228,7 @@ public class GrouperKimGroupServiceImpl extends GrouperKimGroupUpdateServiceImpl
     debugMap.put("groupId", groupId);
     String sourceId = GrouperKimUtils.subjectSourceId();
 
-    return isMemberHelper(principalId, sourceId, groupId, null, debugMap);
+    return isMemberHelper(principalId, sourceId, null, groupId, null, debugMap);
   }
 
   /**
