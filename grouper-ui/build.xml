@@ -423,15 +423,26 @@
 	</target>
 	
 	<target name="-copyContextXmlToMetaInf" if="deploy.context.xml">
-		<filter token="deploy.docbase" value="${deploy.docbase}"/>
-		<filter token="deploy.context.path" value="${deploy.context.path}"/>
-		<copy file="${deploy.context.xml}" tofile="${webapp.folder}/META-INF/context.xml" filtering="true" overwrite="true"/>
+    <if>
+     <equals arg1="true1" arg2="${should.copy.context.xml.to.metainf}"/>
+     <then>
+
+  		<filter token="deploy.docbase" value="${deploy.docbase}"/>
+  		<filter token="deploy.context.path" value="${deploy.context.path}"/>
+  		<copy file="${deploy.context.xml}" tofile="${webapp.folder}/META-INF/context.xml" filtering="true" overwrite="true"/>
+     </then>
+    </if>
 	</target>
 	
 	<target name="-copyContextXmlToTomcat" if="copyToTomcat">
-		<filter token="deploy.docbase" value="${deploy.docbase}"/>
-		<filter token="deploy.context.path" value="${deploy.context.path}"/>
-		<copy file="${deploy.context.xml}" tofile="${deploy.context.dir}/${webapp.name}.xml" filtering="true" overwrite="true"/>
+    <if>
+     <equals arg1="true1" arg2="${should.copy.context.xml.to.metainf}"/>
+     <then>
+       <filter token="deploy.docbase" value="${deploy.docbase}"/>
+       <filter token="deploy.context.path" value="${deploy.context.path}"/>
+       <copy file="${deploy.context.xml}" tofile="${deploy.context.dir}/${webapp.name}.xml" filtering="true" overwrite="true"/>
+     </then>
+    </if>
 	</target>
 	
 	<!--
