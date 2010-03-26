@@ -224,7 +224,7 @@
 		<echo message="Copying Grouper configuration files to ${webapp.class.folder}"/>
 		<copy todir="${webapp.class.folder}" overwrite="true">
 			<fileset dir="${grouper.folder}/conf">
-	
+				<exclude name="*.example.*"/>
 			</fileset>
 		</copy>
 		<!-- Allow local log4j.properties -->
@@ -378,7 +378,6 @@
 			</then>
 		</if>
 	  
-	  
 		
 		<!-- Call any site specific build script. This may be used to introduce site specific Struts action,
 		  	     local Subject implementations etc -->
@@ -449,11 +448,11 @@
 		<antcall target="-copyContextXmlToTomcat"/>
 	</target>
 	
-	<target name="-copyContextXmlToMetaInf" if="deploy.context.xml">
-	  
+	<target name="-copyContextXmlToMetaInf" if="deploy.context.xml">	  
 	  <if>
      <equals arg1="true" arg2="${should.copy.context.xml.to.metainf}"/>
      <then>
+
   		<filter token="deploy.docbase" value="${deploy.docbase}"/>
   		<filter token="deploy.context.path" value="${deploy.context.path}"/>
   		<copy file="${deploy.context.xml}" tofile="${webapp.folder}/META-INF/context.xml" filtering="true" overwrite="true"/>
@@ -462,16 +461,21 @@
 	</target>
 	
 	<target name="-copyContextXmlToTomcat" if="copyToTomcat">
-		<filter token="deploy.docbase" value="${deploy.docbase}"/>
-		<filter token="deploy.context.path" value="${deploy.context.path}"/>
-		<copy file="${deploy.context.xml}" tofile="${deploy.context.dir}/${webapp.name}.xml" filtering="true" overwrite="true"/>
+    <if>
+     <equals arg1="true" arg2="${should.copy.context.xml.to.metainf}"/>
+     <then>
+       <filter token="deploy.docbase" value="${deploy.docbase}"/>
+       <filter token="deploy.context.path" value="${deploy.context.path}"/>
+       <copy file="${deploy.context.xml}" tofile="${deploy.context.dir}/${webapp.name}.xml" filtering="true" overwrite="true"/>
+     </then>
+    </if>
 	</target>
 	
 	<!--
 		Merge any xml files in temp directory with web.core.xml 
 	-->
 	<target name="-merge-xmls" unless="web.xmls.isempty">
-	  
+
 	 <if>
 		<or>
 			<not><available file="webapp/WEB-INF/web.xml" /></not>
@@ -512,7 +516,7 @@
 			<echo message="web.xml exists and web.xml.overwrite=false, so NOT rebuilding web.xml. Delete web.xml to force a rebuild" />
 		</else>
 	  </if> 
-    
+    	
 		<fail if="failed">Something went wrong processing web.xmls - check output for details</fail>
 			  <!-- copy file="webapp/WEB-INF/web.xml" 
 	          tofile="${webapp.folder}/WEB-INF/web.xml" /-->
