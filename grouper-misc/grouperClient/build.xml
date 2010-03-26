@@ -112,6 +112,9 @@
         <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
     </tstamp>
     <jar jarfile="${main.jarFile}" duplicate="fail">
+      <fileset dir="misc">
+        <include name="META-INF/*" />
+      </fileset>
       <fileset dir="${main.binDir}" />
       <manifest>
         <attribute name="Main-Class" value="edu.internet2.middleware.grouperClient.GrouperClient"/>

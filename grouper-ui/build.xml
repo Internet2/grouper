@@ -369,6 +369,9 @@
 		<if><equals arg1="${ui.make.jar}" arg2="true"/>
 		  	<then>
 			    <jar file="${webapp.folder}/WEB-INF/lib/grouper-ui.jar">
+			      <fileset dir="misc">
+			        <include name="META-INF/*" />
+			      </fileset>
 			      <fileset dir="${temp.dir}/jarBin" />
 			      <fileset dir="${ui.folder}/java/src" />
 			    </jar>

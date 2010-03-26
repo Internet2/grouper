@@ -119,6 +119,9 @@
               <attribute name="Implementation-Version"  value="${version}"/>
               <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
             </manifest>
+            <fileset dir="misc">
+              <include name="META-INF/*" />
+            </fileset>
             <fileset dir="${src.dir}" />
             <fileset dir="${build.dir}" />
         	</jar>
