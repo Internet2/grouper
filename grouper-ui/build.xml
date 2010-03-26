@@ -424,7 +424,7 @@
 	
 	<target name="-copyContextXmlToMetaInf" if="deploy.context.xml">
     <if>
-     <equals arg1="true1" arg2="${should.copy.context.xml.to.metainf}"/>
+     <equals arg1="true" arg2="${should.copy.context.xml.to.metainf}"/>
      <then>
 
   		<filter token="deploy.docbase" value="${deploy.docbase}"/>
