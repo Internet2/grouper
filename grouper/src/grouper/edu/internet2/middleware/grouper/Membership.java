@@ -2838,8 +2838,8 @@ public class Membership extends GrouperAPI implements
         
       } else if (!StringUtils.isBlank(this.ownerStemId)) {
         
-        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
-        Privilege privilege = Privilege.getInstance(field.getName());
+        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerStemId, true);
+        Privilege privilege = NamingPrivilege.listToPriv(field.getName());
         stem.internal_grantPriv(subject, privilege, false, this.immediateMembershipId);
         existingRecord = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, this.memberUUID, 
             this.fieldId, null, null, stem.getUuid(), true);
@@ -2847,7 +2847,7 @@ public class Membership extends GrouperAPI implements
       } else if (!StringUtils.isBlank(this.ownerAttrDefId)) {
 
         AttributeDef attributeDef = AttributeDefFinder.findById(this.ownerAttrDefId, true);
-        Privilege privilege = Privilege.getInstance(field.getName());
+        Privilege privilege = AttributeDefPrivilege.listToPriv(field.getName());
         attributeDef.getPrivilegeDelegate().internal_grantPriv(subject, privilege, false, this.getImmediateMembershipId());
         existingRecord = GrouperDAOFactory.getFactory().getMembership().findByImmediateUuidOrKey(null, this.memberUUID, 
             this.fieldId, this.ownerAttrDefId, null, null, true);

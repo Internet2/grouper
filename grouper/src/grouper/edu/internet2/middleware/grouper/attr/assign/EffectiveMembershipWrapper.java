@@ -6,6 +6,10 @@ package edu.internet2.middleware.grouper.attr.assign;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 
 
 /**
@@ -79,4 +83,20 @@ public class EffectiveMembershipWrapper implements AttributeAssignable {
     return this.group.getAttributeDelegateEffMship(this.member);
   }
   
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeValueDelegate attributeValueDelegate;
+  
+  /**
+   * this delegate works on attributes and values at the same time
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegate() {
+    if (this.attributeValueDelegate == null) {
+      this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
+    }
+    return this.attributeValueDelegate;
+  }
+  
+
 }

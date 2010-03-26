@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotAllowed;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -1416,4 +1417,20 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     return this.valueDelegate;
   }
   
+  /** */
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private AttributeValueDelegate attributeValueDelegate;
+  
+  /**
+   * this delegate works on attributes and values at the same time
+   * @return the delegate
+   */
+  public AttributeValueDelegate getAttributeValueDelegate() {
+    if (this.attributeValueDelegate == null) {
+      this.attributeValueDelegate = new AttributeValueDelegate(this.getAttributeDelegate());
+    }
+    return this.attributeValueDelegate;
+  }
+  
+
 }

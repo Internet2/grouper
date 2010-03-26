@@ -94,7 +94,6 @@ public class XmlImportMainTest extends GrouperTest {
     XmlImportMain xmlImportMain = new XmlImportMain();
     
     
-    xmlImportMain = new XmlImportMain();
     xmlImportMain.setRecordReport(true);
 
     xmlImportMain.processXml(importFileXml);

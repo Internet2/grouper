@@ -22,6 +22,7 @@ public class AllXmlImportTests {
         "Test for edu.internet2.middleware.grouper.xml.importXml");
     //$JUnit-BEGIN$
     suite.addTestSuite(XmlImportMainTest.class);
+    suite.addTestSuite(XmlLegacyTest.class);
     //$JUnit-END$
     return suite;
   }

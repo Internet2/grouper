@@ -373,7 +373,7 @@ public class XmlImportMain {
   
   
   /**
-   * @return the readonly
+   * @return the record report
    */
   public boolean isRecordReport() {
     return this.recordReport;
@@ -382,10 +382,10 @@ public class XmlImportMain {
 
   
   /**
-   * @param readonly the readonly to set
+   * @param isRecordReport if record report to set
    */
-  public void setRecordReport(boolean readonly) {
-    this.recordReport = readonly;
+  public void setRecordReport(boolean isRecordReport) {
+    this.recordReport = isRecordReport;
   }
 
 
@@ -573,7 +573,8 @@ public class XmlImportMain {
    */
   public void incrementCurrentCount() {
     this.currentRecordIndex++;
-    GrouperUtil.sleep(2000);
+    //uncomment this to see the status working
+    //GrouperUtil.sleep(2000);
   }
 
   /**
