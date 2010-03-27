@@ -21,6 +21,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
@@ -198,6 +199,19 @@ public interface AccessResolver {
   public boolean hqlFilterGroupsWhereClause( 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet);
 
+//  /**
+//   * for a attributeDef query, check to make sure the subject can see the records (if filtering HQL, you can do 
+//   * the postHqlFilterGroups instead if you like)
+//   * @param subject which needs view access to the groups
+//   * @param hqlQuery 
+//   * @param hql the select and current from part
+//   * @param attributeDefColumn is the name of the group column to join to
+//   * @param privInSet find a privilege which is in this set (e.g. for view, send all access privs)
+//   * @return if the statement was changed
+//   */
+//  public boolean hqlFilterAttributeDefsWhereClause( 
+//      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Set<Privilege> privInSet);
+
   /**
    * filter memberships for things the subject can see
    * @param memberships
@@ -206,6 +220,15 @@ public interface AccessResolver {
    */
   public Set<Membership> postHqlFilterMemberships(
       Subject subject, Set<Membership> memberships);
+
+//  /**
+//   * filter memberships for things the subject can see
+//   * @param assignments
+//   * @param subject
+//   * @return the assignments
+//   */
+//  public Set<Membership> postHqlFilterAttributeAssignments(
+//      Subject subject, Set<AttributeAssign> assignments);
 
   /**
    * Revoke all access privileges that this subject has.

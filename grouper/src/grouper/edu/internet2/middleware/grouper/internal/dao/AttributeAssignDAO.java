@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Collection;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 
@@ -187,7 +188,16 @@ public interface AttributeAssignDAO extends GrouperDAO {
   public Set<AttributeAssign> findByMembershipIdAndAttributeDefNameId(
       String membershipIdToAssignTo, String attributeDefNameIdToAssign);
 
- 
+  /**
+   * securely search for assignments
+   * @param attributeDefIds
+   * @param attributeDefScope
+   * @param attributeDefScopeEnum
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findGroupAttributeAssignments(Collection<String> attributeDefIds, 
+      String attributeDefScope, Boolean enabled);
+  
   /**
    * find attribute def names (distinct) by attribute def id
    * @param attrAssignIdToAssignTo

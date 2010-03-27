@@ -2,19 +2,32 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Data Access Object for attribute def
@@ -642,6 +655,170 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       return attributeAssigns;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findGroupAttributeAssignments(Collection, java.lang.String, Boolean)
+   */
+  public Set<AttributeAssign> findGroupAttributeAssignments(Collection<String> attributeDefIds,
+      String attributeDefScope, Boolean enabled) {
+      
+//    int groupIdsSize = GrouperUtil.length(groupIds);
+    int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
+//    int membershipIdsSize = GrouperUtil.length(membershipIds);
+    
+//    if (groupIdsSize == 0 && attributeDefIdsSize == 0 && membershipIdsSize == 0) {
+//      throw new RuntimeException("Must pass in group(s), member(s), and/or membership(s)");
+//    }
+//    if ((attributeDefScope == null) != (stemScope == null)) {
+//      throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
+//    }
+
+    //too many bind vars
+//    if (groupIdsSize + attributeDefIds + membershipIdsSize > 100) {
+//      throw new RuntimeException("Too many groupIds " + groupIdsSize + " or memberIds " 
+//          + memberIdsSize + " or membershipIds " + membershipIdsSize);
+//    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    String selectPrefix = "select as ";
+    String countPrefix = "select count(*) ";
+    
+    StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");
+    
+    //we need to make sure it is a list type field
+//    if (field == null) {
+//      sql.append(", Field f ");
+//    }
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    Subject grouperSessionSubject = grouperSession.getSubject();
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+        grouperSessionSubject, byHqlStatic, 
+        sql, "ms.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
+
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+    
+    sql.append(" ms.ownerGroupId = g.uuid "
+        + " and ms.memberUuid = m.uuid ");
+    if (enabled != null && enabled) {
+      sql.append(" and ms.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and ms.enabledDb = 'F' ");
+    }
+//    if (sources != null && sources.size() > 0) {
+//      sql.append(" and m.subjectSourceIdDb in ").append(GrouperUtil.convertSourcesToSqlInString(sources));
+//    }
+//    boolean hasScope = StringUtils.isNotBlank(scope);
+//    if (hasScope) {
+//      sql.append(" and g.nameDb like :scope ");
+//      byHqlStatic.setString("scope", scope + "%");
+//    }
+//    if (stem != null) {
+//      switch (stemScope) {
+//        case ONE:
+//          
+//          sql.append(" and g.parentUuid = :stemId ");
+//          byHqlStatic.setString("stemId", stem.getUuid());
+//          break;
+//        case SUB:
+//          
+//          sql.append(" and g.nameDb like :stemSub ");
+//          byHqlStatic.setString("stemSub", stem.getName() + ":%");
+//          
+//          break;
+//        default:
+//          throw new RuntimeException("Not expecting scope: " + stemScope);
+//      }
+//    }
+//    //immediate or effective, etc
+//    if (membershipType != null) {
+//      sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
+//    }
+//    if (field != null) {
+//      //needs to be a members field
+//      if (!StringUtils.equals("list",field.getTypeString())) {
+//        throw new RuntimeException("This method only works with members fields: " + field);
+//      }
+//      sql.append(" and ms.fieldId = :fieldId ");
+//      byHqlStatic.setString("fieldId", field.getUuid());
+//    } else {
+//      //add on the column
+//      sql.append(" and ms.fieldId = f.uuid and f.typeString = 'list' ");
+//    }
+//    if (groupIdsSize > 0) {
+//      sql.append(" and ms.ownerGroupId in (");
+//      sql.append(HibUtils.convertToInClause(groupIds, byHqlStatic));
+//      sql.append(") ");
+//    }
+//    if (memberIdsSize > 0) {
+//      sql.append(" and ms.memberUuid in (");
+//      sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
+//      sql.append(") ");
+//    }
+//    if (membershipIdsSize > 0) {
+//      sql.append(" and ms.uuid in (");
+//      sql.append(HibUtils.convertToInClause(membershipIds, byHqlStatic));
+//      sql.append(") ");
+//    }
+//    
+//    byHqlStatic
+//      .setCacheable(false)
+//      .setCacheRegion(KLASS + ".FindGroupAttributeAssignments");
+//
+//    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAssignments.maxResultSize", 30000);
+//    
+//    //if -1, lets not check
+//    if (maxAssignments >= 0) {
+//
+//      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+//      
+//      //see if too many
+//      if (size > maxAssignments) {
+//        throw new RuntimeException("Too many results: " + size);
+//      }
+//      
+//    }
+//    
+//    
+    Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
+//
+//    //nothing to filter
+//    if (GrouperUtil.length(results) == 0) {
+//      return results;
+//    }
+//    
+//    //if the hql didnt filter, we need to do that here
+//    Set<Membership> memberships = new LinkedHashSet<Membership>();
+//    for (Object[] objects : results) {
+//      memberships.add((Membership)objects[0]);
+//    }
+//    int origMembershipsSize = memberships.size();
+//    Set<Membership> filteredMemberships = grouperSession.getAccessResolver().postHqlFilterMemberships(grouperSessionSubject, memberships);
+//    if (origMembershipsSize != filteredMemberships.size()) {
+//      
+//      //we have work to do
+//      Iterator<Object[]> iterator = results.iterator();
+//      while (iterator.hasNext()) {
+//        Object[] row = iterator.next();
+//        Membership currentMembership = (Membership)row[0];
+//        //if not in the allowed list
+//        if (!filteredMemberships.contains(currentMembership)) {
+//          //remove the object row
+//          iterator.remove();
+//        }
+//      }
+//    }
+    
+    //we should be down to the cesure list
+    return results;
+      
+  }
 
 
   
