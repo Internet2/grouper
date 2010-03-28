@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.util.Set;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -26,6 +28,10 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author mchyzer
@@ -38,7 +44,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testRetrieveMultiple"));
+    TestRunner.run(new AttributeAssignTest("testFindGroupAttributeAssignments"));
   }
   
   /**
@@ -689,5 +695,176 @@ public class AttributeAssignTest extends GrouperTest {
     
   }
 
+  /**
+   * 
+   */
+  public void testFindGroupAttributeAssignments() {
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    //test subject 0 can view and read
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 1 can view not read
+    group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW);
+
+    //test subject 2 can read not view
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 3 can not read or view
+
+    //test subject 4 can read and read
+    group.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.READ);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 5 can update and read
+    group.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.UPDATE);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 6 can admin and read
+    group.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_READ, false);
+
+    //test subject 7 can view and update
+    group.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    //test subject 8 can view and admin
+    group.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, false);
+    
+    
+    AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+
+    //Search for all, should be an error:
+    try {
+      GrouperDAOFactory.getFactory().getAttributeAssign().findGroupAttributeAssignments(null, null, null);
+      fail();
+    } catch (Exception e) {
+      //good
+    }
+
+    //Search for group, should find it
+    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignments(null, GrouperUtil.toSet(group.getId()), true);
+    
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    //search for not it, shouldnt find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignments(null, GrouperUtil.toSet("abc"), true);
+  
+    assertEquals(0, attributeAssigns.size());
+
+    //search by attributeDefId, should find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignments(GrouperUtil.toSet(attributeDef.getId()), null, true);
+  
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+  
+    //TODO privilege helper attribute def filter
+    
+    //search by not attributeDefId, shouldnt find it
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignments(GrouperUtil.toSet("abc"), null, true);
+    
+    assertEquals(0, attributeAssigns.size());
+
+    Set<AttributeAssign> attributeAssignsBase = GrouperUtil.toSet(attributeAssign);
+    
+    
+    //#####################  CHECK SECURITY #############################
+    //test subject 1 can view not read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    attributeAssigns = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignments(null, GrouperUtil.toSet(group.getId()), true);
+  
+    assertEquals(0, attributeAssigns.size());
+    
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    assertEquals(0, attributeAssigns.size());
+    
+    //test subject 2 can read not view
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, false);
+
+    assertEquals(0, attributeAssigns.size());
+
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    assertEquals(0, attributeAssigns.size());
+
+    //test subject 3 can not read or view
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+
+    assertEquals(0, attributeAssigns.size());
+
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    assertEquals(0, attributeAssigns.size());
+
+    //test subject 4 can read and read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+    group.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.READ);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, false);
+
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    //test subject 5 can update and read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ5);
+    group.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.UPDATE);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ5, AttributeDefPrivilege.ATTR_READ, false);
+
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    //test subject 6 can admin and read
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ6);
+    group.grantPriv(SubjectTestHelper.SUBJ6, AccessPrivilege.ADMIN);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_READ, false);
+
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    //test subject 7 can view and update
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ7);
+    group.grantPriv(SubjectTestHelper.SUBJ7, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_UPDATE, false);
+
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+
+    //test subject 8 can view and admin
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ8);
+    group.grantPriv(SubjectTestHelper.SUBJ8, AccessPrivilege.VIEW);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ8, AttributeDefPrivilege.ATTR_ADMIN, false);
+
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+    
+    
+  }
   
 }

@@ -21,6 +21,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -236,7 +237,7 @@ public interface AttributeDefAdapter {
    * (e.g. for view, send all access privs).  There are pre-canned sets in AccessAdapter
    * @return the set of filtered groups
    */
-  public Set<AttributeDef> postHqlFilterGroups(GrouperSession grouperSession, 
+  public Set<AttributeDef> postHqlFilterAttributeDefs(GrouperSession grouperSession, 
       Set<AttributeDef> attributeDefs, Subject subject, Set<Privilege> privInSet);
   
   /**
@@ -259,12 +260,12 @@ public interface AttributeDefAdapter {
   /**
    * filter memberships for things the subject can see
    * @param grouperSession 
-   * @param attributeDefs
+   * @param attributeAssigns
    * @param subject
    * @return the memberships
    */
-  public Set<AttributeDef> postHqlFilterAttributeDefs(GrouperSession grouperSession, 
-      Subject subject, Set<AttributeDef> attributeDefs);
+  public Set<AttributeAssign> postHqlFilterAttributeAssigns(GrouperSession grouperSession, 
+      Subject subject, Set<AttributeAssign> attributeAssigns);
   
 
   /**

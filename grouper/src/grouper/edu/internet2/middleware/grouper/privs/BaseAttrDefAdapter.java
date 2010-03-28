@@ -8,7 +8,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -21,9 +23,9 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#postHqlFilterGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#postHqlFilterAttributeDefs(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<AttributeDef> postHqlFilterGroups(GrouperSession grouperSession, Set<AttributeDef> inputAttributeDefs, 
+  public Set<AttributeDef> postHqlFilterAttributeDefs(GrouperSession grouperSession, Set<AttributeDef> inputAttributeDefs, 
       Subject subject, Set<Privilege> privInSet) {
     
 
@@ -55,14 +57,14 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#postHqlFilterAttributeDefs(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#postHqlFilterAttributeAssigns(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<AttributeDef> postHqlFilterAttributeDefs(
+  public Set<AttributeAssign> postHqlFilterAttributeAssigns(
       GrouperSession grouperSession, Subject subject,
-      Set<AttributeDef> attributeDefs) {
-
-    return PrivilegeHelper.canViewAttributeDefs(grouperSession, attributeDefs);
+      Set<AttributeAssign> attributeAssigns) {
+    return PrivilegeHelper.canViewAttributeAssigns(grouperSession, attributeAssigns);
   }
-
+  
+  
 
 }

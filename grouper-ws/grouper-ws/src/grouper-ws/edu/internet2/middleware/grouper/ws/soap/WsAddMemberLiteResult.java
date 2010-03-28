@@ -157,7 +157,7 @@ public class WsAddMemberLiteResult implements WsResponseBean {
 
     /** get the name label for a certain version of client 
      * @param clientVersion 
-     * @return */
+     * @return name */
     public String nameForVersion(GrouperWsVersion clientVersion) {
       return this.name();
     }

@@ -17,8 +17,8 @@ package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -166,15 +166,15 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterAttrDefs(edu.internet2.middleware.subject.Subject, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterAttributeAssigns(edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<AttributeDef> postHqlFilterAttrDefs(Subject subject,
-      Set<AttributeDef> attributeDefs) {
+  public Set<AttributeAssign> postHqlFilterAttributeAssigns(Subject subject,
+      Set<AttributeAssign> attributeDefs) {
 
     this.param.notNullSubject(subject);
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
-    return decoratedResolver.postHqlFilterAttrDefs(subject, attributeDefs);
+    return decoratedResolver.postHqlFilterAttributeAssigns(subject, attributeDefs);
   }
 
   /**

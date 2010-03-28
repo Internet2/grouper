@@ -8,7 +8,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * enum for assignment type
  */
 public enum AttributeAssignType {
   

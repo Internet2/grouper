@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -46,11 +47,12 @@ public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#hqlFilterGroupsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.BaseAttrDefAdapter#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
-  public boolean hqlFilterGroupsWhereClause(GrouperSession grouperSession,
-      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attrDefColumn, Set<Privilege> privInSet) {
-
+  @Override
+  public boolean hqlFilterAttrDefsWhereClause(GrouperSession grouperSession,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn,
+      Set<Privilege> privInSet) {
     //no privs no filter
     if (GrouperUtil.length(privInSet) == 0) {
       return false;
@@ -64,8 +66,8 @@ public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
     
     //if not, we need an in clause
     StringBuilder query = hql.append( ", MembershipEntry __accessMembership where " +
-    		"__accessMembership.ownerGroupId = " + attrDefColumn
-    		+ " and __accessMembership.fieldId in (");
+        "__accessMembership.ownerGroupId = " + attributeDefColumn
+        + " and __accessMembership.fieldId in (");
     query.append(attrDefInClause).append(") and __accessMembership.memberUuid in (");
     Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());
     if (member != null) {
@@ -79,10 +81,15 @@ public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
     return true;
   }
 
-  public Set<AttributeDef> postHqlFilterAttributeDefs(GrouperSession grouperSession,
-      Set<AttributeDef> inputAttrDefs, Subject subject, Set<Privilege> privInSet) {
-    //assume the HQL filtered everything
-    return inputAttrDefs;
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#postHqlFilterAttributeAssigns(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Set<AttributeAssign> postHqlFilterAttributeAssigns(GrouperSession grouperSession,
+      Subject subject, Set<AttributeAssign> attributeAssigns) {
+    return attributeAssigns;
   }
+
 }
 

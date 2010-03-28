@@ -20,6 +20,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -152,11 +153,11 @@ public abstract class AttributeDefResolverDecorator implements AttributeDefResol
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterAttrDefs(edu.internet2.middleware.subject.Subject, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterAttributeAssigns(edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<AttributeDef> postHqlFilterAttrDefs(Subject subject,
-      Set<AttributeDef> attributeDefs) {
-    return this.getDecoratedResolver().postHqlFilterAttrDefs(subject, attributeDefs);
+  public Set<AttributeAssign> postHqlFilterAttributeAssigns(Subject subject,
+      Set<AttributeAssign> attributeDefs) {
+    return this.getDecoratedResolver().postHqlFilterAttributeAssigns(subject, attributeDefs);
   }
 
 

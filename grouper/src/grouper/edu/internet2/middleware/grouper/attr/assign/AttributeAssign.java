@@ -6,9 +6,12 @@ package edu.internet2.middleware.grouper.attr.assign;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
@@ -1431,6 +1434,49 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     }
     return this.attributeValueDelegate;
   }
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof AttributeAssign)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.getId(), ( (AttributeAssign) other ).getId() )
+      .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @return hashcode
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getId() )
+      .toHashCode();
+  } // public int hashCode()
   
+  /**
+   * retrieve a set of attributeDefs based on some assignments
+   * @param attributeAssigns
+   * @return the set of attributeDefs
+   */
+  public static Set<AttributeDef> retrieveAttributeDefs(Collection<AttributeAssign> attributeAssigns) {
+      
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+
+    for (AttributeAssign attributeAssign : attributeAssigns) {
+      
+      attributeDefs.add(attributeAssign.getAttributeDef());
+      
+    }
+    
+    return attributeDefs;
+  }
+
 
 }

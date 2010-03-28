@@ -71,11 +71,14 @@ import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResult;
@@ -4780,5 +4783,181 @@ public class GrouperServiceLogic {
     return wsAssignGrouperPrivilegesResults;
   }
 
+  
+//  String scope, 
+//   WsStemLookup wsStemLookup, 
+//   String stemScope, 
+//   String enabled,
+//   boolean includeAssignmentsOnAssignments
+//   attributeAssignIds (inside owner lookups?)
+//  groupDetail
+//  subjectDetail
+//  subjectAttributeNames
+//  Owner Lookups (multiple?):
+//    - groupLookup
+//    - stemLookup
+//    - memberLookup
+//    - attributeDefLookup
+//    - immediateMembershipLookup
+//    - effectiveMembershipLookup
+//    - attributeAssignmentLookup
+//      - uuid
+//      - attributeNameLookup
+//      - groupLookup
+//      - stemLookup
+//      - attributeDefLookup
+//      - immediateMembershipLookup
+//      - effectiveMembershipLookup
+//  enabled is A for all, T or null for enabled only, F for disabled
+//  WsSubjectLookup actAsSubjectLookup,
+//   final WsParam[] params, 
 
+  
+  /**
+   * get memberships from gruops and or subjects based on a filter (all, immediate only,
+   * effective only, composite, nonimmediate).
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsGroupLookups are groups to look in
+   * @param wsSubjectLookups are subjects to look in
+   * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
+   * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
+   * @param wsStemLookups are stems to look in
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectLookup
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsGetAttributeAssignmentsResults getAttributeAssignments(final GrouperWsVersion clientVersion,
+      WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
+      WsGroupLookup[] wsGroupLookups, WsStemLookup[] wsStemLookups, WsSubjectLookup[] wsSubjectLookups, 
+      WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
+      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params, 
+      String enabled) {  
+
+    WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+  
+      theSummary = "clientVersion: " + clientVersion + ", wsAttributeDefLookups: "
+      + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200) + ", wsAttributeDefNameLookups: "
+      + GrouperUtil.toStringForLog(wsAttributeDefNameLookups, 200) + ", wsStemLookups: "
+      + GrouperUtil.toStringForLog(wsStemLookups, 200) + ", wsGroupLookups: "
+          + GrouperUtil.toStringForLog(wsGroupLookups, 200) 
+          + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
+          + actAsSubjectLookup 
+          + ", subjectAttributeNames: "
+          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
+          + GrouperUtil.toStringForLog(wsSubjectLookups, 200) 
+          + ", enabled: " + enabled;
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+      
+      //get all the groups
+      //we could probably batch these to get better performance.  And we dont even have to lookup uuids
+      Set<String> groupIds = null;
+      if (GrouperUtil.length(wsGroupLookups) > 0) {
+        
+        groupIds = new LinkedHashSet<String>();
+        for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
+          
+          if (wsGroupLookup == null) {
+            continue;
+          }
+          wsGroupLookup.retrieveGroupIfNeeded(session);
+          Group group = wsGroupLookup.retrieveGroup();
+          groupIds.add(group.getUuid());
+          
+        }
+        
+      }
+
+      //get all the members
+      Set<String> memberIds = null;
+      if (GrouperUtil.length(wsSubjectLookups) > 0) {
+        
+        memberIds = new LinkedHashSet<String>();
+        for (WsSubjectLookup wsSubjectLookup : wsSubjectLookups) {
+          if (wsSubjectLookup == null) {
+            continue;
+          }
+          Member member = wsSubjectLookup.retrieveMember();
+          if (member == null) {
+            //cant find, thats ok
+            if (MemberFindResult.MEMBER_NOT_FOUND.equals(wsSubjectLookup.retrieveMemberFindResult())) {
+              continue;
+            }
+            //problem
+            throw new RuntimeException("Problem with subject: " + wsSubjectLookup + ", " + wsSubjectLookup.retrieveMemberFindResult());
+          }
+          memberIds.add(member.getUuid());
+        }
+      }
+
+      Boolean enabledBoolean = true;
+      if (!StringUtils.isBlank(enabled)) {
+        if (StringUtils.equalsIgnoreCase("A", enabled)) {
+          enabledBoolean = null;
+        } else {
+          enabledBoolean = GrouperUtil.booleanValue(enabled);
+        }
+      }
+      
+      Stem stem = null;
+      
+//      if (wsStemLookup != null) {
+//        wsStemLookup.retrieveStemIfNeeded(session, true);
+//        stem = wsStemLookup.retrieveStem();
+//
+//      }
+//      
+//      //if filtering by stem, and stem not found, then dont find any memberships
+//      if (wsStemLookup == null || stem != null) {
+//        Set<Source> sources = GrouperUtil.convertSources(sourceIds);
+//        
+//        Set<String> membershipIdSet = null;
+//        if (GrouperUtil.length(membershipIds) > 0) {
+//          membershipIdSet = GrouperUtil.toSet(membershipIds);
+//        }
+//        
+//        // lets get the members, cant be null
+//        Set<Object[]> membershipObjects = MembershipFinder.findMemberships(groupIds, memberIds, membershipIdSet, 
+//            membershipType, fieldName, sources, scope, stem, stemScope == null ? null : stemScope.convertToScope(), enabledBoolean);
+//        
+//        //calculate and return the results
+//        wsGetMembershipsResults.assignResult(membershipObjects, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
+//      }
+      wsGetMembershipsResults.assignResultCode(WsGetMembershipsResultsCode.SUCCESS);
+      
+      wsGetMembershipsResults.getResultMetadata().setResultMessage(
+          "Found " + GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()) 
+          + " results involving " + GrouperUtil.length(wsGetMembershipsResults.getWsGroups())
+          + " groups and " + GrouperUtil.length(wsGetMembershipsResults.getWsSubjects()) + " subjects");
+
+        
+    } catch (Exception e) {
+      wsGetMembershipsResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  
+    return null; //wsGetMembershipsResults;
+  
+  }
 }

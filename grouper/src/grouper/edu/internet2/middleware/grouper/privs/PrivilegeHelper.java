@@ -33,6 +33,8 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -381,13 +383,22 @@ public class PrivilegeHelper {
         if ( FieldType.NAMING.equals( ms.getList().getType() ) ) {
           dispatch( s, ms.getStem(), s.getSubject(), ms.getList().getReadPriv() );
           mships.add(ms);
-        }else{
+        } else if ( FieldType.ACCESS.equals( ms.getList().getType() ) ) {
         	dispatch( s, ms.getGroup(), s.getSubject(), ms.getList().getReadPriv() );
             mships.add(ms);
+        } else if (FieldType.NAMING.equals( ms.getList().getType() ) ) {
+          
+          dispatch( s, ms.getAttributeDef(), s.getSubject(), ms.getList().getReadPriv() );
+            mships.add(ms);
+
+        } else {
+          throw new RuntimeException("Invalid field type: " + ms.getList().getType());
         }
         
-      }
-      catch (Exception e) {
+      } catch (InsufficientPrivilegeException e) {
+        //ignore, not allowed, dont add
+        continue;
+      } catch (Exception e) {
         LOG.error("canViewMemberships: " + e.getMessage(), e );
       }
     }
@@ -814,19 +825,66 @@ public class PrivilegeHelper {
     while ( it.hasNext() ) {
       attributeDef = it.next() ;
       try {
-    	//2007-10-17: Gary Brown
-    	//https://bugs.internet2.edu/jira/browse/GRP-38
-        //Ah! Memberships for stem privileges are passed through here also
-    	//The conditional makes sense - except it was wrong  -and didn't cope with stem privileges
+      	//2007-10-17: Gary Brown
+      	//https://bugs.internet2.edu/jira/browse/GRP-38
+          //Ah! Memberships for stem privileges are passed through here also
+      	//The conditional makes sense - except it was wrong  -and didn't cope with stem privileges
         dispatch( s, attributeDef, s.getSubject(), AttributeDefPrivilege.ATTR_VIEW );
         attrDefs.add(attributeDef);
         
-      }
-      catch (Exception e) {
+      } catch (InsufficientPrivilegeException e) {
+        //ignore, not allowed, dont add
+        continue;
+      } catch (Exception e) {
         LOG.error("canViewAttributeDef: " + e.getMessage(), e );
       }
     }
     return attrDefs;
+  }
+
+  /**
+   * TODO 20100327 find a real home for this and/or add tests
+   * @param s 
+   * @param inputAttributeAssigns 
+   * @return filtered memberships
+   * @SINCE   1.2.1
+   */
+  public static Set<AttributeAssign> canViewAttributeAssigns(GrouperSession s, Collection<AttributeAssign> inputAttributeAssigns) {
+    
+    if (inputAttributeAssigns == null) {
+      return null;
+    }
+    
+    Set<AttributeAssign> attributeAssigns  = new LinkedHashSet<AttributeAssign>();
+    
+    for (AttributeAssign attributeAssign : inputAttributeAssigns) {
+      try {
+        
+        //first try the attributeDefs
+        AttributeDef attributeDef = attributeAssign.getAttributeDef();
+        
+        dispatch(s, attributeDef, s.getSubject(), AttributeDefPrivilege.ATTR_READ);
+        
+        //now, depending on the assignment, check it out
+        AttributeAssignType attributeAssignType = attributeAssign.getAttributeAssignType();
+        
+        //TODO fill this in
+//          if ( FieldType.NAMING.equals( ms.getList().getType() ) ) {
+//            dispatch( s, ms.getStem(), s.getSubject(), ms.getList().getReadPriv() );
+//            attributeAssigns.add(ms);
+//          }else{
+//            dispatch( s, ms.getGroup(), s.getSubject(), ms.getList().getReadPriv() );
+//              attributeAssigns.add(ms);
+//          }
+      } catch (InsufficientPrivilegeException e) {
+        //ignore, not allowed, dont add
+        continue;
+      } catch (Exception e) {
+          LOG.error("canViewMemberships: " + e.getMessage(), e );
+      }
+      
+    }
+    return attributeAssigns;
   }
 
 }

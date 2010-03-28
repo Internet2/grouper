@@ -19,6 +19,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -189,7 +190,7 @@ public class AttributeDefWrapper implements AttributeDefResolver {
    */
   public Set<AttributeDef> postHqlFilterAttrDefs(Set<AttributeDef> attributeDefs, Subject subject,
       Set<Privilege> privInSet) {
-    return this.attributeDefAdapter.postHqlFilterGroups(this.grouperSession, attributeDefs,
+    return this.attributeDefAdapter.postHqlFilterAttributeDefs(this.grouperSession, attributeDefs,
         subject, privInSet);
   }
 
@@ -261,10 +262,10 @@ public class AttributeDefWrapper implements AttributeDefResolver {
    * 
    * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterAttrDefs(edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<AttributeDef> postHqlFilterAttrDefs(Subject subject,
-      Set<AttributeDef> attributeDefs) {
-    return this.attributeDefAdapter.postHqlFilterAttributeDefs(this.grouperSession,
-        subject, attributeDefs);
+  public Set<AttributeAssign> postHqlFilterAttributeAssigns(Subject subject,
+      Set<AttributeAssign> attributeAssigns) {
+    return this.attributeDefAdapter.postHqlFilterAttributeAssigns(this.grouperSession,
+        subject, attributeAssigns);
   }
 
   /**

@@ -7,7 +7,6 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Collection;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 
@@ -189,16 +188,6 @@ public interface AttributeAssignDAO extends GrouperDAO {
       String membershipIdToAssignTo, String attributeDefNameIdToAssign);
 
   /**
-   * securely search for assignments
-   * @param attributeDefIds
-   * @param attributeDefScope
-   * @param attributeDefScopeEnum
-   * @return the assignments
-   */
-  public Set<AttributeAssign> findGroupAttributeAssignments(Collection<String> attributeDefIds, 
-      String attributeDefScope, Boolean enabled);
-  
-  /**
    * find attribute def names (distinct) by attribute def id
    * @param attrAssignIdToAssignTo
    * @param attributeDefIdToAssign
@@ -295,5 +284,17 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @return the assignments
    */
   Set<AttributeAssign> findByActionId(String actionId);
+
+  /**
+   * securely search for assignments.  need to pass in either the def ids, def names, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param groupIds
+   * @param enabled
+   * @return the assignments
+   */
+  public Set<AttributeAssign> findGroupAttributeAssignments(Collection<String> attributeDefIds, 
+      Collection<String> groupIds, Boolean enabled);
   
+
 }

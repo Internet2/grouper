@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouper.attr;
 
 import java.io.StringWriter;
 import java.sql.Timestamp;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -21,6 +22,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttributeDefDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
@@ -1696,5 +1698,53 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
         DB_VERSION_FIELDS, null);
     return result;
   }
+
+  /**
+   * 
+   * @return the set of types
+   */
+  public Set<AttributeAssignType> getAttributeAssignTypes() {
+    
+    Set<AttributeAssignType> attributeAssignTypes = new LinkedHashSet<AttributeAssignType>();
+    
+    if (this.isAssignToAttributeDef()) {
+      attributeAssignTypes.add(AttributeAssignType.attr_def);
+    }
+    if (this.isAssignToAttributeDefAssn()) {
+      attributeAssignTypes.add(AttributeAssignType.attr_def_asgn);
+    }
+    if (this.isAssignToEffMembership()) {
+      attributeAssignTypes.add(AttributeAssignType.any_mem);
+    }
+    if (this.isAssignToEffMembershipAssn()) {
+      attributeAssignTypes.add(AttributeAssignType.any_mem_asgn);
+    }
+    if (this.isAssignToGroup()) {
+      attributeAssignTypes.add(AttributeAssignType.group);
+    }
+    if (this.isAssignToGroupAssn()) {
+      attributeAssignTypes.add(AttributeAssignType.group_asgn);
+    }
+    if (this.isAssignToImmMembership()) {
+      attributeAssignTypes.add(AttributeAssignType.imm_mem);
+    }
+    if (this.isAssignToImmMembershipAssn()) {
+      attributeAssignTypes.add(AttributeAssignType.imm_mem_asgn);
+    }
+    if (this.isAssignToMember()) {
+      attributeAssignTypes.add(AttributeAssignType.member);
+    }
+    if (this.isAssignToMemberAssn()) {
+      attributeAssignTypes.add(AttributeAssignType.mem_asgn);
+    }
+    if (this.isAssignToStem()) {
+      attributeAssignTypes.add(AttributeAssignType.stem);
+    }
+    if (this.isAssignToStemAssn()) {
+      attributeAssignTypes.add(AttributeAssignType.stem_asgn);
+    }
+    return attributeAssignTypes;
+  }
+  
   
 }

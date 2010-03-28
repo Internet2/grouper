@@ -25,6 +25,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
@@ -310,24 +311,24 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterAttrDefs(edu.internet2.middleware.subject.Subject, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#postHqlFilterAttributeAssigns(edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set<AttributeDef> postHqlFilterAttrDefs(Subject subject,
-      Set<AttributeDef> attributeDefs) {
+  public Set<AttributeAssign> postHqlFilterAttributeAssigns(Subject subject,
+      Set<AttributeAssign> attributeAssigns) {
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
 
     //System.out.println(decoratedResolver.getClass().getName());
     //CachingAttributeDefResolver
-    Set<AttributeDef> filteredAttributeDefs = decoratedResolver.postHqlFilterAttrDefs(
-        subject, attributeDefs);
+    Set<AttributeAssign> filteredAttributeAssigns = decoratedResolver.postHqlFilterAttributeAssigns(
+        subject, attributeAssigns);
 
-    for (AttributeDef attributeDef : attributeDefs) {
-      putInHasPrivilegeCache(attributeDef.getId(), subject, AttributeDefPrivilege.ATTR_VIEW,
-          filteredAttributeDefs.contains(attributeDef));
+    for (AttributeAssign attributeAssign : attributeAssigns) {
+      putInHasPrivilegeCache(attributeAssign.getId(), subject, AttributeDefPrivilege.ATTR_VIEW,
+          filteredAttributeAssigns.contains(attributeAssign));
     }
 
-    return filteredAttributeDefs;
+    return filteredAttributeAssigns;
   }
 
   /**

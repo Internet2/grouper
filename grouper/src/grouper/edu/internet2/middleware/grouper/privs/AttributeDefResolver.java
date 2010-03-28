@@ -20,6 +20,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
@@ -199,12 +200,12 @@ public interface AttributeDefResolver {
 
   /**
    * filter attributeDefs for things the subject can see
-   * @param attributeDefs
+   * @param attributeAssigns
    * @param subject
    * @return the memberships
    */
-  public Set<AttributeDef> postHqlFilterAttrDefs(
-      Subject subject, Set<AttributeDef> attributeDefs);
+  public Set<AttributeAssign> postHqlFilterAttributeAssigns(
+      Subject subject, Set<AttributeAssign> attributeAssigns);
 
   /**
    * Revoke all attrDef privileges that this subject has.
