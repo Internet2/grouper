@@ -496,6 +496,19 @@ TODO update for 1.5
             ;
 
   /**
+   * @param immediateId 
+   * @param exceptionIfNull 
+   * @param enabledOnly 
+   * @return membership
+   * @throws GrouperDAOException 
+   * @throws MembershipNotFoundException 
+   */
+  Membership findByImmediateId(String immediateId, boolean exceptionIfNull, Boolean enabledOnly) 
+    throws  GrouperDAOException,
+            MembershipNotFoundException 
+            ;
+
+  /**
    * find memberships that the user is allowed to see
    * @param grouperSession
    * @param memberUUID

@@ -901,6 +901,17 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
 
   /**
+   * if this is a membership attribute, this is the foreign key
+   * @return the ownerAttributeDef
+   */
+  public Membership getOwnerImmediateMembership() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the attribute def without security
+    return this.ownerMembershipId == null ? null : GrouperDAOFactory.getFactory().getMembership().findByImmediateId(this.ownerMembershipId, true, null);
+
+  }
+
+  /**
    * if this is a stem attribute, this is the foreign key
    * @return the ownerStem
    */

@@ -2029,4 +2029,37 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         .setString("theImmediateMembershipId", membership.getImmediateMembershipId())
         .executeUpdate();
   }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByImmediateId(java.lang.String, boolean, java.lang.Boolean)
+   */
+  public Membership findByImmediateId(String immediateMembershipId, boolean exceptionIfNull,
+      Boolean enabledOnly) throws GrouperDAOException, MembershipNotFoundException {
+    
+    StringBuilder sql = new StringBuilder(
+        "select ms from ImmediateMembershipEntry as ms where ms.id = :immediateMembershipId ");
+    if (enabledOnly != null && enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    if (enabledOnly != null && !enabledOnly) {
+      sql.append(" and ms.enabledDb = 'F'");
+    }
+    
+    Membership membership = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByUuid")
+      .setString("immediateMembershipId", immediateMembershipId)
+      .uniqueResult(Membership.class);
+    if (membership==null) {
+      if (exceptionIfNull) {
+        throw new MembershipNotFoundException("could not find membership with uuid: " + Quote.single(immediateMembershipId));
+      }
+      return null;
+    }
+    return membership;
+
+    
+  }
 }

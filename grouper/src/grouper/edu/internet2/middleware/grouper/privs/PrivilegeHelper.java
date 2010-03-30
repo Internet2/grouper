@@ -391,10 +391,17 @@ public class PrivilegeHelper {
           dispatch( s, ms.getAttributeDef(), s.getSubject(), ms.getList().getReadPriv() );
             mships.add(ms);
 
+        } else if (FieldType.LIST.equals( ms.getList().getType() ) ) {
+          
+          //am I supposed to see what the read privilege is for the field, or just look at read???
+          if (!canRead(s, ms.getGroup(), s.getSubject())) {
+            continue;
+          }
+          
         } else {
           throw new RuntimeException("Invalid field type: " + ms.getList().getType());
         }
-        
+        mships.add(ms);
       } catch (InsufficientPrivilegeException e) {
         //ignore, not allowed, dont add
         continue;
@@ -869,38 +876,33 @@ public class PrivilegeHelper {
         switch (attributeAssignType) {
           case group:
             dispatch(s, attributeAssign.getOwnerGroup(), s.getSubject(), AccessPrivilege.VIEW);
-            attributeAssigns.add(attributeAssign);
             break;
 
           case stem:
             //no need to check stem, everyone can view all stems
-            attributeAssigns.add(attributeAssign);
             break;
             
           case member:
             //no need to check member, everyone can edit all members
-            attributeAssigns.add(attributeAssign);
             break;
             
           case attr_def:
             dispatch(s, attributeAssign.getOwnerAttributeDef(), s.getSubject(), AttributeDefPrivilege.ATTR_VIEW);
-            attributeAssigns.add(attributeAssign);
             break;
             
+          case imm_mem:
+            dispatch(s, attributeAssign.getOwnerImmediateMembership().getGroup(), s.getSubject(), AccessPrivilege.READ);
+            break;
+
           default: 
             throw new RuntimeException("Not expecting attributeAssignType: " + attributeAssignType);
           
           
         }
         
-        //TODO fill this in
-//          if ( FieldType.NAMING.equals( ms.getList().getType() ) ) {
-//            dispatch( s, ms.getStem(), s.getSubject(), ms.getList().getReadPriv() );
-//            attributeAssigns.add(ms);
-//          }else{
-//            dispatch( s, ms.getGroup(), s.getSubject(), ms.getList().getReadPriv() );
-//              attributeAssigns.add(ms);
-//          }
+        //ok, add to list
+        attributeAssigns.add(attributeAssign);
+
       } catch (InsufficientPrivilegeException e) {
         //ignore, not allowed, dont add
         continue;

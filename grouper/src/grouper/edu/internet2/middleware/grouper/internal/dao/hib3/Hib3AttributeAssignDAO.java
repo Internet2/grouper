@@ -8,6 +8,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -677,7 +679,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     String selectPrefix = "select distinct aa ";
-    String countPrefix = "select count(*) ";
+    String countPrefix = "select count(distinct aa) ";
     
     StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
     
@@ -686,7 +688,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     
     StringBuilder sqlWhereClause = new StringBuilder(
-    		" aa.attributeDefNameId = adn.id and aa.ownerGroupId is not null and aa.ownerMembershipId is null ");
+    		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'group' ");
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -799,7 +801,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
       String selectPrefix = "select distinct aa ";
-      String countPrefix = "select count(*) ";
+      String countPrefix = "select count(distinct aa) ";
       
       StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
       
@@ -808,7 +810,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       }
       
       StringBuilder sqlWhereClause = new StringBuilder(
-      		" aa.attributeDefNameId = adn.id and aa.ownerStemId is not null ");
+      		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'stem' ");
       
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
       
@@ -913,7 +915,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
     String selectPrefix = "select distinct aa ";
-    String countPrefix = "select count(*) ";
+    String countPrefix = "select count(distinct aa) ";
     
     StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
     
@@ -922,7 +924,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     
     StringBuilder sqlWhereClause = new StringBuilder(
-    		" aa.attributeDefNameId = adn.id and aa.ownerMemberId is not null ");
+    		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'member' ");
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -1027,7 +1029,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
     String selectPrefix = "select distinct aa ";
-    String countPrefix = "select count(*) ";
+    String countPrefix = "select count(distinct aa) ";
     
     StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
     
@@ -1036,7 +1038,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     
     StringBuilder sqlWhereClause = new StringBuilder(
-    		" aa.attributeDefNameId = adn.id and aa.ownerAttributeDefId is not null ");
+    		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'attr_def' ");
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -1103,6 +1105,131 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
 
+    //nothing to filter
+    if (GrouperUtil.length(results) == 0) {
+      return results;
+    }
+    
+    //if the hql didnt filter, we need to do that here
+    results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
+    
+    //we should be down to the secure list
+    return results;
+      
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMembershipAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean)
+   */
+  public Set<AttributeAssign> findMembershipAttributeAssignments(Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
+      Collection<String> membershipIds, Collection<String> actions, Boolean enabled) {
+      
+    int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
+    int membershipIdsSize = GrouperUtil.length(membershipIds);
+    int actionsSize = GrouperUtil.length(actions);
+    int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
+    int attributeDefNameIdsSize = GrouperUtil.length(attributeDefNameIds);
+    
+    if (attributeAssignIdsSize == 0 && membershipIdsSize == 0 && attributeDefIdsSize == 0 && attributeDefNameIdsSize == 0) {
+      throw new RuntimeException("Illegal query, you need to pass in attributeAssignIds and/or attributeDefId(s) and/or membershipId(s) and/or attributeDefNameIds");
+    }
+    
+    //too many bind vars
+    if (attributeAssignIdsSize + membershipIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
+      throw new RuntimeException("Too many attributeAssignIdsSize " + attributeAssignIdsSize 
+          + " membershipIdsSize " + membershipIdsSize + " or attributeDefIdsSize " 
+          + attributeDefIdsSize + " or attributeDefNameIds " + attributeDefNameIdsSize + " or actionsSize " + actionsSize );
+    }
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    String selectPrefix = "select distinct aa ";
+    String countPrefix = "select count(distinct aa) ";
+    
+    StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn, ImmediateMembershipEntry ime ");
+    
+    if (actionsSize > 0) {
+      sqlTables.append(", AttributeAssignAction aaa ");
+    }
+    
+    Field membersField = FieldFinder.find("members", true);
+    
+    StringBuilder sqlWhereClause = new StringBuilder(
+    		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'imm_mem' and " +
+    		"aa.ownerMembershipId = ime.immediateMembershipId and ime.fieldId = '" + membersField.getUuid() + "' ");
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    Subject grouperSessionSubject = grouperSession.getSubject();
+
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+      grouperSessionSubject, byHqlStatic, 
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+        grouperSessionSubject, byHqlStatic, 
+        sqlTables, "ime.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
+
+    StringBuilder sql;
+    if (changedQuery) {
+      sql = sqlTables.append(" and ").append(sqlWhereClause);
+    } else {
+      sql = sqlTables.append(" where ").append(sqlWhereClause);
+    }
+
+    if (enabled != null && enabled) {
+      sql.append(" and aa.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and aa.enabledDb = 'F' ");
+    }
+    if (attributeAssignIdsSize > 0) {
+      sql.append(" and aa.id in (");
+      sql.append(HibUtils.convertToInClause(attributeAssignIds, byHqlStatic));
+      sql.append(") ");
+    }
+    if (actionsSize > 0) {
+      sql.append(" and adn.attributeDefId = aaa.attributeDefId and aaa.nameDb in (");
+      sql.append(HibUtils.convertToInClause(actions, byHqlStatic));
+      sql.append(") ");
+    }
+    if (membershipIdsSize > 0) {
+      sql.append(" and aa.ownerMembershipId in (");
+      sql.append(HibUtils.convertToInClause(membershipIds, byHqlStatic));
+      sql.append(") ");
+    }
+    if (attributeDefIdsSize > 0) {
+      sql.append(" and adn.attributeDefId in (");
+      sql.append(HibUtils.convertToInClause(attributeDefIds, byHqlStatic));
+      sql.append(") ");
+    }
+    if (attributeDefNameIdsSize > 0) {
+      sql.append(" and adn.id in (");
+      sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
+      sql.append(") ");
+    }
+    byHqlStatic
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindMembershipAttributeAssignments");
+  
+    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    
+    //if -1, lets not check
+    if (maxAssignments >= 0) {
+  
+      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+      
+      //see if too many
+      if (size > maxAssignments) {
+        throw new RuntimeException("Too many results: " + size);
+      }
+      
+    }
+    
+    Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
+  
     //nothing to filter
     if (GrouperUtil.length(results) == 0) {
       return results;
