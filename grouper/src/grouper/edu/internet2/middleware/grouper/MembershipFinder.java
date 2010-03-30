@@ -591,7 +591,7 @@ public class MembershipFinder {
    * @return set of memberships
    * @throws QueryException
    */
-  public static Set<Membership> internal_findAllByCreatedAfter(GrouperSession s, Date d, Field f) 
+  public static Set<Membership> internal_findAllByCreatedAfter(@SuppressWarnings("unused") GrouperSession s, Date d, Field f) 
     throws QueryException 
   {
     //note, no need for GrouperSession inverse of control

@@ -894,6 +894,20 @@ public class PrivilegeHelper {
             dispatch(s, attributeAssign.getOwnerImmediateMembership().getGroup(), s.getSubject(), AccessPrivilege.READ);
             break;
 
+          case any_mem:
+            dispatch(s, attributeAssign.getOwnerGroup(), s.getSubject(), AccessPrivilege.READ);
+            break;
+
+          case any_mem_asgn:
+          case attr_def_asgn:
+          case group_asgn:
+          case imm_mem_asgn:
+          case mem_asgn:
+          case stem_asgn:
+            
+            //assume that the user can see the assignment this was assigned on
+            break;
+
           default: 
             throw new RuntimeException("Not expecting attributeAssignType: " + attributeAssignType);
           

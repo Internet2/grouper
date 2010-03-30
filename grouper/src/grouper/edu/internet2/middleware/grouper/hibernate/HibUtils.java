@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Hibernate;
@@ -658,5 +659,60 @@ public class HibUtils {
       }
     }
     return result.toString();
+  }
+
+  /**
+   * convert a collection of multikeys to an in clause with multiple args.  currently this only
+   * works with strings, though we could add support for more types in future
+   * @param collection
+   * @param scalarable to set the string
+   * @param columnNames names of columns in multikey
+   * @param whereClause
+   */
+  public static void convertToMultiKeyInClause(Collection<MultiKey> collection, HqlQuery scalarable, 
+      Collection<String> columnNames, StringBuilder whereClause) {
+    
+    String unique = GrouperUtil.uniqueId();
+    
+    int collectionSize = collection.size();
+    int columnNamesSize = columnNames.size();
+    int i = 0;
+    
+    if (GrouperUtil.length(collection) == 0) {
+      return;
+    }
+    
+    whereClause.append(" and ( ");
+    
+    for (MultiKey multiKey : collection) {
+      
+      whereClause.append(" ( ");
+      
+      int j = 0;
+      
+      for (String columnName : columnNames) {
+
+        String var = unique + i + "_" + j;
+
+        whereClause.append(" ").append(columnName).append(" = :").append(var).append(" ");
+        
+        //add to query
+        scalarable.setString(var, (String)multiKey.getKey(j));
+
+        if (j < columnNamesSize-1) {
+          whereClause.append(" and ");
+        }
+        j++;
+
+      }
+      
+      whereClause.append(" ) ");
+
+      if (i < collectionSize-1) {
+        whereClause.append(" or ");
+      }
+      i++;
+    }
+    whereClause.append(" ) ");
   }
 }

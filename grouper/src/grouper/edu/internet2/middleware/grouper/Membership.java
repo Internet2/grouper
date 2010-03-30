@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -2930,5 +2931,17 @@ public class Membership extends GrouperAPI implements
     return stringWriter.toString();
     
   }
+
+  /**
+   * delegate for effective memberships
+   * @return the delegate
+   */
+  public AttributeAssignEffMshipDelegate getAttributeDelegateEffMship() {
+    if (!StringUtils.equals(this.fieldId, FieldFinder.find("members", true).getUuid())) {
+      throw new RuntimeException("You can only put effective attributes on members list memberships");
+    }
+    return new AttributeAssignEffMshipDelegate(this.getGroup(), this.getMember() );
+  }
+  
 
 }
