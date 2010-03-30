@@ -315,13 +315,15 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param stemIds optional
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @return the assignments
    */
   public Set<AttributeAssign> findStemAttributeAssignments(
       Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
-      Collection<String> stemIds, Collection<String> actions, Boolean enabled);
+      Collection<String> stemIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or member ids
@@ -332,13 +334,15 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param memberIds optional
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @return the assignments
    */
   public Set<AttributeAssign> findMemberAttributeAssignments(
       Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
-      Collection<String> memberIds, Collection<String> actions, Boolean enabled);
+      Collection<String> memberIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or attribute def assign to ids
@@ -349,13 +353,15 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param attributeDefAssignToIds optional
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @return the assignments
    */
   public Set<AttributeAssign> findAttributeDefAttributeAssignments(
       Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
-      Collection<String> attributeDefAssignToIds, Collection<String> actions, Boolean enabled);
+      Collection<String> attributeDefAssignToIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or membership ids
@@ -366,13 +372,15 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param membershipIds optional
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @return the assignments
    */
   public Set<AttributeAssign> findMembershipAttributeAssignments(
       Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
-      Collection<String> membershipIds, Collection<String> actions, Boolean enabled);
+      Collection<String> membershipIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments);
 
   /**
    * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or membership ids
@@ -383,13 +391,15 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @param groupIdsAndMemberIds optional
    * @param actions (null means all actions)
    * @param enabled (null means all, true means enabled, false means disabled)
+   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @return the assignments
    */
   public Set<AttributeAssign> findAnyMembershipAttributeAssignments(
       Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, 
       Collection<String> attributeDefNameIds,
-      Collection<MultiKey> groupIdsAndMemberIds, Collection<String> actions, Boolean enabled);
+      Collection<MultiKey> groupIdsAndMemberIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments);
 
   /**
    * find assignments on assignments.  Note, it is assumed the current user can read the assignments passed in (and other underlying objects),

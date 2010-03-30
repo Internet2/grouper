@@ -786,129 +786,134 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
   }
 
-  
-  
   /**
-     * 
-     * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findStemAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean)
-     */
-    public Set<AttributeAssign> findStemAttributeAssignments(Collection<String> attributeAssignIds,
-        Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
-        Collection<String> stemIds, Collection<String> actions, Boolean enabled) {
-        
-      int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
-      int stemIdsSize = GrouperUtil.length(stemIds);
-      int actionsSize = GrouperUtil.length(actions);
-      int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
-      int attributeDefNameIdsSize = GrouperUtil.length(attributeDefNameIds);
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findStemAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean)
+   */
+  public Set<AttributeAssign> findStemAttributeAssignments(Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
+      Collection<String> stemIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments) {
       
-      if (attributeAssignIdsSize == 0 && stemIdsSize == 0 && attributeDefIdsSize == 0 && attributeDefNameIdsSize == 0) {
-        throw new RuntimeException("Illegal query, you need to pass in attributeAssignIds and/or attributeDefId(s) and/or stemId(s) and/or attributeDefNameIds");
-      }
-      
-      //too many bind vars
-      if (attributeAssignIdsSize + stemIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
-        throw new RuntimeException("Too many attributeAssignIdsSize " + attributeAssignIdsSize 
-            + " stemIdsSize " + stemIdsSize + " or attributeDefIdsSize " 
-            + attributeDefIdsSize + " or attributeDefNameIds " + attributeDefNameIdsSize + " or actionsSize " + actionsSize );
-      }
-  
-      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-  
-      String selectPrefix = "select distinct aa ";
-      String countPrefix = "select count(distinct aa) ";
-      
-      StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
-      
-      if (actionsSize > 0) {
-        sqlTables.append(", AttributeAssignAction aaa ");
-      }
-      
-      StringBuilder sqlWhereClause = new StringBuilder(
-      		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'stem' ");
-      
-      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-      
-      Subject grouperSessionSubject = grouperSession.getSubject();
-      
-      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
-        grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
-      
-      StringBuilder sql;
-      sql = sqlTables.append(" where ").append(sqlWhereClause);
-      
-      if (enabled != null && enabled) {
-        sql.append(" and aa.enabledDb = 'T' ");
-      }
-      if (enabled != null && !enabled) {
-        sql.append(" and aa.enabledDb = 'F' ");
-      }
-      if (attributeAssignIdsSize > 0) {
-        sql.append(" and aa.id in (");
-        sql.append(HibUtils.convertToInClause(attributeAssignIds, byHqlStatic));
-        sql.append(") ");
-      }
-      if (actionsSize > 0) {
-        sql.append(" and adn.attributeDefId = aaa.attributeDefId and aaa.nameDb in (");
-        sql.append(HibUtils.convertToInClause(actions, byHqlStatic));
-        sql.append(") ");
-      }
-      if (stemIdsSize > 0) {
-        sql.append(" and aa.ownerStemId in (");
-        sql.append(HibUtils.convertToInClause(stemIds, byHqlStatic));
-        sql.append(") ");
-      }
-      if (attributeDefIdsSize > 0) {
-        sql.append(" and adn.attributeDefId in (");
-        sql.append(HibUtils.convertToInClause(attributeDefIds, byHqlStatic));
-        sql.append(") ");
-      }
-      if (attributeDefNameIdsSize > 0) {
-        sql.append(" and adn.id in (");
-        sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
-        sql.append(") ");
-      }
-      byHqlStatic
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".FindStemAttributeAssignments");
-  
-      int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
-      
-      //if -1, lets not check
-      if (maxAssignments >= 0) {
-  
-        long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
-        
-        //see if too many
-        if (size > maxAssignments) {
-          throw new RuntimeException("Too many results: " + size);
-        }
-        
-      }
-      
-      Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
-  
-      //nothing to filter
-      if (GrouperUtil.length(results) == 0) {
-        return results;
-      }
-      
-      //if the hql didnt filter, we need to do that here
-      results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
-      
-      //we should be down to the secure list
-      return results;
-        
+    int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
+    int stemIdsSize = GrouperUtil.length(stemIds);
+    int actionsSize = GrouperUtil.length(actions);
+    int attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
+    int attributeDefNameIdsSize = GrouperUtil.length(attributeDefNameIds);
+    
+    if (attributeAssignIdsSize == 0 && stemIdsSize == 0 && attributeDefIdsSize == 0 && attributeDefNameIdsSize == 0) {
+      throw new RuntimeException("Illegal query, you need to pass in attributeAssignIds and/or attributeDefId(s) and/or stemId(s) and/or attributeDefNameIds");
     }
+    
+    //too many bind vars
+    if (attributeAssignIdsSize + stemIdsSize + attributeDefIdsSize + attributeDefNameIdsSize + actionsSize > 100) {
+      throw new RuntimeException("Too many attributeAssignIdsSize " + attributeAssignIdsSize 
+          + " stemIdsSize " + stemIdsSize + " or attributeDefIdsSize " 
+          + attributeDefIdsSize + " or attributeDefNameIds " + attributeDefNameIdsSize + " or actionsSize " + actionsSize );
+    }
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    String selectPrefix = "select distinct aa ";
+    String countPrefix = "select count(distinct aa) ";
+    
+    StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
+    
+    if (actionsSize > 0) {
+      sqlTables.append(", AttributeAssignAction aaa ");
+    }
+    
+    StringBuilder sqlWhereClause = new StringBuilder(
+    		" aa.attributeDefNameId = adn.id and aa.attributeAssignTypeDb = 'stem' ");
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    Subject grouperSessionSubject = grouperSession.getSubject();
+    
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+      grouperSessionSubject, byHqlStatic, 
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+    
+    StringBuilder sql;
+    sql = sqlTables.append(" where ").append(sqlWhereClause);
+    
+    if (enabled != null && enabled) {
+      sql.append(" and aa.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and aa.enabledDb = 'F' ");
+    }
+    if (attributeAssignIdsSize > 0) {
+      sql.append(" and aa.id in (");
+      sql.append(HibUtils.convertToInClause(attributeAssignIds, byHqlStatic));
+      sql.append(") ");
+    }
+    if (actionsSize > 0) {
+      sql.append(" and adn.attributeDefId = aaa.attributeDefId and aaa.nameDb in (");
+      sql.append(HibUtils.convertToInClause(actions, byHqlStatic));
+      sql.append(") ");
+    }
+    if (stemIdsSize > 0) {
+      sql.append(" and aa.ownerStemId in (");
+      sql.append(HibUtils.convertToInClause(stemIds, byHqlStatic));
+      sql.append(") ");
+    }
+    if (attributeDefIdsSize > 0) {
+      sql.append(" and adn.attributeDefId in (");
+      sql.append(HibUtils.convertToInClause(attributeDefIds, byHqlStatic));
+      sql.append(") ");
+    }
+    if (attributeDefNameIdsSize > 0) {
+      sql.append(" and adn.id in (");
+      sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
+      sql.append(") ");
+    }
+    byHqlStatic
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindStemAttributeAssignments");
+
+    int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
+    
+    //if -1, lets not check
+    if (maxAssignments >= 0) {
+
+      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+      
+      //see if too many
+      if (size > maxAssignments) {
+        throw new RuntimeException("Too many results: " + size);
+      }
+      
+    }
+    
+    Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
+
+    //nothing to filter
+    if (GrouperUtil.length(results) == 0) {
+      return results;
+    }
+    
+    //if the hql didnt filter, we need to do that here
+    results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
+    
+    //if looking for assignments on assignments, do that now
+    if (includeAssignmentsOnAssignments) {
+      Set<AttributeAssign> assignmentsOnAssignments = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findAssignmentsOnAssignments(results, AttributeAssignType.stem_asgn, enabled);
+      results.addAll(assignmentsOnAssignments);
+    }
+
+    //we should be down to the secure list
+    return results;
+      
+  }
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMemberAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMemberAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean)
    */
   public Set<AttributeAssign> findMemberAttributeAssignments(Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
-      Collection<String> memberIds, Collection<String> actions, Boolean enabled) {
+      Collection<String> memberIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments) {
       
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int memberIdsSize = GrouperUtil.length(memberIds);
@@ -1011,6 +1016,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //if the hql didnt filter, we need to do that here
     results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
     
+    //if looking for assignments on assignments, do that now
+    if (includeAssignmentsOnAssignments) {
+      Set<AttributeAssign> assignmentsOnAssignments = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findAssignmentsOnAssignments(results, AttributeAssignType.mem_asgn, enabled);
+      results.addAll(assignmentsOnAssignments);
+    }
+
     //we should be down to the secure list
     return results;
       
@@ -1018,11 +1030,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean)
    */
   public Set<AttributeAssign> findAttributeDefAttributeAssignments(Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
-      Collection<String> attributeDefAssignToIds, Collection<String> actions, Boolean enabled) {
+      Collection<String> attributeDefAssignToIds, Collection<String> actions, 
+      Boolean enabled, boolean includeAssignmentsOnAssignments) {
       
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int attributeDefAssignToIdsSize = GrouperUtil.length(attributeDefAssignToIds);
@@ -1128,6 +1141,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //if the hql didnt filter, we need to do that here
     results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
     
+    //if looking for assignments on assignments, do that now
+    if (includeAssignmentsOnAssignments) {
+      Set<AttributeAssign> assignmentsOnAssignments = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findAssignmentsOnAssignments(results, AttributeAssignType.attr_def_asgn, enabled);
+      results.addAll(assignmentsOnAssignments);
+    }
+
     //we should be down to the secure list
     return results;
       
@@ -1135,11 +1155,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMembershipAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findMembershipAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean)
    */
   public Set<AttributeAssign> findMembershipAttributeAssignments(Collection<String> attributeAssignIds,
       Collection<String> attributeDefIds, Collection<String> attributeDefNameIds,
-      Collection<String> membershipIds, Collection<String> actions, Boolean enabled) {
+      Collection<String> membershipIds, Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments) {
       
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int membershipIdsSize = GrouperUtil.length(membershipIds);
@@ -1254,18 +1274,25 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //if the hql didnt filter, we need to do that here
     results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
     
+    //if looking for assignments on assignments, do that now
+    if (includeAssignmentsOnAssignments) {
+      Set<AttributeAssign> assignmentsOnAssignments = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findAssignmentsOnAssignments(results, AttributeAssignType.imm_mem_asgn, enabled);
+      results.addAll(assignmentsOnAssignments);
+    }
+
     //we should be down to the secure list
     return results;
       
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAnyMembershipAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAnyMembershipAttributeAssignments(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, boolean)
    */
   public Set<AttributeAssign> findAnyMembershipAttributeAssignments(
       Collection<String> attributeAssignIds, Collection<String> attributeDefIds,
       Collection<String> attributeDefNameIds, Collection<MultiKey> groupIdsAndMemberIds,
-      Collection<String> actions, Boolean enabled) {
+      Collection<String> actions, Boolean enabled, boolean includeAssignmentsOnAssignments) {
     int attributeAssignIdsSize = GrouperUtil.length(attributeAssignIds);
     int groupIdsAndMemberIdsSize = GrouperUtil.length(groupIdsAndMemberIds);
     int actionsSize = GrouperUtil.length(actions);
@@ -1378,6 +1405,13 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //if the hql didnt filter, we need to do that here
     results = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, results);
     
+    //if looking for assignments on assignments, do that now
+    if (includeAssignmentsOnAssignments) {
+      Set<AttributeAssign> assignmentsOnAssignments = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findAssignmentsOnAssignments(results, AttributeAssignType.any_mem_asgn, enabled);
+      results.addAll(assignmentsOnAssignments);
+    }
+
     //we should be down to the secure list
     return results;
   }
