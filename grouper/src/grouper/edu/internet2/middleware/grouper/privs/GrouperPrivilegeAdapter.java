@@ -215,27 +215,27 @@ public class GrouperPrivilegeAdapter {
    * @return the set
    * @throws GroupNotFoundException
    */
-  public static Set internal_getGroupsWhereSubjectHasPriv(GrouperSession s, final Member m, final Field f)
+  public static Set<Group> internal_getGroupsWhereSubjectHasPriv(GrouperSession s, final Member m, final Field f)
     throws  GroupNotFoundException
   {
     try {
-      return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+      return (Set<Group>)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
   
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
-          Set         mships  = new LinkedHashSet();
+          Set<Group>         groups  = new LinkedHashSet<Group>();
           Membership  ms;
           // Perform query as ROOT to prevent privilege constraints getting in the way
-          Iterator    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), m, f ).iterator();
+          Iterator<Membership>    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), m, f ).iterator();
           while (it.hasNext()) {
-            ms = (Membership) it.next();
+            ms = it.next();
             try {
-              mships.add( ms.getGroup() );
+              groups.add( ms.getGroup() );
             } catch (GroupNotFoundException gnfe) {
               throw new GrouperSessionException(gnfe);
             }
           }
-          return mships;
+          return groups;
         }
         
       });
@@ -255,28 +255,28 @@ public class GrouperPrivilegeAdapter {
    * @return the set
    * @throws StemNotFoundException
    */
-  public static Set internal_getStemsWhereSubjectHasPriv(GrouperSession s, final Member m, final Field f)
+  public static Set<Stem> internal_getStemsWhereSubjectHasPriv(GrouperSession s, final Member m, final Field f)
     throws  StemNotFoundException
   {
     try {
-      return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+      return (Set<Stem>)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
-          Set         mships  = new LinkedHashSet();
+          Set<Stem>         stems  = new LinkedHashSet<Stem>();
           Membership  ms;
           // Perform query as ROOT to prevent privilege constraints getting in the way
-          Iterator    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), 
+          Iterator<Membership>    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), 
               m, f ).iterator();
           while (it.hasNext()) {
-            ms = (Membership) it.next();
+            ms = it.next();
             try {
-              mships.add( ms.getStem() );
+              stems.add( ms.getStem() );
             } catch (StemNotFoundException snfe) {
               throw new GrouperSessionException(snfe);
             }
           }
-          return mships;
+          return stems;
         }
         
       });
@@ -288,6 +288,41 @@ public class GrouperPrivilegeAdapter {
       
     }
   } // public static Set internal_getStemsWhereSubjectHasPriv(s, m, f)
+
+  /**
+   * @since   1.2.0
+   * @param s
+   * @param m
+   * @param f
+   * @return the set
+   * @throws GroupNotFoundException
+   */
+  public static Set<AttributeDef> internal_getAttributeDefsWhereSubjectHasPriv(GrouperSession s, final Member m, final Field f)
+    throws  GroupNotFoundException {
+    try {
+      return (Set<AttributeDef>)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          Set<AttributeDef>         attributeDefs  = new LinkedHashSet<AttributeDef>();
+          Membership  ms;
+          // Perform query as ROOT to prevent privilege constraints getting in the way
+          Iterator<Membership>    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), m, f ).iterator();
+          while (it.hasNext()) {
+            ms = it.next();
+            attributeDefs.add( ms.getAttributeDef() );
+          }
+          return attributeDefs;
+        }
+        
+      });
+    } catch (GrouperSessionException gse) {
+      if (gse.getCause() instanceof GroupNotFoundException) {
+        throw (GroupNotFoundException)gse.getCause();
+      }
+      throw gse;
+    }
+  } // public static Set internal_getGroupsWhereSubjectHasPriv(s, m, f)
 
 } // class GrouperPrivilegeAdapter
 

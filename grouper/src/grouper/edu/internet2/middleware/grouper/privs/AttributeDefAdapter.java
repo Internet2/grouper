@@ -246,7 +246,8 @@ public interface AttributeDefAdapter {
    * probably be "distinct"
    * @param grouperSession 
    * @param subject which needs view access to the attrDefs
-   * @param hql is the select and part part (hql prefix)
+   * @param hqlTables is the select and part part (hql prefix)
+   * @param hqlWhereClause is there where clause part of the query
    * @param hqlQuery 
    * @param attrDefColumn is the name of the attrDef column to join to
    * @param privInSet find a privilege which is in this set 
@@ -254,7 +255,7 @@ public interface AttributeDefAdapter {
    * @return if the query was changed
    */
   public boolean hqlFilterAttrDefsWhereClause(GrouperSession grouperSession, 
-      Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hqlTables, StringBuilder hqlWhereClause, 
       String attrDefColumn, Set<Privilege> privInSet);
 
   /**

@@ -134,11 +134,11 @@ public abstract class AttributeDefResolverDecorator implements AttributeDefResol
 
 
   /**
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
   public boolean hqlFilterAttrDefsWhereClause(Subject subject, HqlQuery hqlQuery,
-      StringBuilder hql, String attributeDefColumn, Set<Privilege> privInSet) {
-    return this.getDecoratedResolver().hqlFilterAttrDefsWhereClause(subject, hqlQuery, hql, attributeDefColumn, privInSet);
+      StringBuilder hqlTables, StringBuilder hqlWhereClause, String attributeDefColumn, Set<Privilege> privInSet) {
+    return this.getDecoratedResolver().hqlFilterAttrDefsWhereClause(subject, hqlQuery, hqlTables, hqlWhereClause, attributeDefColumn, privInSet);
   }
 
 

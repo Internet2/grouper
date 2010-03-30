@@ -107,17 +107,17 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolverDecorator#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
   public boolean hqlFilterAttrDefsWhereClause(Subject subject, HqlQuery hqlQuery,
-      StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+      StringBuilder hqlTables, StringBuilder hqlWhereClause, String groupColumn, Set<Privilege> privInSet) {
 
     if (SubjectHelper.eq(this.root, subject)) {
       return false;
     }
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
-    return decoratedResolver.hqlFilterAttrDefsWhereClause(subject, hqlQuery, hql,
+    return decoratedResolver.hqlFilterAttrDefsWhereClause(subject, hqlQuery, hqlTables, hqlWhereClause,
         groupColumn, privInSet);
   }
 

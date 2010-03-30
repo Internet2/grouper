@@ -878,6 +878,38 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     return this.ownerGroupId;
   }
 
+  /**
+   * if this is a group attribute, this is the foreign key
+   * @return the ownerStem
+   */
+  public Group getOwnerGroup() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the group without security
+    return this.ownerGroupId == null ? null : GrouperDAOFactory.getFactory().getGroup().findByUuid(this.ownerGroupId, true);
+
+  }
+
+  /**
+   * if this is a attributeDef attribute, this is the foreign key
+   * @return the ownerAttributeDef
+   */
+  public AttributeDef getOwnerAttributeDef() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the attribute def without security
+    return this.ownerAttributeDefId == null ? null : GrouperDAOFactory.getFactory().getAttributeDef().findById(this.ownerAttributeDefId, true);
+
+  }
+
+  /**
+   * if this is a stem attribute, this is the foreign key
+   * @return the ownerStem
+   */
+  public Stem getOwnerStem() {
+    
+    return this.ownerStemId == null ? null : GrouperDAOFactory.getFactory().getStem().findByUuid(this.ownerStemId, true);
+
+  }
+
   
   /**
    * if this is a group attribute, this is the foreign key

@@ -63,7 +63,7 @@ import edu.internet2.middleware.subject.Subject;
 /** 
  * This is the base grouper implementation which implements the required
  * access adapter methods, but not the db specific ones.  This should be
- * slower and more explicit than the GrouperAccessAdapter (subclass)
+ * slower and more explicit than the GrouperAttributeDefAdapter (subclass)
  * </p>
  * @author  blair christensen.
  * @version $Id: GrouperNonDbAttrDefAdapter.java,v 1.4 2009-12-07 07:31:09 mchyzer Exp $
@@ -112,26 +112,20 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
       throws SchemaException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Set groups = new LinkedHashSet();
-    try {
-      Field f = priv.getField();
-      // This subject
-      groups.addAll(
-          GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv(s, MemberFinder
-          .findBySubject(s, subj, true), f)
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+    Field f = priv.getField();
+    // This subject
+    attributeDefs.addAll( GrouperPrivilegeAdapter.internal_getAttributeDefsWhereSubjectHasPriv(s, MemberFinder
+        .findBySubject(s, subj, true), f)
+        );
+    // The ALL subject
+    if (!(SubjectHelper.eq(subj, SubjectFinder.findAllSubject()))) {
+      attributeDefs.addAll(
+          GrouperPrivilegeAdapter.internal_getAttributeDefsWhereSubjectHasPriv(s, MemberFinder
+          .internal_findAllMember(), f)
           );
-      // The ALL subject
-      if (!(SubjectHelper.eq(subj, SubjectFinder.findAllSubject()))) {
-        groups.addAll(
-            GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv(s, MemberFinder
-            .internal_findAllMember(), f)
-            );
-      }
-    } catch (GroupNotFoundException eGNF) {
-      String msg = E.GAA_GNF + eGNF.getMessage();
-      LOG.error(msg);
     }
-    return groups;
+    return attributeDefs;
   }
 
   /**
@@ -144,18 +138,19 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     }
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(grouperSession);
-    
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
-      
-      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
-        if ( !attributeDef.getPrivilegeDelegate().canAttrAdmin( grouperSession.getSubject() ) ) {
-          throw new InsufficientPrivilegeException("Subject " 
-              + GrouperUtil.subjectToString(grouperSession.getSubject()) 
-              + " cannot attrAdmin attributeDef: " + attributeDef.getName());
-        }
-        return null;
-      }
-    });
+
+//this should let anyone read the privs, like the other access and naming adapters
+//    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+//      
+//      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+//        if ( !attributeDef.getPrivilegeDelegate().canAttrAdmin( grouperSession.getSubject() ) ) {
+//          throw new InsufficientPrivilegeException("Subject " 
+//              + GrouperUtil.subjectToString(grouperSession.getSubject()) 
+//              + " cannot attrAdmin attributeDef: " + attributeDef.getName());
+//        }
+//        return null;
+//      }
+//    });
 
     Set<AttributeDefPrivilege> privs = new LinkedHashSet<AttributeDefPrivilege>();
     try {

@@ -241,13 +241,13 @@ public class AttributeDefWrapper implements AttributeDefResolver {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
   public boolean hqlFilterAttrDefsWhereClause(
-      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attrDefColumn,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hqlTables, StringBuilder hqlWhereClause, String attrDefColumn,
       Set<Privilege> privInSet) {
     return this.attributeDefAdapter.hqlFilterAttrDefsWhereClause(this.grouperSession,
-        subject, hqlQuery, hql, attrDefColumn, privInSet);
+        subject, hqlQuery, hqlTables, hqlWhereClause, attrDefColumn, privInSet);
   }
 
   /**

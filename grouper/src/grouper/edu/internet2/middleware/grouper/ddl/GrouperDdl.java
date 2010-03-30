@@ -2034,6 +2034,8 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_lw_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_attrdef_lw_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
     
@@ -3403,6 +3405,40 @@ public enum GrouperDdl implements DdlVersionable {
             + "from grouper_memberships_all_v gms, grouper_members gm, " 
             + "grouper_groups gg, grouper_fields gfl "
             + "where gms.OWNER_GROUP_ID = gg.id " 
+            + "and gms.FIELD_ID = gfl.ID "
+            + "and gms.MEMBER_ID = gm.ID");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_stem_lw_v", 
+        "grouper_mship_stem_lw_v unique membership records that can be read from a SQL interface outside of grouper for stems.  Immediate and effective memberships are represented here (distinct)",
+        GrouperUtil.toSet("SUBJECT_ID", "SUBJECT_SOURCE", "STEM_NAME", "LIST_NAME", "LIST_TYPE", "STEM_ID"),
+        GrouperUtil.toSet("SUBJECT_ID: of the member of the stem", 
+            "SUBJECT_SOURCE: of the member of the stem", 
+            "STEM_NAME: system name of the stem", 
+            "LIST_NAME: name of the list, e.g. members", 
+            "LIST_TYPE: type of list e.g. access or list", 
+            "STEM_ID: uuid of the stem"),
+            "select distinct gm.SUBJECT_ID, gm.SUBJECT_SOURCE, gs.name as stem_name, "
+            + "gfl.NAME as list_name, gfl.TYPE as list_type, gs.ID as stem_id "
+            + "from grouper_memberships_all_v gms, grouper_members gm, " 
+            + "grouper_stems gs, grouper_fields gfl "
+            + "where gms.OWNER_STEM_ID = gs.id " 
+            + "and gms.FIELD_ID = gfl.ID "
+            + "and gms.MEMBER_ID = gm.ID");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_attrdef_lw_v", 
+        "grouper_mship_attrdef_lw_v unique membership records of attr defs that can be read from a SQL interface outside of grouper.  Immediate and effective memberships are represented here (distinct)",
+        GrouperUtil.toSet("SUBJECT_ID", "SUBJECT_SOURCE", "ATTRIBUTE_DEF_NAME", "LIST_NAME", "LIST_TYPE", "ATTRIBUTE_DEF_ID"),
+        GrouperUtil.toSet("SUBJECT_ID: of the member of the group", 
+            "SUBJECT_SOURCE: of the member of the attributeDef", 
+            "ATTRIBUTE_DEF_NAME: system name of the attributeDef", 
+            "LIST_NAME: name of the list, e.g. members", 
+            "LIST_TYPE: type of list e.g. access or list", 
+            "ATTRIBUTE_DEF_ID: uuid of the attributeDef"),
+            "select distinct gm.SUBJECT_ID, gm.SUBJECT_SOURCE, gad.name as attribute_def_name, "
+            + "gfl.NAME as list_name, gfl.TYPE as list_type, gad.id as attribute_def_id "
+            + "from grouper_memberships_all_v gms, grouper_members gm, " 
+            + "grouper_attribute_def gad, grouper_fields gfl "
+            + "where gms.OWNER_ATTR_DEF_ID = gad.id " 
             + "and gms.FIELD_ID = gfl.ID "
             + "and gms.MEMBER_ID = gm.ID");
 

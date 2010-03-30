@@ -47,11 +47,11 @@ public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.BaseAttrDefAdapter#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.BaseAttrDefAdapter#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
   @Override
   public boolean hqlFilterAttrDefsWhereClause(GrouperSession grouperSession,
-      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hqlTables, StringBuilder hqlWhereClause, String attributeDefColumn,
       Set<Privilege> privInSet) {
     //no privs no filter
     if (GrouperUtil.length(privInSet) == 0) {
@@ -64,20 +64,25 @@ public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
     Collection<String> attrDefPrivs = GrouperPrivilegeAdapter.fieldIdSet(priv2list, privInSet); 
     String attrDefInClause = HibUtils.convertToInClause(attrDefPrivs, hqlQuery);
     
+    String columnAlias = "__attrDefMembership" + GrouperUtil.uniqueId();
+    
     //if not, we need an in clause
-    StringBuilder query = hql.append( ", MembershipEntry __accessMembership where " +
-        "__accessMembership.ownerGroupId = " + attributeDefColumn
-        + " and __accessMembership.fieldId in (");
-    query.append(attrDefInClause).append(") and __accessMembership.memberUuid in (");
+    hqlTables.append( ", MembershipEntry " + columnAlias);
+    if (hqlWhereClause.length() != 0) {
+      hqlWhereClause.append(" and ");
+    }
+    hqlWhereClause.append(columnAlias + ".ownerAttrDefId = " + attributeDefColumn
+        + " and " + columnAlias + ".fieldId in (");
+    hqlWhereClause.append(attrDefInClause).append(") and " + columnAlias + ".memberUuid in (");
     Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());
     if (member != null) {
       memberIds.add(member.getUuid());
     }
     String memberInClause = HibUtils.convertToInClause(memberIds, hqlQuery);
-    query.append(memberInClause).append(")");
-    
+    hqlWhereClause.append(memberInClause).append(")");
+
     // don't return disabled memberships
-    query.append(" and __accessMembership.enabledDb = 'T'");
+    hqlWhereClause.append(" and " + columnAlias + ".enabledDb = 'T'");
     return true;
   }
 

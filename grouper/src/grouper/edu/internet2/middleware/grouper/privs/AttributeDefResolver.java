@@ -190,13 +190,14 @@ public interface AttributeDefResolver {
    * the postHqlFilterAttDefs instead if you like)
    * @param subject which needs view access to the attrDefs
    * @param hqlQuery 
-   * @param hql the select and current from part
+   * @param hqlTables the select and current from part
+   * @param hqlWhereClause is there where clause part of the query
    * @param attributeDefColumn is the name of the attributeDef column to join to
    * @param privInSet find a privilege which is in this set (e.g. for view, send all attrDef privs)
    * @return if the statement was changed
    */
   public boolean hqlFilterAttrDefsWhereClause( 
-      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Set<Privilege> privInSet);
+      Subject subject, HqlQuery hqlQuery, StringBuilder hqlTables, StringBuilder hqlWhereClause, String attributeDefColumn, Set<Privilege> privInSet);
 
   /**
    * filter attributeDefs for things the subject can see

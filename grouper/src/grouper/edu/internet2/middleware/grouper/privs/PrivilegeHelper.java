@@ -556,7 +556,7 @@ public class PrivilegeHelper {
     String  msg = GrouperConfig.EMPTY_STRING; 
 
     if ( !Privilege.isAttributeDef(priv) ) {
-      throw new SchemaException("naming privileges only apply to stems");
+      throw new SchemaException("attributeDef privileges only apply to attributeDefs");
     }
 
     if      (priv.equals(AttributeDefPrivilege.ATTR_ADMIN)) { 
@@ -835,8 +835,6 @@ public class PrivilegeHelper {
       } catch (InsufficientPrivilegeException e) {
         //ignore, not allowed, dont add
         continue;
-      } catch (Exception e) {
-        LOG.error("canViewAttributeDef: " + e.getMessage(), e );
       }
     }
     return attrDefs;
@@ -868,6 +866,33 @@ public class PrivilegeHelper {
         //now, depending on the assignment, check it out
         AttributeAssignType attributeAssignType = attributeAssign.getAttributeAssignType();
         
+        switch (attributeAssignType) {
+          case group:
+            dispatch(s, attributeAssign.getOwnerGroup(), s.getSubject(), AccessPrivilege.VIEW);
+            attributeAssigns.add(attributeAssign);
+            break;
+
+          case stem:
+            //no need to check stem, everyone can view all stems
+            attributeAssigns.add(attributeAssign);
+            break;
+            
+          case member:
+            //no need to check member, everyone can edit all members
+            attributeAssigns.add(attributeAssign);
+            break;
+            
+          case attr_def:
+            dispatch(s, attributeAssign.getOwnerAttributeDef(), s.getSubject(), AttributeDefPrivilege.ATTR_VIEW);
+            attributeAssigns.add(attributeAssign);
+            break;
+            
+          default: 
+            throw new RuntimeException("Not expecting attributeAssignType: " + attributeAssignType);
+          
+          
+        }
+        
         //TODO fill this in
 //          if ( FieldType.NAMING.equals( ms.getList().getType() ) ) {
 //            dispatch( s, ms.getStem(), s.getSubject(), ms.getList().getReadPriv() );
@@ -879,8 +904,6 @@ public class PrivilegeHelper {
       } catch (InsufficientPrivilegeException e) {
         //ignore, not allowed, dont add
         continue;
-      } catch (Exception e) {
-          LOG.error("canViewMemberships: " + e.getMessage(), e );
       }
       
     }

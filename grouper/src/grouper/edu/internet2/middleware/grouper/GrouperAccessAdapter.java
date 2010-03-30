@@ -62,7 +62,6 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
     Collection<String> accessPrivs = GrouperPrivilegeAdapter.fieldIdSet(priv2list, privInSet); 
     String accessInClause = HibUtils.convertToInClause(accessPrivs, hqlQuery);
 
-    //TODO update this for 1.5 (group owner)
     //if not, we need an in clause
     StringBuilder query = hql.append( ", MembershipEntry __accessMembership where " +
     		"__accessMembership.ownerGroupId = " + groupColumn

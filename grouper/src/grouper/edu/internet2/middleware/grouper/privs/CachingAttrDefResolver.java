@@ -287,16 +287,16 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttrDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
   public boolean hqlFilterAttrDefsWhereClause(
-      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attrDefColumn,
+      Subject subject, HqlQuery hqlQuery,     StringBuilder hqlTables, StringBuilder hqlWhereClause, String attrDefColumn,
       Set<Privilege> privInSet) {
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     //System.out.println(decoratedResolver.getClass().getName());
     //CachingAttributeDefResolver
-    return decoratedResolver.hqlFilterAttrDefsWhereClause(subject, hqlQuery, hql,
+    return decoratedResolver.hqlFilterAttrDefsWhereClause(subject, hqlQuery, hqlTables, hqlWhereClause,
         attrDefColumn, privInSet);
   }
 
