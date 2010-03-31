@@ -23,7 +23,7 @@ public class GrouperVersion {
    * non-release-candidate release (e.g. in preparation for it)
    * e.g. 1.5.0
    */
-  public static final String GROUPER_VERSION = "1.5.2";
+  public static final String GROUPER_VERSION = "1.5.3";
   
   /** major number */
   private int major;

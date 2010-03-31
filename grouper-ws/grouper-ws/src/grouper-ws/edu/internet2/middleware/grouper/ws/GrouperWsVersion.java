@@ -17,9 +17,14 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 public enum GrouperWsVersion {
 
   /**
+   * grouper version 1.5.3
+   */
+  v1_5_003(true),
+
+  /**
    * grouper version 1.5.2
    */
-  v1_5_002(true),
+  v1_5_002(false),
 
   /**
    * grouper version 1.5.1
