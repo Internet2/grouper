@@ -10,11 +10,11 @@ then
   exit 1
 fi
 
-#/home/mchyzer/bin/buildGrouper.sh $1
-#/home/mchyzer/bin/buildGrouperWs.sh $1
-#/home/mchyzer/bin/buildGrouperUi.sh $1
-#/home/mchyzer/bin/buildGrouperQs.sh $1
-#/home/mchyzer/bin/buildGrouperClient.sh $1
+/home/mchyzer/bin/buildGrouper.sh $1
+/home/mchyzer/bin/buildGrouperWs.sh $1
+/home/mchyzer/bin/buildGrouperUi.sh $1
+/home/mchyzer/bin/buildGrouperQs.sh $1
+/home/mchyzer/bin/buildGrouperClient.sh $1
 
 if [ ! -d /home/mchyzer/tmp/grouperAll ]; then
   /bin/mkdir /home/mchyzer/tmp/grouperAll
