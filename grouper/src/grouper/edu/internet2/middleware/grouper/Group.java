@@ -3687,8 +3687,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if ( Privilege.isNaming(priv) ) {
-      throw new SchemaException("attempt to use naming privilege");
+    if ( !Privilege.isAccess(priv) ) {
+      throw new SchemaException("attempt to use not access privilege: " + priv);
     }
     try {
       GrouperSession.staticGrouperSession().getAccessResolver().revokePrivilege(this, priv);
@@ -3771,8 +3771,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
         boolean wasntAlreadyRevoked = true;
         try {
-          if ( Privilege.isNaming(priv) ) {
-            throw new SchemaException("attempt to use naming privilege");
+          if ( !Privilege.isAccess(priv) ) {
+            throw new SchemaException("attempt to use not access privilege: " + priv);
           }
           GrouperSession.staticGrouperSession().getAccessResolver().revokePrivilege(Group.this, subj, priv);
 

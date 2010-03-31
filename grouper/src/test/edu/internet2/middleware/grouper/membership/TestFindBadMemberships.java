@@ -185,9 +185,9 @@ public class TestFindBadMemberships extends GrouperTest {
     Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjE, true);
     Membership ms3 = MembershipFinder.findCompositeMembership(grouperSession, owner3, subjA, true);
     
-    GrouperDAOFactory.getFactory().getMembership().delete(ms1);
-    GrouperDAOFactory.getFactory().getMembership().delete(ms2);
-    GrouperDAOFactory.getFactory().getMembership().delete(ms3);
+    ms1.delete();
+    ms2.delete();
+    ms3.delete();
     
     assertFalse(FindBadMemberships.checkComposite(owner1.getComposite(false)));
     assertFalse(FindBadMemberships.checkComposite(owner2.getComposite(false)));

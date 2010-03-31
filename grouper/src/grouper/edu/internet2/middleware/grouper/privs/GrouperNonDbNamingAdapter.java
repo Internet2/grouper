@@ -435,7 +435,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     Iterator<Membership> iter = memberships.iterator();
     while (iter.hasNext()) {
       Membership mship = iter.next();
-      GrouperDAOFactory.getFactory().getMembership().delete(mship);
+      mship.delete();
     }
   }
 

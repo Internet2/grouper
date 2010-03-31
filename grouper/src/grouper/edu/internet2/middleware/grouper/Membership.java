@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMembershipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
@@ -459,9 +460,7 @@ public class Membership extends GrouperAPI implements
             //set enabled temporarily to clean out what is there
             Membership.this.enabled = true;
             
-            //TODO deal with attributes
-            
-            GrouperDAOFactory.getFactory().getMembership().delete(Membership.this);
+            Membership.this.delete();
             //recalculate
             Membership.this.enabled = Membership.this.isEnabled();
             //insert this again
@@ -473,6 +472,36 @@ public class Membership extends GrouperAPI implements
         });
   }
   
+  /**
+   * delete this record (and security and actions etc, but not attribute def names yet)
+   */
+  public void delete() {
+    
+    if (StringUtils.equals(this.getType(), "immediate") && StringUtils.equals(FieldFinder.find("members", true).getUuid(), this.getFieldId())) {
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+
+          //delete any attributes on this def
+          Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipId(Membership.this.getImmediateMembershipId());
+          
+          for (AttributeAssign attributeAssign : attributeAssigns) {
+            attributeAssign.delete();
+          }
+          
+          GrouperDAOFactory.getFactory().getMembership().delete(Membership.this);
+          return null;
+        }
+      });
+      
+      
+    } else {
+      GrouperDAOFactory.getFactory().getMembership().delete(Membership.this);
+    }
+  }
+
+
   /**
    * Whether to enable or disable this membership.  Only applies to immediate memberships.
    * @param enabled
@@ -844,7 +873,7 @@ public class Membership extends GrouperAPI implements
       return attributeDef;
     }
     attributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
-      .findByIdSecure(uuid, true);
+      .findById(uuid, true);
     putAttributeDefInCache(attributeDef);
     return attributeDef;
   }
@@ -1213,7 +1242,7 @@ public class Membership extends GrouperAPI implements
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
           g.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), true, false);
       
-      GrouperDAOFactory.getFactory().getMembership().delete(ms);
+      ms.delete();
       
       return ms;
     }
@@ -1248,7 +1277,7 @@ public class Membership extends GrouperAPI implements
       Membership ms = GrouperDAOFactory.getFactory().getMembership()
         .findByStemOwnerAndMemberAndFieldAndType(ns.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString() , true, false);
 
-      GrouperDAOFactory.getFactory().getMembership().delete(ms);
+      ms.delete();
       
       return ms;
     }
@@ -1290,7 +1319,7 @@ public class Membership extends GrouperAPI implements
             Iterator itIs = g.toMember().getImmediateMemberships(f).iterator();
             while (itIs.hasNext()) {
               ms   = (Membership) itIs.next();
-              GrouperDAOFactory.getFactory().getMembership().delete(ms);
+              ms.delete();
             }
   
             // Deal with group's members
@@ -1298,7 +1327,7 @@ public class Membership extends GrouperAPI implements
                 MembershipType.IMMEDIATE.getTypeString(), false).iterator();
             while (itHas.hasNext()) {
               ms = (Membership)itHas.next() ;
-              GrouperDAOFactory.getFactory().getMembership().delete(ms);
+              ms.delete();
             }
         
             return null;
@@ -1352,7 +1381,7 @@ public class Membership extends GrouperAPI implements
               MembershipType.IMMEDIATE.getTypeString(), false).iterator();
           while (itHas.hasNext()) {
             ms = (Membership) itHas.next() ;
-            GrouperDAOFactory.getFactory().getMembership().delete(ms);
+            ms.delete();
           }
           
           return null;
@@ -1619,7 +1648,7 @@ public class Membership extends GrouperAPI implements
       
       // if the immediate membership already exists and it's not active, delete it.
       if (ms != null && ms.isEnabled() == false) {
-        GrouperDAOFactory.getFactory().getMembership().delete(ms);
+        ms.delete();
       }
       
       if (this.enabled) {
@@ -2097,7 +2126,7 @@ public class Membership extends GrouperAPI implements
         } else if (!compositeShouldHaveMember && ownerHasMember) {
           Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
             owner.getUuid(), memberId, Group.getDefaultList(), MembershipType.COMPOSITE.getTypeString(), true, false);
-          GrouperDAOFactory.getFactory().getMembership().delete(ms);
+          ms.delete();
           modifiedMembersList.add(memberId);
           groupIds.add(owner.getUuid());
         }
@@ -2539,7 +2568,7 @@ public class Membership extends GrouperAPI implements
           Iterator itHas = dao.findAllByAttrDefOwnerAndFieldAndType(attributeDef.getUuid(), f, MembershipType.IMMEDIATE.getTypeString(), false).iterator();
           while (itHas.hasNext()) {
             ms = (Membership) itHas.next() ;
-            GrouperDAOFactory.getFactory().getMembership().delete(ms);
+            ms.delete();
           }
           
           return null;
@@ -2593,7 +2622,7 @@ public class Membership extends GrouperAPI implements
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByAttrDefOwnerAndMemberAndFieldAndType(attributeDef.getUuid(), m.getUuid(), f, MembershipType.IMMEDIATE.getTypeString() , true, false);
   
-      GrouperDAOFactory.getFactory().getMembership().delete(ms);
+      ms.delete();
       
       return ms;
     }

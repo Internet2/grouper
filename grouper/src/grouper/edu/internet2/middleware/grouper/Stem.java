@@ -470,8 +470,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               String name = Stem.this.getName(); // Preserve name for logging
               Stem.this._revokeAllNamingPrivs();
               
-              //delete any attributes on this group
-              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Stem.this.getUuid());
+              //delete any attributes on this stem
+              Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerStemId(Stem.this.getUuid());
               
               for (AttributeAssign attributeAssign : attributeAssigns) {
                 attributeAssign.delete();
@@ -1195,8 +1195,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if ( Privilege.isAccess(priv) ) {
-      throw new SchemaException("attempt to use access privilege");
+    if ( !Privilege.isNaming(priv) ) {
+      throw new SchemaException("attempt to use not naming privilege");
     }
     try {
       GrouperSession.staticGrouperSession().getNamingResolver().revokePrivilege(this, priv);

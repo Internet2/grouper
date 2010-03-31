@@ -51,7 +51,7 @@ public class AttributeAssignTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignTest("testFindMembershipAttributeAssignments"));
+    TestRunner.run(new AttributeAssignTest("testFindStemAttributeAssignments"));
   }
   
   /**
@@ -1035,6 +1035,11 @@ public class AttributeAssignTest extends GrouperTest {
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
     assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
     
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.startRootSession();
+    group.delete();
+    GrouperSession.stopQuietly(this.grouperSession);
+
   }
 
   /**
@@ -1272,7 +1277,13 @@ public class AttributeAssignTest extends GrouperTest {
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
     assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
-
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.startRootSession();
+    
+    stem.delete();
+    
+    GrouperSession.stopQuietly(this.grouperSession);
   }
 
   /**
@@ -1838,6 +1849,9 @@ public class AttributeAssignTest extends GrouperTest {
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
     assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
   
+    attributeDef.delete();
+    
+    attributeDef2.delete();
     
   }
 
@@ -2174,7 +2188,13 @@ public class AttributeAssignTest extends GrouperTest {
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
     assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
   
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.startRootSession();
     
+    //make sure this cascades right
+    group1.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    GrouperSession.stopQuietly(this.grouperSession);
   }
 
   /**
@@ -2523,6 +2543,7 @@ public class AttributeAssignTest extends GrouperTest {
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
     assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
   
+    attributeAssign.delete();
     
   }
   

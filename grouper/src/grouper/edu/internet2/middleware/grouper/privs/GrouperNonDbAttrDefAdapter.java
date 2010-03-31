@@ -409,7 +409,7 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     Iterator<Membership> iter = memberships.iterator();
     while (iter.hasNext()) {
       Membership mship = iter.next();
-      GrouperDAOFactory.getFactory().getMembership().delete(mship);
+      mship.delete();
     }
   }
 
