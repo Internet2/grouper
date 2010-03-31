@@ -68,7 +68,7 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup("testGetAllGroupsSecure"));
+    TestRunner.run(new TestGroup("testOptimisticLocking"));
     //TestRunner.run(TestGroup.class);
   }
   

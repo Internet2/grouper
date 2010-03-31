@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.textui.TestRunner;
-
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -35,6 +34,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.T;
@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 /**
  * @author shilen
@@ -61,7 +62,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AddMissingGroupSetsTest("AddMissingGroupSetsTest"));
+    TestRunner.run(new AddMissingGroupSetsTest("testAddMissingGroupSets"));
   }
   
   /**
@@ -76,6 +77,9 @@ public class AddMissingGroupSetsTest extends GrouperTest {
    */
   public void testAddMissingGroupSets() throws Exception {
 
+    ApiConfig.testConfig.put("groups.wheel.use", "false");
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    
     GrouperSession session = GrouperSession.startRootSession();
     Member rootMember = MemberFinder.findBySubject(session, SubjectFinder.findRootSubject(), true);
     

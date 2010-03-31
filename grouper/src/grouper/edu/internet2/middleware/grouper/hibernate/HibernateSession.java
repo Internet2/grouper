@@ -374,6 +374,9 @@ public class HibernateSession {
       }
       throw (GrouperDAOException) e;
     }
+    if (e instanceof StaleObjectStateException) {
+      throw new GrouperStaleObjectStateException(errorString, e);
+    }
     // if hibernate exception, repackage
     if (e instanceof HibernateException) {
       throw new GrouperDAOException(errorString, e);

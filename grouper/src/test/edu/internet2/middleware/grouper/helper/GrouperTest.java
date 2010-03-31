@@ -583,7 +583,6 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
     ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
     
-    
     GrouperCheckConfig.checkGroups();
   } 
 
