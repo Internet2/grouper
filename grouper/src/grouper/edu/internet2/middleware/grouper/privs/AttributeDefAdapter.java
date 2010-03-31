@@ -259,7 +259,7 @@ public interface AttributeDefAdapter {
       String attrDefColumn, Set<Privilege> privInSet);
 
   /**
-   * filter memberships for things the subject can see
+   * filter attribute assignments for things the subject can see, assume underlying assignments are ok to view
    * @param grouperSession 
    * @param attributeAssigns
    * @param subject

@@ -58,6 +58,8 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class MembershipFinder {
   
+  
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean)
    * @param groupIds to limit memberships to (cant have more than 100 bind variables)
@@ -982,6 +984,33 @@ public class MembershipFinder {
       throw new GrouperException(msg, e);
     }
     return subjs;
+  }
+
+  /**
+   * Find a membership within the registry by UUID.  This will be either the uuid or immediate uuid.
+   * Security will be checked to see if the grouper session is allowed to see the membership
+   * <pre class="eg">
+   *   Membership membership = MembershipFinder.findByUuid(grouperSession, uuid);
+   * </pre>
+   * @param   grouperSession     Find membership within this session context.
+   * @param   uuid  UUID of membership to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @param enabledOnly true for enabled only
+   * @return  A {@link Membership}
+   * @throws MembershipNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static Membership findByUuid(GrouperSession grouperSession, String uuid, boolean exceptionIfNotFound, boolean enabledOnly) 
+      throws MembershipNotFoundException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(grouperSession);
+    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid, exceptionIfNotFound, enabledOnly);
+    if ( PrivilegeHelper.canViewMembership( grouperSession.internal_getRootSession(), membership ) ) {
+      return membership;
+    }
+    if (exceptionIfNotFound) {
+      throw new MembershipNotFoundException("Not allowed to view membership: " + uuid);
+    }
+    return null;
   }
 
 } // public class MembershipFinder

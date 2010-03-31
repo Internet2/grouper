@@ -886,7 +886,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -896,7 +896,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, true);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
 
     
@@ -908,7 +908,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertEquals(0, attributeAssigns.size());
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -922,7 +922,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
 
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -936,7 +936,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
 
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -950,7 +950,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -962,7 +962,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, true);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     //test subject 5 can update and read
@@ -973,7 +973,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -987,7 +987,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1001,7 +1001,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
 
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1015,7 +1015,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1029,7 +1029,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findGroupAttributeAssignments(null, null, null, GrouperUtil.toSet(group.getId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1200,7 +1200,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1211,7 +1211,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, true);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
 
     //test subject 3 can not read
@@ -1222,7 +1222,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1236,7 +1236,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1250,7 +1250,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1261,7 +1261,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, true);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     //test subject 9 can view
@@ -1272,7 +1272,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
 
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1442,7 +1442,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMemberAttributeAssignments(null, null, null, GrouperUtil.toSet(member.getUuid()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1453,7 +1453,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMemberAttributeAssignments(null, null, null, GrouperUtil.toSet(member.getUuid()), null, true, true);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
 
     //test subject 3 can not read
@@ -1464,7 +1464,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMemberAttributeAssignments(null, null, null, GrouperUtil.toSet(member.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1478,7 +1478,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMemberAttributeAssignments(null, null, null, GrouperUtil.toSet(member.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1492,7 +1492,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMemberAttributeAssignments(null, null, null, GrouperUtil.toSet(member.getUuid()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1503,7 +1503,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMemberAttributeAssignments(null, null, null, GrouperUtil.toSet(member.getUuid()), null, true, true);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     //test subject 9 can view
@@ -1514,7 +1514,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMemberAttributeAssignments(null, null, null, GrouperUtil.toSet(member.getUuid()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1701,7 +1701,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1712,7 +1712,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, true);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
 
     //test subject 1 can view not read
@@ -1723,7 +1723,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertEquals(0, attributeAssigns.size());
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1737,7 +1737,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1751,7 +1751,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1765,7 +1765,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1776,7 +1776,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, true);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     //test subject 5 can update and read
@@ -1787,7 +1787,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1801,7 +1801,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1815,7 +1815,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1829,7 +1829,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -1843,7 +1843,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, GrouperUtil.toSet(attributeDefAssignTo.getId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2039,7 +2039,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2050,7 +2050,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, true);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
 
     //test subject 1 can read not read
@@ -2061,7 +2061,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertEquals(0, attributeAssigns.size());
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2075,7 +2075,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2089,7 +2089,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2103,7 +2103,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2117,7 +2117,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2131,7 +2131,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2145,7 +2145,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2159,7 +2159,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2171,7 +2171,7 @@ public class AttributeAssignTest extends GrouperTest {
     assertEquals(1, attributeAssigns.size());
     assertTrue(attributeAssigns.contains(attributeAssign));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     //test subject 9 can read and view
@@ -2182,7 +2182,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(membership.getImmediateMembershipId()), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2395,7 +2395,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2406,7 +2406,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, true);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 2 && attributeAssigns.contains(attributeAssign) && attributeAssigns.contains(attributeAssign2));
 
     //test subject 1 can read not read
@@ -2417,7 +2417,7 @@ public class AttributeAssignTest extends GrouperTest {
   
     assertEquals(0, attributeAssigns.size());
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2431,7 +2431,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2445,7 +2445,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2459,7 +2459,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2473,7 +2473,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2487,7 +2487,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2501,7 +2501,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2515,7 +2515,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
@@ -2526,7 +2526,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, true);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
     
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
     assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
 
     //test subject 9 can read and view
@@ -2537,7 +2537,7 @@ public class AttributeAssignTest extends GrouperTest {
       .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(group1.getId(), member.getUuid())), null, true, false);
     assertEquals(0, attributeAssigns.size());
   
-    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase);
+    attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
     assertEquals(0, attributeAssigns.size());
     
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);

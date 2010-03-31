@@ -12,6 +12,7 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -133,6 +134,9 @@ public class WsAttributeAssignLookup {
       return this.attributeAssign;
     }
     try {
+      //assume success (set otherwise if there is a problem)
+      this.attributeAssignFindResult = AttributeAssignResult.SUCCESS;
+
       boolean hasUuid = !StringUtils.isBlank(this.uuid);
 
       //must have a name or uuid
@@ -147,10 +151,9 @@ public class WsAttributeAssignLookup {
       }
 
       if (hasUuid) {
-        this.attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(this.uuid, true);
+        this.attributeAssign = AttributeAssignFinder.findById(this.uuid, true);
+
       }
-      //assume success (set otherwise if there is a problem)
-      this.attributeAssignFindResult = AttributeAssignResult.SUCCESS;
 
     } catch (AttributeAssignNotFoundException anf) {
       this.attributeAssignFindResult = AttributeAssignResult.ATTRIBUTE_ASSIGN_NOT_FOUND;

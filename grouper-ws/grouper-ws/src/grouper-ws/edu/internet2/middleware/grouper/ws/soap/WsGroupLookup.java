@@ -252,10 +252,15 @@ public class WsGroupLookup {
    */
   public Group retrieveGroupIfNeeded(GrouperSession grouperSession,
       String invalidQueryReason) throws WsInvalidQueryException {
+
     //see if we already retrieved
     if (this.groupFindResult != null) {
       return this.group;
     }
+
+    //assume success (set otherwise if there is a problem)
+    this.groupFindResult = GroupFindResult.SUCCESS;
+    
     try {
       boolean hasUuid = !StringUtils.isBlank(this.uuid);
 
@@ -297,8 +302,6 @@ public class WsGroupLookup {
       } else if (hasUuid) {
         this.group = GroupFinder.findByUuid(grouperSession, this.uuid, true, new QueryOptions().secondLevelCache(false));
       }
-      //assume success (set otherwise if there is a problem)
-      this.groupFindResult = GroupFindResult.SUCCESS;
 
     } catch (GroupNotFoundException gnf) {
       this.groupFindResult = GroupFindResult.GROUP_NOT_FOUND;

@@ -890,6 +890,17 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
 
   /**
+   * if this is a attribute assign attribute, this is the foreign key
+   * @return the ownerAttributeAssign
+   */
+  public AttributeAssign getOwnerAttributeAssign() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the group without security
+    return this.ownerAttributeAssignId == null ? null : GrouperDAOFactory.getFactory().getAttributeAssign().findById(this.ownerAttributeAssignId, true);
+
+  }
+
+  /**
    * if this is a attributeDef attribute, this is the foreign key
    * @return the ownerAttributeDef
    */
@@ -907,7 +918,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public Membership getOwnerImmediateMembership() {
     
     //I think the current grouper session isnt really relevant here, I think we just need to produce the attribute def without security
-    return this.ownerMembershipId == null ? null : GrouperDAOFactory.getFactory().getMembership().findByImmediateId(this.ownerMembershipId, true, null);
+    return this.ownerMembershipId == null ? null : GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
 
   }
 

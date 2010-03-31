@@ -217,6 +217,14 @@ public class WsSubjectLookup {
   }
 
   /**
+   * see if this group lookup has data
+   * @return true if it has data
+   */
+  public boolean hasData() {
+    return !StringUtils.isBlank(this.subjectId) || !StringUtils.isBlank(this.subjectIdentifier);
+  }
+
+  /**
    * 
    */
   private void retrieveSubjectIfNeeded() {

@@ -354,13 +354,51 @@ public class PrivilegeHelper {
   } 
 
   /**
-   * TODO 20070823 find a real home for this and/or add tests
-   * @param s 
+   * 
+   * @param grouperSession 
+   * @param membership 
+   * @return true if ok, false if not
+   */
+  public static boolean canViewMembership(GrouperSession grouperSession, Membership membership) {
+    try {
+      //2007-10-17: Gary Brown
+      //https://bugs.internet2.edu/jira/browse/GRP-38
+        //Ah! Memberships for stem privileges are passed through here also
+      //The conditional makes sense - except it was wrong  -and didn't cope with stem privileges
+      if ( FieldType.NAMING.equals( membership.getList().getType() ) ) {
+        dispatch( grouperSession, membership.getStem(), grouperSession.getSubject(), membership.getList().getReadPriv() );
+        return true;
+      } else if ( FieldType.ACCESS.equals( membership.getList().getType() ) ) {
+        dispatch( grouperSession, membership.getGroup(), grouperSession.getSubject(), membership.getList().getReadPriv() );
+        return true;
+      } else if (FieldType.NAMING.equals( membership.getList().getType() ) ) {
+        
+        dispatch( grouperSession, membership.getAttributeDef(), grouperSession.getSubject(), membership.getList().getReadPriv() );
+        return true;
+
+      } else if (FieldType.LIST.equals( membership.getList().getType() ) ) {
+        
+        //am I supposed to see what the read privilege is for the field, or just look at read???
+        if (canRead(grouperSession, membership.getGroup(), grouperSession.getSubject())) {
+          return true;
+        }
+        return false;
+      } else {
+        throw new RuntimeException("Invalid field type: " + membership.getList().getType());
+      }
+      
+    } catch (InsufficientPrivilegeException e) {
+      //ignore, not allowed, dont add
+      return false;
+    }
+  }
+  
+  /**
+   * @param grouperSession 
    * @param inputMemberships 
    * @return filtered memberships
-   * @SINCE   1.2.1
    */
-  public static Set<Membership> canViewMemberships(GrouperSession s, Collection<Membership> inputMemberships) {
+  public static Set<Membership> canViewMemberships(GrouperSession grouperSession, Collection<Membership> inputMemberships) {
     
     if (inputMemberships == null) {
       return null;
@@ -370,46 +408,16 @@ public class PrivilegeHelper {
     Membership.retrieveGroups(inputMemberships);
     
     //note, no need for GrouperSession inverse of control
-    Set<Membership>         mships  = new LinkedHashSet<Membership>();
-    Membership  ms;
-    Iterator    it      = inputMemberships.iterator();
-    while ( it.hasNext() ) {
-      ms = (Membership)it.next() ;
-      try {
-    	//2007-10-17: Gary Brown
-    	//https://bugs.internet2.edu/jira/browse/GRP-38
-        //Ah! Memberships for stem privileges are passed through here also
-    	//The conditional makes sense - except it was wrong  -and didn't cope with stem privileges
-        if ( FieldType.NAMING.equals( ms.getList().getType() ) ) {
-          dispatch( s, ms.getStem(), s.getSubject(), ms.getList().getReadPriv() );
-          mships.add(ms);
-        } else if ( FieldType.ACCESS.equals( ms.getList().getType() ) ) {
-        	dispatch( s, ms.getGroup(), s.getSubject(), ms.getList().getReadPriv() );
-            mships.add(ms);
-        } else if (FieldType.NAMING.equals( ms.getList().getType() ) ) {
-          
-          dispatch( s, ms.getAttributeDef(), s.getSubject(), ms.getList().getReadPriv() );
-            mships.add(ms);
-
-        } else if (FieldType.LIST.equals( ms.getList().getType() ) ) {
-          
-          //am I supposed to see what the read privilege is for the field, or just look at read???
-          if (!canRead(s, ms.getGroup(), s.getSubject())) {
-            continue;
-          }
-          
-        } else {
-          throw new RuntimeException("Invalid field type: " + ms.getList().getType());
-        }
-        mships.add(ms);
-      } catch (InsufficientPrivilegeException e) {
-        //ignore, not allowed, dont add
-        continue;
-      } catch (Exception e) {
-        LOG.error("canViewMemberships: " + e.getMessage(), e );
+    Set<Membership> memberships = new LinkedHashSet<Membership>();
+    Membership membership;
+    Iterator<Membership> iterator = inputMemberships.iterator();
+    while ( iterator.hasNext() ) {
+      membership = iterator.next() ;
+      if (canViewMembership(grouperSession, membership)) {
+        memberships.add(membership);
       }
     }
-    return mships;
+    return memberships;
   } 
 
 
@@ -848,13 +856,92 @@ public class PrivilegeHelper {
   }
 
   /**
-   * TODO 20100327 find a real home for this and/or add tests
-   * @param s 
-   * @param inputAttributeAssigns 
+   * see if the attribute assigns are viewable
+   * @param grouperSession 
+   * @param attributeAssign
+   * @param checkUnderlyingIfAssignmentOnAssignment if deep security check should take place on underlying assignments
    * @return filtered memberships
-   * @SINCE   1.2.1
+   * 
    */
-  public static Set<AttributeAssign> canViewAttributeAssigns(GrouperSession s, Collection<AttributeAssign> inputAttributeAssigns) {
+  public static boolean canViewAttributeAssign(GrouperSession grouperSession, AttributeAssign attributeAssign, boolean checkUnderlyingIfAssignmentOnAssignment) {
+    if (attributeAssign == null) {
+      throw new NullPointerException("attribute assign is null");
+    }
+    
+    try {
+      
+      //first try the attributeDefs
+      AttributeDef attributeDef = attributeAssign.getAttributeDef();
+      
+      dispatch(grouperSession, attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_READ);
+      
+      //now, depending on the assignment, check it out
+      AttributeAssignType attributeAssignType = attributeAssign.getAttributeAssignType();
+      
+      switch (attributeAssignType) {
+        case group:
+          dispatch(grouperSession, attributeAssign.getOwnerGroup(), grouperSession.getSubject(), AccessPrivilege.VIEW);
+          break;
+
+        case stem:
+          //no need to check stem, everyone can view all stems
+          break;
+          
+        case member:
+          //no need to check member, everyone can edit all members
+          break;
+          
+        case attr_def:
+          dispatch(grouperSession, attributeAssign.getOwnerAttributeDef(), grouperSession.getSubject(), AttributeDefPrivilege.ATTR_VIEW);
+          break;
+          
+        case imm_mem:
+          dispatch(grouperSession, attributeAssign.getOwnerImmediateMembership().getGroup(), grouperSession.getSubject(), AccessPrivilege.READ);
+          break;
+
+        case any_mem:
+          dispatch(grouperSession, attributeAssign.getOwnerGroup(), grouperSession.getSubject(), AccessPrivilege.READ);
+          break;
+
+        case any_mem_asgn:
+        case attr_def_asgn:
+        case group_asgn:
+        case imm_mem_asgn:
+        case mem_asgn:
+        case stem_asgn:
+          if (checkUnderlyingIfAssignmentOnAssignment) {
+            AttributeAssign underlyingAssignment = attributeAssign.getOwnerAttributeAssign();
+            if (!canViewAttributeAssign(grouperSession, underlyingAssignment, checkUnderlyingIfAssignmentOnAssignment)) {
+              return false;
+            }
+          }
+          break;
+
+        default: 
+          throw new RuntimeException("Not expecting attributeAssignType: " + attributeAssignType);
+        
+        
+      }
+      
+      //ok
+      return true;
+
+    } catch (InsufficientPrivilegeException e) {
+      //ignore, not allowed, dont add
+      return false;
+    }
+    
+  }
+
+  /**
+   * see if the attribute assigns are viewable
+   * @param grouperSession 
+   * @param inputAttributeAssigns 
+   * @param checkUnderlyingIfAssignmentOnAssignment if deep security check should take place on underlying assignments
+   * @return filtered memberships
+   * 
+   */
+  public static Set<AttributeAssign> canViewAttributeAssigns(GrouperSession grouperSession, Collection<AttributeAssign> inputAttributeAssigns, boolean checkUnderlyingIfAssignmentOnAssignment) {
     
     if (inputAttributeAssigns == null) {
       return null;
@@ -863,65 +950,9 @@ public class PrivilegeHelper {
     Set<AttributeAssign> attributeAssigns  = new LinkedHashSet<AttributeAssign>();
     
     for (AttributeAssign attributeAssign : inputAttributeAssigns) {
-      try {
-        
-        //first try the attributeDefs
-        AttributeDef attributeDef = attributeAssign.getAttributeDef();
-        
-        dispatch(s, attributeDef, s.getSubject(), AttributeDefPrivilege.ATTR_READ);
-        
-        //now, depending on the assignment, check it out
-        AttributeAssignType attributeAssignType = attributeAssign.getAttributeAssignType();
-        
-        switch (attributeAssignType) {
-          case group:
-            dispatch(s, attributeAssign.getOwnerGroup(), s.getSubject(), AccessPrivilege.VIEW);
-            break;
-
-          case stem:
-            //no need to check stem, everyone can view all stems
-            break;
-            
-          case member:
-            //no need to check member, everyone can edit all members
-            break;
-            
-          case attr_def:
-            dispatch(s, attributeAssign.getOwnerAttributeDef(), s.getSubject(), AttributeDefPrivilege.ATTR_VIEW);
-            break;
-            
-          case imm_mem:
-            dispatch(s, attributeAssign.getOwnerImmediateMembership().getGroup(), s.getSubject(), AccessPrivilege.READ);
-            break;
-
-          case any_mem:
-            dispatch(s, attributeAssign.getOwnerGroup(), s.getSubject(), AccessPrivilege.READ);
-            break;
-
-          case any_mem_asgn:
-          case attr_def_asgn:
-          case group_asgn:
-          case imm_mem_asgn:
-          case mem_asgn:
-          case stem_asgn:
-            
-            //assume that the user can see the assignment this was assigned on
-            break;
-
-          default: 
-            throw new RuntimeException("Not expecting attributeAssignType: " + attributeAssignType);
-          
-          
-        }
-        
-        //ok, add to list
+      if (canViewAttributeAssign(grouperSession, attributeAssign, checkUnderlyingIfAssignmentOnAssignment)) {
         attributeAssigns.add(attributeAssign);
-
-      } catch (InsufficientPrivilegeException e) {
-        //ignore, not allowed, dont add
-        continue;
       }
-      
     }
     return attributeAssigns;
   }

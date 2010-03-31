@@ -61,7 +61,7 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
   public Set<AttributeAssign> postHqlFilterAttributeAssigns(
       GrouperSession grouperSession, Subject subject,
       Set<AttributeAssign> attributeAssigns) {
-    return PrivilegeHelper.canViewAttributeAssigns(grouperSession, attributeAssigns);
+    return PrivilegeHelper.canViewAttributeAssigns(grouperSession, attributeAssigns, false);
   }
   
   

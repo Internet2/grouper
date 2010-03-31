@@ -145,6 +145,9 @@ public class WsAttributeDefNameLookup {
       return this.attributeDefName;
     }
     try {
+      //assume success (set otherwise if there is a problem)
+      this.attributeDefNameFindResult = AttributeDefNameFindResult.SUCCESS;
+
       boolean hasUuid = !StringUtils.isBlank(this.uuid);
 
       boolean hasName = !StringUtils.isBlank(this.name);
@@ -184,8 +187,6 @@ public class WsAttributeDefNameLookup {
       } else if (hasUuid) {
         this.attributeDefName = AttributeDefNameFinder.findById(this.uuid, true);
       }
-      //assume success (set otherwise if there is a problem)
-      this.attributeDefNameFindResult = AttributeDefNameFindResult.SUCCESS;
 
     } catch (AttributeDefNameNotFoundException anf) {
       this.attributeDefNameFindResult = AttributeDefNameFindResult.ATTRIBUTE_DEF_NAME_NOT_FOUND;

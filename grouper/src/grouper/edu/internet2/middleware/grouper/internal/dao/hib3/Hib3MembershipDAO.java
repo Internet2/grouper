@@ -1330,23 +1330,29 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       throws GrouperDAOException, MembershipNotFoundException {
     
     int index = uuid.indexOf(Membership.membershipIdSeparator);
-    String immediateMembershipId = uuid.substring(0, index);
-    String groupSetId = uuid.substring(index + 1);
     
-    StringBuilder sql = new StringBuilder(
-        "select ms, m from MembershipEntry as ms, Member as m where ms.immediateMembershipId = :immediateMembershipId "
-             + "and ms.groupSetId = :groupSetId and ms.memberUuid = m.uuid");
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic().setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByUuid");
+
+    StringBuilder sql = new StringBuilder();
+    
+    if (index != -1) {
+      String immediateMembershipId = uuid.substring(0, index);
+      String groupSetId = uuid.substring(index + 1);
+      sql.append("select ms, m from MembershipEntry as ms, Member as m where ms.immediateMembershipId = :immediateMembershipId "
+               + "and ms.groupSetId = :groupSetId and ms.memberUuid = m.uuid");
+      byHqlStatic.setString("immediateMembershipId", immediateMembershipId).setString("groupSetId", groupSetId);
+
+    } else {
+      //this is an immediate membership
+      sql.append("select ms, m from ImmediateMembershipEntry as ms, Member as m where ms.id = :immediateMembershipId and ms.memberUuid = m.uuid ");
+      byHqlStatic.setString("immediateMembershipId", uuid);
+    }
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
     }
-    
-    Object[] result = HibernateSession.byHqlStatic()
-      .createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindByUuid")
-      .setString("immediateMembershipId", immediateMembershipId)
-      .setString("groupSetId", groupSetId)
-      .uniqueResult(Object[].class);
+    byHqlStatic.createQuery(sql.toString());
+    Object[] result = byHqlStatic.uniqueResult(Object[].class);
     if (result==null || result[0] == null) {
       if (exceptionIfNull) {
         throw new MembershipNotFoundException("could not find membership with uuid: " + Quote.single(uuid));
@@ -2030,36 +2036,4 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         .executeUpdate();
   }
 
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByImmediateId(java.lang.String, boolean, java.lang.Boolean)
-   */
-  public Membership findByImmediateId(String immediateMembershipId, boolean exceptionIfNull,
-      Boolean enabledOnly) throws GrouperDAOException, MembershipNotFoundException {
-    
-    StringBuilder sql = new StringBuilder(
-        "select ms from ImmediateMembershipEntry as ms where ms.id = :immediateMembershipId ");
-    if (enabledOnly != null && enabledOnly) {
-      sql.append(" and ms.enabledDb = 'T'");
-    }
-    if (enabledOnly != null && !enabledOnly) {
-      sql.append(" and ms.enabledDb = 'F'");
-    }
-    
-    Membership membership = HibernateSession.byHqlStatic()
-      .createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindByUuid")
-      .setString("immediateMembershipId", immediateMembershipId)
-      .uniqueResult(Membership.class);
-    if (membership==null) {
-      if (exceptionIfNull) {
-        throw new MembershipNotFoundException("could not find membership with uuid: " + Quote.single(immediateMembershipId));
-      }
-      return null;
-    }
-    return membership;
-
-    
-  }
 }

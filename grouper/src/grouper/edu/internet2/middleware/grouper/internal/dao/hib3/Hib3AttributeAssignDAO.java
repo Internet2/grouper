@@ -1452,7 +1452,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
           " aa.attributeDefNameId = adn.id ");
       
       if (attributeAssignType != null) {
-        sqlWhereClause.append(" and aa.attributeAssignTypeDb = '" + attributeAssignType + "' ");
+        sqlWhereClause.append(" and aa.attributeAssignTypeDb = '" + attributeAssignType.name() + "' ");
       }
       
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
