@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouper.changeLog;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
@@ -48,12 +51,19 @@ public class ChangeLogTempToEntity {
     return convertRecords(null);
   }
 
+  private static Map<String, List<String>> addedMembershipOwnerAndFields = null;
+  private static Map<String, List<String>> deletedMembershipOwnerAndFields = null;
+  
   /**
    * convert the temps to regulars, assign id's
    * @param hib3GrouperLoaderLog is the log object to post updates, can be null
    * @return the number of records converted
    */
   public static int convertRecords(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    
+    addedMembershipOwnerAndFields = new HashMap<String, List<String>>();
+    deletedMembershipOwnerAndFields = new HashMap<String, List<String>>();
+    
     
     int count = 0;
     
@@ -131,6 +141,11 @@ public class ChangeLogTempToEntity {
    * @param changeLogEntry
    */
   private static void processGroupAdd(ChangeLogEntry changeLogEntry) {
+
+    // we're just going to simply clear this since owners that may have this
+    // group as a member may have been skipped before.
+    addedMembershipOwnerAndFields.clear();
+    
     FlatGroup flatGroup = new FlatGroup();
     flatGroup.setId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.id));
     
@@ -255,13 +270,16 @@ public class ChangeLogTempToEntity {
     String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.fieldId);
     String privilegeName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName);
     String privilegeType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeType);
-    String contextId = changeLogEntry.getContextId();
     
-    if (GrouperUtil.isEmpty(contextId)) {
-      contextId = null;
+    if (!addedMembershipOwnerAndFields.containsKey(ownerId)) {
+      addedMembershipOwnerAndFields.put(ownerId, new ArrayList<String>());
+    } else if (addedMembershipOwnerAndFields.get(ownerId).contains(fieldId)) {
+      // already processed
+      return;
     }
     
-    processPrivilegeAdd(ownerType, ownerName, ownerId, fieldId, privilegeName, privilegeType, contextId);
+    addedMembershipOwnerAndFields.get(ownerId).add(fieldId);
+    processPrivilegeAdd(ownerType, ownerName, ownerId, fieldId, privilegeName, privilegeType, changeLogEntry);
   }
   
   /**
@@ -273,10 +291,10 @@ public class ChangeLogTempToEntity {
    * @param fieldId
    * @param privilegeName
    * @param privilegeType
-   * @param contextId
+   * @param originalChangeLogEntry
    */
   private static void processPrivilegeAdd(String ownerType, String ownerName, String ownerId, String fieldId,
-      String privilegeName, String privilegeType, String contextId) {
+      String privilegeName, String privilegeType, ChangeLogEntry originalChangeLogEntry) {
   
     String ownerStemId = null;
     String ownerGroupId = null;
@@ -295,6 +313,12 @@ public class ChangeLogTempToEntity {
       membersToAdd = GrouperDAOFactory.getFactory().getFlatMembership().findMembersToAddByAttrDefOwnerAndField(ownerId, fieldId);
     } else {
       throw new RuntimeException("unexpected ownerType: " + ownerType);
+    }
+    
+    String contextId = originalChangeLogEntry.getContextId();
+    
+    if (GrouperUtil.isEmpty(contextId)) {
+      contextId = null;
     }
     
     // now iterate through the set and add the flat memberships
@@ -322,7 +346,7 @@ public class ChangeLogTempToEntity {
       flatMship.saveOrUpdate();
       
       // now add the change log entry
-      new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
+      ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
           ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), privilegeName, 
           ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), fieldId, 
           ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), memberToAdd.getUuid(),
@@ -331,7 +355,10 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), privilegeType,
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), ownerType,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), ownerId,
-          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), ownerName).save();
+          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), ownerName);
+      changeLogEntry.setContextId(contextId);
+      changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
+      changeLogEntry.save();
     }
   }
   
@@ -349,7 +376,15 @@ public class ChangeLogTempToEntity {
     String privilegeName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName);
     String privilegeType = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeType);
     
-    processPrivilegeDelete(ownerType, ownerName, ownerId, fieldId, privilegeName, privilegeType);
+    if (!deletedMembershipOwnerAndFields.containsKey(ownerId)) {
+      deletedMembershipOwnerAndFields.put(ownerId, new ArrayList<String>());
+    } else if (deletedMembershipOwnerAndFields.get(ownerId).contains(fieldId)) {
+      // already processed
+      return;
+    }
+    
+    deletedMembershipOwnerAndFields.get(ownerId).add(fieldId);
+    processPrivilegeDelete(ownerType, ownerName, ownerId, fieldId, privilegeName, privilegeType, changeLogEntry);
   }
   
   /**
@@ -362,9 +397,10 @@ public class ChangeLogTempToEntity {
    * @param fieldId
    * @param privilegeName
    * @param privilegeType
+   * @param originalChangeLogEntry
    */
   private static void processPrivilegeDelete(String ownerType, String ownerName, String ownerId, String fieldId, 
-      String privilegeName, String privilegeType) {
+      String privilegeName, String privilegeType, ChangeLogEntry originalChangeLogEntry) {
     Set<FlatMembership> flatMembershipsToRemove;
     
     // get the members to remove from the flat table
@@ -378,6 +414,12 @@ public class ChangeLogTempToEntity {
       throw new RuntimeException("unexpected ownerType: " + ownerType);
     }
     
+    String contextId = originalChangeLogEntry.getContextId();
+    
+    if (GrouperUtil.isEmpty(contextId)) {
+      contextId = null;
+    }
+    
     // now iterate through the set and remove the flat memberships
     Iterator<FlatMembership> flatMembershipsToRemoveIter = flatMembershipsToRemove.iterator();
     while (flatMembershipsToRemoveIter.hasNext()) {
@@ -387,7 +429,7 @@ public class ChangeLogTempToEntity {
       flatMembership.delete();
       
       // now add the change log entry
-      new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
+      ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), privilegeName, 
           ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), fieldId, 
           ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), flatMembership.getMemberId(),
@@ -396,7 +438,10 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), privilegeType,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), ownerType,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), ownerId,
-          ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), ownerName).save();
+          ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), ownerName);
+      changeLogEntry.setContextId(contextId);
+      changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
+      changeLogEntry.save();
     }
   }
   
@@ -407,12 +452,18 @@ public class ChangeLogTempToEntity {
    * @param groupName
    * @param fieldId
    * @param fieldName
-   * @param contextId
+   * @param originalChangeLogEntry
    */
   private static void processMembershipAdd(String groupId, String groupName, String fieldId, String fieldName,
-      String contextId) {
+      ChangeLogEntry originalChangeLogEntry) {
     // get the members to add to the flat table
     Set<Member> membersToAdd = GrouperDAOFactory.getFactory().getFlatMembership().findMembersToAddByGroupOwnerAndField(groupId, fieldId);
+    
+    String contextId = originalChangeLogEntry.getContextId();
+    
+    if (GrouperUtil.isEmpty(contextId)) {
+      contextId = null;
+    }
     
     // now iterate through the set and add the flat memberships
     Iterator<Member> membersToAddIter = membersToAdd.iterator();
@@ -437,14 +488,17 @@ public class ChangeLogTempToEntity {
       flatMship.saveOrUpdate();
       
       // now add the change log entry
-      new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
+      ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
           ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), fieldName, 
           ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name(), fieldId, 
           ChangeLogLabels.MEMBERSHIP_ADD.memberId.name(), memberToAdd.getUuid(),
           ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), memberToAdd.getSubjectId(),
           ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), memberToAdd.getSubjectSourceId(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), groupId,
-          ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), groupName).save();
+          ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), groupName);
+      changeLogEntry.setContextId(contextId);
+      changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
+      changeLogEntry.save();
     }
   }
   
@@ -458,13 +512,16 @@ public class ChangeLogTempToEntity {
     String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
     String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldId);
     String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName);
-    String contextId = changeLogEntry.getContextId();
     
-    if (GrouperUtil.isEmpty(contextId)) {
-      contextId = null;
+    if (!addedMembershipOwnerAndFields.containsKey(groupId)) {
+      addedMembershipOwnerAndFields.put(groupId, new ArrayList<String>());
+    } else if (addedMembershipOwnerAndFields.get(groupId).contains(fieldId)) {
+      // already processed
+      return;
     }
     
-    processMembershipAdd(groupId, groupName, fieldId, fieldName, contextId);
+    addedMembershipOwnerAndFields.get(groupId).add(fieldId);
+    processMembershipAdd(groupId, groupName, fieldId, fieldName, changeLogEntry);
     
     // if the field is the default list, then we have to see if the owner is a member of other groups, stems, or attr defs
     if (Group.getDefaultList().getUuid().equals(fieldId)) {
@@ -485,7 +542,7 @@ public class ChangeLogTempToEntity {
           }
           
           processPrivilegeAdd(Membership.OWNER_TYPE_ATTRIBUTE_DEF, currAttrDef.getName(), currOwnerId, currFieldId, 
-              AttributeDefPrivilege.listToPriv(currFieldName).getName(), FieldType.ATTRIBUTE_DEF.getType(), contextId);
+              AttributeDefPrivilege.listToPriv(currFieldName).getName(), FieldType.ATTRIBUTE_DEF.getType(), changeLogEntry);
         } else if (currFlatMship.getOwnerStemId() != null) {
           Stem currStem = GrouperDAOFactory.getFactory().getStem().findByUuid(currOwnerId, false);
           if (currStem == null) {
@@ -493,7 +550,7 @@ public class ChangeLogTempToEntity {
           }
           
           processPrivilegeAdd(Membership.OWNER_TYPE_STEM, currStem.getName(), currOwnerId, currFieldId, 
-              NamingPrivilege.listToPriv(currFieldName).getName(), FieldType.NAMING.getType(), contextId);
+              NamingPrivilege.listToPriv(currFieldName).getName(), FieldType.NAMING.getType(), changeLogEntry);
         } else if (currFlatMship.getOwnerGroupId() != null) {
           Group currGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currOwnerId, false);
           if (currGroup == null) {
@@ -502,9 +559,9 @@ public class ChangeLogTempToEntity {
                     
           if (FieldType.ACCESS.equals(currField.getType())) {
             processPrivilegeAdd(Membership.OWNER_TYPE_GROUP, currGroup.getName(), currOwnerId, currFieldId, 
-                AccessPrivilege.listToPriv(currFieldName).getName(), FieldType.ACCESS.getType(), contextId);
+                AccessPrivilege.listToPriv(currFieldName).getName(), FieldType.ACCESS.getType(), changeLogEntry);
           } else {
-            processMembershipAdd(currOwnerId, currGroup.getName(), currFieldId, currFieldName, contextId);
+            processMembershipAdd(currOwnerId, currGroup.getName(), currFieldId, currFieldName, changeLogEntry);
           }
           
         } else {
@@ -526,7 +583,15 @@ public class ChangeLogTempToEntity {
     String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldId);
     String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName);
     
-    processMembershipDelete(groupId, groupName, fieldId, fieldName);
+    if (!deletedMembershipOwnerAndFields.containsKey(groupId)) {
+      deletedMembershipOwnerAndFields.put(groupId, new ArrayList<String>());
+    } else if (deletedMembershipOwnerAndFields.get(groupId).contains(fieldId)) {
+      // already processed
+      return;
+    }
+    
+    deletedMembershipOwnerAndFields.get(groupId).add(fieldId);
+    processMembershipDelete(groupId, groupName, fieldId, fieldName, changeLogEntry);
     
     // if the field is the default list, then we have to see if the owner is a member of other groups, stems, or attr defs
     if (Group.getDefaultList().getUuid().equals(fieldId)) {
@@ -547,7 +612,7 @@ public class ChangeLogTempToEntity {
           }
           
           processPrivilegeDelete(Membership.OWNER_TYPE_ATTRIBUTE_DEF, currAttrDef.getName(), currOwnerId, currFieldId, 
-              AttributeDefPrivilege.listToPriv(currFieldName).getName(), FieldType.ATTRIBUTE_DEF.getType());
+              AttributeDefPrivilege.listToPriv(currFieldName).getName(), FieldType.ATTRIBUTE_DEF.getType(), changeLogEntry);
         } else if (currFlatMship.getOwnerStemId() != null) {
           Stem currStem = GrouperDAOFactory.getFactory().getStem().findByUuid(currOwnerId, false);
           if (currStem == null) {
@@ -555,7 +620,7 @@ public class ChangeLogTempToEntity {
           }
           
           processPrivilegeDelete(Membership.OWNER_TYPE_STEM, currStem.getName(), currOwnerId, currFieldId, 
-              NamingPrivilege.listToPriv(currFieldName).getName(), FieldType.NAMING.getType());
+              NamingPrivilege.listToPriv(currFieldName).getName(), FieldType.NAMING.getType(), changeLogEntry);
         } else if (currFlatMship.getOwnerGroupId() != null) {
           Group currGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currOwnerId, false);
           if (currGroup == null) {
@@ -564,9 +629,9 @@ public class ChangeLogTempToEntity {
                     
           if (FieldType.ACCESS.equals(currField.getType())) {
             processPrivilegeDelete(Membership.OWNER_TYPE_GROUP, currGroup.getName(), currOwnerId, currFieldId, 
-                AccessPrivilege.listToPriv(currFieldName).getName(), FieldType.ACCESS.getType());
+                AccessPrivilege.listToPriv(currFieldName).getName(), FieldType.ACCESS.getType(), changeLogEntry);
           } else {
-            processMembershipDelete(currOwnerId, currGroup.getName(), currFieldId, currFieldName);
+            processMembershipDelete(currOwnerId, currGroup.getName(), currFieldId, currFieldName, changeLogEntry);
           }
           
         } else {
@@ -585,10 +650,18 @@ public class ChangeLogTempToEntity {
    * @param groupName
    * @param fieldId
    * @param fieldName
+   * @param originalChangeLogEntry
    */
-  private static void processMembershipDelete(String groupId, String groupName, String fieldId, String fieldName) {
+  private static void processMembershipDelete(String groupId, String groupName, String fieldId, String fieldName,
+      ChangeLogEntry originalChangeLogEntry) {
     // get the members to remove from the flat table
     Set<FlatMembership> flatMembershipsToRemove = GrouperDAOFactory.getFactory().getFlatMembership().findMembersToDeleteByGroupOwnerAndField(groupId, fieldId);
+    
+    String contextId = originalChangeLogEntry.getContextId();
+    
+    if (GrouperUtil.isEmpty(contextId)) {
+      contextId = null;
+    }
     
     // now iterate through the set and remove the flat memberships
     Iterator<FlatMembership> flatMembershipsToRemoveIter = flatMembershipsToRemove.iterator();
@@ -599,14 +672,17 @@ public class ChangeLogTempToEntity {
       flatMembership.delete();
       
       // now add the change log entry
-      new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
+      ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
           ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), fieldName, 
           ChangeLogLabels.MEMBERSHIP_DELETE.fieldId.name(), fieldId, 
           ChangeLogLabels.MEMBERSHIP_DELETE.memberId.name(), flatMembership.getMemberId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), flatMembership.getMember().getSubjectId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), flatMembership.getMember().getSubjectSourceId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), groupId,
-          ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), groupName).save();
+          ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), groupName);
+      changeLogEntry.setContextId(contextId);
+      changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
+      changeLogEntry.save();
     }
   }
 }

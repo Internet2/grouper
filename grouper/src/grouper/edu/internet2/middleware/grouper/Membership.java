@@ -198,6 +198,9 @@ public class Membership extends GrouperAPI implements
 
   /** constant for field name for: ownerStemId */
   public static final String FIELD_OWNER_STEM_ID = "ownerStemId";
+  
+  /** constant for field name for: ownerAttrDefId */
+  public static final String FIELD_OWNER_ATTR_DEF_ID = "ownerAttrDefId";
 
   /** constant for field name for: type */
   public static final String FIELD_TYPE = "type";
@@ -237,7 +240,7 @@ public class Membership extends GrouperAPI implements
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_FIELD_ID, 
       FIELD_GROUP_SET_CREATE_TIME_LONG, FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID, FIELD_GROUP_SET_PARENT_ID, 
       FIELD_IMMEDIATE_MEMBERSHIP_ID, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, 
-      FIELD_OWNER_STEM_ID, FIELD_TYPE, FIELD_UUID, 
+      FIELD_OWNER_STEM_ID, FIELD_OWNER_ATTR_DEF_ID, FIELD_TYPE, FIELD_UUID, 
       FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
 
   /**
@@ -248,7 +251,7 @@ public class Membership extends GrouperAPI implements
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_FIELD_ID, 
       FIELD_GROUP_SET_CREATE_TIME_LONG, FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID, FIELD_GROUP_SET_PARENT_ID, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_IMMEDIATE_MEMBERSHIP_ID, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, 
-      FIELD_OWNER_STEM_ID, FIELD_TYPE, 
+      FIELD_OWNER_STEM_ID, FIELD_OWNER_ATTR_DEF_ID, FIELD_TYPE, 
       FIELD_UUID, FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//

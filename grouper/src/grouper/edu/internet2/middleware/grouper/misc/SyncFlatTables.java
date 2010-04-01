@@ -238,7 +238,15 @@ public class SyncFlatTables {
         FlatStem flatStem = new FlatStem();
         flatStem.setId(stem.getUuid());
         batch.add(flatStem);
-        logDetail("Found missing flat stem with name: " + stem.getName());
+
+        String stemName = null;
+        if (stem.isRootStem()) {
+          stemName = "{rootStem}";
+        } else {
+          stemName = stem.getName();
+        }
+        
+        logDetail("Found missing flat stem with name: " + stemName);
         
         if (batch.size() % batchSize == 0 || !iter.hasNext()) {
           if (saveUpdates) {

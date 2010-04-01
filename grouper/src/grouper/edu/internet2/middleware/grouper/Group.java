@@ -1180,6 +1180,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   .getAccessResolver().revokeAllPrivilegesForSubject(groupSubject);
               GrouperSession.staticGrouperSession().internal_getRootSession()
                   .getNamingResolver().revokeAllPrivilegesForSubject(groupSubject);
+              GrouperSession.staticGrouperSession().internal_getRootSession()
+                .getAttributeDefResolver().revokeAllPrivilegesForSubject(groupSubject);
               
               //delete any attributes on this group
               Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());

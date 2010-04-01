@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.flat.FlatStem;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FlatStemDAO;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
@@ -41,7 +42,12 @@ public class Hib3FlatStemDAO extends Hib3DAO implements FlatStemDAO {
    * @param hibernateSession
    */
   public static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from FlatStem").executeUpdate();
+    Stem rootStem = GrouperDAOFactory.getFactory().getStem().findByName(Stem.ROOT_INT, true, null);
+    
+    hibernateSession.byHql()
+      .createQuery("delete from FlatStem where id not like :rootStemId")
+      .setString("rootStemId", rootStem.getUuid())
+      .executeUpdate();
   }
 
   /**

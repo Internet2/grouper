@@ -109,7 +109,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select distinct m from MembershipEntry as ms, Member as m " +
       		"where ms.memberUuid = m.uuid and ms.ownerGroupId = :ownerId and ms.fieldId = :fieldId " +
-      		"and ms.memberUuid not in (select flatMship.memberId from FlatMembership as flatMship where flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId)")
+      		"and ms.memberUuid not in (select flatMship.memberId from FlatMembership as flatMship where flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId) " +
+      		"and ms.enabledDb='T'")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMembersToAddByGroupOwnerAndField")
       .setString("ownerId", ownerId)
       .setString("fieldId", fieldId)
@@ -126,7 +127,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select distinct m from MembershipEntry as ms, Member as m " +
           "where ms.memberUuid = m.uuid and ms.ownerStemId = :ownerId and ms.fieldId = :fieldId " +
-          "and ms.memberUuid not in (select flatMship.memberId from FlatMembership as flatMship where flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId)")
+          "and ms.memberUuid not in (select flatMship.memberId from FlatMembership as flatMship where flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId) " +
+          "and ms.enabledDb='T'")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMembersToAddByStemOwnerAndField")
       .setString("ownerId", ownerId)
       .setString("fieldId", fieldId)
@@ -143,7 +145,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select distinct m from MembershipEntry as ms, Member as m " +
           "where ms.memberUuid = m.uuid and ms.ownerAttrDefId = :ownerId and ms.fieldId = :fieldId " +
-          "and ms.memberUuid not in (select flatMship.memberId from FlatMembership as flatMship where flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId)")
+          "and ms.memberUuid not in (select flatMship.memberId from FlatMembership as flatMship where flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId) " +
+          "and ms.enabledDb='T'")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMembersToAddByAttrDefOwnerAndField")
       .setString("ownerId", ownerId)
       .setString("fieldId", fieldId)
@@ -160,7 +163,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select flatMship, m from FlatMembership as flatMship, Member as m " +
           "where flatMship.memberId = m.uuid and flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId " +
-          "and flatMship.memberId not in (select ms.memberUuid from MembershipEntry as ms where ms.ownerGroupId = :ownerId and ms.fieldId = :fieldId)")
+          "and flatMship.memberId not in " +
+          "  (select ms.memberUuid from MembershipEntry as ms where ms.ownerGroupId = :ownerId and ms.fieldId = :fieldId and ms.enabledDb='T')")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMembersToDeleteByGroupOwnerAndField")
       .setString("ownerId", ownerId)
       .setString("fieldId", fieldId)
@@ -177,7 +181,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select flatMship, m from FlatMembership as flatMship, Member as m " +
           "where flatMship.memberId = m.uuid and flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId " +
-          "and flatMship.memberId not in (select ms.memberUuid from MembershipEntry as ms where ms.ownerStemId = :ownerId and ms.fieldId = :fieldId)")
+          "and flatMship.memberId not in " +
+          "  (select ms.memberUuid from MembershipEntry as ms where ms.ownerStemId = :ownerId and ms.fieldId = :fieldId and ms.enabledDb='T')")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMembersToDeleteByStemOwnerAndField")
       .setString("ownerId", ownerId)
       .setString("fieldId", fieldId)
@@ -194,7 +199,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select flatMship, m from FlatMembership as flatMship, Member as m " +
           "where flatMship.memberId = m.uuid and flatMship.ownerId = :ownerId and flatMship.fieldId = :fieldId " +
-          "and flatMship.memberId not in (select ms.memberUuid from MembershipEntry as ms where ms.ownerAttrDefId = :ownerId and ms.fieldId = :fieldId)")
+          "and flatMship.memberId not in " +
+          "  (select ms.memberUuid from MembershipEntry as ms where ms.ownerAttrDefId = :ownerId and ms.fieldId = :fieldId and ms.enabledDb='T')")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMembersToDeleteByAttrDefOwnerAndField")
       .setString("ownerId", ownerId)
       .setString("fieldId", fieldId)
@@ -221,7 +227,7 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
     Set<FlatMembership> flatMemberships = HibernateSession
       .byHqlStatic()
       .createQuery("select flatMship from FlatMembership as flatMship where flatMship.memberId = :memberId")
-      .setCacheable(true).setCacheRegion(KLASS + ".FindById")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindByMemberId")
       .setString("memberId", memberId)
       .listSet(FlatMembership.class);
     
@@ -234,7 +240,7 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .createQuery("select flatMship from FlatMembership flatMship where " +
       		"not exists (select 1 from MembershipEntry ms " +
       		"    where (flatMship.ownerId=ms.ownerGroupId or flatMship.ownerId=ms.ownerStemId or flatMship.ownerId=ms.ownerAttrDefId) " +
-      		"    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
+      		"    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId and ms.enabledDb='T') " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string06 = flatMship.ownerId and temp.string09=flatMship.fieldId " +
           "    and type.actionName='deleteMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string07 = flatMship.ownerId and temp.string10=flatMship.fieldId " +
@@ -253,7 +259,7 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
   public Set<Membership> findMissingFlatMemberships() {
     Set<Membership> mships = HibernateSession
       .byHqlStatic()
-      .createQuery("select ms from MembershipEntry ms where " +
+      .createQuery("select ms from MembershipEntry ms where ms.enabledDb='T' and " +
           "not exists (select 1 from FlatMembership flatMship " +
           "    where (flatMship.ownerId=ms.ownerGroupId or flatMship.ownerId=ms.ownerStemId or flatMship.ownerId=ms.ownerAttrDefId) " +
           "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
@@ -270,7 +276,7 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
           "    and (ms.ownerGroupId is not null and ms.ownerGroupId=ms2.ownerGroupId " +
           "         or ms.ownerStemId is not null and ms.ownerStemId=ms2.ownerStemId " +
           "         or ms.ownerAttrDefId is not null and ms.ownerAttrDefId=ms2.ownerAttrDefId) " +
-          "    and ms.fieldId = ms2.fieldId)")
+          "    and ms.fieldId = ms2.fieldId and ms2.enabledDb='T')")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatMemberships")
       .setString("fieldId", Group.getDefaultList().getUuid())
       .listSet(Membership.class);

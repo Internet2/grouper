@@ -37,7 +37,6 @@ public class AllHooksTests {
     suite.addTestSuite(FieldHooksTest.class);
     suite.addTestSuite(GroupHooksTest.class);
     suite.addTestSuite(GroupTypeTupleHooksTest.class);
-    suite.addTestSuite(EffectiveMembershipHooksTest.class);
     suite.addTestSuite(CompositeHooksTest.class);
     suite.addTestSuite(MemberHooksTest.class);
     suite.addTestSuite(LifecycleHooksTest.class);
