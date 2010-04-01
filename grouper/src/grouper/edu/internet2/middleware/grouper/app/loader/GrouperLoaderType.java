@@ -741,7 +741,7 @@ public enum GrouperLoaderType {
               hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
             } else if (hib3GrouploaderLog.getJobName().startsWith(GROUPER_CHANGE_LOG_CONSUMER_PREFIX)) {
               
-              String consumerName = GrouperUtil.stripStart(hib3GrouploaderLog.getJobName(), GROUPER_CHANGE_LOG_CONSUMER_PREFIX);
+              String consumerName = hib3GrouploaderLog.getJobName().substring(GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
               ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, false);
               
               //if this is a new job
