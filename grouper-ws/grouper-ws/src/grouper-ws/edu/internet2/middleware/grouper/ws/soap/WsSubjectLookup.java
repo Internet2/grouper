@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -10,12 +13,15 @@ import org.apache.commons.logging.LogFactory;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -481,6 +487,72 @@ public class WsSubjectLookup {
   public void setSubjectIdentifier(String subjectIdentifier1) {
     this.subjectIdentifier = subjectIdentifier1;
     this.clearSubject();
+  }
+
+  /**
+   * convert subject lookups to member ids (create if not exist)
+   * @param grouperSession
+   * @param wsSubjectLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the group ids
+   */
+  public static Set<String> convertToMemberIds(GrouperSession grouperSession, WsSubjectLookup[] wsSubjectLookups, StringBuilder errorMessage, int[] lookupCount) {
+    //get all the subjects
+    //we could probably batch these to get better performance.
+    Set<String> memberIds = null;
+    if (GrouperUtil.length(wsSubjectLookups) > 0) {
+      
+      memberIds = new LinkedHashSet<String>();
+      int i=0;
+      
+      boolean foundRecords = false;
+      
+      for (WsSubjectLookup wsSubjectLookup : wsSubjectLookups) {
+        
+        if (wsSubjectLookup == null || !wsSubjectLookup.hasData()) {
+          continue;
+        }
+        
+        if (!foundRecords) {
+          lookupCount[0]++;
+        }
+        
+        Subject subject = wsSubjectLookup.retrieveSubject();
+        if (subject != null) {
+          Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+          memberIds.add(member.getUuid());
+        } else {
+          
+          if (errorMessage.length() > 0) {
+            errorMessage.append(", ");
+          }
+          
+          errorMessage.append("Error on subject index: " + i + ", " + wsSubjectLookup.retrieveSubjectFindResult() + ", " + wsSubjectLookup.toStringCompact());
+        }
+        
+        i++;
+      }
+      
+    }
+    return memberIds;
+  }
+
+  /**
+   * make sure this is an explicit toString
+   * @return return a compact to string
+   */
+  public String toStringCompact() {
+    
+    String sourceId = StringUtils.isBlank(this.subjectSourceId) ? "" : ("source: " + this.subjectSourceId + ", ");
+    
+    if (!StringUtils.isBlank(this.subjectId)) {
+      return sourceId + "subjectId: " + this.subjectId;
+    }
+    if (!StringUtils.isBlank(this.subjectIdentifier)) {
+      return sourceId + "subjectIdentifier: " + this.subjectIdentifier;
+    }
+    return "blank";
   }
 
   /**

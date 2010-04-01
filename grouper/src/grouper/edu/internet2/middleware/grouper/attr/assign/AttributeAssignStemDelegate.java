@@ -98,7 +98,12 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
        */
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
         canUpdateAttribute[0] = attributeDef.getPrivilegeDelegate().canAttrUpdate(subject);
+        
+        //can be stem or create to assign an attribute
         canCreateInStem[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
+        if (!canCreateInStem[0]) {
+          canCreateInStem[0] = PrivilegeHelper.canStem(AttributeAssignStemDelegate.this.stem, subject);
+        }
         return null;
       }
     });
@@ -110,7 +115,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
 
     if (!canCreateInStem[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot create in stem " + stem.getName());
+          + " cannot create/stem in stem " + stem.getName());
     }
 
   }

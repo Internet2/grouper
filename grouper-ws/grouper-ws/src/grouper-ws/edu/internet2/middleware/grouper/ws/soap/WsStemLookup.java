@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -13,6 +16,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
 
 /**
@@ -250,6 +254,69 @@ public class WsStemLookup {
   public void setStemName(String theName) {
     this.stemName = theName;
     this.clearStem();
+  }
+
+  /**
+   * convert stem lookups to stem ids
+   * @param grouperSession
+   * @param wsStemLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the stem ids
+   */
+  public static Set<String> convertToStemIds(GrouperSession grouperSession, WsStemLookup[] wsStemLookups, StringBuilder errorMessage, int[] lookupCount) {
+    //get all the stems
+    //we could probably batch these to get better performance.
+    Set<String> stemIds = null;
+    if (GrouperUtil.length(wsStemLookups) > 0) {
+      
+      stemIds = new LinkedHashSet<String>();
+      int i=0;
+
+      boolean foundRecords = false;
+      
+      for (WsStemLookup wsStemLookup : wsStemLookups) {
+        
+        if (wsStemLookup == null || !wsStemLookup.hasData()) {
+          continue;
+        }
+
+        if (!foundRecords) {
+          lookupCount[0]++;
+        }
+
+        wsStemLookup.retrieveStemIfNeeded(grouperSession, false);
+        Stem stem = wsStemLookup.retrieveStem();
+        if (stem != null) {
+          stemIds.add(stem.getUuid());
+        } else {
+          
+          if (errorMessage.length() > 0) {
+            errorMessage.append(", ");
+          }
+
+          errorMessage.append("Error on stem index: " + i + ", " + wsStemLookup.retrieveStemFindResult() + ", " + wsStemLookup.toStringCompact());
+        }
+        
+        i++;
+      }
+      
+    }
+    return stemIds;
+  }
+
+  /**
+   * make sure this is an explicit toString
+   * @return return a compact to string
+   */
+  public String toStringCompact() {
+    if (!StringUtils.isBlank(this.stemName)) {
+      return "name: " + this.stemName;
+    }
+    if (!StringUtils.isBlank(this.uuid)) {
+      return "id: " + this.uuid;
+    }
+    return "blank";
   }
 
   /**

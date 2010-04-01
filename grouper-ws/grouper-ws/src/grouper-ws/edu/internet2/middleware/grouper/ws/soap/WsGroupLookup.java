@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -15,6 +18,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
@@ -29,6 +33,55 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDelet
  */
 public class WsGroupLookup {
 
+  /**
+   * convert group lookups to group ids
+   * @param grouperSession
+   * @param wsGroupLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the group ids
+   */
+  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, int[] lookupCount) {
+    //get all the groups
+    //we could probably batch these to get better performance.
+    Set<String> groupIds = null;
+    if (GrouperUtil.length(wsGroupLookups) > 0) {
+      
+      groupIds = new LinkedHashSet<String>();
+      int i=0;
+      
+      boolean foundRecords = false;
+      
+      for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
+        
+        if (wsGroupLookup == null || !wsGroupLookup.hasData()) {
+          continue;
+        }
+        
+        if (!foundRecords) {
+          lookupCount[0]++;
+        }
+        
+        wsGroupLookup.retrieveGroupIfNeeded(grouperSession);
+        Group group = wsGroupLookup.retrieveGroup();
+        if (group != null) {
+          groupIds.add(group.getUuid());
+        } else {
+          
+          if (errorMessage.length() > 0) {
+            errorMessage.append(", ");
+          }
+          
+          errorMessage.append("Error on group index: " + i + ", " + wsGroupLookup.retrieveGroupFindResult() + ", " + wsGroupLookup.toStringCompact());
+        }
+        
+        i++;
+      }
+      
+    }
+    return groupIds;
+  }
+  
   /**
    * 
    * @param wsGroup
@@ -233,6 +286,20 @@ public class WsGroupLookup {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
+  }
+
+  /**
+   * make sure this is an explicit toString
+   * @return return a compact to string
+   */
+  public String toStringCompact() {
+    if (!StringUtils.isBlank(this.groupName)) {
+      return "name: " + this.groupName;
+    }
+    if (!StringUtils.isBlank(this.uuid)) {
+      return "id: " + this.uuid;
+    }
+    return "blank";
   }
 
   /**

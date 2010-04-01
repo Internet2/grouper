@@ -10,14 +10,16 @@ import org.apache.commons.logging.LogFactory;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
-import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.group.GroupMember;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * <pre>
@@ -35,6 +37,19 @@ public class WsMembershipAnyLookup {
   /** subject lookup for subject */
   private WsSubjectLookup wsSubjectLookup;
   
+  /** error message to return why this is invalid */
+  @XStreamOmitField
+  private String errorMessage;
+  
+  /**
+   * error message to return why this is invalid
+   * this is not a javabean property since we dont want it in xml
+   * @return error message
+   */
+  public String retrieveErrorMessage() {
+    return this.errorMessage;
+  }
+
   /**
    * group lookup for group
    * @return group lookup
@@ -49,6 +64,7 @@ public class WsMembershipAnyLookup {
    */
   public void setWsGroupLookup(WsGroupLookup wsGroupLookup1) {
     this.wsGroupLookup = wsGroupLookup1;
+    this.clearMembershipAny();
   }
 
   /**
@@ -65,6 +81,7 @@ public class WsMembershipAnyLookup {
    */
   public void setWsSubjectLookup(WsSubjectLookup wsSubjectLookup1) {
     this.wsSubjectLookup = wsSubjectLookup1;
+    this.clearMembershipAny();
   }
 
   /**
@@ -184,12 +201,20 @@ public class WsMembershipAnyLookup {
       
       if (GroupFindResult.SUCCESS != this.wsGroupLookup.retrieveGroupFindResult()) {
         
+        this.errorMessage = GrouperUtil.toStringSafe(this.wsGroupLookup.retrieveGroupFindResult());
         this.membershipAnyFindResult = MembershipAnyFindResult.INVALID_QUERY;
         
       } else if (SubjectFindResult.SUCCESS != this.wsSubjectLookup.retrieveSubjectFindResult()) {
         
+        this.errorMessage = GrouperUtil.toStringSafe(this.wsSubjectLookup.retrieveSubjectFindResult());
+        this.membershipAnyFindResult = MembershipAnyFindResult.INVALID_QUERY;
+
       } else if (true) {
-        //TODO
+        
+        Group group = this.wsGroupLookup.retrieveGroup();
+        Subject subject = this.wsSubjectLookup.retrieveSubject();
+        Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+        this.groupMember = new GroupMember(group, member);
       }
       
     }
