@@ -283,5 +283,19 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
     
     return mships;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO#findByOwnerId(java.lang.String)
+   */
+  public Set<FlatMembership> findByOwnerId(String ownerId) {
+    Set<FlatMembership> flatMemberships = HibernateSession
+      .byHqlStatic()
+      .createQuery("select flatMship from FlatMembership as flatMship where flatMship.ownerId = :ownerId")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindByOwnerId")
+      .setString("ownerId", ownerId)
+      .listSet(FlatMembership.class);
+    
+    return flatMemberships;
+  }
 }
 

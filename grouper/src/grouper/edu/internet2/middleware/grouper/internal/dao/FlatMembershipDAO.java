@@ -53,6 +53,12 @@ public interface FlatMembershipDAO extends GrouperDAO {
   public FlatMembership findById(String flatMembershipId);
   
   /**
+   * @param ownerId
+   * @return set of flat membership
+   */
+  public Set<FlatMembership> findByOwnerId(String ownerId);
+  
+  /**
    * @param ownerId 
    * @param memberId 
    * @param fieldId 

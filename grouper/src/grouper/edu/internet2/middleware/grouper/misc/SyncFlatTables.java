@@ -16,10 +16,13 @@ package edu.internet2.middleware.grouper.misc;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -283,12 +286,24 @@ public class SyncFlatTables {
     Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
     int batchSize = getBatchSize();
     
+    // keep track of what we've processed.
+    Map<MultiKey, Boolean> processed = new HashMap<MultiKey, Boolean>();
+    
     try {
       reset();
       Iterator<Membership> iter = mships.iterator();
       
       while (iter.hasNext()) {
         Membership mship = iter.next();
+        
+        // make sure we haven't processed a membership with the same owner, member and field
+        MultiKey multiKey = new MultiKey(mship.getOwnerId(), mship.getMemberUuid(), mship.getFieldId());
+        if (processed.containsKey(multiKey)) {
+          // skipping
+          continue;
+        }
+          
+        processed.put(multiKey, true);
         
         logDetail("Found missing flat membership with ownerId: " + mship.getOwnerId() + 
             ", memberId: " + mship.getMemberUuid() + ", fieldId: " + mship.getFieldId());
