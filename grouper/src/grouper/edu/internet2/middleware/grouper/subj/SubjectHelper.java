@@ -239,5 +239,25 @@ public class SubjectHelper {
     return false;
   }
   
+  /**
+   * see if a subject is in a list
+   * @param collection
+   * @param sourceId 
+   * @param subjectId 
+   * @return true if in list
+   */
+  public static boolean inList(Collection<Subject> collection, String sourceId, String subjectId) {
+    if (collection == null) {
+      return false;
+    }
+    for (Subject current : collection) {
+      if (StringUtils.equals(current.getSourceId(), sourceId)
+          && StringUtils.equals(current.getId(), subjectId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
 } // class SubjectHelper
  

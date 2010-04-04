@@ -19,12 +19,13 @@ package edu.internet2.middleware.grouper;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
@@ -36,6 +37,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -555,7 +557,7 @@ public class SubjectFinder {
    * }
    *  </pre>
    * @param   id      Subject ID
-   * @param   type    Subject type.
+   * @param   type    Subject type.  If blank dont consider type
    * @param   source  Subject source.
    * @param exceptionIfNull 
    * @return  Matching subject.
@@ -567,6 +569,12 @@ public class SubjectFinder {
     throws  SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException {
+    
+    //if only by id and source
+    if (StringUtils.isBlank(type)) {
+      return SourceManager.getInstance().getSource(source).getSubject(id, exceptionIfNull);
+    }
+    
     try {
       return getResolver().find(id, type, source);
     } catch (SubjectNotFoundException snfe) {

@@ -30,7 +30,6 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
@@ -213,19 +212,20 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * create an attribute assign, including a uuid
    * @param ownerStem
    * @param theAction
-   * @param attributeDefName
+   * @param theAttributeDefName
    * @param uuid
    */
-  public AttributeAssign(Stem ownerStem, String theAction, AttributeDefName attributeDefName, String uuid) {
+  public AttributeAssign(Stem ownerStem, String theAction, AttributeDefName theAttributeDefName, String uuid) {
 
     this();
+    this.attributeDefName = theAttributeDefName;
     this.setAttributeAssignType(AttributeAssignType.stem);
     this.setOwnerStemId(ownerStem.getUuid());
-    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+    this.attributeAssignAction = theAttributeDefName.getAttributeDef()
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
 
-    this.setAttributeAssignActionId(attributeAssignAction.getId());
-    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setAttributeAssignActionId(this.attributeAssignAction.getId());
+    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -234,19 +234,19 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * create an attribute assign, including a uuid
    * @param ownerAttributeDef
    * @param theAction
-   * @param attributeDefName
+   * @param theAttributeDefName
    * @param uuid is uuid or null if generated
    */
-  public AttributeAssign(AttributeDef ownerAttributeDef, String theAction, AttributeDefName attributeDefName, String uuid) {
+  public AttributeAssign(AttributeDef ownerAttributeDef, String theAction, AttributeDefName theAttributeDefName, String uuid) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.attr_def);
     this.setOwnerAttributeDefId(ownerAttributeDef.getId());
-    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+    this.attributeAssignAction = theAttributeDefName.getAttributeDef()
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
 
-    this.setAttributeAssignActionId(attributeAssignAction.getId());
-    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setAttributeAssignActionId(this.attributeAssignAction.getId());
+    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -255,19 +255,19 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * create an attribute assign, including a uuid
    * @param ownerGroup
    * @param theAction
-   * @param attributeDefName
+   * @param theAttributeDefName
    * @param uuid is the uuid or null if generated
    */
-  public AttributeAssign(Group ownerGroup, String theAction, AttributeDefName attributeDefName, String uuid) {
+  public AttributeAssign(Group ownerGroup, String theAction, AttributeDefName theAttributeDefName, String uuid) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.group);
     this.setOwnerGroupId(ownerGroup.getUuid());
-    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+    this.attributeAssignAction = theAttributeDefName.getAttributeDef()
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
 
-    this.setAttributeAssignActionId(attributeAssignAction.getId());
-    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setAttributeAssignActionId(this.attributeAssignAction.getId());
+    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -277,11 +277,11 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @param ownerGroup
    * @param ownerMember 
    * @param theAction
-   * @param attributeDefName
+   * @param theAttributeDefName
    * @param uuid
    */
   public AttributeAssign(Group ownerGroup, Member ownerMember, String theAction, 
-      AttributeDefName attributeDefName, String uuid) {
+      AttributeDefName theAttributeDefName, String uuid) {
     
     this();
     this.setAttributeAssignType(AttributeAssignType.any_mem);
@@ -298,11 +298,11 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     this.setOwnerGroupId(ownerGroup.getUuid());
     this.setOwnerMemberId(ownerMember.getUuid());
-    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+    this.attributeAssignAction = theAttributeDefName.getAttributeDef()
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
 
-    this.setAttributeAssignActionId(attributeAssignAction.getId());
-    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setAttributeAssignActionId(this.attributeAssignAction.getId());
+    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -311,14 +311,14 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * create an attribute assign, including a uuid
    * @param ownerAttributeAssign
    * @param theAction
-   * @param attributeDefName
+   * @param theAttributeDefName
    * @param uuid to use or null for generated
    */
   public AttributeAssign(AttributeAssign ownerAttributeAssign, String theAction, 
-      AttributeDefName attributeDefName, String uuid) {
+      AttributeDefName theAttributeDefName, String uuid) {
     
     this();
-    
+    this.attributeDefName = theAttributeDefName;
     AttributeAssignType ownerType = ownerAttributeAssign.getAttributeAssignType();
     if (AttributeAssignType.group == ownerType) {
       this.attributeAssignType = AttributeAssignType.group_asgn;
@@ -341,18 +341,18 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     if (!StringUtils.isBlank(ownerAttributeAssign.getOwnerAttributeAssignId())) {
       throw new RuntimeException("You cants assign an attribute to " +
       		"an assignment of an assignment (only to an assignment of a non-assignment): " 
-          + theAction + ", " + attributeDefName.getName());
+          + theAction + ", " + theAttributeDefName.getName());
     }
     
     this.setOwnerAttributeAssignId(ownerAttributeAssign.getId());
     
     theAction = StringUtils.defaultIfEmpty(theAction, AttributeDef.ACTION_DEFAULT);
     
-    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+    this.attributeAssignAction = theAttributeDefName.getAttributeDef()
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
 
-    this.setAttributeAssignActionId(attributeAssignAction.getId());
-    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setAttributeAssignActionId(this.attributeAssignAction.getId());
+    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -361,12 +361,13 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * create an attribute assign, including a uuid
    * @param ownerMembership
    * @param theAction
-   * @param attributeDefName
+   * @param theAttributeDefName
    * @param uuid
    */
-  public AttributeAssign(Membership ownerMembership, String theAction, AttributeDefName attributeDefName, String uuid) {
+  public AttributeAssign(Membership ownerMembership, String theAction, AttributeDefName theAttributeDefName, String uuid) {
     
     this();
+    this.attributeDefName = theAttributeDefName;
     this.setAttributeAssignType(AttributeAssignType.imm_mem);
 
     //this must be an immediate, list membership
@@ -383,11 +384,11 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     this.setOwnerMembershipId(ownerMembership.getImmediateMembershipId());
 
-    AttributeAssignAction attributeAssignAction = attributeDefName.getAttributeDef()
+    this.attributeAssignAction = theAttributeDefName.getAttributeDef()
       .getAttributeDefActionDelegate().allowedAction(theAction, true);
 
-    this.setAttributeAssignActionId(attributeAssignAction.getId());
-    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setAttributeAssignActionId(this.attributeAssignAction.getId());
+    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -396,17 +397,20 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * create an attribute assign, including a uuid
    * @param ownerMember
    * @param theActionId
-   * @param attributeDefName
+   * @param theAttributeDefName
    * @param uuid is the uuid or null for generated
    */
-  public AttributeAssign(Member ownerMember, String theActionId, AttributeDefName attributeDefName, String uuid) {
+  public AttributeAssign(Member ownerMember, String theActionId, AttributeDefName theAttributeDefName, String uuid) {
     
     this();
+    
+    this.attributeDefName = theAttributeDefName;
+    
     this.setAttributeAssignType(AttributeAssignType.member);
 
     this.setOwnerMemberId(ownerMember.getUuid());
     this.setAttributeAssignActionId(theActionId);
-    this.setAttributeDefNameId(attributeDefName.getId());
+    this.setAttributeDefNameId(theAttributeDefName.getId());
     this.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
 
   }
@@ -415,28 +419,27 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * save or update this object
    */
   public void saveOrUpdate() {
-    AttributeDef attributeDef = this.getAttributeDef();
+    AttributeDef theAttributeDef = this.getAttributeDef();
     
     //validate if allowed
-    if (StringUtils.isNotEmpty(this.ownerGroupId) && StringUtils.isEmpty(this.ownerMemberId) && !attributeDef.isAssignToGroup()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to group: " + attributeDef + ", " + this.ownerGroupId + ", to allow this, make sure the attributeDef has setAssignToGroup(true)");
+    if (StringUtils.isNotEmpty(this.ownerGroupId) && StringUtils.isEmpty(this.ownerMemberId) && !theAttributeDef.isAssignToGroup()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to group: " + theAttributeDef + ", " + this.ownerGroupId + ", to allow this, make sure the attributeDef has setAssignToGroup(true)");
     }
-    if (StringUtils.isNotEmpty(this.ownerStemId) && !attributeDef.isAssignToStem()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to stem: " + attributeDef + ", " + this.ownerStemId + ", to allow this, make sure the attributeDef has setAssignToStem(true)");
+    if (StringUtils.isNotEmpty(this.ownerStemId) && !theAttributeDef.isAssignToStem()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to stem: " + theAttributeDef + ", " + this.ownerStemId + ", to allow this, make sure the attributeDef has setAssignToStem(true)");
     }
-    if (StringUtils.isNotEmpty(this.ownerMemberId) && StringUtils.isEmpty(this.ownerGroupId) && !attributeDef.isAssignToMember()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to member: " + attributeDef + ", " + this.ownerMemberId + ", to allow this, make sure the attributeDef has setAssignToMember(true)");
+    if (StringUtils.isNotEmpty(this.ownerMemberId) && StringUtils.isEmpty(this.ownerGroupId) && !theAttributeDef.isAssignToMember()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to member: " + theAttributeDef + ", " + this.ownerMemberId + ", to allow this, make sure the attributeDef has setAssignToMember(true)");
     }
-    if (StringUtils.isNotEmpty(this.ownerMembershipId) && !attributeDef.isAssignToImmMembership()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to immediate membership: " + attributeDef + ", " + this.ownerMembershipId + ", to allow this, make sure the attributeDef has setAssignToImmMembership(true)");
+    if (StringUtils.isNotEmpty(this.ownerMembershipId) && !theAttributeDef.isAssignToImmMembership()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to immediate membership: " + theAttributeDef + ", " + this.ownerMembershipId + ", to allow this, make sure the attributeDef has setAssignToImmMembership(true)");
     }
-    if (StringUtils.isNotEmpty(this.ownerAttributeDefId) && !attributeDef.isAssignToAttributeDef()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to attribute def: " + attributeDef + ", " + this.ownerAttributeDefId + ", to allow this, make sure the attributeDef has setAssignToAttributeDef(true)");
+    if (StringUtils.isNotEmpty(this.ownerAttributeDefId) && !theAttributeDef.isAssignToAttributeDef()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to attribute def: " + theAttributeDef + ", " + this.ownerAttributeDefId + ", to allow this, make sure the attributeDef has setAssignToAttributeDef(true)");
     }
-    if (StringUtils.isNotEmpty(this.ownerMemberId) && StringUtils.isNotEmpty(this.ownerGroupId) && !attributeDef.isAssignToEffMembership()) {
-      throw new AttributeAssignNotAllowed("Not allowed to assign to effective membership: " + attributeDef + ", " + this.ownerGroupId + ", " + this.ownerMemberId + ", to allow this, make sure the attributeDef has setAssignToEffMembership(true)");
+    if (StringUtils.isNotEmpty(this.ownerMemberId) && StringUtils.isNotEmpty(this.ownerGroupId) && !theAttributeDef.isAssignToEffMembership()) {
+      throw new AttributeAssignNotAllowed("Not allowed to assign to effective membership: " + theAttributeDef + ", " + this.ownerGroupId + ", " + this.ownerMemberId + ", to allow this, make sure the attributeDef has setAssignToEffMembership(true)");
     }
-    //TODO check for assignments (6 cases?)
     GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(this);
   }
   
@@ -577,7 +580,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /** if this is a stem attribute, this is the foreign key */
   private String ownerStemId;
   
-  /** id of this attribute def */
+  /** id of this attribute assign */
   private String id;
 
   /** context id of the transaction */
@@ -638,7 +641,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   public AttributeDefName getAttributeDefName() {
     if (this.attributeDefName == null ) {
-      this.attributeDefName = AttributeDefNameFinder.findById(this.attributeDefNameId, true);
+      this.attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(this.attributeDefNameId, null, true);
     }
     return this.attributeDefName;
   }
@@ -716,15 +719,15 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
 
   /**
-   * id of this attribute def
+   * id of this attribute assign
    * @return id
    */
   public String getId() {
-    return id;
+    return this.id;
   }
 
   /**
-   * id of this attribute def
+   * id of this attribute assign
    * @param id1
    */
   public void setId(String id1) {
@@ -880,12 +883,23 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
   /**
    * if this is a group attribute, this is the foreign key
-   * @return the ownerStem
+   * @return the ownerGroup
    */
   public Group getOwnerGroup() {
     
     //I think the current grouper session isnt really relevant here, I think we just need to produce the group without security
     return this.ownerGroupId == null ? null : GrouperDAOFactory.getFactory().getGroup().findByUuid(this.ownerGroupId, true);
+
+  }
+
+  /**
+   * if this is a member attribute, this is the foreign key
+   * @return the ownerMember
+   */
+  public Member getOwnerMember() {
+    
+    //I think the current grouper session isnt really relevant here, I think we just need to produce the group without security
+    return this.ownerMemberId == null ? null : GrouperDAOFactory.getFactory().getMember().findByUuid(this.ownerMemberId, true);
 
   }
 
@@ -1277,46 +1291,46 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     if (existingRecord == null) {
       
       AttributeAssignResult attributeAssignResult = null;
-      AttributeAssignAction attributeAssignAction = this.getAttributeAssignAction();
-      AttributeDefName attributeDefName = this.getAttributeDefName();
+      AttributeAssignAction theAttributeAssignAction = this.getAttributeAssignAction();
+      AttributeDefName theAttributeDefName = this.getAttributeDefName();
         
       if (!StringUtils.isBlank(this.ownerAttributeAssignId)) {
         
         AttributeAssign ownerAttributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign()
           .findById(this.ownerAttributeAssignId, true);
         attributeAssignResult = ownerAttributeAssign.getAttributeDelegate()
-          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
         
       } else if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
 
         AttributeDef ownerAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
           .findById(this.ownerAttributeDefId, true);
         attributeAssignResult = ownerAttributeDef.getAttributeDelegate()
-          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
       
       } else if (!StringUtils.isBlank(this.ownerGroupId)) {
 
         Group ownerGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
         attributeAssignResult = ownerGroup.getAttributeDelegate()
-          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
         
       } else if (!StringUtils.isBlank(this.ownerMemberId)) {
         
         Member ownerMember = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
         attributeAssignResult = ownerMember.getAttributeDelegate()
-          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
 
       } else if (!StringUtils.isBlank(this.ownerMembershipId)) {
         
         Membership ownerMembership = GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
         attributeAssignResult = ownerMembership.getAttributeDelegate()
-          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
 
       } else if (!StringUtils.isBlank(this.ownerStemId)) {
         
         Stem ownerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.id, true);
         attributeAssignResult = ownerStem.getAttributeDelegate()
-          .internal_assignAttributeHelper(attributeAssignAction.getName(), attributeDefName, true, this.id);
+          .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id);
 
       } else {
         throw new RuntimeException("Cant find owner: " + this);
@@ -1414,41 +1428,41 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * @return the delegate
    */
   public AttributeAssignable retrieveAttributeAssignable() {
-    AttributeDef attributeDef = this.getAttributeDef();
-    if (attributeDef.isAssignToGroup()) {
+    AttributeDef theAttributeDef = this.getAttributeDef();
+    if (theAttributeDef.isAssignToGroup()) {
       Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
       return group;
     }
-    if (attributeDef.isAssignToStem()) {
+    if (theAttributeDef.isAssignToStem()) {
       Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerStemId, true);
       return stem;
     }
-    if (attributeDef.isAssignToMember()) {
+    if (theAttributeDef.isAssignToMember()) {
       Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
       return member;
     }
-    if (attributeDef.isAssignToAttributeDef()) {
+    if (theAttributeDef.isAssignToAttributeDef()) {
       AttributeDef attributeDefOwner = AttributeDefFinder.findById(this.ownerAttributeDefId, true);
       return attributeDefOwner;
     }
-    if (attributeDef.isAssignToEffMembership()) {
+    if (theAttributeDef.isAssignToEffMembership()) {
       Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerGroupId, true);
       Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerMemberId, true);
       return new EffectiveMembershipWrapper(group, member);
     }
-    if (attributeDef.isAssignToImmMembership()) {
+    if (theAttributeDef.isAssignToImmMembership()) {
       Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(this.ownerMembershipId, true, false);
       return membership;
     }
-    if (attributeDef.isAssignToAttributeDefAssn() || attributeDef.isAssignToEffMembershipAssn() 
-        || attributeDef.isAssignToGroupAssn() || attributeDef.isAssignToImmMembershipAssn()
-        || attributeDef.isAssignToMemberAssn() || attributeDef.isAssignToStemAssn()) {
+    if (theAttributeDef.isAssignToAttributeDefAssn() || theAttributeDef.isAssignToEffMembershipAssn() 
+        || theAttributeDef.isAssignToGroupAssn() || theAttributeDef.isAssignToImmMembershipAssn()
+        || theAttributeDef.isAssignToMemberAssn() || theAttributeDef.isAssignToStemAssn()) {
       AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign()
         .findById(this.ownerAttributeAssignId, true);
       return attributeAssign;
     }
     throw new RuntimeException("Cannot find assign delegate for assignment and attributeDef: " 
-        + this.id + ", " + attributeDef.getName());
+        + this.id + ", " + theAttributeDef.getName());
     
   }
   
@@ -1493,6 +1507,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
+  @Override
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -1508,6 +1523,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /**
    * @return hashcode
    */
+  @Override
   public int hashCode() {
     return new HashCodeBuilder()
       .append( this.getId() )

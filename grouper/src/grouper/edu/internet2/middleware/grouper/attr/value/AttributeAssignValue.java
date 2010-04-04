@@ -5,7 +5,10 @@ package edu.internet2.middleware.grouper.attr.value;
 
 import java.io.StringWriter;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -194,6 +197,95 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   }
 
   /**
+   * whatever the type, return the string value
+   * @return value
+   */
+  public String valueString() {
+    return valueString(false);
+  }
+  
+  /**
+   * whatever the type, return the string value
+   * @param convertTimestampToFriendly true to convert timestamps to yyyy/MM/dd HH:mm:ss.SSS 
+   * as opposed to numbers of millis since 1970
+   * @return value
+   */
+  public String valueString(boolean convertTimestampToFriendly) {
+    
+    AttributeAssign attributeAssign = this.getAttributeAssign();
+    AttributeDef attributeDef = attributeAssign.getAttributeDef();
+    
+    AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+    
+    switch(attributeDefValueType) {
+      case floating:
+        return this.valueFloating == null ? null : this.valueFloating.toString();
+      case integer:
+        return this.valueInteger == null ? null : this.valueInteger.toString();
+      case marker:
+        throw new RuntimeException("Why would a marker attribute have a value? " + this);
+      case memberId:
+        return this.valueMemberId;
+      case string:
+        return this.valueString;
+      case timestamp:
+        if (this.valueInteger == null) {
+          return null;
+        }
+        if (convertTimestampToFriendly) {
+          dateToString(new Timestamp(this.valueInteger));
+        }
+        return this.valueInteger.toString();
+      default:
+        throw new RuntimeException("Not expecting type: " + attributeDefValueType);
+    }
+  }
+
+  /**
+   * Note, this is 
+   * web service format string
+   */
+  private static final String WS_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
+
+  /**
+   * convert a date to a string using the standard web service pattern
+   * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
+   * 
+   * @param date
+   * @return the string, or null if the date is null
+   */
+  public static String dateToString(Date date) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);
+    return simpleDateFormat.format(date);
+  }
+
+  /**
+   * convert a string to a date using the standard web service pattern Note
+   * that HH is 0-23
+   * 
+   * @param dateString
+   * @return the string, or null if the date was null
+   */
+  public static Date stringToDate(String dateString) {
+    if (dateString == null) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);
+    try {
+      return simpleDateFormat.parse(dateString);
+    } catch (ParseException e) {
+      throw new RuntimeException("Cannot convert '" + dateString
+          + "' to a date based on format: " + WS_DATE_FORMAT, e);
+    }
+  }
+
+  
+
+  
+  /**
    * clear all the values
    */
   public void clearValue() {
@@ -264,7 +356,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * @return id
    */
   public String getId() {
-    return id;
+    return this.id;
   }
 
   /**
@@ -395,7 +487,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * @return the valueString
    */
   public String getValueString() {
-    return valueString;
+    return this.valueString;
   }
 
   
@@ -431,7 +523,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * @return the valueMemberId
    */
   public String getValueMemberId() {
-    return valueMemberId;
+    return this.valueMemberId;
   }
 
   

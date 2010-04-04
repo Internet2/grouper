@@ -753,9 +753,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
     
     //if -1, lets not check
+    long size = -1;
+    
     if (maxAssignments >= 0) {
 
-      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+      size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
       
       //see if too many
       if (size > maxAssignments) {
@@ -764,7 +766,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
     }
     
-    Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
+    Set<AttributeAssign> results = size == 0 ? new LinkedHashSet<AttributeAssign>() 
+        : byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
 
     //nothing to filter
     if (GrouperUtil.length(results) == 0) {
@@ -873,10 +876,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
     int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
     
+    long size = -1;
+    
     //if -1, lets not check
     if (maxAssignments >= 0) {
 
-      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+      size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
       
       //see if too many
       if (size > maxAssignments) {
@@ -885,7 +890,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
     }
     
-    Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
+    Set<AttributeAssign> results = size == 0 ? new LinkedHashSet<AttributeAssign>()
+        : byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
 
     //nothing to filter
     if (GrouperUtil.length(results) == 0) {
@@ -994,10 +1000,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
     
+    long size = -1;
+    
     //if -1, lets not check
     if (maxAssignments >= 0) {
   
-      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+      size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
       
       //see if too many
       if (size > maxAssignments) {
@@ -1006,7 +1014,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
     }
     
-    Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
+    Set<AttributeAssign> results = size == 0 ? new LinkedHashSet<AttributeAssign>() 
+        : byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
   
     //nothing to filter
     if (GrouperUtil.length(results) == 0) {
@@ -1252,10 +1261,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
     
+    long size = -1;
+    
     //if -1, lets not check
     if (maxAssignments >= 0) {
   
-      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+      size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
       
       //see if too many
       if (size > maxAssignments) {
@@ -1264,7 +1275,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
     }
     
-    Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
+    Set<AttributeAssign> results = size == 0 ? new LinkedHashSet<AttributeAssign>() 
+        : byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
   
     //nothing to filter
     if (GrouperUtil.length(results) == 0) {
@@ -1383,10 +1395,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     int maxAssignments = GrouperConfig.getPropertyInt("ws.findAttrAssignments.maxResultSize", 30000);
     
+    long size = -1;
+    
     //if -1, lets not check
     if (maxAssignments >= 0) {
   
-      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+      size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
       
       //see if too many
       if (size > maxAssignments) {
@@ -1395,7 +1409,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
     }
     
-    Set<AttributeAssign> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
+    Set<AttributeAssign> results = size == 0 ? new LinkedHashSet<AttributeAssign>()
+        : byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(AttributeAssign.class);
   
     //nothing to filter
     if (GrouperUtil.length(results) == 0) {
