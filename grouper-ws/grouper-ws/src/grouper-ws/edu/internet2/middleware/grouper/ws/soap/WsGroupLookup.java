@@ -60,6 +60,7 @@ public class WsGroupLookup {
         
         if (!foundRecords) {
           lookupCount[0]++;
+          foundRecords = true;
         }
         
         wsGroupLookup.retrieveGroupIfNeeded(grouperSession);

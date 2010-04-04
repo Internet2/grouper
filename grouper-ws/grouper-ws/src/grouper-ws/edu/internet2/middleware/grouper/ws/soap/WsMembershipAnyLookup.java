@@ -3,6 +3,10 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -229,6 +233,79 @@ public class WsMembershipAnyLookup {
     this.membershipAnyFindResult = null;
   }
 
+  /**
+   * convert membership any lookups to membership any ids
+   * @param grouperSession
+   * @param wsMembershipAnyLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the GroupMember ids
+   */
+  public static Set<MultiKey> convertToGroupMemberIds(GrouperSession grouperSession, WsMembershipAnyLookup[] wsMembershipAnyLookups, StringBuilder errorMessage, int[] lookupCount) {
+    //get all the memberships
+    //we could probably batch these to get better performance.
+    Set<MultiKey> groupMemberIds = null;
+    if (GrouperUtil.length(wsMembershipAnyLookups) > 0) {
+      
+      groupMemberIds = new LinkedHashSet<MultiKey>();
+      int i=0;
+      
+      boolean foundRecords = false;
+      
+      for (WsMembershipAnyLookup wsMembershipAnyLookup : wsMembershipAnyLookups) {
+        
+        if (wsMembershipAnyLookup == null || !wsMembershipAnyLookup.hasData()) {
+          continue;
+        }
+        
+        if (!foundRecords) {
+          lookupCount[0]++;
+          foundRecords = true;
+        }
+        
+        wsMembershipAnyLookup.retrieveMembershipAnyIfNeeded(grouperSession);
+        GroupMember groupMember = wsMembershipAnyLookup.retrieveGroupMember();
+        if (groupMember != null) {
+          
+          groupMemberIds.add(new MultiKey(groupMember.getGroup().getId(), groupMember.getMember().getUuid()));
+        } else {
+          
+          if (errorMessage.length() > 0) {
+            errorMessage.append(", ");
+          }
+          
+          errorMessage.append("Error on membershipAny index: " + i + ", " + wsMembershipAnyLookup.retrieveMembershipAnyFindResult() + ", " + wsMembershipAnyLookup.toStringCompact());
+        }
+        
+        i++;
+      }
+      
+    }
+    return groupMemberIds;
+  }
+
+  /**
+   * make sure this is an explicit toString
+   * @return return a compact to string
+   */
+  public String toStringCompact() {
+    StringBuilder result = new StringBuilder();
+    
+    if (this.wsGroupLookup != null) {
+      result.append("Group: ").append(this.wsGroupLookup.toStringCompact());
+    }
+    if (this.wsSubjectLookup != null) {
+      if (result.length() > 0) {
+        result.append(", ");
+      }
+      result.append(this.wsSubjectLookup.toStringCompact());
+    }
+    if (result.length() == 0) {
+      return "blank";
+    }
+    return result.toString();
+  }
+
   /** result of membership find */
   @XStreamOmitField
   private MembershipAnyFindResult membershipAnyFindResult = null;
@@ -238,6 +315,17 @@ public class WsMembershipAnyLookup {
    */
   public WsMembershipAnyLookup() {
     //blank
+  }
+
+  /**
+   * @param wsGroupLookup1
+   * @param wsSubjectLookup1
+   */
+  public WsMembershipAnyLookup(WsGroupLookup wsGroupLookup1,
+      WsSubjectLookup wsSubjectLookup1) {
+    super();
+    this.wsGroupLookup = wsGroupLookup1;
+    this.wsSubjectLookup = wsSubjectLookup1;
   }
 
 }

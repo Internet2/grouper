@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -2857,4 +2858,238 @@ public class GrouperService {
     //this should be the first and only return, or else it is exiting too early
     return wsAssignGrouperPrivilegesResults;
   }
+
+  //  String scope, 
+  //   WsStemLookup wsStemLookup, 
+  //   String stemScope, 
+  //   String enabled,
+  //   boolean includeAssignmentsOnAssignments
+  //   attributeAssignIds (inside owner lookups?)
+  //  groupDetail
+  //  subjectDetail
+  //  subjectAttributeNames
+  //  Owner Lookups (multiple?):
+  //    - groupLookup
+  //    - stemLookup
+  //    - memberLookup
+  //    - attributeDefLookup
+  //    - immediateMembershipLookup
+  //    - effectiveMembershipLookup
+  //    - attributeAssignmentLookup
+  //      - uuid
+  //      - attributeNameLookup
+  //      - groupLookup
+  //      - stemLookup
+  //      - attributeDefLookup
+  //      - immediateMembershipLookup
+  //      - effectiveMembershipLookup
+  //  enabled is A for all, T or null for enabled only, F for disabled
+  //  WsSubjectLookup actAsSubjectLookup,
+  //   final WsParam[] params, 
+  
+    
+    /**
+     * get attributeAssignments from groups etc based on inputs
+     * @param attributeAssignType is the attribute assign type we are looking for
+     * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+     * @param wsAttributeAssignLookups if you know the assign ids you want, put them here
+     * @param wsOwnerGroupLookups are groups to look in
+     * @param wsOwnerSubjectLookups are subjects to look in
+     * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
+     * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
+     * @param wsOwnerStemLookups are stems to look in
+     * @param wsOwnerMembershipLookups to query attributes on immediate memberships
+     * @param wsOwnerMembershipAnyLookups to query attributes in "any" memberships which are on immediate or effective memberships
+     * @param wsOwnerAttributeDefLookups to query attributes assigned on attribute defs
+     * @param actions to query, or none to query all actions
+     * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
+     * and assignments on those assignments should be returned, enter true.  default to false.
+     * @param includeSubjectDetail
+     *            T|F, for if the extended subject information should be
+     *            returned (anything more than just the id)
+     * @param actAsSubjectLookup
+     * @param subjectAttributeNames are the additional subject attributes (data) to return.
+     * If blank, whatever is configured in the grouper-ws.properties will be sent
+     * @param includeGroupDetail T or F as to if the group detail should be returned
+     * @param params optional: reserved for future use
+     * @param enabled is A for all, T or null for enabled only, F for disabled 
+     * @return the results
+     */
+    @SuppressWarnings("unchecked")
+    public WsGetAttributeAssignmentsResults getAttributeAssignments(
+        String clientVersion, String attributeAssignType,
+        WsAttributeAssignLookup[] wsAttributeAssignLookups,
+        WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
+        WsGroupLookup[] wsOwnerGroupLookups, WsStemLookup[] wsOwnerStemLookups, WsSubjectLookup[] wsOwnerSubjectLookups, 
+        WsMembershipLookup[] wsOwnerMembershipLookups, WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups, 
+        WsAttributeDefLookup[] wsOwnerAttributeDefLookups, 
+        String[] actions, 
+        String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
+        String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
+        String enabled) {  
+  
+      WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new WsGetAttributeAssignmentsResults();
+    
+      try {
+  
+        boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+            includeGroupDetail, false, "includeGroupDetail");
+  
+        boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+            includeSubjectDetail, false, "includeSubjectDetail");
+  
+        boolean includeAssignmentsOnAssignmentsBoolean = GrouperServiceUtils.booleanValue(
+            includeAssignmentsOnAssignments, false, "includeAssignmentsOnAssignments");
+  
+        AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.convertAttributeAssignType(attributeAssignType);
+        
+        GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+            clientVersion, true);
+  
+        wsGetAttributeAssignmentsResults = GrouperServiceLogic.getAttributeAssignments(grouperWsVersion, attributeAssignTypeEnum, wsAttributeAssignLookups, wsAttributeDefLookups, wsAttributeDefNameLookups, wsOwnerGroupLookups, wsOwnerStemLookups, wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, actions, includeAssignmentsOnAssignmentsBoolean, actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled);
+
+      } catch (Exception e) {
+        wsGetAttributeAssignmentsResults.assignResultCodeException(null, null, e);
+      }
+  
+      //set response headers
+      GrouperServiceUtils.addResponseHeaders(wsGetAttributeAssignmentsResults.getResultMetadata(), this.soap);
+  
+      //this should be the first and only return, or else it is exiting too early
+      return wsGetAttributeAssignmentsResults; 
+    
+    }
+
+    //  String scope, 
+    //   WsStemLookup wsStemLookup, 
+    //   String stemScope, 
+    //   String enabled,
+    //   boolean includeAssignmentsOnAssignments
+    //   attributeAssignIds (inside owner lookups?)
+    //  groupDetail
+    //  subjectDetail
+    //  subjectAttributeNames
+    //  Owner Lookups (multiple?):
+    //    - groupLookup
+    //    - stemLookup
+    //    - memberLookup
+    //    - attributeDefLookup
+    //    - immediateMembershipLookup
+    //    - effectiveMembershipLookup
+    //    - attributeAssignmentLookup
+    //      - uuid
+    //      - attributeNameLookup
+    //      - groupLookup
+    //      - stemLookup
+    //      - attributeDefLookup
+    //      - immediateMembershipLookup
+    //      - effectiveMembershipLookup
+    //  enabled is A for all, T or null for enabled only, F for disabled
+    //  WsSubjectLookup actAsSubjectLookup,
+    //   final WsParam[] params, 
+    
+      
+      /**
+       * get attributeAssignments based on inputs
+       * @param attributeAssignType is the attribute assign type we are looking for
+       * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+       * @param attributeAssignId if you know the assign id you want, put it here
+       * @param wsAttributeDefName find assignments in this attribute def (optional)
+       * @param wsAttributeDefId find assignments in this attribute def (optional)
+       * @param wsAttributeDefNameName find assignments in this attribute def name (optional)
+       * @param wsAttributeDefNameId find assignments in this attribute def name (optional)
+       * @param wsOwnerGroupName is group name to look in
+       * @param wsOwnerGroupId is group id to look in
+       * @param wsOwnerStemName is stem to look in
+       * @param wsOwnerStemId is stem to look in
+       * @param wsOwnerSubjectId is subject to look in
+       * @param wsOwnerSubjectSourceId is subject to look in
+       * @param wsOwnerSubjectIdentifier is subject to look in
+       * @param wsOwnerMembershipId to query attributes on immediate membership
+       * @param wsOwnerMembershipAnyGroupName to query attributes in "any" membership which is on immediate or effective membership
+       * @param wsOwnerMembershipAnyGroupId  to query attributes in "any" membership which is on immediate or effective membership
+       * @param wsOwnerMembershipAnySubjectId to query attributes in "any" membership which is on immediate or effective membership 
+       * @param wsOwnerMembershipAnySubjectSourceId to query attributes in "any" membership which is on immediate or effective membership 
+       * @param wsOwnerMembershipAnySubjectIdentifier to query attributes in "any" membership which is on immediate or effective membership 
+       * @param wsOwnerAttributeDefName to query attributes assigned on attribute def
+       * @param wsOwnerAttributeDefId to query attributes assigned on attribute def
+       * @param action to query, or none to query all actions
+       * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
+       * and assignments on those assignments should be returned, enter true.  default to false.
+       * @param includeSubjectDetail
+       *            T|F, for if the extended subject information should be
+       *            returned (anything more than just the id)
+       * @param actAsSubjectLookup
+       * @param subjectAttributeNames are the additional subject attributes (data) to return (comma separated)
+       * If blank, whatever is configured in the grouper-ws.properties will be sent
+       * @param includeGroupDetail T or F as to if the group detail should be returned
+       * @param paramName0
+       *            reserved for future use
+       * @param paramValue0
+       *            reserved for future use
+       * @param paramName1
+       *            reserved for future use
+       * @param paramValue1
+       *            reserved for future use
+       * @param enabled is A for all, T or null for enabled only, F for disabled 
+       * @return the results
+       */
+      @SuppressWarnings("unchecked")
+      public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
+          final String clientVersion, String attributeAssignType,
+          String attributeAssignId,
+          String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
+          String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId, 
+          String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
+          String wsOwnerMembershipId, String wsOwnerMembershipAnyGroupName, String wsOwnerMembershipAnyGroupId,
+          String wsOwnerMembershipAnySubjectId, String wsOwnerMembershipAnySubjectSourceId, String wsOwnerMembershipAnySubjectIdentifier, 
+          String wsOwnerAttributeDefName, String wsOwnerAttributeDefId, 
+          String action, 
+          String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
+          String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
+          String paramName1, String paramValue1, 
+          String enabled) {  
+    
+        WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new WsGetAttributeAssignmentsResults();
+        
+        try {
+    
+          boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+              includeGroupDetail, false, "includeGroupDetail");
+    
+          boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+              includeSubjectDetail, false, "includeSubjectDetail");
+    
+          boolean includeAssignmentsOnAssignmentsBoolean = GrouperServiceUtils.booleanValue(
+              includeAssignmentsOnAssignments, false, "includeAssignmentsOnAssignments");
+    
+          AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.convertAttributeAssignType(attributeAssignType);
+          
+          GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+              clientVersion, true);
+    
+          wsGetAttributeAssignmentsResults = GrouperServiceLogic.getAttributeAssignmentsLite(
+              grouperWsVersion, attributeAssignTypeEnum, attributeAssignId, wsAttributeDefName, 
+              wsAttributeDefId, wsAttributeDefNameName, wsAttributeDefNameId, wsOwnerGroupName, 
+              wsOwnerGroupId, wsOwnerStemName, wsOwnerStemId, wsOwnerSubjectId, wsOwnerSubjectSourceId, 
+              wsOwnerSubjectIdentifier, wsOwnerMembershipId, wsOwnerMembershipAnyGroupName, 
+              wsOwnerMembershipAnyGroupId, wsOwnerMembershipAnySubjectId, wsOwnerMembershipAnySubjectSourceId, 
+              wsOwnerMembershipAnySubjectIdentifier, wsOwnerAttributeDefName, wsOwnerAttributeDefId, 
+              action, includeAssignmentsOnAssignmentsBoolean, actAsSubjectLookup, includeSubjectDetailBoolean, 
+              subjectAttributeNames, includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1, enabled );
+
+        } catch (Exception e) {
+          wsGetAttributeAssignmentsResults.assignResultCodeException(null, null, e);
+        }
+    
+        //set response headers
+        GrouperServiceUtils.addResponseHeaders(wsGetAttributeAssignmentsResults.getResultMetadata(), this.soap);
+    
+        //this should be the first and only return, or else it is exiting too early
+        return wsGetAttributeAssignmentsResults; 
+      
+
+        
+      
+      }
 }

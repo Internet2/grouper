@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -14,7 +17,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
@@ -193,6 +196,81 @@ public class WsAttributeAssignLookup {
     this.uuid = uuid1;
     this.clearAttributeAssign();
   }
+
+  /**
+   * convert attributeAssign lookups to attributeAssign ids
+   * @param grouperSession
+   * @param wsAttributeAssignLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the membership ids
+   */
+  public static Set<String> convertToAttributeAssignIds(GrouperSession grouperSession, WsAttributeAssignLookup[] wsAttributeAssignLookups, StringBuilder errorMessage) {
+    return convertToAttributeAssignIds(grouperSession, wsAttributeAssignLookups, errorMessage, new int[]{0});
+  }
+
+  /**
+   * convert attributeAssign lookups to attributeAssign ids
+   * @param grouperSession
+   * @param wsAttributeAssignLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the membership ids
+   */
+  public static Set<String> convertToAttributeAssignIds(GrouperSession grouperSession, WsAttributeAssignLookup[] wsAttributeAssignLookups, StringBuilder errorMessage, int[] lookupCount) {
+    //get all the attributeAssigns
+    //we could probably batch these to get better performance.
+    Set<String> attributeAssignIds = null;
+    if (GrouperUtil.length(wsAttributeAssignLookups) > 0) {
+      
+      attributeAssignIds = new LinkedHashSet<String>();
+      int i=0;
+      
+      boolean foundRecords = false;
+      
+      for (WsAttributeAssignLookup wsAttributeAssignLookup : wsAttributeAssignLookups) {
+        
+        if (wsAttributeAssignLookup == null || !wsAttributeAssignLookup.hasData()) {
+          continue;
+        }
+        
+        if (!foundRecords) {
+          lookupCount[0]++;
+          foundRecords = true;
+        }
+        
+        wsAttributeAssignLookup.retrieveAttributeAssignIfNeeded(grouperSession);
+        AttributeAssign attributeAssign = wsAttributeAssignLookup.retrieveAttributeAssign();
+        if (attributeAssign != null) {
+          attributeAssignIds.add(attributeAssign.getId());
+        } else {
+          
+          if (errorMessage.length() > 0) {
+            errorMessage.append(", ");
+          }
+          
+          errorMessage.append("Error on attributeAssign index: " + i + ", " + wsAttributeAssignLookup.retrieveAttributeAssignFindResult() + ", " + wsAttributeAssignLookup.toStringCompact());
+        }
+        
+        i++;
+      }
+      
+    }
+    return attributeAssignIds;
+  }
+
+
+  /**
+   * make sure this is an explicit toString
+   * @return return a compact to string
+   */
+  public String toStringCompact() {
+    if (!StringUtils.isBlank(this.uuid)) {
+      return "id: " + this.uuid;
+    }
+    return "blank";
+  }
+
 
   /**
    * 

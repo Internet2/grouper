@@ -6,8 +6,6 @@ package edu.internet2.middleware.grouper.ws.util;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +29,8 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -590,6 +590,24 @@ public final class GrouperServiceUtils {
   }
 
   /**
+   * convert the member filter, default to all
+   * @param attributeAssignType
+   * @return the member filter
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static AttributeAssignType convertAttributeAssignType(String attributeAssignType)
+      throws WsInvalidQueryException {
+    AttributeAssignType attributeAssignTypeEnum = null;
+    try {
+      attributeAssignTypeEnum = AttributeAssignType.valueOfIgnoreCase(attributeAssignType, false);
+    } catch (Exception e) {
+      //this exception will be descriptive
+      throw new WsInvalidQueryException(e);
+    }
+    return attributeAssignTypeEnum;
+  }
+
+  /**
    * convert the tx type safely with a descriptive message
    * @param txTypeString
    * @return the tx type
@@ -775,7 +793,7 @@ public final class GrouperServiceUtils {
    * convert a boolean to a T or F
    * 
    * @param theBoolean
-   * @return
+   * @return T or F
    */
   public static String booleanToStringOneChar(Boolean theBoolean) {
     if (theBoolean == null) {
@@ -824,11 +842,6 @@ public final class GrouperServiceUtils {
   }
 
   /**
-   * web service format string
-   */
-  private static final String WS_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
-
-  /**
    * convert a date to a string using the standard web service pattern
    * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
    * 
@@ -836,11 +849,7 @@ public final class GrouperServiceUtils {
    * @return the string, or null if the date is null
    */
   public static String dateToString(Date date) {
-    if (date == null) {
-      return null;
-    }
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);
-    return simpleDateFormat.format(date);
+    return AttributeAssignValue.dateToString(date);
   }
 
   /**
@@ -851,16 +860,7 @@ public final class GrouperServiceUtils {
    * @return the string, or null if the date was null
    */
   public static Date stringToDate(String dateString) {
-    if (dateString == null) {
-      return null;
-    }
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);
-    try {
-      return simpleDateFormat.parse(dateString);
-    } catch (ParseException e) {
-      throw new RuntimeException("Cannot convert '" + dateString
-          + "' to a date based on format: " + WS_DATE_FORMAT, e);
-    }
+    return AttributeAssignValue.stringToDate(dateString);
   }
 
   /**

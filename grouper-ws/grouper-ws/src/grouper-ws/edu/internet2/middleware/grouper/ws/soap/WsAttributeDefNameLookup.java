@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -14,6 +17,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
@@ -26,15 +30,6 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  */
 public class WsAttributeDefNameLookup {
 
-  /**
-   * 
-   * @param wsAttributeDefName
-   */
-  public WsAttributeDefNameLookup(WsAttributeDefName wsAttributeDefName) {
-    this.name = wsAttributeDefName.getName();
-    this.uuid = wsAttributeDefName.getUuid();
-  }
-  
   /**
    * see if blank
    * @return true if blank
@@ -245,6 +240,86 @@ public class WsAttributeDefNameLookup {
   public void setName(String theName) {
     this.name = theName;
     this.clearAttributeDefName();
+  }
+
+  /**
+   * convert attributeDefName lookups to attributeDefName ids
+   * @param grouperSession
+   * @param wsAttributeDefNameLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the attributeDef ids
+   */
+  public static Set<String> convertToAttributeDefNameIds(GrouperSession grouperSession, 
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, StringBuilder errorMessage) {
+    return convertToAttributeDefNameIds(grouperSession, wsAttributeDefNameLookups, errorMessage, new int[]{0});
+  }
+
+  /**
+   * convert attributeDefName lookups to attributeDefName ids
+   * @param grouperSession
+   * @param wsAttributeDefNameLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the attributeDefName ids
+   */
+  public static Set<String> convertToAttributeDefNameIds(GrouperSession grouperSession, 
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, StringBuilder errorMessage, int[] lookupCount) {
+    //get all the attributeDefNames
+    //we could probably batch these to get better performance.
+    Set<String> attributeDefNameIds = null;
+    if (GrouperUtil.length(wsAttributeDefNameLookups) > 0) {
+      
+      attributeDefNameIds = new LinkedHashSet<String>();
+      int i=0;
+      
+      boolean foundRecords = false;
+      
+      for (WsAttributeDefNameLookup wsAttributeDefNameLookup : wsAttributeDefNameLookups) {
+        
+        if (wsAttributeDefNameLookup == null || !wsAttributeDefNameLookup.hasData()) {
+          continue;
+        }
+        
+        if (!foundRecords) {
+          lookupCount[0]++;
+          foundRecords = true;
+        }
+        
+        wsAttributeDefNameLookup.retrieveAttributeDefNameIfNeeded(grouperSession);
+        AttributeDefName attributeDefName = wsAttributeDefNameLookup.retrieveAttributeDefName();
+        if (attributeDefName != null) {
+          attributeDefNameIds.add(attributeDefName.getId());
+        } else {
+          
+          if (errorMessage.length() > 0) {
+            errorMessage.append(", ");
+          }
+          
+          errorMessage.append("Error on attributeDefName index: " + i + ", " 
+              + wsAttributeDefNameLookup.retrieveAttributeDefNameFindResult() + ", " 
+              + wsAttributeDefNameLookup.toStringCompact());
+        }
+        
+        i++;
+      }
+      
+    }
+    return attributeDefNameIds;
+  }
+
+  /**
+   * make sure this is an explicit toString
+   * @return return a compact to string
+   */
+  public String toStringCompact() {
+    if (!StringUtils.isBlank(this.name)) {
+      return "name: " + this.name;
+    }
+    if (!StringUtils.isBlank(this.uuid)) {
+      return "id: " + this.uuid;
+    }
+    return "blank";
   }
 
   /**

@@ -14,7 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  * 
  */
-public class WsStem {
+public class WsStem implements Comparable<WsStem> {
 
   /** extension is the right part of the name */
   private String extension;
@@ -188,6 +188,23 @@ public class WsStem {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(WsStem o2) {
+    if (this == o2) {
+      return 0;
+    }
+    //lets by null safe here
+    if (this == null) {
+      return -1;
+    }
+    if (o2 == null) {
+      return 1;
+    }
+    return GrouperUtil.compare(this.getName(), o2.getName());
   }
 
 }

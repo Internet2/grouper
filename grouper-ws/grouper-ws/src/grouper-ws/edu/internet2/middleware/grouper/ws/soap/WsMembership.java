@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -22,6 +23,25 @@ public class WsMembership implements Comparable<WsMembership> {
 
   /** id of the membership */
   private String membershipId = null;
+
+  /** immediate id of the membership */
+  private String immediateMembershipId = null;
+  
+  /**
+   * immediate id of the membership
+   * @return immediate id
+   */
+  public String getImmediateMembershipId() {
+    return this.immediateMembershipId;
+  }
+
+  /**
+   * immediate id of the membership
+   * @param immediateMembershipId1
+   */
+  public void setImmediateMembershipId(String immediateMembershipId1) {
+    this.immediateMembershipId = immediateMembershipId1;
+  }
 
   /** list name of the membership */
   private String listName = null;
@@ -211,15 +231,19 @@ public class WsMembership implements Comparable<WsMembership> {
   }
 
   /**
-   * construct with member to set internal fields
+   * 
+   * @param membership
+   */
+  public WsMembership(Membership membership) {
+    this(membership, null, null);
+  }
+  
+  /**
+   * construct with membership and other objects to set internal fields
    * 
    * @param membership
    * @param group 
    * @param member 
-   * @param subjectAttributeNames are the attribute names the user is receiving (either requested or from config)
-   * @param includeSubjectDetail 
-   * @param retrieveExtendedSubjectDataBoolean
-   *            true to retrieve subject info (more than just the id)
    */
   public WsMembership(Membership membership, Group group, Member member) {
     this.setMembershipId(membership.getUuid());
@@ -237,10 +261,22 @@ public class WsMembership implements Comparable<WsMembership> {
       this.setEnabled("T");
     }
     this.setGroupId(membership.getOwnerGroupId());
+    
+    group = group == null ? membership.getGroup() : group;
+    
     this.setGroupName(group.getName());
     this.setMemberId(membership.getMemberUuid());
+    
+    member = member == null ? membership.getMember() : member;
+    
     this.setSubjectId(member.getSubjectId());
     this.setSubjectSourceId(member.getSubjectSourceId());
+    
+    GrouperWsVersion clientVersion = GrouperWsVersion.retrieveCurrentClientVersion();
+    if (clientVersion != null && GrouperWsVersion.v1_6_000.lessThanArg(clientVersion, true)) {
+      this.setImmediateMembershipId(membership.getImmediateMembershipId());
+    }
+    
   }
 
   /** timestamp it was created: yyyy/MM/dd HH:mm:ss.SSS */
@@ -367,9 +403,6 @@ public class WsMembership implements Comparable<WsMembership> {
       return 0;
     }
     //lets by null safe here
-    if (this == null) {
-      return -1;
-    }
     if (o2 == null) {
       return 1;
     }

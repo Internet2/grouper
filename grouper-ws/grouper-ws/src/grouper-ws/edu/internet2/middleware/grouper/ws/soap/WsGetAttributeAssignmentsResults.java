@@ -1,16 +1,33 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * <pre>
@@ -32,6 +49,69 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
    * logger 
    */
   private static final Log LOG = LogFactory.getLog(WsGetAttributeAssignmentsResults.class);
+
+  /**
+   * attribute def references in the assignments or inputs (and able to be read)
+   */
+  private WsAttributeDef[] wsAttributeDefs;
+  
+  /**
+   * attribute def references in the assignments or inputs (and able to be read)
+   * @return attribute defs
+   */
+  public WsAttributeDef[] getWsAttributeDefs() {
+    return this.wsAttributeDefs;
+  }
+
+  /**
+   * attribute def references in the assignments or inputs (and able to be read)
+   * @param wsAttributeDefs1
+   */
+  public void setWsAttributeDefs(WsAttributeDef[] wsAttributeDefs1) {
+    this.wsAttributeDefs = wsAttributeDefs1;
+  }
+
+  /**
+   * attribute def names referenced in the assignments or inputs (and able to read)
+   */
+  private WsAttributeDefName[] wsAttributeDefNames;
+  
+  /**
+   * attribute def names referenced in the assignments or inputs (and able to read)
+   * @return attribute def names
+   */
+  public WsAttributeDefName[] getWsAttributeDefNames() {
+    return this.wsAttributeDefNames;
+  }
+
+  /**
+   * attribute def names referenced in the assignments or inputs (and able to read)
+   * @param wsAttributeDefNames1
+   */
+  public void setWsAttributeDefNames(WsAttributeDefName[] wsAttributeDefNames1) {
+    this.wsAttributeDefNames = wsAttributeDefNames1;
+  }
+
+  /**
+   * the assignments being queried
+   */
+  private WsAttributeAssign[] wsAttributeAssigns;
+  
+  /**
+   * the assignments being queried
+   * @return the assignments being queried
+   */
+  public WsAttributeAssign[] getWsAttributeAssigns() {
+    return this.wsAttributeAssigns;
+  }
+
+  /**
+   * the assignments being queried
+   * @param wsAttributeAssigns1
+   */
+  public void setWsAttributeAssigns(WsAttributeAssign[] wsAttributeAssigns1) {
+    this.wsAttributeAssigns = wsAttributeAssigns1;
+  }
 
   /**
    * attributes of subjects returned, in same order as the data
@@ -274,4 +354,276 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     this.wsSubjects = wsSubjects1;
   }
 
+  /**
+   * convert members to subject results
+   * @param attributeAssigns 
+   * @param includeGroupDetail 
+   * @param includeSubjectDetail 
+   * @param theSubjectAttributeNames 
+   */
+  public void assignResult(Set<AttributeAssign> attributeAssigns, boolean includeGroupDetail, 
+      boolean includeSubjectDetail, String[] theSubjectAttributeNames) {
+//    Set<Group> groupSet = new LinkedHashSet<Group>();
+//    Set<Member> memberSet = new LinkedHashSet<Member>();
+    
+    this.subjectAttributeNames = theSubjectAttributeNames;
+
+    this.setWsAttributeAssigns(WsAttributeAssign.convertAttributeAssigns(attributeAssigns));
+    
+//    //turn groups into wsgroups
+//    if (groupSet.size() > 0) {
+//      this.wsGroups = new WsGroup[groupSet.size()];
+//      int index = 0;
+//      for (Group group : groupSet) {
+//        this.wsGroups[index] = new WsGroup(group, null, includeGroupDetail);
+//        
+//        index++;
+//      }
+//    }
+//    
+//    if (memberSet.size() > 0) {
+//      this.wsSubjects = new WsSubject[memberSet.size()];
+//      int index = 0;
+//      for (Member member : memberSet) {
+//        this.wsSubjects[index] = new WsSubject(member, theSubjectAttributeNames, null, includeSubjectDetail);
+//        
+//        index++;
+//      }
+//    }    
+    
+    this.sortResults();
+    
+  }
+
+  /**
+   * sort the memberships by group, then subject, then list, then membership type.  
+   * sort the groups by name, and the subjects by sourceId,subjectId
+   */
+  private void sortResults() {
+    //maybe we shouldnt do this for huge resultsets, but this makes things more organized and easier to test
+    if (this.wsAttributeAssigns != null) {
+      Arrays.sort(this.wsAttributeAssigns);
+    }
+    if (this.wsAttributeDefNames != null) {
+      Arrays.sort(this.wsAttributeDefNames);
+    }
+    if (this.wsAttributeDefs != null) {
+      Arrays.sort(this.wsAttributeDefs);
+    }
+    if (this.wsGroups != null) {
+      Arrays.sort(this.wsGroups);
+    }
+    if (this.wsMemberships != null) {
+      Arrays.sort(this.wsMemberships);
+    }
+    if (this.wsStems != null) {
+      Arrays.sort(this.wsStems);
+    }
+    if (this.wsSubjects != null) {
+      Arrays.sort(this.wsSubjects);
+    }
+  }
+
+  /**
+   * pass in the attribute def ids that were found by inputs, and add the attribute
+   * def ids found by the attribute assign results
+   * @param attributeDefIds
+   */
+  public void fillInAttributeDefs(Set<String> attributeDefIds) {
+    
+    Set<String> allAttributeDefIds = new HashSet<String>(GrouperUtil.nonNull(attributeDefIds));
+    
+    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
+      if (!StringUtils.isBlank(wsAttributeAssign.getAttributeDefId())) {
+        allAttributeDefIds.add(wsAttributeAssign.getAttributeDefId());
+      }
+      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerAttributeDefId())) {
+        allAttributeDefIds.add(wsAttributeAssign.getOwnerAttributeDefId());
+      }
+    }
+    
+    //make sure all attr def names are there
+    for (WsAttributeDefName wsAttributeDefName : GrouperUtil.nonNull(this.wsAttributeDefNames, WsAttributeDefName.class) ) {
+      allAttributeDefIds.add(wsAttributeDefName.getAttributeDefId());
+    }
+    
+    //security is already checked, lets pass these through...
+    this.wsAttributeDefs = new WsAttributeDef[allAttributeDefIds.size()];
+    
+    int i = 0;
+    for (String wsAttributeDefId : allAttributeDefIds) {
+      AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(wsAttributeDefId, true);
+      this.wsAttributeDefs[i] = new WsAttributeDef(attributeDef, null);
+      i++;
+    }
+  }
+
+  /**
+   * pass in the group ids that were found by inputs, and add the group id 
+   * found by the attribute assign results
+   * @param groupIds
+   * @param includeGroupDetail 
+   */
+  public void fillInGroups(Set<String> groupIds, boolean includeGroupDetail) {
+    
+    Set<String> allGroupIds = new HashSet<String>(GrouperUtil.nonNull(groupIds));
+    
+    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
+      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerGroupId())) {
+        allGroupIds.add(wsAttributeAssign.getOwnerGroupId());
+      }
+    }
+    
+    //security is already checked, lets pass these through...
+    this.wsGroups = new WsGroup[allGroupIds.size()];
+    
+    int i = 0;
+    for (String wsGroupId : allGroupIds) {
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(wsGroupId, true);
+      this.wsGroups[i] = new WsGroup(group, null, includeGroupDetail);
+      i++;
+    }
+  }
+
+  /**
+   * pass in the stem ids that were found by inputs, and add the stem id 
+   * found by the attribute assign results
+   * @param stemIds
+   */
+  public void fillInStems(Set<String> stemIds) {
+    
+    Set<String> allStemIds = new HashSet<String>(GrouperUtil.nonNull(stemIds));
+    
+    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
+      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerStemId())) {
+        allStemIds.add(wsAttributeAssign.getOwnerStemId());
+      }
+    }
+    
+    //security is already checked, lets pass these through...
+    this.wsStems = new WsStem[allStemIds.size()];
+    
+    int i = 0;
+    for (String wsStemId : allStemIds) {
+      Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(wsStemId, true);
+      this.wsStems[i] = new WsStem(stem);
+      i++;
+    }
+  }
+
+  /**
+   * pass in the stem ids that were found by inputs, and add the stem id 
+   * found by the attribute assign results
+   * @param membershipIds
+   */
+  public void fillInMemberships(Set<String> membershipIds) {
+    
+    Set<String> allMembershipIds = new HashSet<String>(GrouperUtil.nonNull(membershipIds));
+    
+    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
+      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMembershipId())) {
+        allMembershipIds.add(wsAttributeAssign.getOwnerMembershipId());
+      }
+    }
+    
+    //put in a set to make sure no duplicates, could be since multiple types of ids
+    
+    Set<Membership> memberships = new HashSet<Membership>();
+    
+    for (String membershipId : allMembershipIds) {
+      //security is already checked, lets pass these through...
+      Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, false, false);
+      if (membership != null) {
+        memberships.add(membership);
+      }
+    }
+    
+    this.wsMemberships = new WsMembership[memberships.size()];
+    
+    int i = 0;
+    for (Membership membership : memberships) {
+      this.wsMemberships[i] = new WsMembership(membership);
+      i++;
+    }
+  }
+
+  /**
+   * pass in the subject lookups that were found by inputs, and add the subject ids 
+   * found by the attribute assign results
+   * @param subjectLookups
+   * @param extraMemberIds 
+   * @param includeSubjectDetail 
+   * @param theSubjectAttributeNames 
+   */
+  public void fillInSubjects(WsSubjectLookup[] subjectLookups, Set<String> extraMemberIds, 
+      boolean includeSubjectDetail, String[] theSubjectAttributeNames) {
+        
+    Set<Subject> allSubjects = new HashSet<Subject>();
+    
+    for (WsSubjectLookup wsSubjectLookup : GrouperUtil.nonNull(subjectLookups, WsSubjectLookup.class)) {
+      Subject subject = wsSubjectLookup.retrieveSubject();
+      if (subject != null) {
+        if (!SubjectHelper.inList(allSubjects, subject)) {
+          allSubjects.add(subject);
+        }
+      }
+    }
+    
+    //process extra ones e.g. from list of any memberships passed in
+    for (String memberId : GrouperUtil.nonNull(extraMemberIds)) {
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), 
+          memberId, false);
+      if (member != null && !SubjectHelper.inList(allSubjects, 
+          member.getSubjectSourceId(), member.getSubjectId())) {
+        allSubjects.add(member.getSubject());
+      }
+    }
+    
+    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
+      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMemberSubjectId())) {
+        if (!SubjectHelper.inList(allSubjects, wsAttributeAssign.getOwnerMemberSourceId(), wsAttributeAssign.getOwnerMemberSubjectId())) {
+          Subject subject = SubjectFinder.findById(wsAttributeAssign.getOwnerMemberSubjectId(), null, wsAttributeAssign.getOwnerMemberSourceId(), false);
+          if (subject != null) {
+            allSubjects.add(subject);
+          }
+        }
+      }
+    }
+    
+    //security is already checked, lets pass these through...
+    this.wsSubjects = new WsSubject[allSubjects.size()];
+    
+    int i = 0;
+    for (Subject subject : allSubjects) {
+      this.wsSubjects[i] = new WsSubject(subject, theSubjectAttributeNames, null);
+      i++;
+    }
+  }
+
+  
+  /**
+   * pass in the attribute def name ids that were found by inputs, and add the attribute
+   * def name ids found by the attribute assign results
+   * @param attributeDefNameIds
+   */
+  public void fillInAttributeDefNames(Set<String> attributeDefNameIds) {
+    
+    Set<String> allAttributeDefNameIds = new HashSet<String>(GrouperUtil.nonNull(attributeDefNameIds));
+    
+    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
+      if (!StringUtils.isBlank(wsAttributeAssign.getAttributeDefNameId())) {
+        allAttributeDefNameIds.add(wsAttributeAssign.getAttributeDefNameId());
+      }
+    }
+    
+    //security is already checked, lets pass these through...
+    this.wsAttributeDefNames = new WsAttributeDefName[allAttributeDefNameIds.size()];
+    
+    int i = 0;
+    for (String wsAttributeDefNameId : allAttributeDefNameIds) {
+      AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(wsAttributeDefNameId, null, true);
+      this.wsAttributeDefNames[i] = new WsAttributeDefName(attributeDefName, null);
+      i++;
+    }
+  }
 }

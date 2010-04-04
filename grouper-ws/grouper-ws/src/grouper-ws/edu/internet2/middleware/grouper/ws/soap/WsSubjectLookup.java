@@ -516,6 +516,7 @@ public class WsSubjectLookup {
         
         if (!foundRecords) {
           lookupCount[0]++;
+          foundRecords = true;
         }
         
         Subject subject = wsSubjectLookup.retrieveSubject();

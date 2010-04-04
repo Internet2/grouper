@@ -65,16 +65,26 @@ public enum GrouperWsVersion {
    * regex pattern for ws version
    */
   private static Pattern versionPattern = Pattern.compile("^v(\\d+)_(\\d+)_(\\d+)$");
-  
+
   /**
    * see if this version is less than the argument one
    * @param other
    * @return true if less than, false if equal or greater
    */
   public boolean lessThanArg(GrouperWsVersion other) {
+    return lessThanArg(other, false);
+  }
+
+  /**
+   * see if this version is less than the argument one
+   * @param other
+   * @param orEqual 
+   * @return true if less than, false if equal or greater
+   */
+  public boolean lessThanArg(GrouperWsVersion other, boolean orEqual) {
     
     if (this == other) {
-      return false;
+      return orEqual;
     }
     
     Matcher matcher = versionPattern.matcher(this.name());

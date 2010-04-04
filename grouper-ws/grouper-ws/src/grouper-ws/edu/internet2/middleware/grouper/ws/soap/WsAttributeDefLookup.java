@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -14,6 +17,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
@@ -26,15 +30,6 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  */
 public class WsAttributeDefLookup {
 
-  /**
-   * 
-   * @param wsAttributeDef
-   */
-  public WsAttributeDefLookup(WsAttributeDef wsAttributeDef) {
-    this.name = wsAttributeDef.getName();
-    this.uuid = wsAttributeDef.getUuid();
-  }
-  
   /**
    * see if blank
    * @return true if blank
@@ -248,6 +243,84 @@ public class WsAttributeDefLookup {
   }
 
   /**
+   * convert attributeDef lookups to attributeDef ids
+   * @param grouperSession
+   * @param wsAttributeDefLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the attributeDef ids
+   */
+  public static Set<String> convertToAttributeDefIds(GrouperSession grouperSession, 
+      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage) {
+    return convertToAttributeDefIds(grouperSession, wsAttributeDefLookups, errorMessage, new int[]{0});
+  }
+
+  /**
+   * convert attributeDef lookups to attributeDef ids
+   * @param grouperSession
+   * @param wsAttributeDefLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the attributeDef ids
+   */
+  public static Set<String> convertToAttributeDefIds(GrouperSession grouperSession, 
+      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage, int[] lookupCount) {
+    //get all the attributeDefs
+    //we could probably batch these to get better performance.
+    Set<String> attributeDefIds = null;
+    if (GrouperUtil.length(wsAttributeDefLookups) > 0) {
+      
+      attributeDefIds = new LinkedHashSet<String>();
+      int i=0;
+      
+      boolean foundRecords = false;
+      
+      for (WsAttributeDefLookup wsAttributeDefLookup : wsAttributeDefLookups) {
+        
+        if (wsAttributeDefLookup == null || !wsAttributeDefLookup.hasData()) {
+          continue;
+        }
+        
+        if (!foundRecords) {
+          lookupCount[0]++;
+          foundRecords = true;
+        }
+        
+        wsAttributeDefLookup.retrieveAttributeDefIfNeeded(grouperSession);
+        AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDef();
+        if (attributeDef != null) {
+          attributeDefIds.add(attributeDef.getUuid());
+        } else {
+          
+          if (errorMessage.length() > 0) {
+            errorMessage.append(", ");
+          }
+          
+          errorMessage.append("Error on attributeDef index: " + i + ", " + wsAttributeDefLookup.retrieveAttributeDefFindResult() + ", " + wsAttributeDefLookup.toStringCompact());
+        }
+        
+        i++;
+      }
+      
+    }
+    return attributeDefIds;
+  }
+
+  /**
+   * make sure this is an explicit toString
+   * @return return a compact to string
+   */
+  public String toStringCompact() {
+    if (!StringUtils.isBlank(this.name)) {
+      return "name: " + this.name;
+    }
+    if (!StringUtils.isBlank(this.uuid)) {
+      return "id: " + this.uuid;
+    }
+    return "blank";
+  }
+
+  /**
    * 
    */
   public WsAttributeDefLookup() {
@@ -255,12 +328,12 @@ public class WsAttributeDefLookup {
   }
 
   /**
-   * @param attributeDef1 
+   * @param name1 
    * @param uuid1
    */
-  public WsAttributeDefLookup(String attributeDef1, String uuid1) {
+  public WsAttributeDefLookup(String name1, String uuid1) {
     this.uuid = uuid1;
-    this.setName(attributeDef1);
+    this.setName(name1);
   }
 
 }

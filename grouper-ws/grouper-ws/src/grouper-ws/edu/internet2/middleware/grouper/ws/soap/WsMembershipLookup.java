@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -14,6 +17,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
@@ -25,6 +29,15 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  * @author mchyzer
  */
 public class WsMembershipLookup {
+
+  /**
+   * @param uuid1
+   */
+  public WsMembershipLookup(String uuid1) {
+    super();
+    this.uuid = uuid1;
+  }
+
 
   /**
    * see if blank
@@ -191,6 +204,69 @@ public class WsMembershipLookup {
     this.uuid = uuid1;
     this.clearMembership();
   }
+
+  /**
+   * convert membership lookups to membership ids
+   * @param grouperSession
+   * @param wsMembershipLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the membership ids
+   */
+  public static Set<String> convertToMembershipIds(GrouperSession grouperSession, WsMembershipLookup[] wsMembershipLookups, StringBuilder errorMessage, int[] lookupCount) {
+    //get all the memberships
+    //we could probably batch these to get better performance.
+    Set<String> membershipIds = null;
+    if (GrouperUtil.length(wsMembershipLookups) > 0) {
+      
+      membershipIds = new LinkedHashSet<String>();
+      int i=0;
+      
+      boolean foundRecords = false;
+      
+      for (WsMembershipLookup wsMembershipLookup : wsMembershipLookups) {
+        
+        if (wsMembershipLookup == null || !wsMembershipLookup.hasData()) {
+          continue;
+        }
+        
+        if (!foundRecords) {
+          lookupCount[0]++;
+          foundRecords = true;
+        }
+        
+        wsMembershipLookup.retrieveMembershipIfNeeded(grouperSession);
+        Membership membership = wsMembershipLookup.retrieveMembership();
+        if (membership != null) {
+          membershipIds.add(membership.getImmediateMembershipId());
+        } else {
+          
+          if (errorMessage.length() > 0) {
+            errorMessage.append(", ");
+          }
+          
+          errorMessage.append("Error on membership index: " + i + ", " + wsMembershipLookup.retrieveMembershipFindResult() + ", " + wsMembershipLookup.toStringCompact());
+        }
+        
+        i++;
+      }
+      
+    }
+    return membershipIds;
+  }
+
+
+  /**
+   * make sure this is an explicit toString
+   * @return return a compact to string
+   */
+  public String toStringCompact() {
+    if (!StringUtils.isBlank(this.uuid)) {
+      return "id: " + this.uuid;
+    }
+    return "blank";
+  }
+
 
   /**
    * 

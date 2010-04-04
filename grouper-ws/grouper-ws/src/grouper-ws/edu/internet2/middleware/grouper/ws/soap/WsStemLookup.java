@@ -283,6 +283,7 @@ public class WsStemLookup {
 
         if (!foundRecords) {
           lookupCount[0]++;
+          foundRecords = true;
         }
 
         wsStemLookup.retrieveStemIfNeeded(grouperSession, false);
