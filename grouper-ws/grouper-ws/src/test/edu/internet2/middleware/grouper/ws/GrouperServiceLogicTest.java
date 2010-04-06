@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.ws;
 
+import java.sql.Timestamp;
+
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +25,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
 import edu.internet2.middleware.grouper.attr.AttributeDefTest;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -37,6 +40,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssign;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults;
@@ -79,7 +83,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsMembership"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsStem"));
   }
 
   /**
@@ -558,6 +562,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
     attributeDef.setAssignToGroup(false);
     attributeDef.setAssignToStem(true);
+    attributeDef.setValueType(AttributeDefValueType.timestamp);
     attributeDef.store();
     
 
@@ -569,6 +574,10 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
     AttributeAssignResult attributeAssignResult = stem.getAttributeDelegate().assignAttribute(attributeDefName);
     AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    Timestamp now = new Timestamp(System.currentTimeMillis());
+    
+    attributeAssign.getValueDelegate().assignValueTimestamp(now);
     
     //###############################################
     //valid query
@@ -590,6 +599,12 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
     assertEquals(stem.getName(), wsGetAttributeAssignmentsResults.getWsStems()[0].getName());
 
+    WsAttributeAssignValue[] wsAttributeAssignValues = wsAttributeAssign.getWsAttributeAssignValues();
+    
+    assertEquals(1, GrouperUtil.length(wsAttributeAssignValues));
+    
+    assertEquals(GrouperServiceUtils.dateToString(now), wsAttributeAssignValues[0].getValueSystem());
+
   }
 
   /**
@@ -603,6 +618,10 @@ public class GrouperServiceLogicTest extends GrouperTest {
     AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
     
     final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setValueType(AttributeDefValueType.integer);
+    attributeDef.setMultiValued(true);
+    attributeDef.store();
     
     final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
     
@@ -630,6 +649,9 @@ public class GrouperServiceLogicTest extends GrouperTest {
     @SuppressWarnings("unused")
     AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
 
+    attributeAssign.getValueDelegate().addValueInteger(5L);
+    attributeAssign.getValueDelegate().addValueInteger(15L);
+    attributeAssign.getValueDelegate().addValueInteger(5L);
     
     //###############################################
     //valid query
@@ -674,6 +696,14 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(null, wsAttributeAssign.getOwnerStemName());
     
     assertEquals(group.getName(), wsGetAttributeAssignmentsResults.getWsGroups()[0].getName());
+    
+    WsAttributeAssignValue[] wsAttributeAssignValues = wsAttributeAssign.getWsAttributeAssignValues();
+    
+    assertEquals(3, GrouperUtil.length(wsAttributeAssignValues));
+    
+    assertEquals("15", wsAttributeAssignValues[0].getValueSystem());
+    assertEquals("5", wsAttributeAssignValues[1].getValueSystem());
+    assertEquals("5", wsAttributeAssignValues[2].getValueSystem());
     
     //#################################################
     //you must pass in an attribute assign type

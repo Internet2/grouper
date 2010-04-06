@@ -233,7 +233,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
           return null;
         }
         if (convertTimestampToFriendly) {
-          dateToString(new Timestamp(this.valueInteger));
+          return dateToString(new Timestamp(this.valueInteger));
         }
         return this.valueInteger.toString();
       default:

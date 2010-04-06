@@ -3014,7 +3014,8 @@ public class GrouperUtil {
 
     Object clonedValue = value;
     
-    if (value == null || value instanceof String 
+    if (value == null || value instanceof String || value instanceof Class<?>
+        || value instanceof Enum<?>
         || value.getClass().isPrimitive() || value instanceof Number
         || value instanceof Boolean
         || value instanceof Date || value instanceof Configuration

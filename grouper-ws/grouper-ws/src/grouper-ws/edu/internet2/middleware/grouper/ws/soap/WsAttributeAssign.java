@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouper.ws.soap;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
@@ -15,6 +17,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -75,6 +79,25 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
   /** name of attribute def in this assignment */
   private String attributeDefName;
 
+  /** value(s) in this assignment if any */
+  private WsAttributeAssignValue[] wsAttributeAssignValues;
+
+  /**
+   * value(s) in this assignment if any
+   * @return values
+   */
+  public WsAttributeAssignValue[] getWsAttributeAssignValues() {
+    return this.wsAttributeAssignValues;
+  }
+
+  /**
+   * value(s) in this assignment if any
+   * @param wsAttributeAssignValues1
+   */
+  public void setWsAttributeAssignValues(WsAttributeAssignValue[] wsAttributeAssignValues1) {
+    this.wsAttributeAssignValues = wsAttributeAssignValues1;
+  }
+
   /**
    * id of attribute def in this assignment
    * @return id of attribute def in this assignment
@@ -83,7 +106,6 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
     return this.attributeDefId;
   }
 
-
   /**
    * id of attribute def in this assignment
    * @param attributeDefId1
@@ -91,7 +113,6 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
   public void setAttributeDefId(String attributeDefId1) {
     this.attributeDefId = attributeDefId1;
   }
-
 
   /**
    * name of attribute def in this assignment
@@ -713,7 +734,18 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
     
     this.ownerStemName = ownerStem == null ? null : ownerStem.getName();
     
-    
+    //get the values
+    if (theAttributeDef != null && !StringUtils.isBlank(this.id) && theAttributeDef.getValueType() != null
+        && theAttributeDef.getValueType().hasValue()) {
+      
+      Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory
+        .getFactory().getAttributeAssignValue().findByAttributeAssignId(this.id);
+      
+      if (GrouperUtil.length(attributeAssignValues) > 0) {
+        this.wsAttributeAssignValues = WsAttributeAssignValue.convertAttributeAssigns(attributeAssignValues);
+      }
+      
+    }
     
   }
 

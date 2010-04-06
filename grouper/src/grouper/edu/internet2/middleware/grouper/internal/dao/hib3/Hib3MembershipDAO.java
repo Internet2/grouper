@@ -1345,7 +1345,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
     } else {
       //this is an immediate membership
-      sql.append("select ms, m from ImmediateMembershipEntry as ms, Member as m where ms.id = :immediateMembershipId and ms.memberUuid = m.uuid ");
+      sql.append("select ms, m from MembershipEntry as ms, Member as m where ms.immediateMembershipId = :immediateMembershipId " +
+      		"and ms.memberUuid = m.uuid and ms.type = 'immediate'");
       byHqlStatic.setString("immediateMembershipId", uuid);
     }
     if (enabledOnly) {
