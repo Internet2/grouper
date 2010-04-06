@@ -2,33 +2,14 @@
  * @author mchyzer
  * $Id$
  */
-package edu.internet2.middleware.grouper.ws.rest.attribute;
-
-import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
-import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+package edu.internet2.middleware.grouperClient.ws.beans;
 
 
 /**
  *
  */
-public class WsRestGetAttributesRequest implements WsRequestBean {
+public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
 
-  /**
-   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
-   */
-  public GrouperRestHttpMethod retrieveRestHttpMethod() {
-    return GrouperRestHttpMethod.GET;
-  }
-  
   /** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
   private String clientVersion;
   

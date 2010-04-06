@@ -13,8 +13,8 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
-import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributesLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
@@ -125,22 +125,22 @@ public enum GrouperWsRestGet {
         throw new RuntimeException("Cant pass anything after 'attributes' in URL");
       }
 
-      if (requestObject instanceof WsRestGetAttributesRequest) {
+      if (requestObject instanceof WsRestGetAttributeAssignmentsRequest) {
 
         //get attributes
         return GrouperServiceRest.getAttributes(clientVersion,
-            (WsRestGetAttributesRequest)requestObject);
+            (WsRestGetAttributeAssignmentsRequest)requestObject);
         
-      } else if (requestObject instanceof WsRestGetAttributesLiteRequest) {
+      } else if (requestObject instanceof WsRestGetAttributeAssignmentsLiteRequest) {
         
         //get attributes
         return GrouperServiceRest.getAttributesLite(clientVersion,
-            (WsRestGetAttributesLiteRequest)requestObject);
+            (WsRestGetAttributeAssignmentsLiteRequest)requestObject);
 
       } else {
         throw new RuntimeException("Must pass in a request object of type " 
-            + WsRestGetAttributesRequest.class.getSimpleName() + " or "
-            + WsRestGetAttributesLiteRequest.class.getSimpleName());
+            + WsRestGetAttributeAssignmentsRequest.class.getSimpleName() + " or "
+            + WsRestGetAttributeAssignmentsLiteRequest.class.getSimpleName());
       }
       
     }

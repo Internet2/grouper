@@ -12,7 +12,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 /**
  *
  */
-public class WsRestGetAttributesLiteRequest implements WsRequestBean {
+public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
 
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()

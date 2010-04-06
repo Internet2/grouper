@@ -4834,7 +4834,6 @@ public class GrouperServiceLogic {
    * @param wsOwnerMembershipLookups to query attributes on immediate memberships
    * @param wsOwnerMembershipAnyLookups to query attributes in "any" memberships which are on immediate or effective memberships
    * @param wsOwnerAttributeDefLookups to query attributes assigned on attribute defs
-   * @param wsOwnerAttributeAssignLookups to query attributes in assignments
    * @param actions to query, or none to query all actions
    * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
    * and assignments on those assignments should be returned, enter true.  default to false.
@@ -5128,7 +5127,6 @@ public class GrouperServiceLogic {
      * @param wsOwnerMembershipAnySubjectIdentifier to query attributes in "any" membership which is on immediate or effective membership 
      * @param wsOwnerAttributeDefName to query attributes assigned on attribute def
      * @param wsOwnerAttributeDefId to query attributes assigned on attribute def
-     * @param wsOwnerAttributeAssignLookups to query attributes in assignments
      * @param action to query, or none to query all actions
      * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
      * and assignments on those assignments should be returned, enter true.  default to false.

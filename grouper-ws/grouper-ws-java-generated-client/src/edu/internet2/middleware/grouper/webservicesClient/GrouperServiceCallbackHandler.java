@@ -77,6 +77,22 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for getAttributeAssignments method
+            * override this method for handling normal response from getAttributeAssignments operation
+            */
+           public void receiveResultgetAttributeAssignments(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getAttributeAssignments operation
+           */
+            public void receiveErrorgetAttributeAssignments(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for addMemberLite method
             * override this method for handling normal response from addMemberLite operation
             */
@@ -394,6 +410,22 @@
            * override this method for handling error response from findGroupsLite operation
            */
             public void receiveErrorfindGroupsLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for getAttributeAssignmentsLite method
+            * override this method for handling normal response from getAttributeAssignmentsLite operation
+            */
+           public void receiveResultgetAttributeAssignmentsLite(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLiteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getAttributeAssignmentsLite operation
+           */
+            public void receiveErrorgetAttributeAssignmentsLite(java.lang.Exception e) {
             }
                 
            /**

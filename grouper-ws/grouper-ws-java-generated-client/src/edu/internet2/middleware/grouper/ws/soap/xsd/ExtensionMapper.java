@@ -40,6 +40,26 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsAttributeAssignLookup".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignLookup.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsMembershipLookup".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsMembershipLookup.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsMemberChangeSubjectResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResult.Factory.parse(reader);
@@ -53,6 +73,16 @@
                   "WsAssignGrouperPrivilegesResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesResult.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsAttributeAssignValue".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue.Factory.parse(reader);
                         
 
                   }
@@ -150,6 +180,16 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsMembershipAnyLookup".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsMembershipAnyLookup.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsDeleteMemberResults".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsDeleteMemberResults.Factory.parse(reader);
@@ -203,6 +243,16 @@
                   "WsGetSubjectsResults".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetSubjectsResults.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsAttributeDefName".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefName.Factory.parse(reader);
                         
 
                   }
@@ -280,6 +330,16 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsGetAttributeAssignmentsResults".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetAttributeAssignmentsResults.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsStemLookup".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsStemLookup.Factory.parse(reader);
@@ -340,6 +400,16 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsGetGroupsResults".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetGroupsResults.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsMemberChangeSubjectResults".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResults.Factory.parse(reader);
@@ -350,9 +420,9 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsGetGroupsResults".equals(typeName)){
+                  "WsAttributeDef".equals(typeName)){
                    
-                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetGroupsResults.Factory.parse(reader);
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDef.Factory.parse(reader);
                         
 
                   }
@@ -450,9 +520,9 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsGetMembershipsResults".equals(typeName)){
+                  "WsAttributeDefLookup".equals(typeName)){
                    
-                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembershipsResults.Factory.parse(reader);
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup.Factory.parse(reader);
                         
 
                   }
@@ -463,6 +533,16 @@
                   "WsGroupDeleteLiteResult".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteLiteResult.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsGetMembershipsResults".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembershipsResults.Factory.parse(reader);
                         
 
                   }
@@ -490,9 +570,9 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsStemQueryFilter".equals(typeName)){
+                  "WsStemDeleteLiteResult".equals(typeName)){
                    
-                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsStemQueryFilter.Factory.parse(reader);
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsStemDeleteLiteResult.Factory.parse(reader);
                         
 
                   }
@@ -500,9 +580,9 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
-                  "WsStemDeleteLiteResult".equals(typeName)){
+                  "WsStemQueryFilter".equals(typeName)){
                    
-                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsStemDeleteLiteResult.Factory.parse(reader);
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsStemQueryFilter.Factory.parse(reader);
                         
 
                   }
@@ -540,9 +620,29 @@
               
                   if (
                   "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsAttributeDefNameLookup".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefNameLookup.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
                   "WsMemberChangeSubject".equals(typeName)){
                    
                             return  edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubject.Factory.parse(reader);
+                        
+
+                  }
+
+              
+                  if (
+                  "http://soap.ws.grouper.middleware.internet2.edu/xsd".equals(namespaceURI) &&
+                  "WsAttributeAssign".equals(typeName)){
+                   
+                            return  edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssign.Factory.parse(reader);
                         
 
                   }

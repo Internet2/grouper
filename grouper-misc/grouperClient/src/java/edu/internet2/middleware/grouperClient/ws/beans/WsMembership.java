@@ -204,6 +204,9 @@ public class WsMembership {
   /** timestamp it was created: yyyy/MM/dd HH:mm:ss.SSS */
   private String createTime;
 
+  /** immediate id of the membership */
+  private String immediateMembershipId = null;
+
   /**
    * list name of the membership
    * 
@@ -274,6 +277,22 @@ public class WsMembership {
    */
   public void setCreateTime(String createTime1) {
     this.createTime = createTime1;
+  }
+
+  /**
+   * immediate id of the membership
+   * @return immediate id
+   */
+  public String getImmediateMembershipId() {
+    return this.immediateMembershipId;
+  }
+
+  /**
+   * immediate id of the membership
+   * @param immediateMembershipId1
+   */
+  public void setImmediateMembershipId(String immediateMembershipId1) {
+    this.immediateMembershipId = immediateMembershipId1;
   }
 
 }

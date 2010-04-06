@@ -11,8 +11,8 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributesLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
@@ -1404,9 +1404,9 @@ public class GrouperServiceRest {
    * @return the result
    */
   public static WsGetAttributeAssignmentsResults getAttributes(GrouperWsVersion clientVersion,
-      WsRestGetAttributesRequest wsRestGetAttributesRequest) {
+      WsRestGetAttributeAssignmentsRequest wsRestGetAttributesRequest) {
     //cant be null
-    wsRestGetAttributesRequest = wsRestGetAttributesRequest == null ? new WsRestGetAttributesRequest()
+    wsRestGetAttributesRequest = wsRestGetAttributesRequest == null ? new WsRestGetAttributeAssignmentsRequest()
       : wsRestGetAttributesRequest;
     
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new GrouperService(false).getAttributeAssignments(
@@ -1431,10 +1431,10 @@ public class GrouperServiceRest {
    * @return the results object
    */
   public static WsGetAttributeAssignmentsResults getAttributesLite(GrouperWsVersion clientVersion,
-      WsRestGetAttributesLiteRequest wsRestGetAttributesLiteRequest) {
+      WsRestGetAttributeAssignmentsLiteRequest wsRestGetAttributesLiteRequest) {
 
     //cant be null
-    wsRestGetAttributesLiteRequest = wsRestGetAttributesLiteRequest == null ? new WsRestGetAttributesLiteRequest() : wsRestGetAttributesLiteRequest;
+    wsRestGetAttributesLiteRequest = wsRestGetAttributesLiteRequest == null ? new WsRestGetAttributeAssignmentsLiteRequest() : wsRestGetAttributesLiteRequest;
 
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new GrouperService(false).getAttributeAssignmentsLite(
         wsRestGetAttributesLiteRequest.getClientVersion(), wsRestGetAttributesLiteRequest.getAttributeAssignType(), wsRestGetAttributesLiteRequest.getAttributeAssignId(), wsRestGetAttributesLiteRequest.getWsAttributeDefName(), 
