@@ -14,10 +14,18 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssign;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignValue;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDef;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefName;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindStemsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
@@ -40,6 +48,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta;
@@ -49,6 +59,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignGrouperPrivil
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindStemsRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
@@ -87,12 +98,20 @@ public class WsRestClassLookup {
   static {
     addAliasClass(WsAddMemberResult.class);
     addAliasClass(WsAddMemberResults.class);
+    addAliasClass(WsAttributeAssign.class);
+    addAliasClass(WsAttributeAssignLookup.class);
+    addAliasClass(WsAttributeAssignValue.class);
+    addAliasClass(WsAttributeDef.class);
+    addAliasClass(WsAttributeDefLookup.class);
+    addAliasClass(WsAttributeDefName.class);
+    addAliasClass(WsAttributeDefNameLookup.class);
     addAliasClass(WsAssignGrouperPrivilegesLiteResult.class);
     addAliasClass(WsDeleteMemberResult.class);
     addAliasClass(WsDeleteMemberResults.class);
 
     addAliasClass(WsFindGroupsResults.class);
     addAliasClass(WsFindStemsResults.class);
+    addAliasClass(WsGetAttributeAssignmentsResults.class);
     addAliasClass(WsGetGrouperPrivilegesLiteResult.class);
 
     addAliasClass(WsGetGroupsResult.class);
@@ -123,6 +142,8 @@ public class WsRestClassLookup {
     addAliasClass(WsMemberChangeSubjectResults.class);
 
     addAliasClass(WsMembership.class);
+    addAliasClass(WsMembershipAnyLookup.class);
+    addAliasClass(WsMembershipLookup.class);
     
     addAliasClass(WsParam.class);
     addAliasClass(WsQueryFilter.class);
@@ -131,6 +152,7 @@ public class WsRestClassLookup {
     addAliasClass(WsRestAddMemberRequest.class);
     addAliasClass(WsRestAssignGrouperPrivilegesLiteRequest.class);
     addAliasClass(WsRestAssignGrouperPrivilegesRequest.class);
+    addAliasClass(WsRestGetAttributeAssignmentsRequest.class);
     addAliasClass(WsAssignGrouperPrivilegesResult.class);
     addAliasClass(WsAssignGrouperPrivilegesResults.class);
 

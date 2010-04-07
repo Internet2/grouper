@@ -561,6 +561,9 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     Set<Subject> allSubjects = new HashSet<Subject>();
     
     for (WsSubjectLookup wsSubjectLookup : GrouperUtil.nonNull(subjectLookups, WsSubjectLookup.class)) {
+      if (wsSubjectLookup == null) {
+        continue;
+      }
       Subject subject = wsSubjectLookup.retrieveSubject();
       if (subject != null) {
         if (!SubjectHelper.inList(allSubjects, subject)) {

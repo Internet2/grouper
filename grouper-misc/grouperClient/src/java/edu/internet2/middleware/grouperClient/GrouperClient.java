@@ -76,6 +76,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStem;
@@ -2530,7 +2531,6 @@ public class GrouperClient {
     
     String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
 
-    String enabled = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "enabled", false);
 
     String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
 
@@ -2568,9 +2568,12 @@ public class GrouperClient {
     gcGetMemberships.assignActAsSubject(actAsSubject);
     
     gcGetMemberships.assignClientVersion(clientVersion);
-  
-    gcGetMemberships.assignEnabled(enabled);
-
+    
+    {
+      String enabled = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "enabled", false);
+      gcGetMemberships.assignEnabled(enabled);
+    }
+    
     gcGetMemberships.assignFieldName(fieldName);
     
     if (GrouperClientUtils.length(groupNames) > 0) {
@@ -2948,99 +2951,182 @@ public class GrouperClient {
   private static String getAttributeAssignments(Map<String, String> argMap,
       Map<String, String> argMapNotUsed) {
   
-//    actions : Set<String>
-//    attributeAssignLookups : Set<WsAttributeAssignLookup>
-//    attributeAssignType : String
-//    attributeDefNameNames : Set<String>
-//    attributeDefNames : Set<String>
-//    attributeDefNameUuids : Set<String>
-//    attributeDefUuids : Set<String>
-//    clientVersion : String
-//    enabled : String
-//    includeAssignmentsOnAssignments : Boolean
-//    includeGroupDetail : Boolean
-//    includeSubjectDetail : Boolean
-//    ownerAttributeDefNames : Set<String>
-//    ownerAttributeDefUuids : Set<String>
-//    ownerGroupNames : Set<String>
-//    ownerGroupUuids : Set<String>
-//    ownerMembershipAnyLookups : Set<WsMembershipAnyLookup>
-//    ownerMembershipLookups : Set<WsMembershipLookup>
-//    ownerStemNames : Set<String>
-//    ownerStemUuids : Set<String>
-//    ownerSubjectLookups : Set<WsSubjectLookup>
-//    params : List<WsParam>
-//    subjectAttributeNames : Set<String>
-    
-    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
-    
-    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
-  
-    String enabled = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "enabled", false);
-  
-    List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", false);
-    List<String> groupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupUuids", false);
-  
-    Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
-  
-    Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
-  
-    List<String> membershipIds = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "membershipIds", false);
-  
-    String sourceIds = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "sourceIds", false);
-  
-    String stemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemName", false);
-    String stemUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemUuid", false);
-    
-    WsStemLookup wsStemLookup = null;
-    if (!GrouperClientUtils.isBlank(stemName) || !GrouperClientUtils.isBlank(stemUuid)) {
-      wsStemLookup = new WsStemLookup(stemName, stemUuid);
-    }
-    
-    String stemScope = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemScope", false);
-    
-    Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
-  
-    List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap, argMapNotUsed, false);
-  
     GcGetAttributeAssignments gcGetAttributeAssignments = new GcGetAttributeAssignments();        
-  
-    gcGetAttributeAssignments.assignActAsSubject(actAsSubject);
-    
-    gcGetAttributeAssignments.assignClientVersion(clientVersion);
-  
-    gcGetAttributeAssignments.assignEnabled(enabled);
-  
-//    if (GrouperClientUtils.length(groupNames) > 0) {
-//      for (String groupName: groupNames) {
-//        gcGetAttributeAssignments.addGroupName(groupName);
-//      }
-//    }
-//    
-//    if (GrouperClientUtils.length(groupUuids) > 0) {
-//      for (String groupUuid: groupUuids) {
-//        gcGetAttributeAssignments.addGroupUuid(groupUuid);
-//      }
-//    }
-//    
-//    gcGetAttributeAssignments.assignIncludeGroupDetail(includeGroupDetail);
-//    gcGetAttributeAssignments.assignIncludeSubjectDetail(includeSubjectDetail);
-//    
-//    if (GrouperClientUtils.length(membershipIds) > 0) {
-//      for (String membershipId: membershipIds) {
-//        gcGetAttributeAssignments.addMembershipId(membershipId);
-//      }
-//    }
-    
-    
-    for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
-      gcGetAttributeAssignments.addSubjectAttributeName(subjectAttribute);
+
+    for (int i=1;i<=10;i++) {
+      WsSubjectLookup ownerMembershipAnySubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "ownerMembershipAny" + i, false);
+      String ownerMembershipAnyGroupUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "ownerMembershipAny" + i + "GroupUuid", false);
+      String ownerMembershipAnyGroupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "ownerMembershipAny" + i + "GroupName", false);
+      if (ownerMembershipAnySubjectLookup != null || !GrouperClientUtils.isBlank(ownerMembershipAnyGroupName) 
+          || !GrouperClientUtils.isBlank(ownerMembershipAnyGroupUuid)) {
+        WsMembershipAnyLookup wsMembershipAnyLookup = new WsMembershipAnyLookup();
+        wsMembershipAnyLookup.setWsGroupLookup(new WsGroupLookup(ownerMembershipAnyGroupName, ownerMembershipAnyGroupUuid));
+        wsMembershipAnyLookup.setWsSubjectLookup(ownerMembershipAnySubjectLookup);
+        gcGetAttributeAssignments.addOwnerMembershipAnyLookup(wsMembershipAnyLookup);
+      }
     }
     
-    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    for (int i=1;i<=10;i++) {
+      WsSubjectLookup ownerSubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "owner" + i, false);
+      gcGetAttributeAssignments.addOwnerSubjectLookup(ownerSubjectLookup);
+    }
     
-    for (WsParam param : params) {
-      gcGetAttributeAssignments.addParam(param);
+    {
+      Boolean includeAssignmentsOnAssignments = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeAssignmentsOnAssignments");
+      gcGetAttributeAssignments.assignIncludeAssignmentsOnAssignments(includeAssignmentsOnAssignments);
+    }
+    {
+      Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
+      gcGetAttributeAssignments.assignIncludeSubjectDetail(includeSubjectDetail);
+    }
+    {
+      Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+      gcGetAttributeAssignments.assignIncludeGroupDetail(includeGroupDetail);
+    }
+    {
+      Set<String> attributeAssignUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeAssignUuids", false);
+      if (GrouperClientUtils.length(attributeAssignUuids) > 0) {
+        for (String attributeAssignUuid : attributeAssignUuids) {
+          gcGetAttributeAssignments.addAttributeAssignId(attributeAssignUuid);
+        }
+      }
+    }
+    {
+      List<String> ownerGroupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerGroupUuids", false);
+      if (GrouperClientUtils.length(ownerGroupUuids) > 0) {
+        for (String ownerGroupUuid: ownerGroupUuids) {
+          gcGetAttributeAssignments.addOwnerGroupUuid(ownerGroupUuid);
+        }
+      }
+    }
+    {
+      List<String> ownerGroupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerGroupNames", false);
+      if (GrouperClientUtils.length(ownerGroupNames) > 0) {
+        for (String ownerGroupName: ownerGroupNames) {
+          gcGetAttributeAssignments.addOwnerGroupName(ownerGroupName);
+        }
+      }
+    }
+    {
+      List<String> ownerStemUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerStemUuids", false);
+      if (GrouperClientUtils.length(ownerStemUuids) > 0) {
+        for (String ownerStemUuid: ownerStemUuids) {
+          gcGetAttributeAssignments.addOwnerStemUuid(ownerStemUuid);
+        }
+      }
+    }
+    {
+      List<String> ownerStemNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerStemNames", false);
+      if (GrouperClientUtils.length(ownerStemNames) > 0) {
+        for (String ownerStemName: ownerStemNames) {
+          gcGetAttributeAssignments.addOwnerStemName(ownerStemName);
+        }
+      }
+    }
+    {
+      String enabled = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "enabled", false);
+      gcGetAttributeAssignments.assignEnabled(enabled);
+    }
+
+    {
+      String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+      gcGetAttributeAssignments.assignClientVersion(clientVersion);
+      
+    }
+    
+    {
+      WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+      gcGetAttributeAssignments.assignActAsSubject(actAsSubject);
+    }
+
+    {
+      String attributeAssignType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "attributeAssignType", true);
+      gcGetAttributeAssignments.assignAttributeAssignType(attributeAssignType);
+    }
+    
+    { 
+      Set<String> attributeDefNameNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNameNames", false);
+      
+      if (GrouperClientUtils.length(attributeDefNameNames) > 0) {
+        for (String attributeDefNameName : attributeDefNameNames) {
+          gcGetAttributeAssignments.addAttributeDefNameName(attributeDefNameName);
+        }
+      }
+    }
+    
+    {
+      Set<String> attributeDefNameUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNameUuids", false);
+      if (GrouperClientUtils.length(attributeDefNameUuids) > 0) {
+        for (String attributeDefNameUuid : attributeDefNameUuids) {
+          gcGetAttributeAssignments.addAttributeDefNameUuid(attributeDefNameUuid);
+        }
+      }
+    }
+    
+    { 
+      Set<String> attributeDefNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNames", false);
+      
+      if (GrouperClientUtils.length(attributeDefNames) > 0) {
+        for (String attributeDefName : attributeDefNames) {
+          gcGetAttributeAssignments.addAttributeDefName(attributeDefName);
+        }
+      }
+    }
+    
+    {
+      Set<String> attributeDefUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefUuids", false);
+      if (GrouperClientUtils.length(attributeDefUuids) > 0) {
+        for (String attributeDefUuid : attributeDefUuids) {
+          gcGetAttributeAssignments.addAttributeDefUuid(attributeDefUuid);
+        }
+      }
+    }
+
+    { 
+      Set<String> ownerAttributeDefNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "ownerAttributeDefNames", false);
+      
+      if (GrouperClientUtils.length(ownerAttributeDefNames) > 0) {
+        for (String ownerAttributeDefName : ownerAttributeDefNames) {
+          gcGetAttributeAssignments.addOwnerAttributeDefName(ownerAttributeDefName);
+        }
+      }
+    }
+    
+    {
+      Set<String> ownerAttributeDefUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "ownerAttributeDefUuids", false);
+      if (GrouperClientUtils.length(ownerAttributeDefUuids) > 0) {
+        for (String ownerAttributeDefUuid : ownerAttributeDefUuids) {
+          gcGetAttributeAssignments.addOwnerAttributeDefUuid(ownerAttributeDefUuid);
+        }
+      }
+    }
+
+    {
+      Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
+  
+      for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
+        gcGetAttributeAssignments.addSubjectAttributeName(subjectAttribute);
+      }
+    }    
+    
+    {
+      Set<String> actions = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "actions", false);
+      
+      if (GrouperClientUtils.length(actions) > 0) {
+        for (String action : actions) {
+          gcGetAttributeAssignments.addAction(action);
+        }
+      }
+    }
+    
+    
+    
+    {
+      List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+      
+      for (WsParam param : params) {
+        gcGetAttributeAssignments.addParam(param);
+      }
     }
     
     //register that we will use this
@@ -3154,9 +3240,18 @@ public class GrouperClient {
         throw new RuntimeException("Cant find attribute assign type: " + wsAttributeAssign.getAttributeAssignType());
       }
 
-      String valuesString = null;
-      if (GrouperClientUtils.length(wsAttributeAssign.getWsAttributeAssignValues()) > 0) {
-        valuesString = GrouperClientUtils.join(wsAttributeAssign.getWsAttributeAssignValues(), ", ");
+      String valuesString = "none";
+      int valuesLength = GrouperClientUtils.length(wsAttributeAssign.getWsAttributeAssignValues());
+      if (valuesLength > 0) {
+        StringBuilder valuesResult = new StringBuilder();
+        for (int i=0;i<valuesLength;i++) {
+          WsAttributeAssignValue wsAttributeAssignValue = wsAttributeAssign.getWsAttributeAssignValues()[i];
+          valuesResult.append(wsAttributeAssignValue.getValueSystem());
+          if (i<valuesLength-1) {
+            valuesResult.append(",");
+          }
+        }
+        valuesString = valuesResult.toString();
       }
       
       substituteMap.put("index", index);

@@ -9,8 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
@@ -181,7 +179,7 @@ public class GcGetAttributeAssignments {
    * validate this call
    */
   private void validate() {
-    if (StringUtils.isBlank(this.attributeAssignType)) {
+    if (GrouperClientUtils.isBlank(this.attributeAssignType)) {
       throw new RuntimeException("attributeAssignType is required: " + this);
     }
   }
