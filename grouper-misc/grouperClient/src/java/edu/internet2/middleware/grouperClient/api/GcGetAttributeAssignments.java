@@ -16,7 +16,7 @@ import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembershipsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipLookup;
@@ -300,9 +300,9 @@ public class GcGetAttributeAssignments {
    * 
    * @return the results
    */
-  public WsGetMembershipsResults execute() {
+  public WsGetAttributeAssignmentsResults execute() {
     this.validate();
-    WsGetMembershipsResults wsGetAttributeAssignmentsResults = null;
+    WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = null;
     try {
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -430,8 +430,8 @@ public class GcGetAttributeAssignments {
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
-      wsGetAttributeAssignmentsResults = (WsGetMembershipsResults)
-        grouperClientWs.executeService("memberships", getAttributeAssignments, "getMemberships", this.clientVersion);
+      wsGetAttributeAssignmentsResults = (WsGetAttributeAssignmentsResults)
+        grouperClientWs.executeService("attributeAssignments", getAttributeAssignments, "getAttributeAssignments", this.clientVersion);
       
       String resultMessage = wsGetAttributeAssignmentsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetAttributeAssignmentsResults, null, resultMessage);

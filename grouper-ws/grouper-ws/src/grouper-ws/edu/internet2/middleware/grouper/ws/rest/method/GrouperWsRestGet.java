@@ -102,7 +102,7 @@ public enum GrouperWsRestGet {
   },
   
   /** attribute get requests */
-  attributes {
+  attributeAssignments {
 
     /**
      * handle the incoming request based on GET HTTP method and group resource
