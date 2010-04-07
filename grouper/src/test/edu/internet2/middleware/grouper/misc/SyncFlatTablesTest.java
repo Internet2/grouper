@@ -79,6 +79,9 @@ public class SyncFlatTablesTest extends GrouperTest {
   public void testFlatMembershipsNoFalsePositives() throws Exception {
     GrouperSession session = GrouperSession.startRootSession();
     
+    // make sure flat tables are in sync before we start...
+    new edu.internet2.middleware.grouper.misc.SyncFlatTables().showResults(false).saveUpdates(true).sendNotifications(false).syncAllFlatTables();
+    
     Stem root = StemFinder.findRootStem(session);
     Stem top = root.addChildStem("top", "top");
     

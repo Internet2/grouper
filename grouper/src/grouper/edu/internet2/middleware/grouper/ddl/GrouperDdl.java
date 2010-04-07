@@ -5968,6 +5968,12 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
           "flat_mship_context_idx", false, FlatMembership.COLUMN_CONTEXT_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
+          "flat_mship_member_idx", false, FlatMembership.COLUMN_MEMBER_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
+          "flat_mship_owner_field_idx", false, FlatMembership.COLUMN_OWNER_ID, FlatMembership.COLUMN_FIELD_ID);
     }
     
     {
