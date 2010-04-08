@@ -2953,7 +2953,7 @@ public class GrouperClient {
   
     GcGetAttributeAssignments gcGetAttributeAssignments = new GcGetAttributeAssignments();        
 
-    for (int i=1;i<=10;i++) {
+    for (int i=0;i<10;i++) {
       WsSubjectLookup ownerMembershipAnySubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "ownerMembershipAny" + i, false);
       String ownerMembershipAnyGroupUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "ownerMembershipAny" + i + "GroupUuid", false);
       String ownerMembershipAnyGroupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "ownerMembershipAny" + i + "GroupName", false);
@@ -2966,9 +2966,11 @@ public class GrouperClient {
       }
     }
     
-    for (int i=1;i<=10;i++) {
+    for (int i=0;i<10;i++) {
       WsSubjectLookup ownerSubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "owner" + i, false);
-      gcGetAttributeAssignments.addOwnerSubjectLookup(ownerSubjectLookup);
+      if (ownerSubjectLookup != null) {
+        gcGetAttributeAssignments.addOwnerSubjectLookup(ownerSubjectLookup);
+      }
     }
     
     {
@@ -3004,6 +3006,14 @@ public class GrouperClient {
       if (GrouperClientUtils.length(ownerGroupNames) > 0) {
         for (String ownerGroupName: ownerGroupNames) {
           gcGetAttributeAssignments.addOwnerGroupName(ownerGroupName);
+        }
+      }
+    }
+    {
+      List<String> ownerMembershipUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerMembershipUuids", false);
+      if (GrouperClientUtils.length(ownerMembershipUuids) > 0) {
+        for (String ownerMembershipUuid: ownerMembershipUuids) {
+          gcGetAttributeAssignments.addOwnerMembershipId(ownerMembershipUuid);
         }
       }
     }
@@ -3235,7 +3245,7 @@ public class GrouperClient {
       } else if (GrouperClientUtils.equals("attr_def", wsAttributeAssign.getAttributeAssignType())) {
         ownerName = wsOwnerAttributeDef.getName();
       } else if (wsAttributeAssign.getAttributeAssignType() != null && wsAttributeAssign.getAttributeAssignType().endsWith("_asgn")) {
-        ownerName = wsAttributeAssign.getId();
+        ownerName = wsAttributeAssign.getOwnerAttributeAssignId();
       } else {
         throw new RuntimeException("Cant find attribute assign type: " + wsAttributeAssign.getAttributeAssignType());
       }
