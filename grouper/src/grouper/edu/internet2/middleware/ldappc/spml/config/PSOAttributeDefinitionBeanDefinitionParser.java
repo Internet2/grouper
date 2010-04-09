@@ -55,6 +55,10 @@ public class PSOAttributeDefinitionBeanDefinitionParser extends AbstractSingleBe
     String isMultiValued = element.getAttributeNS(null, "isMultiValued");
     LOG.debug("Setting isMultiValued of element '{}' to: '{}'", element.getLocalName(), isMultiValued);
     builder.addPropertyValue("isMultiValued", isMultiValued);
+    
+    String retainAll = element.getAttributeNS(null, "retainAll");
+    LOG.debug("Setting retainAll of element '{}' to: '{}'", element.getLocalName(), retainAll);
+    builder.addPropertyValue("retainAll", retainAll);
   }
 
   protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)

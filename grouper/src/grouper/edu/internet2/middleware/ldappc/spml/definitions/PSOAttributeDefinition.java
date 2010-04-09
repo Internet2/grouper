@@ -30,7 +30,11 @@ public class PSOAttributeDefinition {
 
   // TODO handle multiValued
   private boolean isMultiValued;
+  
+  // TODO complete this logic
+  private boolean retainAll;
 
+  
   public String getRef() {
     return ref;
   }
@@ -55,21 +59,31 @@ public class PSOAttributeDefinition {
     this.isMultiValued = isMultiValued;
   }
 
-  public DSMLAttr getAttribute(Map<String, BaseAttribute> attributes) throws DSMLProfileException {
+  public boolean isRetainAll() {
+    return retainAll;
+  }
+
+
+  public void setRetainAll(boolean retainAll) {
+    this.retainAll = retainAll;
+  }
+
+
+  public DSMLAttr getAttribute(Map<String, BaseAttribute<?>> attributes) throws DSMLProfileException {
 
     if (!attributes.containsKey(ref)) {
       return null;
     }
 
-    BaseAttribute<String> attribute = attributes.get(ref);
+    BaseAttribute<?> attribute = attributes.get(ref);
 
     DSMLValue[] dsmlValues = null;
 
     DSMLAttr dsmlAttr = new DSMLAttr(this.getName(), dsmlValues);
 
     if (this.isMultiValued()) {
-      for (String value : attribute.getValues()) {
-        dsmlAttr.addValue(new DSMLValue(value));
+      for (Object value : attribute.getValues()) {
+        dsmlAttr.addValue(new DSMLValue(value.toString()));
       }
     } else {
       dsmlAttr.addValue(new DSMLValue(attribute.getValues().iterator().next().toString()));
