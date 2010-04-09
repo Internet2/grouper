@@ -14,16 +14,26 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
@@ -37,6 +47,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroups;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStems;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStemsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignments;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignmentsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGrouperPrivilegesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroups;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsAdmins;
@@ -63,6 +75,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsAdminsRest;
@@ -135,6 +149,8 @@ public class SampleCapture {
     
     setupData();
     
+    captureGetAttributeAssignments();
+    
     //captureGetGroups();
     
 //  captureRampart();
@@ -161,8 +177,6 @@ public class SampleCapture {
 
     */
     
-    captureAssignGrouperPrivileges();
-
   }
 
   /** certain data has to exist for samples to run */
@@ -261,6 +275,47 @@ public class SampleCapture {
       groupType2.addAttribute(grouperSession, "attr2_2", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
       groupType3.addAttribute(grouperSession, "attr3_1", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
       groupType3.addAttribute(grouperSession, "attr3_2", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+
+      //new attribute framework
+      //###################################
+      AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+      AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignAssignName");
+      
+      final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+      
+      attributeDef.setValueType(AttributeDefValueType.integer);
+      attributeDef.setMultiValued(true);
+      attributeDef.store();
+      
+      final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+      
+      attributeDef2.setAssignToGroup(false);
+      attributeDef2.setAssignToGroupAssn(true);
+      attributeDef2.store();
+      
+      Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+
+      Group group2 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignGroupNameToEdit("test:groupTestAttrAssign2").assignName("test:groupTestAttrAssign2").assignCreateParentStemsIfNotExist(true)
+        .assignDescription("description").save();
+
+      //test subject 0 can view and read
+      group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+      group2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW);
+      attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+
+      AttributeAssignResult attributeAssignResult = group.getAttributeDelegate().assignAttribute(attributeDefName);
+      AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+      
+      AttributeAssignResult attributeAssignResult2 = attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName2);
+      @SuppressWarnings("unused")
+      AttributeAssign attributeAssign2 = attributeAssignResult2.getAttributeAssign();
+
+      attributeAssign.getValueDelegate().addValueInteger(5L);
+      attributeAssign.getValueDelegate().addValueInteger(15L);
+      attributeAssign.getValueDelegate().addValueInteger(5L);
       
       //anything else?
 
@@ -721,6 +776,21 @@ public class SampleCapture {
         WsSampleGetSubjectsRestLite.class, "getSubjects", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetSubjectsRestLite2.class, "getSubjects", "_withInput");
+    
+  }
+
+  /**
+   * all get members captures
+   */
+  public static void captureGetAttributeAssignments() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetAttributeAssignments.class, "getAttributeAssignments", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetAttributeAssignmentsLite.class, "getAttributeAssignments", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetAttributeAssignmentsRest.class, "getAttributeAssignments", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetAttributeAssignmentsRestLite.class, "getAttributeAssignments", null);
     
   }
   

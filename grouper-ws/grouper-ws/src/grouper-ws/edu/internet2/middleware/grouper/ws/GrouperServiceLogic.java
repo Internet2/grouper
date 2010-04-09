@@ -5130,10 +5130,12 @@ public class GrouperServiceLogic {
      * @param action to query, or none to query all actions
      * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
      * and assignments on those assignments should be returned, enter true.  default to false.
+     * @param actAsSubjectId act as this subject
+     * @param actAsSubjectSourceId act as this subject
+     * @param actAsSubjectIdentifier act as this subject
      * @param includeSubjectDetail
      *            T|F, for if the extended subject information should be
      *            returned (anything more than just the id)
-     * @param actAsSubjectLookup
      * @param subjectAttributeNames are the additional subject attributes (data) to return (comma separated)
      * If blank, whatever is configured in the grouper-ws.properties will be sent
      * @param includeGroupDetail T or F as to if the group detail should be returned
@@ -5159,7 +5161,8 @@ public class GrouperServiceLogic {
         String wsOwnerMembershipAnySubjectId, String wsOwnerMembershipAnySubjectSourceId, String wsOwnerMembershipAnySubjectIdentifier, 
         String wsOwnerAttributeDefName, String wsOwnerAttributeDefId, 
         String action, 
-        boolean includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
+        boolean includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
+        String actAsSubjectIdentifier, boolean includeSubjectDetail,
         String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
         String paramName1, String paramValue1, 
         String enabled) {  
@@ -5213,6 +5216,9 @@ public class GrouperServiceLogic {
       if (!StringUtils.isBlank(wsOwnerAttributeDefName) || !StringUtils.isBlank(wsOwnerAttributeDefId)) {
         wsOwnerAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsOwnerAttributeDefName, wsOwnerAttributeDefId)}; 
       }
+      
+      WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+          actAsSubjectSourceId, actAsSubjectIdentifier);
       
       String[] actions = null;
       if (!StringUtils.isBlank(action)) {

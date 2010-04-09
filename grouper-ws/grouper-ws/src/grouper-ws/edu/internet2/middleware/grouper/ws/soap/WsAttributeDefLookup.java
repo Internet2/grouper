@@ -17,8 +17,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -268,7 +268,7 @@ public class WsAttributeDefLookup {
     //get all the attributeDefs
     //we could probably batch these to get better performance.
     Set<String> attributeDefIds = null;
-    if (GrouperUtil.length(wsAttributeDefLookups) > 0) {
+    if (!GrouperServiceUtils.nullArray(wsAttributeDefLookups)) {
       
       attributeDefIds = new LinkedHashSet<String>();
       int i=0;

@@ -21,9 +21,9 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -501,7 +501,7 @@ public class WsSubjectLookup {
     //get all the subjects
     //we could probably batch these to get better performance.
     Set<String> memberIds = null;
-    if (GrouperUtil.length(wsSubjectLookups) > 0) {
+    if (!GrouperServiceUtils.nullArray(wsSubjectLookups)) {
       
       memberIds = new LinkedHashSet<String>();
       int i=0;

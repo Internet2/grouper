@@ -3016,10 +3016,12 @@ public class GrouperService {
        * @param action to query, or none to query all actions
        * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
        * and assignments on those assignments should be returned, enter true.  default to false.
+       * @param actAsSubjectId 
+       * @param actAsSubjectSourceId 
+       * @param actAsSubjectIdentifier 
        * @param includeSubjectDetail
        *            T|F, for if the extended subject information should be
        *            returned (anything more than just the id)
-       * @param actAsSubjectLookup
        * @param subjectAttributeNames are the additional subject attributes (data) to return (comma separated)
        * If blank, whatever is configured in the grouper-ws.properties will be sent
        * @param includeGroupDetail T or F as to if the group detail should be returned
@@ -3045,7 +3047,8 @@ public class GrouperService {
           String wsOwnerMembershipAnySubjectId, String wsOwnerMembershipAnySubjectSourceId, String wsOwnerMembershipAnySubjectIdentifier, 
           String wsOwnerAttributeDefName, String wsOwnerAttributeDefId, 
           String action, 
-          String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
+          String includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
+          String actAsSubjectIdentifier, String includeSubjectDetail,
           String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
           String paramName1, String paramValue1, 
           String enabled) {  
@@ -3075,7 +3078,8 @@ public class GrouperService {
               wsOwnerSubjectIdentifier, wsOwnerMembershipId, wsOwnerMembershipAnyGroupName, 
               wsOwnerMembershipAnyGroupId, wsOwnerMembershipAnySubjectId, wsOwnerMembershipAnySubjectSourceId, 
               wsOwnerMembershipAnySubjectIdentifier, wsOwnerAttributeDefName, wsOwnerAttributeDefId, 
-              action, includeAssignmentsOnAssignmentsBoolean, actAsSubjectLookup, includeSubjectDetailBoolean, 
+              action, includeAssignmentsOnAssignmentsBoolean, actAsSubjectId, actAsSubjectSourceId,
+              actAsSubjectIdentifier, includeSubjectDetailBoolean, 
               subjectAttributeNames, includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1, enabled );
 
         } catch (Exception e) {

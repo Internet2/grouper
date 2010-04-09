@@ -17,8 +17,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -268,8 +268,7 @@ public class WsAttributeDefNameLookup {
     //get all the attributeDefNames
     //we could probably batch these to get better performance.
     Set<String> attributeDefNameIds = null;
-    if (GrouperUtil.length(wsAttributeDefNameLookups) > 0) {
-      
+    if (!GrouperServiceUtils.nullArray(wsAttributeDefNameLookups)) {
       attributeDefNameIds = new LinkedHashSet<String>();
       int i=0;
       

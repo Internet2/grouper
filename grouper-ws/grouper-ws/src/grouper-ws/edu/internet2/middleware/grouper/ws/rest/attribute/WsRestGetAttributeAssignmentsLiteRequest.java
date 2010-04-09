@@ -6,7 +6,6 @@ package edu.internet2.middleware.grouper.ws.rest.attribute;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 
 
 /**
@@ -502,25 +501,63 @@ public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
     this.includeAssignmentsOnAssignments = includeAssignmentsOnAssignments1;
   }
 
-  /** if acting as another subject */
-  private WsSubjectLookup actAsSubjectLookup;
+  /** if acting as another user */
+  private String actAsSubjectId; 
+
+  /** if acting as another user */
+  private String actAsSubjectSourceId;
   
-  
+  /** if acting as another user */
+  private String actAsSubjectIdentifier; 
+
   /**
-   * if acting as another subject
-   * @return act as subject
+   * if acting as another user
+   * @return id
    */
-  public WsSubjectLookup getActAsSubjectLookup() {
-    return this.actAsSubjectLookup;
+  public String getActAsSubjectId() {
+    return this.actAsSubjectId;
   }
 
   /**
-   * if acting as another subject
-   * @param actAsSubjectLookup1
+   * if acting as another user
+   * @param actAsSubjectId1
    */
-  public void setActAsSubjectLookup(WsSubjectLookup actAsSubjectLookup1) {
-    this.actAsSubjectLookup = actAsSubjectLookup1;
+  public void setActAsSubjectId(String actAsSubjectId1) {
+    this.actAsSubjectId = actAsSubjectId1;
   }
+
+  /**
+   * if acting as another user
+   * @return source id 
+   */
+  public String getActAsSubjectSourceId() {
+    return this.actAsSubjectSourceId;
+  }
+
+  /**
+   * if acting as another user
+   * @param actAsSubjectSourceId1
+   */
+  public void setActAsSubjectSourceId(String actAsSubjectSourceId1) {
+    this.actAsSubjectSourceId = actAsSubjectSourceId1;
+  }
+
+  /**
+   * if acting as another user
+   * @return subject identifier
+   */
+  public String getActAsSubjectIdentifier() {
+    return this.actAsSubjectIdentifier;
+  }
+
+  /**
+   * if acting as another user
+   * @param actAsSubjectIdentifier1
+   */
+  public void setActAsSubjectIdentifier(String actAsSubjectIdentifier1) {
+    this.actAsSubjectIdentifier = actAsSubjectIdentifier1;
+  }
+
 
   /**
    * T|F, for if the extended subject information should be

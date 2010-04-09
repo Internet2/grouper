@@ -952,4 +952,20 @@ public final class GrouperServiceUtils {
 //    }
   }
 
+  /**
+   * see if array is empty or size 0 or size 1 with null inside
+   * @param <T>
+   * @param array
+   * @return  true if empty false if not
+   */
+  public static <T>  boolean nullArray(T[] array) {
+    if (array == null || array.length == 0) {
+      return true;
+    }
+    if (array.length == 1 && array[0] == null) { 
+      return true;
+    }
+    return false;
+  }
+  
 }

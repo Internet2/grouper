@@ -663,7 +663,9 @@
                         <xs:element minOccurs="0" name="wsOwnerAttributeDefId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="includeAssignmentsOnAssignments" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>

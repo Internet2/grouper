@@ -16,8 +16,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -268,7 +268,7 @@ public class WsStemLookup {
     //get all the stems
     //we could probably batch these to get better performance.
     Set<String> stemIds = null;
-    if (GrouperUtil.length(wsStemLookups) > 0) {
+    if (!GrouperServiceUtils.nullArray(wsStemLookups)) {
       
       stemIds = new LinkedHashSet<String>();
       int i=0;

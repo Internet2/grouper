@@ -1,0 +1,313 @@
+Grouper web service sample of service: getAttributeAssignments, WsSampleGetAttributeAssignmentsRestLite, manually written lite/rest, format: xml, for version: v1_6_000
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouperWs/servicesRest/xml/v1_6_000/attributeAssignments HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+Content-Length: 327
+Content-Type: text/xml; charset=UTF-8
+
+<WsRestGetAttributeAssignmentsLiteRequest>
+  <attributeAssignType>group</attributeAssignType>
+  <wsAttributeDefNameName>test:testAttributeAssignDefName</wsAttributeDefNameName>
+  <includeAssignmentsOnAssignments>T</includeAssignmentsOnAssignments>
+  <actAsSubjectId>GrouperSystem</actAsSubjectId>
+</WsRestGetAttributeAssignmentsLiteRequest>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/xml;charset=UTF-8
+Date: Fri, 09 Apr 2010 06:23:00 GMT
+Connection: close
+
+<WsGetAttributeAssignmentsResults>
+  <wsAttributeDefs>
+    <WsAttributeDef>
+      <extension>testAttributeAssignAssignNameDef</extension>
+      <name>test:testAttributeAssignAssignNameDef</name>
+      <uuid>525f973af71c4b9585898e287f13fc8c</uuid>
+      <attributeDefType>attr</attributeDefType>
+      <multiAssignable>F</multiAssignable>
+      <multiValued>F</multiValued>
+      <valueType>marker</valueType>
+    </WsAttributeDef>
+    <WsAttributeDef>
+      <extension>testAttributeAssignDefNameDef</extension>
+      <name>test:testAttributeAssignDefNameDef</name>
+      <uuid>925d97e7661d4536ba75a3dfccccd8e9</uuid>
+      <attributeDefType>attr</attributeDefType>
+      <multiAssignable>F</multiAssignable>
+      <multiValued>T</multiValued>
+      <valueType>integer</valueType>
+    </WsAttributeDef>
+  </wsAttributeDefs>
+  <wsAttributeDefNames>
+    <WsAttributeDefName>
+      <extension>testAttributeAssignDefName</extension>
+      <displayExtension>testAttributeAssignDefName</displayExtension>
+      <displayName>test:testAttributeAssignDefName</displayName>
+      <name>test:testAttributeAssignDefName</name>
+      <uuid>cbab167b2f7141e6bc8170f174d69eb4</uuid>
+      <attributeDefId>925d97e7661d4536ba75a3dfccccd8e9</attributeDefId>
+      <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
+    </WsAttributeDefName>
+    <WsAttributeDefName>
+      <extension>testAttributeAssignAssignName</extension>
+      <displayExtension>testAttributeAssignAssignName</displayExtension>
+      <displayName>test:testAttributeAssignAssignName</displayName>
+      <name>test:testAttributeAssignAssignName</name>
+      <uuid>0f44f21a43284443972dafd575ee84f6</uuid>
+      <attributeDefId>525f973af71c4b9585898e287f13fc8c</attributeDefId>
+      <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
+    </WsAttributeDefName>
+  </wsAttributeDefNames>
+  <wsAttributeAssigns>
+    <WsAttributeAssign>
+      <attributeAssignActionType>immediate</attributeAssignActionType>
+      <attributeAssignActionId>e27363cd95574c86a73942529352d396</attributeAssignActionId>
+      <attributeAssignActionName>assign</attributeAssignActionName>
+      <attributeAssignType>group</attributeAssignType>
+      <attributeDefNameId>cbab167b2f7141e6bc8170f174d69eb4</attributeDefNameId>
+      <attributeDefNameName>test:testAttributeAssignDefName</attributeDefNameName>
+      <attributeDefId>925d97e7661d4536ba75a3dfccccd8e9</attributeDefId>
+      <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
+      <wsAttributeAssignValues>
+        <WsAttributeAssignValue>
+          <id>5c57326c5016438cbfd630e0b781d2fc</id>
+          <valueSystem>15</valueSystem>
+        </WsAttributeAssignValue>
+        <WsAttributeAssignValue>
+          <id>d81ee302340f4914bc143dc6c423a028</id>
+          <valueSystem>5</valueSystem>
+        </WsAttributeAssignValue>
+        <WsAttributeAssignValue>
+          <id>f8be4461b5a1471191c3bae29b9cf01c</id>
+          <valueSystem>5</valueSystem>
+        </WsAttributeAssignValue>
+      </wsAttributeAssignValues>
+      <createdOn>2010/04/09 02:22:57.942</createdOn>
+      <enabled>T</enabled>
+      <id>1e00f43e3c664e07aeea7789dc7bb25c</id>
+      <lastUpdated>2010/04/09 02:22:57.942</lastUpdated>
+      <ownerGroupId>4d02e303eb064bfe8a2f331ee516b0a5</ownerGroupId>
+      <ownerGroupName>test:groupTestAttrAssign</ownerGroupName>
+    </WsAttributeAssign>
+    <WsAttributeAssign>
+      <attributeAssignActionType>immediate</attributeAssignActionType>
+      <attributeAssignActionId>80c3026c300f4653be023138dae2af7e</attributeAssignActionId>
+      <attributeAssignActionName>assign</attributeAssignActionName>
+      <attributeAssignType>group_asgn</attributeAssignType>
+      <attributeDefNameId>0f44f21a43284443972dafd575ee84f6</attributeDefNameId>
+      <attributeDefNameName>test:testAttributeAssignAssignName</attributeDefNameName>
+      <attributeDefId>525f973af71c4b9585898e287f13fc8c</attributeDefId>
+      <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
+      <createdOn>2010/04/09 02:22:57.972</createdOn>
+      <enabled>T</enabled>
+      <id>67d4c481eae94072aec1ab6f746cf49c</id>
+      <lastUpdated>2010/04/09 02:22:57.972</lastUpdated>
+      <ownerAttributeAssignId>1e00f43e3c664e07aeea7789dc7bb25c</ownerAttributeAssignId>
+    </WsAttributeAssign>
+  </wsAttributeAssigns>
+  <resultMetadata>
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>, Found 2 results.  </resultMessage>
+    <success>T</success>
+  </resultMetadata>
+  <responseMetadata>
+    <millis>407</millis>
+    <serverVersion>v1_6_000</serverVersion>
+  </responseMetadata>
+  <wsGroups>
+    <WsGroup>
+      <extension>groupTestAttrAssign</extension>
+      <displayExtension>groupTestAttrAssign</displayExtension>
+      <description>description</description>
+      <displayName>test:groupTestAttrAssign</displayName>
+      <name>test:groupTestAttrAssign</name>
+      <uuid>4d02e303eb064bfe8a2f331ee516b0a5</uuid>
+    </WsGroup>
+  </wsGroups>
+  <wsStems/>
+  <wsMemberships/>
+  <wsSubjects/>
+</WsGetAttributeAssignmentsResults>
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleGetAttributeAssignmentsRestLite implements WsSampleRest {
+
+  /**
+   * get attribute assignments lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  @SuppressWarnings("deprecation")
+  public static void getAttributeAssignmentsLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      PostMethod method = new PostMethod(
+          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+            + "/" + RestClientSettings.VERSION  
+            + "/attributeAssignments");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+      
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestGetAttributeAssignmentsLiteRequest wsRestGetAttributeAssignmentsLiteRequest 
+        = new WsRestGetAttributeAssignmentsLiteRequest();
+
+      // set the act as id
+      wsRestGetAttributeAssignmentsLiteRequest.setActAsSubjectId("GrouperSystem");
+      wsRestGetAttributeAssignmentsLiteRequest.setAttributeAssignType("group");
+      wsRestGetAttributeAssignmentsLiteRequest.setIncludeAssignmentsOnAssignments("T");
+      wsRestGetAttributeAssignmentsLiteRequest.setWsAttributeDefNameName("test:testAttributeAssignDefName");
+
+
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(wsRestGetAttributeAssignmentsLiteRequest);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+
+
+      
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = (WsGetAttributeAssignmentsResults)wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      String resultMessage = wsGetAttributeAssignmentsResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsGetAttributeAssignmentsResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+    getAttributeAssignmentsLite(WsSampleRestType.xml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    getAttributeAssignmentsLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    return true;
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: v1_6_000, result code: SUCCESS, result message: , Found 2 results.

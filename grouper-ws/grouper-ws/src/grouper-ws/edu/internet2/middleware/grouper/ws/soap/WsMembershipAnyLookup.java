@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -245,7 +246,7 @@ public class WsMembershipAnyLookup {
     //get all the memberships
     //we could probably batch these to get better performance.
     Set<MultiKey> groupMemberIds = null;
-    if (GrouperUtil.length(wsMembershipAnyLookups) > 0) {
+    if (!GrouperServiceUtils.nullArray(wsMembershipAnyLookups)) {
       
       groupMemberIds = new LinkedHashSet<MultiKey>();
       int i=0;

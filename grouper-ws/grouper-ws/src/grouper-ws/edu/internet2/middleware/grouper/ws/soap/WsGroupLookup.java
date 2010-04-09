@@ -18,10 +18,10 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -45,7 +45,7 @@ public class WsGroupLookup {
     //get all the groups
     //we could probably batch these to get better performance.
     Set<String> groupIds = null;
-    if (GrouperUtil.length(wsGroupLookups) > 0) {
+    if (!GrouperServiceUtils.nullArray(wsGroupLookups)) {
       
       groupIds = new LinkedHashSet<String>();
       int i=0;
