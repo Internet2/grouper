@@ -92,9 +92,12 @@ Class WsStem</H2>
 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.soap.WsStem</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Comparable.html?view=co" title="class or interface in java.lang">Comparable</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStem</A>&gt;</DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsStem</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>WsStem</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A><DT>implements <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Comparable.html?view=co" title="class or interface in java.lang">Comparable</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStem</A>&gt;</DL>
 </PRE>
 
 <P>
@@ -139,6 +142,14 @@ Result for finding a stem
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?view=co#compareTo(edu.internet2.middleware.grouper.ws.soap.WsStem)">compareTo</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStem</A>&nbsp;o2)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -308,6 +319,9 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 <DD>friendly description of this stem
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>the description</DL>
 </DD>
@@ -322,6 +336,9 @@ public void <B>setDescription</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/a
 <DD>friendly description of this stem
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>description1</CODE> - the description to set</DL>
 </DD>
 </DL>
@@ -334,6 +351,9 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 <DL>
 <DD>friendly extensions of stem and parent stems
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the displayName</DL>
@@ -349,6 +369,9 @@ public void <B>setDisplayName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/a
 <DD>friendly extensions of stem and parent stems
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>displayName1</CODE> - the displayName to set</DL>
 </DD>
 </DL>
@@ -362,6 +385,9 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 <DD>Full name of the stem (all extensions of parent stems, separated by
  colons, and the extention of this stem
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the name</DL>
@@ -378,6 +404,9 @@ public void <B>setName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java
  colons, and the extention of this stem
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>name1</CODE> - the name to set</DL>
 </DD>
 </DL>
@@ -390,6 +419,9 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 <DL>
 <DD>universally unique identifier of this stem
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the uuid</DL>
@@ -405,6 +437,9 @@ public void <B>setUuid</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java
 <DD>universally unique identifier of this stem
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>uuid1</CODE> - the uuid to set</DL>
 </DD>
 </DL>
@@ -415,6 +450,9 @@ getExtension</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getExtension</B>()</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the extension</DL>
@@ -428,6 +466,9 @@ setExtension</H3>
 public void <B>setExtension</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extension1)</PRE>
 <DL>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>extension1</CODE> - the extension to set</DL>
 </DD>
 </DL>
@@ -438,6 +479,9 @@ getDisplayExtension</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getDisplayExtension</B>()</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the displayExtension</DL>
@@ -450,6 +494,9 @@ setDisplayExtension</H3>
 <PRE>
 public void <B>setDisplayExtension</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;displayExtension1)</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>displayExtension1</CODE> - the displayExtension to set</DL>
 </DD>
@@ -468,6 +515,20 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 </DD>
 <DD><DL>
 </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="compareTo(edu.internet2.middleware.grouper.ws.soap.WsStem)"><!-- --></A><H3>
+compareTo</H3>
+<PRE>
+public int <B>compareTo</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStem</A>&nbsp;o2)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Comparable.html?view=co" title="class or interface in java.lang">compareTo</A></CODE> in interface <CODE><A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Comparable.html?view=co" title="class or interface in java.lang">Comparable</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStem</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Comparable.html?view=co" title="class or interface in java.lang"><CODE>Comparable.compareTo(java.lang.Object)</CODE></A></DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

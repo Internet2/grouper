@@ -3,7 +3,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-WsGroupLookup
+WsAttributeDefNameLookup
 </TITLE>
 
 
@@ -13,7 +13,7 @@ WsGroupLookup
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="WsGroupLookup";
+        parent.document.title="WsAttributeDefNameLookup";
     }
 }
 </SCRIPT>
@@ -52,11 +52,11 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGrouperPrivilegeResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsGroupLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsAttributeDefNameLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
@@ -87,21 +87,21 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <FONT SIZE="-1">
 edu.internet2.middleware.grouper.ws.soap</FONT>
 <BR>
-Class WsGroupLookup</H2>
+Class WsAttributeDefNameLookup</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.soap.WsGroupLookup</B>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsGroupLookup</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>WsAttributeDefNameLookup</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
 <pre>
- Class to lookup a group via web service
+ Class to lookup an attribute def name via web service
  
- developers make sure each setter calls this.clearGroup();
+ developers make sure each setter calls this.clearAttributeDefName();
  </pre>
 <P>
 
@@ -124,10 +124,10 @@ Class WsGroupLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;class</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A></B></CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup.AttributeDefNameFindResult</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result of group find</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result of attribute def name find</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -140,20 +140,14 @@ Class WsGroupLookup</H2>
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#WsGroupLookup()">WsGroupLookup</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#WsAttributeDefNameLookup()">WsAttributeDefNameLookup</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#WsGroupLookup(java.lang.String, java.lang.String)">WsGroupLookup</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName1,
-              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#WsGroupLookup(edu.internet2.middleware.grouper.ws.soap.WsGroup)">WsGroupLookup</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroup</A>&nbsp;wsGroup)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#WsAttributeDefNameLookup(java.lang.String, java.lang.String)">WsAttributeDefNameLookup</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName1,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -171,7 +165,7 @@ Class WsGroupLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#blank()">blank</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#blank()">blank</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if blank</TD>
@@ -179,42 +173,52 @@ Class WsGroupLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder, int[])">convertToGroupIds</A></B>(GrouperSession&nbsp;grouperSession,
-                  <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsGroupLookups,
-                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
-                  int[]&nbsp;lookupCount)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#convertToAttributeDefNameIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup[], java.lang.StringBuilder)">convertToAttributeDefNameIds</A></B>(GrouperSession&nbsp;grouperSession,
+                             <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert group lookups to group ids</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert attributeDefName lookups to attributeDefName ids</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#convertToAttributeDefNameIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup[], java.lang.StringBuilder, int[])">convertToAttributeDefNameIds</A></B>(GrouperSession&nbsp;grouperSession,
+                             <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                             int[]&nbsp;lookupCount)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert attributeDefName lookups to attributeDefName ids</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#getGroupName()">getGroupName</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#getName()">getName</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the group to find (includes stems, e.g.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the attributeDefName to find (includes stems, e.g.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#getUuid()">getUuid</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#getUuid()">getUuid</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the group to find</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the attributeDefName to find</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#hasData()">hasData</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#hasData()">hasData</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this group lookup has data</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this attributeDefName lookup has data</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;Group</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#retrieveGroup()">retrieveGroup</A></B>()</CODE>
+<CODE>&nbsp;AttributeDefName</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#retrieveAttributeDefName()">retrieveAttributeDefName</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -223,8 +227,8 @@ Class WsGroupLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#retrieveGroupFindResult()">retrieveGroupFindResult</A></B>()</CODE>
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup.AttributeDefNameFindResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#retrieveAttributeDefNameFindResult()">retrieveAttributeDefNameFindResult</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -234,40 +238,40 @@ Class WsGroupLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#retrieveGroupIfNeeded(GrouperSession)">retrieveGroupIfNeeded</A></B>(GrouperSession&nbsp;grouperSession)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#retrieveAttributeDefNameIfNeeded(GrouperSession)">retrieveAttributeDefNameIfNeeded</A></B>(GrouperSession&nbsp;grouperSession)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the group for this lookup if not looked up yet.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the attributeDefName for this lookup if not looked up yet.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;Group</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#retrieveGroupIfNeeded(GrouperSession, java.lang.String)">retrieveGroupIfNeeded</A></B>(GrouperSession&nbsp;grouperSession,
-                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)</CODE>
+<CODE>&nbsp;AttributeDefName</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#retrieveAttributeDefNameIfNeeded(GrouperSession, java.lang.String)">retrieveAttributeDefNameIfNeeded</A></B>(GrouperSession&nbsp;grouperSession,
+                                 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the group for this lookup if not looked up yet.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#setGroupName(java.lang.String)">setGroupName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theName)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the group to find (includes stems, e.g.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the attributeDefName for this lookup if not looked up yet.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#setUuid(java.lang.String)">setUuid</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#setName(java.lang.String)">setName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theName)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the group to find</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the attributeDefName to find (includes stems, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#setUuid(java.lang.String)">setUuid</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the attributeDefName to find</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#toString()">toString</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#toString()">toString</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure this is an explicit toString</TD>
@@ -275,7 +279,7 @@ Class WsGroupLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#toStringCompact()">toStringCompact</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co#toStringCompact()">toStringCompact</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure this is an explicit toString</TD>
@@ -303,32 +307,22 @@ Class WsGroupLookup</H2>
 </TR>
 </TABLE>
 
-<A NAME="WsGroupLookup(edu.internet2.middleware.grouper.ws.soap.WsGroup)"><!-- --></A><H3>
-WsGroupLookup</H3>
+<A NAME="WsAttributeDefNameLookup()"><!-- --></A><H3>
+WsAttributeDefNameLookup</H3>
 <PRE>
-public <B>WsGroupLookup</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroup</A>&nbsp;wsGroup)</PRE>
-<DL>
-<DL>
-<DT><B>Parameters:</B><DD><CODE>wsGroup</CODE> - </DL>
-</DL>
-<HR>
-
-<A NAME="WsGroupLookup()"><!-- --></A><H3>
-WsGroupLookup</H3>
-<PRE>
-public <B>WsGroupLookup</B>()</PRE>
+public <B>WsAttributeDefNameLookup</B>()</PRE>
 <DL>
 </DL>
 <HR>
 
-<A NAME="WsGroupLookup(java.lang.String, java.lang.String)"><!-- --></A><H3>
-WsGroupLookup</H3>
+<A NAME="WsAttributeDefNameLookup(java.lang.String, java.lang.String)"><!-- --></A><H3>
+WsAttributeDefNameLookup</H3>
 <PRE>
-public <B>WsGroupLookup</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName1,
-                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
+public <B>WsAttributeDefNameLookup</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameName1,
+                                <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
 <DL>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>groupName1</CODE> - <DD><CODE>uuid1</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameName1</CODE> - <DD><CODE>uuid1</CODE> - </DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -340,23 +334,6 @@ public <B>WsGroupLookup</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/jav
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
-
-<A NAME="convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder, int[])"><!-- --></A><H3>
-convertToGroupIds</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToGroupIds</B>(GrouperSession&nbsp;grouperSession,
-                                            <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsGroupLookups,
-                                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
-                                            int[]&nbsp;lookupCount)</PRE>
-<DL>
-<DD>convert group lookups to group ids
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsGroupLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
-<DT><B>Returns:</B><DD>the group ids</DL>
-</DD>
-</DL>
-<HR>
 
 <A NAME="blank()"><!-- --></A><H3>
 blank</H3>
@@ -377,7 +354,7 @@ hasData</H3>
 <PRE>
 public boolean <B>hasData</B>()</PRE>
 <DL>
-<DD>see if this group lookup has data
+<DD>see if this attributeDefName lookup has data
 <P>
 <DD><DL>
 
@@ -386,10 +363,10 @@ public boolean <B>hasData</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="retrieveGroup()"><!-- --></A><H3>
-retrieveGroup</H3>
+<A NAME="retrieveAttributeDefName()"><!-- --></A><H3>
+retrieveAttributeDefName</H3>
 <PRE>
-public Group <B>retrieveGroup</B>()</PRE>
+public AttributeDefName <B>retrieveAttributeDefName</B>()</PRE>
 <DL>
 <DD><pre>
  
@@ -398,15 +375,15 @@ public Group <B>retrieveGroup</B>()</PRE>
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>the group</DL>
+<DT><B>Returns:</B><DD>the attributeDefName</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="retrieveGroupFindResult()"><!-- --></A><H3>
-retrieveGroupFindResult</H3>
+<A NAME="retrieveAttributeDefNameFindResult()"><!-- --></A><H3>
+retrieveAttributeDefNameFindResult</H3>
 <PRE>
-public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A> <B>retrieveGroupFindResult</B>()</PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup.AttributeDefNameFindResult</A> <B>retrieveAttributeDefNameFindResult</B>()</PRE>
 <DL>
 <DD><pre>
  
@@ -415,7 +392,7 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGro
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>the groupFindResult, this is never null</DL>
+<DT><B>Returns:</B><DD>the attributeDefNameFindResult, this is never null</DL>
 </DD>
 </DL>
 <HR>
@@ -436,26 +413,12 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 </DL>
 <HR>
 
-<A NAME="toStringCompact()"><!-- --></A><H3>
-toStringCompact</H3>
+<A NAME="retrieveAttributeDefNameIfNeeded(GrouperSession)"><!-- --></A><H3>
+retrieveAttributeDefNameIfNeeded</H3>
 <PRE>
-public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toStringCompact</B>()</PRE>
+public void <B>retrieveAttributeDefNameIfNeeded</B>(GrouperSession&nbsp;grouperSession)</PRE>
 <DL>
-<DD>make sure this is an explicit toString
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>return a compact to string</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="retrieveGroupIfNeeded(GrouperSession)"><!-- --></A><H3>
-retrieveGroupIfNeeded</H3>
-<PRE>
-public void <B>retrieveGroupIfNeeded</B>(GrouperSession&nbsp;grouperSession)</PRE>
-<DL>
-<DD>retrieve the group for this lookup if not looked up yet.  pass in a grouper session
+<DD>retrieve the attributeDefName for this lookup if not looked up yet.  pass in a grouper session
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - </DL>
@@ -463,18 +426,18 @@ public void <B>retrieveGroupIfNeeded</B>(GrouperSession&nbsp;grouperSession)</PR
 </DL>
 <HR>
 
-<A NAME="retrieveGroupIfNeeded(GrouperSession, java.lang.String)"><!-- --></A><H3>
-retrieveGroupIfNeeded</H3>
+<A NAME="retrieveAttributeDefNameIfNeeded(GrouperSession, java.lang.String)"><!-- --></A><H3>
+retrieveAttributeDefNameIfNeeded</H3>
 <PRE>
-public Group <B>retrieveGroupIfNeeded</B>(GrouperSession&nbsp;grouperSession,
-                                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)
-                            throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+public AttributeDefName <B>retrieveAttributeDefNameIfNeeded</B>(GrouperSession&nbsp;grouperSession,
+                                                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)
+                                                  throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
 <DL>
-<DD>retrieve the group for this lookup if not looked up yet.  pass in a grouper session
+<DD>retrieve the attributeDefName for this lookup if not looked up yet.  pass in a grouper session
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>invalidQueryReason</CODE> - is the text to go in the WsInvalidQueryException
-<DT><B>Returns:</B><DD>the group
+<DT><B>Returns:</B><DD>the attributeDefName
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem, and if the invalidQueryReason is set</DL>
 </DD>
@@ -486,7 +449,7 @@ getUuid</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getUuid</B>()</PRE>
 <DL>
-<DD>uuid of the group to find
+<DD>uuid of the attributeDefName to find
 <P>
 <DD><DL>
 
@@ -500,7 +463,7 @@ setUuid</H3>
 <PRE>
 public void <B>setUuid</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
 <DL>
-<DD>uuid of the group to find
+<DD>uuid of the attributeDefName to find
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>uuid1</CODE> - the uuid to set</DL>
@@ -508,12 +471,12 @@ public void <B>setUuid</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java
 </DL>
 <HR>
 
-<A NAME="getGroupName()"><!-- --></A><H3>
-getGroupName</H3>
+<A NAME="getName()"><!-- --></A><H3>
+getName</H3>
 <PRE>
-public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getGroupName</B>()</PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getName</B>()</PRE>
 <DL>
-<DD>name of the group to find (includes stems, e.g. stem1:stem2:groupName
+<DD>name of the attributeDefName to find (includes stems, e.g. stem1:stem2:attributeDefNameName
 <P>
 <DD><DL>
 
@@ -522,15 +485,62 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 </DL>
 <HR>
 
-<A NAME="setGroupName(java.lang.String)"><!-- --></A><H3>
-setGroupName</H3>
+<A NAME="setName(java.lang.String)"><!-- --></A><H3>
+setName</H3>
 <PRE>
-public void <B>setGroupName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theName)</PRE>
+public void <B>setName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theName)</PRE>
 <DL>
-<DD>name of the group to find (includes stems, e.g. stem1:stem2:groupName
+<DD>name of the attributeDefName to find (includes stems, e.g. stem1:stem2:attributeDefNameName
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>theName</CODE> - the theName to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToAttributeDefNameIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup[], java.lang.StringBuilder)"><!-- --></A><H3>
+convertToAttributeDefNameIds</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToAttributeDefNameIds</B>(GrouperSession&nbsp;grouperSession,
+                                                       <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage)</PRE>
+<DL>
+<DD>convert attributeDefName lookups to attributeDefName ids
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeDefNameLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Returns:</B><DD>the attributeDef ids</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToAttributeDefNameIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup[], java.lang.StringBuilder, int[])"><!-- --></A><H3>
+convertToAttributeDefNameIds</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToAttributeDefNameIds</B>(GrouperSession&nbsp;grouperSession,
+                                                       <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                                                       int[]&nbsp;lookupCount)</PRE>
+<DL>
+<DD>convert attributeDefName lookups to attributeDefName ids
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsAttributeDefNameLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Returns:</B><DD>the attributeDefName ids</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toStringCompact()"><!-- --></A><H3>
+toStringCompact</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toStringCompact</B>()</PRE>
+<DL>
+<DD>make sure this is an explicit toString
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>return a compact to string</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -563,11 +573,11 @@ public void <B>setGroupName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGrouperPrivilegeResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsGroupLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsAttributeDefNameLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {

@@ -127,6 +127,43 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TD>attribute sent back to caller</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssign</A></B></TD>
+<TD>result of attribute assign query represents an assignment in the DB</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignLookup</A></B></TD>
+<TD>
+ Class to lookup an attribute assignment via web service
+ 
+ developers make sure each setter calls this.clearAttributeAssignment();</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignValue</A></B></TD>
+<TD>value of an attribute assign</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDef</A></B></TD>
+<TD>Result of one attribute def name being retrieved.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefLookup</A></B></TD>
+<TD>
+ Class to lookup an attribute def via web service
+ 
+ developers make sure each setter calls this.clearAttributeDef();</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefName</A></B></TD>
+<TD>Result of one attribute def name being retrieved.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup</A></B></TD>
+<TD>
+ Class to lookup an attribute def name via web service
+ 
+ developers make sure each setter calls this.clearAttributeDefName();</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeEdit.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeEdit</A></B></TD>
 <TD>attribute name, value, and if delete</TD>
 </TR>
@@ -150,6 +187,11 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsFindStemsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsFindStemsResults</A></B></TD>
 <TD>returned from the stem find query, if none found, return none</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetAttributeAssignmentsResults</A></B></TD>
+<TD>
+ results for the get attributeAssignments call.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult</A></B></TD>
@@ -300,6 +342,16 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TD>Result of one member being retrieved from a group.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipAnyLookup</A></B></TD>
+<TD>
+ Class to lookup a membership via web service.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup</A></B></TD>
+<TD>
+ Class to lookup a membership via web service.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A></B></TD>
 <TD>param for a web service operation</TD>
 </TR>
@@ -409,6 +461,18 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TD>result code of a request</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignLookup.AttributeAssignResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignLookup.AttributeAssignResult</A></B></TD>
+<TD>result of attribute def name find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefLookup.AttributeDefFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefLookup.AttributeDefFindResult</A></B></TD>
+<TD>result of attribute def name find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup.AttributeDefNameFindResult</A></B></TD>
+<TD>result of attribute def name find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberLiteResult.WsDeleteMemberLiteResultCode.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberLiteResult.WsDeleteMemberLiteResultCode</A></B></TD>
 <TD>result code of a request</TD>
 </TR>
@@ -427,6 +491,10 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsFindStemsResults.WsFindStemsResultsCode.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsFindStemsResults.WsFindStemsResultsCode</A></B></TD>
 <TD>result code of a request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode</A></B></TD>
+<TD>result code of a request.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode</A></B></TD>
@@ -515,6 +583,14 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMemberChangeSubjectResults.WsMemberChangeSubjectResultsCode.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMemberChangeSubjectResults.WsMemberChangeSubjectResultsCode</A></B></TD>
 <TD>result code of a request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.MembershipAnyFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMembershipAnyLookup.MembershipAnyFindResult</A></B></TD>
+<TD>result of attribute def name find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.MembershipFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup.MembershipFindResult</A></B></TD>
+<TD>result of attribute def name find</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteLiteResult.WsStemDeleteLiteResultCode.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemDeleteLiteResult.WsStemDeleteLiteResultCode</A></B></TD>

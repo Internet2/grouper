@@ -242,6 +242,24 @@ consolidated static list of of rest web services (only web service methods here
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetAttributeAssignmentsResults</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#getAttributes(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest)">getAttributes</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestGetAttributeAssignmentsRequest</A>&nbsp;wsRestGetAttributesRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get attribute assignments rest</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetAttributeAssignmentsResults</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#getAttributesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest)">getAttributesLite</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                  <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestGetAttributeAssignmentsLiteRequest</A>&nbsp;wsRestGetAttributesLiteRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get attribute assignments rest for one owner (lite)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#getGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest)">getGrouperPrivilegesLite</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
                          <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGrouperPrivilegesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGrouperPrivilegesLiteRequest</A>&nbsp;wsRestGetGrouperPrivilegesLiteRequest)</CODE>
@@ -1104,6 +1122,36 @@ public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soa
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_6_000<DD><CODE>subjectId</CODE> - is the subjectId (optional)<DD><CODE>sourceId</CODE> - is the source id of the subject to search for (optional)<DD><CODE>wsRestGetSubjectsLiteRequest</CODE> - is the request body converted to an object
 <DT><B>Returns:</B><DD>the result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributes(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest)"><!-- --></A><H3>
+getAttributes</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetAttributeAssignmentsResults</A> <B>getAttributes</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestGetAttributeAssignmentsRequest</A>&nbsp;wsRestGetAttributesRequest)</PRE>
+<DL>
+<DD>get attribute assignments rest
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - <DD><CODE>wsRestGetAttributesRequest</CODE> - 
+<DT><B>Returns:</B><DD>the result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest)"><!-- --></A><H3>
+getAttributesLite</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetAttributeAssignmentsResults</A> <B>getAttributesLite</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                                 <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestGetAttributeAssignmentsLiteRequest</A>&nbsp;wsRestGetAttributesLiteRequest)</PRE>
+<DL>
+<DD>get attribute assignments rest for one owner (lite)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - <DD><CODE>wsRestGetAttributesLiteRequest</CODE> - 
+<DT><B>Returns:</B><DD>the results object</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

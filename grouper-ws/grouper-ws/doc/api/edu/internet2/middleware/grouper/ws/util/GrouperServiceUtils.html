@@ -225,6 +225,14 @@ Class GrouperServiceUtils</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;AttributeAssignType</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertAttributeAssignType(java.lang.String)">convertAttributeAssignType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the member filter, default to all</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertGrouperWsVersion(java.lang.String)">convertGrouperWsVersion</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theVersion)</CODE>
 
@@ -382,6 +390,21 @@ E</CODE></FONT></TD>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert a bean to a query string (including bean type)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; boolean</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#nullArray(T[])">nullArray</A></B>(T[]&nbsp;array)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if array is empty or size 0 or size 1 with null inside</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -763,6 +786,23 @@ public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/mem
 </DL>
 <HR>
 
+<A NAME="convertAttributeAssignType(java.lang.String)"><!-- --></A><H3>
+convertAttributeAssignType</H3>
+<PRE>
+public static AttributeAssignType <B>convertAttributeAssignType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignType)
+                                                      throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>convert the member filter, default to all
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignType</CODE> - 
+<DT><B>Returns:</B><DD>the member filter
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="convertTransactionType(java.lang.String)"><!-- --></A><H3>
 convertTransactionType</H3>
 <PRE>
@@ -888,7 +928,7 @@ public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>theBoolean</CODE> - 
-<DT><B>Returns:</B><DD></DL>
+<DT><B>Returns:</B><DD>T or F</DL>
 </DD>
 </DL>
 <HR>
@@ -1015,6 +1055,20 @@ public static void <B>addResponseHeaders</B>(<A HREF="../../../../../../edu/inte
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>wsResultMeta</CODE> - result metadata<DD><CODE>isSoap</CODE> - if soap</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="nullArray(java.lang.Object[])"><!-- --></A><A NAME="nullArray(T[])"><!-- --></A><H3>
+nullArray</H3>
+<PRE>
+public static &lt;T&gt; boolean <B>nullArray</B>(T[]&nbsp;array)</PRE>
+<DL>
+<DD>see if array is empty or size 0 or size 1 with null inside
+<P>
+<DD><DL>
+<DT><B>Type Parameters:</B><DD><CODE>T</CODE> - <DT><B>Parameters:</B><DD><CODE>array</CODE> - 
+<DT><B>Returns:</B><DD>true if empty false if not</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

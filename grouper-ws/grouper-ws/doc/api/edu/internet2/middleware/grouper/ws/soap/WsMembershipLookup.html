@@ -3,7 +3,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-WsStemLookup
+WsMembershipLookup
 </TITLE>
 
 
@@ -13,7 +13,7 @@ WsStemLookup
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="WsStemLookup";
+        parent.document.title="WsMembershipLookup";
     }
 }
 </SCRIPT>
@@ -52,11 +52,11 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResults.WsStemDeleteResultsCode.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.StemFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.MembershipAnyFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.MembershipFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsStemLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsMembershipLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
@@ -87,22 +87,21 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <FONT SIZE="-1">
 edu.internet2.middleware.grouper.ws.soap</FONT>
 <BR>
-Class WsStemLookup</H2>
+Class WsMembershipLookup</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.soap.WsStemLookup</B>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsStemLookup</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>WsMembershipLookup</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
 <pre>
- Class to lookup a stem via web service
+ Class to lookup a membership via web service.  Put in a uuid, or fill in the other fields
  
- developers make sure each setter calls this.clearSubject();
- TODO: add in extensions in the query
+ developers make sure each setter calls this.clearMembership();
  </pre>
 <P>
 
@@ -125,10 +124,10 @@ Class WsStemLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;class</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.StemFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemLookup.StemFindResult</A></B></CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.MembershipFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup.MembershipFindResult</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result of stem find</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result of attribute def name find</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -141,14 +140,13 @@ Class WsStemLookup</H2>
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#WsStemLookup()">WsStemLookup</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#WsMembershipLookup()">WsMembershipLookup</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#WsStemLookup(java.lang.String, java.lang.String)">WsStemLookup</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;stemName1,
-             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#WsMembershipLookup(java.lang.String)">WsMembershipLookup</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -166,7 +164,7 @@ Class WsStemLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#blank()">blank</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#blank()">blank</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if blank</TD>
@@ -174,42 +172,34 @@ Class WsStemLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#convertToStemIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsStemLookup[], java.lang.StringBuilder, int[])">convertToStemIds</A></B>(GrouperSession&nbsp;grouperSession,
-                 <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A>[]&nbsp;wsStemLookups,
-                 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
-                 int[]&nbsp;lookupCount)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#convertToMembershipIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup[], java.lang.StringBuilder, int[])">convertToMembershipIds</A></B>(GrouperSession&nbsp;grouperSession,
+                       <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup</A>[]&nbsp;wsMembershipLookups,
+                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                       int[]&nbsp;lookupCount)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert stem lookups to stem ids</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert membership lookups to membership ids</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#getStemName()">getStemName</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#getUuid()">getUuid</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the stem to find (includes stems, e.g.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#getUuid()">getUuid</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the stem to find</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the membership to find</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#hasData()">hasData</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#hasData()">hasData</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this stem lookup has data</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this membership lookup has data</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;Stem</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#retrieveStem()">retrieveStem</A></B>()</CODE>
+<CODE>&nbsp;Membership</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#retrieveMembership()">retrieveMembership</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -218,8 +208,8 @@ Class WsStemLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.StemFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemLookup.StemFindResult</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#retrieveStemFindResult()">retrieveStemFindResult</A></B>()</CODE>
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.MembershipFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup.MembershipFindResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#retrieveMembershipFindResult()">retrieveMembershipFindResult</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -229,32 +219,32 @@ Class WsStemLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#retrieveStemIfNeeded(GrouperSession, boolean)">retrieveStemIfNeeded</A></B>(GrouperSession&nbsp;grouperSession,
-                     boolean&nbsp;exceptionOnNull)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#retrieveMembershipIfNeeded(GrouperSession)">retrieveMembershipIfNeeded</A></B>(GrouperSession&nbsp;grouperSession)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass in a grouper session</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the membership for this lookup if not looked up yet.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;Membership</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#retrieveMembershipIfNeeded(GrouperSession, java.lang.String)">retrieveMembershipIfNeeded</A></B>(GrouperSession&nbsp;grouperSession,
+                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the membership for this lookup if not looked up yet.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#setStemName(java.lang.String)">setStemName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theName)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#setUuid(java.lang.String)">setUuid</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the stem to find (includes stems, e.g.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#setUuid(java.lang.String)">setUuid</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the stem to find</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid of the membership to find</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#toString()">toString</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#toString()">toString</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure this is an explicit toString</TD>
@@ -262,7 +252,7 @@ Class WsStemLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co#toStringCompact()">toStringCompact</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co#toStringCompact()">toStringCompact</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure this is an explicit toString</TD>
@@ -290,22 +280,21 @@ Class WsStemLookup</H2>
 </TR>
 </TABLE>
 
-<A NAME="WsStemLookup()"><!-- --></A><H3>
-WsStemLookup</H3>
+<A NAME="WsMembershipLookup(java.lang.String)"><!-- --></A><H3>
+WsMembershipLookup</H3>
 <PRE>
-public <B>WsStemLookup</B>()</PRE>
+public <B>WsMembershipLookup</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
 <DL>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>uuid1</CODE> - </DL>
 </DL>
 <HR>
 
-<A NAME="WsStemLookup(java.lang.String, java.lang.String)"><!-- --></A><H3>
-WsStemLookup</H3>
+<A NAME="WsMembershipLookup()"><!-- --></A><H3>
+WsMembershipLookup</H3>
 <PRE>
-public <B>WsStemLookup</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;stemName1,
-                    <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
+public <B>WsMembershipLookup</B>()</PRE>
 <DL>
-<DL>
-<DT><B>Parameters:</B><DD><CODE>stemName1</CODE> - <DD><CODE>uuid1</CODE> - </DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -337,7 +326,7 @@ hasData</H3>
 <PRE>
 public boolean <B>hasData</B>()</PRE>
 <DL>
-<DD>see if this stem lookup has data
+<DD>see if this membership lookup has data
 <P>
 <DD><DL>
 
@@ -346,10 +335,10 @@ public boolean <B>hasData</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="retrieveStem()"><!-- --></A><H3>
-retrieveStem</H3>
+<A NAME="retrieveMembership()"><!-- --></A><H3>
+retrieveMembership</H3>
 <PRE>
-public Stem <B>retrieveStem</B>()</PRE>
+public Membership <B>retrieveMembership</B>()</PRE>
 <DL>
 <DD><pre>
  
@@ -358,15 +347,15 @@ public Stem <B>retrieveStem</B>()</PRE>
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>the stem</DL>
+<DT><B>Returns:</B><DD>the membership</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="retrieveStemFindResult()"><!-- --></A><H3>
-retrieveStemFindResult</H3>
+<A NAME="retrieveMembershipFindResult()"><!-- --></A><H3>
+retrieveMembershipFindResult</H3>
 <PRE>
-public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.StemFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemLookup.StemFindResult</A> <B>retrieveStemFindResult</B>()</PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.MembershipFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup.MembershipFindResult</A> <B>retrieveMembershipFindResult</B>()</PRE>
 <DL>
 <DD><pre>
  
@@ -375,7 +364,7 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSte
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>the subjectFindResult, this is never null</DL>
+<DT><B>Returns:</B><DD>the membershipFindResult, this is never null</DL>
 </DD>
 </DL>
 <HR>
@@ -396,16 +385,33 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 </DL>
 <HR>
 
-<A NAME="retrieveStemIfNeeded(GrouperSession, boolean)"><!-- --></A><H3>
-retrieveStemIfNeeded</H3>
+<A NAME="retrieveMembershipIfNeeded(GrouperSession)"><!-- --></A><H3>
+retrieveMembershipIfNeeded</H3>
 <PRE>
-public void <B>retrieveStemIfNeeded</B>(GrouperSession&nbsp;grouperSession,
-                                 boolean&nbsp;exceptionOnNull)</PRE>
+public void <B>retrieveMembershipIfNeeded</B>(GrouperSession&nbsp;grouperSession)</PRE>
 <DL>
-<DD>pass in a grouper session
+<DD>retrieve the membership for this lookup if not looked up yet.  pass in a grouper session
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>exceptionOnNull</CODE> - excdeption if nothing in stem</DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveMembershipIfNeeded(GrouperSession, java.lang.String)"><!-- --></A><H3>
+retrieveMembershipIfNeeded</H3>
+<PRE>
+public Membership <B>retrieveMembershipIfNeeded</B>(GrouperSession&nbsp;grouperSession,
+                                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;invalidQueryReason)
+                                      throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>retrieve the membership for this lookup if not looked up yet.  pass in a grouper session
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>invalidQueryReason</CODE> - is the text to go in the WsInvalidQueryException
+<DT><B>Returns:</B><DD>the membership
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem, and if the invalidQueryReason is set</DL>
 </DD>
 </DL>
 <HR>
@@ -415,7 +421,7 @@ getUuid</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getUuid</B>()</PRE>
 <DL>
-<DD>uuid of the stem to find
+<DD>uuid of the membership to find
 <P>
 <DD><DL>
 
@@ -429,7 +435,7 @@ setUuid</H3>
 <PRE>
 public void <B>setUuid</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
 <DL>
-<DD>uuid of the stem to find
+<DD>uuid of the membership to find
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>uuid1</CODE> - the uuid to set</DL>
@@ -437,46 +443,19 @@ public void <B>setUuid</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java
 </DL>
 <HR>
 
-<A NAME="getStemName()"><!-- --></A><H3>
-getStemName</H3>
+<A NAME="convertToMembershipIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup[], java.lang.StringBuilder, int[])"><!-- --></A><H3>
+convertToMembershipIds</H3>
 <PRE>
-public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getStemName</B>()</PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToMembershipIds</B>(GrouperSession&nbsp;grouperSession,
+                                                 <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup</A>[]&nbsp;wsMembershipLookups,
+                                                 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                                                 int[]&nbsp;lookupCount)</PRE>
 <DL>
-<DD>name of the stem to find (includes stems, e.g. stem1:stem2:stemName
+<DD>convert membership lookups to membership ids
 <P>
 <DD><DL>
-
-<DT><B>Returns:</B><DD>the theName</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setStemName(java.lang.String)"><!-- --></A><H3>
-setStemName</H3>
-<PRE>
-public void <B>setStemName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theName)</PRE>
-<DL>
-<DD>name of the stem to find (includes stems, e.g. stem1:stem2:stemName
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>theName</CODE> - the theName to set</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="convertToStemIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsStemLookup[], java.lang.StringBuilder, int[])"><!-- --></A><H3>
-convertToStemIds</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToStemIds</B>(GrouperSession&nbsp;grouperSession,
-                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A>[]&nbsp;wsStemLookups,
-                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
-                                           int[]&nbsp;lookupCount)</PRE>
-<DL>
-<DD>convert stem lookups to stem ids
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsStemLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
-<DT><B>Returns:</B><DD>the stem ids</DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsMembershipLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Returns:</B><DD>the membership ids</DL>
 </DD>
 </DL>
 <HR>
@@ -523,11 +502,11 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?vi
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResults.WsStemDeleteResultsCode.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.StemFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.MembershipAnyFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.MembershipFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsStemLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsMembershipLookup.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {

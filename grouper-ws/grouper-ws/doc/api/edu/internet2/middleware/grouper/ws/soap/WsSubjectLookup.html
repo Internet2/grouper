@@ -186,6 +186,17 @@ Class WsSubjectLookup</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co#convertToMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], java.lang.StringBuilder, int[])">convertToMemberIds</A></B>(GrouperSession&nbsp;grouperSession,
+                   <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;wsSubjectLookups,
+                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                   int[]&nbsp;lookupCount)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert subject lookups to member ids (create if not exist)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co#createIfNeeded(java.lang.String, java.lang.String, java.lang.String)">createIfNeeded</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
                <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sourceId,
@@ -217,6 +228,14 @@ Class WsSubjectLookup</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional: source of subject in the subject api source list</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co#hasData()">hasData</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this group lookup has data</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -316,6 +335,14 @@ Class WsSubjectLookup</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co#toStringCompact()">toStringCompact</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make sure this is an explicit toString</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -420,6 +447,20 @@ public boolean <B>blank</B>()</PRE>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>true or false</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasData()"><!-- --></A><H3>
+hasData</H3>
+<PRE>
+public boolean <B>hasData</B>()</PRE>
+<DL>
+<DD>see if this group lookup has data
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if it has data</DL>
 </DD>
 </DL>
 <HR>
@@ -606,6 +647,37 @@ public void <B>setSubjectIdentifier</B>(<A HREF="http://java.sun.com/j2se/1.4.2/
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>subjectIdentifier1</CODE> - the subjectIdentifier to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], java.lang.StringBuilder, int[])"><!-- --></A><H3>
+convertToMemberIds</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToMemberIds</B>(GrouperSession&nbsp;grouperSession,
+                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;wsSubjectLookups,
+                                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                                             int[]&nbsp;lookupCount)</PRE>
+<DL>
+<DD>convert subject lookups to member ids (create if not exist)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsSubjectLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Returns:</B><DD>the group ids</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toStringCompact()"><!-- --></A><H3>
+toStringCompact</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toStringCompact</B>()</PRE>
+<DL>
+<DD>make sure this is an explicit toString
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>return a compact to string</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
