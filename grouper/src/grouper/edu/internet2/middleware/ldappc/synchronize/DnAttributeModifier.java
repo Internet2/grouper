@@ -20,6 +20,7 @@ import javax.naming.InvalidNameException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.internet2.middleware.ldappc.util.LdapUtil;
 
 /**
  * This is an AttributeModifier for modifying LDAP attribute values that are known to hold
@@ -58,12 +59,9 @@ public class DnAttributeModifier extends AttributeModifier {
    */
   protected String makeComparisonString(String value) {
 
-    // 2009-12-07 use ApacheDS for dn normalization to support custom attribute types
-    //return new X500Principal(value.toLowerCase()).getName(X500Principal.CANONICAL);
-    
     try {
-      return new LdapDN(value.toLowerCase()).toString();
-    } catch (InvalidNameException e) {      
+      return LdapUtil.canonicalizeDn(value);
+    } catch (InvalidNameException e) {
       throw new LdappcException(e);
     }
   }
