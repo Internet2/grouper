@@ -87,7 +87,6 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
    */
   // FUTURE probably a poor way to use Spring
   private Set<String> getSourceIdentifiersAsStrings() {
-    LOG.debug("si {}", sourceIdentifiers);
     if (stringSourceIdentifiers == null && sourceIdentifiers != null && !sourceIdentifiers.isEmpty()) {
       stringSourceIdentifiers = new HashSet<String>();
       for (SourceIdentifier sourceIdentifier : sourceIdentifiers) {
