@@ -69,7 +69,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/test/shibboleth/xmlsec-1.4.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/shibboleth/xmlunit-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/vt-ldap/commons-codec-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/vt-ldap/vt-ldap-3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/vt-ldap/vt-ldap-3.3-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/apacheds/apacheds-bootstrap-partition-1.5.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/apacheds/apacheds-bootstrap-extract-1.5.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/apacheds/apacheds-core-1.5.5.jar"/>
