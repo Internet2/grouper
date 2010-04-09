@@ -16,15 +16,12 @@ package edu.internet2.middleware.ldappc.spml.provider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.openspml.v2.msg.Marshallable;
 import org.openspml.v2.msg.XMLMarshaller;
 import org.openspml.v2.msg.XMLUnmarshaller;
 import org.openspml.v2.msg.spml.ErrorCode;
 import org.openspml.v2.msg.spml.ExecutionMode;
-import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spml.Request;
 import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.msg.spml.StatusCode;
@@ -34,6 +31,7 @@ import org.openspml.v2.util.xml.ReflectiveXMLMarshaller;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.config.BaseReloadableService;
 
 public abstract class BaseSpmlProvider extends BaseReloadableService implements SpmlProvider {
@@ -48,17 +46,6 @@ public abstract class BaseSpmlProvider extends BaseReloadableService implements 
 
   private XMLUnmarshaller xmlUnmarshaller;
 
-  public static String ERROR_NULL_PSO_ID = "A psoID is required.";
-
-  public static String ERROR_NULL_TARGET_ID = "A targetID is required.";
-
-  /**
-   * time stamp part of default requestID format : yyyyMMdd HH:mm:ss.SSS
-   */
-  public static final String TIMESTAMP_FORMAT = "yyyy/MM/dd-HH:mm:ss.SSS";
-
-  final static SimpleDateFormat dateFormat = new SimpleDateFormat(TIMESTAMP_FORMAT);
-
   public Response execute(Request request) {
 
     // a generic Response returned under error conditions
@@ -66,17 +53,14 @@ public abstract class BaseSpmlProvider extends BaseReloadableService implements 
     response.setRequestID(this.getOrGenerateRequestID(request));
 
     try {
-      // set the response requestID
-
-      // determine the appropriate method
-      Method method = this.getClass().getDeclaredMethod(methodName, new Class[] { request.getClass() });
-
       // FUTURE handle asynchronous requests
       if (request.getExecutionMode() == ExecutionMode.ASYNCHRONOUS) {
         LOG.error("Unable to execute asynchronous request with id '{}'", request.getRequestID());
         fail(response, ErrorCode.UNSUPPORTED_EXECUTION_MODE);
         LOG.trace("response:\n{}", this.toXML(response));
       } else {
+        // determine the appropriate method
+        Method method = this.getClass().getMethod(methodName, new Class[] { request.getClass() });
         // execute the request
         response = (Response) method.invoke(this, new Object[] { request });
         if (response.getRequestID() == null) {
@@ -84,6 +68,7 @@ public abstract class BaseSpmlProvider extends BaseReloadableService implements 
         }
       }
 
+      // TODO fix logging
     } catch (NoSuchMethodException e) {
       LOG.error("Unsupported request '" + request.getClass().getName() + "' id '" + request.getRequestID() + "'", e);
       fail(response, ErrorCode.UNSUPPORTED_OPERATION);
@@ -142,6 +127,8 @@ public abstract class BaseSpmlProvider extends BaseReloadableService implements 
     response.setError(errorCode);
     if (messages != null) {
       for (String message : messages) {
+        // TODO for Active Directory
+        message = message.replace((char) 0x0, '_');
         response.addErrorMessage(message);
       }
     }
@@ -149,8 +136,7 @@ public abstract class BaseSpmlProvider extends BaseReloadableService implements 
   }
 
   public String generateRequestID(Request request) {
-
-    return dateFormat.format(new Date()) + "_" + request.hashCode();
+    return PSPUtil.uniqueRequestId();
   }
 
   public String getOrGenerateRequestID(Request request) {
@@ -175,11 +161,4 @@ public abstract class BaseSpmlProvider extends BaseReloadableService implements 
       return null;
     }
   }
-
-  public void validPSOId(PSOIdentifier psoID, Response response) {
-    if (psoID == null) {
-      fail(response, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_PSO_ID);
-    }
-  }
-
 }
