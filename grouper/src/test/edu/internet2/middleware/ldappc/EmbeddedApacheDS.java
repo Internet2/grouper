@@ -3,20 +3,15 @@ package edu.internet2.middleware.ldappc;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.entry.ServerEntry;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -25,6 +20,8 @@ import org.apache.directory.server.ldap.handlers.bind.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.bind.plain.PlainMechanismHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
+import org.apache.directory.shared.ldap.ldif.LdifEntry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
@@ -47,7 +44,7 @@ public class EmbeddedApacheDS {
   public static final String EDUMEMBER_SCHEMA = "/test/edu/internet2/middleware/ldappc/eduMember.ldif";
 
   /** the internal directory service */
-  private DirectoryService directoryService;
+  private DefaultDirectoryService directoryService;
 
   /** the internal ldap server */
   private LdapServer ldapServer;
@@ -100,6 +97,23 @@ public class EmbeddedApacheDS {
     FileUtils.forceDeleteOnExit(workingDirectory);
 
     directoryService.setWorkingDirectory(workingDirectory);
+    
+    // to fix end-of-test delay when running as application in Eclipse ?
+    directoryService.setSyncPeriodMillis(0);
+
+    // load eduMember schema
+    File file = GrouperUtil.fileFromResourceName(EDUMEMBER_SCHEMA);
+    if (file == null) {
+      throw new RuntimeException("Unable to load eduMember schema from " + EDUMEMBER_SCHEMA);
+    }
+    List<LdifEntry> ldifEntries = new ArrayList<LdifEntry>();
+    LdifReader ldifReader = new LdifReader(file);
+    for (LdifEntry entry : ldifReader) {
+      ldifEntries.add(entry);
+    }
+    directoryService.setTestEntries(ldifEntries);
+
+    directoryService.startup();
 
     ldapServer = new LdapServer();
     ldapServer.setTransports(new TcpTransport(this.getPort()));
@@ -108,8 +122,6 @@ public class EmbeddedApacheDS {
     Map<String, MechanismHandler> mechanismHandlerMap = new HashMap<String, MechanismHandler>();
     mechanismHandlerMap.put(SupportedSaslMechanisms.PLAIN, new PlainMechanismHandler());
     ldapServer.setSaslMechanismHandlers(mechanismHandlerMap);
-
-    directoryService.startup();
 
     // create partition
     Partition partition = new JdbmPartition();
@@ -124,11 +136,6 @@ public class EmbeddedApacheDS {
     entryFoo.add("objectClass", "top", "domain", "extensibleObject");
     entryFoo.add("dc", "testgrouper");
     directoryService.getAdminSession().add(entryFoo);
-
-    // load eduMember schema
-    LdapContext lc = getNewLdapContext();
-    LdappcTestHelper.loadLdif(GrouperUtil.fileFromResourceName(EDUMEMBER_SCHEMA), lc);
-    lc.close();
   }
 
   /**
@@ -138,9 +145,11 @@ public class EmbeddedApacheDS {
    */
   public void shutdown() throws Exception {
     if (ldapServer.isStarted()) {
+      LOG.debug("stop ldap server");
       ldapServer.stop();
     }
     if (directoryService.isStarted()) {
+      LOG.debug("shut down directory service");
       directoryService.shutdown();
     }
     if (directoryService.getWorkingDirectory().exists()) {
@@ -156,24 +165,6 @@ public class EmbeddedApacheDS {
    */
   public Ldap getNewLdap() {
     return new Ldap(new LdapConfig("ldap://127.0.0.1:" + ldapServer.getPort(), base));
-  }
-
-  /**
-   * Gets a default JNDI connection to the server.
-   * 
-   * @return the JNDI LdapContext
-   * @throws NamingException
-   */
-  public LdapContext getNewLdapContext() throws NamingException {
-    // create ldap context
-    Hashtable<String, String> env = new Hashtable<String, String>();
-    env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-    env.put(Context.PROVIDER_URL, "ldap://127.0.0.1:" + ldapServer.getPort());
-    env.put(Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN);
-    env.put(Context.SECURITY_CREDENTIALS, "secret");
-    env.put(Context.SECURITY_AUTHENTICATION, "simple");
-
-    return new InitialLdapContext(env, null);
   }
 
   /**
@@ -200,7 +191,7 @@ public class EmbeddedApacheDS {
     properties.setProperty("edu.vt.middleware.ldap.ldapUrl", "ldap://127.0.0.1:" + getPort());
     properties.setProperty("edu.vt.middleware.ldap.authtype", "simple");
     properties.setProperty("edu.vt.middleware.ldap.serviceUser", ServerDNConstants.ADMIN_SYSTEM_DN);
-    properties.setProperty("edu.vt.middleware.ldap.serviceCredential", "secret");    
+    properties.setProperty("edu.vt.middleware.ldap.serviceCredential", "secret");
     properties.setProperty("edu.vt.middleware.ldap.base", base);
     properties.setProperty("testUseEmbeddedLdap", "true");
     return properties;
