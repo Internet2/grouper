@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 
 import org.opensaml.util.resource.ResourceException;
 import org.slf4j.Logger;
