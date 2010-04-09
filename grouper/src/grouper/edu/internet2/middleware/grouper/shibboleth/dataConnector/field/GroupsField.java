@@ -14,8 +14,8 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector.field;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
@@ -28,7 +28,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttrib
  * A representation of an attribute consisting of Groups.
  */
 public class GroupsField extends BaseMembershipField {
-  
+
   /** the first element of the identifier */
   public static final String NAME = "groups";
 
@@ -62,15 +62,17 @@ public class GroupsField extends BaseMembershipField {
    */
   public BaseAttribute<Group> getAttribute(Member member, GroupQueryFilter groupQueryFilter) {
 
-    Set<Group> groups = this.getMemberFilter().getGroups(member, this.getField());
+    // FUTURE make sorting optional ?
 
-    if (groups.isEmpty()) {      
+    Set<Group> groups = new TreeSet<Group>(this.getMemberFilter().getGroups(member, this.getField()));
+
+    if (groups.isEmpty()) {
       return null;
     }
 
     // filter groups if appropriate
     if (groupQueryFilter != null) {
-      Set<Group> newGroups = new HashSet<Group>(groups.size());
+      Set<Group> newGroups = new TreeSet<Group>();
       for (Group group : groups) {
         if (groupQueryFilter.matchesGroup(group)) {
           newGroups.add(group);

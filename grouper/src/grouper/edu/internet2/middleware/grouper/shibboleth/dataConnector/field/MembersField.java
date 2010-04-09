@@ -15,6 +15,7 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector.field;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
@@ -45,7 +46,8 @@ public class MembersField extends BaseMembershipField {
    */
   public BaseAttribute<Member> getAttribute(Group group) {
 
-    Set<Member> members = this.getMemberFilter().getMembers(group, this.getField());
+    // FUTURE make sorting optional ?
+    Set<Member> members = new TreeSet<Member>(this.getMemberFilter().getMembers(group, this.getField()));
 
     if (!members.isEmpty()) {
       BasicAttribute<Member> attribute = new BasicAttribute<Member>(this.getId());
