@@ -46,9 +46,17 @@ public interface FlatStemDAO extends GrouperDAO {
   
   /**
    * find missing flat stems
+   * @param page
+   * @param batchSize
    * @return set of stems that need flat stems
    */
-  public Set<Stem> findMissingFlatStems();
+  public Set<Stem> findMissingFlatStems(int page, int batchSize);
+  
+  /**
+   * find missing flat stems count
+   * @return long
+   */
+  public long findMissingFlatStemsCount();
 
   /**
    * remove bad flat stems

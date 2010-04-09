@@ -187,7 +187,7 @@ public class GrouperReport {
       
       String syncFlatTablesResults = "Not configured to compute this today";
       String syncFlatTablesReport = null;
-      int syncFlatTablesCount = 0;
+      long syncFlatTablesCount = 0;
       if (syncFlatTables) {
         boolean saveUpdates = GrouperLoaderConfig.getPropertyBoolean("daily.report.syncFlatTables.saveUpdates", true);
         SyncFlatTables sync = new SyncFlatTables();

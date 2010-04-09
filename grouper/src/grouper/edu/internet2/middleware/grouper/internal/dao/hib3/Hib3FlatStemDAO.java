@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.flat.FlatStem;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FlatStemDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
@@ -74,16 +75,30 @@ public class Hib3FlatStemDAO extends Hib3DAO implements FlatStemDAO {
       .executeUpdate();
   }
 
-  public Set<Stem> findMissingFlatStems() {
+  public Set<Stem> findMissingFlatStems(int page, int batchSize) {
     Set<Stem> stems = HibernateSession
       .byHqlStatic()
       .createQuery("select s from Stem s where not exists (select 1 from FlatStem flatStem where flatStem.id=s.uuid) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string01 = s.uuid " +
-          "and type.actionName='addStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId)")
+          "and type.actionName='addStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId) " +
+          "order by s.uuid")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatStems")
+      .options(new QueryOptions().paging(batchSize, page, false))
       .listSet(Stem.class);
     
     return stems;
+  }
+  
+  public long findMissingFlatStemsCount() {
+    long count = HibernateSession
+      .byHqlStatic()
+      .createQuery("select count(*) from Stem s where not exists (select 1 from FlatStem flatStem where flatStem.id=s.uuid) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string01 = s.uuid " +
+          "and type.actionName='addStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatStemsCount")
+      .uniqueResult(Long.class);
+    
+    return count;
   }
   
   public Set<FlatStem> findBadFlatStems() {

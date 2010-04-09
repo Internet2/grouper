@@ -46,9 +46,17 @@ public interface FlatGroupDAO extends GrouperDAO {
   
   /**
    * find missing flat groups
+   * @param page
+   * @param batchSize
    * @return set of groups that need flat groups
    */
-  public Set<Group> findMissingFlatGroups();
+  public Set<Group> findMissingFlatGroups(int page, int batchSize);
+  
+  /**
+   * find missing flat groups count
+   * @return long
+   */
+  public long findMissingFlatGroupsCount();
   
   /**
    * remove bad flat groups

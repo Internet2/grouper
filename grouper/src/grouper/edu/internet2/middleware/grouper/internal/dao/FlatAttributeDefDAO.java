@@ -46,9 +46,17 @@ public interface FlatAttributeDefDAO extends GrouperDAO {
   
   /**
    * find missing flat attr defs
+   * @param page
+   * @param batchSize
    * @return set of attr defs that need flat attr defs
    */
-  public Set<AttributeDef> findMissingFlatAttributeDefs();
+  public Set<AttributeDef> findMissingFlatAttributeDefs(int page, int batchSize);
+  
+  /**
+   * find missing flat attr defs count
+   * @return long
+   */
+  public long findMissingFlatAttributeDefsCount();
   
   /**
    * remove bad flat attr defs

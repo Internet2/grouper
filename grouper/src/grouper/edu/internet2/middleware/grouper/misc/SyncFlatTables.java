@@ -89,6 +89,9 @@ public class SyncFlatTables {
   /** detailed output for grouper report */
   private StringBuilder report = null;
   
+  /** batch size for queries */
+  private final int QUERY_BATCH_SIZE = 100000;
+  
   /**
    * Whether or not to print out results of what's being done.  Defaults to true.
    * @param showResults
@@ -143,11 +146,11 @@ public class SyncFlatTables {
    * Sync all flat tables
    * @return the number of updates made
    */
-  public int syncAllFlatTables() {
+  public long syncAllFlatTables() {
         
     clearReport();
     
-    int count = 0;
+    long count = 0;
     
     count += addMissingFlatGroups();
     count += addMissingFlatStems();
@@ -179,96 +182,134 @@ public class SyncFlatTables {
    * add missing flat attr defs
    * @return the number of inserted flat attr defs
    */
-  public int addMissingFlatAttributeDefs() {
-    showStatus("\n\nSearching for missing flat attribute defs");
-    Set<AttributeDef> attrDefs = GrouperDAOFactory.getFactory().getFlatAttributeDef().findMissingFlatAttributeDefs();
-    totalCount = attrDefs.size();
-    showStatus("Found " + totalCount + " missing flat attribute defs");
+  public long addMissingFlatAttributeDefs() {
+    showStatus("\n\nSearching for the number of missing flat attribute defs");
+    long count = GrouperDAOFactory.getFactory().getFlatAttributeDef().findMissingFlatAttributeDefsCount();
+    showStatus("Found " + count + " missing flat attribute defs");
+    
+    if (count == 0) {
+      return 0;
+    }
     
     Set<FlatAttributeDef> batch = new LinkedHashSet<FlatAttributeDef>();
     int batchSize = getBatchSize();
     
-    try {
-      reset();
-      Iterator<AttributeDef> iter = attrDefs.iterator();
+    long totalProcessed = 0;
+    int page = 1;
+    while (true) {
+      int currentPage = saveUpdates ? 1 : page;
+      showStatus("Retrieving batch of up to " + QUERY_BATCH_SIZE + " attribute defs");
+      Set<AttributeDef> attrDefs = GrouperDAOFactory.getFactory().getFlatAttributeDef().findMissingFlatAttributeDefs(currentPage, QUERY_BATCH_SIZE);
+      totalCount = attrDefs.size();
+      totalProcessed += attrDefs.size();
+      page++;
       
-      while (iter.hasNext()) {
-        AttributeDef attrDef = iter.next();
-        FlatAttributeDef flatAttrDef = new FlatAttributeDef();
-        flatAttrDef.setId(attrDef.getUuid());
-        batch.add(flatAttrDef);
-        logDetail("Found missing flat attribute def with name: " + attrDef.getName());
+      try {
+        reset();
+        Iterator<AttributeDef> iter = attrDefs.iterator();
         
-        if (batch.size() % batchSize == 0 || !iter.hasNext()) {
-          if (saveUpdates) {
-            GrouperDAOFactory.getFactory().getFlatAttributeDef().saveBatch(batch);
+        while (iter.hasNext()) {
+          AttributeDef attrDef = iter.next();
+          FlatAttributeDef flatAttrDef = new FlatAttributeDef();
+          flatAttrDef.setId(attrDef.getUuid());
+          batch.add(flatAttrDef);
+          logDetail("Found missing flat attribute def with name: " + attrDef.getName());
+          
+          if (batch.size() % batchSize == 0 || !iter.hasNext()) {
+            if (saveUpdates) {
+              GrouperDAOFactory.getFactory().getFlatAttributeDef().saveBatch(batch);
+            }
+            batch.clear();
           }
-          batch.clear();
+          
+          processedCount++;
         }
         
-        processedCount++;
+        if (attrDefs.size() > 0 && saveUpdates) {
+          showStatus("Done making " + totalProcessed + " of approximately " + count + " updates");
+        }
+    
+      } finally {
+        stopStatusThread();
       }
       
-      if (attrDefs.size() > 0 && saveUpdates) {
-        showStatus("Done making " + totalCount + " updates");
+      if (attrDefs.size() != QUERY_BATCH_SIZE) {
+        break;
       }
-  
-      return attrDefs.size();
-    } finally {
-      stopStatusThread();
     }
+    
+    return totalProcessed;
   }
 
   /**
    * add missing flat stems
    * @return the number of inserted flat stems
    */
-  public int addMissingFlatStems() {
-    showStatus("\n\nSearching for missing flat stems");
-    Set<Stem> stems = GrouperDAOFactory.getFactory().getFlatStem().findMissingFlatStems();
-    totalCount = stems.size();
-    showStatus("Found " + totalCount + " missing flat stems");
+  public long addMissingFlatStems() {
+    showStatus("\n\nSearching for the number of missing flat stems");
+    long count = GrouperDAOFactory.getFactory().getFlatStem().findMissingFlatStemsCount();
+    showStatus("Found " + count + " missing flat stems");
+    
+    if (count == 0) {
+      return 0;
+    }
     
     Set<FlatStem> batch = new LinkedHashSet<FlatStem>();
     int batchSize = getBatchSize();
     
-    try {
-      reset();
-      Iterator<Stem> iter = stems.iterator();
+    long totalProcessed = 0;
+    int page = 1;
+    while (true) {
+      int currentPage = saveUpdates ? 1 : page;
+      showStatus("Retrieving batch of up to " + QUERY_BATCH_SIZE + " stems");
+      Set<Stem> stems = GrouperDAOFactory.getFactory().getFlatStem().findMissingFlatStems(currentPage, QUERY_BATCH_SIZE);
+      totalCount = stems.size();
+      totalProcessed += stems.size();
+      page++;
       
-      while (iter.hasNext()) {
-        Stem stem = iter.next();
-        FlatStem flatStem = new FlatStem();
-        flatStem.setId(stem.getUuid());
-        batch.add(flatStem);
-
-        String stemName = null;
-        if (stem.isRootStem()) {
-          stemName = "{rootStem}";
-        } else {
-          stemName = stem.getName();
-        }
+      try {
+        reset();
+        Iterator<Stem> iter = stems.iterator();
         
-        logDetail("Found missing flat stem with name: " + stemName);
-        
-        if (batch.size() % batchSize == 0 || !iter.hasNext()) {
-          if (saveUpdates) {
-            GrouperDAOFactory.getFactory().getFlatStem().saveBatch(batch);
-          }
-          batch.clear();
-        }
-        
-        processedCount++;
-      }
-      
-      if (stems.size() > 0 && saveUpdates) {
-        showStatus("Done making " + totalCount + " updates");
-      }
+        while (iter.hasNext()) {
+          Stem stem = iter.next();
+          FlatStem flatStem = new FlatStem();
+          flatStem.setId(stem.getUuid());
+          batch.add(flatStem);
   
-      return stems.size();
-    } finally {
-      stopStatusThread();
+          String stemName = null;
+          if (stem.isRootStem()) {
+            stemName = "{rootStem}";
+          } else {
+            stemName = stem.getName();
+          }
+          
+          logDetail("Found missing flat stem with name: " + stemName);
+          
+          if (batch.size() % batchSize == 0 || !iter.hasNext()) {
+            if (saveUpdates) {
+              GrouperDAOFactory.getFactory().getFlatStem().saveBatch(batch);
+            }
+            batch.clear();
+          }
+          
+          processedCount++;
+        }
+        
+        if (stems.size() > 0 && saveUpdates) {
+          showStatus("Done making " + totalProcessed + " of approximately " + count + " updates");
+        }
+
+      } finally {
+        stopStatusThread();
+      }
+      
+      if (stems.size() != QUERY_BATCH_SIZE) {
+        break;
+      }
     }
+    
+    return totalProcessed;
   }
 
   /**
@@ -276,216 +317,254 @@ public class SyncFlatTables {
    * or by adding a changelog event depending on whether sendNotifications(boolean) is set.
    * @return the number of missing flat memberships
    */
-  public int addMissingFlatMemberships() {
-    showStatus("\n\nSearching for missing flat memberships");
-    Set<Membership> mships = GrouperDAOFactory.getFactory().getFlatMembership().findMissingFlatMemberships();
-    totalCount = mships.size();
-    showStatus("Found " + totalCount + " missing flat memberships");
+  public long addMissingFlatMemberships() {
+    showStatus("\n\nSearching for the number of missing flat memberships");
+    long count = GrouperDAOFactory.getFactory().getFlatMembership().findMissingFlatMembershipsCount();
+    showStatus("Found " + count + " missing flat memberships");
+    
+    if (count == 0) {
+      return 0;
+    }
     
     Set<FlatMembership> flatMembershipBatch = new LinkedHashSet<FlatMembership>();
     Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
     int batchSize = getBatchSize();
     
-    // keep track of what we've processed.
-    Map<MultiKey, Boolean> processed = new HashMap<MultiKey, Boolean>();
-    
-    try {
-      reset();
-      Iterator<Membership> iter = mships.iterator();
+    long totalProcessed = 0;
+    int page = 1;
+    while (true) {
+      // keep track of what we've processed.
+      Map<MultiKey, Boolean> processed = new HashMap<MultiKey, Boolean>();
       
-      while (iter.hasNext()) {
-        Membership mship = iter.next();
+      int currentPage = saveUpdates ? 1 : page;
+      showStatus("Retrieving batch of up to " + QUERY_BATCH_SIZE + " memberships");
+      Set<Membership> mships = GrouperDAOFactory.getFactory().getFlatMembership().findMissingFlatMemberships(currentPage, QUERY_BATCH_SIZE);
+      totalCount = mships.size();
+      totalProcessed += mships.size();
+      page++;
+      
+      try {
+        reset();
+        Iterator<Membership> iter = mships.iterator();
         
-        // make sure we haven't processed a membership with the same owner, member and field
-        MultiKey multiKey = new MultiKey(mship.getOwnerId(), mship.getMemberUuid(), mship.getFieldId());
-        if (processed.containsKey(multiKey)) {
-          // skipping
-          continue;
-        }
+        while (iter.hasNext()) {
+          Membership mship = iter.next();
           
-        processed.put(multiKey, true);
-        
-        logDetail("Found missing flat membership with ownerId: " + mship.getOwnerId() + 
-            ", memberId: " + mship.getMemberUuid() + ", fieldId: " + mship.getFieldId());
-        
-        Field field = FieldFinder.findById(mship.getFieldId(), true);
-        
-        // if we're not sending notifications, just add to the flat memberships table
-        if (saveUpdates && !sendNotifications) {
-          FlatMembership flatMship = new FlatMembership();
-          flatMship.setId(GrouperUuid.getUuid());
-          flatMship.setFieldId(mship.getFieldId());
-          flatMship.setMemberId(mship.getMemberUuid());
-          
-          if (field.isAttributeDefListField()) {
-            flatMship.setOwnerAttrDefId(mship.getOwnerId());
-          } else if (field.isGroupListField()) {
-            flatMship.setOwnerGroupId(mship.getOwnerId());
-          } else if (field.isStemListField()) {
-            flatMship.setOwnerStemId(mship.getOwnerId());
-          } else {
-            throw new RuntimeException("Cannot determine if field is for a group, stem, or attr def: " + field.getUuid());
+          // make sure we haven't processed a membership with the same owner, member and field
+          MultiKey multiKey = new MultiKey(mship.getOwnerId(), mship.getMemberUuid(), mship.getFieldId());
+          if (processed.containsKey(multiKey)) {
+            // skipping
+            continue;
           }
-    
-          flatMembershipBatch.add(flatMship);
+            
+          processed.put(multiKey, true);
           
-          if (flatMembershipBatch.size() % batchSize == 0 || !iter.hasNext()) {
-            GrouperDAOFactory.getFactory().getFlatMembership().saveBatch(flatMembershipBatch);            
-            flatMembershipBatch.clear();
+          logDetail("Found missing flat membership with ownerId: " + mship.getOwnerId() + 
+              ", memberId: " + mship.getMemberUuid() + ", fieldId: " + mship.getFieldId());
+          
+          Field field = FieldFinder.findById(mship.getFieldId(), true);
+          
+          // if we're not sending notifications, just add to the flat memberships table
+          if (saveUpdates && !sendNotifications) {
+            FlatMembership flatMship = new FlatMembership();
+            flatMship.setId(GrouperUuid.getUuid());
+            flatMship.setFieldId(mship.getFieldId());
+            flatMship.setMemberId(mship.getMemberUuid());
+            
+            if (field.isAttributeDefListField()) {
+              flatMship.setOwnerAttrDefId(mship.getOwnerId());
+            } else if (field.isGroupListField()) {
+              flatMship.setOwnerGroupId(mship.getOwnerId());
+            } else if (field.isStemListField()) {
+              flatMship.setOwnerStemId(mship.getOwnerId());
+            } else {
+              throw new RuntimeException("Cannot determine if field is for a group, stem, or attr def: " + field.getUuid());
+            }
+      
+            flatMembershipBatch.add(flatMship);
+            
+            if (flatMembershipBatch.size() % batchSize == 0 || !iter.hasNext()) {
+              GrouperDAOFactory.getFactory().getFlatMembership().saveBatch(flatMembershipBatch);            
+              flatMembershipBatch.clear();
+            }
           }
-        }
-        
-        // if we're sending notifications, add to the temp changelog instead
-        if (saveUpdates && sendNotifications) {
           
-          Member member = mship.getMember();
-          
-          if (mship.getOwnerAttrDefId() != null) {
-            AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(
-                mship.getOwnerAttrDefId(), false);
-            if (attributeDef != null) {
-              ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
-                  ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), AttributeDefPrivilege.listToPriv(field.getName()).getName(), 
-                  ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), field.getUuid(), 
-                  ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), member.getUuid(),
-                  ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), member.getSubjectId(),
-                  ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), member.getSubjectSourceId(),
-                  ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.ATTRIBUTE_DEF.getType(),
-                  ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), Membership.OWNER_TYPE_ATTRIBUTE_DEF,
-                  ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), mship.getOwnerAttrDefId(),
-                  ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), attributeDef.getName());
-              changeLogEntryBatch.add(changeLogEntry);
-            }  
-          } else if (mship.getOwnerGroupId() != null) {
-            Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(
-                mship.getOwnerGroupId(), false, new QueryOptions().secondLevelCache(false));
-            if (group != null) {
-              if (field.getTypeString().equals(FieldType.LIST.getType())) {
-                ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
-                    ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), field.getName(), 
-                    ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name(), field.getUuid(), 
-                    ChangeLogLabels.MEMBERSHIP_ADD.memberId.name(), member.getUuid(),
-                    ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), member.getSubjectId(),
-                    ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), member.getSubjectSourceId(),
-                    ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), mship.getOwnerGroupId(),
-                    ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), group.getName());
-                changeLogEntryBatch.add(changeLogEntry);
-              } else if (field.getTypeString().equals(FieldType.ACCESS.getType())) {
+          // if we're sending notifications, add to the temp changelog instead
+          if (saveUpdates && sendNotifications) {
+            
+            Member member = mship.getMember();
+            
+            if (mship.getOwnerAttrDefId() != null) {
+              AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(
+                  mship.getOwnerAttrDefId(), false);
+              if (attributeDef != null) {
                 ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
-                    ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), AccessPrivilege.listToPriv(field.getName()).getName(), 
+                    ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), AttributeDefPrivilege.listToPriv(field.getName()).getName(), 
                     ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), field.getUuid(), 
                     ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), member.getUuid(),
                     ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), member.getSubjectId(),
                     ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), member.getSubjectSourceId(),
-                    ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.ACCESS.getType(),
-                    ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), Membership.OWNER_TYPE_GROUP,
-                    ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), mship.getOwnerGroupId(),
-                    ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), group.getName());
+                    ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.ATTRIBUTE_DEF.getType(),
+                    ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), Membership.OWNER_TYPE_ATTRIBUTE_DEF,
+                    ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), mship.getOwnerAttrDefId(),
+                    ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), attributeDef.getName());
                 changeLogEntryBatch.add(changeLogEntry);
-              } else {
-                throw new RuntimeException("Field type for group membership is not list or access.  Field id is: " + field.getUuid());
+              }  
+            } else if (mship.getOwnerGroupId() != null) {
+              Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(
+                  mship.getOwnerGroupId(), false, new QueryOptions().secondLevelCache(false));
+              if (group != null) {
+                if (field.getTypeString().equals(FieldType.LIST.getType())) {
+                  ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
+                      ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), field.getName(), 
+                      ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name(), field.getUuid(), 
+                      ChangeLogLabels.MEMBERSHIP_ADD.memberId.name(), member.getUuid(),
+                      ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), member.getSubjectId(),
+                      ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), member.getSubjectSourceId(),
+                      ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), mship.getOwnerGroupId(),
+                      ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), group.getName());
+                  changeLogEntryBatch.add(changeLogEntry);
+                } else if (field.getTypeString().equals(FieldType.ACCESS.getType())) {
+                  ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
+                      ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), AccessPrivilege.listToPriv(field.getName()).getName(), 
+                      ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), field.getUuid(), 
+                      ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), member.getUuid(),
+                      ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), member.getSubjectId(),
+                      ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), member.getSubjectSourceId(),
+                      ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.ACCESS.getType(),
+                      ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), Membership.OWNER_TYPE_GROUP,
+                      ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), mship.getOwnerGroupId(),
+                      ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), group.getName());
+                  changeLogEntryBatch.add(changeLogEntry);
+                } else {
+                  throw new RuntimeException("Field type for group membership is not list or access.  Field id is: " + field.getUuid());
+                }
               }
+            } else if (mship.getOwnerStemId() != null) {
+              Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(
+                  mship.getOwnerStemId(), false, new QueryOptions().secondLevelCache(false));
+              if (stem != null) {
+                ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
+                    ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), NamingPrivilege.listToPriv(field.getName()).getName(), 
+                    ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), field.getUuid(), 
+                    ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), member.getUuid(),
+                    ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), member.getSubjectId(),
+                    ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), member.getSubjectSourceId(),
+                    ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.NAMING.getType(),
+                    ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), Membership.OWNER_TYPE_STEM,
+                    ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), mship.getOwnerStemId(),
+                    ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), stem.getName());
+                changeLogEntryBatch.add(changeLogEntry);
+              }
+            } else {
+              throw new RuntimeException("Cannot determine if membership is for a group, stem, or attr def: " + mship.getUuid());
             }
-          } else if (mship.getOwnerStemId() != null) {
-            Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(
-                mship.getOwnerStemId(), false, new QueryOptions().secondLevelCache(false));
-            if (stem != null) {
-              ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
-                  ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), NamingPrivilege.listToPriv(field.getName()).getName(), 
-                  ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), field.getUuid(), 
-                  ChangeLogLabels.PRIVILEGE_ADD.memberId.name(), member.getUuid(),
-                  ChangeLogLabels.PRIVILEGE_ADD.subjectId.name(), member.getSubjectId(),
-                  ChangeLogLabels.PRIVILEGE_ADD.sourceId.name(), member.getSubjectSourceId(),
-                  ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.NAMING.getType(),
-                  ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), Membership.OWNER_TYPE_STEM,
-                  ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), mship.getOwnerStemId(),
-                  ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), stem.getName());
-              changeLogEntryBatch.add(changeLogEntry);
+            
+            if (changeLogEntryBatch.size() % batchSize == 0 || !iter.hasNext()) {
+              GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, true);            
+              changeLogEntryBatch.clear();
             }
-          } else {
-            throw new RuntimeException("Cannot determine if membership is for a group, stem, or attr def: " + mship.getUuid());
           }
           
-          if (changeLogEntryBatch.size() % batchSize == 0 || !iter.hasNext()) {
-            GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, true);            
-            changeLogEntryBatch.clear();
-          }
+          processedCount++;
         }
         
-        processedCount++;
-      }
-      
-      // make sure all changes get made
-      if (changeLogEntryBatch.size() > 0) {
-        GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, true);
-        changeLogEntryBatch.clear();
-      }
-      
-      // make sure all changes get made
-      if (flatMembershipBatch.size() > 0) {
-        GrouperDAOFactory.getFactory().getFlatMembership().saveBatch(flatMembershipBatch);
-        flatMembershipBatch.clear();
-      }
-      
-      if (mships.size() > 0 && saveUpdates) {
-        showStatus("Done making " + totalCount + " updates");
-      }
+        // make sure all changes get made
+        if (changeLogEntryBatch.size() > 0) {
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, true);
+          changeLogEntryBatch.clear();
+        }
+        
+        // make sure all changes get made
+        if (flatMembershipBatch.size() > 0) {
+          GrouperDAOFactory.getFactory().getFlatMembership().saveBatch(flatMembershipBatch);
+          flatMembershipBatch.clear();
+        }
+        
+        if (mships.size() > 0 && saveUpdates) {
+          showStatus("Done making " + totalProcessed + " of approximately " + count + " updates");
+        }
   
-      return mships.size();
-    } finally {
-      stopStatusThread();
+      } finally {
+        stopStatusThread();
+      }
+      
+      if (mships.size() != QUERY_BATCH_SIZE) {
+        break;
+      }
     }
+    
+    return totalProcessed;
   }
 
   /**
    * add missing flat groups
    * @return the number of inserted flat groups
    */
-  public int addMissingFlatGroups() {
-    showStatus("\n\nSearching for missing flat groups");
-    Set<Group> groups = GrouperDAOFactory.getFactory().getFlatGroup().findMissingFlatGroups();
-    totalCount = groups.size();
-    showStatus("Found " + totalCount + " missing flat groups");
+  public long addMissingFlatGroups() {
+    showStatus("\n\nSearching for the number of missing flat groups");
+    long count = GrouperDAOFactory.getFactory().getFlatGroup().findMissingFlatGroupsCount();
+    showStatus("Found " + count + " missing flat groups");
+    
+    if (count == 0) {
+      return 0;
+    }
     
     Set<FlatGroup> batch = new LinkedHashSet<FlatGroup>();
     int batchSize = getBatchSize();
     
-    try {
-      reset();
-      Iterator<Group> iter = groups.iterator();
+    long totalProcessed = 0;
+    int page = 1;
+    while (true) {
+      int currentPage = saveUpdates ? 1 : page;
+      showStatus("Retrieving batch of up to " + QUERY_BATCH_SIZE + " groups");
+      Set<Group> groups = GrouperDAOFactory.getFactory().getFlatGroup().findMissingFlatGroups(currentPage, QUERY_BATCH_SIZE);
+      totalCount = groups.size();
+      totalProcessed += groups.size();
+      page++;
       
-      while (iter.hasNext()) {
-        Group group = iter.next();
-        FlatGroup flatGroup = new FlatGroup();
-        flatGroup.setId(group.getUuid());
-        batch.add(flatGroup);
-        logDetail("Found missing flat group with name: " + group.getName());
-  
-        if (batch.size() % batchSize == 0 || !iter.hasNext()) {
-          if (saveUpdates) {
-            GrouperDAOFactory.getFactory().getFlatGroup().saveBatch(batch);
+      try {
+        reset();
+        Iterator<Group> iter = groups.iterator();
+        
+        while (iter.hasNext()) {
+          Group group = iter.next();
+          FlatGroup flatGroup = new FlatGroup();
+          flatGroup.setId(group.getUuid());
+          batch.add(flatGroup);
+          logDetail("Found missing flat group with name: " + group.getName());
+    
+          if (batch.size() % batchSize == 0 || !iter.hasNext()) {
+            if (saveUpdates) {
+              GrouperDAOFactory.getFactory().getFlatGroup().saveBatch(batch);
+            }
+            batch.clear();
           }
-          batch.clear();
+          
+          processedCount++;
         }
         
-        processedCount++;
+        if (groups.size() > 0 && saveUpdates) {
+          showStatus("Done making " + totalProcessed + " of approximately " + count + " updates");
+        }
+
+      } finally {
+        stopStatusThread();
       }
       
-      if (groups.size() > 0 && saveUpdates) {
-        showStatus("Done making " + totalCount + " updates");
+      if (groups.size() != QUERY_BATCH_SIZE) {
+        break;
       }
-  
-      return groups.size();
-    } finally {
-      stopStatusThread();
     }
+    
+    return totalProcessed;
   }
   
   /**
    * remove bad flat attr defs
    * @return the number of removed flat attr defs
    */
-  public int removeBadFlatAttributeDefs() {
+  public long removeBadFlatAttributeDefs() {
     showStatus("\n\nSearching for bad flat attribute defs");
     Set<FlatAttributeDef> attrDefs = GrouperDAOFactory.getFactory().getFlatAttributeDef().findBadFlatAttributeDefs();
     totalCount = attrDefs.size();
@@ -519,7 +598,7 @@ public class SyncFlatTables {
    * remove bad flat stems
    * @return the number of removed flat stems
    */
-  public int removeBadFlatStems() {
+  public long removeBadFlatStems() {
     showStatus("\n\nSearching for bad flat stems");
     Set<FlatStem> stems = GrouperDAOFactory.getFactory().getFlatStem().findBadFlatStems();
     totalCount = stems.size();
@@ -553,7 +632,7 @@ public class SyncFlatTables {
    * remove bad flat groups
    * @return the number of removed flat groups
    */
-  public int removeBadFlatGroups() {
+  public long removeBadFlatGroups() {
     showStatus("\n\nSearching for bad flat groups");
     Set<FlatGroup> groups = GrouperDAOFactory.getFactory().getFlatGroup().findBadFlatGroups();
     totalCount = groups.size();
@@ -588,7 +667,7 @@ public class SyncFlatTables {
    * or by adding a changelog event depending on whether sendNotifications(boolean) is set.
    * @return the number of bad flat memberships
    */
-  public int removeBadFlatMemberships() {
+  public long removeBadFlatMemberships() {
     showStatus("\n\nSearching for bad flat memberships");
     Set<FlatMembership> mships = GrouperDAOFactory.getFactory().getFlatMembership().findBadFlatMemberships();
     totalCount = mships.size();

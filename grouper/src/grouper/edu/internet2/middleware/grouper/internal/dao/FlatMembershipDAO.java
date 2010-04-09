@@ -116,9 +116,17 @@ public interface FlatMembershipDAO extends GrouperDAO {
   
   /**
    * find missing flat memberships
+   * @param page
+   * @param batchSize
    * @return set of memberships that need flat memberships
    */
-  public Set<Membership> findMissingFlatMemberships();
+  public Set<Membership> findMissingFlatMemberships(int page, int batchSize);
+  
+  /**
+   * find missing flat memberships count
+   * @return long
+   */
+  public long findMissingFlatMembershipsCount();
   
   /**
    * remove bad flat memberships

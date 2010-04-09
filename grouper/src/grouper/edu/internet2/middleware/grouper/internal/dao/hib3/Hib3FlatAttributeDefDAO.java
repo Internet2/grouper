@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.flat.FlatAttributeDef;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FlatAttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 
 /**
  * @author shilen
@@ -68,16 +69,30 @@ public class Hib3FlatAttributeDefDAO extends Hib3DAO implements FlatAttributeDef
       .executeUpdate();
   }
 
-  public Set<AttributeDef> findMissingFlatAttributeDefs() {
+  public Set<AttributeDef> findMissingFlatAttributeDefs(int page, int batchSize) {
     Set<AttributeDef> attrDefs = HibernateSession
       .byHqlStatic()
       .createQuery("select a from AttributeDef a where not exists (select 1 from FlatAttributeDef flatAttributeDef where flatAttributeDef.id=a.id) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string01 = a.id " +
-          "and type.actionName='addAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId)")
+          "and type.actionName='addAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId) " +
+          "order by a.id")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatAttributeDefs")
+      .options(new QueryOptions().paging(batchSize, page, false))
       .listSet(AttributeDef.class);
     
     return attrDefs;
+  }
+  
+  public long findMissingFlatAttributeDefsCount() {
+    long count = HibernateSession
+      .byHqlStatic()
+      .createQuery("select count(*) from AttributeDef a where not exists (select 1 from FlatAttributeDef flatAttributeDef where flatAttributeDef.id=a.id) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string01 = a.id " +
+          "and type.actionName='addAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatAttributeDefsCount")
+      .uniqueResult(Long.class);
+    
+    return count;
   }
   
   public Set<FlatAttributeDef> findBadFlatAttributeDefs() {

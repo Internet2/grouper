@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.flat.FlatMembership;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 
 /**
  * @author shilen
@@ -256,7 +257,7 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
     return mships;
   }
 
-  public Set<Membership> findMissingFlatMemberships() {
+  public Set<Membership> findMissingFlatMemberships(int page, int batchSize) {
     Set<Membership> mships = HibernateSession
       .byHqlStatic()
       .createQuery("select ms from MembershipEntry ms where ms.enabledDb='T' and " +
@@ -276,12 +277,42 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
           "    and (ms.ownerGroupId is not null and ms.ownerGroupId=ms2.ownerGroupId " +
           "         or ms.ownerStemId is not null and ms.ownerStemId=ms2.ownerStemId " +
           "         or ms.ownerAttrDefId is not null and ms.ownerAttrDefId=ms2.ownerAttrDefId) " +
-          "    and ms.fieldId = ms2.fieldId and ms2.enabledDb='T')")
+          "    and ms.fieldId = ms2.fieldId and ms2.enabledDb='T') " +
+          "order by ms.immediateMembershipId, ms.groupSetId")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatMemberships")
       .setString("fieldId", Group.getDefaultList().getUuid())
+      .options(new QueryOptions().paging(batchSize, page, false))
       .listSet(Membership.class);
     
     return mships;
+  }
+  
+  public long findMissingFlatMembershipsCount() {
+    long count = HibernateSession
+      .byHqlStatic()
+      .createQuery("select count(*) from MembershipEntry ms where ms.enabledDb='T' and " +
+          "not exists (select 1 from FlatMembership flatMship " +
+          "    where (flatMship.ownerId=ms.ownerGroupId or flatMship.ownerId=ms.ownerStemId or flatMship.ownerId=ms.ownerAttrDefId) " +
+          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where temp.string06 = ms.ownerGroupId and temp.string09=ms.fieldId " +
+          "    and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+          "    where (temp.string07 = ms.ownerGroupId or temp.string07 = ms.ownerStemId or temp.string07 = ms.ownerAttrDefId) and temp.string10=ms.fieldId " +
+          "    and type.actionName='addPrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type, Member m, MembershipEntry ms2 " +
+          "    where temp.string09=:fieldId and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId " +
+          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='g:gsa' " +
+          "    and ms2.memberUuid = m.uuid " +
+          "    and (ms.ownerGroupId is not null and ms.ownerGroupId=ms2.ownerGroupId " +
+          "         or ms.ownerStemId is not null and ms.ownerStemId=ms2.ownerStemId " +
+          "         or ms.ownerAttrDefId is not null and ms.ownerAttrDefId=ms2.ownerAttrDefId) " +
+          "    and ms.fieldId = ms2.fieldId and ms2.enabledDb='T')")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatMembershipsCount")
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .uniqueResult(Long.class);
+    
+    return count;
   }
 
   /**
