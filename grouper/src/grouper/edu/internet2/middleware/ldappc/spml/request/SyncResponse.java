@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.OCEtoMarshallableAdapter;
 import org.openspml.v2.msg.spml.AddResponse;
 import org.openspml.v2.msg.spml.DeleteResponse;
@@ -29,6 +31,7 @@ import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.util.Spml2Exception;
 
 import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public class SyncResponse extends ProvisioningResponse {
 
@@ -75,6 +78,15 @@ public class SyncResponse extends ProvisioningResponse {
       this.addResponse((ModifyResponse) response);
     } else {
       throw new LdappcException("Response " + response.getClass() + " is not supported.");
+    }
+  }
+
+  public void addResponse(SynchronizedResponse synchronizedResponse) {
+    try {
+      this.addOpenContentElement(new OCEtoMarshallableAdapter(synchronizedResponse));
+    } catch (Spml2Exception e) {
+      // shouldn't happen
+      throw new LdappcException("An SPML2 error occurred.", e);
     }
   }
 
@@ -134,6 +146,17 @@ public class SyncResponse extends ProvisioningResponse {
     return map;
   }
 
+  public List<SynchronizedResponse> getSynchronizedResponses() {
+    List<SynchronizedResponse> responses = new ArrayList<SynchronizedResponse>();
+    for (Object oce : this.getOpenContentElements(OCEtoMarshallableAdapter.class)) {
+      Object o = ((OCEtoMarshallableAdapter) oce).getAdaptedObject();
+      if (o instanceof SynchronizedResponse) {
+        responses.add((SynchronizedResponse) o);
+      }
+    }
+    return responses;
+  }
+
   public int hashCode() {
     int result = 1;
     result = 29 * result + (this.getIdentifier() != null ? this.getIdentifier().hashCode() : 0);
@@ -146,6 +169,7 @@ public class SyncResponse extends ProvisioningResponse {
     for (Response response : this.getResponses()) {
       result = 29 * result + response.hashCode();
     }
+    // TODO does this include synchronizedResponses ? 
     return result;
   }
 
@@ -219,5 +243,21 @@ public class SyncResponse extends ProvisioningResponse {
     }
 
     return true;
+  }
+
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.appendSuper(super.toString());
+    for (AddResponse response : this.getAddResponses()) {
+      toStringBuilder.append(PSPUtil.toString(response));
+    }
+    for (ModifyResponse response : this.getModifyResponses()) {
+      toStringBuilder.append(PSPUtil.toString(response));
+    }
+    for (DeleteResponse response : this.getDeleteResponses()) {
+      toStringBuilder.append(PSPUtil.toString(response));
+    }
+    return toStringBuilder.toString();
   }
 }

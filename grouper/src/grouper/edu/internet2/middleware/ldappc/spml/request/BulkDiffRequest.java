@@ -14,6 +14,6 @@
 
 package edu.internet2.middleware.ldappc.spml.request;
 
-public class BulkDiffRequest extends ProvisioningRequest {
+public class BulkDiffRequest extends BulkProvisioningRequest {
 
 }

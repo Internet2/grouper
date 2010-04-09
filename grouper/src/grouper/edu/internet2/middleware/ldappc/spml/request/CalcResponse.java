@@ -16,9 +16,13 @@ package edu.internet2.middleware.ldappc.spml.request;
 
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spml.PSO;
 import org.openspml.v2.util.xml.ArrayListWithType;
 import org.openspml.v2.util.xml.ListWithType;
+
+import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public class CalcResponse extends ProvisioningResponse {
 
@@ -38,5 +42,15 @@ public class CalcResponse extends ProvisioningResponse {
     if (pso != null) {
       m_pso.addAll(pso);
     }
+  }
+
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.appendSuper(super.toString());
+    for (PSO pso : this.getPSOs()) {
+      toStringBuilder.append("pso", PSPUtil.toString(pso));
+    }
+    return toStringBuilder.toString();
   }
 }

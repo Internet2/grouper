@@ -14,9 +14,15 @@
 
 package edu.internet2.middleware.ldappc.spml.request;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.openspml.v2.msg.PrefixAndNamespaceTuple;
 import org.openspml.v2.msg.spml.PSOIdentifier;
+import org.openspml.v2.msg.spml.Response;
 
-public class SynchronizedResponse extends ProvisioningResponse {
+import edu.internet2.middleware.ldappc.util.PSPUtil;
+
+public class SynchronizedResponse extends Response {
 
   private PSOIdentifier m_psoID = null;
 
@@ -26,6 +32,10 @@ public class SynchronizedResponse extends ProvisioningResponse {
 
   public void setPsoID(PSOIdentifier psoID) {
     m_psoID = psoID;
+  }
+
+  public PrefixAndNamespaceTuple[] getNamespacesInfo() {
+    return LdappcMarshallableCreator.staticGetNamespacesInfo();
   }
 
   public boolean equals(Object o) {
@@ -49,5 +59,13 @@ public class SynchronizedResponse extends ProvisioningResponse {
     int result = super.hashCode();
     result = 29 * result + (m_psoID != null ? m_psoID.hashCode() : 0);
     return result;
+  }
+
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("psoID", PSPUtil.toString(this.getPsoID()));
+    toStringBuilder.appendSuper(super.toString());
+    return toStringBuilder.toString();
   }
 }

@@ -16,8 +16,12 @@ package edu.internet2.middleware.ldappc.spml.request;
 
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.util.xml.ArrayListWithType;
 import org.openspml.v2.util.xml.ListWithType;
+
+import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public class BulkSyncResponse extends ProvisioningResponse {
 
@@ -55,5 +59,13 @@ public class BulkSyncResponse extends ProvisioningResponse {
     }
 
     return true;
+  }
+
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("responses", this.getResponses().size());
+    toStringBuilder.appendSuper(PSPUtil.toString((ProvisioningResponse) this));
+    return toStringBuilder.toString();
   }
 }

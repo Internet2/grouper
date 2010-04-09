@@ -14,15 +14,22 @@
 
 package edu.internet2.middleware.ldappc.spml.request;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.BasicOpenContentAttr;
 import org.openspml.v2.msg.PrefixAndNamespaceTuple;
 import org.openspml.v2.msg.spml.Response;
+
+import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public abstract class ProvisioningResponse extends Response {
 
   private ID m_id;
 
   public String getId() {
+    if (m_id == null) {
+      return null;
+    }
     return m_id.getID();
   }
 
@@ -31,6 +38,11 @@ public abstract class ProvisioningResponse extends Response {
     setID(id);
   }
 
+  /**
+   * Same as getId, but returns an <code>ID</code> rather than a String.
+   * 
+   * @return
+   */
   public ID getIdentifier() {
     return m_id;
   }
@@ -80,4 +92,11 @@ public abstract class ProvisioningResponse extends Response {
     return true;
   }
 
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("id", this.getId());
+    toStringBuilder.appendSuper(PSPUtil.toString((Response) this));
+    return toStringBuilder.toString();
+  }
 }

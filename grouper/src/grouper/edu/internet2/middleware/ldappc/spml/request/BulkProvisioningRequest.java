@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+ * Copyright 2010 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,9 @@
 
 package edu.internet2.middleware.ldappc.spml.request;
 
-
-public class BulkCalcRequest extends BulkProvisioningRequest {
+/**
+ *
+ */
+public abstract class BulkProvisioningRequest extends ProvisioningRequest {
 
 }

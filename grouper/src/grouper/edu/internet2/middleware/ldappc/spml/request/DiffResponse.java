@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.OCEtoMarshallableAdapter;
 import org.openspml.v2.msg.spml.AddRequest;
 import org.openspml.v2.msg.spml.DeleteRequest;
@@ -30,6 +32,7 @@ import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.util.Spml2Exception;
 
 import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public class DiffResponse extends ProvisioningResponse {
 
@@ -265,6 +268,25 @@ public class DiffResponse extends ProvisioningResponse {
     }
 
     return true;
+  }
+
+  @Override
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.appendSuper(super.toString());
+    for (AddRequest request : this.getAddRequests()) {
+      toStringBuilder.append("add", PSPUtil.toString(request));
+    }
+    for (ModifyRequest request : this.getModifyRequests()) {
+      toStringBuilder.append("modify", PSPUtil.toString(request));
+    }
+    for (DeleteRequest request : this.getDeleteRequests()) {
+      toStringBuilder.append("delete", PSPUtil.toString(request));
+    }
+    for (SynchronizedResponse response : this.getSynchronizedResponses()) {
+      toStringBuilder.append("synchronized", response.toString());
+    }
+    return toStringBuilder.toString();
   }
 
   // TODO equality checking for OCEtoMarshallableAdapter

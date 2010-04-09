@@ -17,6 +17,8 @@ package edu.internet2.middleware.ldappc.spml.request;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.BasicOpenContentAttr;
 import org.openspml.v2.msg.PrefixAndNamespaceTuple;
 import org.openspml.v2.msg.spml.BatchableRequest;
@@ -41,7 +43,7 @@ public abstract class ProvisioningRequest extends BatchableRequest {
   }
 
   public String getId() {
-    return m_id.getID();
+    return m_id == null ? null : m_id.getID();
   }
 
   public ID getIdentifier() {
@@ -148,7 +150,13 @@ public abstract class ProvisioningRequest extends BatchableRequest {
     return false;
   }
 
+  @Override
   public String toString() {
-    return "id='" + m_id.getID() + "' returnData='" + m_returnData + "' targetIds='" + getTargetIds() + "'";
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("id", this.getId());
+    toStringBuilder.append("returnData", this.getReturnData());
+    toStringBuilder.append("targetIds", this.getTargetIds());
+    toStringBuilder.append("requestID", this.getRequestID());    
+    return toStringBuilder.toString();
   }
 }

@@ -14,6 +14,6 @@
 
 package edu.internet2.middleware.ldappc.spml.request;
 
-public class BulkSyncRequest extends ProvisioningRequest {
+public class BulkSyncRequest extends BulkProvisioningRequest {
 
 }
