@@ -45,5 +45,13 @@ public class LdapTargetProviderBeanDefinitionParser extends AbstractServiceBeanD
     String ldapPoolId = configElement.getAttributeNS(null, "ldapPoolId");
     LOG.debug("Setting ldapPoolId to '{}'", ldapPoolId);
     builder.addPropertyValue("ldapPoolId", ldapPoolId);
+    
+    String logLdif = configElement.getAttributeNS(null, "logLdif");
+    LOG.debug("Setting logLdif to '{}'", logLdif);
+    builder.addPropertyValue("logLdif", logLdif);
+    
+    String logSpml = configElement.getAttributeNS(null, "logSpml");
+    LOG.debug("Setting logSpml to '{}'", logSpml);
+    builder.addPropertyValue("logSpml", logSpml);
   }
 }

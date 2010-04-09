@@ -17,11 +17,10 @@ package edu.internet2.middleware.ldappc.spml.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeMap;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NameAlreadyBoundException;
@@ -32,11 +31,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.openspml.v2.msg.spml.AddRequest;
 import org.openspml.v2.msg.spml.AddResponse;
-import org.openspml.v2.msg.spml.CapabilityData;
 import org.openspml.v2.msg.spml.DeleteRequest;
 import org.openspml.v2.msg.spml.DeleteResponse;
 import org.openspml.v2.msg.spml.ErrorCode;
@@ -50,10 +49,12 @@ import org.openspml.v2.msg.spml.ModifyResponse;
 import org.openspml.v2.msg.spml.PSO;
 import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spml.QueryClause;
+import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.StatusCode;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.openspml.v2.msg.spmlsearch.Query;
+import org.openspml.v2.msg.spmlsearch.Scope;
 import org.openspml.v2.msg.spmlsearch.SearchRequest;
 import org.openspml.v2.msg.spmlsearch.SearchResponse;
 import org.openspml.v2.profiles.dsml.DSMLAttr;
@@ -67,9 +68,11 @@ import org.springframework.context.ApplicationContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSP;
+import edu.internet2.middleware.ldappc.spml.PSPConstants;
 import edu.internet2.middleware.ldappc.spml.definitions.PSODefinition;
 import edu.internet2.middleware.ldappc.spml.definitions.PSOReferencesDefinition;
 import edu.internet2.middleware.ldappc.spml.request.LdapFilterQueryClause;
+import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.service.ServiceException;
 import edu.vt.middleware.ldap.Ldap;
@@ -78,7 +81,10 @@ import edu.vt.middleware.ldap.bean.LdapAttribute;
 import edu.vt.middleware.ldap.bean.LdapAttributes;
 import edu.vt.middleware.ldap.bean.LdapEntry;
 import edu.vt.middleware.ldap.bean.LdapResult;
-import edu.vt.middleware.ldap.ldif.LdifResult;
+import edu.vt.middleware.ldap.bean.OrderedLdapBeanFactory;
+import edu.vt.middleware.ldap.bean.SortedLdapBeanFactory;
+import edu.vt.middleware.ldap.ldif.Ldif;
+import edu.vt.middleware.ldap.ldif.LdifResultConverter;
 import edu.vt.middleware.ldap.pool.LdapPool;
 import edu.vt.middleware.ldap.pool.LdapPoolException;
 
@@ -89,6 +95,10 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
   private String ldapPoolId;
 
   private LdapPool<Ldap> ldapPool;
+
+  private boolean logLdif;
+
+  private boolean logSpml;
 
   public LdapTargetProvider() {
   }
@@ -105,6 +115,36 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     return ldapPool;
   }
 
+  /**
+   * @return Returns the logLdif.
+   */
+  public boolean isLogLdif() {
+    return logLdif;
+  }
+
+  /**
+   * @param logLdif
+   *          The logLdif to set.
+   */
+  public void setLogLdif(boolean logLdif) {
+    this.logLdif = logLdif;
+  }
+
+  /**
+   * @return Returns the logSpml.
+   */
+  public boolean isLogSpml() {
+    return logSpml;
+  }
+
+  /**
+   * @param logSpml
+   *          The logSpml to set.
+   */
+  public void setLogSpml(boolean logSpml) {
+    this.logSpml = logSpml;
+  }
+
   protected void onNewContextCreated(ApplicationContext newServiceContext) throws ServiceException {
     LdapPool<Ldap> oldPool = ldapPool;
     try {
@@ -118,314 +158,379 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
   }
 
   public AddResponse execute(AddRequest addRequest) {
-    if (addRequest.getRequestID() == null) {
-      addRequest.setRequestID(this.generateRequestID(addRequest));
-    }
-    LOG.trace("add request:\n{}", this.toXML(addRequest));
+
+    String msg = PSPUtil.toString(addRequest);
+    LOG.info("{}", msg);
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addRequest));
 
     AddResponse addResponse = new AddResponse();
-    addResponse.setStatus(StatusCode.SUCCESS);
     addResponse.setRequestID(this.getOrGenerateRequestID(addRequest));
 
-    if (addRequest.getPsoID() == null || addRequest.getPsoID().getID() == null) {
-      fail(addResponse, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_PSO_ID);
-      LOG.trace("add response:\n{}", this.toXML(addResponse));
+    if (!this.getPSP().isValid(addRequest, addResponse)) {
+      LOG.error(PSPUtil.toString(addResponse));
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     }
 
-    String targetId = addRequest.getPsoID().getTargetID();
-    if (targetId == null) {
-      fail(addResponse, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_TARGET_ID);
-      LOG.trace("add response:\n{}", this.toXML(addResponse));
+    if (!this.isValidTargetId(addRequest.getPsoID(), addResponse)) {
+      LOG.error(PSPUtil.toString(addResponse));
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
       return addResponse;
     }
 
-    if (!targetId.equals(this.getTargetDefinition().getId())) {
-      fail(addResponse, ErrorCode.INVALID_IDENTIFIER);
-      LOG.trace("add response:\n{}", this.toXML(addResponse));
-      return addResponse;
-    }
-
+    // assume the psoID is a DN
     String dn = addRequest.getPsoID().getID();
 
-    String msg = "add '" + dn + "' ldap '" + this.getId() + "'";
+    try {
+      this.handleEmptyReferences(addRequest);
+    } catch (DSMLProfileException e) {
+      fail(addResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(addResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      return addResponse;
+    }
 
     Ldap ldap = null;
     try {
-      // build ldap attributes
-      LdapAttributes ldapAttributes = new LdapAttributes();
       Extensible data = addRequest.getData();
-      if (data == null) {
-        fail(addResponse, ErrorCode.MALFORMED_REQUEST, "Data is required.");
-        LOG.trace("add response:\n{}", this.toXML(addResponse));
-        return addResponse;
-      }
+
+      SortedLdapBeanFactory ldapBeanFactory = new SortedLdapBeanFactory();
+      LdapAttributes ldapAttributes = ldapBeanFactory.newLdapAttributes();
 
       // data
       Map<String, DSMLAttr> dsmlAttrs = PSP.getDSMLAttrMap(data);
       for (DSMLAttr dsmlAttr : dsmlAttrs.values()) {
-        List<String> values = new ArrayList<String>();
+        BasicAttribute basicAttribute = new BasicAttribute(dsmlAttr.getName());
         for (DSMLValue dsmlValue : dsmlAttr.getValues()) {
-          values.add(dsmlValue.getValue());
+          basicAttribute.add(dsmlValue.getValue());
         }
-        LdapAttribute ldapAttribute = new LdapAttribute(dsmlAttr.getName(), values);
+        LdapAttribute ldapAttribute = ldapBeanFactory.newLdapAttribute();
+        ldapAttribute.setAttribute(basicAttribute);
         ldapAttributes.addAttribute(ldapAttribute);
       }
 
       // references
       Map<String, List<Reference>> references = PSP.getReferences(addRequest.getCapabilityData());
       for (String typeOfReference : references.keySet()) {
-        List<String> ids = new ArrayList<String>();
+        BasicAttribute basicAttribute = new BasicAttribute(typeOfReference);
         for (Reference reference : references.get(typeOfReference)) {
           if (reference.getToPsoID().getTargetID().equals(this.getTargetDefinition().getId())) {
             String id = reference.getToPsoID().getID();
             // fake empty string since the spml toolkit ignores an empty string psoID
-            if (id.equals(PSOReferencesDefinition.EMPTY_STRING)) {
+            if (id == null) {
               id = "";
             }
-            ids.add(id);
+            basicAttribute.add(id);
           }
         }
-        LdapAttribute ldapAttribute = new LdapAttribute(typeOfReference, ids);
+        LdapAttribute ldapAttribute = ldapBeanFactory.newLdapAttribute();
+        ldapAttribute.setAttribute(basicAttribute);
         ldapAttributes.addAttribute(ldapAttribute);
       }
 
-      // TODO decide on logging, ldif or one-line
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("{} entry '{}'", msg, ldapAttributes);
-        if (LOG.isTraceEnabled()) {
-          LdapEntry ldapEntry = new LdapEntry(dn, ldapAttributes);
-          LdifResult ldifResult = new LdifResult(ldapEntry);
-          LOG.trace("{} ldif:\n{}", msg, ldifResult.toLdif());
-        }
-      }
+      String escapedDn = LdapUtil.escapeForwardSlash(dn);
+      LOG.debug("{} escaped dn '{}'", msg, escapedDn);
 
+      // create
       ldap = ldapPool.checkOut();
+      LOG.info("{} create", PSPUtil.toString(addRequest));
+      ldap.create(escapedDn, ldapAttributes.toAttributes());
 
-      LOG.info("{}", msg);
-      ldap.create(dn, ldapAttributes.toAttributes());
+      if (this.isLogLdif()) {
+        LdapEntry ldapEntry = ldapBeanFactory.newLdapEntry();
+        ldapEntry.setDn(dn);
+        ldapEntry.setLdapAttributes(ldapAttributes);
+        LdapResult result = ldapBeanFactory.newLdapResult();
+        result.addEntry(ldapEntry);
+        Ldif ldif = new Ldif();
+        LOG.info("{}:\n{}", msg, ldif.createLdif(result));
+      }
 
       // response PSO
-      PSO responsePSO = new PSO();
-      responsePSO.setPsoID(addRequest.getPsoID());
-      if (addRequest.getReturnData().equals(ReturnData.DATA)
-          || addRequest.getReturnData().equals(ReturnData.EVERYTHING)) {
-        responsePSO.setData(addRequest.getData());
-      }
-      if (addRequest.getReturnData().equals(ReturnData.EVERYTHING)) {
-        for (CapabilityData capabilityData : addRequest.getCapabilityData()) {
-          responsePSO.addCapabilityData(capabilityData);
+      if (addRequest.getReturnData().equals(ReturnData.IDENTIFIER)) {
+        PSO responsePSO = new PSO();
+        responsePSO.setPsoID(addRequest.getPsoID());
+        addResponse.setPso(responsePSO);
+      } else {
+        LookupRequest lookupRequest = new LookupRequest();
+        lookupRequest.setPsoID(addRequest.getPsoID());
+        lookupRequest.setReturnData(addRequest.getReturnData());
+
+        LookupResponse lookupResponse = this.execute(lookupRequest);
+        if (lookupResponse.getStatus() == StatusCode.SUCCESS) {
+          addResponse.setPso(lookupResponse.getPso());
+        } else {
+          fail(addResponse, lookupResponse.getError(), "Unable to lookup object after create.");
+          LOG.error(PSPUtil.toString(addResponse));
+          if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+          return addResponse;
         }
       }
-      addResponse.setPso(responsePSO);
 
       // TODO are all jndi exceptions caught correctly ?
     } catch (LdapPoolException e) {
-      LOG.error(msg + " An LdapPool error occurred", e);
-      fail(addResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(addResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(addResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      return addResponse;
     } catch (NameAlreadyBoundException e) {
-      LOG.error(msg + " Already exists", e);
-      fail(addResponse, ErrorCode.ALREADY_EXISTS);
+      fail(addResponse, ErrorCode.ALREADY_EXISTS, e);
+      LOG.error(PSPUtil.toString(addResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      return addResponse;
     } catch (NamingException e) {
-      LOG.error(msg + " An error occurred", e);
-      fail(addResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(addResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(addResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      return addResponse;
     } catch (LdappcException e) {
       // from PSO.getReferences, an unhandled capability data
-      LOG.error(msg + " An error occurred", e);
-      fail(addResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(addResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(addResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
+      return addResponse;
     } finally {
       ldapPool.checkIn(ldap);
     }
 
-    LOG.trace("add response:\n{}", this.toXML(addResponse));
+    addResponse.setStatus(StatusCode.SUCCESS);
+    LOG.info(PSPUtil.toString(addResponse));
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(addResponse));
     return addResponse;
   }
 
   public DeleteResponse execute(DeleteRequest deleteRequest) {
-    if (deleteRequest.getRequestID() == null) {
-      deleteRequest.setRequestID(this.generateRequestID(deleteRequest));
-    }
-    LOG.trace("delete request:\n{}", this.toXML(deleteRequest));
+
+    String msg = PSPUtil.toString(deleteRequest);
+    LOG.info("{}", msg);
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteRequest));
 
     DeleteResponse deleteResponse = new DeleteResponse();
-    deleteResponse.setStatus(StatusCode.SUCCESS);
     deleteResponse.setRequestID(this.getOrGenerateRequestID(deleteRequest));
 
-    if (deleteRequest.getPsoID() == null || deleteRequest.getPsoID().getID() == null) {
-      fail(deleteResponse, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_PSO_ID);
-      LOG.trace("delete response:\n{}", this.toXML(deleteResponse));
-      return deleteResponse;
-    }
-
-    String targetId = deleteRequest.getPsoID().getTargetID();
-    if (targetId == null) {
-      fail(deleteResponse, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_TARGET_ID);
-      LOG.trace("delete response:\n{}", this.toXML(deleteResponse));
-      return deleteResponse;
-    }
-
-    if (!targetId.equals(this.getTargetDefinition().getId())) {
-      fail(deleteResponse, ErrorCode.INVALID_IDENTIFIER);
-      LOG.trace("delete response:\n{}", this.toXML(deleteResponse));
+    if (!this.isValidTargetId(deleteRequest.getPsoID(), deleteResponse)) {
+      LOG.error(PSPUtil.toString(deleteResponse));
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
       return deleteResponse;
     }
 
     String dn = deleteRequest.getPsoID().getID();
 
-    String msg = "delete '" + dn + "' ldap '" + this.getId() + "'";
-
     Ldap ldap = null;
     try {
       ldap = ldapPool.checkOut();
       LOG.info("{}", msg);
-      ldap.delete(dn);
+      String escapedDn = LdapUtil.escapeForwardSlash(dn);
+      LOG.debug("{} escaped dn '{}'", msg, escapedDn);
+      ldap.delete(escapedDn);
 
       // TODO are all jndi exceptions caught correctly ?
     } catch (LdapPoolException e) {
-      LOG.error(msg + " An LdapPool error occurred", e);
-      fail(deleteResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(deleteResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(deleteResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
+      return deleteResponse;
     } catch (NameNotFoundException e) {
-      LOG.error(msg + " Not found", e);
-      fail(deleteResponse, ErrorCode.NO_SUCH_IDENTIFIER);
+      fail(deleteResponse, ErrorCode.NO_SUCH_IDENTIFIER, e);
+      LOG.error(PSPUtil.toString(deleteResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
+      return deleteResponse;
     } catch (NamingException e) {
-      LOG.error(msg + " An LdapPool error occurred", e);
-      fail(deleteResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(deleteResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(deleteResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
+      return deleteResponse;
     } finally {
       ldapPool.checkIn(ldap);
     }
 
-    LOG.trace("delete response:\n{}", this.toXML(deleteResponse));
+    deleteResponse.setStatus(StatusCode.SUCCESS);
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(deleteResponse));
     return deleteResponse;
   }
 
   public LookupResponse execute(LookupRequest lookupRequest) {
-    if (lookupRequest.getRequestID() == null) {
-      lookupRequest.setRequestID(this.generateRequestID(lookupRequest));
-    }
-    LOG.trace("lookup request:\n{}", this.toXML(lookupRequest));
+
+    this.setRequestId(lookupRequest);
+    String msg = PSPUtil.toString(lookupRequest);
+    LOG.info("{}", msg);
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupRequest));
 
     LookupResponse lookupResponse = new LookupResponse();
-    lookupResponse.setStatus(StatusCode.SUCCESS);
     lookupResponse.setRequestID(this.getOrGenerateRequestID(lookupRequest));
 
     if (lookupRequest.getPsoID() == null || lookupRequest.getPsoID().getID() == null) {
-      fail(lookupResponse, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_PSO_ID);
-      LOG.trace("lookup response:\n{}", this.toXML(lookupResponse));
+      fail(lookupResponse, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_PSO_ID);
+      LOG.error("{}", PSPUtil.toString(lookupResponse));
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     }
 
     String targetId = lookupRequest.getPsoID().getTargetID();
-    if (targetId == null) {
-      fail(lookupResponse, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_TARGET_ID);
-      LOG.trace("lookup response:\n{}", this.toXML(lookupResponse));
+    if (GrouperUtil.isBlank(targetId)) {
+      fail(lookupResponse, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_TARGET_ID);
+      LOG.error("{}", PSPUtil.toString(lookupResponse));
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     }
 
     if (!targetId.equals(this.getTargetDefinition().getId())) {
       fail(lookupResponse, ErrorCode.INVALID_IDENTIFIER);
-      LOG.trace("lookup response:\n{}", this.toXML(lookupResponse));
+      LOG.error("{}", PSPUtil.toString(lookupResponse));
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     }
 
     String dn = lookupRequest.getPsoID().getID();
 
-    String msg = "lookup '" + dn + "' ldap '" + this.getId() + "' return '" + lookupRequest.getReturnData() + "'";
-
     Ldap ldap = null;
     try {
+      // will not return AD Range option attrs
+      // Attributes attributes = ldap.getAttributes(escapedDn, retAttrs);
+
+      SearchFilter sf = new SearchFilter();
+      sf.setFilter("objectclass=*");
+      SearchControls sc = new SearchControls();
+      sc.setSearchScope(SearchControls.OBJECT_SCOPE);
 
       // This lookup requests attributes defined for *all* objects.
       // Perhaps there should be two searches, one for the identifier
       // and a second for attributes.
       String[] retAttrs = this.getTargetDefinition().getNames(lookupRequest.getReturnData()).toArray(new String[] {});
+      sc.setReturningAttributes(retAttrs);
+
+      // TODO logging
+      String escapedDn = LdapUtil.escapeForwardSlash(dn);
+      LOG.debug("{} dn '{}' attrs {}", new Object[] { msg, escapedDn, retAttrs });
 
       ldap = ldapPool.checkOut();
+      Iterator<SearchResult> searchResults = ldap.search(escapedDn, sf, sc);
 
-      LOG.debug("{} retAttrs {}", msg, Arrays.asList(retAttrs));
-      Attributes attributes = ldap.getAttributes(dn, retAttrs);
+      if (!searchResults.hasNext()) {
+        fail(lookupResponse, ErrorCode.NO_SUCH_IDENTIFIER);
+        LOG.error("{}", PSPUtil.toString(lookupResponse));
+        if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+        return lookupResponse;
+      }
 
-      LdapEntry entry = new LdapEntry(dn, new LdapAttributes(attributes));
-      // TODO debug or info logging or ?
-      LOG.info("{} found {} attributes", msg, entry.getLdapAttributes().getAttributes().size());
+      SearchResult result = searchResults.next();
+
+      if (searchResults.hasNext()) {
+        fail(lookupResponse, ErrorCode.CUSTOM_ERROR, "More than one result found.");
+        LOG.error("{}", PSPUtil.toString(lookupResponse));
+        if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+        return lookupResponse;
+      }
+      Attributes attributes = result.getAttributes();
+
+      // return attributes in order defined by config
+      OrderedLdapBeanFactory orderedLdapBeanFactory = new OrderedLdapBeanFactory();
+      // sort values
+      SortedLdapBeanFactory sortedLdapBeanFactory = new SortedLdapBeanFactory();
+
+      LdapAttributes ldapAttributes = orderedLdapBeanFactory.newLdapAttributes();
+      for (String retAttr : retAttrs) {
+        Attribute attr = attributes.get(retAttr);
+        if (attr != null) {
+          LdapAttribute ldapAttribute = sortedLdapBeanFactory.newLdapAttribute();
+          ldapAttribute.setAttribute(attr);
+          ldapAttributes.addAttribute(ldapAttribute);
+        }
+      }
+
+      LdapEntry entry = sortedLdapBeanFactory.newLdapEntry();
+      entry.setDn(dn);
+      entry.setLdapAttributes(ldapAttributes);
+
+      if (this.isLogLdif()) {
+        LdapResult lr = sortedLdapBeanFactory.newLdapResult();
+        lr.addEntry(entry);
+        LdifResultConverter lrc = new LdifResultConverter();
+        LOG.info("{}\n{}", msg, lrc.toLdif(lr));
+      }
 
       // build pso
       lookupResponse.setPso(getPSO(entry, lookupRequest.getReturnData()));
 
     } catch (NameNotFoundException e) {
-      LOG.debug("{} not found", msg);
-      fail(lookupResponse, ErrorCode.NO_SUCH_IDENTIFIER, e.getMessage());
+      fail(lookupResponse, ErrorCode.NO_SUCH_IDENTIFIER);
+      LOG.error(PSPUtil.toString(lookupResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      return lookupResponse;
     } catch (LdapPoolException e) {
-      LOG.error("An error occurred", e);
-      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(lookupResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      return lookupResponse;
     } catch (InvalidNameException e) {
-      LOG.error("An error occurred", e);
-      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(lookupResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      return lookupResponse;
     } catch (NamingException e) {
-      LOG.error("An error occurred", e);
-      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(lookupResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      return lookupResponse;
     } catch (DSMLProfileException e) {
-      LOG.error("An error occurred", e);
-      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(lookupResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      return lookupResponse;
     } catch (Spml2Exception e) {
-      LOG.error("An error occurred", e);
-      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(lookupResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(lookupResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
+      return lookupResponse;
     } finally {
       ldapPool.checkIn(ldap);
     }
 
-    LOG.trace("lookup response:\n{}", this.toXML(lookupResponse));
+    lookupResponse.setStatus(StatusCode.SUCCESS);
+    LOG.info("{}", PSPUtil.toString(lookupResponse));
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
     return lookupResponse;
   }
 
   public ModifyResponse execute(ModifyRequest modifyRequest) {
-    if (modifyRequest.getRequestID() == null) {
-      modifyRequest.setRequestID(this.generateRequestID(modifyRequest));
-    }
-    LOG.trace("modify request:\n{}", this.toXML(modifyRequest));
+
+    String msg = PSPUtil.toString(modifyRequest);
+    LOG.info("{}", msg);
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(modifyRequest));
 
     ModifyResponse response = new ModifyResponse();
-    response.setStatus(StatusCode.SUCCESS);
     response.setRequestID(this.getOrGenerateRequestID(modifyRequest));
 
-    if (modifyRequest.getPsoID() == null || modifyRequest.getPsoID().getID() == null) {
-      fail(response, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_PSO_ID);
-      LOG.trace("modify response:\n{}", this.toXML(response));
+    if (!this.getPSP().isValid(modifyRequest, response)) {
+      LOG.error(PSPUtil.toString(response));
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
       return response;
     }
 
-    String targetId = modifyRequest.getPsoID().getTargetID();
-    if (targetId == null) {
-      fail(response, ErrorCode.MALFORMED_REQUEST, ERROR_NULL_TARGET_ID);
-      LOG.trace("modify response:\n{}", this.toXML(response));
-      return response;
-    }
-
-    if (!targetId.equals(this.getTargetDefinition().getId())) {
-      fail(response, ErrorCode.INVALID_IDENTIFIER);
-      LOG.trace("modify response:\n{}", this.toXML(response));
+    if (!this.isValidTargetId(modifyRequest.getPsoID(), response)) {
+      LOG.error(PSPUtil.toString(response));
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
       return response;
     }
 
     String dn = modifyRequest.getPsoID().getID();
 
-    String msg = "modify '" + dn + "' ldap '" + this.getId() + "'";
-
     Ldap ldap = null;
     try {
-      List<ModificationItem> modificationItem = new ArrayList<ModificationItem>();
+      List<ModificationItem> modificationItems = new ArrayList<ModificationItem>();
       for (Modification modification : modifyRequest.getModifications()) {
-        modificationItem.addAll(this.getDsmlMods(modification));
-        modificationItem.addAll(this.getReferenceMods(modification));
+        modificationItems.addAll(this.getDsmlMods(modification));
+        modificationItems.addAll(this.getReferenceMods(modification));
       }
 
       ldap = ldapPool.checkOut();
 
-      LOG.debug("{} mods {}", msg, modificationItem);
-      LOG.info("{}", msg);
-      ldap.modifyAttributes(dn, modificationItem.toArray(new ModificationItem[] {}));
+      LOG.debug("{} mods {}", msg, modificationItems);
+      String escapedDn = LdapUtil.escapeForwardSlash(dn);
+      LOG.debug("{} escaped dn '{}'", msg, escapedDn);
+      ldap.modifyAttributes(escapedDn, modificationItems.toArray(new ModificationItem[] {}));
 
       // response PSO
-
       if (modifyRequest.getReturnData().equals(ReturnData.IDENTIFIER)) {
         PSO responsePSO = new PSO();
         responsePSO.setPsoID(modifyRequest.getPsoID());
@@ -439,106 +544,150 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
         if (lookupResponse.getStatus() == StatusCode.SUCCESS) {
           response.setPso(lookupResponse.getPso());
         } else {
-          LOG.error("{} Unable to lookup object after modification.", msg);
           fail(response, lookupResponse.getError());
-          LOG.trace("modify response:\n{}", this.toXML(response));
+          LOG.error(PSPUtil.toString(response));
+          if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
           return response;
         }
       }
 
-      // TODO are all jndi exceptions caught correctly ?
     } catch (LdapPoolException e) {
-      LOG.error("An error occurred", e);
-      fail(response, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(response, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(response), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+      return response;
     } catch (LdappcException e) {
-      // from PSO.getReferences, an unhandled capability data
-      LOG.error("An error occurred", e);
-      fail(response, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(response, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(response), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+      return response;
     } catch (NamingException e) {
-      LOG.error("An error occurred", e);
-      fail(response, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(response, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(response), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
+      return response;
     } finally {
       ldapPool.checkIn(ldap);
     }
 
-    LOG.trace("modify response:\n{}", this.toXML(response));
+    response.setStatus(StatusCode.SUCCESS);
+    LOG.info(PSPUtil.toString(response));
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(response));
     return response;
   }
 
   public SearchResponse execute(SearchRequest searchRequest) {
-    if (searchRequest.getRequestID() == null) {
-      searchRequest.setRequestID(this.generateRequestID(searchRequest));
-    }
-    LOG.trace("search request:\n{}", this.toXML(searchRequest));
+
+    String msg = PSPUtil.toString(searchRequest);
+    LOG.info("{}", msg);
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchRequest));
 
     SearchResponse searchResponse = new SearchResponse();
-    searchResponse.setStatus(StatusCode.SUCCESS);
     searchResponse.setRequestID(this.getOrGenerateRequestID(searchRequest));
 
+    // query
     Query query = searchRequest.getQuery();
-    if (query == null) {
+    if (GrouperUtil.isBlank(query)) {
       fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "A query is required.");
-      LOG.trace("search response:\n{}", this.toXML(searchResponse));
+      LOG.error("{}", searchResponse);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     }
 
+    // query target id
+    if (query.getTargetID() != null && !query.getTargetID().equals(this.getTargetDefinition().getId())) {
+      fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "Target ID " + query.getTargetID()
+          + " does not match this target " + this.getTargetDefinition().getId());
+      LOG.error("{}", searchResponse);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      return searchResponse;
+    }
+
+    // query filter
+    // TODO support QueryClause other than our own
     String filter = null;
     for (QueryClause queryClause : query.getQueryClauses()) {
       if (queryClause instanceof LdapFilterQueryClause) {
-        LdapFilterQueryClause ldapFilterQueryClause = (LdapFilterQueryClause) queryClause;
-        filter = ldapFilterQueryClause.getFilter();
+        filter = ((LdapFilterQueryClause) queryClause).getFilter();
       }
     }
-    if (filter == null) {
+    if (GrouperUtil.isBlank(filter)) {
       fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "A filter is required.");
-      LOG.trace("search response:\n{}", this.toXML(searchResponse));
+      LOG.error("{}", searchResponse);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     }
 
+    // query base
     if (query.getBasePsoID() == null || query.getBasePsoID().getID() == null) {
       fail(searchResponse, ErrorCode.MALFORMED_REQUEST, "A basePsoID is required.");
-      LOG.trace("search response:\n{}", this.toXML(searchResponse));
+      LOG.error("{}", searchResponse);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
       return searchResponse;
     }
     String base = query.getBasePsoID().getID();
 
-    String msg = "search ldap '" + this.getId() + "' return '" + searchRequest.getReturnData() + "'";
+    SearchControls searchControls = new SearchControls();
+
+    // query scope
+    Scope scope = query.getScope();
+    if (scope != null) {
+      searchControls.setSearchScope(PSPUtil.getScope(scope));
+    }
 
     Ldap ldap = null;
     try {
       String[] retAttrs = this.getTargetDefinition().getNames(searchRequest.getReturnData()).toArray(new String[] {});
+      searchControls.setReturningAttributes(retAttrs);
 
       ldap = ldapPool.checkOut();
 
-      LOG.debug("{} filter '{}' base '{}' retAttrs {}", new Object[] { msg, filter, base, Arrays.asList(retAttrs) });
-      Iterator<SearchResult> searchResults = ldap.search(base, new SearchFilter(filter), retAttrs);
+      LOG.debug("{} retAttrs {}", msg, Arrays.asList(retAttrs));
+      Iterator<SearchResult> searchResults = ldap.search(base, new SearchFilter(filter), searchControls);
 
-      LdapResult ldapResult = new LdapResult(searchResults);
+      SortedLdapBeanFactory ldapBeanFactory = new SortedLdapBeanFactory();
+      LdapResult ldapResult = ldapBeanFactory.newLdapResult();
+      ldapResult.addEntries(searchResults);
+
       Collection<LdapEntry> entries = ldapResult.getEntries();
-      LOG.debug("{} found", entries.size());
+      LOG.debug("{} found {}", msg, entries.size());
       for (LdapEntry entry : entries) {
         searchResponse.addPSO(getPSO(entry, searchRequest.getReturnData()));
       }
 
-      // TODO are all jndi exceptions caught correctly ?
+      if (logLdif) {
+        Ldif ldif = new Ldif();
+        LOG.info("{}:\n{}", msg, ldif.createLdif(ldapResult));
+      }
 
-    } catch (LdapPoolException e) {
-      LOG.error("An error occurred", e);
-      fail(searchResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      // TODO are all jndi exceptions caught correctly ?
     } catch (NameNotFoundException e) {
-      LOG.debug("{} not found", msg);
-      fail(searchResponse, ErrorCode.NO_SUCH_IDENTIFIER);
+      fail(searchResponse, ErrorCode.NO_SUCH_IDENTIFIER, e);
+      LOG.error(PSPUtil.toString(searchResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      return searchResponse;
     } catch (NamingException e) {
-      LOG.error("An error occurred", e);
-      fail(searchResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(searchResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(searchResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      return searchResponse;
+    } catch (LdapPoolException e) {
+      fail(searchResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(searchResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      return searchResponse;
     } catch (Spml2Exception e) {
-      LOG.error("An error occurred", e);
-      fail(searchResponse, ErrorCode.CUSTOM_ERROR, e.getMessage());
+      fail(searchResponse, ErrorCode.CUSTOM_ERROR, e);
+      LOG.error(PSPUtil.toString(searchResponse), e);
+      if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
+      return searchResponse;
     } finally {
       ldapPool.checkIn(ldap);
     }
 
-    LOG.trace("search response:\n{}", this.toXML(searchResponse));
+    searchResponse.setStatus(StatusCode.SUCCESS);
+    LOG.info("{}", PSPUtil.toString(searchResponse));
+    if (this.isLogSpml()) LOG.info("\n{}", this.toXML(searchResponse));
     return searchResponse;
   }
 
@@ -547,46 +696,66 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     String msg = "get pso for '" + entry.getDn() + "' target '" + this.getTargetDefinition().getId() + "'";
 
     PSO pso = new PSO();
+
+    // determine schema entity
+    PSODefinition psoDefinition = this.getPSODefinition(entry);
+    LOG.debug("{} schema entity '{}'", msg, psoDefinition.getId());
+    pso.addOpenContentAttr(PSODefinition.ENTITY_NAME_ATTRIBUTE, psoDefinition.getId());
+
     PSOIdentifier psoID = new PSOIdentifier();
-    psoID.setID(entry.getDn());
     psoID.setTargetID(this.getTargetDefinition().getId());
+
+    try {
+      psoID.setID(LdapUtil.canonicalizeDn(entry.getDn()));
+    } catch (InvalidNameException e) {
+      LOG.error(msg + " Unable to canonicalize entry dn.", e);
+      throw new Spml2Exception(e);
+    }
+
+    // TODO skipping container id for now
+    // String baseId = psoDefinition.getPsoIdentifierDefinition().getBaseId();
+    // if (baseId != null) {
+    // PSOIdentifier containerID = new PSOIdentifier();
+    // containerID.setID(baseId);
+    // containerID.setTargetID(this.getTargetDefinition().getId());
+    // psoID.setContainerID(containerID);
+    // }
+
     pso.setPsoID(psoID);
 
     LdapAttributes ldapAttributes = entry.getLdapAttributes();
 
-    // determine schema entity
-    PSODefinition psoDefinition = this.getPSODefinition(entry);
-    LOG.trace("{} object '{}'", msg, psoDefinition.getId());
-
     if (returnData.equals(ReturnData.DATA) || returnData.equals(ReturnData.EVERYTHING)) {
-      // TODO this is ugly
-      Set<String> attributeNames = new HashSet<String>();
-      for (String attrName : psoDefinition.getAttributeNames()) {
-        attributeNames.add(attrName.toLowerCase());
+      // TODO this is ugly; ldap attribute names are case insensitive
+      Map<String, String> attributeNameMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+      for (String attributeName : psoDefinition.getAttributeNames()) {
+        attributeNameMap.put(attributeName, attributeName);
       }
-      Set<String> referenceNames = new HashSet<String>();
-      for (String refName : psoDefinition.getReferenceNames()) {
-        referenceNames.add(refName.toLowerCase());
+      Map<String, String> referenceNameMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+      if (returnData.equals(ReturnData.EVERYTHING)) {
+        for (String referenceName : psoDefinition.getReferenceNames()) {
+          referenceNameMap.put(referenceName, referenceName);
+        }
       }
 
       Extensible data = new Extensible();
       List<Reference> references = new ArrayList<Reference>();
 
       for (LdapAttribute ldapAttribute : ldapAttributes.getAttributes()) {
-        if (attributeNames.contains(ldapAttribute.getName().toLowerCase())) {
-          data.addOpenContentElement(this.getDsmlAttr(ldapAttribute));
-        } else if (referenceNames.contains(ldapAttribute.getName().toLowerCase())) {
-          if (returnData.equals(ReturnData.EVERYTHING)) {
-            references.addAll(this.getReferences(ldapAttribute));
-          }
+        if (attributeNameMap.containsKey(ldapAttribute.getName())) {
+          data.addOpenContentElement(this.getDsmlAttr(attributeNameMap.get(ldapAttribute.getName()), ldapAttribute
+              .getStringValues()));
+        } else if (returnData.equals(ReturnData.EVERYTHING) && referenceNameMap.containsKey(ldapAttribute.getName())) {
+          references.addAll(this
+              .getReferences(referenceNameMap.get(ldapAttribute.getName()), ldapAttribute.getStringValues()));
         } else {
-          // TODO logging ?
           LOG.trace("{} ignoring attribute '{}'", msg, ldapAttribute.getName());
         }
 
         if (data.getOpenContentElements().length > 0) {
           pso.setData(data);
         }
+
         if (returnData.equals(ReturnData.EVERYTHING)) {
           PSPUtil.setReferences(pso, references);
         }
@@ -596,7 +765,16 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     return pso;
   }
 
-  protected PSODefinition getPSODefinition(LdapEntry entry) {
+  /**
+   * Determine the schema entity appropriate for the given <code>LdapEntry</code>.
+   * 
+   * @param entry
+   *          the <code>LdapEntry</code>
+   * @return the <code>PSODefintion</code>
+   * @throws LdappcException
+   *           if the schema entity cannot be determined.
+   */
+  protected PSODefinition getPSODefinition(LdapEntry entry) throws LdappcException {
 
     Attributes attributes = entry.getLdapAttributes().toAttributes();
 
@@ -622,30 +800,39 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     return definition;
   }
 
-  protected DSMLAttr getDsmlAttr(LdapAttribute ldapAttribute) throws DSMLProfileException {
+  protected DSMLAttr getDsmlAttr(String name, Collection<String> values) throws DSMLProfileException {
     DSMLValue[] dsmlValues = null;
-    DSMLAttr dsmlAttr = new DSMLAttr(ldapAttribute.getName(), dsmlValues);
-    for (String ldapAttributeValue : ldapAttribute.getStringValues()) {
-      dsmlAttr.addValue(new DSMLValue(ldapAttributeValue));
+    DSMLAttr dsmlAttr = new DSMLAttr(name, dsmlValues);
+    for (String value : values) {
+      dsmlAttr.addValue(new DSMLValue(value));
     }
     return dsmlAttr;
   }
 
-  protected List<Reference> getReferences(LdapAttribute ldapAttribute) {
-    List<Reference> references = new ArrayList<Reference>();
-    for (String value : ldapAttribute.getStringValues()) {
-      Reference reference = new Reference();
-      PSOIdentifier toPSOId = new PSOIdentifier();
-      if (value.equals("")) {
-        value = PSOReferencesDefinition.EMPTY_STRING;
+  protected List<Reference> getReferences(String name, Collection<String> values) throws Spml2Exception {
+    try {
+      List<Reference> references = new ArrayList<Reference>();
+      for (String value : values) {
+        Reference reference = new Reference();
+        PSOIdentifier toPSOId = new PSOIdentifier();       
+        toPSOId.setID(LdapUtil.canonicalizeDn(value));
+        toPSOId.setTargetID(this.getTargetDefinition().getId());
+
+        // TODO containerID ?
+        // PSOIdentifier containerID = new PSOIdentifier();
+        // containerID.setID(LdapUtil.getParentDn(toPSOId.getID()));
+        // containerID.setTargetID(this.getTargetDefinition().getId());
+        // toPSOId.setContainerID(containerID);
+
+        reference.setToPsoID(toPSOId);
+        reference.setTypeOfReference(name);
+        references.add(reference);
       }
-      toPSOId.setID(value);
-      toPSOId.setTargetID(this.getTargetDefinition().getId());
-      reference.setToPsoID(toPSOId);
-      reference.setTypeOfReference(ldapAttribute.getName());
-      references.add(reference);
+      return references;
+    } catch (InvalidNameException e) {
+      LOG.error("Unable to canonicalize name", e);
+      throw new Spml2Exception(e);
     }
-    return references;
   }
 
   protected List<ModificationItem> getDsmlMods(Modification modification) {
@@ -694,7 +881,10 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
         if (reference.getToPsoID().getTargetID().equals(this.getTargetDefinition().getId())) {
           String id = reference.getToPsoID().getID();
           // fake empty string since the spml toolkit ignores an empty string psoID
-          if (id.equals(PSOReferencesDefinition.EMPTY_STRING)) {
+          // if (id.equals(PSOReferencesDefinition.EMPTY_STRING)) {
+          // id = "";
+          // }
+          if (id == null) {
             id = "";
           }
           ids.add(id);
@@ -721,5 +911,58 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
     }
 
     return mods;
+  }
+
+  /**
+   * 
+   * @param addRequest
+   * @throws DSMLProfileException
+   */
+  protected void handleEmptyReferences(AddRequest addRequest) throws DSMLProfileException {
+
+    if (!addRequest.getReturnData().equals(ReturnData.DATA)) {
+      return;
+    }
+
+    // TODO logging and errors
+
+    LOG.trace("add request before:\n{}", this.toXML(addRequest));
+
+    String entityName = addRequest.findOpenContentAttrValueByName(PSODefinition.ENTITY_NAME_ATTRIBUTE);
+    if (entityName == null) {
+      LOG.debug("TODO");
+      return;
+    }
+
+    PSODefinition psoDefinition = this.getTargetDefinition().getPSODefinition(entityName);
+    if (psoDefinition == null) {
+      LOG.debug("TODO");
+      return;
+    }
+
+    Map<String, DSMLAttr> dsmlAttrs = PSP.getDSMLAttrMap(addRequest.getData());
+
+    for (PSOReferencesDefinition refsDef : psoDefinition.getReferenceDefinitions()) {
+      String emptyValue = refsDef.getEmptyValue();
+      if (emptyValue != null) {
+        DSMLAttr member = dsmlAttrs.get(refsDef.getName());
+        if (member == null || member.getValues().length == 0) {
+          LOG.debug("TODO");
+          addRequest.getData().addOpenContentElement(new DSMLAttr(refsDef.getName(), refsDef.getEmptyValue()));
+        }
+      }
+    }
+
+    LOG.trace("add request after:\n{}", this.toXML(addRequest));
+  }
+
+  public boolean isValidTargetId(PSOIdentifier psoID, Response response) {
+
+    if (!psoID.getTargetID().equals(this.getTargetDefinition().getId())) {
+      fail(response, ErrorCode.INVALID_IDENTIFIER);
+      return false;
+    }
+
+    return true;
   }
 }
