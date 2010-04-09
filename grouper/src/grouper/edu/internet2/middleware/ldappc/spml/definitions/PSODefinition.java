@@ -25,7 +25,6 @@ import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.openspml.v2.profiles.dsml.DSMLAttr;
-import org.openspml.v2.profiles.dsml.DSMLValue;
 import org.openspml.v2.util.Spml2Exception;
 import org.slf4j.Logger;
 
@@ -66,6 +65,20 @@ public class PSODefinition {
     this.authoritative = authoritative;
   }
 
+  /**
+   * 
+   * @param name
+   * @return the PSO attribute definition with the given name or null
+   */
+  public PSOAttributeDefinition getAttributeDefinition(String name) {
+    for (PSOAttributeDefinition psoAttributeDefinition : psoAttributeDefinitions) {
+      if (psoAttributeDefinition.getName().equals(name)) {
+        return psoAttributeDefinition;
+      }
+    }
+    return null;
+  }
+
   public List<PSOAttributeDefinition> getAttributeDefinitions() {
     return psoAttributeDefinitions;
   }
@@ -81,6 +94,16 @@ public class PSODefinition {
   public void setPsoIdentifierDefinition(PSOIdentifierDefinition identifierDefinition) {
     this.psoIdentifierDefinition = identifierDefinition;
 
+  }
+
+  // TODO complete
+  public PSOReferencesDefinition getReferencesDefinition(String name) {
+    for (PSOReferencesDefinition r : psoReferencesDefinitions) {
+      if (r.getName().endsWith(name)) {
+        return r;
+      }
+    }
+    return null;
   }
 
   public List<PSOReferencesDefinition> getReferenceDefinitions() {
@@ -137,64 +160,67 @@ public class PSODefinition {
     return ids;
   }
 
-  public PSO getPSO(PSPContext context) throws LdappcException, Spml2Exception {
+  public List<PSO> getPSO(PSPContext context) throws LdappcException, Spml2Exception {
 
-    String msg = "get pso '" + context.getProvisioningRequest().getId() + "' object '" + id + "' return "
+    String msg = "get pso '" + context.getProvisioningRequest().getId() + "' object '" + id + "' return '"
         + context.getProvisioningRequest().getReturnData() + "'";
     LOG.debug("{}", msg);
 
+    ArrayList<PSO> psos = new ArrayList<PSO>();
+
     // must have an identifier
-    PSOIdentifier psoIdentifier = this.getPsoIdentifierDefinition().getPSOIdentifier(context);
-    if (psoIdentifier == null) {
-      LOG.debug("{} identifier is null", msg);
-      return null;
+    List<PSOIdentifier> psoIdentifiers = this.getPsoIdentifierDefinition().getPSOIdentifier(context);
+    if (psoIdentifiers.isEmpty()) {
+      // TODO logging
+      LOG.debug("{} identifier is empty", msg);
+      return psos;
     }
 
-    // pso
-    PSO pso = new PSO();
-    pso.setPsoID(psoIdentifier);
-
-    pso.addOpenContentAttr(ENTITY_NAME_ATTRIBUTE, id);
+    // TODO
 
     // data
+    Extensible data = null;
     ReturnData returnData = context.getProvisioningRequest().getReturnData();
     if (returnData.equals(ReturnData.DATA) || returnData.equals(ReturnData.EVERYTHING)) {
-      Extensible data = new Extensible();
       for (PSOAttributeDefinition psoAttributeDefinition : this.getAttributeDefinitions()) {
         DSMLAttr dsmlAttr = psoAttributeDefinition.getAttribute(context.getAttributes());
         if (dsmlAttr != null) {
-          data.addOpenContentElement(dsmlAttr);
-          if (LOG.isDebugEnabled()) {
-            for (DSMLValue dsmlValue : dsmlAttr.getValues()) {
-              LOG.debug("{} attr {}", new String[] { msg, dsmlAttr.getName(), dsmlValue.getValue() });
-            }
+          if (data == null) {
+            data = new Extensible();
           }
+          data.addOpenContentElement(dsmlAttr);
         }
       }
-      pso.setData(data);
     }
 
     // references
+    List<Reference> references = null;
     if (returnData.equals(ReturnData.EVERYTHING)) {
-      List<Reference> references = new ArrayList<Reference>();
+      references = new ArrayList<Reference>();
       for (PSOReferencesDefinition psoReferenceDefinition : this.getReferenceDefinitions()) {
         references.addAll(psoReferenceDefinition.getReferences(context));
       }
-      PSPUtil.setReferences(pso, references);
-      // if (!references.isEmpty()) {
-      // CapabilityData referenceCapabilityData = new CapabilityData(true,
-      // PSOReferencesDefinition.REFERENCE_URI);
-      // for (Reference reference : references) {
-      // OCEtoMarshallableAdapter oce = new OCEtoMarshallableAdapter(reference);
-      // referenceCapabilityData.addOpenContentElement(oce);
-      // if (LOG.isDebugEnabled()) {
-      // LOG.debug("{} reference {}", LdappcUtil.getString(reference));
-      // }
-      // }
-      // pso.addCapabilityData(referenceCapabilityData);
-      // }
     }
 
-    return pso;
+    for (PSOIdentifier psoIdentifier : psoIdentifiers) {
+      // pso
+      PSO pso = new PSO();
+      pso.setPsoID(psoIdentifier);
+
+      pso.addOpenContentAttr(ENTITY_NAME_ATTRIBUTE, id);
+
+      if (data != null) {
+        pso.setData(data);
+      }
+
+      if (references != null && !references.isEmpty()) {
+        PSPUtil.setReferences(pso, references);
+      }
+
+      psos.add(pso);
+    }
+
+    LOG.debug("{} returned {}", msg, psos.size());
+    return psos;
   }
 }
