@@ -16,10 +16,10 @@
   <import namespace="urn:mace:shibboleth:2.0:services" schemaLocation="classpath:/schema/shibboleth-2.0-services.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resolver" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver.xsd" />
   <import namespace="urn:oasis:names:tc:SPML:2:0" schemaLocation="classpath:/schema/pstc_spmlv2_core.xsd" />
-  <!-- 
-  <import namespace="urn:oasis:names:tc:SPML:2:0:DSML" schemaLocation="classpath:/schema/pstc_spmlv2_dsml.xsd" />
- -->
- 
+  <!--
+    <import namespace="urn:oasis:names:tc:SPML:2:0:DSML" schemaLocation="classpath:/schema/pstc_spmlv2_dsml.xsd" />
+  -->
+
   <annotation>
     <documentation>Experimental Schema for the next version of LDAPPC</documentation>
   </annotation>
@@ -66,6 +66,11 @@
       </annotation>
     </attribute>
     <attribute name="provider" type="string" use="required">
+      <annotation>
+        <documentation>TODO</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="bundleModifications" type="boolean" default="true">
       <annotation>
         <documentation>TODO</documentation>
       </annotation>
@@ -131,6 +136,11 @@
         <documentation>TODO</documentation>
       </annotation>
     </attribute>
+    <attribute name="retainAll" type="boolean" default="false">
+      <annotation>
+        <documentation>TODO</documentation>
+      </annotation>
+    </attribute>
   </complexType>
 
   <complexType name="ReferencesDefinitionType">
@@ -147,7 +157,6 @@
         <documentation>TODO</documentation>
       </annotation>
     </attribute>
-
   </complexType>
 
   <complexType name="ReferenceDefinitionType">
@@ -161,6 +170,16 @@
         <documentation>TODO</documentation>
       </annotation>
     </attribute>
+    <attribute name="onNotFound" default="warn">
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="fail" />
+          <enumeration value="ignore" />
+          <enumeration value="warn" />
+        </restriction>
+      </simpleType>
+    </attribute>
+    <attribute name="multipleResults" type="boolean" default="false" />
   </complexType>
 
   <complexType name="LdapPoolProvider">
@@ -171,6 +190,8 @@
             <documentation>TODO</documentation>
           </annotation>
         </attribute>
+        <attribute name="logLdif" type="boolean" default="false" />
+        <attribute name="logSpml" type="boolean" default="false" />
       </extension>
     </complexContent>
   </complexType>
@@ -187,5 +208,5 @@
       </annotation>
     </attribute>
   </complexType>
-  
+
 </schema>
