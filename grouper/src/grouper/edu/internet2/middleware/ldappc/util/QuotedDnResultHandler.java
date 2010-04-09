@@ -9,7 +9,9 @@ import edu.vt.middleware.ldap.handler.SearchCriteria;
 
 /**
  * The <code>QuotedDnResultHandler</code> rewrites relative dns without starting and
- * ending quotes, e.g. "CN=Quoted/Name",DC=edu is rewritten as CN=Quoted/Name,DC=edu
+ * ending quotes, e.g. "CN=Quoted/Name",DC=edu is rewritten as CN=Quoted/Name,DC=edu. This
+ * <code>SearchResultHandler</code> must be called before the default
+ * <code>FqdnSearchResultHandler</code> since it relies on relative names.
  */
 public class QuotedDnResultHandler extends CopySearchResultHandler {
 
