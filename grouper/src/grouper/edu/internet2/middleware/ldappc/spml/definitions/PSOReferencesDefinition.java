@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSPContext;
-import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public class PSOReferencesDefinition {
 
@@ -44,7 +43,7 @@ public class PSOReferencesDefinition {
 
   public static final URI REFERENCE_URI;
 
-  public static final String EMPTY_STRING = "_EMPTY_STRING_";
+  // public static final String EMPTY_STRING = "_EMPTY_STRING_";
 
   static {
     try {
@@ -64,11 +63,21 @@ public class PSOReferencesDefinition {
   }
 
   public String getEmptyValue() {
-    return emptyValue;
+  return emptyValue;
   }
 
   public void setEmptyValue(String emptyValue) {
-    this.emptyValue = emptyValue;
+  this.emptyValue = emptyValue;
+  }
+
+  // TODO complete
+  public PSOReferenceDefinition getReferenceDefinition(String ref) {
+    for (PSOReferenceDefinition r : psoReferenceDefinitions) {
+      if (r.getRef().equals(ref)) {
+        return r;
+      }
+    }
+    return null;
   }
 
   public List<PSOReferenceDefinition> getPsoReferenceDefinitions() {
@@ -90,33 +99,34 @@ public class PSOReferencesDefinition {
       references.addAll(psoReferenceDefinition.getReferences(context, name));
     }
 
-    // new empty reference to each referenced target
     if (emptyValue != null && references.isEmpty()) {
-      Set<String> targetIds = new LinkedHashSet<String>();
-      for (PSOReferenceDefinition psoReferenceDefinition : psoReferenceDefinitions) {
-        targetIds.add(psoReferenceDefinition.getToPSODefinition().getPsoIdentifierDefinition().getTargetDefinition()
-            .getId());
-      }
-      for (String targetId : targetIds) {
-        PSOIdentifier psoID = new PSOIdentifier();
-        psoID.setTargetID(targetId);
-        // fake empty string since the spml toolkit ignores an empty string psoID
-        if (emptyValue.equals("")) {
-          psoID.setID(EMPTY_STRING);
-        } else {
-          psoID.setID(emptyValue);
-        }
-
-        Reference reference = new Reference();
-        reference.setToPsoID(psoID);
-        reference.setTypeOfReference(name);
-
-        references.add(reference);
-        LOG.debug("{} reference with empty value {}", PSPUtil.getString(reference));
-      }
+      references.addAll(getEmptyReferences());
     }
 
-    LOG.debug("{} returned {} references", references.size());
+    LOG.debug("{} returned {}", msg, references.size());
+    return references;
+  }
+
+  public List<Reference> getEmptyReferences() {
+    List<Reference> references = new ArrayList<Reference>();
+
+    Set<String> targetIds = new LinkedHashSet<String>();
+    for (PSOReferenceDefinition psoReferenceDefinition : psoReferenceDefinitions) {
+      targetIds.add(psoReferenceDefinition.getToPSODefinition().getPsoIdentifierDefinition().getTargetDefinition()
+          .getId());
+    }
+
+    for (String targetId : targetIds) {
+      PSOIdentifier psoID = new PSOIdentifier();
+      psoID.setTargetID(targetId);
+      psoID.setID(emptyValue);
+
+      Reference reference = new Reference();
+      reference.setToPsoID(psoID);
+      reference.setTypeOfReference(name);
+      references.add(reference);
+    }
+
     return references;
   }
 }
