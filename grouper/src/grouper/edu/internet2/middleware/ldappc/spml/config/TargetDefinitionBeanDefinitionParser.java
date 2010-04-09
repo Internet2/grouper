@@ -56,5 +56,9 @@ public class TargetDefinitionBeanDefinitionParser extends AbstractSingleBeanDefi
     Map<QName, List<Element>> configChildren = XMLHelper.getChildElements(element);
     builder.addPropertyValue("psoDefinitions", SpringConfigurationUtils.parseInnerCustomElements(configChildren
         .get(PSODefinitionBeanDefinitionParser.TYPE_NAME), parserContext));
+    
+    String bundleModifications = element.getAttributeNS(null, "bundleModifications");
+    LOG.debug("Setting bundleModifications of target '{}' to: '{}'", id, bundleModifications);
+    builder.addPropertyValue("bundleModifications", bundleModifications);        
   }
 }

@@ -55,6 +55,8 @@ public class TargetDefinition {
 
   private Target target;
 
+  private boolean bundleModifications;
+
   public String getId() {
     return id;
   }
@@ -69,6 +71,20 @@ public class TargetDefinition {
 
   public void setProvider(SpmlTargetProvider provider) {
     this.provider = provider;
+  }
+
+  /**
+   * 
+   * @param id
+   * @return the PSO definition with the given id or null
+   */
+  public PSODefinition getPSODefinition(String id) {
+    for (PSODefinition psoDefinition : psoDefinitions) {
+      if (psoDefinition.getId().equals(id)) {
+        return psoDefinition;
+      }
+    }
+    return null;
   }
 
   public List<PSODefinition> getPsoDefinitions() {
@@ -188,30 +204,28 @@ public class TargetDefinition {
     return target;
   }
 
-  // FUTURE support multiple PSOs ?
-  public PSO getPSO(PSPContext context) throws LdappcException, Spml2Exception {
+  public List<PSO> getPSO(PSPContext context) throws LdappcException, Spml2Exception {
 
     String msg = "get pso '" + context.getProvisioningRequest().getId() + "' target '" + id + "'";
     LOG.debug("{}", msg);
 
     List<PSO> psos = new ArrayList<PSO>();
     for (PSODefinition psoDefinition : this.getPsoDefinitions()) {
-      PSO pso = psoDefinition.getPSO(context);
-      if (pso != null) {
+      for (PSO pso : psoDefinition.getPSO(context)) {
         psos.add(pso);
       }
     }
 
-    if (psos.isEmpty()) {
-      LOG.debug("{} no objects", msg);
-      return null;
-    }
+    LOG.debug("{} returned {}", msg, psos.size());
+    return psos;
+  }
 
-    if (psos.size() > 1) {
-      LOG.error("F{} more than one PSO returned", msg);
-      throw new LdappcException("More than one PSO returned.");
-    }
+  public boolean isBundleModifications() {
+    return bundleModifications;
+  }
 
-    return psos.get(0);
+  public void setBundleModifications(boolean bundleModifications) {
+    LOG.debug("setting bundleModifications {}", bundleModifications);
+    this.bundleModifications = bundleModifications;
   }
 }
