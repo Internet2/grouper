@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.shibboleth.attribute.config.SimpleAttrib
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.GroupAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.MemberAttributeDefinitionBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.PSOIdentifierAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.SubjectAttributeDefinitionBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.GroupDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.MemberDataConnectorBeanDefinitionParser;
@@ -29,6 +30,7 @@ import edu.internet2.middleware.grouper.shibboleth.filter.provider.MinusGroupQue
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.OrGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.filter.provider.StemNameGroupQueryFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifierBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.util.ClasspathPropertyReplacementResourceFilterBeanDefinitionParser;
 import edu.internet2.middleware.grouper.shibboleth.util.SourceIdentifierBeanDefinitionParser;
 import edu.internet2.middleware.shibboleth.common.config.BaseSpringNamespaceHandler;
 
@@ -65,6 +67,9 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
     registerBeanDefinitionParser(LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
         new LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser());
 
+    registerBeanDefinitionParser(PSOIdentifierAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
+        new PSOIdentifierAttributeDefinitionBeanDefinitionParser());
+
     registerBeanDefinitionParser(AndGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
         new AndGroupQueryFilterBeanDefinitionParser());
 
@@ -79,11 +84,14 @@ public class GrouperNamespaceHandler extends BaseSpringNamespaceHandler {
 
     registerBeanDefinitionParser(SimpleAttributeAuthorityBeanDefinitionParser.TYPE_NAME,
         new SimpleAttributeAuthorityBeanDefinitionParser());
-    
+
     registerBeanDefinitionParser(SourceIdentifierBeanDefinitionParser.TYPE_NAME,
         new SourceIdentifierBeanDefinitionParser());
 
     registerBeanDefinitionParser(MinusGroupQueryFilterBeanDefinitionParser.TYPE_NAME,
         new MinusGroupQueryFilterBeanDefinitionParser());
+
+    registerBeanDefinitionParser(ClasspathPropertyReplacementResourceFilterBeanDefinitionParser.TYPE_NAME,
+        new ClasspathPropertyReplacementResourceFilterBeanDefinitionParser());
   }
 }

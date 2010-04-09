@@ -5,6 +5,7 @@
   xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
   xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+  xmlns:resource="urn:mace:shibboleth:2.0:resource"
   xmlns:service="urn:mace:shibboleth:2.0:services"
   xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
   xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad"
@@ -17,6 +18,7 @@
   <import namespace="urn:mace:shibboleth:2.0:resolver" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resolver:ad" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resolver:dc" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd" />
+  <import namespace="urn:mace:shibboleth:2.0:resource" schemaLocation="classpath:/schema/shibboleth-2.0-resource.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:attribute:authority" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-authority.xsd" />
 
   <annotation>
@@ -68,7 +70,7 @@
   </complexType>
 
   <complexType name="SPMLDataConnector">
-      <annotation>
+    <annotation>
       <documentation>
         A data connector that can returns information from an SPML provider.
       </documentation>
@@ -282,6 +284,13 @@
     </complexContent>
   </complexType>
 
+  <complexType name="PSOIdentifier">
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+      </extension>
+    </complexContent>
+  </complexType>
+
   <element name="GroupFilter" type="grouper:BaseGroupFilterType">
   </element>
   <complexType name="BaseGroupFilterType" abstract="true">
@@ -413,6 +422,24 @@
     </annotation>
     <complexContent>
       <extension base="authority:AttributeAuthorityType">
+      </extension>
+    </complexContent>
+  </complexType>
+  
+    <complexType name="ClasspathPropertyReplacement">
+    <annotation>
+      <documentation>
+        A resource filter that replaces ${KEY} macros with the values associated with the KEY in a property
+        file.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resource:ResourceFilterType">
+        <attribute name="propertyFile" type="string" use="required">
+          <annotation>
+            <documentation>Classpath location of the Java property file used during macro expansion.</documentation>
+          </annotation>
+        </attribute>
       </extension>
     </complexContent>
   </complexType>
