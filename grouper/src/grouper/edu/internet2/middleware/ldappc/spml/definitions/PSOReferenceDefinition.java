@@ -18,13 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.openspml.v2.msg.spml.ErrorCode;
 import org.openspml.v2.msg.spml.PSO;
-import org.openspml.v2.msg.spml.Response;
+import org.openspml.v2.msg.spml.Request;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.StatusCode;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.slf4j.Logger;
 
+import edu.internet2.middleware.grouper.shibboleth.util.OnNotFound;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSPContext;
@@ -40,6 +42,34 @@ public class PSOReferenceDefinition {
   private String ref;
 
   private PSODefinition toPSODefinition;
+
+  private OnNotFound onNotFound;
+
+  // TODO correct ?
+  public static String REFERENCE_NOT_FOUND = "REFERENCE_NOT_FOUND";
+
+  /**
+   * Allow multiple provisioned objects on a target for a single subject.
+   */
+  private boolean multipleResults;
+
+  public static String ERROR_MULTIPLE_RESULTS = "ERROR_MULTIPLE_RESULTS";
+
+  public boolean isMultipleResults() {
+    return multipleResults;
+  }
+
+  public void setMultipleResults(boolean multipleResults) {
+    this.multipleResults = multipleResults;
+  }
+
+  public OnNotFound getOnNotFound() {
+    return onNotFound;
+  }
+
+  public void setOnNotFound(OnNotFound onNotFound) {
+    this.onNotFound = onNotFound;
+  }
 
   public String getRef() {
     return ref;
@@ -64,7 +94,7 @@ public class PSOReferenceDefinition {
 
     ArrayList<Reference> references = new ArrayList<Reference>();
 
-    Map<String, BaseAttribute> attributes = context.getAttributes();
+    Map<String, BaseAttribute<?>> attributes = context.getAttributes();
 
     if (!attributes.containsKey(ref)) {
       LOG.debug("{} source attribute does not exist", msg);
@@ -72,43 +102,53 @@ public class PSOReferenceDefinition {
     }
 
     // resolve identifiers
-    BaseAttribute<String> referenceAttribute = attributes.get(ref);
-    for (String id : referenceAttribute.getValues()) {
-
+    BaseAttribute<?> referenceAttribute = attributes.get(ref);
+    for (Object id : referenceAttribute.getValues()) {
       CalcRequest calcRequest = new CalcRequest();
       calcRequest.setReturnData(ReturnData.IDENTIFIER);
-      calcRequest.setId(id);
+      calcRequest.setId(id.toString());
       calcRequest.addTargetId(this.getToPSODefinition().getPsoIdentifierDefinition().getTargetDefinition().getId());
 
-      Response response = context.getProvisioningServiceProvider().execute(calcRequest);
+      CalcResponse calcResponse = (CalcResponse) context.getProvisioningServiceProvider()
+          .execute((Request) calcRequest);
 
-      if (response.getStatus().equals(StatusCode.SUCCESS)) {
+      List<PSO> psos = calcResponse.getPSOs();
 
-        CalcResponse calcResponse = (CalcResponse) response;
-
-        List<PSO> psos = calcResponse.getPSOs();
-
-        if (psos.isEmpty()) {
-          // TODO is logging sufficient ?
+      if (calcResponse.getStatus().equals(StatusCode.FAILURE)
+          || (calcResponse.getStatus().equals(StatusCode.SUCCESS) && psos.isEmpty())) {
+        if (onNotFound.equals(OnNotFound.warn)) {
           LOG.warn("{} unable to resolve identifier '{}'", msg, id);
+        } else if (onNotFound.equals(OnNotFound.fail)) {
+          LOG.error("{} unable to resolve identifier '{}'", msg, id);
+          throw new LdappcException(REFERENCE_NOT_FOUND);
+        }
+      }
+
+      if (calcResponse.getStatus().equals(StatusCode.SUCCESS)) {
+
+        // TODO correct handling of multiple results ?
+        if (!multipleResults && psos.size() > 1) {
+          LOG.error("Unable to resolve {} : {} results found", msg, psos.size());
+          throw new LdappcException(ERROR_MULTIPLE_RESULTS);
         }
 
-        if (psos.size() > 1) {
-          LOG.error("{} more than one PSO returned for id '{}'", msg, id);
-          throw new LdappcException("More than one PSO returned.");
-        }
-
-        if (psos.size() == 1) {
-          PSO pso = psos.get(0);
+        for (PSO pso : psos) {
           Reference reference = new Reference();
           reference.setToPsoID(pso.getPsoID());
           reference.setTypeOfReference(typeOfReference);
           references.add(reference);
         }
       }
+
+      // TODO correct handling of status=pending ?
+      if (calcResponse.getStatus().equals(StatusCode.PENDING)) {
+        LOG.error("Unable to resolve {} identifier {} " + ErrorCode.UNSUPPORTED_EXECUTION_MODE, msg, id);
+        throw new LdappcException(ErrorCode.UNSUPPORTED_EXECUTION_MODE.toString());
+      }
     }
 
     if (LOG.isDebugEnabled()) {
+      LOG.debug("{} found {} references", msg, references.size());
       for (Reference reference : references) {
         LOG.debug("{} reference : '{}'", msg, PSPUtil.getString(reference));
       }

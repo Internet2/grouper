@@ -55,6 +55,14 @@ public class PSOReferenceDefinitionBeanDefinitionParser extends AbstractSingleBe
     String toPSODefinition = targetId + ConfigBeanDefinitionParser.ID_DELIMITER + toObject;
     LOG.debug("Setting toPSODefinition of element '{}' to: '{}'", element.getLocalName(), toPSODefinition);
     builder.addPropertyReference("toPSODefinition", toPSODefinition);
+    
+    String onNotFound = element.getAttributeNS(null, "onNotFound");
+    LOG.debug("Setting onNotFound of element '{}' to: '{}'", element.getLocalName(), onNotFound);
+    builder.addPropertyValue("onNotFound", onNotFound);
+    
+    String multipleResults = element.getAttributeNS(null, "multipleResults");
+    LOG.debug("Setting multipleResults of element '{}' to: '{}'", element.getLocalName(), multipleResults);
+    builder.addPropertyValue("multipleResults", multipleResults);
   }
 
   protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)
