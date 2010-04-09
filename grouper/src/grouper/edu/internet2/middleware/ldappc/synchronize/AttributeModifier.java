@@ -427,6 +427,7 @@ public class AttributeModifier {
       DSMLModification dsmlMod = new DSMLModification(attributeName, makeDSMLValues(adds), ModificationMode.ADD);
       Modification modification = new Modification();
       modification.addOpenContentElement(dsmlMod);
+      modification.setModificationMode(ModificationMode.ADD);
       modifications.add(modification);
     }
 
@@ -434,6 +435,7 @@ public class AttributeModifier {
       DSMLModification dsmlMod = new DSMLModification(attributeName, makeDSMLValues(deletes), ModificationMode.DELETE);
       Modification modification = new Modification();
       modification.addOpenContentElement(dsmlMod);
+      modification.setModificationMode(ModificationMode.DELETE);
       modifications.add(modification);
     }
 
@@ -515,7 +517,7 @@ public class AttributeModifier {
    * @throws NamingException
    *           thrown if a naming error occurs
    */
-  public void retainAll() throws NamingException {
+  public void retainAll() {
     //
     // Add all of the deletes values to retained
     //
