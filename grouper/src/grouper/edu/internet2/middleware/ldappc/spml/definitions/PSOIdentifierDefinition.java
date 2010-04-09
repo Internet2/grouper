@@ -14,6 +14,8 @@
 
 package edu.internet2.middleware.ldappc.spml.definitions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.openspml.v2.msg.spml.PSOIdentifier;
@@ -69,43 +71,40 @@ public class PSOIdentifierDefinition {
     this.targetDefinition = targetDefinition;
   }
 
-  public PSOIdentifier getPSOIdentifier(PSPContext context) throws LdappcException {
+  public List<PSOIdentifier> getPSOIdentifier(PSPContext context) throws LdappcException {
+
+    List<PSOIdentifier> psoIDs = new ArrayList<PSOIdentifier>();
 
     String msg = "get psoId for '" + context.getProvisioningRequest().getId() + "' ref '" + ref + "'";
     LOG.debug("{}", msg);
 
-    Map<String, BaseAttribute> attributes = context.getAttributes();
+    Map<String, BaseAttribute<?>> attributes = context.getAttributes();
 
     if (!attributes.containsKey(ref)) {
       LOG.debug("{} source attribute does not exist", msg);
-      return null;
+      return psoIDs;
     }
 
-    BaseAttribute attribute = attributes.get(ref);
+    BaseAttribute<?> attribute = attributes.get(ref);
 
     if (attribute.getValues().isEmpty()) {
       LOG.debug("{} no dependency values", msg);
-      return null;
+      return psoIDs;
     }
 
-    if (attribute.getValues().size() != 1) {
-      LOG.warn("{} Unable to resolve identifier, dependency '{}' has more than one value", msg, ref);
-      throw new LdappcException("Unable to calculate identifier, dependency has more than one value");
+    for (Object value : attribute.getValues()) {
+      if (!(value instanceof PSOIdentifier)) {
+        LOG.error("{} Unable to calculate identifier, returned object is not a " + PSOIdentifier.class + " : {}", msg,
+            value.getClass());
+        throw new LdappcException("Unable to calculate identifier, returned object is not a " + PSOIdentifier.class);
+      }
+
+      PSOIdentifier psoIdentifier = (PSOIdentifier) value;
+      psoIdentifier.setTargetID(targetDefinition.getId());
+      psoIDs.add(psoIdentifier);
+      LOG.debug("{} returned '{}'", msg, PSPUtil.getString(psoIdentifier));
     }
 
-    Object value = attribute.getValues().iterator().next();
-
-    if (!(value instanceof PSOIdentifier)) {
-      LOG.error("{} Unable to calculate identifier, returned object is not a " + PSOIdentifier.class + " : {}", msg,
-          value.getClass());
-      throw new LdappcException("Unable to calculate identifier, returned object is not a " + PSOIdentifier.class);
-    }
-
-    PSOIdentifier psoIdentifier = (PSOIdentifier) value;
-    // set targetID
-    psoIdentifier.setTargetID(targetDefinition.getId());
-
-    LOG.debug("{} returned '{}'", msg, PSPUtil.getString(psoIdentifier));
-    return psoIdentifier;
+    return psoIDs;
   }
 }
