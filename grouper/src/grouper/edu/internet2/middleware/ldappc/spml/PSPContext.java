@@ -23,7 +23,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
 public class PSPContext {
 
-  private Map<String, BaseAttribute> attributes;
+  private Map<String, BaseAttribute<?>> attributes;
 
   private ProvisioningRequest provisioningRequest;
 
@@ -31,11 +31,11 @@ public class PSPContext {
 
   private List<TargetDefinition> psoTargetDefinitions;
 
-  public Map<String, BaseAttribute> getAttributes() {
+  public Map<String, BaseAttribute<?>> getAttributes() {
     return attributes;
   }
 
-  public void setAttributes(Map<String, BaseAttribute> attributes) {
+  public void setAttributes(Map<String, BaseAttribute<?>> attributes) {
     this.attributes = attributes;
   }
 
