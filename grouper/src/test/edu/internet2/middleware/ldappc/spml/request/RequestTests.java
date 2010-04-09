@@ -19,7 +19,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.cli.ParseException;
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.opensaml.util.resource.ResourceException;
 import org.openspml.v2.msg.Marshallable;
 import org.openspml.v2.msg.spml.AddRequest;
 import org.openspml.v2.msg.spml.AddResponse;
@@ -43,8 +45,9 @@ import org.openspml.v2.msg.spmlsearch.SearchRequest;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcTestHelper;
+import edu.internet2.middleware.ldappc.spml.BasePSPProvisioningTest;
 import edu.internet2.middleware.ldappc.spml.PSP;
-import edu.internet2.middleware.ldappc.spml.PSPTest;
+import edu.internet2.middleware.ldappc.spml.PSPOptions;
 
 public class RequestTests extends XMLTestCase {
 
@@ -75,10 +78,25 @@ public class RequestTests extends XMLTestCase {
 
   private PSP psp;
 
+  public RequestTests(String name) {
+    super(name);
+  }
+
+  public static void main(String[] args) {
+    // TestRunner.run(new RequestTests("testCalculateRequest"));
+  }
+
   public void setUp() {
 
-    // load marshallers
-    psp = new PSP();
+    try {
+      PSPOptions pspOptions = new PSPOptions(null);
+      pspOptions.setConfDir(GrouperUtil.fileFromResourceName("/test/edu/internet2/middleware/ldappc/spml").getAbsolutePath());
+      psp = PSP.getPSP(pspOptions);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    } catch (ResourceException e) {
+      throw new RuntimeException(e);
+    }
 
     pso1 = new PSO();
     id1 = new PSOIdentifier("id1", null, "target1");
@@ -110,13 +128,13 @@ public class RequestTests extends XMLTestCase {
   public void testCalculateRequest() {
 
     CalcRequest request = new CalcRequest();
-    request.setRequestID(PSPTest.REQUESTID_TEST);
+    request.setRequestID(BasePSPProvisioningTest.REQUESTID_TEST);
     request.setExecutionMode(ExecutionMode.SYNCHRONOUS);
     request.setId("id");
     request.setTargetIds(Arrays.asList(new String[] { "target1", "target2" }));
     request.setReturnData(ReturnData.EVERYTHING);
 
-    String string = "id='id' returnData='everything' targetIds='[target1, target2]'";
+    String string = "CalcRequest[id=id,returnData=everything,targetIds=[target1, target2],requestID=REQUESTID_TEST]";
     assertEquals(string, request.toString());
 
     Marshallable object = verifySpml(request, "RequestTests.testCalculateRequest.xml", true);
@@ -390,7 +408,7 @@ public class RequestTests extends XMLTestCase {
 
   private Marshallable verifySpml(Marshallable testObject, String correctXMLFileName, boolean testEquality) {
     return LdappcTestHelper.verifySpml(psp.getXMLMarshaller(), psp.getXmlUnmarshaller(), testObject,
-        getFile(correctXMLFileName), testEquality);
+        getFile(correctXMLFileName), testEquality, null);
   }
 
   public static void testRequestMap(Map<PSOIdentifier, Request> correct, Map<PSOIdentifier, Request> current) {
