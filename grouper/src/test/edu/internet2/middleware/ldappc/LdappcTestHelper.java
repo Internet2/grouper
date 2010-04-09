@@ -42,7 +42,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import javax.naming.ldap.LdapContext;
+import javax.naming.directory.SearchResult;
 
 import junit.framework.Assert;
 
@@ -72,6 +72,9 @@ import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.IgnoreRequestIDDifferenceListener;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.vt.middleware.ldap.Ldap;
+import edu.vt.middleware.ldap.bean.LdapResult;
+import edu.vt.middleware.ldap.bean.SortedLdapBeanFactory;
+import edu.vt.middleware.ldap.ldif.Ldif;
 
 public class LdappcTestHelper {
 
@@ -138,7 +141,10 @@ public class LdappcTestHelper {
         attributeIds.add(entryAttributeId);
       }
       for (String objectclass : objectclasses) {
-        map.put(objectclass, attributeIds);
+        if (!map.containsKey(objectclass)) {
+          map.put(objectclass, new HashSet<String>());
+        }
+        map.get(objectclass).addAll(attributeIds);
       }
     }
     return map;
@@ -165,7 +171,9 @@ public class LdappcTestHelper {
    * @throws NamingException
    */
   public static void deleteChildren(String baseDn, Ldap ldap) throws NamingException {
+    LOG.debug("base " + baseDn);
     List<String> toDelete = LdapUtil.getChildDNs(baseDn, ldap);
+    LOG.debug("childs " + toDelete);
     for (String dn : toDelete) {
       LOG.info("delete '{}'", dn);
       ldap.delete(LdapUtil.escapeForwardSlash(dn));
@@ -173,25 +181,13 @@ public class LdappcTestHelper {
   }
 
   /**
-   * Destroy everything under the given base.
+   * Return an LDIF representation of the LDAP DIT starting at the given base DN.
    * 
-   * @param base
-   * @param ldapContext
-   * @throws Exception
-   */
-  public static void deleteChildren(String base, LdapContext ldapContext)
-      throws Exception {
-    List<String> toDelete = LdapUtil.getChildDNs(base, ldapContext);
-    for (String dn : toDelete) {
-      LOG.info("delete " + dn);
-      ldapContext.destroySubcontext(dn);
-    }
-  }
-
-  /**
-   * Return an LDIF representation of the entire DIT.
-   * 
-   * @return
+   * @param baseDn
+   *          the base of the LDAP DIT
+   * @param ldap
+   *          <code>Ldap</code>
+   * @return LDIF
    * @throws NamingException
    */
   public static String getCurrentLdif(String baseDn, Ldap ldap) throws NamingException {
@@ -199,63 +195,49 @@ public class LdappcTestHelper {
   }
 
   /**
-   * see {@link #getCurrentLdif(String, String[], LdapContext)}
+   * Return an LDIF representation of the LDAP DIT starting at the given base DN and
+   * consisting of the specified attributes.
    * 
    * @param baseDn
-   * @param ldapContext
-   * @return
-   * @throws NamingException
-   */
-  public static String getCurrentLdif(String baseDn, LdapContext ldapContext)
-      throws NamingException {
-    return getCurrentLdif(baseDn, null, ldapContext);
-  }
-
-  /**
-   * Return an LDIF representation of the entire DIT.
-   * 
-   * @return
-   * @throws NamingException
-   */
-  public static String getCurrentLdif(String baseDn, String[] attrIds,
-      LdapContext ldapContext) throws NamingException {
-
-    StringBuffer ldif = new StringBuffer();
-
-    List<String> currentDns = LdapUtil.getChildDNs(baseDn, ldapContext);
-
-    for (String currentDn : currentDns) {
-      ldif.append("dn: " + currentDn + "\n");
-      Attributes attributes = ldapContext.getAttributes(currentDn, attrIds);
-      ldif.append(LdapUtil.getLdif(attributes));
-      ldif.append("\n");
-    }
-
-    return ldif.toString();
-  }
-
-  /**
-   * Return an LDIF representation of the entire DIT.
-   * 
-   * @return
+   *          the base of the LDAP DIT
+   * @param attrIds
+   *          the names of the attributes to be included
+   * @param ldap
+   *          <code>Ldap</code>
+   * @return LDIF
    * @throws NamingException
    */
   public static String getCurrentLdif(String baseDn, String[] attrIds, Ldap ldap)
       throws NamingException {
 
-    StringBuffer ldif = new StringBuffer();
-
     List<String> currentDns = LdapUtil.getChildDNs(baseDn, ldap);
 
+    SortedLdapBeanFactory factory = new SortedLdapBeanFactory();
+    LdapResult result = factory.newLdapResult();
+
     for (String currentDn : currentDns) {
-      ldif.append("dn: " + currentDn + "\n");
-      Attributes attributes = LdapUtil.searchAttributes(ldap, LdapUtil
-          .escapeForwardSlash(currentDn), attrIds);
-      ldif.append(LdapUtil.getLdif(attributes));
-      ldif.append("\n");
+      LOG.debug("currenDn '{}'", currentDn);
+
+      Iterator<SearchResult> rs = (LdapUtil.searchEntryDn(ldap, LdapUtil.escapeForwardSlash(currentDn), attrIds));
+      while (rs.hasNext()) {
+        SearchResult r = rs.next();
+        // TODO must be a better way to handle cn=group\/F,
+        r.setName(LdapUtil.unescapeForwardSlash(r.getName()));
+        result.addEntry(r);
+      }
     }
 
-    return ldif.toString();
+    Ldif l = new Ldif();
+    l.setLdapBeanFactory(factory);
+    return l.createLdif(result);
+  }
+
+  public static File getFile(String resourceName) {
+    File file = GrouperUtil.fileFromResourceName(resourceName);
+    if (file == null) {
+      throw new RuntimeException("Unable to find file '" + resourceName + "'");
+    }
+    return file;
   }
 
   /**
@@ -305,72 +287,14 @@ public class LdappcTestHelper {
     }
   }
 
-  /**
-   * Create entries read from the given ldif file.
-   * 
-   * @param file
-   * @param ldap
-   * @throws NamingException
-   */
-  public static void loadLdif(File file, LdapContext ldapContext) throws Exception {
-
-    loadLdif(file, null, ldapContext);
-  }
-
-  /**
-   * Create entries read from the given ldif file after replacing macros.
-   * 
-   * @param ldifFile
-   * @param replacementPropertiesFile
-   * @param ldapContext
-   * @throws Exception
-   */
-  public static void loadLdif(File ldifFile, File replacementPropertiesFile,
-      LdapContext ldapContext) throws Exception {
-    loadLdif(new FileInputStream(ldifFile), replacementPropertiesFile, ldapContext);
-  }
-
   public static void loadLdif(File ldifFile, File replacementPropertiesFile, Ldap ldap)
       throws Exception {
     loadLdif(new FileInputStream(ldifFile), replacementPropertiesFile, ldap);
   }
 
-  public static void loadLdif(String ldif, File replacementPropertiesFile,
-      LdapContext ldapContext) throws Exception {
-    loadLdif(new ByteArrayInputStream(ldif.getBytes()), replacementPropertiesFile,
-        ldapContext);
-  }
-
   public static void loadLdif(String ldif, File replacementPropertiesFile, Ldap ldap)
       throws Exception {
     loadLdif(new ByteArrayInputStream(ldif.getBytes()), replacementPropertiesFile, ldap);
-  }
-
-  public static void loadLdif(InputStream ldif, File replacementPropertiesFile,
-      LdapContext ldapContext) throws Exception {
-
-    LdifReader ldifReader = null;
-    if (replacementPropertiesFile != null) {
-      PropertyReplacementResourceFilter prf = new PropertyReplacementResourceFilter(
-          replacementPropertiesFile);
-      ldifReader = new LdifReader(prf.applyFilter(ldif));
-    } else {
-      ldifReader = new LdifReader(ldif);
-    }
-
-    for (LdifEntry entry : ldifReader) {
-      Attributes attributes = new BasicAttributes(true);
-      for (EntryAttribute entryAttribute : entry.getEntry()) {
-        BasicAttribute attribute = new BasicAttribute(entryAttribute.getId());
-        Iterator<Value<?>> values = entryAttribute.getAll();
-        while (values.hasNext()) {
-          attribute.add(values.next().get());
-        }
-        attributes.put(attribute);
-      }
-      LOG.debug("creating '" + entry.getDn().toString() + " " + attributes);
-      ldapContext.createSubcontext(entry.getDn().toString(), attributes);
-    }
   }
 
   public static void loadLdif(InputStream ldif, File replacementPropertiesFile, Ldap ldap)
@@ -616,59 +540,56 @@ public class LdappcTestHelper {
     return list;
   }
 
+  /**
+   * Assert that the LDIF represented by the given strings are the same.
+   * 
+   * @param correct
+   *          the correct LDIF
+   * @param current
+   *          the current LDIF
+   * @param purgeAttributes
+   *          ignore attributes not in the correct ldif
+   * @throws NamingException
+   * @throws FileNotFoundException
+   * @throws IOException
+   * @throws ResourceException
+   */
   public static void verifyLdif(String correctLdif, String currentLdif,
       boolean purgeAttributes) throws NamingException, FileNotFoundException,
       IOException, ResourceException {
-    verifyLdif(correctLdif, currentLdif, null, purgeAttributes);
+    verifyLdif(correctLdif, currentLdif, null, null, purgeAttributes);
   }
 
-  public static void verifyLdif(String correctLdif, String currentLdif,
-      File propertiesFile, boolean purgeAttributes) throws NamingException,
-      FileNotFoundException, IOException, ResourceException {
-    verifyLdif(correctLdif, currentLdif, propertiesFile, null, purgeAttributes);
-  }
-
-  public static void verifyLdif(String correctLdif, File propertiesFile,
-      Collection<String> normalizeDnAttributes, String base, LdapContext ldapContext,
-      boolean purgeAttributes) throws IOException, ResourceException, NamingException {
-
-    // replace macros
-    String filteredCorrectLdif = LdappcTestHelper
-        .applyFilter(correctLdif, propertiesFile);
-
-    // get attribute ids to request
-    String[] requestedAttributes = null;
-    Map<String, Collection<String>> map = LdappcTestHelper
-        .buildObjectlassAttributeMap(filteredCorrectLdif);
-    if (map != null) {
-      Set<String> attrIds = new HashSet<String>();
-      for (Collection<String> values : map.values()) {
-        attrIds.addAll(values);
-      }
-      requestedAttributes = attrIds.toArray(new String[] {});
-    }
-
-    // get current ldif using requested attribute ids
-    String currentLdif = LdappcTestHelper.getCurrentLdif(base, requestedAttributes,
-        ldapContext);
-
-    // verify ldif
-    LdappcTestHelper.verifyLdif(correctLdif, currentLdif, propertiesFile,
-        normalizeDnAttributes, purgeAttributes);
-  }
-
+  /**
+   * Assert that the LDIF represented by the given string is the same as the LDIF returned
+   * from the LDAP server at the given base DN.
+   * 
+   * @param correctLdif
+   *          the correct LDIF
+   * @param propertiesFile
+   *          properties file to be used for macro replacement
+   * @param normalizeDnAttributes
+   *          attribute names whose values are DNs
+   * @param base
+   *          DN at which comparison should begin
+   * @param ldap
+   *          connection to LDAP server
+   * @param purgeAttributes
+   * @throws IOException
+   * @throws ResourceException
+   * @throws NamingException
+   */
   public static void verifyLdif(String correctLdif, File propertiesFile,
       Collection<String> normalizeDnAttributes, String base, Ldap ldap,
       boolean purgeAttributes) throws IOException, ResourceException, NamingException {
 
     // replace macros
-    String filteredCorrectLdif = LdappcTestHelper
-        .applyFilter(correctLdif, propertiesFile);
+    String filteredCorrectLdif = LdappcTestHelper.applyFilter(correctLdif, propertiesFile);
 
     // get attribute ids to request
     String[] requestedAttributes = null;
-    Map<String, Collection<String>> map = LdappcTestHelper
-        .buildObjectlassAttributeMap(filteredCorrectLdif);
+    Map<String, Collection<String>> map = LdappcTestHelper.buildObjectlassAttributeMap(filteredCorrectLdif);
+
     if (map != null) {
       Set<String> attrIds = new HashSet<String>();
       for (Collection<String> values : map.values()) {
@@ -681,10 +602,27 @@ public class LdappcTestHelper {
     String currentLdif = LdappcTestHelper.getCurrentLdif(base, requestedAttributes, ldap);
 
     // verify ldif
-    LdappcTestHelper.verifyLdif(correctLdif, currentLdif, propertiesFile,
-        normalizeDnAttributes, purgeAttributes);
+    LdappcTestHelper.verifyLdif(correctLdif, currentLdif, propertiesFile, normalizeDnAttributes, purgeAttributes);
   }
 
+  /**
+   * Assert that the LDIF represented by the given strings are the same.
+   * 
+   * @param correct
+   *          the correct LDIF
+   * @param current
+   *          the current LDIF
+   * @param propertiesFile
+   *          properties file to be used for macro replacement
+   * @param normalizeDnAttributes
+   *          attribute names whose values are DNs
+   * @param purgeAttributes
+   *          ignore attributes not in the correct ldif
+   * @throws NamingException
+   * @throws FileNotFoundException
+   * @throws IOException
+   * @throws ResourceException
+   */
   public static void verifyLdif(String correctLdif, String currentLdif,
       File propertiesFile, Collection<String> normalizeDnAttributes,
       boolean purgeAttributes) throws NamingException, FileNotFoundException,
@@ -694,6 +632,24 @@ public class LdappcTestHelper {
     verifyLdif(correct, current, propertiesFile, normalizeDnAttributes, purgeAttributes);
   }
 
+  /**
+   * Assert that the LDIF represented by the given files are the same.
+   * 
+   * @param correct
+   *          the correct LDIF
+   * @param current
+   *          the current LDIF
+   * @param propertiesFile
+   *          properties file to be used for macro replacement
+   * @param normalizeDnAttributes
+   *          attribute names whose values are DNs
+   * @param purgeAttributes
+   *          ignore attributes not in the correct ldif
+   * @throws FileNotFoundException
+   * @throws IOException
+   * @throws ResourceException
+   * @throws NamingException
+   */
   public static void verifyLdif(File correctFile, File currentFile, File propertiesFile,
       Collection<String> normalizeDnAttributes, boolean purgeAttributes)
       throws FileNotFoundException, IOException, ResourceException, NamingException {
@@ -702,6 +658,24 @@ public class LdappcTestHelper {
     verifyLdif(correct, current, propertiesFile, normalizeDnAttributes, purgeAttributes);
   }
 
+  /**
+   * Assert that the LDIF represented by the given input streams are the same.
+   * 
+   * @param correct
+   *          the correct LDIF
+   * @param current
+   *          the current LDIF
+   * @param propertiesFile
+   *          properties file to be used for macro replacement
+   * @param normalizeDnAttributes
+   *          attribute names whose values are DNs
+   * @param purgeAttributes
+   *          ignore attributes not in the correct ldif
+   * @throws FileNotFoundException
+   * @throws IOException
+   * @throws ResourceException
+   * @throws NamingException
+   */
   public static void verifyLdif(InputStream correct, InputStream current,
       File propertiesFile, Collection<String> normalizeDnAttributes,
       boolean purgeAttributes) throws FileNotFoundException, IOException,
@@ -723,6 +697,7 @@ public class LdappcTestHelper {
     LdifReader reader = new LdifReader();
 
     Collection<LdifEntry> correctEntries = reader.parseLdif(correctLdif);
+    LOG.debug("cur ldif\n{}", currentLdif);
     Collection<LdifEntry> currentEntries = reader.parseLdif(currentLdif);
 
     // remove objectclass: top
@@ -771,11 +746,23 @@ public class LdappcTestHelper {
 
   public static Marshallable verifySpml(XMLMarshaller m, XMLUnmarshaller u,
       Marshallable testObject, File correctXMLFile) {
-    return verifySpml(m, u, testObject, correctXMLFile, false);
+    return verifySpml(m, u, testObject, correctXMLFile, false, null);
   }
 
   public static Marshallable verifySpml(XMLMarshaller m, XMLUnmarshaller u,
-      Marshallable testObject, File correctXMLFile, boolean testEquality) {
+      Marshallable testObject, File correctXMLFile, boolean testEquality,
+      File propertiesFile) {
+    try {
+      InputStream correct = new FileInputStream(correctXMLFile);
+      return verifySpml(m, u, testObject, correct, testEquality, propertiesFile);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      throw new RuntimeException("File not found", e);
+    }
+  }
+
+  public static Marshallable verifySpml(XMLMarshaller m, XMLUnmarshaller u,
+      Marshallable testObject, InputStream correctXMLStream, boolean testEquality, File propertiesFile) {
 
     try {
       String testXML = testObject.toXML(m);
@@ -784,13 +771,21 @@ public class LdappcTestHelper {
 
       String unmarshalledTestXML = unmarshalledObject.toXML(m);
 
-      String correctXML = readFile(correctXMLFile);
+      String correctXML = null;
+      if (propertiesFile != null) {
+        // replace macros
+        PropertyReplacementResourceFilter filter = new PropertyReplacementResourceFilter(
+            propertiesFile);
+        correctXML = DatatypeHelper.inputstreamToString(filter
+            .applyFilter(correctXMLStream), null);
+      } else {
+        correctXML = DatatypeHelper.inputstreamToString(correctXMLStream, null);
+      }
 
       Marshallable unmarshalledFromCorrectXMLFile = u.unmarshall(correctXML);
 
       if (LOG.isDebugEnabled()) {
         LOG.debug("current:\n{}", testXML);
-        LOG.debug("unmarshalled:\n{}", unmarshalledTestXML);
         LOG.debug("correct:\n{}", correctXML);
       }
 
@@ -812,21 +807,32 @@ public class LdappcTestHelper {
       DifferenceListener ignoreRequestID = new IgnoreRequestIDDifferenceListener();
 
       // test testXML against correctXML
-      Diff correctDiff = new Diff(new FileReader(correctXMLFile), new StringReader(
+      Diff correctDiff = new Diff(new StringReader(correctXML), new StringReader(
           testXML));
+
       correctDiff.overrideDifferenceListener(ignoreRequestID);
+      // // TODO ignore order ?
+      // correctDiff.overrideElementQualifier(new RecursiveElementNameAndTextQualifier());
+
       DetailedDiff correctDetailedDiff = new DetailedDiff(correctDiff);
+      // TODO ignore order ?
+      // correctDetailedDiff.overrideElementQualifier(new
+      // RecursiveElementNameAndTextQualifier());
+
       if (!correctDetailedDiff.getAllDifferences().isEmpty()) {
-        LOG.debug("differences '{}'", correctDetailedDiff.getAllDifferences());
-        LOG.debug("diff '{}'", correctDetailedDiff.toString());
+        LOG.debug("differences   \n'{}'", correctDetailedDiff.getAllDifferences());
+        LOG.debug("diff to string\n'{}'", correctDetailedDiff.toString());
       }
-      Assert.assertTrue(correctDetailedDiff.getAllDifferences().isEmpty());
-      Assert.assertTrue(correctDetailedDiff.similar());
+      Assert.assertTrue("SPML diff should be empty", correctDetailedDiff
+          .getAllDifferences().isEmpty());
+      Assert.assertTrue("SPML diff should be similar", correctDetailedDiff.similar());
 
       // test unmarshalledXML against correctXML
-      Diff unmarshalledDiff = new Diff(new FileReader(correctXMLFile), new StringReader(
+      Diff unmarshalledDiff = new Diff(new StringReader(correctXML), new StringReader(
           unmarshalledTestXML));
+
       unmarshalledDiff.overrideDifferenceListener(ignoreRequestID);
+
       DetailedDiff unmarshalledDetailedDiff = new DetailedDiff(unmarshalledDiff);
       if (!unmarshalledDetailedDiff.getAllDifferences().isEmpty()) {
         LOG.debug("differences '{}'", unmarshalledDetailedDiff.getAllDifferences());
