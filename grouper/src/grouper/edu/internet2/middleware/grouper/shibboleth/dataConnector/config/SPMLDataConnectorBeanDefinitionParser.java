@@ -40,7 +40,7 @@ public class SPMLDataConnectorBeanDefinitionParser extends BaseDataConnectorBean
 
   public static final QName FILTER_ELEMENT_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "FilterTemplate");
 
-  protected Class getBeanClass(Element element) {
+  protected Class<?> getBeanClass(Element element) {
     return SPMLDataConnectorFactoryBean.class;
   }
 
