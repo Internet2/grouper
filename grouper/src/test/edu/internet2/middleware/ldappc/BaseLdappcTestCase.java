@@ -333,11 +333,6 @@ public abstract class BaseLdappcTestCase extends GrouperTest {
     loadLdif(file, ldappc.getContext());
   }
 
-  public void loadLdif(String correctFile, LdapContext ldapContext) throws Exception {
-
-    LdappcTestHelper.loadLdif(getFile(correctFile), propertiesFile, ldapContext);
-  }
-
   public void loadLdif(String correctFile, Ldap ldap) throws Exception {
 
     LdappcTestHelper.loadLdif(getFile(correctFile), propertiesFile, ldap);
@@ -360,7 +355,7 @@ public abstract class BaseLdappcTestCase extends GrouperTest {
    * 
    * @return
    */
-  public boolean useEmbedded() {
+  public boolean useEmbedded() {    
     return GrouperUtil.propertiesValueBoolean(properties, TEST_USE_EMBEDDED, false);
   }
 
