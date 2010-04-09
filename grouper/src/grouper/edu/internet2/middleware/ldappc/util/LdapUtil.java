@@ -23,13 +23,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.naming.Binding;
+import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -39,8 +38,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.shared.ldap.entry.client.ClientModification;
@@ -345,42 +342,6 @@ public final class LdapUtil {
   }
 
   /**
-   * This creates an {@link javax.naming.ldap.LdapContext} with the given environment
-   * properties and connection request controls.
-   * 
-   * @param environment
-   *          environment used to create the initial DirContext. <code>null</code>
-   *          indicates an empty environment.
-   * @param controls
-   *          connection request controls for the initial context. If <code>null</code>,
-   *          no connection request controls are used.
-   * @return LdapContext
-   * @throws javax.naming.NamingException
-   *           if a naming exception is encountered
-   */
-  public static LdapContext getLdapContext(Hashtable environment, Control[] controls)
-      throws NamingException {
-    /*
-     * // // DEBUG: Display the environment // java.util.Enumeration envKeys =
-     * environment.keys(); String key; System.out .println("DEBUG, Listing of
-     * Environmental variable for the LdapContext"); while(envKeys.hasMoreElements()) {
-     * key = (String) envKeys.nextElement(); System.out.println("DEBUG, Key: " + key + " "
-     * + "value:" + environment.get(key)); }
-     */
-
-    //
-    // Clone the environment and add connection pooling.
-    //
-    Hashtable env = (Hashtable) environment.clone();
-    env.put("com.sun.jndi.ldap.connect.pool", "true");
-
-    //
-    // Create an LDAP context and return it.
-    //
-    return new InitialLdapContext(env, controls);
-  }
-
-  /**
    * Converts a "{i}" ldap query filter parameter to "*" where i >= 0.
    * 
    * @param filter
@@ -574,7 +535,7 @@ public final class LdapUtil {
 
   /**
    * Return a list of child DNs under the given DN, in (reverse) order suitable for
-   * deletion.
+   * deletion. This method requires the use of the FqdnSearchResultHandler.
    * 
    * @param dn
    *          the dn to delete, as well as all children
@@ -587,11 +548,17 @@ public final class LdapUtil {
 
     ArrayList<String> tree = new ArrayList<String>();
 
-    Iterator<Binding> bindings = ldap.listBindings(LdapUtil.escapeForwardSlash(dn));
-    while (bindings.hasNext()) {
-      Binding binding = bindings.next();
-      tree.addAll(getChildDNs(binding.getNameInNamespace(), ldap));
-      tree.add(binding.getNameInNamespace());
+    SearchControls searchControls = new SearchControls();
+    searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+    searchControls.setReturningAttributes(new String[] {});
+
+    Iterator<SearchResult> results = ldap.search(LdapUtil.escapeForwardSlash(dn), new SearchFilter("objectclass=*"),
+        searchControls);
+    while (results.hasNext()) {
+      SearchResult sr = results.next();
+      String name = sr.getName();
+      tree.addAll(getChildDNs(name, ldap));
+      tree.add(name);
     }
 
     return tree;
@@ -655,13 +622,7 @@ public final class LdapUtil {
   public static Attributes searchAttributes(Ldap ldap, String dn, String[] retAttrs)
       throws NamingException, LdappcException {
 
-    SearchControls searchControls = new SearchControls();
-    searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
-    searchControls.setReturningAttributes(retAttrs);
-    searchControls.setCountLimit(1);
-
-    Iterator<SearchResult> results = ldap.search(dn, new SearchFilter("objectclass=*"),
-        searchControls);
+    Iterator<SearchResult> results = LdapUtil.searchEntryDn(ldap, dn, retAttrs);
 
     if (!results.hasNext()) {
       LOG.debug("No result found for '" + dn + "'");
@@ -676,6 +637,27 @@ public final class LdapUtil {
     }
 
     return result.getAttributes();
+  }
+
+  /**
+   * Perform a search for a given LDAP entry. The underlying LdapContext method used is
+   * search(), rather than getAttributes(), so that SearchResultHandlers are used. The
+   * filter is (objectclass=*), the base is the given dn, and the scope is OBJECT.
+   * 
+   * @param ldap
+   * @param dn
+   * @param retAttrs
+   * @return
+   * @throws NamingException
+   */
+  public static Iterator<SearchResult> searchEntryDn(Ldap ldap, String dn, String[] retAttrs) throws NamingException {
+
+    SearchControls searchControls = new SearchControls();
+    searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
+    searchControls.setReturningAttributes(retAttrs);
+    searchControls.setCountLimit(1);
+
+    return ldap.search(dn, new SearchFilter("objectclass=*"), searchControls);
   }
 
   /**
@@ -710,5 +692,24 @@ public final class LdapUtil {
     }
 
     return dn;
+  }
+
+  /**
+   * Normalize LDAP DN using {@link org.apache.directory.shared.ldap.name.LdapDN}. This
+   * will convert RDN attributeTypes to lowercase, which is of interest since Active
+   * Directory usually (?) returns attributeTypes uppercased.
+   * 
+   * @param dn
+   * @return the lowercased and normalized dn
+   * @throws InvalidNameException
+   */
+  public static String canonicalizeDn(String dn) throws InvalidNameException {
+    return new LdapDN(LdapUtil.unescapeForwardSlash(dn)).toString();
+  }
+
+  public static String getParentDn(String dn) throws InvalidNameException {
+    LdapDN ldapDN = new LdapDN(dn);
+    ldapDN.remove(ldapDN.getRdns().size() - 1);
+    return ldapDN.toString();
   }
 }
