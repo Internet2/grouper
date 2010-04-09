@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnector;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
+import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
@@ -113,46 +114,55 @@ public class LdapDnPSOIdentifierAttributeDefinition extends BaseAttributeDefinit
       return attribute;
     }
 
-    if (rdnValues.size() != 1) {
+    if (rdnValues.size() > 1) {
       LOG.warn("{} Unable to resolve identifier, dependency '{}' has more than one value", msg, this
           .getSourceAttributeID());
       throw new AttributeResolutionException("Unable to resolve identifier, dependency has more than one value");
     }
-    if (stemValues.size() != 1) {
+    if (stemValues.size() > 1) {
       LOG.warn("{} Unable to resolve identifier, dependency '{}' has more than one value", msg,
           GroupDataConnector.PARENT_STEM_NAME_ATTR);
       throw new AttributeResolutionException("Unable to resolve identifier, dependency has more than one value");
     }
 
-    PSOIdentifier psoIdentifier = new PSOIdentifier();
-
-    String rdnValue = rdnValues.iterator().next().toString();
-    String stemValue = stemValues.iterator().next().toString();
-
     List<Rdn> rdns = new ArrayList<Rdn>();
     try {
       // base
-      LdapName base = new LdapName(this.getBase());
-      rdns.addAll(base.getRdns());
+      LdapName baseDn = new LdapName(this.base);
+      rdns.addAll(baseDn.getRdns());
 
-      // stem if bushy
-      if (this.getStructure().equals(GroupDNStructure.bushy)) {
+      // stem if bushy and parent is not root
+      if (this.getStructure().equals(GroupDNStructure.bushy) && stemValues.size() == 1) {
+        String stemValue = stemValues.iterator().next().toString();
         rdns.addAll(this.getRdnsFromStemName(stemValue));
       }
 
-      // rdn, this
-      rdns.add(new Rdn(this.getRdnAttributeName(), rdnValue));
+      // rdn
+      String rdnAttributeValue = rdnValues.iterator().next().toString();
+      rdns.add(new Rdn(rdnAttributeName, rdnAttributeValue));
 
     } catch (InvalidNameException e) {
       LOG.error("{} Unable to resolve identifier, an error occurred {}", msg, e.getMessage());
       throw new AttributeResolutionException("Unable to resolve identifier", e);
     }
 
-    // TODO containerid
+    // pso id
+    PSOIdentifier psoIdentifier = new PSOIdentifier();
 
+    // TODO container id
+    // PSOIdentifier containerID = new PSOIdentifier();
+    // containerID.setID(base);
+    // psoIdentifier.setContainerID(containerID);
+
+    // dn
     LdapName dn = new LdapName(rdns);
-
-    psoIdentifier.setID(dn.toString());
+    // canonicalize ?
+    try {
+      psoIdentifier.setID(LdapUtil.canonicalizeDn(dn.toString()));
+    } catch (InvalidNameException e) {
+      LOG.error("{} Unable to canonicalize identifier, an error occurred {}", msg, e.getMessage());
+      throw new AttributeResolutionException("Unable to canonicalize identifier", e);
+    }
 
     attribute.setValues(Arrays.asList(new PSOIdentifier[] { psoIdentifier }));
 
