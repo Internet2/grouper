@@ -240,8 +240,14 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select flatMship from FlatMembership flatMship where " +
       		"not exists (select 1 from MembershipEntry ms " +
-      		"    where (flatMship.ownerId=ms.ownerGroupId or flatMship.ownerId=ms.ownerStemId or flatMship.ownerId=ms.ownerAttrDefId) " +
+      		"    where flatMship.ownerId=ms.ownerGroupId " +
       		"    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId and ms.enabledDb='T') " +
+          "and not exists (select 1 from MembershipEntry ms " +
+          "    where flatMship.ownerId=ms.ownerStemId " +
+          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId and ms.enabledDb='T') " +
+          "and not exists (select 1 from MembershipEntry ms " +
+          "    where flatMship.ownerId=ms.ownerAttrDefId " +
+          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId and ms.enabledDb='T') " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string06 = flatMship.ownerId and temp.string09=flatMship.fieldId " +
           "    and type.actionName='deleteMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string07 = flatMship.ownerId and temp.string10=flatMship.fieldId " +
@@ -262,7 +268,13 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select ms from MembershipEntry ms where ms.enabledDb='T' and " +
           "not exists (select 1 from FlatMembership flatMship " +
-          "    where (flatMship.ownerId=ms.ownerGroupId or flatMship.ownerId=ms.ownerStemId or flatMship.ownerId=ms.ownerAttrDefId) " +
+          "    where flatMship.ownerId=ms.ownerGroupId " +
+          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
+          "and not exists (select 1 from FlatMembership flatMship " +
+          "    where flatMship.ownerId=ms.ownerStemId " +
+          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
+          "and not exists (select 1 from FlatMembership flatMship " +
+          "    where flatMship.ownerId=ms.ownerAttrDefId " +
           "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string06 = ms.ownerGroupId and temp.string09=ms.fieldId " +
@@ -292,7 +304,13 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select count(*) from MembershipEntry ms where ms.enabledDb='T' and " +
           "not exists (select 1 from FlatMembership flatMship " +
-          "    where (flatMship.ownerId=ms.ownerGroupId or flatMship.ownerId=ms.ownerStemId or flatMship.ownerId=ms.ownerAttrDefId) " +
+          "    where flatMship.ownerId=ms.ownerGroupId " +
+          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
+          "and not exists (select 1 from FlatMembership flatMship " +
+          "    where flatMship.ownerId=ms.ownerStemId " +
+          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
+          "and not exists (select 1 from FlatMembership flatMship " +
+          "    where flatMship.ownerId=ms.ownerAttrDefId " +
           "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string06 = ms.ownerGroupId and temp.string09=ms.fieldId " +

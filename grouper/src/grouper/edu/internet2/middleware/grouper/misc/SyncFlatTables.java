@@ -320,7 +320,7 @@ public class SyncFlatTables {
   public long addMissingFlatMemberships() {
     showStatus("\n\nSearching for the number of missing flat memberships");
     long count = GrouperDAOFactory.getFactory().getFlatMembership().findMissingFlatMembershipsCount();
-    showStatus("Found " + count + " missing flat memberships");
+    showStatus("Found approximately " + count + " missing flat memberships.  The count is an estimate because it may include duplicates.");
     
     if (count == 0) {
       return 0;
