@@ -164,6 +164,50 @@
                             
 
                         /**
+                        * field for AttributeAssignDelegatable
+                        */
+
+                        
+                                    protected java.lang.String localAttributeAssignDelegatable ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localAttributeAssignDelegatableTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getAttributeAssignDelegatable(){
+                               return localAttributeAssignDelegatable;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param AttributeAssignDelegatable
+                               */
+                               public void setAttributeAssignDelegatable(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localAttributeAssignDelegatableTracker = true;
+                                       } else {
+                                          localAttributeAssignDelegatableTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localAttributeAssignDelegatable=param;
+                                    
+
+                               }
+                            
+
+                        /**
                         * field for AttributeAssignType
                         */
 
@@ -1455,6 +1499,40 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localAttributeAssignDelegatableTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"attributeAssignDelegatable", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"attributeAssignDelegatable");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("attributeAssignDelegatable");
+                                    }
+                                
+
+                                          if (localAttributeAssignDelegatable==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localAttributeAssignDelegatable);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              } if (localAttributeAssignTypeTracker){
                                     namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
                                     if (! namespace.equals("")) {
@@ -2479,6 +2557,12 @@
                                  
                                          elementList.add(localAttributeAssignActionType==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAttributeAssignActionType));
+                                    } if (localAttributeAssignDelegatableTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "attributeAssignDelegatable"));
+                                 
+                                         elementList.add(localAttributeAssignDelegatable==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAttributeAssignDelegatable));
                                     } if (localAttributeAssignTypeTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "attributeAssignType"));
@@ -2718,7 +2802,7 @@
                     
                     reader.next();
                 
-                        java.util.ArrayList list27 = new java.util.ArrayList();
+                        java.util.ArrayList list28 = new java.util.ArrayList();
                     
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
@@ -2785,6 +2869,33 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setAttributeAssignActionType(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","attributeAssignDelegatable").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setAttributeAssignDelegatable(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {
@@ -3433,14 +3544,14 @@
                                     
                                                           nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
                                                           if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                              list27.add(null);
+                                                              list28.add(null);
                                                               reader.next();
                                                           } else {
-                                                        list27.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue.Factory.parse(reader));
+                                                        list28.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue.Factory.parse(reader));
                                                                 }
                                                         //loop until we find a start element that is not part of this array
-                                                        boolean loopDone27 = false;
-                                                        while(!loopDone27){
+                                                        boolean loopDone28 = false;
+                                                        while(!loopDone28){
                                                             // We should be at the end element, but make sure
                                                             while (!reader.isEndElement())
                                                                 reader.next();
@@ -3451,19 +3562,19 @@
                                                                 reader.next();
                                                             if (reader.isEndElement()){
                                                                 //two continuous end elements means we are exiting the xml structure
-                                                                loopDone27 = true;
+                                                                loopDone28 = true;
                                                             } else {
                                                                 if (new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","wsAttributeAssignValues").equals(reader.getName())){
                                                                     
                                                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
                                                                       if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                                          list27.add(null);
+                                                                          list28.add(null);
                                                                           reader.next();
                                                                       } else {
-                                                                    list27.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue.Factory.parse(reader));
+                                                                    list28.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue.Factory.parse(reader));
                                                                         }
                                                                 }else{
-                                                                    loopDone27 = true;
+                                                                    loopDone28 = true;
                                                                 }
                                                             }
                                                         }
@@ -3472,7 +3583,7 @@
                                                         object.setWsAttributeAssignValues((edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue[])
                                                             org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
                                                                 edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeAssignValue.class,
-                                                                list27));
+                                                                list28));
                                                             
                               }  // End of if for expected property start element
                                 

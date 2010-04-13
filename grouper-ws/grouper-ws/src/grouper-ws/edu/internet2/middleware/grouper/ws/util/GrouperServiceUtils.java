@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.ws.util;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,8 +30,11 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -590,9 +594,9 @@ public final class GrouperServiceUtils {
   }
 
   /**
-   * convert the member filter, default to all
+   * convert the attributeAssignType, default to null
    * @param attributeAssignType
-   * @return the member filter
+   * @return the attributeAssignType
    * @throws WsInvalidQueryException if there is a problem
    */
   public static AttributeAssignType convertAttributeAssignType(String attributeAssignType)
@@ -605,6 +609,60 @@ public final class GrouperServiceUtils {
       throw new WsInvalidQueryException(e);
     }
     return attributeAssignTypeEnum;
+  }
+
+  /**
+   * convert the attributeAssignOperation, default to null
+   * @param attributeAssignOperation
+   * @return the attributeAssignOperation
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static AttributeAssignOperation convertAttributeAssignOperation(String attributeAssignOperation)
+      throws WsInvalidQueryException {
+    AttributeAssignOperation attributeAssignOperationEnum = null;
+    try {
+      attributeAssignOperationEnum = AttributeAssignOperation.valueOfIgnoreCase(attributeAssignOperation, false);
+    } catch (Exception e) {
+      //this exception will be descriptive
+      throw new WsInvalidQueryException(e);
+    }
+    return attributeAssignOperationEnum;
+  }
+
+  /**
+   * convert the AttributeAssignDelegatable, default to null
+   * @param attributeAssignDelegatable
+   * @return the AttributeAssignDelegatable
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static AttributeAssignDelegatable convertAttributeAssignDelegatable(String attributeAssignDelegatable)
+      throws WsInvalidQueryException {
+    AttributeAssignDelegatable attributeAssignDelegatableEnum = null;
+    try {
+      attributeAssignDelegatableEnum = AttributeAssignDelegatable.valueOfIgnoreCase(attributeAssignDelegatable, false);
+    } catch (Exception e) {
+      //this exception will be descriptive
+      throw new WsInvalidQueryException(e);
+    }
+    return attributeAssignDelegatableEnum;
+  }
+
+  /**
+   * convert the attributeAssignValueOperation, default to null
+   * @param attributeAssignValueOperation
+   * @return the attributeAssignValueOperation
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static AttributeAssignValueOperation convertAttributeAssignValueOperation(String attributeAssignValueOperation)
+      throws WsInvalidQueryException {
+    AttributeAssignValueOperation attributeAssignValueOperationEnum = null;
+    try {
+      attributeAssignValueOperationEnum = AttributeAssignValueOperation.valueOfIgnoreCase(attributeAssignValueOperation, false);
+    } catch (Exception e) {
+      //this exception will be descriptive
+      throw new WsInvalidQueryException(e);
+    }
+    return attributeAssignValueOperationEnum;
   }
 
   /**
@@ -861,6 +919,21 @@ public final class GrouperServiceUtils {
    */
   public static Date stringToDate(String dateString) {
     return AttributeAssignValue.stringToDate(dateString);
+  }
+
+  /**
+   * convert a string to a date using the standard web service pattern Note
+   * that HH is 0-23
+   * 
+   * @param timestampString
+   * @return the string, or null if the date was null
+   */
+  public static Timestamp stringToTimestamp(String timestampString) {
+    Date date = AttributeAssignValue.stringToDate(timestampString);
+    if (date == null) {
+      return null;
+    }
+    return new Timestamp(date.getTime());
   }
 
   /**

@@ -9884,4 +9884,22 @@ public class GrouperUtil {
     }
     return -1;
   }
+
+  /**
+   * Return the zero element of the array, if it exists, null if the array is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param list is the container of objects to get the first of.
+   * @return the first object, null, or exception.
+   */
+  public static <T> T arrayPopOne(T[] array) {
+    int size = length(array);
+    if (size == 1) {
+      return array[0];
+    } else if (size == 0) {
+      return null;
+    }
+    throw new RuntimeException("More than one object of type " + className(array[0])
+        + " was returned when only one was expected. (size:" + size +")" );
+  }
 }

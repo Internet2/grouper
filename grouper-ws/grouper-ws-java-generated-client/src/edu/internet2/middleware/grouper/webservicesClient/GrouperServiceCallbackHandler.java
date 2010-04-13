@@ -221,6 +221,22 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for assignAttributes method
+            * override this method for handling normal response from assignAttributes operation
+            */
+           public void receiveResultassignAttributes(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from assignAttributes operation
+           */
+            public void receiveErrorassignAttributes(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for deleteMember method
             * override this method for handling normal response from deleteMember operation
             */
@@ -333,22 +349,6 @@
             }
                 
            /**
-            * auto generated Axis2 call back method for assignGrouperPrivileges method
-            * override this method for handling normal response from assignGrouperPrivileges operation
-            */
-           public void receiveResultassignGrouperPrivileges(
-                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesResponse result
-                        ) {
-           }
-
-          /**
-           * auto generated Axis2 Error handler
-           * override this method for handling error response from assignGrouperPrivileges operation
-           */
-            public void receiveErrorassignGrouperPrivileges(java.lang.Exception e) {
-            }
-                
-           /**
             * auto generated Axis2 call back method for assignGrouperPrivilegesLite method
             * override this method for handling normal response from assignGrouperPrivilegesLite operation
             */
@@ -362,6 +362,38 @@
            * override this method for handling error response from assignGrouperPrivilegesLite operation
            */
             public void receiveErrorassignGrouperPrivilegesLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for assignAttributesLite method
+            * override this method for handling normal response from assignAttributesLite operation
+            */
+           public void receiveResultassignAttributesLite(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLiteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from assignAttributesLite operation
+           */
+            public void receiveErrorassignAttributesLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for assignGrouperPrivileges method
+            * override this method for handling normal response from assignGrouperPrivileges operation
+            */
+           public void receiveResultassignGrouperPrivileges(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from assignGrouperPrivileges operation
+           */
+            public void receiveErrorassignGrouperPrivileges(java.lang.Exception e) {
             }
                 
            /**

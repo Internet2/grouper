@@ -225,11 +225,35 @@ Class GrouperServiceUtils</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;AttributeAssignDelegatable</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertAttributeAssignDelegatable(java.lang.String)">convertAttributeAssignDelegatable</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignDelegatable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the AttributeAssignDelegatable, default to null</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;AttributeAssignOperation</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertAttributeAssignOperation(java.lang.String)">convertAttributeAssignOperation</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignOperation)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the attributeAssignOperation, default to null</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;AttributeAssignType</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertAttributeAssignType(java.lang.String)">convertAttributeAssignType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignType)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the member filter, default to all</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the attributeAssignType, default to null</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;AttributeAssignValueOperation</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertAttributeAssignValueOperation(java.lang.String)">convertAttributeAssignValueOperation</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignValueOperation)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the attributeAssignValueOperation, default to null</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -464,6 +488,15 @@ E</CODE></FONT></TD>
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#stringToDate(java.lang.String)">stringToDate</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;dateString)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert a string to a date using the standard web service pattern Note
+ that HH is 0-23</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#stringToTimestamp(java.lang.String)">stringToTimestamp</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;timestampString)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert a string to a date using the standard web service pattern Note
@@ -792,11 +825,62 @@ convertAttributeAssignType</H3>
 public static AttributeAssignType <B>convertAttributeAssignType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignType)
                                                       throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
 <DL>
-<DD>convert the member filter, default to all
+<DD>convert the attributeAssignType, default to null
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>attributeAssignType</CODE> - 
-<DT><B>Returns:</B><DD>the member filter
+<DT><B>Returns:</B><DD>the attributeAssignType
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertAttributeAssignOperation(java.lang.String)"><!-- --></A><H3>
+convertAttributeAssignOperation</H3>
+<PRE>
+public static AttributeAssignOperation <B>convertAttributeAssignOperation</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignOperation)
+                                                                throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>convert the attributeAssignOperation, default to null
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignOperation</CODE> - 
+<DT><B>Returns:</B><DD>the attributeAssignOperation
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertAttributeAssignDelegatable(java.lang.String)"><!-- --></A><H3>
+convertAttributeAssignDelegatable</H3>
+<PRE>
+public static AttributeAssignDelegatable <B>convertAttributeAssignDelegatable</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignDelegatable)
+                                                                    throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>convert the AttributeAssignDelegatable, default to null
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignDelegatable</CODE> - 
+<DT><B>Returns:</B><DD>the AttributeAssignDelegatable
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertAttributeAssignValueOperation(java.lang.String)"><!-- --></A><H3>
+convertAttributeAssignValueOperation</H3>
+<PRE>
+public static AttributeAssignValueOperation <B>convertAttributeAssignValueOperation</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignValueOperation)
+                                                                          throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>convert the attributeAssignValueOperation, default to null
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignValueOperation</CODE> - 
+<DT><B>Returns:</B><DD>the attributeAssignValueOperation
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
 </DD>
@@ -992,6 +1076,21 @@ public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Date.ht
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>dateString</CODE> - 
+<DT><B>Returns:</B><DD>the string, or null if the date was null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="stringToTimestamp(java.lang.String)"><!-- --></A><H3>
+stringToTimestamp</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A> <B>stringToTimestamp</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;timestampString)</PRE>
+<DL>
+<DD>convert a string to a date using the standard web service pattern Note
+ that HH is 0-23
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>timestampString</CODE> - 
 <DT><B>Returns:</B><DD>the string, or null if the date was null</DL>
 </DD>
 </DL>

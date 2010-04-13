@@ -29,7 +29,7 @@ public class WsSampleGetAttributeAssignmentsRest implements WsSampleRest {
    * get attribute assignments lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void getAttributeAssignmentsLite(WsSampleRestType wsSampleRestType) {
+  public static void getAttributeAssignments(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -121,14 +121,14 @@ public class WsSampleGetAttributeAssignmentsRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    getAttributeAssignmentsLite(WsSampleRestType.xml);
+    getAttributeAssignments(WsSampleRestType.xml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    getAttributeAssignmentsLite(wsSampleRestType);
+    getAttributeAssignments(wsSampleRestType);
   }
 
   /**

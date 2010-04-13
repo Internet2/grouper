@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
@@ -47,6 +49,9 @@ import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
@@ -189,6 +194,12 @@ public class WsRestClassLookup {
     addAliasClass(WsSubject.class);
     addAliasClass(WsSubjectLookup.class);
 
+    addAliasClass(WsRestAssignAttributesLiteRequest.class);
+    addAliasClass(WsRestAssignAttributesRequest.class);
+    addAliasClass(WsAssignAttributesLiteResults.class);
+    addAliasClass(WsAssignAttributesResults.class);
+    addAliasClass(WsAssignAttributeResult.class);
+    
     addAliasClass(WsRestGetGrouperPrivilegesLiteRequest.class);
     addAliasClass(WsRestAssignGrouperPrivilegesLiteRequest.class);
     addAliasClass(WsGetGrouperPrivilegesLiteResult.class);

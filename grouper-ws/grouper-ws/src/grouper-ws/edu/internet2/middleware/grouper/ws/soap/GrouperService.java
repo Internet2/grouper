@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.sql.Timestamp;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,7 +11,10 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -3039,6 +3044,232 @@ public class GrouperService {
     return wsGetAttributeAssignmentsResults; 
   
 
+    
+  
+  }
+
+  /**
+   * assign attributes and values to owner objects (groups, stems, etc)
+   * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
+   * group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn, 
+   * stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn  
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeAssignLookups if you know the assign ids you want, put them here
+   * @param wsOwnerGroupLookups are groups to look in
+   * @param wsOwnerSubjectLookups are subjects to look in
+   * @param wsAttributeDefNameLookups attribute def names to assign to the owners
+   * @param attributeAssignOperation operation to perform for attribute on owners, from enum AttributeAssignOperation
+   * assign_attr, add_attr, remove_attr, remove_attr_by_assign_id
+   * @param values are the values to assign, replace, remove, etc.  If removing, and id is specified, will
+   * only remove values with that id.
+   * @param assignmentNotes notes on the assignment (optional)
+   * @param assignmentEnabledTime enabled time, or null for enabled now
+   * @param assignmentDisabledTime disabled time, or null for not disabled
+   * @param delegatable really only for permissions, if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
+   * @param attributeAssignValueOperation operation to perform for attribute value on attribute
+   * assignments: assign_value, add_value, remove_value, replace_values
+   * @param wsOwnerStemLookups are stems to look in
+   * @param wsOwnerMembershipLookups to query attributes on immediate memberships
+   * @param wsOwnerMembershipAnyLookups to query attributes in "any" memberships which are on immediate or effective memberships
+   * @param wsOwnerAttributeDefLookups to query attributes assigned on attribute defs
+   * @param wsOwnerAttributeAssignLookups for assignment on assignment
+   * @param actions to assign, or "assign" is the default if blank
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectLookup
+   * @param wsAttributeAssignLookups lookups to remove etc
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsAssignAttributesResults assignAttributes(
+      String clientVersion, String attributeAssignType,
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
+      String attributeAssignOperation,
+      WsAttributeAssignValue[] values,
+      String assignmentNotes, String assignmentEnabledTime,
+      String assignmentDisabledTime, String delegatable,
+      String attributeAssignValueOperation,
+      WsAttributeAssignLookup[] wsAttributeAssignLookups,
+      WsGroupLookup[] wsOwnerGroupLookups, WsStemLookup[] wsOwnerStemLookups, WsSubjectLookup[] wsOwnerSubjectLookups, 
+      WsMembershipLookup[] wsOwnerMembershipLookups, WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups, 
+      WsAttributeDefLookup[] wsOwnerAttributeDefLookups, WsAttributeAssignLookup[] wsOwnerAttributeAssignLookups,
+      String[] actions, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
+      String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params) {  
+  
+    WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
+  
+    try {
+  
+      AttributeAssignOperation attributeAssignOperationEnum = GrouperServiceUtils.convertAttributeAssignOperation(attributeAssignOperation);
+      AttributeAssignValueOperation attributeAssignValueOperationEnum = GrouperServiceUtils.convertAttributeAssignValueOperation(attributeAssignValueOperation);
+
+      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeGroupDetail, false, "includeGroupDetail");
+  
+      boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeSubjectDetail, false, "includeSubjectDetail");
+  
+      AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.convertAttributeAssignType(attributeAssignType);
+      
+      Timestamp assignmentEnabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentEnabledTime);
+      Timestamp assignmentDisabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentDisabledTime);
+      
+      AttributeAssignDelegatable attributeAssignDelegatableEnum = GrouperServiceUtils.convertAttributeAssignDelegatable(delegatable);
+      
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(grouperWsVersion, attributeAssignTypeEnum, 
+          wsAttributeDefNameLookups, attributeAssignOperationEnum, values, assignmentNotes, assignmentEnabledTimestamp, 
+          assignmentDisabledTimestamp, attributeAssignDelegatableEnum, attributeAssignValueOperationEnum, wsAttributeAssignLookups, 
+          wsOwnerGroupLookups, wsOwnerStemLookups, wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, 
+          wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions, actAsSubjectLookup, includeSubjectDetailBoolean, 
+          subjectAttributeNames, includeGroupDetailBoolean, params);
+  
+    } catch (Exception e) {
+      wsAssignAttributesResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAssignAttributesResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAssignAttributesResults; 
+  
+  }
+
+  /**
+   * assign attributes and values to owner objects (groups, stems, etc)
+   * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
+   * group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn, 
+   * stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn  
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeAssignId if you know the assign id you want, put id here
+   * @param wsOwnerGroupName is group to look in
+   * @param wsOwnerGroupId is group to look in
+   * @param wsOwnerSubjectId is subject to look in
+   * @param wsOwnerSubjectSourceId is subject to look in
+   * @param wsOwnerSubjectIdentifier is subject to look in
+   * @param wsAttributeDefNameName attribute def name to assign to the owner
+   * @param wsAttributeDefNameId attribute def name to assign to the owner
+   * @param attributeAssignOperation operation to perform for attribute on owners, from enum AttributeAssignOperation
+   * assign_attr, add_attr, remove_attr, remove_attr_by_assign_id
+   * @param valueId If removing, and id is specified, will
+   * only remove values with that id.
+   * @param valueSystem is value to add, assign, remove, etc
+   * @param valueFormatted is value to add, assign, remove, etc though not implemented yet
+   * @param assignmentNotes notes on the assignment (optional)
+   * @param assignmentEnabledTime enabled time, or null for enabled now
+   * @param assignmentDisabledTime disabled time, or null for not disabled
+   * @param delegatable  really only for permissions, if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
+   * @param attributeAssignValueOperation operation to perform for attribute value on attribute
+   * assignments: assign_value, add_value, remove_value, replace_values
+   * @param wsOwnerStemName is stem to look in
+   * @param wsOwnerStemId is stem to look in
+   * @param wsOwnerMembershipId to query attributes on immediate membership
+   * @param wsOwnerMembershipAnyGroupName to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnyGroupId to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnySubjectId to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnySubjectSourceId to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnySubjectIdentifier to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerAttributeDefName to query attributes assigned on attribute def
+   * @param wsOwnerAttributeDefId to query attributes assigned on attribute def
+   * @param wsOwnerAttributeAssignId for assignment on assignment
+   * @param action to assign, or "assign" is the default if blank
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectId act as this subject
+   * @param actAsSubjectSourceId act as this subject
+   * @param actAsSubjectIdentifier act as this subject
+   * @param wsAttributeAssignLookups lookups to remove etc
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsAssignAttributesLiteResults assignAttributesLite(
+      String clientVersion, String attributeAssignType,
+      String wsAttributeDefNameName, String wsAttributeDefNameId,
+      String attributeAssignOperation,
+      String valueId, String valueSystem, String valueFormatted,
+      String assignmentNotes, String assignmentEnabledTime,
+      String assignmentDisabledTime, String delegatable,
+      String attributeAssignValueOperation,
+      String wsAttributeAssignId,
+      String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId, 
+      String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
+      String wsOwnerMembershipId, String wsOwnerMembershipAnyGroupName, String wsOwnerMembershipAnyGroupId,
+      String wsOwnerMembershipAnySubjectId, String wsOwnerMembershipAnySubjectSourceId, String wsOwnerMembershipAnySubjectIdentifier,
+      String wsOwnerAttributeDefName, String wsOwnerAttributeDefId, String wsOwnerAttributeAssignId,
+      String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, String includeSubjectDetail,
+      String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
+      String paramName1, String paramValue1) {  
+  
+    WsAssignAttributesLiteResults wsAssignAttributesLiteResults = new WsAssignAttributesLiteResults();
+    
+    try {
+  
+      AttributeAssignOperation attributeAssignOperationEnum = GrouperServiceUtils.convertAttributeAssignOperation(attributeAssignOperation);
+      AttributeAssignValueOperation attributeAssignValueOperationEnum = GrouperServiceUtils.convertAttributeAssignValueOperation(attributeAssignValueOperation);
+
+      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeGroupDetail, false, "includeGroupDetail");
+  
+      boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeSubjectDetail, false, "includeSubjectDetail");
+  
+      AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.convertAttributeAssignType(attributeAssignType);
+      
+      Timestamp assignmentEnabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentEnabledTime);
+      Timestamp assignmentDisabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentDisabledTime);
+      
+      AttributeAssignDelegatable attributeAssignDelegatableEnum = GrouperServiceUtils.convertAttributeAssignDelegatable(delegatable);
+      
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsAssignAttributesLiteResults = GrouperServiceLogic.assignAttributesLite(
+          grouperWsVersion, attributeAssignTypeEnum, wsAttributeDefNameName, wsAttributeDefNameId, 
+          attributeAssignOperationEnum, valueId, valueSystem, valueFormatted, assignmentNotes, assignmentEnabledTimestamp,
+          assignmentDisabledTimestamp, attributeAssignDelegatableEnum, attributeAssignValueOperationEnum, wsAttributeAssignId, wsOwnerGroupName, 
+          wsOwnerGroupId, wsOwnerStemName, wsOwnerStemId, wsOwnerSubjectId, wsOwnerSubjectSourceId, 
+          wsOwnerSubjectIdentifier, wsOwnerMembershipId, wsOwnerMembershipAnyGroupName, 
+          wsOwnerMembershipAnyGroupId, wsOwnerMembershipAnySubjectId, wsOwnerMembershipAnySubjectSourceId, 
+          wsOwnerMembershipAnySubjectIdentifier, wsOwnerAttributeDefName, wsOwnerAttributeDefId, wsOwnerAttributeAssignId, 
+          action, actAsSubjectId, actAsSubjectSourceId,
+          actAsSubjectIdentifier, includeSubjectDetailBoolean, 
+          subjectAttributeNames, includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1 );
+  
+    } catch (Exception e) {
+      wsAssignAttributesLiteResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAssignAttributesLiteResults.getResultMetadata(), this.soap);
+
+//    WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
+//    wsAssignAttributesResults.setResponseMetadata(wsAssignAttributesLiteResults.getResponseMetadata());
+//    wsAssignAttributesResults.setResultMetadata(wsAssignAttributesLiteResults.getResultMetadata());
+    
+    //this should be the first and only return, or else it is exiting too early
+    return wsAssignAttributesLiteResults; 
+  
+  
     
   
   }

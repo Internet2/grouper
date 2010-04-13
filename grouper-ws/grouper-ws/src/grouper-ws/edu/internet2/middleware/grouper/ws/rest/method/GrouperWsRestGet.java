@@ -108,7 +108,7 @@ public enum GrouperWsRestGet {
      * handle the incoming request based on GET HTTP method and group resource
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributes
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeAssignments
      * the urlStrings would be size one: {"attributes"}
      * @param requestObject is the request body converted to object
      * @return the result object
@@ -118,11 +118,11 @@ public enum GrouperWsRestGet {
         GrouperWsVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
 
-      //url should be: /xhtml/v1_3_000/attributes
+      //url should be: /xhtml/v1_3_000/attributeAssignments
       String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
       
       if (!StringUtils.isBlank(somethingElse)) {
-        throw new RuntimeException("Cant pass anything after 'attributes' in URL");
+        throw new RuntimeException("Cant pass anything after 'attributeAssignments' in URL");
       }
 
       if (requestObject instanceof WsRestGetAttributeAssignmentsRequest) {

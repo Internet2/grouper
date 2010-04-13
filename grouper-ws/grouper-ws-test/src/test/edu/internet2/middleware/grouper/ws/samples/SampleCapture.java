@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributes;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivileges;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
@@ -75,6 +77,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
@@ -149,7 +153,7 @@ public class SampleCapture {
     
     setupData();
     
-    captureGetAttributeAssignments();
+    captureAssignAttributes();
     
     //captureGetGroups();
     
@@ -158,6 +162,7 @@ public class SampleCapture {
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
     /*
+    captureGetAttributeAssignments();
     captureGetGrouperPrivileges();
     captureAssignGrouperPrivileges();
     captureAddMember();
@@ -791,6 +796,21 @@ public class SampleCapture {
         WsSampleGetAttributeAssignmentsRest.class, "getAttributeAssignments", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetAttributeAssignmentsRestLite.class, "getAttributeAssignments", null);
+    
+  }
+
+  /**
+   * all get members captures
+   */
+  public static void captureAssignAttributes() {
+//    captureSample(WsSampleClientType.GENERATED_SOAP,  
+//        WsSampleAssignAttributes.class, "assignAttributes", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignAttributesLite.class, "assignAttributes", null);
+//    captureSample(WsSampleClientType.REST_BEANS,  
+//        WsSampleAssignAttributesRest.class, "assignAttributes", null);
+//    captureSample(WsSampleClientType.REST_BEANS,  
+//        WsSampleAssignAttributesRestLite.class, "assignAttributes", null);
     
   }
   

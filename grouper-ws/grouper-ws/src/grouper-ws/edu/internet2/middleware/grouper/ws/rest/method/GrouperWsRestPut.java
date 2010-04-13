@@ -14,6 +14,10 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
@@ -135,6 +139,52 @@ public enum GrouperWsRestPut {
     }
 
   }, 
+  
+  /** attribute get requests */
+  attributeAssignments {
+
+    /**
+     * handle the incoming request based on GET HTTP method and group resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeAssignments
+     * the urlStrings would be size one: {"attributes"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperWsVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /xhtml/v1_3_000/attributeAssignments
+      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
+      
+      if (!StringUtils.isBlank(somethingElse)) {
+        throw new RuntimeException("Cant pass anything after 'attributeAssignments' in URL");
+      }
+
+      if (requestObject instanceof WsRestAssignAttributesRequest) {
+
+        //get attributes
+        return GrouperServiceRest.assignAttributes(clientVersion,
+            (WsRestAssignAttributesRequest)requestObject);
+        
+      } else if (requestObject instanceof WsRestAssignAttributesLiteRequest) {
+        
+        //get attributes
+        return GrouperServiceRest.assignAttributesLite(clientVersion,
+            (WsRestAssignAttributesLiteRequest)requestObject);
+
+      } else {
+        throw new RuntimeException("Must pass in a request object of type " 
+            + WsRestAssignAttributesRequest.class.getSimpleName() + " or "
+            + WsRestAssignAttributesLiteRequest.class.getSimpleName());
+      }
+      
+    }
+
+  },
   
   /** grouperPrivileges put requests */
   grouperPrivileges {

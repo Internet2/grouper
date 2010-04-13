@@ -158,6 +158,24 @@ consolidated static list of of rest web services (only web service methods here
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignAttributesResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignAttributesResults</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#assignAttributes(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest)">assignAttributes</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                 <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributesRequest</A>&nbsp;wsRestAssignAttributesRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign attributes rest</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignAttributesLiteResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignAttributesLiteResults</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#assignAttributesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest)">assignAttributesLite</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributesLiteRequest</A>&nbsp;wsRestAssignAttributesLiteRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign attributes rest for one owner (lite)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignGrouperPrivilegesResults</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#assignGrouperPrivileges(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest)">assignGrouperPrivileges</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
                         <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesRequest</A>&nbsp;wsRestAssignGrouperPrivilegeRequest)</CODE>
@@ -1151,6 +1169,36 @@ public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soa
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - <DD><CODE>wsRestGetAttributesLiteRequest</CODE> - 
+<DT><B>Returns:</B><DD>the results object</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributes(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest)"><!-- --></A><H3>
+assignAttributes</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignAttributesResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignAttributesResults</A> <B>assignAttributes</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                         <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributesRequest</A>&nbsp;wsRestAssignAttributesRequest)</PRE>
+<DL>
+<DD>assign attributes rest
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - <DD><CODE>wsRestAssignAttributesRequest</CODE> - 
+<DT><B>Returns:</B><DD>the result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesLiteRequest)"><!-- --></A><H3>
+assignAttributesLite</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignAttributesLiteResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignAttributesLiteResults</A> <B>assignAttributesLite</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                                 <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributesLiteRequest</A>&nbsp;wsRestAssignAttributesLiteRequest)</PRE>
+<DL>
+<DD>assign attributes rest for one owner (lite)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - <DD><CODE>wsRestAssignAttributesLiteRequest</CODE> - 
 <DT><B>Returns:</B><DD>the results object</DL>
 </DD>
 </DL>

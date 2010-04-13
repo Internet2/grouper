@@ -270,7 +270,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * @return the string, or null if the date was null
    */
   public static Date stringToDate(String dateString) {
-    if (dateString == null) {
+    if (StringUtils.isBlank(dateString)) {
       return null;
     }
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);

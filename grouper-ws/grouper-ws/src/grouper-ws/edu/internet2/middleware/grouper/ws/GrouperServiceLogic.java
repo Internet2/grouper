@@ -84,6 +84,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
@@ -5218,14 +5219,14 @@ public class GrouperServiceLogic {
    * @param assignmentNotes notes on the assignment (optional)
    * @param assignmentEnabledTime enabled time, or null for enabled now
    * @param assignmentDisabledTime disabled time, or null for not disabled
-   * @param delegatable really only for permissions, if the assignee can delegate to someone else
+   * @param delegatable really only for permissions, if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
    * @param attributeAssignValueOperation operation to perform for attribute value on attribute
    * assignments: assign_value, add_value, remove_value, replace_values
    * @param wsOwnerStemLookups are stems to look in
    * @param wsOwnerMembershipLookups to query attributes on immediate memberships
    * @param wsOwnerMembershipAnyLookups to query attributes in "any" memberships which are on immediate or effective memberships
    * @param wsOwnerAttributeDefLookups to query attributes assigned on attribute defs
-   * @param wsOwnerAttributeAssignLookups 
+   * @param wsOwnerAttributeAssignLookups for assignment on assignment
    * @param actions to assign, or "assign" is the default if blank
    * @param includeSubjectDetail
    *            T|F, for if the extended subject information should be
@@ -5656,5 +5657,167 @@ public class GrouperServiceLogic {
   
     return wsAssignAttributesResults; 
   
+  }
+
+  /**
+   * assign attributes and values to owner objects (groups, stems, etc)
+   * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
+   * group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn, 
+   * stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn  
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeAssignId if you know the assign id you want, put id here
+   * @param wsOwnerGroupName is group to look in
+   * @param wsOwnerGroupId is group to look in
+   * @param wsOwnerSubjectId is subject to look in
+   * @param wsOwnerSubjectSourceId is subject to look in
+   * @param wsOwnerSubjectIdentifier is subject to look in
+   * @param wsAttributeDefNameName attribute def name to assign to the owner
+   * @param wsAttributeDefNameId attribute def name to assign to the owner
+   * @param attributeAssignOperation operation to perform for attribute on owners, from enum AttributeAssignOperation
+   * assign_attr, add_attr, remove_attr, remove_attr_by_assign_id
+   * @param valueId If removing, and id is specified, will
+   * only remove values with that id.
+   * @param valueSystem is value to add, assign, remove, etc
+   * @param valueFormatted is value to add, assign, remove, etc though not implemented yet
+   * @param assignmentNotes notes on the assignment (optional)
+   * @param assignmentEnabledTime enabled time, or null for enabled now
+   * @param assignmentDisabledTime disabled time, or null for not disabled
+   * @param delegatable really only for permissions, if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
+   * @param attributeAssignValueOperation operation to perform for attribute value on attribute
+   * assignments: assign_value, add_value, remove_value, replace_values
+   * @param wsOwnerStemName is stem to look in
+   * @param wsOwnerStemId is stem to look in
+   * @param wsOwnerMembershipId to query attributes on immediate membership
+   * @param wsOwnerMembershipAnyGroupName to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnyGroupId to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnySubjectId to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnySubjectSourceId to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnySubjectIdentifier to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerAttributeDefName to query attributes assigned on attribute def
+   * @param wsOwnerAttributeDefId to query attributes assigned on attribute def
+   * @param wsOwnerAttributeAssignId for assignment on assignment
+   * @param action to assign, or "assign" is the default if blank
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectId act as this subject
+   * @param actAsSubjectSourceId act as this subject
+   * @param actAsSubjectIdentifier act as this subject
+   * @param wsAttributeAssignLookups lookups to remove etc
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsAssignAttributesLiteResults assignAttributesLite(
+      GrouperWsVersion clientVersion, AttributeAssignType attributeAssignType,
+      String wsAttributeDefNameName, String wsAttributeDefNameId,
+      AttributeAssignOperation attributeAssignOperation,
+      String valueId, String valueSystem, String valueFormatted,
+      String assignmentNotes, Timestamp assignmentEnabledTime,
+      Timestamp assignmentDisabledTime, AttributeAssignDelegatable delegatable,
+      AttributeAssignValueOperation attributeAssignValueOperation,
+      String wsAttributeAssignId,
+      String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId, 
+      String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
+      String wsOwnerMembershipId, String wsOwnerMembershipAnyGroupName, String wsOwnerMembershipAnyGroupId,
+      String wsOwnerMembershipAnySubjectId, String wsOwnerMembershipAnySubjectSourceId, String wsOwnerMembershipAnySubjectIdentifier,
+      String wsOwnerAttributeDefName, String wsOwnerAttributeDefId, String wsOwnerAttributeAssignId,
+      String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, boolean includeSubjectDetail,
+      String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
+      String paramName1, String paramValue1) {  
+  
+    WsAttributeDefNameLookup[] wsAttributeDefNameLookups = null;
+    if (!StringUtils.isBlank(wsAttributeDefNameName) || !StringUtils.isBlank(wsAttributeDefNameId)) {
+      wsAttributeDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(wsAttributeDefNameName,wsAttributeDefNameId )};
+    }
+    
+    
+    WsAttributeAssignValue[] wsAttributeAssignValues = null;
+    if (!StringUtils.isBlank(valueId) || !StringUtils.isBlank(valueSystem) || !StringUtils.isBlank(valueFormatted)) {
+      WsAttributeAssignValue wsAttributeAssignValue = new WsAttributeAssignValue();
+      wsAttributeAssignValue.setId(valueId);
+      wsAttributeAssignValue.setValueSystem(valueSystem);
+      wsAttributeAssignValue.setValueFormatted(valueFormatted);
+      wsAttributeAssignValues = new WsAttributeAssignValue[]{wsAttributeAssignValue};
+    }
+    
+    WsAttributeAssignLookup[] attributeAssignLookups = null;
+    
+    if (!StringUtils.isBlank(wsAttributeAssignId)) {
+      attributeAssignLookups = new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(wsAttributeAssignId)};
+    }
+    
+    WsGroupLookup[] wsOwnerGroupLookups = null;
+    if (!StringUtils.isBlank(wsOwnerGroupName) || !StringUtils.isBlank(wsOwnerGroupId)) {
+      wsOwnerGroupLookups = new WsGroupLookup[]{new WsGroupLookup(wsOwnerGroupName, wsOwnerGroupId)};
+    }
+    
+    WsStemLookup[] wsOwnerStemLookups = null;
+    if (!StringUtils.isBlank(wsOwnerStemName) || !StringUtils.isBlank(wsOwnerStemId)) {
+      wsOwnerStemLookups = new WsStemLookup[]{new WsStemLookup(wsOwnerStemName, wsOwnerStemId)};
+    }
+    
+    WsSubjectLookup[] wsOwnerSubjectLookups = null;
+    if (!StringUtils.isBlank(wsOwnerSubjectId) || !StringUtils.isBlank(wsOwnerSubjectSourceId) || !StringUtils.isBlank(wsOwnerSubjectIdentifier)) {
+      wsOwnerSubjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(wsOwnerSubjectId, wsOwnerSubjectSourceId, wsOwnerSubjectIdentifier)};
+    }
+    
+    WsMembershipLookup[] wsOwnerMembershipLookups = null;
+    if (!StringUtils.isBlank(wsOwnerMembershipId)) {
+      wsOwnerMembershipLookups = new WsMembershipLookup[]{new WsMembershipLookup(wsOwnerMembershipId)};
+    }
+    
+    WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups = null;
+    if (!StringUtils.isBlank(wsOwnerMembershipAnyGroupName) || !StringUtils.isBlank(wsOwnerMembershipAnyGroupId)
+        || !StringUtils.isBlank(wsOwnerMembershipAnySubjectId) || !StringUtils.isBlank(wsOwnerMembershipAnySubjectSourceId)
+        || !StringUtils.isBlank(wsOwnerMembershipAnySubjectIdentifier)) {
+      wsOwnerMembershipAnyLookups = new WsMembershipAnyLookup[]{
+          new WsMembershipAnyLookup(new WsGroupLookup(wsOwnerMembershipAnyGroupName,wsOwnerMembershipAnyGroupId ),
+              new WsSubjectLookup(wsOwnerMembershipAnySubjectId, wsOwnerMembershipAnySubjectSourceId, wsOwnerMembershipAnySubjectIdentifier))};
+    }
+    
+    WsAttributeDefLookup[] wsOwnerAttributeDefLookups = null;
+    if (!StringUtils.isBlank(wsOwnerAttributeDefName) || !StringUtils.isBlank(wsOwnerAttributeDefId)) {
+      wsOwnerAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsOwnerAttributeDefName, wsOwnerAttributeDefId)}; 
+    }
+    
+    WsAttributeAssignLookup[] ownerAttributeAssignLookups = null;
+    if (!StringUtils.isBlank(wsOwnerAttributeAssignId)) {
+      ownerAttributeAssignLookups = new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(wsOwnerAttributeAssignId)};
+    }
+    
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+    
+    String[] actions = null;
+    if (!StringUtils.isBlank(action)) {
+      actions = new String[]{action};
+    }
+    
+    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
+    
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
+
+    WsAssignAttributesResults wsAssignAttributesResults = assignAttributes(clientVersion, attributeAssignType, 
+        wsAttributeDefNameLookups, attributeAssignOperation, wsAttributeAssignValues, assignmentNotes, assignmentEnabledTime,
+        assignmentDisabledTime, delegatable, attributeAssignValueOperation, attributeAssignLookups, wsOwnerGroupLookups, wsOwnerStemLookups, 
+        wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, ownerAttributeAssignLookups, actions, 
+        actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
+        params );
+    
+    WsAssignAttributesLiteResults wsAssignAttributesLiteResults = new WsAssignAttributesLiteResults(wsAssignAttributesResults);
+    
+    return wsAssignAttributesLiteResults; 
+
   }
 }
