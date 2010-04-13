@@ -4,7 +4,6 @@
  */
 package edu.internet2.middleware.grouper.attr.value;
 
-import java.util.Set;
 
 
 /**
@@ -23,12 +22,6 @@ public class AttributeAssignValueResult {
    */
   private AttributeAssignValue attributeAssignValue = null;
 
-  /**
-   * the attribute assignment
-   */
-  private Set<AttributeAssignValue> attributeAssignValues = null;
-
-  
   /**
    * @param newlyAssigned1 if this attribute assignment took place or already existed
    * @param deleted1 
@@ -84,23 +77,5 @@ public class AttributeAssignValueResult {
    */
   public void setAttributeAssign(AttributeAssignValue attributeAssignValue) {
     this.attributeAssignValue = attributeAssignValue;
-  }
-
-
-  /**
-   * 
-   * @return the set of values
-   */
-  public Set<AttributeAssignValue> getAttributeAssignValues() {
-    return this.attributeAssignValues;
-  }
-
-
-  /**
-   * set of values
-   * @param attributeAssignValues1
-   */
-  public void setAttributeAssignValues(Set<AttributeAssignValue> attributeAssignValues1) {
-    this.attributeAssignValues = attributeAssignValues1;
   }
 }

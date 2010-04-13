@@ -177,12 +177,12 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -669,12 +669,12 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -754,8 +754,8 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2));
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     try {
       this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -768,7 +768,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -956,9 +956,9 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
 
     try {
       this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1);
@@ -1036,8 +1036,8 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2));
+    assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     try {
       this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1050,7 +1050,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().hasAttribute(attributeDefName1_2));

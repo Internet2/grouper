@@ -189,12 +189,12 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.membership.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.membership.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.membership.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.membership.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -681,12 +681,12 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.membership.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.membership.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.membership.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.membership.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -766,8 +766,8 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2));
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     try {
       this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -780,7 +780,7 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(this.membership.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.membership.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -968,9 +968,9 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
 
     try {
       this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_1);
@@ -1048,8 +1048,8 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2));
+    assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     try {
       this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1062,7 +1062,7 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(this.membership.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.membership.getAttributeDelegate().hasAttribute(attributeDefName1_2));

@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.ws;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,16 +28,25 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -68,14 +78,19 @@ import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributeLogic;
 import edu.internet2.middleware.grouper.ws.rest.subject.TooManyResultsWhenFilteringByGroupException;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssign;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
@@ -128,6 +143,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsSubject;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult.WsDeleteMemberResultCode;
@@ -4790,40 +4806,12 @@ public class GrouperServiceLogic {
   
     return wsAssignGrouperPrivilegesResults;
   }
-
-  
-//  String scope, 
-//   WsStemLookup wsStemLookup, 
-//   String stemScope, 
-//   String enabled,
-//   boolean includeAssignmentsOnAssignments
-//   attributeAssignIds (inside owner lookups?)
-//  groupDetail
-//  subjectDetail
-//  subjectAttributeNames
-//  Owner Lookups (multiple?):
-//    - groupLookup
-//    - stemLookup
-//    - memberLookup
-//    - attributeDefLookup
-//    - immediateMembershipLookup
-//    - effectiveMembershipLookup
-//    - attributeAssignmentLookup
-//      - uuid
-//      - attributeNameLookup
-//      - groupLookup
-//      - stemLookup
-//      - attributeDefLookup
-//      - immediateMembershipLookup
-//      - effectiveMembershipLookup
-//  enabled is A for all, T or null for enabled only, F for disabled
-//  WsSubjectLookup actAsSubjectLookup,
-//   final WsParam[] params, 
-
   
   /**
    * get attributeAssignments from groups etc based on inputs
-   * @param attributeAssignType is the attribute assign type we are looking for
+   * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
+   * group, member, stem, any_mem, imm_mem, attr_def, NOT: group_asgn, NOT: mem_asgn, 
+   * NOT: stem_asgn, NOT: any_mem_asgn, NOT: imm_mem_asgn, NOT: attr_def_asgn  
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @param wsAttributeAssignLookups if you know the assign ids you want, put them here
    * @param wsOwnerGroupLookups are groups to look in
@@ -5031,7 +5019,7 @@ public class GrouperServiceLogic {
           throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
       }
       
-      wsGetAttributeAssignmentsResults.assignResult(results, includeGroupDetail, includeSubjectDetail, subjectAttributeNames);
+      wsGetAttributeAssignmentsResults.assignResult(results, subjectAttributeNames);
       
       wsGetAttributeAssignmentsResults.fillInAttributeDefNames(attributeDefNameIds);
       wsGetAttributeAssignmentsResults.fillInAttributeDefs(attributeDefIds);
@@ -5050,7 +5038,8 @@ public class GrouperServiceLogic {
           includeSubjectDetail, subjectAttributeNamesToRetrieve);
       wsGetAttributeAssignmentsResults.fillInMemberships(ownerMembershipIds);
       
-      
+      //sort after all the data is there
+      wsGetAttributeAssignmentsResults.sortResults();
       
       if (errorMessage.length() > 0) {
         wsGetAttributeAssignmentsResults.assignResultCode(WsGetAttributeAssignmentsResultsCode.INVALID_QUERY);
@@ -5071,171 +5060,601 @@ public class GrouperServiceLogic {
     }
   
     return wsGetAttributeAssignmentsResults; 
+  }
+
+    
+  /**
+   * get attributeAssignments from group and or subject based on inputs
+   * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
+   * group, member, stem, any_mem, imm_mem, attr_def, NOT: group_asgn, NOT: mem_asgn, 
+   * NOT: stem_asgn, NOT: any_mem_asgn, NOT: imm_mem_asgn, NOT: attr_def_asgn  
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param attributeAssignId if you know the assign id you want, put it here
+   * @param wsAttributeDefName find assignments in this attribute def (optional)
+   * @param wsAttributeDefId find assignments in this attribute def (optional)
+   * @param wsAttributeDefNameName find assignments in this attribute def name (optional)
+   * @param wsAttributeDefNameId find assignments in this attribute def name (optional)
+   * @param wsOwnerGroupName is group name to look in
+   * @param wsOwnerGroupId is group id to look in
+   * @param wsOwnerStemName is stem to look in
+   * @param wsOwnerStemId is stem to look in
+   * @param wsOwnerSubjectId is subject to look in
+   * @param wsOwnerSubjectSourceId is subject to look in
+   * @param wsOwnerSubjectIdentifier is subject to look in
+   * @param wsOwnerMembershipId to query attributes on immediate membership
+   * @param wsOwnerMembershipAnyGroupName to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnyGroupId  to query attributes in "any" membership which is on immediate or effective membership
+   * @param wsOwnerMembershipAnySubjectId to query attributes in "any" membership which is on immediate or effective membership 
+   * @param wsOwnerMembershipAnySubjectSourceId to query attributes in "any" membership which is on immediate or effective membership 
+   * @param wsOwnerMembershipAnySubjectIdentifier to query attributes in "any" membership which is on immediate or effective membership 
+   * @param wsOwnerAttributeDefName to query attributes assigned on attribute def
+   * @param wsOwnerAttributeDefId to query attributes assigned on attribute def
+   * @param action to query, or none to query all actions
+   * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
+   * and assignments on those assignments should be returned, enter true.  default to false.
+   * @param actAsSubjectId act as this subject
+   * @param actAsSubjectSourceId act as this subject
+   * @param actAsSubjectIdentifier act as this subject
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param subjectAttributeNames are the additional subject attributes (data) to return (comma separated)
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
+      final GrouperWsVersion clientVersion, AttributeAssignType attributeAssignType,
+      String attributeAssignId,
+      String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
+      String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId, 
+      String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
+      String wsOwnerMembershipId, String wsOwnerMembershipAnyGroupName, String wsOwnerMembershipAnyGroupId,
+      String wsOwnerMembershipAnySubjectId, String wsOwnerMembershipAnySubjectSourceId, String wsOwnerMembershipAnySubjectIdentifier, 
+      String wsOwnerAttributeDefName, String wsOwnerAttributeDefId, 
+      String action, 
+      boolean includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, boolean includeSubjectDetail,
+      String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
+      String paramName1, String paramValue1, 
+      String enabled) {  
+
+    WsAttributeAssignLookup[] attributeAssignLookups = null;
+    
+    if (!StringUtils.isBlank(attributeAssignId)) {
+      attributeAssignLookups = new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssignId)};
+    }
+    
+    WsAttributeDefLookup[] wsAttributeDefLookups = null;
+    if (!StringUtils.isBlank(wsAttributeDefName) || !StringUtils.isBlank(wsAttributeDefId)) {
+      wsAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsAttributeDefName, wsAttributeDefId)};
+    }
+    
+    WsAttributeDefNameLookup[] wsAttributeDefNameLookups = null;
+    if (!StringUtils.isBlank(wsAttributeDefNameName) || !StringUtils.isBlank(wsAttributeDefNameId)) {
+      wsAttributeDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(wsAttributeDefNameName,wsAttributeDefNameId )};
+    }
+    
+    WsGroupLookup[] wsOwnerGroupLookups = null;
+    if (!StringUtils.isBlank(wsOwnerGroupName) || !StringUtils.isBlank(wsOwnerGroupId)) {
+      wsOwnerGroupLookups = new WsGroupLookup[]{new WsGroupLookup(wsOwnerGroupName, wsOwnerGroupId)};
+    }
+    
+    WsStemLookup[] wsOwnerStemLookups = null;
+    if (!StringUtils.isBlank(wsOwnerStemName) || !StringUtils.isBlank(wsOwnerStemId)) {
+      wsOwnerStemLookups = new WsStemLookup[]{new WsStemLookup(wsOwnerStemName, wsOwnerStemId)};
+    }
+    
+    WsSubjectLookup[] wsOwnerSubjectLookups = null;
+    if (!StringUtils.isBlank(wsOwnerSubjectId) || !StringUtils.isBlank(wsOwnerSubjectSourceId) || !StringUtils.isBlank(wsOwnerSubjectIdentifier)) {
+      wsOwnerSubjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(wsOwnerSubjectId, wsOwnerSubjectSourceId, wsOwnerSubjectIdentifier)};
+    }
+    
+    WsMembershipLookup[] wsOwnerMembershipLookups = null;
+    if (!StringUtils.isBlank(wsOwnerMembershipId)) {
+      wsOwnerMembershipLookups = new WsMembershipLookup[]{new WsMembershipLookup(wsOwnerMembershipId)};
+    }
+    
+    WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups = null;
+    if (!StringUtils.isBlank(wsOwnerMembershipAnyGroupName) || !StringUtils.isBlank(wsOwnerMembershipAnyGroupId)
+        || !StringUtils.isBlank(wsOwnerMembershipAnySubjectId) || !StringUtils.isBlank(wsOwnerMembershipAnySubjectSourceId)
+        || !StringUtils.isBlank(wsOwnerMembershipAnySubjectIdentifier)) {
+      wsOwnerMembershipAnyLookups = new WsMembershipAnyLookup[]{
+          new WsMembershipAnyLookup(new WsGroupLookup(wsOwnerMembershipAnyGroupName,wsOwnerMembershipAnyGroupId ),
+              new WsSubjectLookup(wsOwnerMembershipAnySubjectId, wsOwnerMembershipAnySubjectSourceId, wsOwnerMembershipAnySubjectIdentifier))};
+    }
+    
+    WsAttributeDefLookup[] wsOwnerAttributeDefLookups = null;
+    if (!StringUtils.isBlank(wsOwnerAttributeDefName) || !StringUtils.isBlank(wsOwnerAttributeDefId)) {
+      wsOwnerAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsOwnerAttributeDefName, wsOwnerAttributeDefId)}; 
+    }
+    
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+    
+    String[] actions = null;
+    if (!StringUtils.isBlank(action)) {
+      actions = new String[]{action};
+    }
+    
+    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
+    
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
+
+    WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = getAttributeAssignments(clientVersion, attributeAssignType, 
+        attributeAssignLookups, wsAttributeDefLookups, wsAttributeDefNameLookups, wsOwnerGroupLookups, wsOwnerStemLookups, 
+        wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, actions, 
+        includeAssignmentsOnAssignments, actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
+        params, enabled );
+    
+    return wsGetAttributeAssignmentsResults; 
   
   }
 
-  //  String scope, 
-  //   WsStemLookup wsStemLookup, 
-  //   String stemScope, 
-  //   String enabled,
-  //   boolean includeAssignmentsOnAssignments
-  //   attributeAssignIds (inside owner lookups?)
-  //  groupDetail
-  //  subjectDetail
-  //  subjectAttributeNames
-  //  Owner Lookups (multiple?):
-  //    - groupLookup
-  //    - stemLookup
-  //    - memberLookup
-  //    - attributeDefLookup
-  //    - immediateMembershipLookup
-  //    - effectiveMembershipLookup
-  //    - attributeAssignmentLookup
-  //      - uuid
-  //      - attributeNameLookup
-  //      - groupLookup
-  //      - stemLookup
-  //      - attributeDefLookup
-  //      - immediateMembershipLookup
-  //      - effectiveMembershipLookup
-  //  enabled is A for all, T or null for enabled only, F for disabled
-  //  WsSubjectLookup actAsSubjectLookup,
-  //   final WsParam[] params, 
-  
-    
-    /**
-     * get attributeAssignments from group and or subject based on inputs
-     * @param attributeAssignType is the attribute assign type we are looking for
-     * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-     * @param attributeAssignId if you know the assign id you want, put it here
-     * @param wsAttributeDefName find assignments in this attribute def (optional)
-     * @param wsAttributeDefId find assignments in this attribute def (optional)
-     * @param wsAttributeDefNameName find assignments in this attribute def name (optional)
-     * @param wsAttributeDefNameId find assignments in this attribute def name (optional)
-     * @param wsOwnerGroupName is group name to look in
-     * @param wsOwnerGroupId is group id to look in
-     * @param wsOwnerStemName is stem to look in
-     * @param wsOwnerStemId is stem to look in
-     * @param wsOwnerSubjectId is subject to look in
-     * @param wsOwnerSubjectSourceId is subject to look in
-     * @param wsOwnerSubjectIdentifier is subject to look in
-     * @param wsOwnerMembershipId to query attributes on immediate membership
-     * @param wsOwnerMembershipAnyGroupName to query attributes in "any" membership which is on immediate or effective membership
-     * @param wsOwnerMembershipAnyGroupId  to query attributes in "any" membership which is on immediate or effective membership
-     * @param wsOwnerMembershipAnySubjectId to query attributes in "any" membership which is on immediate or effective membership 
-     * @param wsOwnerMembershipAnySubjectSourceId to query attributes in "any" membership which is on immediate or effective membership 
-     * @param wsOwnerMembershipAnySubjectIdentifier to query attributes in "any" membership which is on immediate or effective membership 
-     * @param wsOwnerAttributeDefName to query attributes assigned on attribute def
-     * @param wsOwnerAttributeDefId to query attributes assigned on attribute def
-     * @param action to query, or none to query all actions
-     * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
-     * and assignments on those assignments should be returned, enter true.  default to false.
-     * @param actAsSubjectId act as this subject
-     * @param actAsSubjectSourceId act as this subject
-     * @param actAsSubjectIdentifier act as this subject
-     * @param includeSubjectDetail
-     *            T|F, for if the extended subject information should be
-     *            returned (anything more than just the id)
-     * @param subjectAttributeNames are the additional subject attributes (data) to return (comma separated)
-     * If blank, whatever is configured in the grouper-ws.properties will be sent
-     * @param includeGroupDetail T or F as to if the group detail should be returned
-     * @param paramName0
-     *            reserved for future use
-     * @param paramValue0
-     *            reserved for future use
-     * @param paramName1
-     *            reserved for future use
-     * @param paramValue1
-     *            reserved for future use
-     * @param enabled is A for all, T or null for enabled only, F for disabled 
-     * @return the results
-     */
-    @SuppressWarnings("unchecked")
-    public static WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
-        final GrouperWsVersion clientVersion, AttributeAssignType attributeAssignType,
-        String attributeAssignId,
-        String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
-        String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId, 
-        String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier,
-        String wsOwnerMembershipId, String wsOwnerMembershipAnyGroupName, String wsOwnerMembershipAnyGroupId,
-        String wsOwnerMembershipAnySubjectId, String wsOwnerMembershipAnySubjectSourceId, String wsOwnerMembershipAnySubjectIdentifier, 
-        String wsOwnerAttributeDefName, String wsOwnerAttributeDefId, 
-        String action, 
-        boolean includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
-        String actAsSubjectIdentifier, boolean includeSubjectDetail,
-        String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
-        String paramName1, String paramValue1, 
-        String enabled) {  
-  
-      WsAttributeAssignLookup[] attributeAssignLookups = null;
-      
-      if (!StringUtils.isBlank(attributeAssignId)) {
-        attributeAssignLookups = new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssignId)};
-      }
-      
-      WsAttributeDefLookup[] wsAttributeDefLookups = null;
-      if (!StringUtils.isBlank(wsAttributeDefName) || !StringUtils.isBlank(wsAttributeDefId)) {
-        wsAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsAttributeDefName, wsAttributeDefId)};
-      }
-      
-      WsAttributeDefNameLookup[] wsAttributeDefNameLookups = null;
-      if (!StringUtils.isBlank(wsAttributeDefNameName) || !StringUtils.isBlank(wsAttributeDefNameId)) {
-        wsAttributeDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(wsAttributeDefNameName,wsAttributeDefNameId )};
-      }
-      
-      WsGroupLookup[] wsOwnerGroupLookups = null;
-      if (!StringUtils.isBlank(wsOwnerGroupName) || !StringUtils.isBlank(wsOwnerGroupId)) {
-        wsOwnerGroupLookups = new WsGroupLookup[]{new WsGroupLookup(wsOwnerGroupName, wsOwnerGroupId)};
-      }
-      
-      WsStemLookup[] wsOwnerStemLookups = null;
-      if (!StringUtils.isBlank(wsOwnerStemName) || !StringUtils.isBlank(wsOwnerStemId)) {
-        wsOwnerStemLookups = new WsStemLookup[]{new WsStemLookup(wsOwnerStemName, wsOwnerStemId)};
-      }
-      
-      WsSubjectLookup[] wsOwnerSubjectLookups = null;
-      if (!StringUtils.isBlank(wsOwnerSubjectId) || !StringUtils.isBlank(wsOwnerSubjectSourceId) || !StringUtils.isBlank(wsOwnerSubjectIdentifier)) {
-        wsOwnerSubjectLookups = new WsSubjectLookup[]{new WsSubjectLookup(wsOwnerSubjectId, wsOwnerSubjectSourceId, wsOwnerSubjectIdentifier)};
-      }
-      
-      WsMembershipLookup[] wsOwnerMembershipLookups = null;
-      if (!StringUtils.isBlank(wsOwnerMembershipId)) {
-        wsOwnerMembershipLookups = new WsMembershipLookup[]{new WsMembershipLookup(wsOwnerMembershipId)};
-      }
-      
-      WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups = null;
-      if (!StringUtils.isBlank(wsOwnerMembershipAnyGroupName) || !StringUtils.isBlank(wsOwnerMembershipAnyGroupId)
-          || !StringUtils.isBlank(wsOwnerMembershipAnySubjectId) || !StringUtils.isBlank(wsOwnerMembershipAnySubjectSourceId)
-          || !StringUtils.isBlank(wsOwnerMembershipAnySubjectIdentifier)) {
-        wsOwnerMembershipAnyLookups = new WsMembershipAnyLookup[]{
-            new WsMembershipAnyLookup(new WsGroupLookup(wsOwnerMembershipAnyGroupName,wsOwnerMembershipAnyGroupId ),
-                new WsSubjectLookup(wsOwnerMembershipAnySubjectId, wsOwnerMembershipAnySubjectSourceId, wsOwnerMembershipAnySubjectIdentifier))};
-      }
-      
-      WsAttributeDefLookup[] wsOwnerAttributeDefLookups = null;
-      if (!StringUtils.isBlank(wsOwnerAttributeDefName) || !StringUtils.isBlank(wsOwnerAttributeDefId)) {
-        wsOwnerAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsOwnerAttributeDefName, wsOwnerAttributeDefId)}; 
-      }
-      
-      WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
-          actAsSubjectSourceId, actAsSubjectIdentifier);
-      
-      String[] actions = null;
-      if (!StringUtils.isBlank(action)) {
-        actions = new String[]{action};
-      }
-      
-      String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
-      
-      WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
+  /**
+   * assign attributes and values to owner objects (groups, stems, etc)
+   * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
+   * group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn, 
+   * stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn  
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeAssignLookups if you know the assign ids you want, put them here
+   * @param wsOwnerGroupLookups are groups to look in
+   * @param wsOwnerSubjectLookups are subjects to look in
+   * @param wsAttributeDefNameLookups attribute def names to assign to the owners
+   * @param attributeAssignOperation operation to perform for attribute on owners, from enum AttributeAssignOperation
+   * assign_attr, add_attr, remove_attr, remove_attr_by_assign_id
+   * @param values are the values to assign, replace, remove, etc.  If removing, and id is specified, will
+   * only remove values with that id.
+   * @param assignmentNotes notes on the assignment (optional)
+   * @param assignmentEnabledTime enabled time, or null for enabled now
+   * @param assignmentDisabledTime disabled time, or null for not disabled
+   * @param delegatable really only for permissions, if the assignee can delegate to someone else
+   * @param attributeAssignValueOperation operation to perform for attribute value on attribute
+   * assignments: assign_value, add_value, remove_value, replace_values
+   * @param wsOwnerStemLookups are stems to look in
+   * @param wsOwnerMembershipLookups to query attributes on immediate memberships
+   * @param wsOwnerMembershipAnyLookups to query attributes in "any" memberships which are on immediate or effective memberships
+   * @param wsOwnerAttributeDefLookups to query attributes assigned on attribute defs
+   * @param wsOwnerAttributeAssignLookups 
+   * @param actions to assign, or "assign" is the default if blank
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectLookup
+   * @param wsAttributeAssignLookups lookups to remove etc
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsAssignAttributesResults assignAttributes(
+      final GrouperWsVersion clientVersion, AttributeAssignType attributeAssignType,
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
+      AttributeAssignOperation attributeAssignOperation,
+      WsAttributeAssignValue[] values,
+      String assignmentNotes, Timestamp assignmentEnabledTime,
+      Timestamp assignmentDisabledTime, AttributeAssignDelegatable delegatable,
+      AttributeAssignValueOperation attributeAssignValueOperation,
+      WsAttributeAssignLookup[] wsAttributeAssignLookups,
+      WsGroupLookup[] wsOwnerGroupLookups, WsStemLookup[] wsOwnerStemLookups, WsSubjectLookup[] wsOwnerSubjectLookups, 
+      WsMembershipLookup[] wsOwnerMembershipLookups, WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups, 
+      WsAttributeDefLookup[] wsOwnerAttributeDefLookups, WsAttributeAssignLookup[] wsOwnerAttributeAssignLookups,
+      String[] actions, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
+      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params) {  
 
-      WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = getAttributeAssignments(clientVersion, attributeAssignType, 
-          attributeAssignLookups, wsAttributeDefLookups, wsAttributeDefNameLookups, wsOwnerGroupLookups, wsOwnerStemLookups, 
-          wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, actions, 
-          includeAssignmentsOnAssignments, actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-          params, enabled );
+    WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+  
+      theSummary = "clientVersion: " + clientVersion+ ", attributeAssignType: " + attributeAssignType 
+          + ", attributeAssignOperation: " + attributeAssignOperation
+          + ", attributeAssignValues: " + GrouperUtil.toStringForLog(values, 200)
+          + ", attributeAssignValueOperation: " + attributeAssignValueOperation
+          + ", wsOwnerAttributeAssignLookups: " + GrouperUtil.toStringForLog(wsOwnerAttributeAssignLookups, 200)
+          + ", wsAttributeAssignLookups: " + GrouperUtil.toStringForLog(wsAttributeAssignLookups, 200)
+          + ", wsAttributeDefNameLookups: "
+          + GrouperUtil.toStringForLog(wsAttributeDefNameLookups, 200) + ", wsOwnerStemLookups: "
+          + GrouperUtil.toStringForLog(wsOwnerStemLookups, 200) + ", wsOwnerGroupLookups: "
+          + GrouperUtil.toStringForLog(wsOwnerGroupLookups, 200) + ", wsOwnerMembershipLookups: "
+          + GrouperUtil.toStringForLog(wsOwnerMembershipLookups, 200) 
+          + ", wsOwnerMembershipAnyLookups: " + GrouperUtil.toStringForLog(wsOwnerMembershipAnyLookups, 200)
+          + ", wsOwnerAttributeDefLookups: " + GrouperUtil.toStringForLog(wsOwnerAttributeDefLookups, 200)
+          + ", actions: " + GrouperUtil.toStringForLog(actions, 200)
+          + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
+          + actAsSubjectLookup 
+          + ", subjectAttributeNames: "
+          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsOwnerSubjectLookups: "
+          + GrouperUtil.toStringForLog(wsOwnerSubjectLookups, 200);
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
+        .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
+  
+      wsAssignAttributesResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
+
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
       
-      return wsGetAttributeAssignmentsResults; 
-    
+      //this is for error checking
+      
+      int[] lookupCount = new int[]{0};
+
+      StringBuilder errorMessage = new StringBuilder();
+
+      if (attributeAssignType == null) {
+        throw new WsInvalidQueryException("You need to pass in an attributeAssignType.  ");
+      }
+      
+      if (attributeAssignOperation == null) {
+        throw new WsInvalidQueryException("You need to pass in an attributeAssignOperation.  ");
+      }
+      
+      if (!GrouperServiceUtils.nullArray(wsAttributeAssignLookups)) {
+        if (!GrouperServiceUtils.nullArray(wsAttributeDefNameLookups)) {
+          throw new WsInvalidQueryException("If you are passing in assign lookup ids to query, you cant specify attribute def names.  ");
+        }
+        
+        if (attributeAssignOperation != AttributeAssignOperation.assign_attr 
+            && attributeAssignOperation != AttributeAssignOperation.remove_attr) {
+          throw new WsInvalidQueryException("If you are passing in assign lookup ids to query, " +
+          		"attributeAssignOperation must be assign_attr or remove_attr.  ");
+        }
+        
+      }
+      
+      //get the attributeAssignids to retrieve.  but shouldnt have owner as well as this...
+      Set<String> attributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsAttributeAssignLookups, errorMessage, lookupCount);
+      
+      //get the owner attributeAssignids to retrieve
+      Set<String> ownerAttributeAssignIds = WsAttributeAssignLookup.convertToAttributeAssignIds(session, wsOwnerAttributeAssignLookups, errorMessage, lookupCount);
+      
+      //get the attributeDefNames to retrieve
+      Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage);
+      
+      //get all the owner groups
+      Set<String> ownerGroupIds = WsGroupLookup.convertToGroupIds(session, wsOwnerGroupLookups, errorMessage, lookupCount);
+      
+      //get all the owner stems
+      Set<String> ownerStemIds = WsStemLookup.convertToStemIds(session, wsOwnerStemLookups, errorMessage, lookupCount);
+      
+      //get all the owner member ids
+      Set<String> ownerMemberIds = WsSubjectLookup.convertToMemberIds(session, wsOwnerSubjectLookups, errorMessage, lookupCount);
+      
+      //get all the owner membership ids
+      Set<String> ownerMembershipIds = WsMembershipLookup.convertToMembershipIds(session, wsOwnerMembershipLookups, errorMessage, lookupCount);
+      
+      //get all the owner membership any ids
+      Set<MultiKey> ownerGroupMemberIds = WsMembershipAnyLookup.convertToGroupMemberIds(session, wsOwnerMembershipAnyLookups, errorMessage, lookupCount);
+      
+      //get all the owner attributeDef ids
+      Set<String> ownerAttributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsOwnerAttributeDefLookups, errorMessage, lookupCount);
+      
+      List<WsAssignAttributeResult> wsAssignAttributeResultList = new ArrayList<WsAssignAttributeResult>();
+      
+      if (lookupCount[0] > 1) {
+        throw new WsInvalidQueryException("Why is there more than one type of lookup?  ");
+      }
+
+      //cant delete and do anything with values
+      if (attributeAssignOperation == AttributeAssignOperation.remove_attr) {
+        if (!GrouperServiceUtils.nullArray(values)) {
+          throw new WsInvalidQueryException("Cant pass in values when deleting attributes.  ");
+        }
+        if (!StringUtils.isBlank(assignmentNotes)) {
+          throw new WsInvalidQueryException("Cant pass in assignmentNotes when deleting attributes.  ");
+        }
+        if (assignmentEnabledTime != null) {
+          throw new WsInvalidQueryException("Cant pass in assignmentEnabledTime when deleting attributes.  ");
+        }
+        if (assignmentDisabledTime != null) {
+          throw new WsInvalidQueryException("Cant pass in assignmentDisabledTime when deleting attributes.  ");
+        }
+        if (delegatable != null) {
+          throw new WsInvalidQueryException("Cant pass in delegatable when deleting attributes.  ");
+        }
+        if (attributeAssignValueOperation != null) {
+          throw new WsInvalidQueryException("Cant pass in attributeAssignValueOperation when deleting attributes.  ");
+        }
+          
+      }
+
+      if (GrouperUtil.length(attributeAssignIds) > 0) {
+        for (WsAttributeAssignLookup wsAttributeAssignLookup : GrouperUtil.nonNull(wsAttributeAssignLookups, WsAttributeAssignLookup.class)) {
+          AttributeAssign attributeAssign = wsAttributeAssignLookup.retrieveAttributeAssign();
+          if (attributeAssign.getAttributeAssignType() != attributeAssignType) {
+            throw new WsInvalidQueryException("attributeAssign " + attributeAssign.getId() 
+                + " has attributeAssignType: " + attributeAssign.getAttributeAssignType() 
+                + " but this operation was passed attributeAssignType: " + attributeAssignType + ".  ");
+          }
+        }
+        
+        //dont pass in an action
+        if (!GrouperServiceUtils.nullArray(actions)) {
+          throw new WsInvalidQueryException("Cant pass in actions when using attribute assign id lookup.  ");
+        }
+        
+        //move to results
+        for (WsAttributeAssignLookup wsAttributeAssignLookup : GrouperUtil.nonNull(wsAttributeAssignLookups, WsAttributeAssignLookup.class)) {
+          
+          AttributeAssign attributeAssign = wsAttributeAssignLookup.retrieveAttributeAssign();
+          
+          //if its null the error is handled above
+          if (attributeAssign != null) {
+            WsAssignAttributeResult wsAssignAttributeResult = new WsAssignAttributeResult();
+            wsAssignAttributeResult.setChanged("F");
+            wsAssignAttributeResult.setValuesChanged("F");
+            
+            switch(attributeAssignOperation) {
+              
+              case assign_attr:
+                
+                WsAssignAttributeLogic.assignmentMetadataAndValues(wsAssignAttributeResult, 
+                    attributeAssign, values, assignmentNotes, assignmentEnabledTime, 
+                    assignmentDisabledTime, delegatable, attributeAssignValueOperation);
+                
+                //TODO edit and assign values
+                break;
+              case remove_attr:
+                attributeAssign.delete();
+                wsAssignAttributeResult.setChanged("T");
+                break;
+              default:
+                throw new WsInvalidQueryException("Invalid attributeAssignOperation: " + attributeAssignOperation + ".  ");
+              
+            }
+            WsAttributeAssign wsAttributeAssign = new WsAttributeAssign(attributeAssign);
+            wsAssignAttributeResult.setWsAttributeAssigns(new WsAttributeAssign[]{wsAttributeAssign});
+            wsAssignAttributeResultList.add(wsAssignAttributeResult);
+            
+          }
+          
+        }
+        
+      } else {
+        
+        //else not going by id
+        
+        //we are looping through actions, so dont have a null array
+        if (GrouperServiceUtils.nullArray(actions)) {
+          actions = new String[]{AttributeDef.ACTION_DEFAULT};
+        }
+      
+        List<AttributeAssignable> attributeAssignableList = new ArrayList<AttributeAssignable>();
+        
+        switch(attributeAssignType) {
+        case group:
+          
+          //if there is a lookup and its not about groups, then there is a problem
+          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerGroupLookups) == 0) {
+            throw new WsInvalidQueryException("Group calls can only have group owner lookups.  ");
+          }
+          
+          Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findByUuids(ownerGroupIds, true);
+          attributeAssignableList.addAll(groups);
+          
+          break;  
+        case stem:
+          
+          //if there is a lookup and its not about stems, then there is a problem
+          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerStemLookups) == 0) {
+            throw new WsInvalidQueryException("Stem calls can only have stem owner lookups.  ");
+          }
+          
+          for (String stemId : GrouperUtil.nonNull(ownerStemIds)) {
+            Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(stemId, true);
+            attributeAssignableList.add(stem);
+          }
+                      
+          break;  
+        case member:
+          
+          //if there is a lookup and its not about subjects, then there is a problem
+          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerSubjectLookups) == 0) {
+            throw new WsInvalidQueryException("Subject calls can only have subject owner lookups.  ");
+          }
+          
+          for (String memberId : GrouperUtil.nonNull(ownerMemberIds)) {
+            Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true);
+            attributeAssignableList.add(member);
+          }
+          
+          
+          break;  
+        case imm_mem:
+          
+          //if there is a lookup and its not about memberships, then there is a problem
+          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerMembershipLookups) == 0) {
+            throw new WsInvalidQueryException("Membership calls can only have membership owner lookups.  ");
+          }
+          
+          for (String membershipId : GrouperUtil.nonNull(ownerMembershipIds)) {
+            Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, true, false);
+            attributeAssignableList.add(membership);
+          }
+          
+          
+          break;  
+        case any_mem:
+          
+          //if there is a lookup and its not about memberships, then there is a problem
+          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerMembershipAnyLookups) == 0) {
+            throw new WsInvalidQueryException("MembershipAny calls can only have membershipAny owner lookups.  ");
+          }
+          
+          for (MultiKey groupMemberId : GrouperUtil.nonNull(ownerGroupMemberIds)) {
+            Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid((String)groupMemberId.getKey(0), true);
+            Member member = GrouperDAOFactory.getFactory().getMember().findByUuid((String)groupMemberId.getKey(1), true);
+            GroupMember groupMember = new GroupMember(group, member);
+            attributeAssignableList.add(groupMember);
+          }
+          
+          
+          break;  
+        case attr_def:
+          
+          //if there is a lookup and its not about attr def, then there is a problem
+          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerAttributeDefLookups) == 0) {
+            throw new WsInvalidQueryException("attributeDef calls can only have attributeDef owner lookups.  ");
+          }
+
+          for (String attributeDefId : GrouperUtil.nonNull(ownerAttributeDefIds)) {
+            AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(attributeDefId, true);
+            attributeAssignableList.add(attributeDef);
+          }
+
+          break;  
+        case any_mem_asgn:
+        case attr_def_asgn:
+        case group_asgn:
+        case imm_mem_asgn:
+        case mem_asgn:
+        case stem_asgn:
+          
+          //if there is a lookup and its not about attr assign, then there is a problem
+          if (lookupCount[0] == 1 && GrouperUtil.length(wsOwnerAttributeAssignLookups) == 0) {
+            throw new WsInvalidQueryException("attributeAssign calls can only have attributeAssign owner lookups.  ");
+          }
+
+          for (String attributeAssignId : GrouperUtil.nonNull(ownerAttributeAssignIds)) {
+            AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true);
+            attributeAssignableList.add(attributeAssign);
+          }
+          
+          break;
+        default: 
+          throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
+        }
+        
+        //loop through the assignables
+        for (AttributeAssignable attributeAssignable : attributeAssignableList) {
+          
+          for (String attributeDefNameId : attributeDefNameIds) {
+            
+            AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(attributeDefNameId, null, true); 
+
+            for (String action : actions) {
+              
+              try {
+                WsAssignAttributeResult wsAssignAttributeResult = new WsAssignAttributeResult();
+                wsAssignAttributeResult.setChanged("F");
+                wsAssignAttributeResult.setValuesChanged("F");
+                AttributeAssign[] attributeAssigns = null;
+                AttributeAssignResult attributeAssignResult = null;
+                switch (attributeAssignOperation) {
+                  case add_attr:
+                    attributeAssignResult = attributeAssignable.getAttributeDelegate().addAttribute(action, attributeDefName);
+                    attributeAssigns = new AttributeAssign[]{attributeAssignResult.getAttributeAssign()};
+                    WsAssignAttributeLogic.assignmentMetadataAndValues(wsAssignAttributeResult, 
+                        attributeAssigns[0], values, assignmentNotes, assignmentEnabledTime, assignmentDisabledTime, 
+                        delegatable, attributeAssignValueOperation);
+                    break;
+                  case assign_attr:
+                    attributeAssignResult = attributeAssignable.getAttributeDelegate().assignAttribute(action, attributeDefName);
+                    attributeAssigns = new AttributeAssign[]{attributeAssignResult.getAttributeAssign()};
+                    WsAssignAttributeLogic.assignmentMetadataAndValues(wsAssignAttributeResult, 
+                        attributeAssigns[0], values, assignmentNotes, assignmentEnabledTime, assignmentDisabledTime, 
+                        delegatable, attributeAssignValueOperation);
+                    
+                    break;
+                    
+                  case remove_attr:
+                    attributeAssignResult = attributeAssignable.getAttributeDelegate().removeAttribute(action, attributeDefName);
+                    attributeAssigns = GrouperUtil.toArray(attributeAssignResult.getAttributeAssigns(), AttributeAssign.class);
+                    
+                    break;
+                    
+                  default: 
+                    throw new RuntimeException("Not expecting AttributeAssignOperation: " + attributeAssignOperation);
+                }
+                
+                //convert the attribute assigns to ws attribute assigns
+                int attributeAssignsLength = GrouperUtil.length(attributeAssigns);
+                WsAttributeAssign[] wsAttributeAssigns = attributeAssignsLength == 0 ? null : new WsAttributeAssign[attributeAssignsLength];
+                int i=0;
+                for (AttributeAssign attributeAssign : GrouperUtil.nonNull(attributeAssigns, AttributeAssign.class)) {
+                  wsAttributeAssigns[i] = new WsAttributeAssign(attributeAssign);
+                  i++;
+                }
+                wsAssignAttributeResult.setWsAttributeAssigns(wsAttributeAssigns);
+                //the result knows if it is changed or not
+                if (StringUtils.equals("F", wsAssignAttributeResult.getChanged())) {
+                  wsAssignAttributeResult.setChanged(attributeAssignResult.isChanged() ? "T" : "F");
+                }
+                wsAssignAttributeResultList.add(wsAssignAttributeResult);
+              } catch (Exception e) {
+                //add to error and keep going
+                errorMessage.append(
+                    "Problem with " + attributeDefName + ", action: " + action 
+                    + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getFullStackTrace(e) + ".  ");
+              }
+              
+              
+            }
+            
+          }
+        }
+        
+        
+      }
+
+
+      Set<String> allGroupIds = new HashSet<String>(GrouperUtil.nonNull(ownerGroupIds));
+      Set<String> extraMemberIds = new HashSet<String>();
+      for (MultiKey multiKey : GrouperUtil.nonNull(ownerGroupMemberIds)) {
+        allGroupIds.add((String)multiKey.getKey(0));
+        extraMemberIds.add((String)multiKey.getKey(1));
+      }
+      
+      wsAssignAttributesResults.assignResult(wsAssignAttributeResultList, subjectAttributeNames);
+      
+      wsAssignAttributesResults.fillInAttributeDefNames(attributeDefNameIds);
+      wsAssignAttributesResults.fillInAttributeDefs(ownerAttributeDefIds);
+      
+      wsAssignAttributesResults.fillInGroups(ownerGroupIds, includeGroupDetail);
+      wsAssignAttributesResults.fillInStems(ownerStemIds);
+      wsAssignAttributesResults.fillInSubjects(wsOwnerSubjectLookups, extraMemberIds, 
+          includeSubjectDetail, subjectAttributeNamesToRetrieve);
+      wsAssignAttributesResults.fillInMemberships(ownerMembershipIds);
+      
+      wsAssignAttributesResults.sortResults();
+      
+      if (errorMessage.length() > 0) {
+        wsAssignAttributesResults.assignResultCode(WsAssignAttributesResultsCode.INVALID_QUERY);
+        wsAssignAttributesResults.getResultMetadata().appendResultMessage(errorMessage.toString());
+      } else {
+        wsAssignAttributesResults.assignResultCode(WsAssignAttributesResultsCode.SUCCESS);
+      }
+      
+      wsAssignAttributesResults.getResultMetadata().appendResultMessage(
+          ", Found " + GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults())
+          + " results.  ");
+
+        
+    } catch (Exception e) {
+      wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
     }
+  
+    return wsAssignAttributesResults; 
+  
+  }
 }

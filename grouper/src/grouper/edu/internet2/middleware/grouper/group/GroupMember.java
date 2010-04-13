@@ -10,29 +10,30 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 
 
 /**
  * holds a group and a member
  */
-public class GroupMember {
+public class GroupMember implements AttributeAssignable {
   
   /**
-   * @param group
-   * @param member
+   * @param group1
+   * @param member1
    */
-  public GroupMember(Group group, Member member) {
+  public GroupMember(Group group1, Member member1) {
     super();
-    this.group = group;
-    this.member = member;
+    this.group = group1;
+    this.member = member1;
   }
 
   /**
    * 
    */
   public GroupMember() {
-    
+    //empty
   }
   
   /** group */

@@ -193,15 +193,15 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     assertEquals(1, attributeDelegate.retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, attributeDelegate.retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1));
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
     
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_1));
     
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2));
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName2_1));
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName2_2));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName2_2));
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_1));
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_2));
@@ -692,12 +692,12 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     assertEquals(1, attributeDelegate.retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, attributeDelegate.retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2));
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName2_1));
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName2_2));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName2_2));
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_1));
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_2));
@@ -778,8 +778,8 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2));
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2).isChanged());
     try {
       attributeDelegate.removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -792,7 +792,7 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1));
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_1));
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_2));
@@ -982,9 +982,9 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1));
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
 
     try {
       attributeDelegate.removeAttribute(attributeDefName2_1);
@@ -1063,8 +1063,8 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1));
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2));
+    assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_2).isChanged());
     try {
       attributeDelegate.removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1077,7 +1077,7 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1));
+    assertFalse(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_1));
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_2));

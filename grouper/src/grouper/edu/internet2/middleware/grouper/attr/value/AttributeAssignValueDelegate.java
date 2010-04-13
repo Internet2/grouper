@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -60,6 +62,17 @@ public class AttributeAssignValueDelegate {
    * @return the values
    */
   public Set<AttributeAssignValue> internal_retrieveValues(boolean checkSecurity, boolean filterInvalidTypes) {
+    return internal_retrieveValues(checkSecurity, filterInvalidTypes, true);
+  }
+  
+  /**
+   * get the values for an assignment or empty set if none
+   * @param checkSecurity 
+   * @param filterInvalidTypes if values of invalid types should be filtered out
+   * @param useCache
+   * @return the values
+   */
+  public Set<AttributeAssignValue> internal_retrieveValues(boolean checkSecurity, boolean filterInvalidTypes, boolean useCache) {
     
     if (checkSecurity) {
       //make sure can read
@@ -70,7 +83,7 @@ public class AttributeAssignValueDelegate {
     AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
     
     Set<AttributeAssignValue> results = GrouperDAOFactory.getFactory().getAttributeAssignValue()
-      .findByAttributeAssignId(this.attributeAssign.getId());
+      .findByAttributeAssignId(this.attributeAssign.getId(), new QueryOptions().secondLevelCache(useCache));
     
     if (filterInvalidTypes) {
       //lets filter if not the right type...  not sure why this would be, might be because the type was changed mid-use
@@ -868,7 +881,7 @@ public class AttributeAssignValueDelegate {
 
     //get all values
     Set<AttributeAssignValue> existingValues = new LinkedHashSet<AttributeAssignValue>(
-        GrouperUtil.nonNull(this.internal_retrieveValues(false, false)));
+        GrouperUtil.nonNull(this.internal_retrieveValues(false, false, false)));
     
     //remake so we dont destroy the input
     attributeAssignValues = new LinkedHashSet<AttributeAssignValue>(GrouperUtil.nonNull(attributeAssignValues));
@@ -917,21 +930,17 @@ public class AttributeAssignValueDelegate {
     if (deleteOrphans) {
       //remove the ones that shouldnt be there
       if (GrouperUtil.length(existingValues) > 0) {
-        internal_deleteValues(existingValues, false);
+        AttributeAssignValuesResult attributeAssignValuesResult = internal_deleteValues(existingValues, false);
         changed = true;
-        for (AttributeAssignValue attributeAssignValue : attributeAssignValues) {
-          attributeAssignValueResults.add(new AttributeAssignValueResult(true, true, attributeAssignValue));
-        }
+        attributeAssignValueResults.addAll(attributeAssignValuesResult.getAttributeAssignValueResults());
       }
     }
     
     //add new ones
     if (GrouperUtil.length(attributeAssignValues) > 0) {
-      internal_addValues(attributeAssignValues, false);
+      AttributeAssignValuesResult attributeAssignValuesResult = internal_addValues(attributeAssignValues, false);
       changed = true;
-      for (AttributeAssignValue attributeAssignValue : attributeAssignValues) {
-        attributeAssignValueResults.add(new AttributeAssignValueResult(true, false, attributeAssignValue));
-      }
+      attributeAssignValueResults.addAll(attributeAssignValuesResult.getAttributeAssignValueResults());
     }
     return new AttributeAssignValuesResult(changed, attributeAssignValueResults);
   }
@@ -1470,6 +1479,7 @@ public class AttributeAssignValueDelegate {
         result.add(doubleValue);
       }
     }
+    Collections.sort(result);
     return result; 
   }
 
@@ -1486,6 +1496,7 @@ public class AttributeAssignValueDelegate {
         result.add(longValue);
       }
     }
+    Collections.sort(result);
     return result; 
   }
 
@@ -1502,6 +1513,7 @@ public class AttributeAssignValueDelegate {
         result.add(member);
       }
     }
+    Collections.sort(result);
     return result; 
   }
   
@@ -1515,6 +1527,7 @@ public class AttributeAssignValueDelegate {
     for (Member member : GrouperUtil.nonNull(members)) {
       result.add(member.getUuid());
     }
+    Collections.sort(result);
     return result;
   }
   
@@ -1531,6 +1544,7 @@ public class AttributeAssignValueDelegate {
         result.add(timestampValue);
       }
     }
+    Collections.sort(result);
     return result; 
   }
 
@@ -1547,6 +1561,7 @@ public class AttributeAssignValueDelegate {
         result.add(stringValue);
       }
     }
+    Collections.sort(result);
     return result; 
   }
 

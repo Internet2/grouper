@@ -44,6 +44,14 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
   public Set<AttributeAssignValue> findByAttributeAssignId(String attributeAssignId);
 
   /**
+   * find values of assignment
+   * @param attributeAssignId
+   * @param queryOptions 
+   * @return the attribute assign values or empty if not there
+   */
+  public Set<AttributeAssignValue> findByAttributeAssignId(String attributeAssignId, QueryOptions queryOptions);
+
+  /**
    * save the update properties which are auto saved when business method is called
    * @param attributeAssignValue
    */

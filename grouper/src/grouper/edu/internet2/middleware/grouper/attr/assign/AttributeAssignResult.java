@@ -4,6 +4,10 @@
  */
 package edu.internet2.middleware.grouper.attr.assign;
 
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 
 /**
  * simple wrapper bean around result of attribute assignment
@@ -16,8 +20,14 @@ public class AttributeAssignResult {
   /**
    * the attribute assignment
    */
-  private AttributeAssign attributeAssign = null;
+  private Set<AttributeAssign> attributeAssigns = null;
 
+  /**
+   * default constructor
+   */
+  public AttributeAssignResult() {
+    //empty
+  }
   
   /**
    * @param newlyAssigned1 if this attribute assignment took place or already existed
@@ -26,7 +36,7 @@ public class AttributeAssignResult {
   public AttributeAssignResult(boolean newlyAssigned1, AttributeAssign attributeAssign1) {
     super();
     this.changed = newlyAssigned1;
-    this.attributeAssign = attributeAssign1;
+    this.attributeAssigns = GrouperUtil.toSet(attributeAssign1);
   }
 
 
@@ -53,7 +63,7 @@ public class AttributeAssignResult {
    * @return the attributeAssign
    */
   public AttributeAssign getAttributeAssign() {
-    return this.attributeAssign;
+    return GrouperUtil.setPopOne(this.attributeAssigns);
   }
 
   
@@ -62,6 +72,24 @@ public class AttributeAssignResult {
    * @param attributeAssign the attributeAssign to set
    */
   public void setAttributeAssign(AttributeAssign attributeAssign) {
-    this.attributeAssign = attributeAssign;
+    this.attributeAssigns = GrouperUtil.toSet(attributeAssign);
+  }
+
+
+  /**
+   * get all assignments (useful in deletions)
+   * @return assignments
+   */
+  public Set<AttributeAssign> getAttributeAssigns() {
+    return this.attributeAssigns;
+  }
+
+
+  /**
+   * set assignments (useful in deletions)
+   * @param attributeAssigns1
+   */
+  public void setAttributeAssigns(Set<AttributeAssign> attributeAssigns1) {
+    this.attributeAssigns = attributeAssigns1;
   }
 }

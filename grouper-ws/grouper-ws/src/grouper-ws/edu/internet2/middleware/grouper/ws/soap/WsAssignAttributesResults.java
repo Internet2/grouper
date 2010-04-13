@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.ws.soap;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,7 +19,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -31,24 +31,23 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * <pre>
- * results for the get attributeAssignments call.
+ * results for assigning attributes call.
  * 
  * result code:
  * code of the result for this attribute assignment overall
  * SUCCESS: means everything ok
- * ATTRIBUTE_DEF_NAME_NOT_FOUND: cant find the attribute def name
- * ATTRIBUTE_DEF_NOT_FOUND: cant find the attribute def
+ * INSUFFICIENT_PRIVILEGES: problem with some input where privileges are not sufficient
  * INVALID_QUERY: bad inputs
  * EXCEPTION: something bad happened
  * </pre>
  * @author mchyzer
  */
-public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultMetadataHolder {
+public class WsAssignAttributesResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsGetAttributeAssignmentsResults.class);
+  private static final Log LOG = LogFactory.getLog(WsAssignAttributesResults.class);
 
   /**
    * attribute def references in the assignments or inputs (and able to be read)
@@ -93,24 +92,24 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
   }
 
   /**
-   * the assignments being queried
+   * the assignment results being queried
    */
-  private WsAttributeAssign[] wsAttributeAssigns;
+  private WsAssignAttributeResult[] wsAttributeAssignResults;
   
   /**
-   * the assignments being queried
+   * the assignment results being queried
    * @return the assignments being queried
    */
-  public WsAttributeAssign[] getWsAttributeAssigns() {
-    return this.wsAttributeAssigns;
+  public WsAssignAttributeResult[] getWsAttributeAssignResults() {
+    return this.wsAttributeAssignResults;
   }
 
   /**
-   * the assignments being queried
-   * @param wsAttributeAssigns1
+   * the assignment results being queried
+   * @param wsAttributeAssignResults1
    */
-  public void setWsAttributeAssigns(WsAttributeAssign[] wsAttributeAssigns1) {
-    this.wsAttributeAssigns = wsAttributeAssigns1;
+  public void setWsAttributeAssignResults(WsAssignAttributeResult[] wsAttributeAssignResults1) {
+    this.wsAttributeAssignResults = wsAttributeAssignResults1;
   }
 
   /**
@@ -123,7 +122,7 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
    * of WsGetMembersResultCode (with http status codes) are:
    * SUCCESS(200), EXCEPTION(500), INVALID_QUERY(400)
    */
-  public static enum WsGetAttributeAssignmentsResultsCode implements WsResultCode {
+  public static enum WsAssignAttributesResultsCode implements WsResultCode {
 
     /** found the attributeAssignments (lite status code 200) (success: T) */
     SUCCESS(200),
@@ -139,7 +138,8 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
      * group then you cant read the privs
      */
     INSUFFICIENT_PRIVILEGES(403);
-
+    
+    
     /** get the name label for a certain version of client 
      * @param clientVersion 
      * @return name
@@ -152,7 +152,7 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
      * construct with http code
      * @param theHttpStatusCode the code
      */
-    private WsGetAttributeAssignmentsResultsCode(int theHttpStatusCode) {
+    private WsAssignAttributesResultsCode(int theHttpStatusCode) {
       this.httpStatusCode = theHttpStatusCode;
     }
 
@@ -179,7 +179,7 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
    * assign the code from the enum
    * @param getAttributeAssignmentsResultCode
    */
-  public void assignResultCode(WsGetAttributeAssignmentsResultsCode getAttributeAssignmentsResultCode) {
+  public void assignResultCode(WsAssignAttributesResultsCode getAttributeAssignmentsResultCode) {
     this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
   }
 
@@ -190,12 +190,12 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
    * @param e
    */
   public void assignResultCodeException(
-      WsGetAttributeAssignmentsResultsCode wsGetAttributeAssignmentsResultsCodeOverride, String theError,
+      WsAssignAttributesResultsCode wsGetAttributeAssignmentsResultsCodeOverride, String theError,
       Exception e) {
 
     if (e instanceof WsInvalidQueryException) {
       wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsGetAttributeAssignmentsResultsCode.INVALID_QUERY);
+          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.INVALID_QUERY);
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
       this.getResultMetadata().appendResultMessage(e.getMessage());
@@ -204,7 +204,7 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
 
     } else {
       wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsGetAttributeAssignmentsResultsCode.EXCEPTION);
+          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.EXCEPTION);
       LOG.error(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
@@ -355,25 +355,25 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
   }
 
   /**
-   * convert assignments to ws assignments
-   * @param attributeAssigns 
+   * assign results
+   * @param attributeAssignResults 
    * @param theSubjectAttributeNames 
    */
-  public void assignResult(Set<AttributeAssign> attributeAssigns, String[] theSubjectAttributeNames) {
+  public void assignResult(List<WsAssignAttributeResult> attributeAssignResults, String[] theSubjectAttributeNames) {
     
     this.subjectAttributeNames = theSubjectAttributeNames;
 
-    this.setWsAttributeAssigns(WsAttributeAssign.convertAttributeAssigns(attributeAssigns));
+    this.setWsAttributeAssignResults(GrouperUtil.toArray(attributeAssignResults, WsAssignAttributeResult.class));
     
   }
 
   /**
-   * sort the assignments by def, name, etc  
+   * sort the results by assignment
    */
   public void sortResults() {
     //maybe we shouldnt do this for huge resultsets, but this makes things more organized and easier to test
-    if (this.wsAttributeAssigns != null) {
-      Arrays.sort(this.wsAttributeAssigns);
+    if (this.wsAttributeAssignResults != null) {
+      Arrays.sort(this.wsAttributeAssignResults);
     }
     if (this.wsAttributeDefNames != null) {
       Arrays.sort(this.wsAttributeDefNames);
@@ -404,12 +404,16 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     
     Set<String> allAttributeDefIds = new HashSet<String>(GrouperUtil.nonNull(attributeDefIds));
     
-    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
-      if (!StringUtils.isBlank(wsAttributeAssign.getAttributeDefId())) {
-        allAttributeDefIds.add(wsAttributeAssign.getAttributeDefId());
-      }
-      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerAttributeDefId())) {
-        allAttributeDefIds.add(wsAttributeAssign.getOwnerAttributeDefId());
+    for (WsAssignAttributeResult wsAttributeAssignResult : GrouperUtil.nonNull(this.wsAttributeAssignResults, WsAssignAttributeResult.class)) {
+      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+        if (wsAttributeAssign != null) {
+          if (!StringUtils.isBlank(wsAttributeAssign.getAttributeDefId())) {
+            allAttributeDefIds.add(wsAttributeAssign.getAttributeDefId());
+          }
+          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerAttributeDefId())) {
+            allAttributeDefIds.add(wsAttributeAssign.getOwnerAttributeDefId());
+          }
+        }
       }
     }
     
@@ -439,9 +443,13 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     
     Set<String> allGroupIds = new HashSet<String>(GrouperUtil.nonNull(groupIds));
     
-    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
-      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerGroupId())) {
-        allGroupIds.add(wsAttributeAssign.getOwnerGroupId());
+    for (WsAssignAttributeResult wsAttributeAssignResult : GrouperUtil.nonNull(this.wsAttributeAssignResults, WsAssignAttributeResult.class)) {
+      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+        if (wsAttributeAssign != null) {
+          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerGroupId())) {
+            allGroupIds.add(wsAttributeAssign.getOwnerGroupId());
+          }
+        }
       }
     }
     
@@ -465,9 +473,13 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     
     Set<String> allStemIds = new HashSet<String>(GrouperUtil.nonNull(stemIds));
     
-    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
-      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerStemId())) {
-        allStemIds.add(wsAttributeAssign.getOwnerStemId());
+    for (WsAssignAttributeResult wsAttributeAssignResult : GrouperUtil.nonNull(this.wsAttributeAssignResults, WsAssignAttributeResult.class)) {
+      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+        if (wsAttributeAssign != null) {
+          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerStemId())) {
+            allStemIds.add(wsAttributeAssign.getOwnerStemId());
+          }
+        }
       }
     }
     
@@ -491,9 +503,13 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     
     Set<String> allMembershipIds = new HashSet<String>(GrouperUtil.nonNull(membershipIds));
     
-    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
-      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMembershipId())) {
-        allMembershipIds.add(wsAttributeAssign.getOwnerMembershipId());
+    for (WsAssignAttributeResult wsAttributeAssignResult : GrouperUtil.nonNull(this.wsAttributeAssignResults, WsAssignAttributeResult.class)) {
+      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+        if (wsAttributeAssign != null) {
+          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMembershipId())) {
+            allMembershipIds.add(wsAttributeAssign.getOwnerMembershipId());
+          }
+        }
       }
     }
     
@@ -553,12 +569,16 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
       }
     }
     
-    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
-      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMemberSubjectId())) {
-        if (!SubjectHelper.inList(allSubjects, wsAttributeAssign.getOwnerMemberSourceId(), wsAttributeAssign.getOwnerMemberSubjectId())) {
-          Subject subject = SubjectFinder.findById(wsAttributeAssign.getOwnerMemberSubjectId(), null, wsAttributeAssign.getOwnerMemberSourceId(), false);
-          if (subject != null) {
-            allSubjects.add(subject);
+    for (WsAssignAttributeResult wsAttributeAssignResult : GrouperUtil.nonNull(this.wsAttributeAssignResults, WsAssignAttributeResult.class)) {
+      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+        if (wsAttributeAssign != null) {
+          if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMemberSubjectId())) {
+            if (!SubjectHelper.inList(allSubjects, wsAttributeAssign.getOwnerMemberSourceId(), wsAttributeAssign.getOwnerMemberSubjectId())) {
+              Subject subject = SubjectFinder.findById(wsAttributeAssign.getOwnerMemberSubjectId(), null, wsAttributeAssign.getOwnerMemberSourceId(), false);
+              if (subject != null) {
+                allSubjects.add(subject);
+              }
+            }
           }
         }
       }
@@ -584,9 +604,13 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     
     Set<String> allAttributeDefNameIds = new HashSet<String>(GrouperUtil.nonNull(attributeDefNameIds));
     
-    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
-      if (!StringUtils.isBlank(wsAttributeAssign.getAttributeDefNameId())) {
-        allAttributeDefNameIds.add(wsAttributeAssign.getAttributeDefNameId());
+    for (WsAssignAttributeResult wsAttributeAssignResult : GrouperUtil.nonNull(this.wsAttributeAssignResults, WsAssignAttributeResult.class)) {
+      for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(wsAttributeAssignResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+        if (wsAttributeAssign != null) {
+          if (!StringUtils.isBlank(wsAttributeAssign.getAttributeDefNameId())) {
+            allAttributeDefNameIds.add(wsAttributeAssign.getAttributeDefNameId());
+          }
+        }
       }
     }
     

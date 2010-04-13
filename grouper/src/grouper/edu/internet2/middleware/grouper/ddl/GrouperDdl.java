@@ -6236,7 +6236,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssign.COLUMN_ENABLED, Types.VARCHAR, "1", false, true, "T");
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-          AttributeAssign.COLUMN_ENABLED_TIME, Types.VARCHAR, "1", false, false);
+          AttributeAssign.COLUMN_ENABLED_TIME, Types.BIGINT, "20", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable, 
           AttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);

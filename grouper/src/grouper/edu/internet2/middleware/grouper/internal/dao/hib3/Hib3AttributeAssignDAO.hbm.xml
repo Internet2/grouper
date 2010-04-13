@@ -47,6 +47,7 @@
     <property name="createdOnDb" column="created_on"/>
     <property name="disabledTimeDb" column="disabled_time"/>
     <property name="enabledDb" column="enabled"/>
+    <property name="notes" column="notes"/>
     <property name="enabledTimeDb" column="enabled_time"/>
     <property name="lastUpdatedDb" column="last_updated"/>
     <property name="ownerAttributeAssignId" column="owner_attribute_assign_id"/>

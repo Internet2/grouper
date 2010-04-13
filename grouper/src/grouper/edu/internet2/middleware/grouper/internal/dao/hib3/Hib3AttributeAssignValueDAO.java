@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundEx
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -160,10 +161,19 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#findByAttributeAssignId(java.lang.String)
    */
   public Set<AttributeAssignValue> findByAttributeAssignId(String attributeAssignId) {
+    return findByAttributeAssignId(attributeAssignId, null);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO#findByAttributeAssignId(java.lang.String, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<AttributeAssignValue> findByAttributeAssignId(String attributeAssignId,
+      QueryOptions queryOptions) {
     try {
       Set<AttributeAssignValue> attributeAssignValues = HibernateSession.byHqlStatic()
         .createQuery("from AttributeAssignValue as theAttributeAssignValue where " +
             "theAttributeAssignValue.attributeAssignId = :theAttributeAssignId")
+        .options(queryOptions)
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByAttributeAssignId")
         .setString("theAttributeAssignId", attributeAssignId)

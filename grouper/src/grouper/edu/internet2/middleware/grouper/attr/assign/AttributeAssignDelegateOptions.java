@@ -5,7 +5,6 @@
 package edu.internet2.middleware.grouper.attr.assign;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 
 /**

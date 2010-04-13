@@ -178,12 +178,12 @@ public class StemAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -518,12 +518,12 @@ public class StemAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
   
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -867,12 +867,12 @@ public class StemAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -952,8 +952,8 @@ public class StemAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2));
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     try {
       this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -966,7 +966,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -1160,9 +1160,9 @@ public class StemAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
 
     try {
       this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1);
@@ -1240,8 +1240,8 @@ public class StemAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2));
+    assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     try {
       this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1254,7 +1254,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));

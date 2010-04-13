@@ -157,12 +157,12 @@ public class MemberAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.member.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.member.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.member.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.member.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -504,12 +504,12 @@ public class MemberAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.member.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.member.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.member.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.member.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.member.getAttributeDelegate().hasAttribute(attributeDefName1_2));

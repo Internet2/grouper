@@ -9538,6 +9538,24 @@ public class GrouperUtil {
   }
   
   /**
+   * Return the zero element of the set, if it exists, null if the list is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param set is the container of objects to get the first of.
+   * @return the first object, null, or exception.
+   */
+  public static <T> T setPopOne(Set<T> set) {
+    int size = length(set);
+    if (size == 1) {
+      return set.iterator().next();
+    } else if (size == 0) {
+      return null;
+    }
+    throw new RuntimeException("More than one object of type " + className(set.iterator().next())
+        + " was returned when only one was expected. (size:" + size +")" );
+  }
+  
+  /**
    * Return the zero element of the list, if it exists, null if the list is empty.
    * If there is more than one element in the list, an exception is thrown.
    * @param <T>

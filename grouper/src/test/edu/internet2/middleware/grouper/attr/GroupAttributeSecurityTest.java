@@ -186,12 +186,12 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.group.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.group.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -678,12 +678,12 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.group.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.group.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_1));
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_2));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_2));
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName2_2).isChanged());
 
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -763,8 +763,8 @@ public class GroupAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2));
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     try {
       this.group.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -777,7 +777,7 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_2));
@@ -965,9 +965,9 @@ public class GroupAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
 
     try {
       this.group.getAttributeDelegate().removeAttribute(attributeDefName2_1);
@@ -1045,8 +1045,8 @@ public class GroupAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2));
+    assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     try {
       this.group.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1059,7 +1059,7 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     } catch (AttributeDefNotFoundException adnfe) {
       //good
     }
-    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1));
+    assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
   
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.group.getAttributeDelegate().hasAttribute(attributeDefName1_2));
