@@ -1,33 +1,4 @@
-package edu.internet2.middleware.grouper.ws.soap;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
-import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
-import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
-import edu.internet2.middleware.subject.Subject;
+package edu.internet2.middleware.grouperClient.ws.beans;
 
 /**
  * <pre>
@@ -42,7 +13,7 @@ import edu.internet2.middleware.subject.Subject;
  * </pre>
  * @author mchyzer
  */
-public class WsAssignAttributesResults2 implements WsResponseBean, ResultMetadataHolder {
+public class WsAssignAttributesResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * attribute def references in the assignments or inputs (and able to be read)
@@ -148,7 +119,7 @@ public class WsAssignAttributesResults2 implements WsResponseBean, ResultMetadat
   /**
    * groups that are in the results
    */
-  private WsGroup wsGroup;
+  private WsGroup[] wsGroups;
 
   /**
    * stems that are in the results
@@ -206,10 +177,10 @@ public class WsAssignAttributesResults2 implements WsResponseBean, ResultMetadat
   }
 
   /**
-   * @return the wsGroup
+   * @return the wsGroups
    */
-  public WsGroup getWsGroup() {
-    return this.wsGroup;
+  public WsGroup[] getWsGroups() {
+    return this.wsGroups;
   }
 
   /**
@@ -231,8 +202,8 @@ public class WsAssignAttributesResults2 implements WsResponseBean, ResultMetadat
   /**
    * @param wsGroup1 the wsGroups to set
    */
-  public void setWsGroup(WsGroup wsGroup1) {
-    this.wsGroup = wsGroup1;
+  public void setWsGroups(WsGroup[] wsGroup1) {
+    this.wsGroups = wsGroup1;
   }
 
   /**

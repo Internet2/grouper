@@ -53,6 +53,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -7177,6 +7179,23 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * get the value from the argMap, throw exception if not there and required
+   * @param argMap
+   * @param argMapNotUsed 
+   * @param key
+   * @return the value or null or exception
+   */
+  public static Timestamp argMapTimestamp(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
+      String key) {
+    String argString = argMapString(argMap, argMapNotUsed, key, false);
+    if (isBlank(argString)) {
+      return null;
+    }
+    Date date = stringToDate(argString);
+    return new Timestamp(date.getTime());
+  }
+  
+  /**
    * get the value from the argMap
    * @param argMap
    * @param argMapNotUsed 
@@ -8360,5 +8379,47 @@ public class GrouperClientCommonUtils  {
     }
     return -1;
   }
+
+  /**
+   * Note, this is 
+   * web service format string
+   */
+  private static final String WS_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
+
+  /**
+   * convert a date to a string using the standard web service pattern
+   * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
+   * 
+   * @param date
+   * @return the string, or null if the date is null
+   */
+  public static String dateToString(Date date) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);
+    return simpleDateFormat.format(date);
+  }
+
+  /**
+   * convert a string to a date using the standard web service pattern Note
+   * that HH is 0-23
+   * 
+   * @param dateString
+   * @return the string, or null if the date was null
+   */
+  public static Date stringToDate(String dateString) {
+    if (StringUtils.isBlank(dateString)) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);
+    try {
+      return simpleDateFormat.parse(dateString);
+    } catch (ParseException e) {
+      throw new RuntimeException("Cannot convert '" + dateString
+          + "' to a date based on format: " + WS_DATE_FORMAT, e);
+    }
+  }
+
 
 }

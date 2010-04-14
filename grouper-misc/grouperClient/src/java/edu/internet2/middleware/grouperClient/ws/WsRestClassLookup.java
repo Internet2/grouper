@@ -11,12 +11,17 @@ import java.util.Map;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributeResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributesResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssign;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignValue;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignValueResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignValuesResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDef;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefName;
@@ -54,6 +59,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignAttributesLiteRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignAttributesRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestDeleteMemberRequest;
@@ -98,6 +105,15 @@ public class WsRestClassLookup {
   static {
     addAliasClass(WsAddMemberResult.class);
     addAliasClass(WsAddMemberResults.class);
+    
+    addAliasClass(WsAssignAttributeResult.class);
+    addAliasClass(WsAssignAttributesLiteResults.class);
+    addAliasClass(WsAssignAttributesResults.class);
+    addAliasClass(WsRestAssignAttributesRequest.class);
+    addAliasClass(WsRestAssignAttributesLiteRequest.class);
+    addAliasClass(WsAttributeAssignValueResult.class);
+    addAliasClass(WsAttributeAssignValuesResult.class);
+    
     addAliasClass(WsAttributeAssign.class);
     addAliasClass(WsAttributeAssignLookup.class);
     addAliasClass(WsAttributeAssignValue.class);

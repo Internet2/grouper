@@ -5213,7 +5213,7 @@ public class GrouperServiceLogic {
    * @param wsOwnerSubjectLookups are subjects to look in
    * @param wsAttributeDefNameLookups attribute def names to assign to the owners
    * @param attributeAssignOperation operation to perform for attribute on owners, from enum AttributeAssignOperation
-   * assign_attr, add_attr, remove_attr, remove_attr_by_assign_id
+   * assign_attr, add_attr, remove_attr
    * @param values are the values to assign, replace, remove, etc.  If removing, and id is specified, will
    * only remove values with that id.
    * @param assignmentNotes notes on the assignment (optional)
@@ -5674,7 +5674,7 @@ public class GrouperServiceLogic {
    * @param wsAttributeDefNameName attribute def name to assign to the owner
    * @param wsAttributeDefNameId attribute def name to assign to the owner
    * @param attributeAssignOperation operation to perform for attribute on owners, from enum AttributeAssignOperation
-   * assign_attr, add_attr, remove_attr, remove_attr_by_assign_id
+   * assign_attr, add_attr, remove_attr
    * @param valueId If removing, and id is specified, will
    * only remove values with that id.
    * @param valueSystem is value to add, assign, remove, etc

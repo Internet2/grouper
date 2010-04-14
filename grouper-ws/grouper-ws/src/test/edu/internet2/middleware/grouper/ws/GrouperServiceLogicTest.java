@@ -1075,7 +1075,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, null, 
         null, null, null, null, null, false, null, false, null);
     
-    assertEquals("attributeAssignOperation must be assign_attr or remove_attr_by_assign_id", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+    assertEquals("attributeAssignOperation must be assign_attr", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
     assertTrue(wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         wsAssignAttributesResults.getResultMetadata().getResultMessage().contains(

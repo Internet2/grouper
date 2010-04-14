@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperClient;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
+import edu.internet2.middleware.grouperClient.api.GcAssignAttributes;
 import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivileges;
 import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivilegesLite;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
@@ -43,10 +45,13 @@ import edu.internet2.middleware.grouperClient.ws.StemScope;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributeResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributesResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssign;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignValue;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDef;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefName;
@@ -302,6 +307,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "getAttributeAssignmentsWs")) {
         result = getAttributeAssignments(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "assignAttributesWs")) {
+        result = assignAttributes(argMap, argMapNotUsed);
 
       } else if (GrouperClientUtils.equals(operation, "getSubjectsWs")) {
         result = getSubjects(argMap, argMapNotUsed);
@@ -3281,6 +3289,379 @@ public class GrouperClient {
       index++;
     }
     
+    return result.toString();
+  }
+
+  /**
+   * assign attributes
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String assignAttributes(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+  
+    GcAssignAttributes gcAssignAttributes = new GcAssignAttributes();        
+  
+    for (int i=0;i<10;i++) {
+      WsSubjectLookup ownerMembershipAnySubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "ownerMembershipAny" + i, false);
+      String ownerMembershipAnyGroupUuid = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "ownerMembershipAny" + i + "GroupUuid", false);
+      String ownerMembershipAnyGroupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "ownerMembershipAny" + i + "GroupName", false);
+      if (ownerMembershipAnySubjectLookup != null || !GrouperClientUtils.isBlank(ownerMembershipAnyGroupName) 
+          || !GrouperClientUtils.isBlank(ownerMembershipAnyGroupUuid)) {
+        WsMembershipAnyLookup wsMembershipAnyLookup = new WsMembershipAnyLookup();
+        wsMembershipAnyLookup.setWsGroupLookup(new WsGroupLookup(ownerMembershipAnyGroupName, ownerMembershipAnyGroupUuid));
+        wsMembershipAnyLookup.setWsSubjectLookup(ownerMembershipAnySubjectLookup);
+        gcAssignAttributes.addOwnerMembershipAnyLookup(wsMembershipAnyLookup);
+      }
+    }
+    
+    for (int i=0;i<10;i++) {
+      WsSubjectLookup ownerSubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "owner" + i, false);
+      if (ownerSubjectLookup != null) {
+        gcAssignAttributes.addOwnerSubjectLookup(ownerSubjectLookup);
+      }
+    }
+
+    for (int i=0;i<10;i++) {
+      String valuesId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "values" + i + "Id", false);
+      String valuesFormatted = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "values" + i + "Formatted", false);
+      String valuesSystem = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "values" + i + "System", false);
+      if (!GrouperClientUtils.isBlank(valuesId) || !GrouperClientUtils.isBlank(valuesFormatted) 
+          || !GrouperClientUtils.isBlank(valuesSystem)) {
+        WsAttributeAssignValue wsAttributeAssignValue = new WsAttributeAssignValue();
+        wsAttributeAssignValue.setId(valuesId);
+        wsAttributeAssignValue.setValueFormatted(valuesFormatted);
+        wsAttributeAssignValue.setValueSystem(valuesSystem);
+        gcAssignAttributes.addValue(wsAttributeAssignValue);
+      }
+    }
+    
+    {
+      Set<String> wsOwnerAttributeAssignUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "ownerAttributeAssignUuids", false);
+      if (GrouperClientUtils.length(wsOwnerAttributeAssignUuids) > 0) {
+        for (String attributeAssignUuid : wsOwnerAttributeAssignUuids) {
+          WsAttributeAssignLookup wsAttributeAssignLookup = new WsAttributeAssignLookup();
+          wsAttributeAssignLookup.setUuid(attributeAssignUuid);
+          gcAssignAttributes.addOwnerAttributeAssignLookup(wsAttributeAssignLookup);
+        }
+      }
+    }
+
+    {
+      Timestamp assignmentDisabledTime = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "assignmentDisabledTime");
+      gcAssignAttributes.assignDisabledTime(assignmentDisabledTime);
+    }
+    
+    {
+      Timestamp assignmentEnabledTime = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "assignmentEnabledTime");
+      gcAssignAttributes.assignEnabledTime(assignmentEnabledTime);
+    }
+    
+    {
+      String assignmentNotes = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "assignmentNotes", false);
+      gcAssignAttributes.assignAssignmentNotes(assignmentNotes);
+    }
+    
+    {
+      String delegatable = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "delegatable", false);
+      gcAssignAttributes.assignDelegatable(delegatable);
+    }
+    
+    {
+      String attributeAssignOperation = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "attributeAssignOperation", false);
+      gcAssignAttributes.assignAttributeAssignOperation(attributeAssignOperation);
+    }
+    
+    {
+      String attributeAssignValueOperation = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "attributeAssignValueOperation", false);
+      gcAssignAttributes.assignAttributeAssignValueOperation(attributeAssignValueOperation);
+    }
+    
+    {
+      Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
+      gcAssignAttributes.assignIncludeSubjectDetail(includeSubjectDetail);
+    }
+    {
+      Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+      gcAssignAttributes.assignIncludeGroupDetail(includeGroupDetail);
+    }
+    {
+      Set<String> attributeAssignUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeAssignUuids", false);
+      if (GrouperClientUtils.length(attributeAssignUuids) > 0) {
+        for (String attributeAssignUuid : attributeAssignUuids) {
+          gcAssignAttributes.addAttributeAssignId(attributeAssignUuid);
+        }
+      }
+    }
+    {
+      List<String> ownerGroupUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerGroupUuids", false);
+      if (GrouperClientUtils.length(ownerGroupUuids) > 0) {
+        for (String ownerGroupUuid: ownerGroupUuids) {
+          gcAssignAttributes.addOwnerGroupUuid(ownerGroupUuid);
+        }
+      }
+    }
+    {
+      List<String> ownerGroupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerGroupNames", false);
+      if (GrouperClientUtils.length(ownerGroupNames) > 0) {
+        for (String ownerGroupName: ownerGroupNames) {
+          gcAssignAttributes.addOwnerGroupName(ownerGroupName);
+        }
+      }
+    }
+    {
+      List<String> ownerMembershipUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerMembershipUuids", false);
+      if (GrouperClientUtils.length(ownerMembershipUuids) > 0) {
+        for (String ownerMembershipUuid: ownerMembershipUuids) {
+          gcAssignAttributes.addOwnerMembershipId(ownerMembershipUuid);
+        }
+      }
+    }
+    {
+      List<String> ownerStemUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerStemUuids", false);
+      if (GrouperClientUtils.length(ownerStemUuids) > 0) {
+        for (String ownerStemUuid: ownerStemUuids) {
+          gcAssignAttributes.addOwnerStemUuid(ownerStemUuid);
+        }
+      }
+    }
+    {
+      List<String> ownerStemNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "ownerStemNames", false);
+      if (GrouperClientUtils.length(ownerStemNames) > 0) {
+        for (String ownerStemName: ownerStemNames) {
+          gcAssignAttributes.addOwnerStemName(ownerStemName);
+        }
+      }
+    }
+  
+    {
+      String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+      gcAssignAttributes.assignClientVersion(clientVersion);
+      
+    }
+    
+    {
+      WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+      gcAssignAttributes.assignActAsSubject(actAsSubject);
+    }
+  
+    {
+      String attributeAssignType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "attributeAssignType", true);
+      gcAssignAttributes.assignAttributeAssignType(attributeAssignType);
+    }
+    
+    { 
+      Set<String> attributeDefNameNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNameNames", false);
+      
+      if (GrouperClientUtils.length(attributeDefNameNames) > 0) {
+        for (String attributeDefNameName : attributeDefNameNames) {
+          gcAssignAttributes.addAttributeDefNameName(attributeDefNameName);
+        }
+      }
+    }
+    
+    {
+      Set<String> attributeDefNameUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNameUuids", false);
+      if (GrouperClientUtils.length(attributeDefNameUuids) > 0) {
+        for (String attributeDefNameUuid : attributeDefNameUuids) {
+          gcAssignAttributes.addAttributeDefNameUuid(attributeDefNameUuid);
+        }
+      }
+    }
+    
+    { 
+      Set<String> ownerAttributeDefNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "ownerAttributeDefNames", false);
+      
+      if (GrouperClientUtils.length(ownerAttributeDefNames) > 0) {
+        for (String ownerAttributeDefName : ownerAttributeDefNames) {
+          gcAssignAttributes.addOwnerAttributeDefName(ownerAttributeDefName);
+        }
+      }
+    }
+    
+    {
+      Set<String> ownerAttributeDefUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "ownerAttributeDefUuids", false);
+      if (GrouperClientUtils.length(ownerAttributeDefUuids) > 0) {
+        for (String ownerAttributeDefUuid : ownerAttributeDefUuids) {
+          gcAssignAttributes.addOwnerAttributeDefUuid(ownerAttributeDefUuid);
+        }
+      }
+    }
+  
+    {
+      Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
+  
+      for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
+        gcAssignAttributes.addSubjectAttributeName(subjectAttribute);
+      }
+    }    
+    
+    {
+      Set<String> actions = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "actions", false);
+      
+      if (GrouperClientUtils.length(actions) > 0) {
+        for (String action : actions) {
+          gcAssignAttributes.addAction(action);
+        }
+      }
+    }
+    
+    
+    
+    {
+      List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+      
+      for (WsParam param : params) {
+        gcAssignAttributes.addParam(param);
+      }
+    }
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    
+    
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsAssignAttributesResults wsAssignAttributesResults = gcAssignAttributes.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsAssignAttributesResults", wsAssignAttributesResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.assignAttributes.output", true);
+    }
+    log.debug("Output template: " + outputTemplate + ", available variables: wsAssignAttributesResults, " +
+      "grouperClientUtils, index, wsAttributeAssignment");
+  
+    //########## GROUPS
+    //lets index the groups by groupId 
+    Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
+    
+    for (WsGroup wsGroupCurrent : GrouperClientUtils.nonNull(wsAssignAttributesResults.getWsGroups(), WsGroup.class)) {
+      groupLookup.put(wsGroupCurrent.getUuid(), wsGroupCurrent);
+    }
+    
+    //########## SUBJECTS
+    //lets index the subjects by multikey of sourceId and subjectId
+    Map<MultiKey, WsSubject> subjectLookup = new HashMap<MultiKey, WsSubject>();
+    
+    for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsAssignAttributesResults.getWsSubjects(), WsSubject.class)) {
+      MultiKey key = new MultiKey(wsSubject.getSourceId(), wsSubject.getId());
+      subjectLookup.put(key, wsSubject);
+    }
+  
+    //########## STEMS
+    //lets index the stems by stemId 
+    Map<String, WsStem> stemLookup = new HashMap<String, WsStem>();
+    
+    for (WsStem wsStemCurrent : GrouperClientUtils.nonNull(wsAssignAttributesResults.getWsStems(), WsStem.class)) {
+      stemLookup.put(wsStemCurrent.getUuid(), wsStemCurrent);
+    }
+    
+    //########## ATTRIBUTE DEFS
+    //lets index the attributeDefs by attributeDefId 
+    Map<String, WsAttributeDef> attributeDefLookup = new HashMap<String, WsAttributeDef>();
+    
+    for (WsAttributeDef wsAttributeDefCurrent : GrouperClientUtils.nonNull(wsAssignAttributesResults.getWsAttributeDefs(), WsAttributeDef.class)) {
+      attributeDefLookup.put(wsAttributeDefCurrent.getUuid(), wsAttributeDefCurrent);
+    }
+    
+    //########## ATTRIBUTE DEF NAMES
+    //lets index the attributeDefNames by attributeDefNameId 
+    Map<String, WsAttributeDefName> attributeDefNameLookup = new HashMap<String, WsAttributeDefName>();
+    
+    for (WsAttributeDefName wsAttributeDefNameCurrent : GrouperClientUtils.nonNull(wsAssignAttributesResults.getWsAttributeDefNames(), WsAttributeDefName.class)) {
+      attributeDefNameLookup.put(wsAttributeDefNameCurrent.getUuid(), wsAttributeDefNameCurrent);
+    }
+    
+    //########## MEMBERSHIPS
+    //lets index the memberships by membership id and membership immediate id (if immediate) 
+    Map<String, WsMembership> membershipLookup = new HashMap<String, WsMembership>();
+    
+    for (WsMembership wsMembershipCurrent : GrouperClientUtils.nonNull(wsAssignAttributesResults.getWsMemberships(), WsMembership.class)) {
+      membershipLookup.put(wsMembershipCurrent.getMembershipId(), wsMembershipCurrent);
+      if ("immediate".equals(wsMembershipCurrent.getMembershipType())) {
+        membershipLookup.put(wsMembershipCurrent.getImmediateMembershipId(), wsMembershipCurrent);
+      }
+    }
+    
+    
+    for (WsAssignAttributeResult wsAssignAttributeResult : GrouperClientUtils.nonNull(wsAssignAttributesResults.getWsAttributeAssignResults(), WsAssignAttributeResult.class)) {
+    
+      substituteMap.put("wsAssignAttributeResult", wsAssignAttributeResult);
+
+      for (WsAttributeAssign wsAttributeAssign : GrouperClientUtils.nonNull(wsAssignAttributeResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+        
+        WsAttributeDef wsAttributeDef = attributeDefLookup.get(wsAttributeAssign.getAttributeDefId());
+        WsAttributeDefName wsAttributeDefName = attributeDefNameLookup.get(wsAttributeAssign.getAttributeDefNameId());
+        WsStem wsOwnerStem = stemLookup.get(wsAttributeAssign.getOwnerStemId());
+        WsAttributeDef wsOwnerAttributeDef = attributeDefLookup.get(wsAttributeAssign.getOwnerAttributeDefId());
+        WsMembership wsOwnerMembership = membershipLookup.get(wsAttributeAssign.getOwnerMembershipId());
+        WsGroup wsOwnerGroup = groupLookup.get(wsAttributeAssign.getOwnerGroupId());
+        MultiKey ownerSubjectKey = new MultiKey(wsAttributeAssign.getOwnerMemberSourceId(), wsAttributeAssign.getOwnerMemberSubjectId());
+        WsSubject wsOwnerMemberSubject = subjectLookup.get(ownerSubjectKey);
+        
+        String ownerName = null;
+        if (GrouperClientUtils.equals("group", wsAttributeAssign.getAttributeAssignType())) {
+          ownerName = wsOwnerGroup.getName();
+        } else if (GrouperClientUtils.equals("member", wsAttributeAssign.getAttributeAssignType())) {
+          ownerName = wsAttributeAssign.getOwnerMemberSourceId() + " - " + wsAttributeAssign.getOwnerMemberSubjectId();
+        } else if (GrouperClientUtils.equals("stem", wsAttributeAssign.getAttributeAssignType())) {
+          ownerName = wsOwnerStem.getName();
+        } else if (GrouperClientUtils.equals("any_mem", wsAttributeAssign.getAttributeAssignType())) {
+          ownerName = wsOwnerGroup.getName() + " - " + wsAttributeAssign.getOwnerMemberSourceId() + " - " + wsAttributeAssign.getOwnerMemberSubjectId();
+        } else if (GrouperClientUtils.equals("imm_mem", wsAttributeAssign.getAttributeAssignType())) {
+          ownerName = wsAttributeAssign.getOwnerMembershipId();
+        } else if (GrouperClientUtils.equals("attr_def", wsAttributeAssign.getAttributeAssignType())) {
+          ownerName = wsOwnerAttributeDef.getName();
+        } else if (wsAttributeAssign.getAttributeAssignType() != null && wsAttributeAssign.getAttributeAssignType().endsWith("_asgn")) {
+          ownerName = wsAttributeAssign.getOwnerAttributeAssignId();
+        } else {
+          throw new RuntimeException("Cant find attribute assign type: " + wsAttributeAssign.getAttributeAssignType());
+        }
+    
+        String valuesString = "none";
+        int valuesLength = GrouperClientUtils.length(wsAttributeAssign.getWsAttributeAssignValues());
+        if (valuesLength > 0) {
+          StringBuilder valuesResult = new StringBuilder();
+          for (int i=0;i<valuesLength;i++) {
+            WsAttributeAssignValue wsAttributeAssignValue = wsAttributeAssign.getWsAttributeAssignValues()[i];
+            valuesResult.append(wsAttributeAssignValue.getValueSystem());
+            if (i<valuesLength-1) {
+              valuesResult.append(",");
+            }
+          }
+          valuesString = valuesResult.toString();
+        }
+        
+        substituteMap.put("index", index);
+        substituteMap.put("ownerName", ownerName);
+        substituteMap.put("valuesString", valuesString);
+        substituteMap.put("wsOwnerAttributeDef", wsOwnerAttributeDef);
+        substituteMap.put("wsAttributeAssign", wsAttributeAssign);
+        substituteMap.put("wsAttributeDef", wsAttributeDef);
+        substituteMap.put("wsAttributeDefName", wsAttributeDefName);
+        substituteMap.put("wsOwnerMemberSubject", wsOwnerMemberSubject);
+        substituteMap.put("wsOwnerMembership", wsOwnerMembership);
+        substituteMap.put("wsOwnerGroup", wsOwnerGroup);
+        
+        String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+        result.append(output);
+        
+        index++;
+      }
+    }    
     return result.toString();
   }
 
