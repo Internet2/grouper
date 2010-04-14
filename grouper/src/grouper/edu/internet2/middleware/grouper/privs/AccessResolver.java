@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public interface AccessResolver {
 
-  /** clean up resources, session is stopped */
+  /** clean up  resources, session is stopped */
   public void stop();
   
   /**
@@ -199,19 +199,6 @@ public interface AccessResolver {
   public boolean hqlFilterGroupsWhereClause( 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet);
 
-//  /**
-//   * for a attributeDef query, check to make sure the subject can see the records (if filtering HQL, you can do 
-//   * the postHqlFilterGroups instead if you like)
-//   * @param subject which needs view access to the groups
-//   * @param hqlQuery 
-//   * @param hql the select and current from part
-//   * @param attributeDefColumn is the name of the group column to join to
-//   * @param privInSet find a privilege which is in this set (e.g. for view, send all access privs)
-//   * @return if the statement was changed
-//   */
-//  public boolean hqlFilterAttributeDefsWhereClause( 
-//      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Set<Privilege> privInSet);
-
   /**
    * filter memberships for things the subject can see
    * @param memberships
@@ -221,14 +208,6 @@ public interface AccessResolver {
   public Set<Membership> postHqlFilterMemberships(
       Subject subject, Set<Membership> memberships);
 
-//  /**
-//   * filter memberships for things the subject can see
-//   * @param assignments
-//   * @param subject
-//   * @return the assignments
-//   */
-//  public Set<Membership> postHqlFilterAttributeAssignments(
-//      Subject subject, Set<AttributeAssign> assignments);
 
   /**
    * Revoke all access privileges that this subject has.
