@@ -113,7 +113,6 @@ public class WsRestClassLookup {
     addAliasClass(WsRestAssignAttributesLiteRequest.class);
     addAliasClass(WsAttributeAssignValueResult.class);
     addAliasClass(WsAttributeAssignValuesResult.class);
-    
     addAliasClass(WsAttributeAssign.class);
     addAliasClass(WsAttributeAssignLookup.class);
     addAliasClass(WsAttributeAssignValue.class);

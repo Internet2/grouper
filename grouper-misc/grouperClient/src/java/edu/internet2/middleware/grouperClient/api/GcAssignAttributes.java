@@ -66,7 +66,7 @@ public class GcAssignAttributes {
   /**
    * for assignment on assignment
    */
-  private Set<WsAttributeAssignLookup> ownerAttributeAssignLookups;
+  private Set<WsAttributeAssignLookup> ownerAttributeAssignLookups = new LinkedHashSet<WsAttributeAssignLookup>();
   
   /** ws subject lookups to find memberships about */
   private Set<WsSubjectLookup> ownerSubjectLookups = new LinkedHashSet<WsSubjectLookup>();

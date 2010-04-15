@@ -248,6 +248,12 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   private static final String WS_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
 
   /**
+   * Note, this is 
+   * web service format string
+   */
+  private static final String WS_DATE_FORMAT2 = "yyyy/MM/dd_HH:mm:ss.SSS";
+
+  /**
    * convert a date to a string using the standard web service pattern
    * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
    * 
@@ -277,8 +283,13 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     try {
       return simpleDateFormat.parse(dateString);
     } catch (ParseException e) {
-      throw new RuntimeException("Cannot convert '" + dateString
-          + "' to a date based on format: " + WS_DATE_FORMAT, e);
+      SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat(WS_DATE_FORMAT2);
+      try {
+        return simpleDateFormat2.parse(dateString);
+      } catch (ParseException e2) {
+        throw new RuntimeException("Cannot convert '" + dateString
+            + "' to a date based on format: " + WS_DATE_FORMAT, e);
+      }
     }
   }
 

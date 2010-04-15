@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsAttribute;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssign;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
+import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValueResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDef;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefName;
@@ -135,6 +136,7 @@ public class WsRestClassLookup {
     addAliasClass(WsAttributeAssign.class);
     addAliasClass(WsAttributeAssignLookup.class);
     addAliasClass(WsAttributeAssignValue.class);
+    addAliasClass(WsAttributeAssignValueResult.class);
     addAliasClass(WsAttributeDef.class);
     addAliasClass(WsAttributeDefLookup.class);
     addAliasClass(WsAttributeDefName.class);
