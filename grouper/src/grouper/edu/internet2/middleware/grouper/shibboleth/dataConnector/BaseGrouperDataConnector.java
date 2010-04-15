@@ -34,6 +34,8 @@ import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 public abstract class BaseGrouperDataConnector extends BaseDataConnector {
 
@@ -74,6 +76,9 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
     validFirstIdElements.add(MembersField.NAME);
     validFirstIdElements.addAll(AccessPrivilege.getAllPrivilegeNames());
   }
+
+  /** The subject identifier used to start a <code>GrouperSession</code>. */
+  private AttributeIdentifier subjectIdentifier;
 
   /**
    * Constructor.
@@ -133,18 +138,32 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
     privilegeFields.trimToSize();
     membersFields.trimToSize();
     groupsFields.trimToSize();
+
+    // make sure the session can be instantiated
+    this.getGrouperSession();
+
   }
 
   /**
-   * Get the grouper session. Starts a new root session if necessary. Re-uses the same session.
+   * Get a <code>GrouperSession</code>. Start a new session if necessary, otherwise use
+   * the session from the threadlocal. The session is started using the {@link Subject}
+   * identified by the configured subject identifier.
    * 
-   * @return the grouper session
+   * @return the <code>GrouperSession</code>
+   * @throws SubjectNotFoundException
+   *           if the <code>Subject</code> identified by the subjectId cannot be found
    */
-  public GrouperSession getGrouperSession() {
+  public GrouperSession getGrouperSession() throws SubjectNotFoundException {
     if (grouperSession == null) {
-      grouperSession = GrouperSession.startRootSession();
-      LOG.debug("started grouper session '{}'", grouperSession);
+      if (subjectIdentifier == null) {
+        grouperSession = GrouperSession.startRootSession(false);
+      } else {
+        Subject subject = SubjectFinder.findById(subjectIdentifier.getId(), null, subjectIdentifier.getSource(), true);
+        grouperSession = GrouperSession.start(subject, false);
+      }
+      LOG.debug("started grouper session {}", grouperSession);
     }
+
     return grouperSession;
   }
 
@@ -221,10 +240,30 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
 
   /**
    * The {@link AttributeIdentifier}s for subject attributes.
-   * @return 
+   * 
+   * @return the attribute identifiers
    */
   public List<AttributeIdentifier> getSubjectAttributeIdentifiers() {
     return subjectAttributeIdentifiers;
+  }
+
+  /**
+   * Get the subject and source identifier used to start {@link GrouperSession}s.
+   * 
+   * @return Returns the source and subject identifier.
+   */
+  public AttributeIdentifier getSubjectIdentifier() {
+    return subjectIdentifier;
+  }
+
+  /**
+   * Set the subject and source identifier used to start {@link GrouperSession}s.
+   * 
+   * @param subjectIdentifier
+   *          The source and subject identifier to set.
+   */
+  public void setSubjectIdentifier(AttributeIdentifier subjectIdentifier) {
+    this.subjectIdentifier = subjectIdentifier;
   }
 
 }

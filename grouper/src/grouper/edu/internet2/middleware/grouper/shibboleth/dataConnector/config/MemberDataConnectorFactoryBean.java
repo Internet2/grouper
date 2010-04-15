@@ -36,11 +36,8 @@ public class MemberDataConnectorFactoryBean extends BaseGrouperDataConnectorFact
 
   protected Object createInstance() throws Exception {
     MemberDataConnector connector = new MemberDataConnector();
-    populateDataConnector(connector);
-    connector.setGroupQueryFilter(getGroupQueryFilter());
-    connector.setFieldIdentifiers(getFieldIdentifiers());
     connector.setSourceIdentifiers(getSourceIdentifiers());
-    connector.initialize();
+    populateDataConnector(connector);    
     return connector;
   }
 

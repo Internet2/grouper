@@ -34,6 +34,8 @@ public class AttributeIdentifierBeanDefinitionParser extends AbstractSingleBeanD
   /** schema type name. */
   public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "Attribute");
 
+  public static final QName SUBJECT_ID_TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "SubjectIdentifier");
+
   /** {@inheritDoc} */
   protected Class getBeanClass(Element element) {
     return AttributeIdentifier.class;

@@ -151,6 +151,13 @@
               </documentation>
             </annotation>
           </element>
+          <element name="SubjectIdentifier" type="grouper:IdType" minOccurs="0" maxOccurs="1">
+            <annotation>
+              <documentation>
+                The subject with which to start Grouper Sessions.
+              </documentation>
+            </annotation>
+          </element>
         </sequence>
       </extension>
     </complexContent>

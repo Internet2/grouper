@@ -39,11 +39,19 @@ public abstract class BaseGrouperDataConnectorBeanDefinitionParser extends BaseD
     pluginBuilder.addPropertyValue("fieldIdentifiers", SpringConfigurationUtils.parseInnerCustomElements(
         fieldIdentifiers, parserContext));
 
+    // TOOD is this the correct way to handle a single custom child element ?
     List<Element> groupQueryFilters = XMLHelper.getChildElementsByTagNameNS(pluginConfig,
         GrouperNamespaceHandler.NAMESPACE, "GroupFilter");
     if (!groupQueryFilters.isEmpty()) {
       pluginBuilder.addPropertyValue("groupQueryFilter", SpringConfigurationUtils.parseInnerCustomElement(
           groupQueryFilters.get(0), parserContext));
+    }
+
+    List<Element> subjectIdentifiers = XMLHelper.getChildElementsByTagNameNS(pluginConfig,
+        GrouperNamespaceHandler.NAMESPACE, AttributeIdentifierBeanDefinitionParser.SUBJECT_ID_TYPE_NAME.getLocalPart());
+    if (!subjectIdentifiers.isEmpty()) {
+      pluginBuilder.addPropertyValue("subjectIdentifier", SpringConfigurationUtils.parseInnerCustomElement(
+          subjectIdentifiers.get(0), parserContext));
     }
   }
 }

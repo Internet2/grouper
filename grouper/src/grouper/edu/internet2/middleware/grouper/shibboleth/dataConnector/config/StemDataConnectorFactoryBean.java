@@ -22,10 +22,7 @@ public class StemDataConnectorFactoryBean extends BaseGrouperDataConnectorFactor
 
   protected Object createInstance() throws Exception {
     StemDataConnector connector = new StemDataConnector();
-    populateDataConnector(connector);
-    connector.setGroupQueryFilter(this.getGroupQueryFilter());
-    connector.setFieldIdentifiers(this.getFieldIdentifiers());
-    connector.initialize();
+    populateDataConnector(connector);   
     return connector;
   }
 

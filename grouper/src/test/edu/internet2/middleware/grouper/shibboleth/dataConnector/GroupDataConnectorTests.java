@@ -386,4 +386,16 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
     }
   }
 
+  public void testCustomSubjectId() {
+    try {
+      GenericApplicationContext gContext = PSPUtil.createSpringContext(TEST_PATH
+          + "GroupDataConnectorTests-resolver-subjectId.xml");
+      GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("customSubjectId");
+      Map<String, BaseAttribute> map = gdc.resolve(getShibContext("notfound"));
+      assertTrue(map.isEmpty());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }

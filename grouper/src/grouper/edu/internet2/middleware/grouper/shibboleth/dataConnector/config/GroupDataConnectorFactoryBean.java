@@ -24,9 +24,6 @@ public class GroupDataConnectorFactoryBean extends BaseGrouperDataConnectorFacto
   protected Object createInstance() throws Exception {
     GroupDataConnector connector = new GroupDataConnector();
     populateDataConnector(connector);
-    connector.setGroupQueryFilter(this.getGroupQueryFilter());
-    connector.setFieldIdentifiers(this.getFieldIdentifiers());
-    connector.initialize();
     return connector;
   }
 

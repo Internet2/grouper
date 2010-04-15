@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.shibboleth.util;
 /**
  * Defines a subject attribute id and source.
  */
+// TODO rename generically, as it is reused for the SubjectIdentifier of DataConnectors
 public class AttributeIdentifier {
 
   /** the attribute id */
