@@ -66,6 +66,90 @@ public class PermissionEntry extends GrouperAPI {
   /** the time this assignment was disabled */
   private Long disabledTimeDb;
   
+  /** depth of memberships, 0 means immediate */
+  private int membershipDepth = -2;
+  
+  /** depth of role hierarchy, 0 means immediate, -1 means no role set involved */
+  private int roleSetDepth = -2;
+  
+  /** depth of attributeDefName set hierarchy, 0 means immediate */
+  private int attributeDefNameSetDepth = -2;
+
+  /** depth of action hierarchy, 0 means immediate */
+  private int attributeAssignActionSetDepth = -2;
+
+  /**
+   * depth of memberships, 0 means immediate
+   * @return depth
+   */
+  public int getMembershipDepth() {
+    return this.membershipDepth;
+  }
+
+
+  /**
+   * depth of memberships, 0 means immediate
+   * @param membershipDepth1
+   */
+  public void setMembershipDepth(int membershipDepth1) {
+    this.membershipDepth = membershipDepth1;
+  }
+
+
+  /**
+   * depth of role hierarchy, 0 means immediate, -1 means no role set involved
+   * @return depth
+   */
+  public int getRoleSetDepth() {
+    return this.roleSetDepth;
+  }
+
+
+  /**
+   * depth of role hierarchy, 0 means immediate, -1 means no role set involved
+   * @param roleSetDepth1
+   */
+  public void setRoleSetDepth(int roleSetDepth1) {
+    this.roleSetDepth = roleSetDepth1;
+  }
+
+
+  /**
+   * depth of attributeDefName set hierarchy, 0 means immediate
+   * @return depth
+   */
+  public int getAttributeDefNameSetDepth() {
+    return this.attributeDefNameSetDepth;
+  }
+
+
+  /**
+   * depth of attributeDefName set hierarchy, 0 means immediate
+   * @param attributeDefNameSetDepth1
+   */
+  public void setAttributeDefNameSetDepth(int attributeDefNameSetDepth1) {
+    this.attributeDefNameSetDepth = attributeDefNameSetDepth1;
+  }
+
+
+  /**
+   * depth of action hierarchy, 0 means immediate
+   * @return depth
+   */
+  public int getAttributeAssignActionSetDepth() {
+    return this.attributeAssignActionSetDepth;
+  }
+
+
+  /**
+   * depth of action hierarchy, 0 means immediate
+   * @param attributeAssignActionSetDepth1
+   */
+  public void setAttributeAssignActionSetDepth(int attributeAssignActionSetDepth1) {
+    this.attributeAssignActionSetDepth = attributeAssignActionSetDepth1;
+  }
+
+
   /**
    * role which has the permission or which the subject must be in to have the permission
    * @return the roleName
@@ -476,4 +560,126 @@ public class PermissionEntry extends GrouperAPI {
       .append(this.attributeAssignDelegatable).toHashCode();
   }
 
+  /**
+   * type of permission, either assigned to role, or assigned to role and user combined
+   */
+  public static enum PermissionType {
+
+    /** permission assigned to role */
+    role,
+    
+    /** permission assigned to role and user combined */
+    role_subject;
+    
+    /**
+     * do a case-insensitive matching
+     * 
+     * @param theString
+     * @param exceptionOnNull will not allow null or blank entries
+     * @return the enum or null or exception if not found
+     */
+    public static PermissionType valueOfIgnoreCase(String theString, boolean exceptionOnNull) {
+      return GrouperUtil.enumValueOfIgnoreCase(PermissionType.class, 
+          theString, exceptionOnNull);
+
+    }
+
+  };
+  
+  /** type of permission, either assigned to role, or assigned to role and user combined: role_subject */
+  private String permissionTypeDb;
+
+  /**
+   * type of permission, either assigned to role, or assigned to role and user combined: role_subject
+   * @return type of permission
+   */
+  public String getPermissionTypeDb() {
+    return this.permissionTypeDb;
+  }
+
+  /**
+   * type of permission, either assigned to role, or assigned to role and user combined: role_subject
+   * @param permissionTypeDb1
+   */
+  public void setPermissionTypeDb(String permissionTypeDb1) {
+    this.permissionTypeDb = permissionTypeDb1;
+  }
+  
+  /**
+   * type of permission, either assigned to role, or assigned to role and user combined: role_subject
+   * @return permission type
+   */
+  public PermissionType getPermissionType() {
+    return PermissionType.valueOfIgnoreCase(this.permissionTypeDb, false);
+  }
+  
+  /** id of the membership row */
+  private String membershipId;
+
+  /** id of the attribute assign row, either to the role, or to the role member pair */
+  private String attributeAssignId;
+
+  /**
+   * id of the membership row
+   * @return id of the membership row
+   */
+  public String getMembershipId() {
+    return this.membershipId;
+  }
+
+  /**
+   * see if the membership is unassignable directly
+   * @return true if immediate
+   */
+  public boolean isImmediateMembership() {
+    if (this.membershipDepth < 0) {
+      throw new RuntimeException("Why is membership depth not initialized??? " + this.membershipDepth );
+    }
+    return this.membershipDepth == 0;
+  }
+  
+  /**
+   * see if the permission is unassignable directly
+   * @return true if immediate
+   */
+  public boolean isImmediatePermission() {
+    if (this.attributeAssignActionSetDepth < 0) {
+      throw new RuntimeException("Why is action depth not initialized??? " + this.attributeAssignActionSetDepth );
+    }
+    //role set can be -1, if role subject assignment
+    if (this.roleSetDepth < -1) {
+      throw new RuntimeException("Why is role depth not initialized??? " + this.membershipDepth );
+    }
+    if (this.attributeDefNameSetDepth < 0) {
+      throw new RuntimeException("Why is attribute def name set depth not initialized??? " + this.attributeDefNameSetDepth );
+    }
+    return this.attributeAssignActionSetDepth == 0 && (this.roleSetDepth == -1 || this.roleSetDepth == 0) && this.attributeDefNameSetDepth == 0;
+  }
+  
+  /**
+   * id of the membership row
+   * @param membershipId1
+   */
+  public void setMembershipId(String membershipId1) {
+    this.membershipId = membershipId1;
+  }
+
+
+  /**
+   * id of the attribute assign row, either to the role, or to the role member pair
+   * @return id
+   */
+  public String getAttributeAssignId() {
+    return this.attributeAssignId;
+  }
+
+
+  /**
+   * id of the attribute assign row, either to the role, or to the role member pair
+   * @param attributeAssignId1
+   */
+  public void setAttributeAssignId(String attributeAssignId1) {
+    this.attributeAssignId = attributeAssignId1;
+  }
+  
 }

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -87,6 +88,16 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       .listSet(PermissionEntry.class);
   
     return permissionEntries;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO#findPermissions(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Collection, java.lang.Boolean, java.util.Collection)
+   */
+  public Set<PermissionEntry> findPermissions(Collection<String> attributeDefIds,
+      Collection<String> attributeDefNameIds, Collection<String> roleIds,
+      Collection<String> actions, Boolean enabled, Collection<String> memberIds) {
+    //TODO
+    return null;
   }
 
 

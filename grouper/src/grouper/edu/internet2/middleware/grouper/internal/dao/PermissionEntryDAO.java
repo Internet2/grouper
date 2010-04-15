@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao;
 
+import java.util.Collection;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
@@ -53,5 +54,27 @@ public interface PermissionEntryDAO extends GrouperDAO {
    */
   public boolean hasPermissionBySubjectIdSourceIdActionAttributeDefName(String subjectId, String sourceId, 
       String action, String attributeDefNameName);
+  
+  
+  /**
+   * securely search for assignments.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param roleIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @param memberIds
+   * @return the permissions
+   */
+  public Set<PermissionEntry> findPermissions(
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> roleIds, 
+      Collection<String> actions, 
+      Boolean enabled,
+      Collection<String> memberIds);
+
+  
 } 
 

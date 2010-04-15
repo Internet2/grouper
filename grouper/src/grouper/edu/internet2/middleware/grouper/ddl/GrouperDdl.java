@@ -226,6 +226,7 @@ public enum GrouperDdl implements DdlVersionable {
   /** add indexes on group attribute name cols */
   V15 {
     
+    @Override
     public void updateVersionFromPrevious(Database database, DdlVersionBean ddlVersionBean) {
 
       Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
@@ -1025,6 +1026,7 @@ public enum GrouperDdl implements DdlVersionable {
     /**
      * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
+    @Override
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
       
@@ -4848,7 +4850,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_id",
             "member_id", 
             "attribute_def_name_id",
-            "action_id"
+            "action_id",
+            "membership_depth",
+            "role_set_depth",
+            "attr_def_name_set_depth",
+            "attr_assign_action_set_depth",
+            "membership_id",
+            "attribute_assign_id",
+            "permission_type"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -4865,7 +4874,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
             "attribute_def_name_id: id of the attribute definition name",
-            "action_id: id of the attribute assign action"
+            "action_id: id of the attribute assign action",
+            "membership_depth: depth of membership, 0 is immediate",
+            "role_set_depth: depth of role hierarchy, 0 is immediate",
+            "attr_def_name_set_depth: depth of attribute def name set hierarchy, 0 is immediate",
+            "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
+            "membership_id: id of the underlying membership",
+            "attribute_assign_id: id of the underlying attribute assign",
+            "permission_type: role or role_subject for assignment to role or to role subject pair"
         ),
         "select distinct gr.name as role_name,  "
         + "gm.subject_source as subject_source_id,  "
@@ -4882,7 +4898,14 @@ public enum GrouperDdl implements DdlVersionable {
         + "gadn.attribute_def_id,  "
         + "gm.id as member_id,  "
         + "gadn.id as attribute_def_name_id,  "
-        + "gaaa.id as action_id "
+        + "gaaa.id as action_id, "
+        + "gmav.depth AS membership_depth, "
+        + "grs.depth AS role_set_depth, "
+        + "gadns.depth AS attr_def_name_set_depth, "
+        + "gaaas.depth AS attr_assign_action_set_depth, "
+        + "gmav.membership_id as membership_id, " 
+        + "gaa.id AS attribute_assign_id, "
+        + "'role' as permission_type "
         + "from grouper_groups gr,  "
         + "grouper_memberships_all_v gmav,  "
         + "grouper_members gm,  "
@@ -4929,7 +4952,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_id",
             "member_id", 
             "attribute_def_name_id",
-            "action_id"
+            "action_id",
+            "membership_depth",
+            "role_set_depth",
+            "attr_def_name_set_depth",
+            "attr_assign_action_set_depth",
+            "membership_id",
+            "attribute_assign_id",
+            "permission_type"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -4946,47 +4976,61 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
             "attribute_def_name_id: id of the attribute definition name",
-            "action_id: id of the attribute assign action"
+            "action_id: id of the attribute assign action",
+            "membership_depth: depth of membership, 0 is immediate",
+            "role_set_depth: depth of role hierarchy, 0 is immediate",
+            "attr_def_name_set_depth: depth of attribute def name set hierarchy, 0 is immediate",
+            "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
+            "membership_id: id of the underlying membership",
+            "attribute_assign_id: id of the underlying attribute assign",
+            "permission_type: role or role_subject for assignment to role or to role subject pair"
         ),
-        "select distinct gr.name as role_name,  "
-        + "gm.subject_source as subject_source_id,  "
-        + "gm.subject_id,  "
-        + "gaaa.name as action, "
-        + "gadn.name as attribute_def_name_name,  "
-        + "gadn.display_name as attribute_def_name_disp_name,  "
-        + "gr.display_name as role_display_name,  "
-        + "gaa.attribute_assign_delegatable, "
-        + "gaa.enabled, "
-        + "gaa.enabled_time, "
-        + "gaa.disabled_time, "
-        + "gr.id as role_id,  "
-        + "gadn.attribute_def_id,  "
-        + "gm.id as member_id,  "
-        + "gadn.id as attribute_def_name_id,  "
-        + "gaaa.id as action_id "
-        + "from grouper_groups gr,  "
-        + "grouper_memberships_all_v gmav,  "
-        + "grouper_members gm,  "
-        + "grouper_fields gf,  "
-        + "grouper_attribute_assign gaa,  "
-        + "grouper_attribute_def_name gadn,  "
-        + "grouper_attribute_def_name_set gadns,  "
-        + "grouper_attr_assign_action gaaa, "
-        + "grouper_attr_assign_action_set gaaas "
-        + "where gr.type_of_group = 'role'  "
-        + "and gmav.owner_group_id = gr.id  "
-        + "and gmav.field_id = gf.id  "
-        + "and gmav.owner_group_id = gaa.owner_group_id  "
-        + "and gmav.member_id = gaa.owner_member_id  "
-        + "and gf.type = 'list'  "
-        + "and gf.name = 'members'  "
-        + "and gmav.immediate_mship_enabled = 'T'  "
-        + "and gmav.member_id = gm.id  "
-        + "and gaa.attribute_assign_type = 'any_mem' "
-        + "and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id  "
-        + "and gadn.id = gadns.then_has_attribute_def_name_id "
-        + "and gaa.attribute_assign_action_id = gaaas.if_has_attr_assn_action_id "
-        + "and gaaa.id = gaaas.then_has_attr_assn_action_id ");
+        "SELECT DISTINCT gr.name AS role_name,   " +
+        "gm.subject_source AS subject_source_id,   " +
+        "gm.subject_id,   " +
+        "gaaa.name AS ACTION,  " +
+        "gadn.name AS attribute_def_name_name,   " +
+        "gadn.display_name AS attribute_def_name_disp_name,   " +
+        "gr.display_name AS role_display_name,   " +
+        "gaa.attribute_assign_delegatable,  " +
+        "gaa.enabled,  " +
+        "gaa.enabled_time,  " +
+        "gaa.disabled_time,  " +
+        "gr.id AS role_id,   " +
+        "gadn.attribute_def_id,   " +
+        "gm.id AS member_id,   " +
+        "gadn.id AS attribute_def_name_id,   " +
+        "gaaa.id AS action_id, " +
+        "gmav.depth AS membership_depth, " +
+        "-1 AS role_set_depth, " +
+        "gadns.depth AS attr_def_name_set_depth, " +
+        "gaaas.depth AS attr_assign_action_set_depth, " +
+        "gmav.membership_id as membership_id, " +
+        "gaa.id as attribute_assign_id, " +
+        "'role_subject' as permission_type " +
+        "FROM grouper_groups gr,   " +
+        "grouper_memberships_all_v gmav,   " +
+        "grouper_members gm,   " +
+        "grouper_fields gf,   " +
+        "grouper_attribute_assign gaa,   " +
+        "grouper_attribute_def_name gadn,   " +
+        "grouper_attribute_def_name_set gadns,   " +
+        "grouper_attr_assign_action gaaa,  " +
+        "grouper_attr_assign_action_set gaaas  " +
+        "WHERE gr.type_of_group = 'role'   " +
+        "and gmav.owner_group_id = gr.id  " +
+        "and gmav.field_id = gf.id  " +
+        "and gmav.owner_group_id = gaa.owner_group_id  " +
+        "AND gmav.member_id = gaa.owner_member_id   " +
+        "AND gf.type = 'list'   " +
+        "AND gf.name = 'members'   " +
+        "AND gmav.immediate_mship_enabled = 'T'   " +
+        "AND gmav.member_id = gm.id   " +
+        "AND gaa.attribute_assign_type = 'any_mem'  " +
+        "AND gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id   " +
+        "AND gadn.id = gadns.then_has_attribute_def_name_id  " +
+        "AND gaa.attribute_assign_action_id = gaaas.if_has_attr_assn_action_id  " +
+        "AND gaaa.id = gaaas.then_has_attr_assn_action_id  ");
 
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_perms_all_v", 
@@ -5006,7 +5050,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_id",
             "member_id", 
             "attribute_def_name_id",
-            "action_id"
+            "action_id",
+            "membership_depth",
+            "role_set_depth",
+            "attr_def_name_set_depth",
+            "attr_assign_action_set_depth",
+            "membership_id",
+            "attribute_assign_id",
+            "permission_type"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -5023,7 +5074,14 @@ public enum GrouperDdl implements DdlVersionable {
             "attribute_def_id: id of the attribute definition",
             "member_id: id of the subject in the members table",
             "attribute_def_name_id: id of the attribute definition name",
-            "action_id: id of the attribute assign action"
+            "action_id: id of the attribute assign action",
+            "membership_depth: depth of membership, 0 is immediate",
+            "role_set_depth: depth of role hierarchy, 0 is immediate",
+            "attr_def_name_set_depth: depth of attribute def name set hierarchy, 0 is immediate",
+            "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
+            "membership_id: id of the underlying membership",
+            "attribute_assign_id: id of the underlying attribute assign",
+            "permission_type: role or role_subject for assignment to role or to role subject pair"
         ),
         "select role_name,  "
         + "subject_source_id,  "
@@ -5040,7 +5098,14 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_def_id,  "
         + "member_id,  "
         + "attribute_def_name_id,  "
-        + "action_id "
+        + "action_id, "
+        + "membership_depth, "
+        + "role_set_depth, "
+        + "attr_def_name_set_depth, "
+        + "attr_assign_action_set_depth, "
+        + "membership_id, "
+        + "attribute_assign_id, "
+        + "permission_type "
         + "from grouper_perms_role_v  "
         + "union  "
         + "select role_name,  "
@@ -5058,7 +5123,14 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_def_id,  "
         + "member_id,  "
         + "attribute_def_name_id,  "
-        + "action_id "
+        + "action_id, "
+        + "membership_depth, "
+        + "role_set_depth, "
+        + "attr_def_name_set_depth, "
+        + "attr_assign_action_set_depth, "
+        + "membership_id, "
+        + "attribute_assign_id, "
+        + "permission_type "
         + "from grouper_perms_role_subject_v  ");
 
   }
