@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -69,6 +70,25 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     // TODO 20070823 are these the right element keys to use?
     Element el = this.cc.getCache(CACHE_HASPRIV).get(
         new MultiKey(attributeDef.getId(), subj, priv));
+    if (el != null) {
+      return (Boolean) el.getObjectValue();
+    }
+    return null;
+  }
+
+  /**
+   * 
+   * @param permissionEntry
+   * @param subj
+   * @param priv
+   * @return if has priv, or null if not known
+   */
+  @SuppressWarnings("unused")
+  private Boolean getFromHasPrivilegeCache(PermissionEntry permissionEntry, Subject subj,
+      Privilege priv) {
+    // TODO 20070823 are these the right element keys to use?
+    Element el = this.cc.getCache(CACHE_HASPRIV).get(
+        new MultiKey(permissionEntry.getAttributeDefId(), permissionEntry.getRoleId(), subj, priv));
     if (el != null) {
       return (Boolean) el.getObjectValue();
     }
@@ -349,6 +369,41 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     this.cc.flushCache();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     grouperSession.getAttributeDefResolver().flushCache();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PermissionEntry> postHqlFilterPermissions(Subject subject,
+      Set<PermissionEntry> permissionsEntries) {
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+
+    Set<PermissionEntry> filteredPermissions = decoratedResolver.postHqlFilterPermissions(
+        subject, permissionsEntries);
+
+    for (PermissionEntry permissionEntry : permissionsEntries) {
+      putInHasPrivilegeCache(permissionEntry, subject, AttributeDefPrivilege.ATTR_VIEW,
+          filteredPermissions.contains(permissionEntry));
+    }
+
+    return filteredPermissions;
+  }
+
+  /**
+   * Put boolean into cache for <code>hasPrivilege(...)</code>.
+   * @param permissionEntry 
+   * @param subj 
+   * @param priv 
+   * @param rv 
+   * @since   1.2.1
+   */
+  private void putInHasPrivilegeCache(PermissionEntry permissionEntry, Subject subj, Privilege priv, Boolean rv) {
+
+    //we care about the def id, and the roleId
+    this.cc.getCache(CACHE_HASPRIV).put(
+        new Element(new MultiKey(
+            permissionEntry.getAttributeDefId(), permissionEntry.getRoleId(), subj, priv), rv));
+    
   }
 
 }

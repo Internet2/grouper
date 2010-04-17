@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -19,6 +20,15 @@ import edu.internet2.middleware.subject.Subject;
  * Base class for attr def access adapter
  */
 public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#postHqlFilterPermissions(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PermissionEntry> postHqlFilterPermissions(GrouperSession grouperSession,
+      Subject subject, Set<PermissionEntry> permissionEntries) {
+    return PrivilegeHelper.canViewPermissions(grouperSession, permissionEntries);
+  }
 
   /**
    * 
@@ -63,7 +73,6 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
       Set<AttributeAssign> attributeAssigns) {
     return PrivilegeHelper.canViewAttributeAssigns(grouperSession, attributeAssigns, false);
   }
-  
-  
+
 
 }

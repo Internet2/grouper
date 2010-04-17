@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -184,6 +185,15 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
   public void revokeAllPrivilegesForSubject(Subject subject) {
     this.param.notNullSubject(subject);
     super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PermissionEntry> postHqlFilterPermissions(Subject subject,
+      Set<PermissionEntry> permissionsEntries) {
+    this.param.notNullSubject(subject);
+    return super.getDecoratedResolver().postHqlFilterPermissions(subject, permissionsEntries);
   }
 
 }

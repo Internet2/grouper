@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -275,5 +276,15 @@ public interface AttributeDefAdapter {
    * @param subject
    */
   public void revokeAllPrivilegesForSubject(GrouperSession grouperSession, Subject subject);
+
+  /**
+   * filter permissionEntries for things the subject can see, assume underlying assignments are ok to view
+   * @param grouperSession 
+   * @param permissionEntries
+   * @param subject
+   * @return the memberships
+   */
+  public Set<PermissionEntry> postHqlFilterPermissions(GrouperSession grouperSession, 
+      Subject subject, Set<PermissionEntry> permissionEntries);
 }
 

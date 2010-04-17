@@ -5,7 +5,9 @@
 package edu.internet2.middleware.grouper.permissions;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -19,8 +21,49 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 @SuppressWarnings("serial")
-public class PermissionEntry extends GrouperAPI {
+public class PermissionEntry extends GrouperAPI implements Comparable<PermissionEntry> {
+
   
+  
+  /**
+   * see if a permission is in the list of entries
+   * @param permissionEntries
+   * @param roleName
+   * @param attributeDefNameName
+   * @param action
+   * @param subjectSourceId
+   * @param subjectId
+   * @return true if the item is in the list
+   */
+  public static boolean collectionContains(Collection<PermissionEntry> permissionEntries, String roleName, 
+      String attributeDefNameName, String action, String subjectSourceId, String subjectId) {
+    return collectionFindFirst(permissionEntries, roleName, attributeDefNameName, action, subjectSourceId, subjectId) != null;
+  }
+    
+  /**
+   * find the first permission entry in the list of entries
+   * @param permissionEntries
+   * @param roleName
+   * @param attributeDefNameName
+   * @param action
+   * @param subjectSourceId
+   * @param subjectId
+   * @return true if the item is in the list
+   */
+  public static PermissionEntry collectionFindFirst(Collection<PermissionEntry> permissionEntries, String roleName, 
+      String attributeDefNameName, String action, String subjectSourceId, String subjectId) {
+    for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+      if (StringUtils.equals(roleName, permissionEntry.roleName)
+          && StringUtils.equals(attributeDefNameName, permissionEntry.attributeDefNameName)
+          && StringUtils.equals(action, permissionEntry.action)
+          && StringUtils.equals(subjectSourceId, permissionEntry.subjectSourceId)
+          && StringUtils.equals(subjectId, permissionEntry.subjectId)) {
+        return permissionEntry;
+      }
+    }
+    return null;
+  }
+    
   /** role which has the permission or which the subject must be in to have the permission */
   private String roleName;
   
@@ -362,10 +405,17 @@ public class PermissionEntry extends GrouperAPI {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
       .append( "roleName", this.roleName)
-      .append( "sourceId", this.subjectSourceId )
-      .append( "subjectId", this.subjectId )
       .append( "attributeDefNameName", this.attributeDefNameName )
       .append( "action", this.action )
+      .append( "sourceId", this.subjectSourceId )
+      .append( "subjectId", this.subjectId )
+      .append( "imm_mem", this.isImmediateMembership() )
+      .append( "imm_perm", this.isImmediatePermission() )
+      .append( "mem_depth", this.membershipDepth )
+      .append( "role_depth", this.roleSetDepth )
+      .append( "action_depth", this.attributeAssignActionSetDepth )
+      .append( "attrDef_depth", this.attributeDefNameSetDepth )
+      .append( "perm_type", this.getPermissionTypeDb() )
       .toString();
   }
 
@@ -587,14 +637,14 @@ public class PermissionEntry extends GrouperAPI {
   };
   
   /** type of permission, either assigned to role, or assigned to role and user combined: role_subject */
-  private String permissionTypeDb;
+  private PermissionType permissionType;
 
   /**
    * type of permission, either assigned to role, or assigned to role and user combined: role_subject
    * @return type of permission
    */
   public String getPermissionTypeDb() {
-    return this.permissionTypeDb;
+    return this.permissionType == null ? null : this.permissionType.name();
   }
 
   /**
@@ -602,7 +652,7 @@ public class PermissionEntry extends GrouperAPI {
    * @param permissionTypeDb1
    */
   public void setPermissionTypeDb(String permissionTypeDb1) {
-    this.permissionTypeDb = permissionTypeDb1;
+    this.permissionType = PermissionType.valueOfIgnoreCase(permissionTypeDb1, false);
   }
   
   /**
@@ -610,7 +660,7 @@ public class PermissionEntry extends GrouperAPI {
    * @return permission type
    */
   public PermissionType getPermissionType() {
-    return PermissionType.valueOfIgnoreCase(this.permissionTypeDb, false);
+    return permissionType;
   }
   
   /** id of the membership row */
@@ -680,6 +730,47 @@ public class PermissionEntry extends GrouperAPI {
    */
   public void setAttributeAssignId(String attributeAssignId1) {
     this.attributeAssignId = attributeAssignId1;
+  }
+
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(PermissionEntry o2) {
+    if (this == o2) {
+      return 0;
+    }
+    //lets by null safe here
+    if (o2 == null) {
+      return 1;
+    }
+    int compare;
+    
+    compare = GrouperUtil.compare(this.roleName, o2.roleName);
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.attributeDefNameName, o2.attributeDefNameName);
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.action, o2.action);
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.subjectSourceId, o2.subjectSourceId);
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.subjectId, o2.subjectId);
+    if (compare != 0) {
+      return compare;
+    }
+    compare = GrouperUtil.compare(this.membershipId, o2.membershipId);
+    if (compare != 0) {
+      return compare;
+    }
+    return GrouperUtil.compare(this.attributeAssignId, o2.attributeAssignId);
   }
   
 }

@@ -41,6 +41,8 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -955,6 +957,35 @@ public class PrivilegeHelper {
       }
     }
     return attributeAssigns;
+  }
+
+  /**
+   * see if the attribute assigns are viewable
+   * @param grouperSession 
+   * @param inputPermissionEntries 
+   * @return filtered memberships
+   * 
+   */
+  public static Set<PermissionEntry> canViewPermissions(GrouperSession grouperSession, Collection<PermissionEntry> inputPermissionEntries) {
+    
+    if (inputPermissionEntries == null) {
+      return null;
+    }
+    
+    Set<PermissionEntry> permissionEntries  = new LinkedHashSet<PermissionEntry>();
+    
+    for (PermissionEntry permissionEntry : inputPermissionEntries) {
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(permissionEntry.getRoleId(), true);
+      if (!canRead(grouperSession, group, grouperSession.getSubject())) {
+        continue;
+      }      
+      AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(permissionEntry.getAttributeDefId(), true);
+      if (!canAttrRead(grouperSession, attributeDef, grouperSession.getSubject())) {
+        continue;
+      }
+      permissionEntries.add(permissionEntry);
+    }
+    return permissionEntries;
   }
 
 }

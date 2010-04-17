@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -94,6 +95,16 @@ public class GrouperAttributeDefAdapter extends GrouperNonDbAttrDefAdapter {
   public Set<AttributeAssign> postHqlFilterAttributeAssigns(GrouperSession grouperSession,
       Subject subject, Set<AttributeAssign> attributeAssigns) {
     return attributeAssigns;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.BaseAttrDefAdapter#postHqlFilterPermissions(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Set<PermissionEntry> postHqlFilterPermissions(GrouperSession grouperSession,
+      Subject subject, Set<PermissionEntry> permissionEntries) {
+    return permissionEntries;
   }
 
 }

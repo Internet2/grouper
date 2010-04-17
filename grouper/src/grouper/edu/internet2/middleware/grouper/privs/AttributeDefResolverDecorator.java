@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -150,6 +151,14 @@ public abstract class AttributeDefResolverDecorator implements AttributeDefResol
     return this.getDecoratedResolver().postHqlFilterAttrDefs(attributeDefs, subject, privInSet);
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PermissionEntry> postHqlFilterPermissions(Subject subject,
+      Set<PermissionEntry> permissionsEntries) {
+    return this.getDecoratedResolver().postHqlFilterPermissions(subject, permissionsEntries);
+  }
 
   /**
    * 

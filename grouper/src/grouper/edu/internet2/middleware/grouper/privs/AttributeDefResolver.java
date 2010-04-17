@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -97,7 +98,7 @@ public interface AttributeDefResolver {
    * @param uuid is uuid or null for assigned
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be granted.
-   * @see     AttributeDefAdapter#grantPriv(GrouperSession, AttributeDef, Subject, Privilege)
+   * @see     AttributeDefAdapter#grantPriv(GrouperSession, AttributeDef, Subject, Privilege, String)
    * @since   1.2.1
    */
   void grantPrivilege(AttributeDef attributeDef, Subject subject, Privilege privilege, String uuid)
@@ -207,6 +208,15 @@ public interface AttributeDefResolver {
    */
   public Set<AttributeAssign> postHqlFilterAttributeAssigns(
       Subject subject, Set<AttributeAssign> attributeAssigns);
+
+  /**
+   * filter permissions for things the subject can see
+   * @param permissionsEntries
+   * @param subject
+   * @return the memberships
+   */
+  public Set<PermissionEntry> postHqlFilterPermissions(
+      Subject subject, Set<PermissionEntry> permissionsEntries);
 
   /**
    * Revoke all attrDef privileges that this subject has.

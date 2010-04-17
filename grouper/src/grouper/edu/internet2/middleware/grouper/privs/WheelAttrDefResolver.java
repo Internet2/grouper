@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -271,12 +272,25 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
   public Set<AttributeAssign> postHqlFilterAttributeAssigns(Subject subject,
       Set<AttributeAssign> attributeAssigns) {
 
-    //Wheel can see all memberships
+    //Wheel can see all attribute assigns
     if (this.isAndUseWheel(subject)) {
       return attributeAssigns;
     }
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.postHqlFilterAttributeAssigns(subject, attributeAssigns);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PermissionEntry> postHqlFilterPermissions(Subject subject,
+      Set<PermissionEntry> permissionsEntries) {
+    //Wheel can see all memberships
+    if (this.isAndUseWheel(subject)) {
+      return permissionsEntries;
+    }
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.postHqlFilterPermissions(subject, permissionsEntries);
   }
 
 }

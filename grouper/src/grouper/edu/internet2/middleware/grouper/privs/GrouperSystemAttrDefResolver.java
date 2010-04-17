@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.subject.Subject;
 
@@ -134,6 +135,19 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.postHqlFilterAttributeAssigns(subject, attributeAssigns);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#postHqlFilterPermissions(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<PermissionEntry> postHqlFilterPermissions(Subject subject,
+      Set<PermissionEntry> permissionsEntries) {
+    if (SubjectHelper.eq(this.root, subject)) {
+      return permissionsEntries;
+    }
+
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.postHqlFilterPermissions(subject, permissionsEntries);
   }
 
 }
