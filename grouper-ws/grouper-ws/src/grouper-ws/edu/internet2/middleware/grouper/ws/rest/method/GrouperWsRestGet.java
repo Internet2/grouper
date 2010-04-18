@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
@@ -109,7 +111,7 @@ public enum GrouperWsRestGet {
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
      * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeAssignments
-     * the urlStrings would be size one: {"attributes"}
+     * the urlStrings would be size one: {"attributeAssignments"}
      * @param requestObject is the request body converted to object
      * @return the result object
      */
@@ -127,14 +129,14 @@ public enum GrouperWsRestGet {
 
       if (requestObject instanceof WsRestGetAttributeAssignmentsRequest) {
 
-        //get attributes
-        return GrouperServiceRest.getAttributes(clientVersion,
+        //get attributeAssignments
+        return GrouperServiceRest.getAttributeAssignments(clientVersion,
             (WsRestGetAttributeAssignmentsRequest)requestObject);
         
       } else if (requestObject instanceof WsRestGetAttributeAssignmentsLiteRequest) {
         
-        //get attributes
-        return GrouperServiceRest.getAttributesLite(clientVersion,
+        //get attributeAssignments
+        return GrouperServiceRest.getAttributeAssignmentsLite(clientVersion,
             (WsRestGetAttributeAssignmentsLiteRequest)requestObject);
 
       } else {
@@ -320,6 +322,52 @@ public enum GrouperWsRestGet {
             + ", must be a WsRestGetMembershipsLiteRequest or WsRestGetMembershipsRequest");
       }
 
+      
+    }
+  
+  }, 
+  
+  /** permission get requests */
+  permissionAssignments{
+  
+    /**
+     * handle the incoming request based on GET HTTP method and group resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/permissionAssignments
+     * the urlStrings would be size one: {"permissionAssignments"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperWsVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+  
+      //url should be: /xhtml/v1_3_000/permissionAssignments
+      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
+      
+      if (!StringUtils.isBlank(somethingElse)) {
+        throw new RuntimeException("Cant pass anything after 'permissionAssignments' in URL");
+      }
+  
+      if (requestObject instanceof WsRestGetPermissionAssignmentsRequest) {
+  
+        //get permissions
+        return GrouperServiceRest.getPermissionAssignments(clientVersion,
+            (WsRestGetPermissionAssignmentsRequest)requestObject);
+        
+      } else if (requestObject instanceof WsRestGetPermissionAssignmentsLiteRequest) {
+        
+        //get permissions
+        return GrouperServiceRest.getPermissionAssignmentsLite(clientVersion,
+            (WsRestGetPermissionAssignmentsLiteRequest)requestObject);
+  
+      } else {
+        throw new RuntimeException("Must pass in a request object of type " 
+            + WsRestGetPermissionAssignmentsRequest.class.getSimpleName() + " or "
+            + WsRestGetPermissionAssignmentsLiteRequest.class.getSimpleName());
+      }
       
     }
   

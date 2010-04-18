@@ -2989,7 +2989,7 @@ public class GrouperService {
    */
   @SuppressWarnings("unchecked")
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
-      final String clientVersion, String attributeAssignType,
+      String clientVersion, String attributeAssignType,
       String attributeAssignId,
       String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
       String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId, 
@@ -3267,74 +3267,183 @@ public class GrouperService {
   
   }
 
-//  /**
-//   * get attributeAssignments from groups etc based on inputs
-//   * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
-//   * group, member, stem, any_mem, imm_mem, attr_def, NOT: group_asgn, NOT: mem_asgn, 
-//   * NOT: stem_asgn, NOT: any_mem_asgn, NOT: imm_mem_asgn, NOT: attr_def_asgn  
-//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-//   * @param roleLookups are roles to look in
-//   * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
-//   * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
-//   * @param includeAttributeDefNames T or F for if attributeDefName objects should be returned
-//   * @param includeAttributeAssignments T or F for it attribute assignments should be returned
-//   * @param actions to query, or none to query all actions
-//   * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
-//   * and assignments on those assignments should be returned, enter true.  default to false.
-//   * @param includePermissionAssignmentDetail T or F for if the permission details should be returned
-//   * @param includeSubjectDetail
-//   *            T|F, for if the extended subject information should be
-//   *            returned (anything more than just the id)
-//   * @param actAsSubjectLookup
-//   * @param subjectAttributeNames are the additional subject attributes (data) to return.
-//   * If blank, whatever is configured in the grouper-ws.properties will be sent
-//   * @param includeGroupDetail T or F as to if the group detail should be returned
-//   * @param params optional: reserved for future use
-//   * @param enabled is A for all, T or null for enabled only, F for disabled 
-//   * @return the results
-//   */
-//  @SuppressWarnings("unchecked")
-//  public WsGetAttributeAssignmentsResults getPermissionAssignments(
-//      String clientVersion, String attributeAssignType,
-//      WsAttributeAssignLookup[] wsAttributeAssignLookups,
-//      WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
-//      WsGroupLookup[] roleLookups, WsStemLookup[] wsOwnerStemLookups, WsSubjectLookup[] wsOwnerSubjectLookups, 
-//      WsMembershipLookup[] wsOwnerMembershipLookups, WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups, 
-//      WsAttributeDefLookup[] wsOwnerAttributeDefLookups, 
-//      String[] actions, String includeAttributeDefNames, String includeAttributeAssignments,
-//      String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
-//      String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
-//      String enabled) {  
-//  
-//    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
-//  
-//    try {
-//  
-//      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
-//          includeGroupDetail, false, "includeGroupDetail");
-//  
-//      boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
-//          includeSubjectDetail, false, "includeSubjectDetail");
-//  
-//      boolean includeAssignmentsOnAssignmentsBoolean = GrouperServiceUtils.booleanValue(
-//          includeAssignmentsOnAssignments, false, "includeAssignmentsOnAssignments");
-//  
-//      AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.convertAttributeAssignType(attributeAssignType);
-//      
-//      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
-//          clientVersion, true);
-//  
-////      wsGetPermissionAssignmentsResults = GrouperServiceLogic.getAttributeAssignments(grouperWsVersion, attributeAssignTypeEnum, wsAttributeAssignLookups, wsAttributeDefLookups, wsAttributeDefNameLookups, wsOwnerGroupLookups, wsOwnerStemLookups, wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, actions, includeAssignmentsOnAssignmentsBoolean, actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled);
-//  
-//    } catch (Exception e) {
-//      wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);
-//    }
-//  
-//    //set response headers
-//    GrouperServiceUtils.addResponseHeaders(wsGetPermissionAssignmentsResults.getResultMetadata(), this.soap);
-//  
-//    //this should be the first and only return, or else it is exiting too early
-//    return wsGetPermissionAssignmentsResults; 
-//  
-//  }
+  /**
+   * get permissionAssignments from roles etc based on inputs
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param roleLookups are roles to look in
+   * @param wsSubjectLookups are subjects to look in
+   * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
+   * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
+   * @param actions to query, or none to query all actions
+   * @param includeAttributeDefNames T or F for if attributeDefName objects should be returned
+   * @param includeAttributeAssignments T or F for it attribute assignments should be returned
+   * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
+   * and assignments on those assignments should be returned, enter true.  default to false.
+   * @param includePermissionAssignDetail T or F for if the permission details should be returned
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectLookup
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsGetPermissionAssignmentsResults getPermissionAssignments(
+      String clientVersion, 
+      WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
+      WsGroupLookup[] roleLookups, WsSubjectLookup[] wsSubjectLookups, 
+      String[] actions, String includePermissionAssignDetail,
+      String includeAttributeDefNames, String includeAttributeAssignments,
+      String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
+      String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params, 
+      String enabled) {  
+  
+    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
+  
+    try {
+  
+      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeGroupDetail, false, "includeGroupDetail");
+  
+      boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeSubjectDetail, false, "includeSubjectDetail");
+  
+      boolean includeAssignmentsOnAssignmentsBoolean = GrouperServiceUtils.booleanValue(
+          includeAssignmentsOnAssignments, false, "includeAssignmentsOnAssignments");
+  
+      boolean includePermissionAssignDetailBoolean = GrouperServiceUtils.booleanValue(
+          includePermissionAssignDetail, false, "includePermissionAssignDetail");
+  
+      boolean includeAttributeDefNamesBoolean = GrouperServiceUtils.booleanValue(
+          includeAttributeDefNames, false, "includeAttributeDefNames");
+  
+      boolean includeAttributeAssignmentsBoolean = GrouperServiceUtils.booleanValue(
+          includeAttributeAssignments, false, "includeAttributeAssignments");
+  
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(grouperWsVersion, wsAttributeDefLookups, 
+          wsAttributeDefNameLookups, roleLookups, wsSubjectLookups, actions, includePermissionAssignDetailBoolean, 
+          includeAttributeDefNamesBoolean, includeAttributeAssignmentsBoolean, includeAssignmentsOnAssignmentsBoolean, 
+          actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled);
+  
+    } catch (Exception e) {
+      wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsGetPermissionAssignmentsResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsGetPermissionAssignmentsResults; 
+  
+  }
+
+  /**
+   * get permissionAssignments from role etc based on inputs
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param roleName is role to look in
+   * @param roleId is role to look in
+   * @param wsAttributeDefName find assignments in this attribute def (optional)
+   * @param wsAttributeDefId find assignments in this attribute def (optional)
+   * @param wsAttributeDefNameName find assignments in this attribute def name (optional)
+   * @param wsAttributeDefNameId find assignments in this attribute def name (optional)
+   * @param wsSubjectId is subject to look in
+   * @param wsSubjectSourceId is subject to look in
+   * @param wsSubjectIdentifier is subject to look in
+   * @param action to query, or none to query all actions
+   * @param includeAttributeDefNames T or F for if attributeDefName objects should be returned
+   * @param includeAttributeAssignments T or F for it attribute assignments should be returned
+   * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
+   * and assignments on those assignments should be returned, enter true.  default to false.
+   * @param includePermissionAssignDetail T or F for if the permission details should be returned
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectId act as this subject (if allowed)
+   * @param actAsSubjectSourceId act as this subject (if allowed)
+   * @param actAsSubjectIdentifier act as this subject (if allowed)
+   * @param subjectAttributeNames are the additional subject attributes (data) to return (comma separated)
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
+      String clientVersion, 
+      String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
+      String roleName, String roleId, 
+      String wsSubjectId, String wsSubjectSourceId, String wsSubjectIdentifier,
+      String action, String includePermissionAssignDetail,
+      String includeAttributeDefNames, String includeAttributeAssignments,
+      String includeAssignmentsOnAssignments, String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, String includeSubjectDetail,
+      String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
+      String paramName1, String paramValue1, String enabled) {  
+  
+    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
+    
+    try {
+  
+      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeGroupDetail, false, "includeGroupDetail");
+  
+      boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeSubjectDetail, false, "includeSubjectDetail");
+  
+      boolean includeAssignmentsOnAssignmentsBoolean = GrouperServiceUtils.booleanValue(
+          includeAssignmentsOnAssignments, false, "includeAssignmentsOnAssignments");
+  
+      boolean includePermissionAssignDetailBoolean = GrouperServiceUtils.booleanValue(
+          includePermissionAssignDetail, false, "includePermissionAssignDetail");
+  
+      boolean includeAttributeDefNamesBoolean = GrouperServiceUtils.booleanValue(
+          includeAttributeDefNames, false, "includeAttributeDefNames");
+  
+      boolean includeAttributeAssignmentsBoolean = GrouperServiceUtils.booleanValue(
+          includeAttributeAssignments, false, "includeAttributeAssignments");
+      
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignmentsLite(
+          grouperWsVersion, wsAttributeDefName, 
+          wsAttributeDefId, wsAttributeDefNameName, wsAttributeDefNameId, roleName, 
+          roleId, wsSubjectId, wsSubjectSourceId, 
+          wsSubjectIdentifier, action, includePermissionAssignDetailBoolean, 
+          includeAttributeDefNamesBoolean, includeAttributeAssignmentsBoolean, 
+          includeAssignmentsOnAssignmentsBoolean, actAsSubjectId, actAsSubjectSourceId,
+          actAsSubjectIdentifier, includeSubjectDetailBoolean, 
+          subjectAttributeNames, includeGroupDetailBoolean, paramName0, 
+          paramValue0, paramName1, paramValue1, enabled );
+  
+    } catch (Exception e) {
+      wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsGetPermissionAssignmentsResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsGetPermissionAssignmentsResults; 
+  
+  
+    
+  
+  }
+
 }

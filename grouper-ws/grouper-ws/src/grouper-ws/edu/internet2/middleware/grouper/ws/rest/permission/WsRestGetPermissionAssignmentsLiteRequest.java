@@ -2,17 +2,19 @@
  * @author mchyzer
  * $Id$
  */
-package edu.internet2.middleware.grouper.ws.rest.attribute;
+package edu.internet2.middleware.grouper.ws.rest.permission;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
 
 /**
- * Bean for rest request to get attributes lite
+ * Bean for rest request to get permissions lite
  */
-public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
+public class WsRestGetPermissionAssignmentsLiteRequest implements WsRequestBean {
 
+
+  
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
    */
@@ -40,48 +42,6 @@ public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
     this.clientVersion = clientVersion1;
   }
 
-  /** is the attribute assign type we are looking for */
-  private String attributeAssignType;
-
-  
-  
-  /**
-   * is the attribute assign type we are looking for
-   * @return attribute assign type
-   */
-  public String getAttributeAssignType() {
-    return this.attributeAssignType;
-  }
-  
-  /**
-   * is the attribute assign type we are looking for
-   * @param attributeAssignType1
-   */
-  public void setAttributeAssignType(String attributeAssignType1) {
-    this.attributeAssignType = attributeAssignType1;
-  }
-  
-  /** attributeAssignId if you know the assign id you want, put it here */
-  private String attributeAssignId;
-  
-  
-  
-  /**
-   * attributeAssignId if you know the assign id you want, put it here
-   * @return attributeAssignId
-   */
-  public String getAttributeAssignId() {
-    return this.attributeAssignId;
-  }
-
-  /**
-   * attributeAssignId if you know the assign id you want, put it here
-   * @param attributeAssignId1
-   */
-  public void setAttributeAssignId(String attributeAssignId1) {
-    this.attributeAssignId = attributeAssignId1;
-  }
-  
   /** find assignments in this attribute def (optional) */
   private String wsAttributeDefName;
   
@@ -162,93 +122,54 @@ public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
     this.wsAttributeDefNameId = wsAttributeDefNameId1;
   }
 
-  /** is group name to look in */
-  private String wsOwnerGroupName;
+  /** is role to look in */
+  private String roleName;
   
-  /** is group id to look in */
-  private String wsOwnerGroupId;
+  /** is role to look in */
+  private String roleId;
   
   
   
   /**
-   * is group name to look in
+   * is role to look in
    * @return group name
    */
-  public String getWsOwnerGroupName() {
-    return this.wsOwnerGroupName;
+  public String getRoleName() {
+    return this.roleName;
   }
 
   /**
-   * is group name to look in
+   * is role to look in
    * @param wsOwnerGroupName1
    */
-  public void setWsOwnerGroupName(String wsOwnerGroupName1) {
-    this.wsOwnerGroupName = wsOwnerGroupName1;
+  public void setRoleName(String wsOwnerGroupName1) {
+    this.roleName = wsOwnerGroupName1;
   }
 
   /**
-   * is group id to look in
+   * is role to look in
    * @return group id
    */
-  public String getWsOwnerGroupId() {
-    return this.wsOwnerGroupId;
+  public String getRoleId() {
+    return this.roleId;
   }
 
   /**
-   * is group id to look in
+   * is role to look in
    * @param wsOwnerGroupId1
    */
-  public void setWsOwnerGroupId(String wsOwnerGroupId1) {
-    this.wsOwnerGroupId = wsOwnerGroupId1;
-  }
-
-  /** is stem to look in */
-  private String wsOwnerStemName;
-  
-  /** is stem to look in */
-  private String wsOwnerStemId; 
-  
-  
-  /**
-   * is stem to look in
-   * @return stem
-   */
-  public String getWsOwnerStemName() {
-    return this.wsOwnerStemName;
-  }
-
-  /**
-   * is stem to look in
-   * @param wsOwnerStemName1
-   */
-  public void setWsOwnerStemName(String wsOwnerStemName1) {
-    this.wsOwnerStemName = wsOwnerStemName1;
-  }
-
-  /**
-   * is stem to look in
-   * @return stem
-   */
-  public String getWsOwnerStemId() {
-    return this.wsOwnerStemId;
-  }
-
-  /**
-   * is stem to look in
-   * @param wsOwnerStemId1
-   */
-  public void setWsOwnerStemId(String wsOwnerStemId1) {
-    this.wsOwnerStemId = wsOwnerStemId1;
+  public void setRoleId(String wsOwnerGroupId1) {
+    this.roleId = wsOwnerGroupId1;
   }
 
   /** is subject to look in */
-  private String wsOwnerSubjectId;
+  private String wsSubjectId;
 
   /** is subject to look in */
-  private String wsOwnerSubjectSourceId;
+  private String wsSubjectSourceId;
   
   /** is subject to look in */
-  private String wsOwnerSubjectIdentifier;
+  private String wsSubjectIdentifier;
   
   
   
@@ -256,208 +177,48 @@ public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
    * is subject to look in
    * @return subject
    */
-  public String getWsOwnerSubjectId() {
-    return this.wsOwnerSubjectId;
+  public String getWsSubjectId() {
+    return this.wsSubjectId;
   }
 
   /**
    * is subject to look in
    * @param wsOwnerSubjectId1
    */
-  public void setWsOwnerSubjectId(String wsOwnerSubjectId1) {
-    this.wsOwnerSubjectId = wsOwnerSubjectId1;
+  public void setWsSubjectId(String wsOwnerSubjectId1) {
+    this.wsSubjectId = wsOwnerSubjectId1;
   }
 
   /**
    * is subject to look in
    * @return subject
    */
-  public String getWsOwnerSubjectSourceId() {
-    return this.wsOwnerSubjectSourceId;
+  public String getWsSubjectSourceId() {
+    return this.wsSubjectSourceId;
   }
 
   /**
    * is subject to look in
    * @param wsOwnerSubjectSourceId1
    */
-  public void setWsOwnerSubjectSourceId(String wsOwnerSubjectSourceId1) {
-    this.wsOwnerSubjectSourceId = wsOwnerSubjectSourceId1;
+  public void setWsSubjectSourceId(String wsOwnerSubjectSourceId1) {
+    this.wsSubjectSourceId = wsOwnerSubjectSourceId1;
   }
 
   /**
    * is subject to look in
    * @return subject
    */
-  public String getWsOwnerSubjectIdentifier() {
-    return this.wsOwnerSubjectIdentifier;
+  public String getWsSubjectIdentifier() {
+    return this.wsSubjectIdentifier;
   }
 
   /**
    * is subject to look in
    * @param wsOwnerSubjectIdentifier1
    */
-  public void setWsOwnerSubjectIdentifier(String wsOwnerSubjectIdentifier1) {
-    this.wsOwnerSubjectIdentifier = wsOwnerSubjectIdentifier1;
-  }
-
-  /**
-   * to query attributes on immediate membership
-   */
-  private String wsOwnerMembershipId;
-  
-  /**
-   * to query attributes on immediate membership
-   * @return membership id
-   */
-  public String getWsOwnerMembershipId() {
-    return this.wsOwnerMembershipId;
-  }
-
-  /**
-   * to query attributes on immediate membership
-   * @param wsOwnerMembershipId1
-   */
-  public void setWsOwnerMembershipId(String wsOwnerMembershipId1) {
-    this.wsOwnerMembershipId = wsOwnerMembershipId1;
-  }
-
-  /** to query attributes in "any" membership which is on immediate or effective membership */
-  private String wsOwnerMembershipAnyGroupName;
-  
-  /** to query attributes in "any" membership which is on immediate or effective membership */
-  private String wsOwnerMembershipAnyGroupId;
-  
-  /** to query attributes in "any" membership which is on immediate or effective membership */
-  private String wsOwnerMembershipAnySubjectId;
-  
-  /** to query attributes in "any" membership which is on immediate or effective membership */
-  private String wsOwnerMembershipAnySubjectSourceId;
-  
-  /** to query attributes in "any" membership which is on immediate or effective membership */
-  private String wsOwnerMembershipAnySubjectIdentifier;
-
-  
-  
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @return owner membership
-   */
-  public String getWsOwnerMembershipAnyGroupName() {
-    return this.wsOwnerMembershipAnyGroupName;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @param wsOwnerMembershipAnyGroupName1
-   */
-  public void setWsOwnerMembershipAnyGroupName(String wsOwnerMembershipAnyGroupName1) {
-    this.wsOwnerMembershipAnyGroupName = wsOwnerMembershipAnyGroupName1;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @return any membership
-   */
-  public String getWsOwnerMembershipAnyGroupId() {
-    return this.wsOwnerMembershipAnyGroupId;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @param wsOwnerMembershipAnyGroupId1
-   */
-  public void setWsOwnerMembershipAnyGroupId(String wsOwnerMembershipAnyGroupId1) {
-    this.wsOwnerMembershipAnyGroupId = wsOwnerMembershipAnyGroupId1;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @return any membership
-   */
-  public String getWsOwnerMembershipAnySubjectId() {
-    return this.wsOwnerMembershipAnySubjectId;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @param wsOwnerMembershipAnySubjectId1
-   */
-  public void setWsOwnerMembershipAnySubjectId(String wsOwnerMembershipAnySubjectId1) {
-    this.wsOwnerMembershipAnySubjectId = wsOwnerMembershipAnySubjectId1;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @return any membership
-   */
-  public String getWsOwnerMembershipAnySubjectSourceId() {
-    return this.wsOwnerMembershipAnySubjectSourceId;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @param wsOwnerMembershipAnySubjectSourceId1
-   */
-  public void setWsOwnerMembershipAnySubjectSourceId(
-      String wsOwnerMembershipAnySubjectSourceId1) {
-    this.wsOwnerMembershipAnySubjectSourceId = wsOwnerMembershipAnySubjectSourceId1;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @return any membership
-   */
-  public String getWsOwnerMembershipAnySubjectIdentifier() {
-    return this.wsOwnerMembershipAnySubjectIdentifier;
-  }
-
-  /**
-   * to query attributes in "any" membership which is on immediate or effective membership
-   * @param wsOwnerMembershipAnySubjectIdentifier1
-   */
-  public void setWsOwnerMembershipAnySubjectIdentifier(
-      String wsOwnerMembershipAnySubjectIdentifier1) {
-    this.wsOwnerMembershipAnySubjectIdentifier = wsOwnerMembershipAnySubjectIdentifier1;
-  }
-
-  /**  to query attributes assigned on attribute def */
-  private String wsOwnerAttributeDefName;
-  
-  /**  to query attributes assigned on attribute def */
-  private String wsOwnerAttributeDefId;
-  
-  
-  
-  /**
-   *  to query attributes assigned on attribute def
-   * @return attr def
-   */
-  public String getWsOwnerAttributeDefName() {
-    return this.wsOwnerAttributeDefName;
-  }
-
-  /**
-   *  to query attributes assigned on attribute def
-   * @param wsOwnerAttributeDefName1
-   */
-  public void setWsOwnerAttributeDefName(String wsOwnerAttributeDefName1) {
-    this.wsOwnerAttributeDefName = wsOwnerAttributeDefName1;
-  }
-
-  /**
-   *  to query attributes assigned on attribute def
-   * @return attr def
-   */
-  public String getWsOwnerAttributeDefId() {
-    return this.wsOwnerAttributeDefId;
-  }
-
-  /**
-   *  to query attributes assigned on attribute def
-   * @param wsOwnerAttributeDefId1
-   */
-  public void setWsOwnerAttributeDefId(String wsOwnerAttributeDefId1) {
-    this.wsOwnerAttributeDefId = wsOwnerAttributeDefId1;
+  public void setWsSubjectIdentifier(String wsOwnerSubjectIdentifier1) {
+    this.wsSubjectIdentifier = wsOwnerSubjectIdentifier1;
   }
 
   /** action to query, or none to query all actions */
@@ -706,6 +467,15 @@ public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
   /** is A for all, T or null for enabled only, F for disabled  */
   private String enabled;
 
+  /** T or F for it attribute assignments should be returned */
+  private String includeAttributeAssignments;
+
+  /** T or F for if attributeDefName objects should be returned */
+  private String includeAttributeDefNames;
+
+  /** T or F for if the permission details should be returned */
+  private String includePermissionAssignDetail;
+
   /**
    * is A for all, T or null for enabled only, F for disabled 
    * @return enabled
@@ -720,6 +490,54 @@ public class WsRestGetAttributeAssignmentsLiteRequest implements WsRequestBean {
    */
   public void setEnabled(String enabled1) {
     this.enabled = enabled1;
+  }
+
+  /**
+   * T or F for it attribute assignments should be returned
+   * @return include attribute assignments
+   */
+  public String getIncludeAttributeAssignments() {
+    return this.includeAttributeAssignments;
+  }
+
+  /**
+   * T or F for if attributeDefName objects should be returned
+   * @return the attributeDefName
+   */
+  public String getIncludeAttributeDefNames() {
+    return this.includeAttributeDefNames;
+  }
+
+  /**
+   * T or F for if the permission details should be returned
+   * @return T or F
+   */
+  public String getIncludePermissionAssignDetail() {
+    return this.includePermissionAssignDetail;
+  }
+
+  /**
+   * T or F for it attribute assignments should be returned
+   * @param includeAttributeAssignments1
+   */
+  public void setIncludeAttributeAssignments(String includeAttributeAssignments1) {
+    this.includeAttributeAssignments = includeAttributeAssignments1;
+  }
+
+  /**
+   * T or F for if attributeDefName objects should be returned
+   * @param includeAttributeDefNames1
+   */
+  public void setIncludeAttributeDefNames(String includeAttributeDefNames1) {
+    this.includeAttributeDefNames = includeAttributeDefNames1;
+  }
+
+  /**
+   * T or F for if the permission details should be returned
+   * @param includePermissionAssignDetail1
+   */
+  public void setIncludePermissionAssignDetail(String includePermissionAssignDetail1) {
+    this.includePermissionAssignDetail = includePermissionAssignDetail1;
   }
   
   

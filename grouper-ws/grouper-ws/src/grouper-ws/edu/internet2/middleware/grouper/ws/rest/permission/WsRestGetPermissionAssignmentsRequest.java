@@ -2,25 +2,80 @@
  * @author mchyzer
  * $Id$
  */
-package edu.internet2.middleware.grouper.ws.rest.attribute;
+package edu.internet2.middleware.grouper.ws.rest.permission;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 
 
 /**
- * Bean for rest request to get attributes
+ * Bean for rest request to get permissions
  */
-public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
+public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
+
+  /** T or F for if attributeDefName objects should be returned */
+  private String includeAttributeDefNames;
+  
+  /**
+   * T or F for if attributeDefName objects should be returned
+   * @return the attributeDefName
+   */
+  public String getIncludeAttributeDefNames() {
+    return this.includeAttributeDefNames;
+  }
+
+  /**
+   * T or F for if attributeDefName objects should be returned
+   * @param includeAttributeDefNames1
+   */
+  public void setIncludeAttributeDefNames(String includeAttributeDefNames1) {
+    this.includeAttributeDefNames = includeAttributeDefNames1;
+  }
+
+  /** T or F for if the permission details should be returned */
+  private String includePermissionAssignDetail;
+  
+  
+  
+  /**
+   * T or F for if the permission details should be returned
+   * @return T or F
+   */
+  public String getIncludePermissionAssignDetail() {
+    return this.includePermissionAssignDetail;
+  }
+
+  /**
+   * T or F for if the permission details should be returned
+   * @param includePermissionAssignDetail1
+   */
+  public void setIncludePermissionAssignDetail(String includePermissionAssignDetail1) {
+    this.includePermissionAssignDetail = includePermissionAssignDetail1;
+  }
+
+  /** T or F for it attribute assignments should be returned */
+  private String includeAttributeAssignments;
+  
+  /**
+   * T or F for it attribute assignments should be returned
+   * @return include attribute assignments
+   */
+  public String getIncludeAttributeAssignments() {
+    return this.includeAttributeAssignments;
+  }
+
+  /**
+   * T or F for it attribute assignments should be returned
+   * @param includeAttributeAssignments1
+   */
+  public void setIncludeAttributeAssignments(String includeAttributeAssignments1) {
+    this.includeAttributeAssignments = includeAttributeAssignments1;
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
@@ -46,44 +101,6 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    */
   public void setClientVersion(String clientVersion1) {
     this.clientVersion = clientVersion1;
-  }
-
-  /** is the attribute assign type we are looking for */
-  private String attributeAssignType;
-  
-  /**
-   * is the attribute assign type we are looking for
-   * @return attribute assign type
-   */
-  public String getAttributeAssignType() {
-    return this.attributeAssignType;
-  }
-
-  /**
-   * is the attribute assign type we are looking for
-   * @param attributeAssignType1
-   */
-  public void setAttributeAssignType(String attributeAssignType1) {
-    this.attributeAssignType = attributeAssignType1;
-  }
-  
-  /** if you know the assign ids you want, put them here */
-  private WsAttributeAssignLookup[] wsAttributeAssignLookups;
-  
-  /**
-   * if you know the assign ids you want, put them here
-   * @return attribute assign lookups
-   */
-  public WsAttributeAssignLookup[] getWsAttributeAssignLookups() {
-    return this.wsAttributeAssignLookups;
-  }
-
-  /**
-   * if you know the assign ids you want, put them here
-   * @param wsAttributeAssignLookups1
-   */
-  public void setWsAttributeAssignLookups(WsAttributeAssignLookup[] wsAttributeAssignLookups1) {
-    this.wsAttributeAssignLookups = wsAttributeAssignLookups1;
   }
 
   /**
@@ -129,46 +146,27 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
     this.wsAttributeDefNameLookups = wsAttributeDefNameLookups1;
   }
   
-  /** wsOwnerGroupLookups are groups to look in */
-  private WsGroupLookup[] wsOwnerGroupLookups;
+  /** are roles to look in */
+  private WsGroupLookup[] roleLookups;
   
   /**
-   * wsOwnerGroupLookups are groups to look in
+   * are roles to look in
    * @return owner group lookups
    */
-  public WsGroupLookup[] getWsOwnerGroupLookups() {
-    return this.wsOwnerGroupLookups;
+  public WsGroupLookup[] getRoleLookups() {
+    return this.roleLookups;
   }
 
   /**
-   * wsOwnerGroupLookups are groups to look in
+   * are roles to look in
    * @param wsOwnerGroupLookups1
    */
-  public void setWsOwnerGroupLookups(WsGroupLookup[] wsOwnerGroupLookups1) {
-    this.wsOwnerGroupLookups = wsOwnerGroupLookups1;
-  }
-
-  /** are stems to look in */
-  private WsStemLookup[] wsOwnerStemLookups;
-  
-  /**
-   * are stems to look in
-   * @return are stems to look in
-   */
-  public WsStemLookup[] getWsOwnerStemLookups() {
-    return this.wsOwnerStemLookups;
-  }
-
-  /**
-   * are stems to look in
-   * @param wsOwnerStemLookups1
-   */
-  public void setWsOwnerStemLookups(WsStemLookup[] wsOwnerStemLookups1) {
-    this.wsOwnerStemLookups = wsOwnerStemLookups1;
+  public void setRoleLookups(WsGroupLookup[] wsOwnerGroupLookups1) {
+    this.roleLookups = wsOwnerGroupLookups1;
   }
 
   /** are subjects to look in */
-  private WsSubjectLookup[] wsOwnerSubjectLookups;
+  private WsSubjectLookup[] wsSubjectLookups;
   
   
   
@@ -176,81 +174,18 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * are subjects to look in
    * @return subject
    */
-  public WsSubjectLookup[] getWsOwnerSubjectLookups() {
-    return this.wsOwnerSubjectLookups;
+  public WsSubjectLookup[] getWsSubjectLookups() {
+    return this.wsSubjectLookups;
   }
 
   /**
    * are subjects to look in
    * @param wsOwnerSubjectLookups1
    */
-  public void setWsOwnerSubjectLookups(WsSubjectLookup[] wsOwnerSubjectLookups1) {
-    this.wsOwnerSubjectLookups = wsOwnerSubjectLookups1;
+  public void setWsSubjectLookups(WsSubjectLookup[] wsOwnerSubjectLookups1) {
+    this.wsSubjectLookups = wsOwnerSubjectLookups1;
   }
   
-  /** to query attributes on immediate memberships */
-  private WsMembershipLookup[] wsOwnerMembershipLookups;
-  
-  /** to query attributes in "any" memberships which are on immediate or effective memberships */
-  private WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups;
-  
-  
-  
-  /**
-   * to query attributes on immediate memberships
-   * @return owner memberships
-   */
-  public WsMembershipLookup[] getWsOwnerMembershipLookups() {
-    return this.wsOwnerMembershipLookups;
-  }
-
-  /**
-   * to query attributes on immediate memberships
-   * @param wsOwnerMembershipLookups1
-   */
-  public void setWsOwnerMembershipLookups(WsMembershipLookup[] wsOwnerMembershipLookups1) {
-    this.wsOwnerMembershipLookups = wsOwnerMembershipLookups1;
-  }
-
-  /**
-   * to query attributes in "any" memberships which are on immediate or effective memberships
-   * @return any memberships
-   */
-  public WsMembershipAnyLookup[] getWsOwnerMembershipAnyLookups() {
-    return this.wsOwnerMembershipAnyLookups;
-  }
-
-  /**
-   * to query attributes in "any" memberships which are on immediate or effective memberships
-   * @param wsOwnerMembershipAnyLookups1
-   */
-  public void setWsOwnerMembershipAnyLookups(
-      WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups1) {
-    this.wsOwnerMembershipAnyLookups = wsOwnerMembershipAnyLookups1;
-  }
-  
-  /**
-   * to query attributes assigned on attribute defs
-   */
-  private WsAttributeDefLookup[] wsOwnerAttributeDefLookups;
-  
-  /**
-   * to query attributes assigned on attribute defs
-   * @return attribute def
-   */
-  public WsAttributeDefLookup[] getWsOwnerAttributeDefLookups() {
-    return this.wsOwnerAttributeDefLookups;
-  }
-
-  /**
-   * to query attributes assigned on attribute defs
-   * @param wsOwnerAttributeDefLookups1
-   */
-  public void setWsOwnerAttributeDefLookups(
-      WsAttributeDefLookup[] wsOwnerAttributeDefLookups1) {
-    this.wsOwnerAttributeDefLookups = wsOwnerAttributeDefLookups1;
-  }
-
   /**
    * actions to query, or none to query all actions
    */
