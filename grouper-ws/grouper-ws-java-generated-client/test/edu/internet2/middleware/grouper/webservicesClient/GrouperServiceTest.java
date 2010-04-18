@@ -23,12 +23,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLite groupDeleteLite210=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLite groupDeleteLite222=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLite.class);
-                    // TODO : Fill in the groupDeleteLite210 here
+                    // TODO : Fill in the groupDeleteLite222 here
                 
                         assertNotNull(stub.groupDeleteLite(
-                        groupDeleteLite210));
+                        groupDeleteLite222));
                   
 
 
@@ -40,13 +40,13 @@
          */
         public  void testStartgroupDeleteLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLite groupDeleteLite210=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLite groupDeleteLite222=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLite.class);
-                    // TODO : Fill in the groupDeleteLite210 here
+                    // TODO : Fill in the groupDeleteLite222 here
                 
 
                 stub.startgroupDeleteLite(
-                         groupDeleteLite210,
+                         groupDeleteLite222,
                     new tempCallbackN1000C()
                 );
               
@@ -77,12 +77,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave groupSave212=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave groupSave224=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave.class);
-                    // TODO : Fill in the groupSave212 here
+                    // TODO : Fill in the groupSave224 here
                 
                         assertNotNull(stub.groupSave(
-                        groupSave212));
+                        groupSave224));
                   
 
 
@@ -94,13 +94,13 @@
          */
         public  void testStartgroupSave() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave groupSave212=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave groupSave224=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave.class);
-                    // TODO : Fill in the groupSave212 here
+                    // TODO : Fill in the groupSave224 here
                 
 
                 stub.startgroupSave(
-                         groupSave212,
+                         groupSave224,
                     new tempCallbackN10032()
                 );
               
@@ -131,12 +131,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignments getAttributeAssignments214=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignments getAttributeAssignments226=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignments)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignments.class);
-                    // TODO : Fill in the getAttributeAssignments214 here
+                    // TODO : Fill in the getAttributeAssignments226 here
                 
                         assertNotNull(stub.getAttributeAssignments(
-                        getAttributeAssignments214));
+                        getAttributeAssignments226));
                   
 
 
@@ -148,13 +148,13 @@
          */
         public  void testStartgetAttributeAssignments() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignments getAttributeAssignments214=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignments getAttributeAssignments226=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignments)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignments.class);
-                    // TODO : Fill in the getAttributeAssignments214 here
+                    // TODO : Fill in the getAttributeAssignments226 here
                 
 
                 stub.startgetAttributeAssignments(
-                         getAttributeAssignments214,
+                         getAttributeAssignments226,
                     new tempCallbackN10058()
                 );
               
@@ -185,12 +185,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLite addMemberLite216=
+           edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLite addMemberLite228=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLite.class);
-                    // TODO : Fill in the addMemberLite216 here
+                    // TODO : Fill in the addMemberLite228 here
                 
                         assertNotNull(stub.addMemberLite(
-                        addMemberLite216));
+                        addMemberLite228));
                   
 
 
@@ -202,13 +202,13 @@
          */
         public  void testStartaddMemberLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLite addMemberLite216=
+             edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLite addMemberLite228=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLite.class);
-                    // TODO : Fill in the addMemberLite216 here
+                    // TODO : Fill in the addMemberLite228 here
                 
 
                 stub.startaddMemberLite(
-                         addMemberLite216,
+                         addMemberLite228,
                     new tempCallbackN1007E()
                 );
               
@@ -239,12 +239,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite getMembershipsLite218=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite getMembershipsLite230=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite.class);
-                    // TODO : Fill in the getMembershipsLite218 here
+                    // TODO : Fill in the getMembershipsLite230 here
                 
                         assertNotNull(stub.getMembershipsLite(
-                        getMembershipsLite218));
+                        getMembershipsLite230));
                   
 
 
@@ -256,13 +256,13 @@
          */
         public  void testStartgetMembershipsLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite getMembershipsLite218=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite getMembershipsLite230=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsLite.class);
-                    // TODO : Fill in the getMembershipsLite218 here
+                    // TODO : Fill in the getMembershipsLite230 here
                 
 
                 stub.startgetMembershipsLite(
-                         getMembershipsLite218,
+                         getMembershipsLite230,
                     new tempCallbackN100A4()
                 );
               
@@ -288,17 +288,71 @@
         /**
          * Auto generated test method
          */
+        public  void testgetPermissionAssignmentsLite() throws java.lang.Exception{
+
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
+                    new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
+
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLite getPermissionAssignmentsLite232=
+                                                        (edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLite.class);
+                    // TODO : Fill in the getPermissionAssignmentsLite232 here
+                
+                        assertNotNull(stub.getPermissionAssignmentsLite(
+                        getPermissionAssignmentsLite232));
+                  
+
+
+
+        }
+        
+         /**
+         * Auto generated test method
+         */
+        public  void testStartgetPermissionAssignmentsLite() throws java.lang.Exception{
+            edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLite getPermissionAssignmentsLite232=
+                                                        (edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLite.class);
+                    // TODO : Fill in the getPermissionAssignmentsLite232 here
+                
+
+                stub.startgetPermissionAssignmentsLite(
+                         getPermissionAssignmentsLite232,
+                    new tempCallbackN100CA()
+                );
+              
+
+
+        }
+
+        private class tempCallbackN100CA  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN100CA(){ super(null);}
+
+            public void receiveResultgetPermissionAssignmentsLite(
+                         edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLiteResponse result
+                            ) {
+                
+            }
+
+            public void receiveErrorgetPermissionAssignmentsLite(java.lang.Exception e) {
+                fail();
+            }
+
+        }
+      
+        /**
+         * Auto generated test method
+         */
         public  void testhasMember() throws java.lang.Exception{
 
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.HasMember hasMember220=
+           edu.internet2.middleware.grouper.ws.soap.xsd.HasMember hasMember234=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.HasMember)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.HasMember.class);
-                    // TODO : Fill in the hasMember220 here
+                    // TODO : Fill in the hasMember234 here
                 
                         assertNotNull(stub.hasMember(
-                        hasMember220));
+                        hasMember234));
                   
 
 
@@ -310,22 +364,22 @@
          */
         public  void testStarthasMember() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.HasMember hasMember220=
+             edu.internet2.middleware.grouper.ws.soap.xsd.HasMember hasMember234=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.HasMember)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.HasMember.class);
-                    // TODO : Fill in the hasMember220 here
+                    // TODO : Fill in the hasMember234 here
                 
 
                 stub.starthasMember(
-                         hasMember220,
-                    new tempCallbackN100CA()
+                         hasMember234,
+                    new tempCallbackN100F0()
                 );
               
 
 
         }
 
-        private class tempCallbackN100CA  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN100CA(){ super(null);}
+        private class tempCallbackN100F0  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN100F0(){ super(null);}
 
             public void receiveResulthasMember(
                          edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberResponse result
@@ -347,12 +401,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete stemDelete222=
+           edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete stemDelete236=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete.class);
-                    // TODO : Fill in the stemDelete222 here
+                    // TODO : Fill in the stemDelete236 here
                 
                         assertNotNull(stub.stemDelete(
-                        stemDelete222));
+                        stemDelete236));
                   
 
 
@@ -364,22 +418,22 @@
          */
         public  void testStartstemDelete() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete stemDelete222=
+             edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete stemDelete236=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.StemDelete.class);
-                    // TODO : Fill in the stemDelete222 here
+                    // TODO : Fill in the stemDelete236 here
                 
 
                 stub.startstemDelete(
-                         stemDelete222,
-                    new tempCallbackN100F0()
+                         stemDelete236,
+                    new tempCallbackN10116()
                 );
               
 
 
         }
 
-        private class tempCallbackN100F0  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN100F0(){ super(null);}
+        private class tempCallbackN10116  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10116(){ super(null);}
 
             public void receiveResultstemDelete(
                          edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteResponse result
@@ -401,12 +455,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLite stemSaveLite224=
+           edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLite stemSaveLite238=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLite.class);
-                    // TODO : Fill in the stemSaveLite224 here
+                    // TODO : Fill in the stemSaveLite238 here
                 
                         assertNotNull(stub.stemSaveLite(
-                        stemSaveLite224));
+                        stemSaveLite238));
                   
 
 
@@ -418,22 +472,22 @@
          */
         public  void testStartstemSaveLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLite stemSaveLite224=
+             edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLite stemSaveLite238=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLite.class);
-                    // TODO : Fill in the stemSaveLite224 here
+                    // TODO : Fill in the stemSaveLite238 here
                 
 
                 stub.startstemSaveLite(
-                         stemSaveLite224,
-                    new tempCallbackN10116()
+                         stemSaveLite238,
+                    new tempCallbackN1013C()
                 );
               
 
 
         }
 
-        private class tempCallbackN10116  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10116(){ super(null);}
+        private class tempCallbackN1013C  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN1013C(){ super(null);}
 
             public void receiveResultstemSaveLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLiteResponse result
@@ -455,12 +509,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLite groupSaveLite226=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLite groupSaveLite240=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLite.class);
-                    // TODO : Fill in the groupSaveLite226 here
+                    // TODO : Fill in the groupSaveLite240 here
                 
                         assertNotNull(stub.groupSaveLite(
-                        groupSaveLite226));
+                        groupSaveLite240));
                   
 
 
@@ -472,22 +526,22 @@
          */
         public  void testStartgroupSaveLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLite groupSaveLite226=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLite groupSaveLite240=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLite.class);
-                    // TODO : Fill in the groupSaveLite226 here
+                    // TODO : Fill in the groupSaveLite240 here
                 
 
                 stub.startgroupSaveLite(
-                         groupSaveLite226,
-                    new tempCallbackN1013C()
+                         groupSaveLite240,
+                    new tempCallbackN10162()
                 );
               
 
 
         }
 
-        private class tempCallbackN1013C  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN1013C(){ super(null);}
+        private class tempCallbackN10162  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10162(){ super(null);}
 
             public void receiveResultgroupSaveLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLiteResponse result
@@ -509,12 +563,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.AddMember addMember228=
+           edu.internet2.middleware.grouper.ws.soap.xsd.AddMember addMember242=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AddMember)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AddMember.class);
-                    // TODO : Fill in the addMember228 here
+                    // TODO : Fill in the addMember242 here
                 
                         assertNotNull(stub.addMember(
-                        addMember228));
+                        addMember242));
                   
 
 
@@ -526,22 +580,22 @@
          */
         public  void testStartaddMember() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.AddMember addMember228=
+             edu.internet2.middleware.grouper.ws.soap.xsd.AddMember addMember242=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AddMember)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AddMember.class);
-                    // TODO : Fill in the addMember228 here
+                    // TODO : Fill in the addMember242 here
                 
 
                 stub.startaddMember(
-                         addMember228,
-                    new tempCallbackN10162()
+                         addMember242,
+                    new tempCallbackN10188()
                 );
               
 
 
         }
 
-        private class tempCallbackN10162  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10162(){ super(null);}
+        private class tempCallbackN10188  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10188(){ super(null);}
 
             public void receiveResultaddMember(
                          edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberResponse result
@@ -563,12 +617,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.FindGroups findGroups230=
+           edu.internet2.middleware.grouper.ws.soap.xsd.FindGroups findGroups244=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.FindGroups)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.FindGroups.class);
-                    // TODO : Fill in the findGroups230 here
+                    // TODO : Fill in the findGroups244 here
                 
                         assertNotNull(stub.findGroups(
-                        findGroups230));
+                        findGroups244));
                   
 
 
@@ -580,22 +634,22 @@
          */
         public  void testStartfindGroups() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.FindGroups findGroups230=
+             edu.internet2.middleware.grouper.ws.soap.xsd.FindGroups findGroups244=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.FindGroups)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.FindGroups.class);
-                    // TODO : Fill in the findGroups230 here
+                    // TODO : Fill in the findGroups244 here
                 
 
                 stub.startfindGroups(
-                         findGroups230,
-                    new tempCallbackN10188()
+                         findGroups244,
+                    new tempCallbackN101AE()
                 );
               
 
 
         }
 
-        private class tempCallbackN10188  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10188(){ super(null);}
+        private class tempCallbackN101AE  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN101AE(){ super(null);}
 
             public void receiveResultfindGroups(
                          edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsResponse result
@@ -617,12 +671,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributes assignAttributes232=
+           edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributes assignAttributes246=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributes)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributes.class);
-                    // TODO : Fill in the assignAttributes232 here
+                    // TODO : Fill in the assignAttributes246 here
                 
                         assertNotNull(stub.assignAttributes(
-                        assignAttributes232));
+                        assignAttributes246));
                   
 
 
@@ -634,22 +688,22 @@
          */
         public  void testStartassignAttributes() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributes assignAttributes232=
+             edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributes assignAttributes246=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributes)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributes.class);
-                    // TODO : Fill in the assignAttributes232 here
+                    // TODO : Fill in the assignAttributes246 here
                 
 
                 stub.startassignAttributes(
-                         assignAttributes232,
-                    new tempCallbackN101AE()
+                         assignAttributes246,
+                    new tempCallbackN101D4()
                 );
               
 
 
         }
 
-        private class tempCallbackN101AE  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN101AE(){ super(null);}
+        private class tempCallbackN101D4  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN101D4(){ super(null);}
 
             public void receiveResultassignAttributes(
                          edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesResponse result
@@ -671,12 +725,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMember deleteMember234=
+           edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMember deleteMember248=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMember)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMember.class);
-                    // TODO : Fill in the deleteMember234 here
+                    // TODO : Fill in the deleteMember248 here
                 
                         assertNotNull(stub.deleteMember(
-                        deleteMember234));
+                        deleteMember248));
                   
 
 
@@ -688,22 +742,22 @@
          */
         public  void testStartdeleteMember() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMember deleteMember234=
+             edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMember deleteMember248=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMember)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMember.class);
-                    // TODO : Fill in the deleteMember234 here
+                    // TODO : Fill in the deleteMember248 here
                 
 
                 stub.startdeleteMember(
-                         deleteMember234,
-                    new tempCallbackN101D4()
+                         deleteMember248,
+                    new tempCallbackN101FA()
                 );
               
 
 
         }
 
-        private class tempCallbackN101D4  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN101D4(){ super(null);}
+        private class tempCallbackN101FA  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN101FA(){ super(null);}
 
             public void receiveResultdeleteMember(
                          edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberResponse result
@@ -725,12 +779,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLite hasMemberLite236=
+           edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLite hasMemberLite250=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLite.class);
-                    // TODO : Fill in the hasMemberLite236 here
+                    // TODO : Fill in the hasMemberLite250 here
                 
                         assertNotNull(stub.hasMemberLite(
-                        hasMemberLite236));
+                        hasMemberLite250));
                   
 
 
@@ -742,22 +796,22 @@
          */
         public  void testStarthasMemberLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLite hasMemberLite236=
+             edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLite hasMemberLite250=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLite.class);
-                    // TODO : Fill in the hasMemberLite236 here
+                    // TODO : Fill in the hasMemberLite250 here
                 
 
                 stub.starthasMemberLite(
-                         hasMemberLite236,
-                    new tempCallbackN101FA()
+                         hasMemberLite250,
+                    new tempCallbackN10220()
                 );
               
 
 
         }
 
-        private class tempCallbackN101FA  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN101FA(){ super(null);}
+        private class tempCallbackN10220  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10220(){ super(null);}
 
             public void receiveResulthasMemberLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLiteResponse result
@@ -779,12 +833,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLite stemDeleteLite238=
+           edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLite stemDeleteLite252=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLite.class);
-                    // TODO : Fill in the stemDeleteLite238 here
+                    // TODO : Fill in the stemDeleteLite252 here
                 
                         assertNotNull(stub.stemDeleteLite(
-                        stemDeleteLite238));
+                        stemDeleteLite252));
                   
 
 
@@ -796,22 +850,22 @@
          */
         public  void testStartstemDeleteLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLite stemDeleteLite238=
+             edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLite stemDeleteLite252=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLite.class);
-                    // TODO : Fill in the stemDeleteLite238 here
+                    // TODO : Fill in the stemDeleteLite252 here
                 
 
                 stub.startstemDeleteLite(
-                         stemDeleteLite238,
-                    new tempCallbackN10220()
+                         stemDeleteLite252,
+                    new tempCallbackN10246()
                 );
               
 
 
         }
 
-        private class tempCallbackN10220  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10220(){ super(null);}
+        private class tempCallbackN10246  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10246(){ super(null);}
 
             public void receiveResultstemDeleteLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLiteResponse result
@@ -833,12 +887,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLite getGrouperPrivilegesLite240=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLite getGrouperPrivilegesLite254=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLite.class);
-                    // TODO : Fill in the getGrouperPrivilegesLite240 here
+                    // TODO : Fill in the getGrouperPrivilegesLite254 here
                 
                         assertNotNull(stub.getGrouperPrivilegesLite(
-                        getGrouperPrivilegesLite240));
+                        getGrouperPrivilegesLite254));
                   
 
 
@@ -850,22 +904,22 @@
          */
         public  void testStartgetGrouperPrivilegesLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLite getGrouperPrivilegesLite240=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLite getGrouperPrivilegesLite254=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLite.class);
-                    // TODO : Fill in the getGrouperPrivilegesLite240 here
+                    // TODO : Fill in the getGrouperPrivilegesLite254 here
                 
 
                 stub.startgetGrouperPrivilegesLite(
-                         getGrouperPrivilegesLite240,
-                    new tempCallbackN10246()
+                         getGrouperPrivilegesLite254,
+                    new tempCallbackN1026C()
                 );
               
 
 
         }
 
-        private class tempCallbackN10246  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10246(){ super(null);}
+        private class tempCallbackN1026C  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN1026C(){ super(null);}
 
             public void receiveResultgetGrouperPrivilegesLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLiteResponse result
@@ -887,12 +941,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLite getMembersLite242=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLite getMembersLite256=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLite.class);
-                    // TODO : Fill in the getMembersLite242 here
+                    // TODO : Fill in the getMembersLite256 here
                 
                         assertNotNull(stub.getMembersLite(
-                        getMembersLite242));
+                        getMembersLite256));
                   
 
 
@@ -904,22 +958,22 @@
          */
         public  void testStartgetMembersLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLite getMembersLite242=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLite getMembersLite256=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLite.class);
-                    // TODO : Fill in the getMembersLite242 here
+                    // TODO : Fill in the getMembersLite256 here
                 
 
                 stub.startgetMembersLite(
-                         getMembersLite242,
-                    new tempCallbackN1026C()
+                         getMembersLite256,
+                    new tempCallbackN10292()
                 );
               
 
 
         }
 
-        private class tempCallbackN1026C  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN1026C(){ super(null);}
+        private class tempCallbackN10292  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10292(){ super(null);}
 
             public void receiveResultgetMembersLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLiteResponse result
@@ -941,12 +995,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships getMemberships244=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships getMemberships258=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships.class);
-                    // TODO : Fill in the getMemberships244 here
+                    // TODO : Fill in the getMemberships258 here
                 
                         assertNotNull(stub.getMemberships(
-                        getMemberships244));
+                        getMemberships258));
                   
 
 
@@ -958,22 +1012,22 @@
          */
         public  void testStartgetMemberships() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships getMemberships244=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships getMemberships258=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetMemberships.class);
-                    // TODO : Fill in the getMemberships244 here
+                    // TODO : Fill in the getMemberships258 here
                 
 
                 stub.startgetMemberships(
-                         getMemberships244,
-                    new tempCallbackN10292()
+                         getMemberships258,
+                    new tempCallbackN102B8()
                 );
               
 
 
         }
 
-        private class tempCallbackN10292  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10292(){ super(null);}
+        private class tempCallbackN102B8  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN102B8(){ super(null);}
 
             public void receiveResultgetMemberships(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetMembershipsResponse result
@@ -990,17 +1044,71 @@
         /**
          * Auto generated test method
          */
+        public  void testgetPermissionAssignments() throws java.lang.Exception{
+
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
+                    new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
+
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignments getPermissionAssignments260=
+                                                        (edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignments)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignments.class);
+                    // TODO : Fill in the getPermissionAssignments260 here
+                
+                        assertNotNull(stub.getPermissionAssignments(
+                        getPermissionAssignments260));
+                  
+
+
+
+        }
+        
+         /**
+         * Auto generated test method
+         */
+        public  void testStartgetPermissionAssignments() throws java.lang.Exception{
+            edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignments getPermissionAssignments260=
+                                                        (edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignments)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignments.class);
+                    // TODO : Fill in the getPermissionAssignments260 here
+                
+
+                stub.startgetPermissionAssignments(
+                         getPermissionAssignments260,
+                    new tempCallbackN102DE()
+                );
+              
+
+
+        }
+
+        private class tempCallbackN102DE  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN102DE(){ super(null);}
+
+            public void receiveResultgetPermissionAssignments(
+                         edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsResponse result
+                            ) {
+                
+            }
+
+            public void receiveErrorgetPermissionAssignments(java.lang.Exception e) {
+                fail();
+            }
+
+        }
+      
+        /**
+         * Auto generated test method
+         */
         public  void testgetGroupsLite() throws java.lang.Exception{
 
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite getGroupsLite246=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite getGroupsLite262=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite.class);
-                    // TODO : Fill in the getGroupsLite246 here
+                    // TODO : Fill in the getGroupsLite262 here
                 
                         assertNotNull(stub.getGroupsLite(
-                        getGroupsLite246));
+                        getGroupsLite262));
                   
 
 
@@ -1012,22 +1120,22 @@
          */
         public  void testStartgetGroupsLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite getGroupsLite246=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite getGroupsLite262=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite.class);
-                    // TODO : Fill in the getGroupsLite246 here
+                    // TODO : Fill in the getGroupsLite262 here
                 
 
                 stub.startgetGroupsLite(
-                         getGroupsLite246,
-                    new tempCallbackN102B8()
+                         getGroupsLite262,
+                    new tempCallbackN10304()
                 );
               
 
 
         }
 
-        private class tempCallbackN102B8  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN102B8(){ super(null);}
+        private class tempCallbackN10304  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10304(){ super(null);}
 
             public void receiveResultgetGroupsLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLiteResponse result
@@ -1049,12 +1157,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite assignGrouperPrivilegesLite248=
+           edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite assignGrouperPrivilegesLite264=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite.class);
-                    // TODO : Fill in the assignGrouperPrivilegesLite248 here
+                    // TODO : Fill in the assignGrouperPrivilegesLite264 here
                 
                         assertNotNull(stub.assignGrouperPrivilegesLite(
-                        assignGrouperPrivilegesLite248));
+                        assignGrouperPrivilegesLite264));
                   
 
 
@@ -1066,22 +1174,22 @@
          */
         public  void testStartassignGrouperPrivilegesLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite assignGrouperPrivilegesLite248=
+             edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite assignGrouperPrivilegesLite264=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite.class);
-                    // TODO : Fill in the assignGrouperPrivilegesLite248 here
+                    // TODO : Fill in the assignGrouperPrivilegesLite264 here
                 
 
                 stub.startassignGrouperPrivilegesLite(
-                         assignGrouperPrivilegesLite248,
-                    new tempCallbackN102DE()
+                         assignGrouperPrivilegesLite264,
+                    new tempCallbackN1032A()
                 );
               
 
 
         }
 
-        private class tempCallbackN102DE  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN102DE(){ super(null);}
+        private class tempCallbackN1032A  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN1032A(){ super(null);}
 
             public void receiveResultassignGrouperPrivilegesLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLiteResponse result
@@ -1103,12 +1211,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLite assignAttributesLite250=
+           edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLite assignAttributesLite266=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLite.class);
-                    // TODO : Fill in the assignAttributesLite250 here
+                    // TODO : Fill in the assignAttributesLite266 here
                 
                         assertNotNull(stub.assignAttributesLite(
-                        assignAttributesLite250));
+                        assignAttributesLite266));
                   
 
 
@@ -1120,22 +1228,22 @@
          */
         public  void testStartassignAttributesLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLite assignAttributesLite250=
+             edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLite assignAttributesLite266=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLite.class);
-                    // TODO : Fill in the assignAttributesLite250 here
+                    // TODO : Fill in the assignAttributesLite266 here
                 
 
                 stub.startassignAttributesLite(
-                         assignAttributesLite250,
-                    new tempCallbackN10304()
+                         assignAttributesLite266,
+                    new tempCallbackN10350()
                 );
               
 
 
         }
 
-        private class tempCallbackN10304  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10304(){ super(null);}
+        private class tempCallbackN10350  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10350(){ super(null);}
 
             public void receiveResultassignAttributesLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.AssignAttributesLiteResponse result
@@ -1157,12 +1265,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivileges assignGrouperPrivileges252=
+           edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivileges assignGrouperPrivileges268=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivileges)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivileges.class);
-                    // TODO : Fill in the assignGrouperPrivileges252 here
+                    // TODO : Fill in the assignGrouperPrivileges268 here
                 
                         assertNotNull(stub.assignGrouperPrivileges(
-                        assignGrouperPrivileges252));
+                        assignGrouperPrivileges268));
                   
 
 
@@ -1174,22 +1282,22 @@
          */
         public  void testStartassignGrouperPrivileges() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivileges assignGrouperPrivileges252=
+             edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivileges assignGrouperPrivileges268=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivileges)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivileges.class);
-                    // TODO : Fill in the assignGrouperPrivileges252 here
+                    // TODO : Fill in the assignGrouperPrivileges268 here
                 
 
                 stub.startassignGrouperPrivileges(
-                         assignGrouperPrivileges252,
-                    new tempCallbackN1032A()
+                         assignGrouperPrivileges268,
+                    new tempCallbackN10376()
                 );
               
 
 
         }
 
-        private class tempCallbackN1032A  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN1032A(){ super(null);}
+        private class tempCallbackN10376  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10376(){ super(null);}
 
             public void receiveResultassignGrouperPrivileges(
                          edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesResponse result
@@ -1211,12 +1319,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLite getSubjectsLite254=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLite getSubjectsLite270=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLite.class);
-                    // TODO : Fill in the getSubjectsLite254 here
+                    // TODO : Fill in the getSubjectsLite270 here
                 
                         assertNotNull(stub.getSubjectsLite(
-                        getSubjectsLite254));
+                        getSubjectsLite270));
                   
 
 
@@ -1228,22 +1336,22 @@
          */
         public  void testStartgetSubjectsLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLite getSubjectsLite254=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLite getSubjectsLite270=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLite.class);
-                    // TODO : Fill in the getSubjectsLite254 here
+                    // TODO : Fill in the getSubjectsLite270 here
                 
 
                 stub.startgetSubjectsLite(
-                         getSubjectsLite254,
-                    new tempCallbackN10350()
+                         getSubjectsLite270,
+                    new tempCallbackN1039C()
                 );
               
 
 
         }
 
-        private class tempCallbackN10350  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10350(){ super(null);}
+        private class tempCallbackN1039C  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN1039C(){ super(null);}
 
             public void receiveResultgetSubjectsLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsLiteResponse result
@@ -1265,12 +1373,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjects getSubjects256=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjects getSubjects272=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjects)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjects.class);
-                    // TODO : Fill in the getSubjects256 here
+                    // TODO : Fill in the getSubjects272 here
                 
                         assertNotNull(stub.getSubjects(
-                        getSubjects256));
+                        getSubjects272));
                   
 
 
@@ -1282,22 +1390,22 @@
          */
         public  void testStartgetSubjects() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjects getSubjects256=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjects getSubjects272=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjects)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjects.class);
-                    // TODO : Fill in the getSubjects256 here
+                    // TODO : Fill in the getSubjects272 here
                 
 
                 stub.startgetSubjects(
-                         getSubjects256,
-                    new tempCallbackN10376()
+                         getSubjects272,
+                    new tempCallbackN103C2()
                 );
               
 
 
         }
 
-        private class tempCallbackN10376  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10376(){ super(null);}
+        private class tempCallbackN103C2  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN103C2(){ super(null);}
 
             public void receiveResultgetSubjects(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetSubjectsResponse result
@@ -1319,12 +1427,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite findGroupsLite258=
+           edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite findGroupsLite274=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite.class);
-                    // TODO : Fill in the findGroupsLite258 here
+                    // TODO : Fill in the findGroupsLite274 here
                 
                         assertNotNull(stub.findGroupsLite(
-                        findGroupsLite258));
+                        findGroupsLite274));
                   
 
 
@@ -1336,22 +1444,22 @@
          */
         public  void testStartfindGroupsLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite findGroupsLite258=
+             edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite findGroupsLite274=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite.class);
-                    // TODO : Fill in the findGroupsLite258 here
+                    // TODO : Fill in the findGroupsLite274 here
                 
 
                 stub.startfindGroupsLite(
-                         findGroupsLite258,
-                    new tempCallbackN1039C()
+                         findGroupsLite274,
+                    new tempCallbackN103E8()
                 );
               
 
 
         }
 
-        private class tempCallbackN1039C  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN1039C(){ super(null);}
+        private class tempCallbackN103E8  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN103E8(){ super(null);}
 
             public void receiveResultfindGroupsLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLiteResponse result
@@ -1373,12 +1481,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLite getAttributeAssignmentsLite260=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLite getAttributeAssignmentsLite276=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLite.class);
-                    // TODO : Fill in the getAttributeAssignmentsLite260 here
+                    // TODO : Fill in the getAttributeAssignmentsLite276 here
                 
                         assertNotNull(stub.getAttributeAssignmentsLite(
-                        getAttributeAssignmentsLite260));
+                        getAttributeAssignmentsLite276));
                   
 
 
@@ -1390,22 +1498,22 @@
          */
         public  void testStartgetAttributeAssignmentsLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLite getAttributeAssignmentsLite260=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLite getAttributeAssignmentsLite276=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLite.class);
-                    // TODO : Fill in the getAttributeAssignmentsLite260 here
+                    // TODO : Fill in the getAttributeAssignmentsLite276 here
                 
 
                 stub.startgetAttributeAssignmentsLite(
-                         getAttributeAssignmentsLite260,
-                    new tempCallbackN103C2()
+                         getAttributeAssignmentsLite276,
+                    new tempCallbackN1040E()
                 );
               
 
 
         }
 
-        private class tempCallbackN103C2  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN103C2(){ super(null);}
+        private class tempCallbackN1040E  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN1040E(){ super(null);}
 
             public void receiveResultgetAttributeAssignmentsLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetAttributeAssignmentsLiteResponse result
@@ -1427,12 +1535,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete groupDelete262=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete groupDelete278=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete.class);
-                    // TODO : Fill in the groupDelete262 here
+                    // TODO : Fill in the groupDelete278 here
                 
                         assertNotNull(stub.groupDelete(
-                        groupDelete262));
+                        groupDelete278));
                   
 
 
@@ -1444,22 +1552,22 @@
          */
         public  void testStartgroupDelete() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete groupDelete262=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete groupDelete278=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete.class);
-                    // TODO : Fill in the groupDelete262 here
+                    // TODO : Fill in the groupDelete278 here
                 
 
                 stub.startgroupDelete(
-                         groupDelete262,
-                    new tempCallbackN103E8()
+                         groupDelete278,
+                    new tempCallbackN10434()
                 );
               
 
 
         }
 
-        private class tempCallbackN103E8  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN103E8(){ super(null);}
+        private class tempCallbackN10434  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10434(){ super(null);}
 
             public void receiveResultgroupDelete(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteResponse result
@@ -1481,12 +1589,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetGroups getGroups264=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetGroups getGroups280=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetGroups)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetGroups.class);
-                    // TODO : Fill in the getGroups264 here
+                    // TODO : Fill in the getGroups280 here
                 
                         assertNotNull(stub.getGroups(
-                        getGroups264));
+                        getGroups280));
                   
 
 
@@ -1498,22 +1606,22 @@
          */
         public  void testStartgetGroups() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetGroups getGroups264=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetGroups getGroups280=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetGroups)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetGroups.class);
-                    // TODO : Fill in the getGroups264 here
+                    // TODO : Fill in the getGroups280 here
                 
 
                 stub.startgetGroups(
-                         getGroups264,
-                    new tempCallbackN1040E()
+                         getGroups280,
+                    new tempCallbackN1045A()
                 );
               
 
 
         }
 
-        private class tempCallbackN1040E  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN1040E(){ super(null);}
+        private class tempCallbackN1045A  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN1045A(){ super(null);}
 
             public void receiveResultgetGroups(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsResponse result
@@ -1535,12 +1643,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.FindStems findStems266=
+           edu.internet2.middleware.grouper.ws.soap.xsd.FindStems findStems282=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.FindStems)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.FindStems.class);
-                    // TODO : Fill in the findStems266 here
+                    // TODO : Fill in the findStems282 here
                 
                         assertNotNull(stub.findStems(
-                        findStems266));
+                        findStems282));
                   
 
 
@@ -1552,22 +1660,22 @@
          */
         public  void testStartfindStems() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.FindStems findStems266=
+             edu.internet2.middleware.grouper.ws.soap.xsd.FindStems findStems282=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.FindStems)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.FindStems.class);
-                    // TODO : Fill in the findStems266 here
+                    // TODO : Fill in the findStems282 here
                 
 
                 stub.startfindStems(
-                         findStems266,
-                    new tempCallbackN10434()
+                         findStems282,
+                    new tempCallbackN10480()
                 );
               
 
 
         }
 
-        private class tempCallbackN10434  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10434(){ super(null);}
+        private class tempCallbackN10480  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10480(){ super(null);}
 
             public void receiveResultfindStems(
                          edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsResponse result
@@ -1589,12 +1697,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite memberChangeSubjectLite268=
+           edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite memberChangeSubjectLite284=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite.class);
-                    // TODO : Fill in the memberChangeSubjectLite268 here
+                    // TODO : Fill in the memberChangeSubjectLite284 here
                 
                         assertNotNull(stub.memberChangeSubjectLite(
-                        memberChangeSubjectLite268));
+                        memberChangeSubjectLite284));
                   
 
 
@@ -1606,22 +1714,22 @@
          */
         public  void testStartmemberChangeSubjectLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite memberChangeSubjectLite268=
+             edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite memberChangeSubjectLite284=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite.class);
-                    // TODO : Fill in the memberChangeSubjectLite268 here
+                    // TODO : Fill in the memberChangeSubjectLite284 here
                 
 
                 stub.startmemberChangeSubjectLite(
-                         memberChangeSubjectLite268,
-                    new tempCallbackN1045A()
+                         memberChangeSubjectLite284,
+                    new tempCallbackN104A6()
                 );
               
 
 
         }
 
-        private class tempCallbackN1045A  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN1045A(){ super(null);}
+        private class tempCallbackN104A6  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN104A6(){ super(null);}
 
             public void receiveResultmemberChangeSubjectLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLiteResponse result
@@ -1643,12 +1751,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers getMembers270=
+           edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers getMembers286=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers.class);
-                    // TODO : Fill in the getMembers270 here
+                    // TODO : Fill in the getMembers286 here
                 
                         assertNotNull(stub.getMembers(
-                        getMembers270));
+                        getMembers286));
                   
 
 
@@ -1660,22 +1768,22 @@
          */
         public  void testStartgetMembers() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers getMembers270=
+             edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers getMembers286=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers.class);
-                    // TODO : Fill in the getMembers270 here
+                    // TODO : Fill in the getMembers286 here
                 
 
                 stub.startgetMembers(
-                         getMembers270,
-                    new tempCallbackN10480()
+                         getMembers286,
+                    new tempCallbackN104CC()
                 );
               
 
 
         }
 
-        private class tempCallbackN10480  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10480(){ super(null);}
+        private class tempCallbackN104CC  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN104CC(){ super(null);}
 
             public void receiveResultgetMembers(
                          edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersResponse result
@@ -1697,12 +1805,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLite deleteMemberLite272=
+           edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLite deleteMemberLite288=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLite.class);
-                    // TODO : Fill in the deleteMemberLite272 here
+                    // TODO : Fill in the deleteMemberLite288 here
                 
                         assertNotNull(stub.deleteMemberLite(
-                        deleteMemberLite272));
+                        deleteMemberLite288));
                   
 
 
@@ -1714,22 +1822,22 @@
          */
         public  void testStartdeleteMemberLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLite deleteMemberLite272=
+             edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLite deleteMemberLite288=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLite.class);
-                    // TODO : Fill in the deleteMemberLite272 here
+                    // TODO : Fill in the deleteMemberLite288 here
                 
 
                 stub.startdeleteMemberLite(
-                         deleteMemberLite272,
-                    new tempCallbackN104A6()
+                         deleteMemberLite288,
+                    new tempCallbackN104F2()
                 );
               
 
 
         }
 
-        private class tempCallbackN104A6  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN104A6(){ super(null);}
+        private class tempCallbackN104F2  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN104F2(){ super(null);}
 
             public void receiveResultdeleteMemberLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLiteResponse result
@@ -1751,12 +1859,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.StemSave stemSave274=
+           edu.internet2.middleware.grouper.ws.soap.xsd.StemSave stemSave290=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.StemSave)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.StemSave.class);
-                    // TODO : Fill in the stemSave274 here
+                    // TODO : Fill in the stemSave290 here
                 
                         assertNotNull(stub.stemSave(
-                        stemSave274));
+                        stemSave290));
                   
 
 
@@ -1768,22 +1876,22 @@
          */
         public  void testStartstemSave() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.StemSave stemSave274=
+             edu.internet2.middleware.grouper.ws.soap.xsd.StemSave stemSave290=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.StemSave)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.StemSave.class);
-                    // TODO : Fill in the stemSave274 here
+                    // TODO : Fill in the stemSave290 here
                 
 
                 stub.startstemSave(
-                         stemSave274,
-                    new tempCallbackN104CC()
+                         stemSave290,
+                    new tempCallbackN10518()
                 );
               
 
 
         }
 
-        private class tempCallbackN104CC  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN104CC(){ super(null);}
+        private class tempCallbackN10518  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10518(){ super(null);}
 
             public void receiveResultstemSave(
                          edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveResponse result
@@ -1805,12 +1913,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite findStemsLite276=
+           edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite findStemsLite292=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite.class);
-                    // TODO : Fill in the findStemsLite276 here
+                    // TODO : Fill in the findStemsLite292 here
                 
                         assertNotNull(stub.findStemsLite(
-                        findStemsLite276));
+                        findStemsLite292));
                   
 
 
@@ -1822,22 +1930,22 @@
          */
         public  void testStartfindStemsLite() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite findStemsLite276=
+             edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite findStemsLite292=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLite.class);
-                    // TODO : Fill in the findStemsLite276 here
+                    // TODO : Fill in the findStemsLite292 here
                 
 
                 stub.startfindStemsLite(
-                         findStemsLite276,
-                    new tempCallbackN104F2()
+                         findStemsLite292,
+                    new tempCallbackN1053E()
                 );
               
 
 
         }
 
-        private class tempCallbackN104F2  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN104F2(){ super(null);}
+        private class tempCallbackN1053E  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN1053E(){ super(null);}
 
             public void receiveResultfindStemsLite(
                          edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLiteResponse result
@@ -1859,12 +1967,12 @@
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
                     new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();//the default implementation should point to the right endpoint
 
-           edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject memberChangeSubject278=
+           edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject memberChangeSubject294=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject.class);
-                    // TODO : Fill in the memberChangeSubject278 here
+                    // TODO : Fill in the memberChangeSubject294 here
                 
                         assertNotNull(stub.memberChangeSubject(
-                        memberChangeSubject278));
+                        memberChangeSubject294));
                   
 
 
@@ -1876,22 +1984,22 @@
          */
         public  void testStartmemberChangeSubject() throws java.lang.Exception{
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub = new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-             edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject memberChangeSubject278=
+             edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject memberChangeSubject294=
                                                         (edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject)getTestObject(edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject.class);
-                    // TODO : Fill in the memberChangeSubject278 here
+                    // TODO : Fill in the memberChangeSubject294 here
                 
 
                 stub.startmemberChangeSubject(
-                         memberChangeSubject278,
-                    new tempCallbackN10518()
+                         memberChangeSubject294,
+                    new tempCallbackN10564()
                 );
               
 
 
         }
 
-        private class tempCallbackN10518  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
-            public tempCallbackN10518(){ super(null);}
+        private class tempCallbackN10564  extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler{
+            public tempCallbackN10564(){ super(null);}
 
             public void receiveResultmemberChangeSubject(
                          edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectResponse result

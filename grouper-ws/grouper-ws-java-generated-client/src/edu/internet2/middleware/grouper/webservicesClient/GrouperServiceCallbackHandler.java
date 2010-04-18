@@ -125,6 +125,22 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for getPermissionAssignmentsLite method
+            * override this method for handling normal response from getPermissionAssignmentsLite operation
+            */
+           public void receiveResultgetPermissionAssignmentsLite(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsLiteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getPermissionAssignmentsLite operation
+           */
+            public void receiveErrorgetPermissionAssignmentsLite(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for hasMember method
             * override this method for handling normal response from hasMember operation
             */
@@ -330,6 +346,22 @@
            * override this method for handling error response from getMemberships operation
            */
             public void receiveErrorgetMemberships(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for getPermissionAssignments method
+            * override this method for handling normal response from getPermissionAssignments operation
+            */
+           public void receiveResultgetPermissionAssignments(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetPermissionAssignmentsResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from getPermissionAssignments operation
+           */
+            public void receiveErrorgetPermissionAssignments(java.lang.Exception e) {
             }
                 
            /**

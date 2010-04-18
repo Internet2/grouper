@@ -180,7 +180,7 @@ request bean in body of rest request
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;operation to perform for attribute on owners, from enum AttributeAssignOperation
- assign_attr, add_attr, remove_attr, remove_attr_by_assign_id</TD>
+ assign_attr, add_attr, remove_attr</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -214,15 +214,6 @@ request bean in body of rest request
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;really only for permissions, if the assignee can delegate to someone else.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesRequest.html?view=co#getIncludeAssignmentsOnAssignments()">getIncludeAssignmentsOnAssignments</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is not querying assignments on assignments directly, but the assignments
- and assignments on those assignments should be returned, enter true.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -393,7 +384,7 @@ request bean in body of rest request
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;operation to perform for attribute on owners, from enum AttributeAssignOperation
- assign_attr, add_attr, remove_attr, remove_attr_by_assign_id</TD>
+ assign_attr, add_attr, remove_attr</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -427,15 +418,6 @@ request bean in body of rest request
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;really only for permissions, if the assignee can delegate to someone else.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesRequest.html?view=co#setIncludeAssignmentsOnAssignments(java.lang.String)">setIncludeAssignmentsOnAssignments</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;includeAssignmentsOnAssignments1)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is not querying assignments on assignments directly, but the assignments
- and assignments on those assignments should be returned, enter true.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -796,7 +778,7 @@ getAttributeAssignOperation</H3>
 public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeAssignOperation</B>()</PRE>
 <DL>
 <DD>operation to perform for attribute on owners, from enum AttributeAssignOperation
- assign_attr, add_attr, remove_attr, remove_attr_by_assign_id
+ assign_attr, add_attr, remove_attr
 <P>
 <DD><DL>
 </DL>
@@ -814,7 +796,7 @@ setAttributeAssignOperation</H3>
 public void <B>setAttributeAssignOperation</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignOperation1)</PRE>
 <DL>
 <DD>operation to perform for attribute on owners, from enum AttributeAssignOperation
- assign_attr, add_attr, remove_attr, remove_attr_by_assign_id
+ assign_attr, add_attr, remove_attr
 <P>
 <DD><DL>
 </DL>
@@ -1238,41 +1220,6 @@ public void <B>setActions</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/j
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>actions1</CODE> - </DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getIncludeAssignmentsOnAssignments()"><!-- --></A><H3>
-getIncludeAssignmentsOnAssignments</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getIncludeAssignmentsOnAssignments</B>()</PRE>
-<DL>
-<DD>if this is not querying assignments on assignments directly, but the assignments
- and assignments on those assignments should be returned, enter true.  default to false.
-<P>
-<DD><DL>
-</DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>if include assignments on assignments</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setIncludeAssignmentsOnAssignments(java.lang.String)"><!-- --></A><H3>
-setIncludeAssignmentsOnAssignments</H3>
-<PRE>
-public void <B>setIncludeAssignmentsOnAssignments</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;includeAssignmentsOnAssignments1)</PRE>
-<DL>
-<DD>if this is not querying assignments on assignments directly, but the assignments
- and assignments on those assignments should be returned, enter true.  default to false.
-<P>
-<DD><DL>
-</DL>
-</DD>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>includeAssignmentsOnAssignments1</CODE> - </DL>
 </DD>
 </DL>
 <HR>

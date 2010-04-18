@@ -187,6 +187,16 @@ Class WsSubjectLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co#convertToMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], java.lang.StringBuilder)">convertToMemberIds</A></B>(GrouperSession&nbsp;grouperSession,
+                   <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;wsSubjectLookups,
+                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert subject lookups to member ids (create if not exist)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co#convertToMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], java.lang.StringBuilder, int[])">convertToMemberIds</A></B>(GrouperSession&nbsp;grouperSession,
                    <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;wsSubjectLookups,
                    <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
@@ -647,6 +657,22 @@ public void <B>setSubjectIdentifier</B>(<A HREF="http://java.sun.com/j2se/1.4.2/
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>subjectIdentifier1</CODE> - the subjectIdentifier to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], java.lang.StringBuilder)"><!-- --></A><H3>
+convertToMemberIds</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToMemberIds</B>(GrouperSession&nbsp;grouperSession,
+                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;wsSubjectLookups,
+                                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage)</PRE>
+<DL>
+<DD>convert subject lookups to member ids (create if not exist)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsSubjectLookups</CODE> - <DD><CODE>errorMessage</CODE> - 
+<DT><B>Returns:</B><DD>the group ids</DL>
 </DD>
 </DL>
 <HR>
