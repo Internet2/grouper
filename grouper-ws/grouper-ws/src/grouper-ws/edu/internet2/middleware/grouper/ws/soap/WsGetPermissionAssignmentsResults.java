@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -13,13 +15,12 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
@@ -31,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * <pre>
- * results for the get attributeAssignments call.
+ * results for the get permissionAssignments call.
  * 
  * result code:
  * code of the result for this attribute assignment overall
@@ -42,12 +43,12 @@ import edu.internet2.middleware.subject.Subject;
  * </pre>
  * @author mchyzer
  */
-public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultMetadataHolder {
+public class WsGetPermissionAssignmentsResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsGetAttributeAssignmentsResults.class);
+  private static final Log LOG = LogFactory.getLog(WsGetPermissionAssignmentsResults.class);
 
   /**
    * attribute def references in the assignments or inputs (and able to be read)
@@ -92,6 +93,27 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
   }
 
   /**
+   * the permissions being queried
+   */
+  private WsPermissionAssign[] wsPermissionAssigns;
+  
+  /**
+   * the permissions being queried
+   * @return the permissions
+   */
+  public WsPermissionAssign[] getWsPermissionAssigns() {
+    return this.wsPermissionAssigns;
+  }
+
+  /**
+   * the permissions being queried
+   * @param wsPermissionAssigns1
+   */
+  public void setWsPermissionAssigns(WsPermissionAssign[] wsPermissionAssigns1) {
+    this.wsPermissionAssigns = wsPermissionAssigns1;
+  }
+
+  /**
    * the assignments being queried
    */
   private WsAttributeAssign[] wsAttributeAssigns;
@@ -122,7 +144,7 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
    * of WsGetMembersResultCode (with http status codes) are:
    * SUCCESS(200), EXCEPTION(500), INVALID_QUERY(400)
    */
-  public static enum WsGetAttributeAssignmentsResultsCode implements WsResultCode {
+  public static enum WsGetPermissionAssignmentsResultsCode implements WsResultCode {
 
     /** found the attributeAssignments (lite status code 200) (success: T) */
     SUCCESS(200),
@@ -151,7 +173,7 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
      * construct with http code
      * @param theHttpStatusCode the code
      */
-    private WsGetAttributeAssignmentsResultsCode(int theHttpStatusCode) {
+    private WsGetPermissionAssignmentsResultsCode(int theHttpStatusCode) {
       this.httpStatusCode = theHttpStatusCode;
     }
 
@@ -178,38 +200,38 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
    * assign the code from the enum
    * @param getAttributeAssignmentsResultCode
    */
-  public void assignResultCode(WsGetAttributeAssignmentsResultsCode getAttributeAssignmentsResultCode) {
+  public void assignResultCode(WsGetPermissionAssignmentsResultsCode getAttributeAssignmentsResultCode) {
     this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
   }
 
   /**
    * prcess an exception, log, etc
-   * @param wsGetAttributeAssignmentsResultsCodeOverride
+   * @param wsGetPermissionAssignmentsResultsCodeOverride
    * @param theError
    * @param e
    */
   public void assignResultCodeException(
-      WsGetAttributeAssignmentsResultsCode wsGetAttributeAssignmentsResultsCodeOverride, String theError,
+      WsGetPermissionAssignmentsResultsCode wsGetPermissionAssignmentsResultsCodeOverride, String theError,
       Exception e) {
 
     if (e instanceof WsInvalidQueryException) {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsGetAttributeAssignmentsResultsCode.INVALID_QUERY);
+      wsGetPermissionAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
+          wsGetPermissionAssignmentsResultsCodeOverride, WsGetPermissionAssignmentsResultsCode.INVALID_QUERY);
       //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
+      this.assignResultCode(wsGetPermissionAssignmentsResultsCodeOverride);
       this.getResultMetadata().appendResultMessage(e.getMessage());
       this.getResultMetadata().appendResultMessage(theError);
       LOG.warn(e);
 
     } else {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsGetAttributeAssignmentsResultsCode.EXCEPTION);
+      wsGetPermissionAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
+          wsGetPermissionAssignmentsResultsCodeOverride, WsGetPermissionAssignmentsResultsCode.EXCEPTION);
       LOG.error(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       this.getResultMetadata().appendResultMessage(
           theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
+      this.assignResultCode(wsGetPermissionAssignmentsResultsCodeOverride);
 
     }
   }
@@ -253,32 +275,6 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
   private WsGroup[] wsGroups;
 
   /**
-   * stems that are in the results
-   */
-  private WsStem[] wsStems;
-
-  /**
-   * stems that are in the results
-   * @return stems
-   */
-  public WsStem[] getWsStems() {
-    return this.wsStems;
-  }
-
-  /**
-   * stems that are in the results
-   * @param wsStems1
-   */
-  public void setWsStems(WsStem[] wsStems1) {
-    this.wsStems = wsStems1;
-  }
-
-  /**
-   * results for each assignment sent in
-   */
-  private WsMembership[] wsMemberships;
-
-  /**
    * subjects that are in the results
    */
   private WsSubject[] wsSubjects;
@@ -315,14 +311,6 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
   }
 
   /**
-   * results for each assignment sent in
-   * @return the results
-   */
-  public WsMembership[] getWsMemberships() {
-    return this.wsMemberships;
-  }
-
-  /**
    * subjects that are in the results
    * @return the subjects
    */
@@ -338,14 +326,6 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
   }
 
   /**
-   * results for each assignment sent in
-   * @param results1 the results to set
-   */
-  public void setWsMemberships(WsMembership[] results1) {
-    this.wsMemberships = results1;
-  }
-
-  /**
    * subjects that are in the results
    * @param wsSubjects1
    */
@@ -354,15 +334,16 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
   }
 
   /**
-   * convert assignments to ws assignments
-   * @param attributeAssigns 
+   * convert permissions to ws permissions
+   * @param permissionEntries 
    * @param theSubjectAttributeNames 
+   * @param includePermissionAssignDetail 
    */
-  public void assignResult(Set<AttributeAssign> attributeAssigns, String[] theSubjectAttributeNames) {
+  public void assignResult(Set<PermissionEntry> permissionEntries, String[] theSubjectAttributeNames, boolean includePermissionAssignDetail) {
     
     this.subjectAttributeNames = theSubjectAttributeNames;
 
-    this.setWsAttributeAssigns(WsAttributeAssign.convertAttributeAssigns(attributeAssigns));
+    this.setWsPermissionAssigns(WsPermissionAssign.convertPermissionEntries(permissionEntries, includePermissionAssignDetail));
     
   }
 
@@ -374,6 +355,9 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     if (this.wsAttributeAssigns != null) {
       Arrays.sort(this.wsAttributeAssigns);
     }
+    if (this.wsPermissionAssigns != null) {
+      Arrays.sort(this.wsPermissionAssigns);
+    }
     if (this.wsAttributeDefNames != null) {
       Arrays.sort(this.wsAttributeDefNames);
     }
@@ -382,12 +366,6 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     }
     if (this.wsGroups != null) {
       Arrays.sort(this.wsGroups);
-    }
-    if (this.wsMemberships != null) {
-      Arrays.sort(this.wsMemberships);
-    }
-    if (this.wsStems != null) {
-      Arrays.sort(this.wsStems);
     }
     if (this.wsSubjects != null) {
       Arrays.sort(this.wsSubjects);
@@ -417,6 +395,13 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
       allAttributeDefIds.add(wsAttributeDefName.getAttributeDefId());
     }
     
+    //these should be there, but try again
+    for (WsPermissionAssign wsPermissionAssign : GrouperUtil.nonNull(this.wsPermissionAssigns, WsPermissionAssign.class)) {
+      if (!StringUtils.isBlank(wsPermissionAssign.getAttributeDefId())) {
+        allAttributeDefIds.add(wsPermissionAssign.getAttributeDefId());
+      }
+    }
+
     //security is already checked, lets pass these through...
     this.wsAttributeDefs = new WsAttributeDef[allAttributeDefIds.size()];
     
@@ -444,6 +429,12 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
       }
     }
     
+    for (WsPermissionAssign wsPermissionAssign : GrouperUtil.nonNull(this.wsPermissionAssigns, WsPermissionAssign.class)) {
+      if (!StringUtils.isBlank(wsPermissionAssign.getRoleId())) {
+        allGroupIds.add(wsPermissionAssign.getRoleId());
+      }
+    }
+
     //security is already checked, lets pass these through...
     this.wsGroups = new WsGroup[allGroupIds.size()];
     
@@ -451,68 +442,6 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
     for (String wsGroupId : allGroupIds) {
       Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(wsGroupId, true);
       this.wsGroups[i] = new WsGroup(group, null, includeGroupDetail);
-      i++;
-    }
-  }
-
-  /**
-   * pass in the stem ids that were found by inputs, and add the stem id 
-   * found by the attribute assign results
-   * @param stemIds
-   */
-  public void fillInStems(Set<String> stemIds) {
-    
-    Set<String> allStemIds = new HashSet<String>(GrouperUtil.nonNull(stemIds));
-    
-    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
-      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerStemId())) {
-        allStemIds.add(wsAttributeAssign.getOwnerStemId());
-      }
-    }
-    
-    //security is already checked, lets pass these through...
-    this.wsStems = new WsStem[allStemIds.size()];
-    
-    int i = 0;
-    for (String wsStemId : allStemIds) {
-      Stem stem = GrouperDAOFactory.getFactory().getStem().findByUuid(wsStemId, true);
-      this.wsStems[i] = new WsStem(stem);
-      i++;
-    }
-  }
-
-  /**
-   * pass in the stem ids that were found by inputs, and add the stem id 
-   * found by the attribute assign results
-   * @param membershipIds
-   */
-  public void fillInMemberships(Set<String> membershipIds) {
-    
-    Set<String> allMembershipIds = new HashSet<String>(GrouperUtil.nonNull(membershipIds));
-    
-    for (WsAttributeAssign wsAttributeAssign : GrouperUtil.nonNull(this.wsAttributeAssigns, WsAttributeAssign.class)) {
-      if (!StringUtils.isBlank(wsAttributeAssign.getOwnerMembershipId())) {
-        allMembershipIds.add(wsAttributeAssign.getOwnerMembershipId());
-      }
-    }
-    
-    //put in a set to make sure no duplicates, could be since multiple types of ids
-    
-    Set<Membership> memberships = new HashSet<Membership>();
-    
-    for (String membershipId : allMembershipIds) {
-      //security is already checked, lets pass these through...
-      Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(membershipId, false, false);
-      if (membership != null) {
-        memberships.add(membership);
-      }
-    }
-    
-    this.wsMemberships = new WsMembership[memberships.size()];
-    
-    int i = 0;
-    for (Membership membership : memberships) {
-      this.wsMemberships[i] = new WsMembership(membership);
       i++;
     }
   }
@@ -589,6 +518,12 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
       }
     }
     
+    for (WsPermissionAssign wsPermissionAssign : GrouperUtil.nonNull(this.wsPermissionAssigns, WsPermissionAssign.class)) {
+      if (!StringUtils.isBlank(wsPermissionAssign.getAttributeDefNameId())) {
+        allAttributeDefNameIds.add(wsPermissionAssign.getAttributeDefNameId());
+      }
+    }
+    
     //security is already checked, lets pass these through...
     this.wsAttributeDefNames = new WsAttributeDefName[allAttributeDefNameIds.size()];
     
@@ -599,4 +534,47 @@ public class WsGetAttributeAssignmentsResults implements WsResponseBean, ResultM
       i++;
     }
   }
+
+  /**
+   * pass in the attribute def name ids that were found by inputs, and add the attribute
+   * def name ids found by the attribute assign results
+   * @param includeAssignmentsOnAssignments if assignments on assignments should be returned
+   * @param enabledBoolean 
+   * @param attributeDefNameIds
+   */
+  public void fillInAttributeAssigns(boolean includeAssignmentsOnAssignments, Boolean enabledBoolean) {
+    
+    Set<String> allAttributeAssignIds = new HashSet<String>();
+    
+    for (WsPermissionAssign wsPermissionAssign : GrouperUtil.nonNull(this.wsPermissionAssigns, WsPermissionAssign.class)) {
+      if (!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId())) {
+        allAttributeAssignIds.add(wsPermissionAssign.getAttributeAssignId());
+      }
+    }
+    
+    List<AttributeAssign> attributeAssignList = new ArrayList<AttributeAssign>();
+    
+    for (String wsAttributeAssignId : allAttributeAssignIds) {
+      AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(wsAttributeAssignId, true);
+      attributeAssignList.add(attributeAssign);
+    }
+
+    if (includeAssignmentsOnAssignments) {
+      //security is already checked, lets pass these through...
+      Set<AttributeAssign> assignmentsOnAssignments = GrouperDAOFactory.getFactory().getAttributeAssign()
+        .findAssignmentsOnAssignments(attributeAssignList, null, enabledBoolean);
+      attributeAssignList.addAll(assignmentsOnAssignments);
+    }
+
+    int i = 0;
+    this.wsAttributeAssigns = new WsAttributeAssign[attributeAssignList.size()];
+    for (AttributeAssign attributeAssign : attributeAssignList) {
+
+      this.wsAttributeAssigns[i] = new WsAttributeAssign(attributeAssign);
+      i++;
+      
+    }
+
+  }
+
 }

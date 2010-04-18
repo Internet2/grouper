@@ -29,22 +29,23 @@
   <class name="PermissionEntry" table="grouper_perms_role_subject_v" entity-name="PermissionEntryRoleSubject" >
 
     <composite-id >
-      <key-property name="roleName" column="role_name"/>
-      <key-property name="subjectSourceId" column="subject_source_id"/>
-      <key-property name="subjectId" column="subject_id"/>
-      <key-property name="action" column="action"/>
-      <key-property name="attributeDefNameName" column="attribute_def_name_name"/>
-      <key-property name="attributeDefNameDispName" column="attribute_def_name_disp_name"/>
-      <key-property name="roleDisplayName" column="role_display_name"/>
+      <key-property name="actionId" column="action_id"/>
       <key-property name="roleId" column="role_id"/>
-      <key-property name="attributeDefId" column="attribute_def_id"/>
       <key-property name="memberId" column="member_id"/>
       <key-property name="attributeDefNameId" column="attribute_def_name_id"/>
-      <key-property name="enabledDb" column="enabled"/>
-      <key-property name="attributeAssignDelegatableDb" column="attribute_assign_delegatable"/>
       <key-property name="membershipId" column="membership_id"/>
-      
+      <key-property name="attributeAssignId" column="attribute_assign_id"/>
     </composite-id>
+    <property name="action" column="action"/>
+    <property name="subjectSourceId" column="subject_source_id"/>
+    <property name="subjectId" column="subject_id"/>
+    <property name="roleName" column="role_name" />
+    <property name="attributeDefNameName" column="attribute_def_name_name"/>
+    <property name="attributeDefNameDispName" column="attribute_def_name_disp_name"/>
+    <property name="roleDisplayName" column="role_display_name"/>
+    <property name="attributeDefId" column="attribute_def_id"/>
+    <property name="enabledDb" column="enabled"/>
+    <property name="attributeAssignDelegatableDb" column="attribute_assign_delegatable"/>
     <property name="enabledTimeDb" column="enabled_time"/>
     <property name="disabledTimeDb" column="disabled_time"/>
     <property name="membershipDepth" column="membership_depth"/>
@@ -52,6 +53,7 @@
     <property name="attributeDefNameSetDepth" column="attr_def_name_set_depth"/>
     <property name="attributeAssignActionSetDepth" column="attr_assign_action_set_depth"/>
     <property name="permissionTypeDb" column="permission_type"/>
+    <property name="assignmentNotes" column="assignment_notes"/>
   </class>
 </hibernate-mapping>
 

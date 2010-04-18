@@ -22,12 +22,14 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
 import edu.internet2.middleware.grouper.attr.AttributeDefTest;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
@@ -36,6 +38,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupMember;
@@ -43,6 +46,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -53,6 +57,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDetail;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
@@ -61,6 +66,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsPermissionAssign;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
@@ -92,7 +98,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetAttributeAssignmentsAttributeDef"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignments"));
   }
 
   /**
@@ -616,6 +622,462 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
   }
 
+  /**
+   * test getting permission assignments
+   */
+  public void testGetPermissionAssignments() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem top = StemFinder.findRootStem(grouperSession).addChildStem("top", "top display name");
+
+    //parent implies child
+    Role role = top.addChildRole("role", "role");
+    Role role2 = top.addChildRole("role2", "role2");
+        
+    ((Group)role).addMember(SubjectTestHelper.SUBJ0);    
+    ((Group)role2).addMember(SubjectTestHelper.SUBJ1);    
+    
+    AttributeDef attributeDef = top.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attrDefName = top.addChildAttributeDefName(attributeDef, "attrDefName", "attrDefName");
+    AttributeDefName attrDefName2 = top.addChildAttributeDefName(attributeDef, "attrDefName2", "attrDefName2");
+
+    attributeDef.getAttributeDefActionDelegate().addAction("action");
+    attributeDef.getAttributeDefActionDelegate().addAction("action2");
+    
+    //subject 0 has a "role" permission of attributeDefName with "action" in 
+    //subject 1 has a "role_subject" permission of attributeDefName2 with action2
+    
+    role.getPermissionRoleDelegate().assignRolePermission("action", attrDefName);
+    AttributeAssignResult attributeAssignResult = role2.getPermissionRoleDelegate()
+      .assignSubjectRolePermission("action2", attrDefName2, SubjectTestHelper.SUBJ1);
+
+    AttributeDef assignOnAssignDef = top.addChildAttributeDef("assignOnAssignDef", AttributeDefType.limit);
+    assignOnAssignDef.setAssignToGroupAssn(true);
+    assignOnAssignDef.setAssignToEffMembershipAssn(true);
+    assignOnAssignDef.setValueType(AttributeDefValueType.string);
+    assignOnAssignDef.store();
+    AttributeDefName assignOnAssignDefName = top.addChildAttributeDefName(
+        assignOnAssignDef, "assignOnAssignDefName", "assignOnAssignDefName");
+
+    AttributeValueResult attributeValueResult = attributeAssignResult.getAttributeAssign()
+      .getAttributeValueDelegate().assignValueString(assignOnAssignDefName.getName(), "hey");
+    
+    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = null;
+    WsPermissionAssign wsPermissionAssign = null;
+    
+    //#################################################
+    //you must pass in some criteria
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, null, null, null, null, 
+        null, false, false, false, false, null, false, null, false, null, null);
+
+    //new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}
+    
+    assertEquals("You must pass in some criteria", WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    
+    //#################################################
+    //invalid attrdef
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, null, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup("top:abc", null)}, null, null, 
+        null, false, false, false, false, null, false, null, false, null, null);
+
+    assertEquals("bad attr def", 
+        WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    //#################################################
+    //invalid action, needs something else
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, null, null, null, null, 
+        new String[]{"action"}, false, false, false, false, null, false, null, false, null, null);
+
+    assertEquals("need more than action", 
+        WsGetAttributeAssignmentsResultsCode.EXCEPTION.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    //#################################################
+    //valid query for role assignment
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, null, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup("top:attrDefName", null)}, null, null, 
+        null, false, false, false, false, null, false, null, false, null, null);
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role", wsPermissionAssign.getPermissionType());
+    assertEquals(role.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ0_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+    
+    //#################################################
+    //valid query for role subject assignment
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, null, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup("top:attrDefName2", null)}, null, null, 
+        null, false, false, false, false, null, false, null, false, null, null);
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+    
+    //#################################################
+    //valid query for attrdef
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, new WsAttributeDefLookup[]{new WsAttributeDefLookup("top:attributeDef", null)}, null, null, null, 
+        null, false, false, false, false, null, false, null, false, null, null);
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(2, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role", wsPermissionAssign.getPermissionType());
+    assertEquals(role.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ0_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[1];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+    
+    //#################################################
+    //valid query for lookup by role
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, null, null, new WsGroupLookup[]{new WsGroupLookup(role.getName(), null)}, null, 
+        null, false, false, false, false, null, false, null, false, null, null);
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role", wsPermissionAssign.getPermissionType());
+    assertEquals(role.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ0_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+    
+    //#################################################
+    //valid query for lookup by subject
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, null, null, null, new WsSubjectLookup[]{new WsSubjectLookup(SubjectTestHelper.SUBJ0_ID, null, null)}, 
+        null, false, false, false, false, null, false, null, false, null, null);
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role", wsPermissionAssign.getPermissionType());
+    assertEquals(role.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ0_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+    
+    
+    //#################################################
+    //valid query for attrdef and action
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, new WsAttributeDefLookup[]{new WsAttributeDefLookup("top:attributeDef", null)}, null, null, null, 
+        new String[]{"action2"}, true, false, false, false, null, false, null, false, null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNotNull(wsPermissionAssign.getDetail());
+    assertEquals("0", wsPermissionAssign.getDetail().getActionDepth());
+    assertNotNull(wsPermissionAssign.getDetail().getActionId());
+    assertNull(wsPermissionAssign.getDetail().getAssignmentNotes());
+    assertEquals("0", wsPermissionAssign.getDetail().getAttributeDefNameSetDepth());
+    assertNull(wsPermissionAssign.getDetail().getDisabledTime());
+    assertNull(wsPermissionAssign.getDetail().getEnabledTime());
+    assertEquals("T", wsPermissionAssign.getDetail().getImmediateMembership());
+    assertEquals("T", wsPermissionAssign.getDetail().getImmediatePermission());
+    assertEquals(MemberFinder.findBySubject(GrouperServiceUtils.testSession, SubjectTestHelper.SUBJ1, true).getUuid(), wsPermissionAssign.getDetail().getMemberId());
+    assertEquals("0", wsPermissionAssign.getDetail().getMembershipDepth());
+    assertEquals("FALSE", wsPermissionAssign.getDetail().getPermissionDelegatable());
+    assertEquals("If not a role assignment, this is not used, -1", "-1", wsPermissionAssign.getDetail().getRoleSetDepth());
+    assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeDefNames()));
+    
+    //#################################################
+    //valid query for attrdef and action and attr def names
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, new WsAttributeDefLookup[]{new WsAttributeDefLookup("top:attributeDef", null)}, null, null, null, 
+        new String[]{"action2"}, false, true, false, false, null, false, null, false, null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeDefNames()));
+    assertEquals(attrDefName2.getId(), wsGetPermissionAssignmentsResults.getWsAttributeDefNames()[0].getUuid());
+    assertEquals(attrDefName2.getName(), wsGetPermissionAssignmentsResults.getWsAttributeDefNames()[0].getName());
+
+    assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()));
+
+    //#################################################
+    //valid query for attrdef and action and attr def names
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, new WsAttributeDefLookup[]{new WsAttributeDefLookup("top:attributeDef", null)}, null, null, null, 
+        new String[]{"action2"}, false, false, true, false, null, false, null, false, null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()));
+    assertEquals("action2", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[0].getAttributeAssignActionName());
+    
+    //#################################################
+    //invalid query for attrdef and action and assign on assignments
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, new WsAttributeDefLookup[]{new WsAttributeDefLookup("top:attributeDef", null)}, null, null, null, 
+        new String[]{"action2"}, false, false, false, true, null, false, null, false, null, null);
+
+    assertEquals("need assignments to see assigns on assignments", 
+        WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(0, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+
+    
+    //#################################################
+    //valid query for attrdef and action and assign on assignments
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, new WsAttributeDefLookup[]{new WsAttributeDefLookup("top:attributeDef", null)}, null, null, null, 
+        new String[]{"action2"}, false, false, true, true, null, false, null, false, null, null);
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+
+    assertEquals(2, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()));
+    assertEquals("action2", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[0].getAttributeAssignActionName());
+    assertEquals("assign", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getAttributeAssignActionName());
+    assertEquals(attributeValueResult.getAttributeAssignResult().getAttributeAssign().getId(), wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getId());
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getWsAttributeAssignValues()));
+    assertEquals("hey", wsGetPermissionAssignmentsResults.getWsAttributeAssigns()[1].getWsAttributeAssignValues()[0].getValueSystem());
+    
+    //#################################################
+    //valid query for attrdef and action, and group detail 
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(
+        GrouperWsVersion.v1_6_000, new WsAttributeDefLookup[]{new WsAttributeDefLookup("top:attributeDef", null)}, null, null, null, 
+        new String[]{"action2"}, false, false, false, false, null, false, null, true, null, null);
+
+    assertEquals("This is ok: " + wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsGetPermissionAssignmentsResults.getResultMetadata().getResultCode());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns()));
+    
+    wsPermissionAssign = wsGetPermissionAssignmentsResults.getWsPermissionAssigns()[0];
+    
+    assertEquals("action2", wsPermissionAssign.getAction());
+    assertEquals(attributeDef.getId(), wsPermissionAssign.getAttributeDefId());
+    assertEquals(attributeDef.getName(), wsPermissionAssign.getAttributeDefName());
+    assertEquals(attrDefName2.getId(), wsPermissionAssign.getAttributeDefNameId());
+    assertEquals(attrDefName2.getName(), wsPermissionAssign.getAttributeDefNameName());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getAttributeAssignId()));
+    assertEquals("T", wsPermissionAssign.getEnabled());
+    assertTrue(!StringUtils.isBlank(wsPermissionAssign.getMembershipId()));
+    assertEquals("role_subject", wsPermissionAssign.getPermissionType());
+    assertEquals(role2.getId(), wsPermissionAssign.getRoleId());
+    assertEquals(role2.getName(), wsPermissionAssign.getRoleName());
+    assertEquals("jdbc", wsPermissionAssign.getSourceId());
+    assertEquals(SubjectTestHelper.SUBJ1_ID, wsPermissionAssign.getSubjectId());
+    assertNull(wsPermissionAssign.getDetail());
+
+    assertEquals(1, GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsGroups()));
+    assertEquals("F", wsGetPermissionAssignmentsResults.getWsGroups()[0].getDetail().getIsCompositeFactor());
+  }
+  
   /**
    * test group attribute read
    */

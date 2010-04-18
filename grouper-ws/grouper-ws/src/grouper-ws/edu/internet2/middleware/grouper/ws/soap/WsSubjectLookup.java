@@ -494,6 +494,17 @@ public class WsSubjectLookup {
    * @param grouperSession
    * @param wsSubjectLookups
    * @param errorMessage
+   * @return the group ids
+   */
+  public static Set<String> convertToMemberIds(GrouperSession grouperSession, WsSubjectLookup[] wsSubjectLookups, StringBuilder errorMessage) {
+    return convertToMemberIds(grouperSession, wsSubjectLookups, errorMessage, new int[1]);
+  }
+
+  /**
+   * convert subject lookups to member ids (create if not exist)
+   * @param grouperSession
+   * @param wsSubjectLookups
+   * @param errorMessage
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the group ids
    */

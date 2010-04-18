@@ -4857,7 +4857,8 @@ public enum GrouperDdl implements DdlVersionable {
             "attr_assign_action_set_depth",
             "membership_id",
             "attribute_assign_id",
-            "permission_type"
+            "permission_type",
+            "assignment_notes"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -4881,7 +4882,8 @@ public enum GrouperDdl implements DdlVersionable {
             "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
             "membership_id: id of the underlying membership",
             "attribute_assign_id: id of the underlying attribute assign",
-            "permission_type: role or role_subject for assignment to role or to role subject pair"
+            "permission_type: role or role_subject for assignment to role or to role subject pair",
+            "assignment_notes: notes on this assignment"
         ),
         "select distinct gr.name as role_name,  "
         + "gm.subject_source as subject_source_id,  "
@@ -4905,7 +4907,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "gaaas.depth AS attr_assign_action_set_depth, "
         + "gmav.membership_id as membership_id, " 
         + "gaa.id AS attribute_assign_id, "
-        + "'role' as permission_type "
+        + "'role' as permission_type, "
+        + "gaa.notes as assignment_notes "
         + "from grouper_groups gr,  "
         + "grouper_memberships_all_v gmav,  "
         + "grouper_members gm,  "
@@ -4959,7 +4962,8 @@ public enum GrouperDdl implements DdlVersionable {
             "attr_assign_action_set_depth",
             "membership_id",
             "attribute_assign_id",
-            "permission_type"
+            "permission_type",
+            "assignment_notes"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -4983,7 +4987,8 @@ public enum GrouperDdl implements DdlVersionable {
             "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
             "membership_id: id of the underlying membership",
             "attribute_assign_id: id of the underlying attribute assign",
-            "permission_type: role or role_subject for assignment to role or to role subject pair"
+            "permission_type: role or role_subject for assignment to role or to role subject pair",
+            "assignment_notes: notes on this assignment"
         ),
         "SELECT DISTINCT gr.name AS role_name,   " +
         "gm.subject_source AS subject_source_id,   " +
@@ -5007,7 +5012,8 @@ public enum GrouperDdl implements DdlVersionable {
         "gaaas.depth AS attr_assign_action_set_depth, " +
         "gmav.membership_id as membership_id, " +
         "gaa.id as attribute_assign_id, " +
-        "'role_subject' as permission_type " +
+        "'role_subject' as permission_type, " +
+        "gaa.notes as assignment_notes " +
         "FROM grouper_groups gr,   " +
         "grouper_memberships_all_v gmav,   " +
         "grouper_members gm,   " +
@@ -5057,7 +5063,8 @@ public enum GrouperDdl implements DdlVersionable {
             "attr_assign_action_set_depth",
             "membership_id",
             "attribute_assign_id",
-            "permission_type"
+            "permission_type",
+            "assignment_notes"
             ),
         GrouperUtil.toSet("role_name: name of the role that the user is in and that has the permission",
             "subject_source_id: source id of the subject which is in the role and thus has the permission",
@@ -5081,7 +5088,8 @@ public enum GrouperDdl implements DdlVersionable {
             "attr_assign_action_set_depth: depth of action hierarchy, 0 is immediate",
             "membership_id: id of the underlying membership",
             "attribute_assign_id: id of the underlying attribute assign",
-            "permission_type: role or role_subject for assignment to role or to role subject pair"
+            "permission_type: role or role_subject for assignment to role or to role subject pair",
+            "assignment_notes: notes on this assignment"
         ),
         "select role_name,  "
         + "subject_source_id,  "
@@ -5105,7 +5113,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "attr_assign_action_set_depth, "
         + "membership_id, "
         + "attribute_assign_id, "
-        + "permission_type "
+        + "permission_type, "
+        + "assignment_notes "
         + "from grouper_perms_role_v  "
         + "union  "
         + "select role_name,  "
@@ -5130,7 +5139,8 @@ public enum GrouperDdl implements DdlVersionable {
         + "attr_assign_action_set_depth, "
         + "membership_id, "
         + "attribute_assign_id, "
-        + "permission_type "
+        + "permission_type, "
+        + "assignment_notes "
         + "from grouper_perms_role_subject_v  ");
 
   }

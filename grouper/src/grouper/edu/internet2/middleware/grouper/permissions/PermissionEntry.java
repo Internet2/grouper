@@ -23,8 +23,25 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class PermissionEntry extends GrouperAPI implements Comparable<PermissionEntry> {
 
+  /** notes on the assignment of privilege */
+  private String assignmentNotes;
   
-  
+  /**
+   * notes on the assignment of privilege
+   * @return notes
+   */
+  public String getAssignmentNotes() {
+    return this.assignmentNotes;
+  }
+
+  /**
+   * notes on the assignment of privilege
+   * @param assignmentNotes1
+   */
+  public void setAssignmentNotes(String assignmentNotes1) {
+    this.assignmentNotes = assignmentNotes1;
+  }
+
   /**
    * see if a permission is in the list of entries
    * @param permissionEntries
@@ -75,6 +92,29 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
 
   /** action on the perimssion (e.g. read, write, assign (default), etc */
   private String action;
+
+  /**
+   * action on the perimssion (e.g. read, write, assign (default), etc
+   */
+  private String actionId;
+  
+  
+  
+  /**
+   * action on the perimssion (e.g. read, write, assign (default), etc
+   * @return action
+   */
+  public String getActionId() {
+    return this.actionId;
+  }
+
+  /**
+   * action on the perimssion (e.g. read, write, assign (default), etc
+   * @param actionId1
+   */
+  public void setActionId(String actionId1) {
+    this.actionId = actionId1;
+  }
 
   /** name of the attribute def name which is the permission assigned to the role or subject */
   private String attributeDefNameName;
@@ -204,10 +244,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * role which has the permission or which the subject must be in to have the permission
-   * @param roleName the roleName to set
+   * @param roleName1 the roleName to set
    */
-  public void setRoleName(String roleName) {
-    this.roleName = roleName;
+  public void setRoleName(String roleName1) {
+    this.roleName = roleName1;
   }
 
   
@@ -222,10 +262,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * source id of the subject which has the permissions
-   * @param subjectSourceId the subjectSourceId to set
+   * @param subjectSourceId1 the subjectSourceId to set
    */
-  public void setSubjectSourceId(String subjectSourceId) {
-    this.subjectSourceId = subjectSourceId;
+  public void setSubjectSourceId(String subjectSourceId1) {
+    this.subjectSourceId = subjectSourceId1;
   }
 
   
@@ -240,10 +280,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * subject id of the subject which has the permissions
-   * @param subjectId the subjectId to set
+   * @param subjectId1 the subjectId to set
    */
-  public void setSubjectId(String subjectId) {
-    this.subjectId = subjectId;
+  public void setSubjectId(String subjectId1) {
+    this.subjectId = subjectId1;
   }
 
   
@@ -258,10 +298,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * action on the perimssion (e.g. read, write, assign (default), etc
-   * @param action the action to set
+   * @param action1 the action to set
    */
-  public void setAction(String action) {
-    this.action = action;
+  public void setAction(String action1) {
+    this.action = action1;
   }
 
   
@@ -276,10 +316,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * name of the attribute def name which is the permission assigned to the role or subject
-   * @param attributeDefNameName the attributeDefNameName to set
+   * @param attributeDefNameName1 the attributeDefNameName to set
    */
-  public void setAttributeDefNameName(String attributeDefNameName) {
-    this.attributeDefNameName = attributeDefNameName;
+  public void setAttributeDefNameName(String attributeDefNameName1) {
+    this.attributeDefNameName = attributeDefNameName1;
   }
 
   
@@ -294,10 +334,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * display name of the attribute def name which is the permission assigned to the role or subject
-   * @param attributeDefNameDispName the attributeDefNameDispName to set
+   * @param attributeDefNameDispName1 the attributeDefNameDispName to set
    */
-  public void setAttributeDefNameDispName(String attributeDefNameDispName) {
-    this.attributeDefNameDispName = attributeDefNameDispName;
+  public void setAttributeDefNameDispName(String attributeDefNameDispName1) {
+    this.attributeDefNameDispName = attributeDefNameDispName1;
   }
 
   
@@ -312,10 +352,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * display name of the role which the subject is in to have the permission
-   * @param roleDisplayName the roleDisplayName to set
+   * @param roleDisplayName1 the roleDisplayName to set
    */
-  public void setRoleDisplayName(String roleDisplayName) {
-    this.roleDisplayName = roleDisplayName;
+  public void setRoleDisplayName(String roleDisplayName1) {
+    this.roleDisplayName = roleDisplayName1;
   }
 
   
@@ -330,10 +370,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * id of the role which the subject is in to get the permission
-   * @param roleId the roleId to set
+   * @param roleId1 the roleId to set
    */
-  public void setRoleId(String roleId) {
-    this.roleId = roleId;
+  public void setRoleId(String roleId1) {
+    this.roleId = roleId1;
   }
 
   
@@ -348,10 +388,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * id of the attributeDef
-   * @param attributeDefId the attributeDefId to set
+   * @param attributeDefId1 the attributeDefId to set
    */
-  public void setAttributeDefId(String attributeDefId) {
-    this.attributeDefId = attributeDefId;
+  public void setAttributeDefId(String attributeDefId1) {
+    this.attributeDefId = attributeDefId1;
   }
 
   
@@ -366,10 +406,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * id of the member that has the permission
-   * @param memberId the memberId to set
+   * @param memberId1 the memberId to set
    */
-  public void setMemberId(String memberId) {
-    this.memberId = memberId;
+  public void setMemberId(String memberId1) {
+    this.memberId = memberId1;
   }
 
   
@@ -384,10 +424,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   
   /**
    * id of the attribute def name which is the permission
-   * @param attributeDefNameId the attributeDefNameId to set
+   * @param attributeDefNameId1 the attributeDefNameId to set
    */
-  public void setAttributeDefNameId(String attributeDefNameId) {
-    this.attributeDefNameId = attributeDefNameId;
+  public void setAttributeDefNameId(String attributeDefNameId1) {
+    this.attributeDefNameId = attributeDefNameId1;
   }
 
   /**
@@ -401,6 +441,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   /**
    * @see java.lang.Object#toString()
    */
+  @Override
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
@@ -634,7 +675,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
 
     }
 
-  };
+  }
   
   /** type of permission, either assigned to role, or assigned to role and user combined: role_subject */
   private PermissionType permissionType;
@@ -660,7 +701,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    * @return permission type
    */
   public PermissionType getPermissionType() {
-    return permissionType;
+    return this.permissionType;
   }
   
   /** id of the membership row */

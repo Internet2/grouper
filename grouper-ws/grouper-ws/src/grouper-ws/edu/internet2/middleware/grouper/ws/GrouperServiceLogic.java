@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
@@ -108,6 +109,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
@@ -153,6 +155,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults.WsFindStemsRe
 import edu.internet2.middleware.grouper.ws.soap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
+import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults.WsGetPermissionAssignmentsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults.WsGetSubjectsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
@@ -5819,5 +5822,159 @@ public class GrouperServiceLogic {
     
     return wsAssignAttributesLiteResults; 
 
+  }
+
+  /**
+   * get attributeAssignments from groups etc based on inputs
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param roleLookups are roles to look in
+   * @param wsSubjectLookups are subjects to look in
+   * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
+   * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
+   * @param actions to query, or none to query all actions
+   * @param includeAttributeDefNames T or F for if attributeDefName objects should be returned
+   * @param includeAttributeAssignments T or F for it attribute assignments should be returned
+   * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
+   * and assignments on those assignments should be returned, enter true.  default to false.
+   * @param includePermissionAssignDetail T or F for if the permission details should be returned
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectLookup
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @param enabled is A for all, T or null for enabled only, F for disabled 
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsGetPermissionAssignmentsResults getPermissionAssignments(
+      final GrouperWsVersion clientVersion, 
+      WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
+      WsGroupLookup[] roleLookups, WsSubjectLookup[] wsSubjectLookups, 
+      String[] actions, boolean includePermissionAssignDetail,
+      boolean includeAttributeDefNames, boolean includeAttributeAssignments,
+      boolean includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
+      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params, 
+      String enabled) {  
+  
+    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+  
+      theSummary = "clientVersion: " + clientVersion 
+          + ", wsAttributeDefLookups: "
+          + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200) 
+          + ", wsAttributeDefNameLookups: "
+          + GrouperUtil.toStringForLog(wsAttributeDefNameLookups, 200) + ", roleLookups: "
+          + GrouperUtil.toStringForLog(roleLookups, 200) 
+          + ", actions: " + GrouperUtil.toStringForLog(actions, 200)
+          + ", includePermissionAssignDetail: " + includePermissionAssignDetail
+          + ", includeAttributeDefNames: " + includeAttributeDefNames
+          + ", includeAttributeAssignments: " + includeAttributeAssignments
+          + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
+          + actAsSubjectLookup 
+          + ", subjectAttributeNames: "
+          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsSubjectLookups: "
+          + GrouperUtil.toStringForLog(wsSubjectLookups, 200) 
+          + ", enabled: " + enabled;
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
+        .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
+  
+      wsGetPermissionAssignmentsResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
+  
+      if (includeAssignmentsOnAssignments && !includeAttributeAssignments) {
+        throw new WsInvalidQueryException("If you want assignments on assignment, then you have to have includeAttributeAssignments = T");
+      }
+  
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+      
+      //this is for error checking
+      
+      StringBuilder errorMessage = new StringBuilder();
+  
+      //get the attributedefs to retrieve
+      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, errorMessage);
+      
+      //get the attributeDefNames to retrieve
+      Set<String> attributeDefNameIds = WsAttributeDefNameLookup.convertToAttributeDefNameIds(session, wsAttributeDefNameLookups, errorMessage);
+      
+      //get all the owner groups
+      Set<String> roleIds = WsGroupLookup.convertToGroupIds(session, roleLookups, errorMessage);
+      
+      //get all the member ids
+      Set<String> memberIds = WsSubjectLookup.convertToMemberIds(session, wsSubjectLookups, errorMessage);
+      
+      Set<PermissionEntry> results = null;
+      
+      Boolean enabledBoolean = true;
+      if (!StringUtils.isBlank(enabled)) {
+        if (StringUtils.equalsIgnoreCase("A", enabled)) {
+          enabledBoolean = null;
+        } else {
+          enabledBoolean = GrouperUtil.booleanValue(enabled);
+        }
+      }
+      
+      Collection<String> actionsCollection = GrouperUtil.toSet(actions);
+      
+      if (actionsCollection == null || actionsCollection.size() == 0 
+          || (actionsCollection.size() == 1 && StringUtils.isBlank(actionsCollection.iterator().next()))) {
+        actionsCollection = null;
+      }
+      
+      results = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
+          attributeDefIds, attributeDefNameIds, roleIds, actionsCollection, enabledBoolean, memberIds);
+
+      wsGetPermissionAssignmentsResults.assignResult(results, subjectAttributeNames, includePermissionAssignDetail);
+      
+      
+      if (includeAttributeAssignments) {
+        wsGetPermissionAssignmentsResults.fillInAttributeAssigns(includeAssignmentsOnAssignments, enabledBoolean);
+      }
+      
+      if (includeAttributeDefNames) {
+        wsGetPermissionAssignmentsResults.fillInAttributeDefNames(attributeDefNameIds);
+      }
+      
+      wsGetPermissionAssignmentsResults.fillInAttributeDefs(attributeDefIds);
+      
+      wsGetPermissionAssignmentsResults.fillInGroups(roleIds, includeGroupDetail);
+      wsGetPermissionAssignmentsResults.fillInSubjects(wsSubjectLookups, null, 
+          includeSubjectDetail, subjectAttributeNamesToRetrieve);
+      
+      //sort after all the data is there
+      wsGetPermissionAssignmentsResults.sortResults();
+      
+      if (errorMessage.length() > 0) {
+        wsGetPermissionAssignmentsResults.assignResultCode(WsGetPermissionAssignmentsResultsCode.INVALID_QUERY);
+        wsGetPermissionAssignmentsResults.getResultMetadata().appendResultMessage(errorMessage.toString());
+      } else {
+        wsGetPermissionAssignmentsResults.assignResultCode(WsGetPermissionAssignmentsResultsCode.SUCCESS);
+      }
+      
+      wsGetPermissionAssignmentsResults.getResultMetadata().appendResultMessage(
+          ", Found " + GrouperUtil.length(wsGetPermissionAssignmentsResults.getWsPermissionAssigns())
+          + " results.  ");
+  
+        
+    } catch (Exception e) {
+      wsGetPermissionAssignmentsResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  
+    return wsGetPermissionAssignmentsResults; 
   }
 }

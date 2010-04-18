@@ -3266,4 +3266,75 @@ public class GrouperService {
     return wsAssignAttributesLiteResults; 
   
   }
+
+//  /**
+//   * get attributeAssignments from groups etc based on inputs
+//   * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
+//   * group, member, stem, any_mem, imm_mem, attr_def, NOT: group_asgn, NOT: mem_asgn, 
+//   * NOT: stem_asgn, NOT: any_mem_asgn, NOT: imm_mem_asgn, NOT: attr_def_asgn  
+//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+//   * @param roleLookups are roles to look in
+//   * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
+//   * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
+//   * @param includeAttributeDefNames T or F for if attributeDefName objects should be returned
+//   * @param includeAttributeAssignments T or F for it attribute assignments should be returned
+//   * @param actions to query, or none to query all actions
+//   * @param includeAssignmentsOnAssignments if this is not querying assignments on assignments directly, but the assignments
+//   * and assignments on those assignments should be returned, enter true.  default to false.
+//   * @param includePermissionAssignmentDetail T or F for if the permission details should be returned
+//   * @param includeSubjectDetail
+//   *            T|F, for if the extended subject information should be
+//   *            returned (anything more than just the id)
+//   * @param actAsSubjectLookup
+//   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+//   * If blank, whatever is configured in the grouper-ws.properties will be sent
+//   * @param includeGroupDetail T or F as to if the group detail should be returned
+//   * @param params optional: reserved for future use
+//   * @param enabled is A for all, T or null for enabled only, F for disabled 
+//   * @return the results
+//   */
+//  @SuppressWarnings("unchecked")
+//  public WsGetAttributeAssignmentsResults getPermissionAssignments(
+//      String clientVersion, String attributeAssignType,
+//      WsAttributeAssignLookup[] wsAttributeAssignLookups,
+//      WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
+//      WsGroupLookup[] roleLookups, WsStemLookup[] wsOwnerStemLookups, WsSubjectLookup[] wsOwnerSubjectLookups, 
+//      WsMembershipLookup[] wsOwnerMembershipLookups, WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups, 
+//      WsAttributeDefLookup[] wsOwnerAttributeDefLookups, 
+//      String[] actions, String includeAttributeDefNames, String includeAttributeAssignments,
+//      String includeAssignmentsOnAssignments, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
+//      String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
+//      String enabled) {  
+//  
+//    WsGetPermissionAssignmentsResults wsGetPermissionAssignmentsResults = new WsGetPermissionAssignmentsResults();
+//  
+//    try {
+//  
+//      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+//          includeGroupDetail, false, "includeGroupDetail");
+//  
+//      boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+//          includeSubjectDetail, false, "includeSubjectDetail");
+//  
+//      boolean includeAssignmentsOnAssignmentsBoolean = GrouperServiceUtils.booleanValue(
+//          includeAssignmentsOnAssignments, false, "includeAssignmentsOnAssignments");
+//  
+//      AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.convertAttributeAssignType(attributeAssignType);
+//      
+//      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+//          clientVersion, true);
+//  
+////      wsGetPermissionAssignmentsResults = GrouperServiceLogic.getAttributeAssignments(grouperWsVersion, attributeAssignTypeEnum, wsAttributeAssignLookups, wsAttributeDefLookups, wsAttributeDefNameLookups, wsOwnerGroupLookups, wsOwnerStemLookups, wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, actions, includeAssignmentsOnAssignmentsBoolean, actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled);
+//  
+//    } catch (Exception e) {
+//      wsGetPermissionAssignmentsResults.assignResultCodeException(null, null, e);
+//    }
+//  
+//    //set response headers
+//    GrouperServiceUtils.addResponseHeaders(wsGetPermissionAssignmentsResults.getResultMetadata(), this.soap);
+//  
+//    //this should be the first and only return, or else it is exiting too early
+//    return wsGetPermissionAssignmentsResults; 
+//  
+//  }
 }

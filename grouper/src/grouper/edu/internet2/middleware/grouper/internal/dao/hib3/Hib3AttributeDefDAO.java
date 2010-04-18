@@ -64,7 +64,10 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findById(java.lang.String, boolean)
    */
   public AttributeDef findById(String id, boolean exceptionIfNotFound) {
-    AttributeDef attributeDef = HibernateSession.byHqlStatic().createQuery(
+    AttributeDef attributeDef = HibernateSession.byHqlStatic()
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindById")
+      .createQuery(
         "from AttributeDef where id = :theId")
       .setString("theId", id).uniqueResult(AttributeDef.class);
 

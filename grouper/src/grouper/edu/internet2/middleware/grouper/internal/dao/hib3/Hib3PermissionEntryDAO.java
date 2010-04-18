@@ -181,6 +181,11 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
       sql.append(") ");
     }
+    if (memberIdsSize > 0) {
+      sql.append(" and pea.memberId in (");
+      sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
+      sql.append(") ");
+    }
     byHqlStatic
       .setCacheable(false)
       .setCacheRegion(KLASS + ".findPermissions");

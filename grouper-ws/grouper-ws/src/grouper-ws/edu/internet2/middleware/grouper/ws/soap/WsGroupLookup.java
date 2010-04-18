@@ -41,6 +41,18 @@ public class WsGroupLookup {
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the group ids
    */
+  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage) {
+    return convertToGroupIds(grouperSession, wsGroupLookups, errorMessage, new int[1]);
+  }
+
+  /**
+   * convert group lookups to group ids
+   * @param grouperSession
+   * @param wsGroupLookups
+   * @param errorMessage
+   * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
+   * @return the group ids
+   */
   public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, int[] lookupCount) {
     //get all the groups
     //we could probably batch these to get better performance.
