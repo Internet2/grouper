@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameTest;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
@@ -32,6 +33,7 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -60,6 +62,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembers;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembersLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMemberships;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembershipsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetPermissionAssignments;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetPermissionAssignmentsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetSubjects;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetSubjectsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDelete;
@@ -115,6 +119,8 @@ import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberCha
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteRest;
@@ -153,9 +159,8 @@ public class SampleCapture {
     
     setupData();
     
-    captureAssignAttributes();
+    captureGetPermissionAssignments();
     
-    //captureGetGroups();
     
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
@@ -234,7 +239,7 @@ public class SampleCapture {
       }
       grouperSession = GrouperSession.start(grouperSystemSubject);
       
-      Stem.saveStem(grouperSession, "aStem", null,"aStem", "a stem",  "a stem description", null, false);
+      Stem aStem = Stem.saveStem(grouperSession, "aStem", null,"aStem", "a stem",  "a stem description", null, false);
       
       Group aGroup = Group.saveGroup(grouperSession, "aStem:aGroup",  null,"aStem:aGroup", 
           "a group","a group description",  null, false);
@@ -321,6 +326,34 @@ public class SampleCapture {
       attributeAssign.getValueDelegate().addValueInteger(5L);
       attributeAssign.getValueDelegate().addValueInteger(15L);
       attributeAssign.getValueDelegate().addValueInteger(5L);
+      
+      //#############################
+      //Permission framework
+      
+      //parent implies child
+      Role role = aStem.addChildRole("role", "role");
+      Role role2 = aStem.addChildRole("role2", "role2");
+          
+      ((Group)role).addMember(SubjectTestHelper.SUBJ0);    
+      ((Group)role2).addMember(SubjectTestHelper.SUBJ1);    
+      
+      AttributeDef permissionDef = aStem.addChildAttributeDef("permissionDef", AttributeDefType.perm);
+      permissionDef.setAssignToEffMembership(true);
+      permissionDef.setAssignToGroup(true);
+      permissionDef.store();
+      AttributeDefName permissionDefName = aStem.addChildAttributeDefName(permissionDef, "permissionDefName", "permissionDefName");
+      AttributeDefName permissionDefName2 = aStem.addChildAttributeDefName(permissionDef, "permissionDefName2", "permissionDefName2");
+
+      permissionDef.getAttributeDefActionDelegate().addAction("action");
+      permissionDef.getAttributeDefActionDelegate().addAction("action2");
+      
+      //subject 0 has a "role" permission of permissionDefName with "action" in 
+      //subject 1 has a "role_subject" permission of permissionDefName2 with action2
+      
+      role.getPermissionRoleDelegate().assignRolePermission("action", permissionDefName);
+      role2.getPermissionRoleDelegate()
+        .assignSubjectRolePermission("action2", permissionDefName2, SubjectTestHelper.SUBJ1);
+
       
       //anything else?
 
@@ -803,14 +836,29 @@ public class SampleCapture {
    * all get members captures
    */
   public static void captureAssignAttributes() {
-//    captureSample(WsSampleClientType.GENERATED_SOAP,  
-//        WsSampleAssignAttributes.class, "assignAttributes", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignAttributes.class, "assignAttributes", (String)null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleAssignAttributesLite.class, "assignAttributes", null);
-//    captureSample(WsSampleClientType.REST_BEANS,  
-//        WsSampleAssignAttributesRest.class, "assignAttributes", null);
-//    captureSample(WsSampleClientType.REST_BEANS,  
-//        WsSampleAssignAttributesRestLite.class, "assignAttributes", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignAttributesRest.class, "assignAttributes", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignAttributesRestLite.class, "assignAttributes", null);
+    
+  }
+
+  /**
+   * all get members captures
+   */
+  public static void captureGetPermissionAssignments() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetPermissionAssignments.class, "getPermissionAssignments", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetPermissionAssignmentsLite.class, "getPermissionAssignments", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetPermissionAssignmentsRest.class, "getPermissionAssignments", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetPermissionAssignmentsRestLite.class, "getPermissionAssignments", null);
     
   }
   

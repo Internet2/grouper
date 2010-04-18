@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouperClient.api.GcGetGrouperPrivilegesLite;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
 import edu.internet2.middleware.grouperClient.api.GcGetMemberships;
+import edu.internet2.middleware.grouperClient.api.GcGetPermissionAssignments;
 import edu.internet2.middleware.grouperClient.api.GcGetSubjects;
 import edu.internet2.middleware.grouperClient.api.GcGroupDelete;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
@@ -66,6 +67,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembershipsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetSubjectsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResult;
@@ -83,6 +85,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResu
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
+import edu.internet2.middleware.grouperClient.ws.beans.WsPermissionAssign;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStem;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemDeleteResult;
@@ -307,6 +310,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "getAttributeAssignmentsWs")) {
         result = getAttributeAssignments(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "getPermissionAssignmentsWs")) {
+        result = getPermissionAssignments(argMap, argMapNotUsed);
 
       } else if (GrouperClientUtils.equals(operation, "assignAttributesWs")) {
         result = assignAttributes(argMap, argMapNotUsed);
@@ -3662,6 +3668,239 @@ public class GrouperClient {
         index++;
       }
     }    
+    return result.toString();
+  }
+
+  /**
+   * get permissionAssignments
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String getPermissionAssignments(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+  
+    GcGetPermissionAssignments gcGetPermissionAssignments = new GcGetPermissionAssignments();        
+  
+    for (int i=0;i<10;i++) {
+      WsSubjectLookup subjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "subject" + i, false);
+      if (subjectLookup != null) {
+        gcGetPermissionAssignments.addSubjectLookup(subjectLookup);
+      }
+    }
+    
+    {
+      Boolean includeAssignmentsOnAssignments = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeAssignmentsOnAssignments");
+      gcGetPermissionAssignments.assignIncludeAssignmentsOnAssignments(includeAssignmentsOnAssignments);
+    }
+    {
+      Boolean includeAttributeAssignments = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeAttributeAssignments");
+      gcGetPermissionAssignments.assignIncludeAttributeAssignments(includeAttributeAssignments);
+    }
+    {
+      Boolean includeAttributeDefNames = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeAttributeDefNames");
+      gcGetPermissionAssignments.assignIncludeAttributeDefNames(includeAttributeDefNames);
+    }
+    {
+      Boolean includePermissionAssignDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includePermissionAssignDetail");
+      gcGetPermissionAssignments.assignIncludePermissionAssignDetail(includePermissionAssignDetail);
+    }
+    {
+      Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
+      gcGetPermissionAssignments.assignIncludeSubjectDetail(includeSubjectDetail);
+    }
+    {
+      Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+      gcGetPermissionAssignments.assignIncludeGroupDetail(includeGroupDetail);
+    }
+    {
+      List<String> roleUuids = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "roleUuids", false);
+      if (GrouperClientUtils.length(roleUuids) > 0) {
+        for (String ownerGroupUuid: roleUuids) {
+          gcGetPermissionAssignments.addRoleUuid(ownerGroupUuid);
+        }
+      }
+    }
+    {
+      List<String> roleNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "roleNames", false);
+      if (GrouperClientUtils.length(roleNames) > 0) {
+        for (String ownerGroupName: roleNames) {
+          gcGetPermissionAssignments.addRoleName(ownerGroupName);
+        }
+      }
+    }
+    {
+      String enabled = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "enabled", false);
+      gcGetPermissionAssignments.assignEnabled(enabled);
+    }
+  
+    {
+      String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+      gcGetPermissionAssignments.assignClientVersion(clientVersion);
+      
+    }
+    
+    {
+      WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+      gcGetPermissionAssignments.assignActAsSubject(actAsSubject);
+    }
+  
+    { 
+      Set<String> attributeDefNameNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNameNames", false);
+      
+      if (GrouperClientUtils.length(attributeDefNameNames) > 0) {
+        for (String attributeDefNameName : attributeDefNameNames) {
+          gcGetPermissionAssignments.addAttributeDefNameName(attributeDefNameName);
+        }
+      }
+    }
+    
+    {
+      Set<String> attributeDefNameUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNameUuids", false);
+      if (GrouperClientUtils.length(attributeDefNameUuids) > 0) {
+        for (String attributeDefNameUuid : attributeDefNameUuids) {
+          gcGetPermissionAssignments.addAttributeDefNameUuid(attributeDefNameUuid);
+        }
+      }
+    }
+    
+    { 
+      Set<String> attributeDefNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNames", false);
+      
+      if (GrouperClientUtils.length(attributeDefNames) > 0) {
+        for (String attributeDefName : attributeDefNames) {
+          gcGetPermissionAssignments.addAttributeDefName(attributeDefName);
+        }
+      }
+    }
+    
+    {
+      Set<String> attributeDefUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefUuids", false);
+      if (GrouperClientUtils.length(attributeDefUuids) > 0) {
+        for (String attributeDefUuid : attributeDefUuids) {
+          gcGetPermissionAssignments.addAttributeDefUuid(attributeDefUuid);
+        }
+      }
+    }
+  
+    {
+      Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
+  
+      for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
+        gcGetPermissionAssignments.addSubjectAttributeName(subjectAttribute);
+      }
+    }    
+    
+    {
+      Set<String> actions = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "actions", false);
+      
+      if (GrouperClientUtils.length(actions) > 0) {
+        for (String action : actions) {
+          gcGetPermissionAssignments.addAction(action);
+        }
+      }
+    }
+    
+    
+    
+    {
+      List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+      
+      for (WsParam param : params) {
+        gcGetPermissionAssignments.addParam(param);
+      }
+    }
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    
+    
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsGetPermissionAssignmentsResults wsPermissionAssignmentsResults = gcGetPermissionAssignments.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsPermissionAssignmentsResults", wsPermissionAssignmentsResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.getPermissionAssignments.output", true);
+    }
+    log.debug("Output template: " + outputTemplate + ", available variables: wsPermissionAssignmentsResults, " +
+      "grouperClientUtils, index, wsAttributeAssignment, wsPermissionAssign, wsAttributeDef, wsAttributeDefName, wsSubject, role");
+  
+    //########## GROUPS
+    //lets index the groups by groupId 
+    Map<String, WsGroup> groupLookup = new HashMap<String, WsGroup>();
+    
+    for (WsGroup wsGroupCurrent : GrouperClientUtils.nonNull(wsPermissionAssignmentsResults.getWsGroups(), WsGroup.class)) {
+      groupLookup.put(wsGroupCurrent.getUuid(), wsGroupCurrent);
+    }
+    
+    //########## SUBJECTS
+    //lets index the subjects by multikey of sourceId and subjectId
+    Map<MultiKey, WsSubject> subjectLookup = new HashMap<MultiKey, WsSubject>();
+    
+    for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsPermissionAssignmentsResults.getWsSubjects(), WsSubject.class)) {
+      MultiKey key = new MultiKey(wsSubject.getSourceId(), wsSubject.getId());
+      subjectLookup.put(key, wsSubject);
+    }
+  
+    //########## ATTRIBUTE DEFS
+    //lets index the attributeDefs by attributeDefId 
+    Map<String, WsAttributeDef> attributeDefLookup = new HashMap<String, WsAttributeDef>();
+    
+    for (WsAttributeDef wsAttributeDefCurrent : GrouperClientUtils.nonNull(wsPermissionAssignmentsResults.getWsAttributeDefs(), WsAttributeDef.class)) {
+      attributeDefLookup.put(wsAttributeDefCurrent.getUuid(), wsAttributeDefCurrent);
+    }
+    
+    //########## ATTRIBUTE DEF NAMES
+    //lets index the attributeDefNames by attributeDefNameId 
+    Map<String, WsAttributeDefName> attributeDefNameLookup = new HashMap<String, WsAttributeDefName>();
+    
+    for (WsAttributeDefName wsAttributeDefNameCurrent : GrouperClientUtils.nonNull(wsPermissionAssignmentsResults.getWsAttributeDefNames(), WsAttributeDefName.class)) {
+      attributeDefNameLookup.put(wsAttributeDefNameCurrent.getUuid(), wsAttributeDefNameCurrent);
+    }    
+    
+    //######### ATTRIBUTE ASSIGNS
+    Map<String, WsAttributeAssign> attributeAssignLookup = new HashMap<String, WsAttributeAssign>();
+    
+    for (WsAttributeAssign wsAttributeAssignCurrent : GrouperClientUtils.nonNull(wsPermissionAssignmentsResults.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+      attributeAssignLookup.put(wsAttributeAssignCurrent.getId(), wsAttributeAssignCurrent);
+    }    
+    
+    for (WsPermissionAssign wsPermissionAssign : GrouperClientUtils.nonNull(wsPermissionAssignmentsResults.getWsPermissionAssigns(), WsPermissionAssign.class)) {
+      
+      WsAttributeAssign wsAttributeAssign = attributeAssignLookup.get(wsPermissionAssign.getAttributeDefId());
+      WsAttributeDef wsAttributeDef = attributeDefLookup.get(wsPermissionAssign.getAttributeDefId());
+      WsAttributeDefName wsAttributeDefName = attributeDefNameLookup.get(wsPermissionAssign.getAttributeDefNameId());
+      WsGroup role = groupLookup.get(wsPermissionAssign.getRoleId());
+      MultiKey subjectKey = new MultiKey(wsPermissionAssign.getSourceId(), wsPermissionAssign.getSubjectId());
+      WsSubject wsSubject = subjectLookup.get(subjectKey);
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsAttributeAssign", wsAttributeAssign);
+      substituteMap.put("wsPermissionAssign", wsPermissionAssign);
+      substituteMap.put("wsAttributeDef", wsAttributeDef);
+      substituteMap.put("wsAttributeDefName", wsAttributeDefName);
+      substituteMap.put("wsSubject", wsSubject);
+      substituteMap.put("role", role);
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
     return result.toString();
   }
 

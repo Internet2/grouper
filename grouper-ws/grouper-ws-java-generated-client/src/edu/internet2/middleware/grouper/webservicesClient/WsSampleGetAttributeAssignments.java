@@ -99,7 +99,6 @@ public class WsSampleGetAttributeAssignments implements WsSampleGenerated {
 
       getAttributeAssignments.setWsOwnerAttributeDefLookups(new WsAttributeDefLookup[]{null});
       getAttributeAssignments.setWsOwnerGroupLookups(new WsGroupLookup[]{null});
-      getAttributeAssignments.setWsOwnerGroupLookups(new WsGroupLookup[]{null});
       getAttributeAssignments.setWsOwnerMembershipAnyLookups(new WsMembershipAnyLookup[]{null});
       getAttributeAssignments.setWsOwnerMembershipLookups(new WsMembershipLookup[]{null});
       getAttributeAssignments.setWsOwnerStemLookups(new WsStemLookup[]{null});

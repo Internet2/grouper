@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembershipsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetSubjectsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResult;
@@ -56,6 +57,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
+import edu.internet2.middleware.grouperClient.ws.beans.WsPermissionAssign;
+import edu.internet2.middleware.grouperClient.ws.beans.WsPermissionAssignDetail;
 import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
@@ -71,6 +74,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGrouperPrivilege
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetPermissionAssignmentsLiteRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGroupDeleteRequest;
@@ -171,6 +176,12 @@ public class WsRestClassLookup {
     addAliasClass(WsAssignGrouperPrivilegesResult.class);
     addAliasClass(WsAssignGrouperPrivilegesResults.class);
 
+    addAliasClass(WsRestGetPermissionAssignmentsLiteRequest.class);
+    addAliasClass(WsRestGetPermissionAssignmentsRequest.class);
+    addAliasClass(WsGetPermissionAssignmentsResults.class);
+    addAliasClass(WsPermissionAssign.class);
+    addAliasClass(WsPermissionAssignDetail.class);
+    
     addAliasClass(WsRestDeleteMemberRequest.class);
     addAliasClass(WsRestFindGroupsRequest.class);
     addAliasClass(WsRestFindStemsRequest.class);

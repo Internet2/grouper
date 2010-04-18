@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubject
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest;
@@ -79,6 +81,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
@@ -102,6 +105,8 @@ import edu.internet2.middleware.grouper.ws.soap.WsMembership;
 import edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
+import edu.internet2.middleware.grouper.ws.soap.WsPermissionAssign;
+import edu.internet2.middleware.grouper.ws.soap.WsPermissionAssignDetail;
 import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.soap.WsResponseMeta;
 import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
@@ -177,6 +182,12 @@ public class WsRestClassLookup {
     addAliasClass(WsRestGetAttributeAssignmentsLiteRequest.class);
     addAliasClass(WsRestMemberChangeSubjectRequest.class);
     addAliasClass(WsRestMemberChangeSubjectLiteRequest.class);
+
+    addAliasClass(WsRestGetPermissionAssignmentsLiteRequest.class);
+    addAliasClass(WsRestGetPermissionAssignmentsRequest.class);
+    addAliasClass(WsGetPermissionAssignmentsResults.class);
+    addAliasClass(WsPermissionAssign.class);
+    addAliasClass(WsPermissionAssignDetail.class);
     
     addAliasClass(WsParam.class);
     addAliasClass(WsGrouperPrivilegeResult.class);
