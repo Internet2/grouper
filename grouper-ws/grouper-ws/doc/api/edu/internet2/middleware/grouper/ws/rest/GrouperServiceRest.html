@@ -196,6 +196,24 @@ consolidated static list of of rest web services (only web service methods here
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignPermissionsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignPermissionsResults</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#assignPermissions(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest)">assignPermissions</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                  <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/permission/WsRestAssignPermissionsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.permission">WsRestAssignPermissionsRequest</A>&nbsp;wsRestAssignPermissionsRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign permissions rest</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignPermissionsLiteResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignPermissionsLiteResults</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#assignPermissionsLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest)">assignPermissionsLite</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                      <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/permission/WsRestAssignPermissionsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.permission">WsRestAssignPermissionsLiteRequest</A>&nbsp;wsRestAssignPermissionsLiteRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign attributes rest for one owner (lite)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberResults</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#deleteMember(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberRequest)">deleteMember</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName,
@@ -1247,6 +1265,36 @@ public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soa
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - <DD><CODE>wsRestGetPermissionAssignmentsLiteRequest</CODE> - 
+<DT><B>Returns:</B><DD>the results object</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPermissions(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest)"><!-- --></A><H3>
+assignPermissions</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignPermissionsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignPermissionsResults</A> <B>assignPermissions</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/permission/WsRestAssignPermissionsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.permission">WsRestAssignPermissionsRequest</A>&nbsp;wsRestAssignPermissionsRequest)</PRE>
+<DL>
+<DD>assign permissions rest
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - <DD><CODE>wsRestAssignPermissionsRequest</CODE> - 
+<DT><B>Returns:</B><DD>the result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPermissionsLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest)"><!-- --></A><H3>
+assignPermissionsLite</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignPermissionsLiteResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignPermissionsLiteResults</A> <B>assignPermissionsLite</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?view=co" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                                   <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/permission/WsRestAssignPermissionsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.permission">WsRestAssignPermissionsLiteRequest</A>&nbsp;wsRestAssignPermissionsLiteRequest)</PRE>
+<DL>
+<DD>assign attributes rest for one owner (lite)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - <DD><CODE>wsRestAssignPermissionsLiteRequest</CODE> - 
 <DT><B>Returns:</B><DD>the results object</DL>
 </DD>
 </DL>

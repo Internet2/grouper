@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubject
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
@@ -57,6 +59,9 @@ import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAttribute;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssign;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
@@ -212,6 +217,12 @@ public class WsRestClassLookup {
     addAliasClass(WsAssignAttributesLiteResults.class);
     addAliasClass(WsAssignAttributesResults.class);
     addAliasClass(WsAssignAttributeResult.class);
+    
+    addAliasClass(WsRestAssignPermissionsLiteRequest.class);
+    addAliasClass(WsRestAssignPermissionsRequest.class);
+    addAliasClass(WsAssignPermissionsLiteResults.class);
+    addAliasClass(WsAssignPermissionsResults.class);
+    addAliasClass(WsAssignPermissionResult.class);
     
     addAliasClass(WsRestGetGrouperPrivilegesLiteRequest.class);
     addAliasClass(WsRestAssignGrouperPrivilegesLiteRequest.class);

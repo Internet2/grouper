@@ -305,16 +305,16 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
     this.attributeAssignId = attributeAssignId1;
   }
   
-  /** find assignments in this attribute def name (optional) */
+  /** assign this attribute def name (optional) */
   private String wsAttributeDefNameName;
   
-  /** find assignments in this attribute def name (optional) */
+  /** assign this attribute def name (optional) */
   private String wsAttributeDefNameId;
   
   
   
   /**
-   * find assignments in this attribute def name (optional)
+   * assign this attribute def name (optional)
    * @return attribute def name name
    */
   public String getWsAttributeDefNameName() {
@@ -322,7 +322,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
   
   /**
-   * find assignments in this attribute def name (optional)
+   * assign this attribute def name (optional)
    * @param wsAttributeDefNameName1
    */
   public void setWsAttributeDefNameName(String wsAttributeDefNameName1) {
@@ -330,7 +330,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
   
   /**
-   * find assignments in this attribute def name (optional)
+   * assign this attribute def name (optional)
    * @return attribute def name id
    */
   public String getWsAttributeDefNameId() {
@@ -338,23 +338,23 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
   
   /**
-   * find assignments in this attribute def name (optional)
+   * assign this attribute def name (optional)
    * @param wsAttributeDefNameId1
    */
   public void setWsAttributeDefNameId(String wsAttributeDefNameId1) {
     this.wsAttributeDefNameId = wsAttributeDefNameId1;
   }
 
-  /** is group name to look in */
+  /** is group name to assign */
   private String wsOwnerGroupName;
   
-  /** is group id to look in */
+  /** is group id to assign */
   private String wsOwnerGroupId;
   
   
   
   /**
-   * is group name to look in
+   * is group name to assign
    * @return group name
    */
   public String getWsOwnerGroupName() {
@@ -362,7 +362,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is group name to look in
+   * is group name to assign
    * @param wsOwnerGroupName1
    */
   public void setWsOwnerGroupName(String wsOwnerGroupName1) {
@@ -370,7 +370,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is group id to look in
+   * is group id to assign
    * @return group id
    */
   public String getWsOwnerGroupId() {
@@ -378,22 +378,22 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is group id to look in
+   * is group id to assign
    * @param wsOwnerGroupId1
    */
   public void setWsOwnerGroupId(String wsOwnerGroupId1) {
     this.wsOwnerGroupId = wsOwnerGroupId1;
   }
 
-  /** is stem to look in */
+  /** is stem to assign */
   private String wsOwnerStemName;
   
-  /** is stem to look in */
+  /** is stem to assign */
   private String wsOwnerStemId; 
   
   
   /**
-   * is stem to look in
+   * is stem to assign
    * @return stem
    */
   public String getWsOwnerStemName() {
@@ -401,7 +401,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is stem to look in
+   * is stem to assign
    * @param wsOwnerStemName1
    */
   public void setWsOwnerStemName(String wsOwnerStemName1) {
@@ -409,7 +409,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is stem to look in
+   * is stem to assign
    * @return stem
    */
   public String getWsOwnerStemId() {
@@ -417,26 +417,26 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is stem to look in
+   * is stem to assign
    * @param wsOwnerStemId1
    */
   public void setWsOwnerStemId(String wsOwnerStemId1) {
     this.wsOwnerStemId = wsOwnerStemId1;
   }
 
-  /** is subject to look in */
+  /** is subject to assign */
   private String wsOwnerSubjectId;
 
-  /** is subject to look in */
+  /** is subject to assign */
   private String wsOwnerSubjectSourceId;
   
-  /** is subject to look in */
+  /** is subject to assign */
   private String wsOwnerSubjectIdentifier;
   
   
   
   /**
-   * is subject to look in
+   * is subject to assign
    * @return subject
    */
   public String getWsOwnerSubjectId() {
@@ -444,7 +444,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is subject to look in
+   * is subject to assign
    * @param wsOwnerSubjectId1
    */
   public void setWsOwnerSubjectId(String wsOwnerSubjectId1) {
@@ -452,7 +452,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is subject to look in
+   * is subject to assign
    * @return subject
    */
   public String getWsOwnerSubjectSourceId() {
@@ -460,7 +460,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is subject to look in
+   * is subject to assign
    * @param wsOwnerSubjectSourceId1
    */
   public void setWsOwnerSubjectSourceId(String wsOwnerSubjectSourceId1) {
@@ -468,7 +468,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is subject to look in
+   * is subject to assign
    * @return subject
    */
   public String getWsOwnerSubjectIdentifier() {
@@ -476,7 +476,7 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   }
 
   /**
-   * is subject to look in
+   * is subject to assign
    * @param wsOwnerSubjectIdentifier1
    */
   public void setWsOwnerSubjectIdentifier(String wsOwnerSubjectIdentifier1) {

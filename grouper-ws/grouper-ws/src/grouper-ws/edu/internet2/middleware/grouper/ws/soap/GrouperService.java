@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -3443,6 +3445,178 @@ public class GrouperService {
   
   
     
+  
+  }
+
+  /**
+   * assign permissions to roles or subjects (in the context of a role)
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param permissionType is role or role_subject from the PermissionType enum
+   * @param roleLookups are groups to assign to for permissionType "role"
+   * @param subjectRoleLookups are subjects to assign to, in the context of a role (for permissionType "subject_role")
+   * @param permissionDefNameLookups attribute def names to assign to the owners (required)
+   * @param permissionAssignOperation operation to perform for permission on role or subject, from enum PermissionAssignOperation
+   * assign_permission, remove_permission
+   * @param assignmentNotes notes on the assignment (optional)
+   * @param assignmentEnabledTime enabled time, or null for enabled now
+   * @param assignmentDisabledTime disabled time, or null for not disabled
+   * @param delegatable if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
+   * @param actions to assign, or "assign" is the default if blank
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param actAsSubjectLookup
+   * @param wsAttributeAssignLookups lookups to remove etc
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsAssignPermissionsResults assignPermissions(
+      String clientVersion, String permissionType,
+      WsAttributeDefNameLookup[] permissionDefNameLookups,
+      String permissionAssignOperation,
+      String assignmentNotes, String assignmentEnabledTime,
+      String assignmentDisabledTime, String delegatable,
+      WsAttributeAssignLookup[] wsAttributeAssignLookups,
+      WsGroupLookup[] roleLookups, 
+      WsMembershipAnyLookup[] subjectRoleLookups, 
+      String[] actions, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
+      String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params) {  
+  
+    WsAssignPermissionsResults wsAssignPermissionsResults = new WsAssignPermissionsResults();
+  
+    try {
+  
+      PermissionAssignOperation permissionAssignOperationEnum = GrouperServiceUtils.convertPermissionAssignOperation(permissionAssignOperation);
+  
+      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeGroupDetail, false, "includeGroupDetail");
+  
+      boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeSubjectDetail, false, "includeSubjectDetail");
+  
+      PermissionType permissionTypeEnum = GrouperServiceUtils.convertPermissionType(permissionType);
+      Timestamp assignmentEnabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentEnabledTime);
+      Timestamp assignmentDisabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentDisabledTime);
+      
+      AttributeAssignDelegatable attributeAssignDelegatableEnum = GrouperServiceUtils.convertAttributeAssignDelegatable(delegatable);
+      
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(grouperWsVersion, permissionTypeEnum, 
+          permissionDefNameLookups, permissionAssignOperationEnum, assignmentNotes, assignmentEnabledTimestamp, 
+          assignmentDisabledTimestamp, attributeAssignDelegatableEnum, wsAttributeAssignLookups, 
+          roleLookups, subjectRoleLookups, actions, actAsSubjectLookup, includeSubjectDetailBoolean, 
+          subjectAttributeNames, includeGroupDetailBoolean, params);
+  
+    } catch (Exception e) {
+      wsAssignPermissionsResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAssignPermissionsResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAssignPermissionsResults; 
+  
+  }
+
+  /**
+   * assign permissions to role or subject (in the context of a role)
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param permissionType is role or role_subject from the PermissionType enum
+   * @param permissionDefNameName attribute def name to assign to the owner (required)
+   * @param permissionDefNameId attribute def name to assign to the owner (required)
+   * @param roleName is group to assign to for permissionType "role"
+   * @param roleId is group to assign to for permissionType "role"
+   * @param permissionAssignOperation operation to perform for permission on role or subject, from enum PermissionAssignOperation
+   * assign_permission, remove_permission
+   * @param assignmentNotes notes on the assignment (optional)
+   * @param assignmentEnabledTime enabled time, or null for enabled now
+   * @param assignmentDisabledTime disabled time, or null for not disabled
+   * @param delegatable if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
+   * @param action to assign, or "assign" is the default if blank
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param wsAttributeAssignId lookup to remove etc
+   * @param subjectRoleName is role name if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param subjectRoleId is role id if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param subjectRoleSubjectId is subject id if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param subjectRoleSubjectSourceId  is subject source id if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param subjectRoleSubjectIdentifier  is subject identifier if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param actAsSubjectId if acting as someone else
+   * @param actAsSubjectSourceId if acting as someone else
+   * @param actAsSubjectIdentifier if acting as someone else
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param paramName0 optional: reserved for future use
+   * @param paramValue0 optional: reserved for future use
+   * @param paramName1 optional: reserved for future use
+   * @param paramValue1 optional: reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsAssignPermissionsLiteResults assignPermissionsLite(
+      String clientVersion, String permissionType,
+      String permissionDefNameName, String permissionDefNameId,
+      String permissionAssignOperation,
+      String assignmentNotes, String assignmentEnabledTime,
+      String assignmentDisabledTime, String delegatable,
+      String wsAttributeAssignId,
+      String roleName, String roleId,
+      String subjectRoleName, String subjectRoleId,
+      String subjectRoleSubjectId, String subjectRoleSubjectSourceId, String subjectRoleSubjectIdentifier, 
+      String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, String includeSubjectDetail,
+      String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0,
+      String paramName1, String paramValue1) {  
+  
+    WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = new WsAssignPermissionsLiteResults();
+    
+    try {
+  
+      PermissionAssignOperation permissionAssignOperationEnum = GrouperServiceUtils.convertPermissionAssignOperation(permissionAssignOperation);
+      
+      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeGroupDetail, false, "includeGroupDetail");
+  
+      boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeSubjectDetail, false, "includeSubjectDetail");
+  
+      PermissionType permissionTypeEnum = GrouperServiceUtils.convertPermissionType(permissionType);
+      Timestamp assignmentEnabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentEnabledTime);
+      Timestamp assignmentDisabledTimestamp = GrouperServiceUtils.stringToTimestamp(assignmentDisabledTime);
+      
+      AttributeAssignDelegatable attributeAssignDelegatableEnum = GrouperServiceUtils.convertAttributeAssignDelegatable(delegatable);
+      
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+  
+      wsAssignPermissionsLiteResults = GrouperServiceLogic.assignPermissionsLite(
+          grouperWsVersion, permissionTypeEnum, permissionDefNameName, permissionDefNameId, 
+          permissionAssignOperationEnum, assignmentNotes, assignmentEnabledTimestamp,
+          assignmentDisabledTimestamp, attributeAssignDelegatableEnum, wsAttributeAssignId, roleName, 
+          roleId, subjectRoleName, 
+          subjectRoleId, subjectRoleSubjectId, subjectRoleSubjectSourceId, 
+          subjectRoleSubjectIdentifier,  
+          action, actAsSubjectId, actAsSubjectSourceId,
+          actAsSubjectIdentifier, includeSubjectDetailBoolean, 
+          subjectAttributeNames, includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1 );
+  
+    } catch (Exception e) {
+      wsAssignPermissionsLiteResults.assignResultCodeException(null, null, e);
+    }
+  
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsAssignPermissionsLiteResults.getResultMetadata(), this.soap);
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsAssignPermissionsLiteResults; 
   
   }
 

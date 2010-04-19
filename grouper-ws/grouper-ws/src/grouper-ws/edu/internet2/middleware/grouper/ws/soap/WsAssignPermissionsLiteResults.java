@@ -1,8 +1,15 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults.WsAssignAttributesResultsCode;
 
 /**
  * <pre>
@@ -154,6 +161,12 @@ public class WsAssignPermissionsLiteResults implements WsResponseBean, ResultMet
   private WsSubject wsSubject;
 
   /**
+   * logger 
+   */
+  @SuppressWarnings("unused")
+  private static final Log LOG = LogFactory.getLog(WsAssignPermissionsLiteResults.class);
+
+  /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
    * @return the response metadata
    */
@@ -205,5 +218,45 @@ public class WsAssignPermissionsLiteResults implements WsResponseBean, ResultMet
    */
   public void setWsSubject(WsSubject wsSubject1) {
     this.wsSubject = wsSubject1;
+  }
+
+  /**
+   * prcess an exception, log, etc
+   * @param wsGetAttributeAssignmentsResultsCodeOverride
+   * @param theError
+   * @param e
+   */
+  public void assignResultCodeException(
+      WsAssignAttributesResultsCode wsGetAttributeAssignmentsResultsCodeOverride, String theError,
+      Exception e) {
+  
+    if (e instanceof WsInvalidQueryException) {
+      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
+          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.INVALID_QUERY);
+      //a helpful exception will probably be in the getMessage()
+      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
+      this.getResultMetadata().appendResultMessage(e.getMessage());
+      this.getResultMetadata().appendResultMessage(theError);
+      LOG.warn(e);
+  
+    } else {
+      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
+          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.EXCEPTION);
+      LOG.error(theError, e);
+  
+      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
+      this.getResultMetadata().appendResultMessage(
+          theError + ExceptionUtils.getFullStackTrace(e));
+      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
+  
+    }
+  }
+
+  /**
+   * assign the code from the enum
+   * @param getAttributeAssignmentsResultCode
+   */
+  public void assignResultCode(WsAssignAttributesResultsCode getAttributeAssignmentsResultCode) {
+    this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
   }
 }

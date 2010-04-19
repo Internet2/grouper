@@ -179,9 +179,10 @@ Class WsGroupLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder)">convertToGroupIds</A></B>(GrouperSession&nbsp;grouperSession,
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder, TypeOfGroup)">convertToGroupIds</A></B>(GrouperSession&nbsp;grouperSession,
                   <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsGroupLookups,
-                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage)</CODE>
+                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                  TypeOfGroup&nbsp;typeOfGroup)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert group lookups to group ids</TD>
@@ -189,9 +190,10 @@ Class WsGroupLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder, int[])">convertToGroupIds</A></B>(GrouperSession&nbsp;grouperSession,
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co#convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder, TypeOfGroup, int[])">convertToGroupIds</A></B>(GrouperSession&nbsp;grouperSession,
                   <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsGroupLookups,
                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                  TypeOfGroup&nbsp;typeOfGroup,
                   int[]&nbsp;lookupCount)</CODE>
 
 <BR>
@@ -351,34 +353,36 @@ public <B>WsGroupLookup</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/jav
 </TR>
 </TABLE>
 
-<A NAME="convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder)"><!-- --></A><H3>
-convertToGroupIds</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToGroupIds</B>(GrouperSession&nbsp;grouperSession,
-                                            <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsGroupLookups,
-                                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage)</PRE>
-<DL>
-<DD>convert group lookups to group ids
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsGroupLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
-<DT><B>Returns:</B><DD>the group ids</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder, int[])"><!-- --></A><H3>
+<A NAME="convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder, TypeOfGroup)"><!-- --></A><H3>
 convertToGroupIds</H3>
 <PRE>
 public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToGroupIds</B>(GrouperSession&nbsp;grouperSession,
                                             <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsGroupLookups,
                                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                                            TypeOfGroup&nbsp;typeOfGroup)</PRE>
+<DL>
+<DD>convert group lookups to group ids
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsGroupLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>typeOfGroup</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Returns:</B><DD>the group ids</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToGroupIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.StringBuilder, TypeOfGroup, int[])"><!-- --></A><H3>
+convertToGroupIds</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>convertToGroupIds</B>(GrouperSession&nbsp;grouperSession,
+                                            <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsGroupLookups,
+                                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                                            TypeOfGroup&nbsp;typeOfGroup,
                                             int[]&nbsp;lookupCount)</PRE>
 <DL>
 <DD>convert group lookups to group ids
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsGroupLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsGroupLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>typeOfGroup</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
 <DT><B>Returns:</B><DD>the group ids</DL>
 </DD>
 </DL>

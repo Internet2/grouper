@@ -266,7 +266,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
   }
 
   /**
-   * find assignments in these attribute def names (optional)
+   * assign these attribute def names (optional)
    */
   private WsAttributeDefNameLookup[] wsAttributeDefNameLookups;
   
@@ -287,11 +287,11 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
     this.wsAttributeDefNameLookups = wsAttributeDefNameLookups1;
   }
   
-  /** wsOwnerGroupLookups are groups to look in */
+  /** wsOwnerGroupLookups are groups to assign */
   private WsGroupLookup[] wsOwnerGroupLookups;
   
   /**
-   * wsOwnerGroupLookups are groups to look in
+   * wsOwnerGroupLookups are groups to assign
    * @return owner group lookups
    */
   public WsGroupLookup[] getWsOwnerGroupLookups() {
@@ -299,39 +299,39 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
   }
 
   /**
-   * wsOwnerGroupLookups are groups to look in
+   * wsOwnerGroupLookups are groups to assign
    * @param wsOwnerGroupLookups1
    */
   public void setWsOwnerGroupLookups(WsGroupLookup[] wsOwnerGroupLookups1) {
     this.wsOwnerGroupLookups = wsOwnerGroupLookups1;
   }
 
-  /** are stems to look in */
+  /** are stems to assign */
   private WsStemLookup[] wsOwnerStemLookups;
   
   /**
-   * are stems to look in
-   * @return are stems to look in
+   * are stems to assign
+   * @return are stems to assign
    */
   public WsStemLookup[] getWsOwnerStemLookups() {
     return this.wsOwnerStemLookups;
   }
 
   /**
-   * are stems to look in
+   * are stems to assign
    * @param wsOwnerStemLookups1
    */
   public void setWsOwnerStemLookups(WsStemLookup[] wsOwnerStemLookups1) {
     this.wsOwnerStemLookups = wsOwnerStemLookups1;
   }
 
-  /** are subjects to look in */
+  /** are subjects to assign */
   private WsSubjectLookup[] wsOwnerSubjectLookups;
   
   
   
   /**
-   * are subjects to look in
+   * are subjects to assign
    * @return subject
    */
   public WsSubjectLookup[] getWsOwnerSubjectLookups() {
@@ -339,7 +339,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
   }
 
   /**
-   * are subjects to look in
+   * are subjects to assign
    * @param wsOwnerSubjectLookups1
    */
   public void setWsOwnerSubjectLookups(WsSubjectLookup[] wsOwnerSubjectLookups1) {

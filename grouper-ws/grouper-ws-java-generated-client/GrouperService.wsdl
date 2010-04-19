@@ -510,6 +510,107 @@
                     <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="assignPermissionsLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionDefNameName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionDefNameId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionAssignOperation" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignmentNotes" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignmentEnabledTime" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignmentDisabledTime" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="delegatable" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="wsAttributeAssignId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="roleId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectRoleName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectRoleId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectRoleSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectRoleSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectRoleSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="action" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="assignPermissionsLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignPermissionsLiteResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAssignPermissionsLiteResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsAttributeDefName" nillable="true" type="ns:WsAttributeDefName"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefs" nillable="true" type="ns:WsAttributeDef"/>
+                    <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
+                    <xs:element minOccurs="0" name="wsPermissionAssignResult" nillable="true" type="ns:WsAssignPermissionResult"/>
+                    <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAssignPermissionResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="changed" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssigns" nillable="true" type="ns:WsAttributeAssign"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="assignPermissions">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="permissionType" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="permissionDefNameLookups" nillable="true" type="ns:WsAttributeDefNameLookup"/>
+                        <xs:element minOccurs="0" name="permissionAssignOperation" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignmentNotes" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignmentEnabledTime" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="assignmentDisabledTime" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="delegatable" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssignLookups" nillable="true" type="ns:WsAttributeAssignLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="roleLookups" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectRoleLookups" nillable="true" type="ns:WsMembershipAnyLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="actions" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="assignPermissionsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAssignPermissionsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAssignPermissionsResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAssignPermissionResults" nillable="true" type="ns:WsAssignPermissionResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefNames" nillable="true" type="ns:WsAttributeDefName"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefs" nillable="true" type="ns:WsAttributeDef"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroups" nillable="true" type="ns:WsGroup"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="deleteMemberLite">
                 <xs:complexType>
                     <xs:sequence>
@@ -1772,23 +1873,29 @@
     <wsdl:message name="stemDeleteResponse">
         <wsdl:part name="parameters" element="ns:stemDeleteResponse"/>
     </wsdl:message>
-    <wsdl:message name="getGrouperPrivilegesLiteRequest">
-        <wsdl:part name="parameters" element="ns:getGrouperPrivilegesLite"/>
-    </wsdl:message>
-    <wsdl:message name="getGrouperPrivilegesLiteResponse">
-        <wsdl:part name="parameters" element="ns:getGrouperPrivilegesLiteResponse"/>
-    </wsdl:message>
     <wsdl:message name="hasMemberLiteRequest">
         <wsdl:part name="parameters" element="ns:hasMemberLite"/>
     </wsdl:message>
     <wsdl:message name="hasMemberLiteResponse">
         <wsdl:part name="parameters" element="ns:hasMemberLiteResponse"/>
     </wsdl:message>
+    <wsdl:message name="getGrouperPrivilegesLiteRequest">
+        <wsdl:part name="parameters" element="ns:getGrouperPrivilegesLite"/>
+    </wsdl:message>
+    <wsdl:message name="getGrouperPrivilegesLiteResponse">
+        <wsdl:part name="parameters" element="ns:getGrouperPrivilegesLiteResponse"/>
+    </wsdl:message>
     <wsdl:message name="stemDeleteLiteRequest">
         <wsdl:part name="parameters" element="ns:stemDeleteLite"/>
     </wsdl:message>
     <wsdl:message name="stemDeleteLiteResponse">
         <wsdl:part name="parameters" element="ns:stemDeleteLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="assignPermissionsRequest">
+        <wsdl:part name="parameters" element="ns:assignPermissions"/>
+    </wsdl:message>
+    <wsdl:message name="assignPermissionsResponse">
+        <wsdl:part name="parameters" element="ns:assignPermissionsResponse"/>
     </wsdl:message>
     <wsdl:message name="assignAttributesRequest">
         <wsdl:part name="parameters" element="ns:assignAttributes"/>
@@ -1831,6 +1938,12 @@
     </wsdl:message>
     <wsdl:message name="getMembershipsLiteResponse">
         <wsdl:part name="parameters" element="ns:getMembershipsLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="assignPermissionsLiteRequest">
+        <wsdl:part name="parameters" element="ns:assignPermissionsLite"/>
+    </wsdl:message>
+    <wsdl:message name="assignPermissionsLiteResponse">
+        <wsdl:part name="parameters" element="ns:assignPermissionsLiteResponse"/>
     </wsdl:message>
     <wsdl:message name="getPermissionAssignmentsLiteRequest">
         <wsdl:part name="parameters" element="ns:getPermissionAssignmentsLite"/>
@@ -1983,17 +2096,21 @@
             <wsdl:input message="axis2:stemDeleteRequest" wsaw:Action="urn:stemDelete"/>
             <wsdl:output message="axis2:stemDeleteResponse" wsaw:Action="urn:stemDeleteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="getGrouperPrivilegesLite">
-            <wsdl:input message="axis2:getGrouperPrivilegesLiteRequest" wsaw:Action="urn:getGrouperPrivilegesLite"/>
-            <wsdl:output message="axis2:getGrouperPrivilegesLiteResponse" wsaw:Action="urn:getGrouperPrivilegesLiteResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="hasMemberLite">
             <wsdl:input message="axis2:hasMemberLiteRequest" wsaw:Action="urn:hasMemberLite"/>
             <wsdl:output message="axis2:hasMemberLiteResponse" wsaw:Action="urn:hasMemberLiteResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="getGrouperPrivilegesLite">
+            <wsdl:input message="axis2:getGrouperPrivilegesLiteRequest" wsaw:Action="urn:getGrouperPrivilegesLite"/>
+            <wsdl:output message="axis2:getGrouperPrivilegesLiteResponse" wsaw:Action="urn:getGrouperPrivilegesLiteResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="stemDeleteLite">
             <wsdl:input message="axis2:stemDeleteLiteRequest" wsaw:Action="urn:stemDeleteLite"/>
             <wsdl:output message="axis2:stemDeleteLiteResponse" wsaw:Action="urn:stemDeleteLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="assignPermissions">
+            <wsdl:input message="axis2:assignPermissionsRequest" wsaw:Action="urn:assignPermissions"/>
+            <wsdl:output message="axis2:assignPermissionsResponse" wsaw:Action="urn:assignPermissionsResponse"/>
         </wsdl:operation>
         <wsdl:operation name="assignAttributes">
             <wsdl:input message="axis2:assignAttributesRequest" wsaw:Action="urn:assignAttributes"/>
@@ -2022,6 +2139,10 @@
         <wsdl:operation name="getMembershipsLite">
             <wsdl:input message="axis2:getMembershipsLiteRequest" wsaw:Action="urn:getMembershipsLite"/>
             <wsdl:output message="axis2:getMembershipsLiteResponse" wsaw:Action="urn:getMembershipsLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="assignPermissionsLite">
+            <wsdl:input message="axis2:assignPermissionsLiteRequest" wsaw:Action="urn:assignPermissionsLite"/>
+            <wsdl:output message="axis2:assignPermissionsLiteResponse" wsaw:Action="urn:assignPermissionsLiteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getPermissionAssignmentsLite">
             <wsdl:input message="axis2:getPermissionAssignmentsLiteRequest" wsaw:Action="urn:getPermissionAssignmentsLite"/>
@@ -2182,6 +2303,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="assignPermissions">
+            <soap:operation soapAction="urn:assignPermissions" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="stemDeleteLite">
             <soap:operation soapAction="urn:stemDeleteLite" style="document"/>
             <wsdl:input>
@@ -2238,6 +2368,15 @@
         </wsdl:operation>
         <wsdl:operation name="groupDeleteLite">
             <soap:operation soapAction="urn:groupDeleteLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="assignPermissionsLite">
+            <soap:operation soapAction="urn:assignPermissionsLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -2518,6 +2657,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="assignPermissions">
+            <soap12:operation soapAction="urn:assignPermissions" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="stemDeleteLite">
             <soap12:operation soapAction="urn:stemDeleteLite" style="document"/>
             <wsdl:input>
@@ -2574,6 +2722,15 @@
         </wsdl:operation>
         <wsdl:operation name="groupDeleteLite">
             <soap12:operation soapAction="urn:groupDeleteLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="assignPermissionsLite">
+            <soap12:operation soapAction="urn:assignPermissionsLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -2854,6 +3011,15 @@
                 <mime:content type="text/xml" part="hasMemberLite"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="assignPermissions">
+            <http:operation location="GrouperService/assignPermissions"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="assignPermissions"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="assignPermissions"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="stemDeleteLite">
             <http:operation location="GrouperService/stemDeleteLite"/>
             <wsdl:input>
@@ -2915,6 +3081,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="groupDeleteLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="assignPermissionsLite">
+            <http:operation location="GrouperService/assignPermissionsLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="assignPermissionsLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="assignPermissionsLite"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMembershipsLite">

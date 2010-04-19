@@ -45,6 +45,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttribut
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivileges;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissions;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissionsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroups;
@@ -119,6 +121,8 @@ import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberCha
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRest;
@@ -159,8 +163,8 @@ public class SampleCapture {
     
     setupData();
     
-    captureGetPermissionAssignments();
-    
+    //
+    captureAssignPermissions();
     
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
@@ -169,6 +173,7 @@ public class SampleCapture {
     /*
     captureGetAttributeAssignments();
     captureGetGrouperPrivileges();
+    captureGetPermissionAssignments();
     captureAssignGrouperPrivileges();
     captureAddMember();
     captureDeleteMember();
@@ -335,6 +340,7 @@ public class SampleCapture {
       Role role2 = aStem.addChildRole("role2", "role2");
           
       ((Group)role).addMember(SubjectTestHelper.SUBJ0);    
+      ((Group)role).addMember(SubjectTestHelper.SUBJ4);    
       ((Group)role2).addMember(SubjectTestHelper.SUBJ1);    
       
       AttributeDef permissionDef = aStem.addChildAttributeDef("permissionDef", AttributeDefType.perm);
@@ -344,15 +350,15 @@ public class SampleCapture {
       AttributeDefName permissionDefName = aStem.addChildAttributeDefName(permissionDef, "permissionDefName", "permissionDefName");
       AttributeDefName permissionDefName2 = aStem.addChildAttributeDefName(permissionDef, "permissionDefName2", "permissionDefName2");
 
-      permissionDef.getAttributeDefActionDelegate().addAction("action");
-      permissionDef.getAttributeDefActionDelegate().addAction("action2");
+      permissionDef.getAttributeDefActionDelegate().addAction("read");
+      permissionDef.getAttributeDefActionDelegate().addAction("write");
       
       //subject 0 has a "role" permission of permissionDefName with "action" in 
       //subject 1 has a "role_subject" permission of permissionDefName2 with action2
       
-      role.getPermissionRoleDelegate().assignRolePermission("action", permissionDefName);
+      role.getPermissionRoleDelegate().assignRolePermission("read", permissionDefName);
       role2.getPermissionRoleDelegate()
-        .assignSubjectRolePermission("action2", permissionDefName2, SubjectTestHelper.SUBJ1);
+        .assignSubjectRolePermission("write", permissionDefName2, SubjectTestHelper.SUBJ1);
 
       
       //anything else?
@@ -833,7 +839,7 @@ public class SampleCapture {
   }
 
   /**
-   * all get members captures
+   * assign attributes captures
    */
   public static void captureAssignAttributes() {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
@@ -848,7 +854,7 @@ public class SampleCapture {
   }
 
   /**
-   * all get members captures
+   * all get permissions captures
    */
   public static void captureGetPermissionAssignments() {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
@@ -859,6 +865,21 @@ public class SampleCapture {
         WsSampleGetPermissionAssignmentsRest.class, "getPermissionAssignments", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetPermissionAssignmentsRestLite.class, "getPermissionAssignments", null);
+    
+  }
+
+  /**
+   * assign permissions captures
+   */
+  public static void captureAssignPermissions() {
+//    captureSample(WsSampleClientType.GENERATED_SOAP,  
+//        WsSampleAssignPermissions.class, "assignPermissions", (String)null);
+//    captureSample(WsSampleClientType.GENERATED_SOAP,  
+//        WsSampleAssignPermissionsLite.class, "assignPermissions", null);
+//    captureSample(WsSampleClientType.REST_BEANS,  
+//        WsSampleAssignPermissionsRest.class, "assignPermissions", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignPermissionsRestLite.class, "assignPermissions", null);
     
   }
   

@@ -125,6 +125,22 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for assignPermissionsLite method
+            * override this method for handling normal response from assignPermissionsLite operation
+            */
+           public void receiveResultassignPermissionsLite(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignPermissionsLiteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from assignPermissionsLite operation
+           */
+            public void receiveErrorassignPermissionsLite(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for getPermissionAssignmentsLite method
             * override this method for handling normal response from getPermissionAssignmentsLite operation
             */
@@ -298,6 +314,22 @@
            * override this method for handling error response from stemDeleteLite operation
            */
             public void receiveErrorstemDeleteLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for assignPermissions method
+            * override this method for handling normal response from assignPermissions operation
+            */
+           public void receiveResultassignPermissions(
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignPermissionsResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from assignPermissions operation
+           */
+            public void receiveErrorassignPermissions(java.lang.Exception e) {
             }
                 
            /**

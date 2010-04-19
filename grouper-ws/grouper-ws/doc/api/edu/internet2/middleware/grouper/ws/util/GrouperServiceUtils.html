@@ -281,6 +281,22 @@ Class GrouperServiceUtils</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;PermissionAssignOperation</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertPermissionAssignOperation(java.lang.String)">convertPermissionAssignOperation</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;permissionAssignOperation)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the permissionAssignOperation, default to null</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;PermissionType</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertPermissionType(java.lang.String)">convertPermissionType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;permissionType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert the permissionType, default to null</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertQueryStringToMap(java.lang.String)">convertQueryStringToMap</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;queryString)</CODE>
 
@@ -836,6 +852,23 @@ public static AttributeAssignType <B>convertAttributeAssignType</B>(<A HREF="htt
 </DL>
 <HR>
 
+<A NAME="convertPermissionType(java.lang.String)"><!-- --></A><H3>
+convertPermissionType</H3>
+<PRE>
+public static PermissionType <B>convertPermissionType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;permissionType)
+                                            throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>convert the permissionType, default to null
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>permissionType</CODE> - 
+<DT><B>Returns:</B><DD>the permissionType
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="convertAttributeAssignOperation(java.lang.String)"><!-- --></A><H3>
 convertAttributeAssignOperation</H3>
 <PRE>
@@ -847,6 +880,23 @@ public static AttributeAssignOperation <B>convertAttributeAssignOperation</B>(<A
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>attributeAssignOperation</CODE> - 
 <DT><B>Returns:</B><DD>the attributeAssignOperation
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertPermissionAssignOperation(java.lang.String)"><!-- --></A><H3>
+convertPermissionAssignOperation</H3>
+<PRE>
+public static PermissionAssignOperation <B>convertPermissionAssignOperation</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;permissionAssignOperation)
+                                                                  throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
+<DL>
+<DD>convert the permissionAssignOperation, default to null
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>permissionAssignOperation</CODE> - 
+<DT><B>Returns:</B><DD>the permissionAssignOperation
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem</DL>
 </DD>

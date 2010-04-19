@@ -87,6 +87,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
@@ -5727,7 +5728,7 @@ public class GrouperServiceLogic {
    * @param permissionType is role or role_subject from the PermissionType enum
    * @param roleLookups are groups to assign to for permissionType "role"
    * @param subjectRoleLookups are subjects to assign to, in the context of a role (for permissionType "subject_role")
-   * @param permissionNameLookups attribute def names to assign to the owners (required)
+   * @param permissionDefNameLookups attribute def names to assign to the owners (required)
    * @param permissionAssignOperation operation to perform for permission on role or subject, from enum PermissionAssignOperation
    * assign_permission, remove_permission
    * @param assignmentNotes notes on the assignment (optional)
@@ -5749,7 +5750,7 @@ public class GrouperServiceLogic {
   @SuppressWarnings("unchecked")
   public static WsAssignPermissionsResults assignPermissions(
       GrouperWsVersion clientVersion, PermissionType permissionType,
-      WsAttributeDefNameLookup[] permissionNameLookups,
+      WsAttributeDefNameLookup[] permissionDefNameLookups,
       PermissionAssignOperation permissionAssignOperation,
       String assignmentNotes, Timestamp assignmentEnabledTime,
       Timestamp assignmentDisabledTime, AttributeAssignDelegatable delegatable,
@@ -5769,7 +5770,7 @@ public class GrouperServiceLogic {
           + ", permissionAssignOperation: " + permissionAssignOperation
           + ", wsAttributeAssignLookups: " + GrouperUtil.toStringForLog(wsAttributeAssignLookups, 200)
           + ", permissionNameLookups: "
-          + GrouperUtil.toStringForLog(permissionNameLookups, 200) 
+          + GrouperUtil.toStringForLog(permissionDefNameLookups, 200) 
           + ", roleLookups: " + GrouperUtil.toStringForLog(roleLookups, 200)
           + ", subjectRoleLookups: " + GrouperUtil.toStringForLog(subjectRoleLookups, 200)
           + ", actions: " + GrouperUtil.toStringForLog(actions, 200)
@@ -5794,7 +5795,7 @@ public class GrouperServiceLogic {
       
       AttributeAssignOperation attributeAssignOperation = permissionAssignOperation.convertToAttributeAssignOperation();
       
-      WsAssignAttributeLogic.assignAttributesHelper(attributeAssignType, permissionNameLookups, 
+      WsAssignAttributeLogic.assignAttributesHelper(attributeAssignType, permissionDefNameLookups, 
           attributeAssignOperation, null, assignmentNotes, assignmentEnabledTime, assignmentDisabledTime, 
           delegatable, null, wsAttributeAssignLookups, roleLookups, null, null, null, subjectRoleLookups, 
           null,null, actions, includeSubjectDetail, subjectAttributeNames, includeGroupDetail, 
@@ -5808,5 +5809,106 @@ public class GrouperServiceLogic {
     WsAssignPermissionsResults wsAssignPermissionsResults = new WsAssignPermissionsResults(wsAssignAttributesResults);
     return wsAssignPermissionsResults; 
   
+  }
+
+  /**
+   * assign permissions to role or subject (in the context of a role)
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param permissionType is role or role_subject from the PermissionType enum
+   * @param permissionDefNameName attribute def name to assign to the owner (required)
+   * @param permissionDefNameId attribute def name to assign to the owner (required)
+   * @param roleName is group to assign to for permissionType "role"
+   * @param roleId is group to assign to for permissionType "role"
+   * @param permissionAssignOperation operation to perform for permission on role or subject, from enum PermissionAssignOperation
+   * assign_permission, remove_permission
+   * @param assignmentNotes notes on the assignment (optional)
+   * @param assignmentEnabledTime enabled time, or null for enabled now
+   * @param assignmentDisabledTime disabled time, or null for not disabled
+   * @param delegatable if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
+   * @param action to assign, or "assign" is the default if blank
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param wsAttributeAssignId lookup to remove etc
+   * @param subjectRoleName is role name if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param subjectRoleId is role id if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param subjectRoleSubjectId is subject id if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param subjectRoleSubjectSourceId  is subject source id if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param subjectRoleSubjectIdentifier  is subject identifier if assigning to subject, in the context of a role (for permissionType "subject_role")
+   * @param actAsSubjectId if acting as someone else
+   * @param actAsSubjectSourceId if acting as someone else
+   * @param actAsSubjectIdentifier if acting as someone else
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param paramName0 optional: reserved for future use
+   * @param paramValue0 optional: reserved for future use
+   * @param paramName1 optional: reserved for future use
+   * @param paramValue1 optional: reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsAssignPermissionsLiteResults assignPermissionsLite(
+      GrouperWsVersion clientVersion, PermissionType permissionType,
+      String permissionDefNameName, String permissionDefNameId,
+      PermissionAssignOperation permissionAssignOperation,
+      String assignmentNotes, Timestamp assignmentEnabledTime,
+      Timestamp assignmentDisabledTime, AttributeAssignDelegatable delegatable,
+      String wsAttributeAssignId,
+      String roleName, String roleId,
+      String subjectRoleName, String subjectRoleId,
+      String subjectRoleSubjectId, String subjectRoleSubjectSourceId, String subjectRoleSubjectIdentifier, 
+      String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, boolean includeSubjectDetail,
+      String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
+      String paramName1, String paramValue1) {  
+
+    WsAttributeDefNameLookup[] permissionDefNameLookups = null;
+    if (!StringUtils.isBlank(permissionDefNameName) || !StringUtils.isBlank(permissionDefNameId)) {
+      permissionDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(permissionDefNameName,permissionDefNameId )};
+    }
+    
+    
+    WsAttributeAssignLookup[] attributeAssignLookups = null;
+    
+    if (!StringUtils.isBlank(wsAttributeAssignId)) {
+      attributeAssignLookups = new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(wsAttributeAssignId)};
+    }
+    
+    WsGroupLookup[] roleLookups = null;
+    if (!StringUtils.isBlank(roleName) || !StringUtils.isBlank(roleId)) {
+      roleLookups = new WsGroupLookup[]{new WsGroupLookup(roleName, roleId)};
+    }
+    
+    WsMembershipAnyLookup[] subjectRoleLookups = null;
+    if (!StringUtils.isBlank(subjectRoleName) || !StringUtils.isBlank(subjectRoleId)
+        || !StringUtils.isBlank(subjectRoleSubjectId) || !StringUtils.isBlank(subjectRoleSubjectSourceId)
+        || !StringUtils.isBlank(subjectRoleSubjectIdentifier)) {
+      subjectRoleLookups = new WsMembershipAnyLookup[]{
+          new WsMembershipAnyLookup(new WsGroupLookup(subjectRoleName,subjectRoleId ),
+              new WsSubjectLookup(subjectRoleSubjectId, subjectRoleSubjectSourceId, subjectRoleSubjectIdentifier))};
+    }
+    
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+    
+    String[] actions = null;
+    if (!StringUtils.isBlank(action)) {
+      actions = new String[]{action};
+    }
+    
+    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
+    
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
+
+    WsAssignPermissionsResults wsAssignPermissionsResults = assignPermissions(clientVersion, permissionType, 
+        permissionDefNameLookups, permissionAssignOperation, assignmentNotes, assignmentEnabledTime,
+        assignmentDisabledTime, delegatable, attributeAssignLookups, roleLookups, subjectRoleLookups, 
+        actions, 
+        actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
+        params );
+    
+    WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = new WsAssignPermissionsLiteResults(wsAssignPermissionsResults);
+    
+    return wsAssignPermissionsLiteResults; 
   }
 }

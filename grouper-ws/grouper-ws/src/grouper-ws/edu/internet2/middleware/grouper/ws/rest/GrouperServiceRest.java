@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubject
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
@@ -55,6 +57,8 @@ import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesLiteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
@@ -1608,5 +1612,77 @@ public class GrouperServiceRest {
     
     return wsGetPermissionAssignmentsResults;
     
+  }
+
+  /**
+   * assign permissions rest
+   * @param clientVersion
+   * @param wsRestAssignPermissionsRequest
+   * @return the result
+   */
+  public static WsAssignPermissionsResults assignPermissions(GrouperWsVersion clientVersion,
+      WsRestAssignPermissionsRequest wsRestAssignPermissionsRequest) {
+    //cant be null
+    wsRestAssignPermissionsRequest = wsRestAssignPermissionsRequest == null ? new WsRestAssignPermissionsRequest()
+      : wsRestAssignPermissionsRequest;
+    
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestAssignPermissionsRequest.getClientVersion(), false, "clientVersion");
+  
+    WsAssignPermissionsResults wsAssignPermissionsResults = new GrouperService(false).assignPermissions(
+        clientVersionString, wsRestAssignPermissionsRequest.getPermissionType(),
+        wsRestAssignPermissionsRequest.getPermissionDefNameLookups(), wsRestAssignPermissionsRequest.getPermissionAssignOperation(),
+        wsRestAssignPermissionsRequest.getAssignmentNotes(), 
+        wsRestAssignPermissionsRequest.getAssignmentEnabledTime(), wsRestAssignPermissionsRequest.getAssignmentDisabledTime(),
+        wsRestAssignPermissionsRequest.getDelegatable(), 
+        wsRestAssignPermissionsRequest.getWsAttributeAssignLookups(),
+        wsRestAssignPermissionsRequest.getRoleLookups(), 
+        wsRestAssignPermissionsRequest.getSubjectRoleLookups(),
+        wsRestAssignPermissionsRequest.getActions(), 
+        wsRestAssignPermissionsRequest.getActAsSubjectLookup(), 
+        wsRestAssignPermissionsRequest.getIncludeSubjectDetail(), wsRestAssignPermissionsRequest.getSubjectAttributeNames(), 
+        wsRestAssignPermissionsRequest.getIncludeGroupDetail(), wsRestAssignPermissionsRequest.getParams());
+    
+    return wsAssignPermissionsResults;
+  }
+
+  /**
+   * assign attributes rest for one owner (lite)
+   * @param clientVersion
+   * @param wsRestAssignPermissionsLiteRequest
+   * @return the results object
+   */
+  public static WsAssignPermissionsLiteResults assignPermissionsLite(GrouperWsVersion clientVersion,
+      WsRestAssignPermissionsLiteRequest wsRestAssignPermissionsLiteRequest) {
+  
+    //cant be null
+    wsRestAssignPermissionsLiteRequest = wsRestAssignPermissionsLiteRequest == null ? new WsRestAssignPermissionsLiteRequest() : wsRestAssignPermissionsLiteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestAssignPermissionsLiteRequest.getClientVersion(), false, "clientVersion");
+  
+    WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = new GrouperService(false).assignPermissionsLite(
+        clientVersionString, wsRestAssignPermissionsLiteRequest.getPermissionType(), 
+        wsRestAssignPermissionsLiteRequest.getPermissionDefNameName(), wsRestAssignPermissionsLiteRequest.getPermissionDefNameId(), 
+        wsRestAssignPermissionsLiteRequest.getPermissionAssignOperation(), 
+        wsRestAssignPermissionsLiteRequest.getAssignmentNotes(), wsRestAssignPermissionsLiteRequest.getAssignmentEnabledTime(),
+        wsRestAssignPermissionsLiteRequest.getAssignmentDisabledTime(), wsRestAssignPermissionsLiteRequest.getDelegatable(), 
+        wsRestAssignPermissionsLiteRequest.getAttributeAssignId(),
+        wsRestAssignPermissionsLiteRequest.getRoleName(), 
+        wsRestAssignPermissionsLiteRequest.getRoleId(),  
+        wsRestAssignPermissionsLiteRequest.getSubjectRoleName(), 
+        wsRestAssignPermissionsLiteRequest.getSubjectRoleId(), wsRestAssignPermissionsLiteRequest.getSubjectRoleSubjectId(), 
+        wsRestAssignPermissionsLiteRequest.getSubjectRoleSubjectSourceId(), 
+        wsRestAssignPermissionsLiteRequest.getSubjectRoleSubjectIdentifier(), 
+        wsRestAssignPermissionsLiteRequest.getAction(), 
+        wsRestAssignPermissionsLiteRequest.getActAsSubjectId(), 
+        wsRestAssignPermissionsLiteRequest.getActAsSubjectSourceId(), wsRestAssignPermissionsLiteRequest.getActAsSubjectIdentifier(), 
+        wsRestAssignPermissionsLiteRequest.getIncludeSubjectDetail(), 
+        wsRestAssignPermissionsLiteRequest.getSubjectAttributeNames(), wsRestAssignPermissionsLiteRequest.getIncludeGroupDetail(), 
+        wsRestAssignPermissionsLiteRequest.getParamName0(), 
+        wsRestAssignPermissionsLiteRequest.getParamValue0(), wsRestAssignPermissionsLiteRequest.getParamName1(), 
+        wsRestAssignPermissionsLiteRequest.getParamValue1());
+    
+    return wsAssignPermissionsLiteResults;
   }
 }

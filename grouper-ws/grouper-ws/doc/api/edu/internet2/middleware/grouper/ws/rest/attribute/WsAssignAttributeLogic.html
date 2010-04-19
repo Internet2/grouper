@@ -133,6 +133,39 @@ logic for attribute assigning...
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsAssignAttributeLogic.html?view=co#assignAttributesHelper(AttributeAssignType, edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup[], AttributeAssignOperation, edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue[], java.lang.String, java.sql.Timestamp, java.sql.Timestamp, AttributeAssignDelegatable, AttributeAssignValueOperation, edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup[], edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.soap.WsStemLookup[], edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup[], edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup[], edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup[], edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup[], java.lang.String[], boolean, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults, GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsParam[], TypeOfGroup, AttributeDefType)">assignAttributesHelper</A></B>(AttributeAssignType&nbsp;attributeAssignType,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                       AttributeAssignOperation&nbsp;attributeAssignOperation,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignValue</A>[]&nbsp;values,
+                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;assignmentNotes,
+                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;assignmentEnabledTime,
+                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;assignmentDisabledTime,
+                       AttributeAssignDelegatable&nbsp;delegatable,
+                       AttributeAssignValueOperation&nbsp;attributeAssignValueOperation,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignLookup</A>[]&nbsp;wsAttributeAssignLookups,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsOwnerGroupLookups,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A>[]&nbsp;wsOwnerStemLookups,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;wsOwnerSubjectLookups,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup</A>[]&nbsp;wsOwnerMembershipLookups,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipAnyLookup</A>[]&nbsp;wsOwnerMembershipAnyLookups,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefLookup</A>[]&nbsp;wsOwnerAttributeDefLookups,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignLookup</A>[]&nbsp;wsOwnerAttributeAssignLookups,
+                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;actions,
+                       boolean&nbsp;includeSubjectDetail,
+                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;subjectAttributeNames,
+                       boolean&nbsp;includeGroupDetail,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignAttributesResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignAttributesResults</A>&nbsp;wsAssignAttributesResults,
+                       GrouperSession&nbsp;session,
+                       <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A>[]&nbsp;params,
+                       TypeOfGroup&nbsp;typeOfGroup,
+                       AttributeDefType&nbsp;attributeDefType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;helper method for assigning attributes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/attribute/WsAssignAttributeLogic.html?view=co#assignmentMetadataAndValues(edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult, AttributeAssign, edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue[], java.lang.String, java.sql.Timestamp, java.sql.Timestamp, AttributeAssignDelegatable, AttributeAssignValueOperation)">assignmentMetadataAndValues</A></B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignAttributeResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignAttributeResult</A>&nbsp;wsAssignAttributeResult,
                             AttributeAssign&nbsp;attributeAssign,
                             <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignValue</A>[]&nbsp;values,
@@ -203,6 +236,44 @@ public static void <B>assignmentMetadataAndValues</B>(<A HREF="../../../../../..
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>wsAssignAttributeResult</CODE> - <DD><CODE>attributeAssign</CODE> - <DD><CODE>values</CODE> - <DD><CODE>assignmentNotes</CODE> - <DD><CODE>assignmentEnabledTime</CODE> - <DD><CODE>assignmentDisabledTime</CODE> - <DD><CODE>delegatable</CODE> - <DD><CODE>attributeAssignValueOperation</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttributesHelper(AttributeAssignType, edu.internet2.middleware.grouper.ws.soap.WsAttributeDefNameLookup[], AttributeAssignOperation, edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue[], java.lang.String, java.sql.Timestamp, java.sql.Timestamp, AttributeAssignDelegatable, AttributeAssignValueOperation, edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup[], edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.soap.WsStemLookup[], edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.soap.WsMembershipLookup[], edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup[], edu.internet2.middleware.grouper.ws.soap.WsAttributeDefLookup[], edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup[], java.lang.String[], boolean, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults, GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsParam[], TypeOfGroup, AttributeDefType)"><!-- --></A><H3>
+assignAttributesHelper</H3>
+<PRE>
+public static void <B>assignAttributesHelper</B>(AttributeAssignType&nbsp;attributeAssignType,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefNameLookup</A>[]&nbsp;wsAttributeDefNameLookups,
+                                          AttributeAssignOperation&nbsp;attributeAssignOperation,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignValue.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignValue</A>[]&nbsp;values,
+                                          <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;assignmentNotes,
+                                          <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;assignmentEnabledTime,
+                                          <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;assignmentDisabledTime,
+                                          AttributeAssignDelegatable&nbsp;delegatable,
+                                          AttributeAssignValueOperation&nbsp;attributeAssignValueOperation,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignLookup</A>[]&nbsp;wsAttributeAssignLookups,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;wsOwnerGroupLookups,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A>[]&nbsp;wsOwnerStemLookups,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;wsOwnerSubjectLookups,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipLookup</A>[]&nbsp;wsOwnerMembershipLookups,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipAnyLookup</A>[]&nbsp;wsOwnerMembershipAnyLookups,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeDefLookup</A>[]&nbsp;wsOwnerAttributeDefLookups,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttributeAssignLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttributeAssignLookup</A>[]&nbsp;wsOwnerAttributeAssignLookups,
+                                          <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;actions,
+                                          boolean&nbsp;includeSubjectDetail,
+                                          <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;subjectAttributeNames,
+                                          boolean&nbsp;includeGroupDetail,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignAttributesResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignAttributesResults</A>&nbsp;wsAssignAttributesResults,
+                                          GrouperSession&nbsp;session,
+                                          <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A>[]&nbsp;params,
+                                          TypeOfGroup&nbsp;typeOfGroup,
+                                          AttributeDefType&nbsp;attributeDefType)</PRE>
+<DL>
+<DD>helper method for assigning attributes
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignType</CODE> - <DD><CODE>wsAttributeDefNameLookups</CODE> - <DD><CODE>attributeAssignOperation</CODE> - <DD><CODE>values</CODE> - <DD><CODE>assignmentNotes</CODE> - <DD><CODE>assignmentEnabledTime</CODE> - <DD><CODE>assignmentDisabledTime</CODE> - <DD><CODE>delegatable</CODE> - <DD><CODE>attributeAssignValueOperation</CODE> - <DD><CODE>wsAttributeAssignLookups</CODE> - <DD><CODE>wsOwnerGroupLookups</CODE> - <DD><CODE>wsOwnerStemLookups</CODE> - <DD><CODE>wsOwnerSubjectLookups</CODE> - <DD><CODE>wsOwnerMembershipLookups</CODE> - <DD><CODE>wsOwnerMembershipAnyLookups</CODE> - <DD><CODE>wsOwnerAttributeDefLookups</CODE> - <DD><CODE>wsOwnerAttributeAssignLookups</CODE> - <DD><CODE>actions</CODE> - <DD><CODE>includeSubjectDetail</CODE> - <DD><CODE>subjectAttributeNames</CODE> - <DD><CODE>includeGroupDetail</CODE> - <DD><CODE>wsAssignAttributesResults</CODE> - <DD><CODE>session</CODE> - <DD><CODE>params</CODE> - <DD><CODE>typeOfGroup</CODE> - <DD><CODE>attributeDefType</CODE> - </DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

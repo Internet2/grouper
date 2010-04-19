@@ -173,9 +173,10 @@ Class WsMembershipAnyLookup</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;MultiKey&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.html?view=co#convertToGroupMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup[], java.lang.StringBuilder, int[])">convertToGroupMemberIds</A></B>(GrouperSession&nbsp;grouperSession,
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.html?view=co#convertToGroupMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup[], java.lang.StringBuilder, TypeOfGroup, int[])">convertToGroupMemberIds</A></B>(GrouperSession&nbsp;grouperSession,
                         <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipAnyLookup</A>[]&nbsp;wsMembershipAnyLookups,
                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                        TypeOfGroup&nbsp;typeOfGroup,
                         int[]&nbsp;lookupCount)</CODE>
 
 <BR>
@@ -512,18 +513,19 @@ public GroupMember <B>retrieveMembershipAnyIfNeeded</B>(GrouperSession&nbsp;grou
 </DL>
 <HR>
 
-<A NAME="convertToGroupMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup[], java.lang.StringBuilder, int[])"><!-- --></A><H3>
+<A NAME="convertToGroupMemberIds(GrouperSession, edu.internet2.middleware.grouper.ws.soap.WsMembershipAnyLookup[], java.lang.StringBuilder, TypeOfGroup, int[])"><!-- --></A><H3>
 convertToGroupMemberIds</H3>
 <PRE>
 public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;MultiKey&gt; <B>convertToGroupMemberIds</B>(GrouperSession&nbsp;grouperSession,
                                                     <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembershipAnyLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembershipAnyLookup</A>[]&nbsp;wsMembershipAnyLookups,
                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;errorMessage,
+                                                    TypeOfGroup&nbsp;typeOfGroup,
                                                     int[]&nbsp;lookupCount)</PRE>
 <DL>
 <DD>convert membership any lookups to membership any ids
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsMembershipAnyLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>wsMembershipAnyLookups</CODE> - <DD><CODE>errorMessage</CODE> - <DD><CODE>typeOfGroup</CODE> - <DD><CODE>lookupCount</CODE> - is an array of size one int where 1 will be added if there are records, and no change if not
 <DT><B>Returns:</B><DD>the GroupMember ids</DL>
 </DD>
 </DL>

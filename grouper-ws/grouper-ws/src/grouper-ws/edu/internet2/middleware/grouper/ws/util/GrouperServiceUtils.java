@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -612,6 +614,24 @@ public final class GrouperServiceUtils {
   }
 
   /**
+   * convert the permissionType, default to null
+   * @param permissionType
+   * @return the permissionType
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static PermissionType convertPermissionType(String permissionType)
+      throws WsInvalidQueryException {
+    PermissionType permissionTypeEnum = null;
+    try {
+      permissionTypeEnum = PermissionType.valueOfIgnoreCase(permissionType, false);
+    } catch (Exception e) {
+      //this exception will be descriptive
+      throw new WsInvalidQueryException(e);
+    }
+    return permissionTypeEnum;
+  }
+
+  /**
    * convert the attributeAssignOperation, default to null
    * @param attributeAssignOperation
    * @return the attributeAssignOperation
@@ -627,6 +647,24 @@ public final class GrouperServiceUtils {
       throw new WsInvalidQueryException(e);
     }
     return attributeAssignOperationEnum;
+  }
+
+  /**
+   * convert the permissionAssignOperation, default to null
+   * @param permissionAssignOperation
+   * @return the permissionAssignOperation
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static PermissionAssignOperation convertPermissionAssignOperation(String permissionAssignOperation)
+      throws WsInvalidQueryException {
+    PermissionAssignOperation permissionAssignOperationEnum = null;
+    try {
+      permissionAssignOperationEnum = PermissionAssignOperation.valueOfIgnoreCase(permissionAssignOperation, false);
+    } catch (Exception e) {
+      //this exception will be descriptive
+      throw new WsInvalidQueryException(e);
+    }
+    return permissionAssignOperationEnum;
   }
 
   /**
