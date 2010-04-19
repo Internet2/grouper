@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult.WsGetMembersResultCode;
@@ -38,11 +39,12 @@ public class WsGroupLookup {
    * @param grouperSession
    * @param wsGroupLookups
    * @param errorMessage
+   * @param typeOfGroup 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the group ids
    */
-  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage) {
-    return convertToGroupIds(grouperSession, wsGroupLookups, errorMessage, new int[1]);
+  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, TypeOfGroup typeOfGroup) {
+    return convertToGroupIds(grouperSession, wsGroupLookups, errorMessage, typeOfGroup, new int[1]);
   }
 
   /**
@@ -50,10 +52,13 @@ public class WsGroupLookup {
    * @param grouperSession
    * @param wsGroupLookups
    * @param errorMessage
+   * @param typeOfGroup 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the group ids
    */
-  public static Set<String> convertToGroupIds(GrouperSession grouperSession, WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, int[] lookupCount) {
+  public static Set<String> convertToGroupIds(GrouperSession grouperSession, 
+      WsGroupLookup[] wsGroupLookups, StringBuilder errorMessage, 
+      TypeOfGroup typeOfGroup, int[] lookupCount) {
     //get all the groups
     //we could probably batch these to get better performance.
     Set<String> groupIds = null;
@@ -78,14 +83,25 @@ public class WsGroupLookup {
         wsGroupLookup.retrieveGroupIfNeeded(grouperSession);
         Group group = wsGroupLookup.retrieveGroup();
         if (group != null) {
-          groupIds.add(group.getUuid());
+          if (typeOfGroup == null || typeOfGroup == group.getTypeOfGroup()) {
+            groupIds.add(group.getUuid());
+          } else {
+            if (errorMessage.length() > 0) {
+              errorMessage.append(", ");
+            }
+            
+            errorMessage.append("Error on group index: " + i + ", expecting type of group: " 
+                + typeOfGroup + ", " + wsGroupLookup.toStringCompact());
+              
+          }
         } else {
           
           if (errorMessage.length() > 0) {
             errorMessage.append(", ");
           }
           
-          errorMessage.append("Error on group index: " + i + ", " + wsGroupLookup.retrieveGroupFindResult() + ", " + wsGroupLookup.toStringCompact());
+          errorMessage.append("Error on group index: " + i + ", " 
+              + wsGroupLookup.retrieveGroupFindResult() + ", " + wsGroupLookup.toStringCompact());
         }
         
         i++;

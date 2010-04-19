@@ -15,6 +15,7 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -247,12 +248,13 @@ public class WsAttributeDefLookup {
    * @param grouperSession
    * @param wsAttributeDefLookups
    * @param errorMessage
+   * @param attributeDefType 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the attributeDef ids
    */
   public static Set<String> convertToAttributeDefIds(GrouperSession grouperSession, 
-      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage) {
-    return convertToAttributeDefIds(grouperSession, wsAttributeDefLookups, errorMessage, new int[]{0});
+      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage, AttributeDefType attributeDefType) {
+    return convertToAttributeDefIds(grouperSession, wsAttributeDefLookups, errorMessage, attributeDefType, new int[]{0});
   }
 
   /**
@@ -260,11 +262,12 @@ public class WsAttributeDefLookup {
    * @param grouperSession
    * @param wsAttributeDefLookups
    * @param errorMessage
+   * @param attributeDefType 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the attributeDef ids
    */
   public static Set<String> convertToAttributeDefIds(GrouperSession grouperSession, 
-      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage, int[] lookupCount) {
+      WsAttributeDefLookup[] wsAttributeDefLookups, StringBuilder errorMessage, AttributeDefType attributeDefType, int[] lookupCount) {
     //get all the attributeDefs
     //we could probably batch these to get better performance.
     Set<String> attributeDefIds = null;
@@ -289,7 +292,22 @@ public class WsAttributeDefLookup {
         wsAttributeDefLookup.retrieveAttributeDefIfNeeded(grouperSession);
         AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDef();
         if (attributeDef != null) {
-          attributeDefIds.add(attributeDef.getUuid());
+          if (attributeDefType == null) {
+            attributeDefIds.add(attributeDef.getUuid());
+          } else {
+            if (attributeDefType == attributeDef.getAttributeDefType()) {
+              attributeDefIds.add(attributeDef.getUuid());
+            } else {
+              if (errorMessage.length() > 0) {
+                errorMessage.append(", ");
+              }
+              
+              errorMessage.append("Error on attributeDef index: " + i 
+                  + ", expecting attributeDefType:  " + attributeDefType
+                  + ", " + wsAttributeDefLookup.toStringCompact());
+              
+            }
+          }
         } else {
           
           if (errorMessage.length() > 0) {

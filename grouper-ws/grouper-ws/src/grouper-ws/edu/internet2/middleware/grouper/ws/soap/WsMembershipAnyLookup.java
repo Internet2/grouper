@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.group.GroupMember;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
@@ -239,10 +240,13 @@ public class WsMembershipAnyLookup {
    * @param grouperSession
    * @param wsMembershipAnyLookups
    * @param errorMessage
+   * @param typeOfGroup 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the GroupMember ids
    */
-  public static Set<MultiKey> convertToGroupMemberIds(GrouperSession grouperSession, WsMembershipAnyLookup[] wsMembershipAnyLookups, StringBuilder errorMessage, int[] lookupCount) {
+  public static Set<MultiKey> convertToGroupMemberIds(GrouperSession grouperSession, 
+      WsMembershipAnyLookup[] wsMembershipAnyLookups, StringBuilder errorMessage, 
+      TypeOfGroup typeOfGroup, int[] lookupCount) {
     //get all the memberships
     //we could probably batch these to get better performance.
     Set<MultiKey> groupMemberIds = null;
@@ -267,15 +271,27 @@ public class WsMembershipAnyLookup {
         wsMembershipAnyLookup.retrieveMembershipAnyIfNeeded(grouperSession);
         GroupMember groupMember = wsMembershipAnyLookup.retrieveGroupMember();
         if (groupMember != null) {
-          
-          groupMemberIds.add(new MultiKey(groupMember.getGroup().getId(), groupMember.getMember().getUuid()));
+          if (typeOfGroup == null || typeOfGroup == groupMember.getGroup().getTypeOfGroup()) {
+            groupMemberIds.add(new MultiKey(groupMember.getGroup().getId(), groupMember.getMember().getUuid()));
+          } else {
+            if (errorMessage.length() > 0) {
+              errorMessage.append(", ");
+            }
+            
+            errorMessage.append("Error on membershipAny index: " + i 
+                + ", expecting type of group: " + typeOfGroup + ", " 
+                + wsMembershipAnyLookup.toStringCompact());
+            
+          }
         } else {
           
           if (errorMessage.length() > 0) {
             errorMessage.append(", ");
           }
           
-          errorMessage.append("Error on membershipAny index: " + i + ", " + wsMembershipAnyLookup.retrieveMembershipAnyFindResult() + ", " + wsMembershipAnyLookup.toStringCompact());
+          errorMessage.append("Error on membershipAny index: " + i 
+              + ", " + wsMembershipAnyLookup.retrieveMembershipAnyFindResult() 
+              + ", " + wsMembershipAnyLookup.toStringCompact());
         }
         
         i++;

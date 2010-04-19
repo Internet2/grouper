@@ -14,7 +14,9 @@ import org.apache.commons.logging.LogFactory;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -247,12 +249,13 @@ public class WsAttributeDefNameLookup {
    * @param grouperSession
    * @param wsAttributeDefNameLookups
    * @param errorMessage
+   * @param attributeDefType 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the attributeDef ids
    */
   public static Set<String> convertToAttributeDefNameIds(GrouperSession grouperSession, 
-      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, StringBuilder errorMessage) {
-    return convertToAttributeDefNameIds(grouperSession, wsAttributeDefNameLookups, errorMessage, new int[]{0});
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, StringBuilder errorMessage, AttributeDefType attributeDefType) {
+    return convertToAttributeDefNameIds(grouperSession, wsAttributeDefNameLookups, errorMessage, attributeDefType, new int[]{0});
   }
 
   /**
@@ -260,11 +263,13 @@ public class WsAttributeDefNameLookup {
    * @param grouperSession
    * @param wsAttributeDefNameLookups
    * @param errorMessage
+   * @param attributeDefType 
    * @param lookupCount is an array of size one int where 1 will be added if there are records, and no change if not
    * @return the attributeDefName ids
    */
   public static Set<String> convertToAttributeDefNameIds(GrouperSession grouperSession, 
-      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, StringBuilder errorMessage, int[] lookupCount) {
+      WsAttributeDefNameLookup[] wsAttributeDefNameLookups, StringBuilder errorMessage, 
+      AttributeDefType attributeDefType, int[] lookupCount) {
     //get all the attributeDefNames
     //we could probably batch these to get better performance.
     Set<String> attributeDefNameIds = null;
@@ -288,7 +293,24 @@ public class WsAttributeDefNameLookup {
         wsAttributeDefNameLookup.retrieveAttributeDefNameIfNeeded(grouperSession);
         AttributeDefName attributeDefName = wsAttributeDefNameLookup.retrieveAttributeDefName();
         if (attributeDefName != null) {
-          attributeDefNameIds.add(attributeDefName.getId());
+          if (attributeDefType != null) {
+            AttributeDef attributeDef = attributeDefName.getAttributeDef();
+            if (attributeDefType == attributeDef.getAttributeDefType()) {
+              attributeDefNameIds.add(attributeDefName.getId());
+            } else {
+              
+              if (errorMessage.length() > 0) {
+                errorMessage.append(", ");
+              }
+              
+              errorMessage.append("Error on attributeDefName index: " + i + ", expecting attributeDefType: " 
+                  + attributeDefType + ", " 
+                  + wsAttributeDefNameLookup.toStringCompact());
+              
+            }
+          } else {
+            attributeDefNameIds.add(attributeDefName.getId());
+          }
         } else {
           
           if (errorMessage.length() > 0) {

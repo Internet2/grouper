@@ -52,9 +52,10 @@ public class PermissionRoleDelegate implements Serializable {
    * remove a permission from a role, which means that any subject in the role will not directly have this permission, 
    * and any role in the roleSet directed graph will also not get this permission from this role
    * @param attributeDefName
+   * @return result
    */
-  public void removeRolePermission(AttributeDefName attributeDefName) {
-    removeRolePermission(null, attributeDefName);
+  public AttributeAssignResult removeRolePermission(AttributeDefName attributeDefName) {
+    return removeRolePermission(null, attributeDefName);
   }
   
   /**
@@ -72,11 +73,12 @@ public class PermissionRoleDelegate implements Serializable {
    * add a permission to a role / subject pair (effective membership)
    * @param attributeDefName
    * @param subject 
+   * @return result
    */
-  public void removeSubjectRolePermission(AttributeDefName attributeDefName, Subject subject) {
+  public AttributeAssignResult removeSubjectRolePermission(AttributeDefName attributeDefName, Subject subject) {
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
 
-    removeSubjectRolePermission(null, attributeDefName, member);
+    return removeSubjectRolePermission(null, attributeDefName, member);
   }
 
   /**
@@ -111,9 +113,10 @@ public class PermissionRoleDelegate implements Serializable {
    * and any role in the roleSet directed graph will also not get this permission from this role
    * @param action is the action on the assignment (e.g. read, write, assign (default))
    * @param attributeDefName
+   * @return result
    */
-  public void removeRolePermission(String action, AttributeDefName attributeDefName) {
-    this.group.getAttributeDelegate().removeAttribute(action, attributeDefName);
+  public AttributeAssignResult removeRolePermission(String action, AttributeDefName attributeDefName) {
+    return this.group.getAttributeDelegate().removeAttribute(action, attributeDefName);
   }
 
   /**
@@ -121,10 +124,11 @@ public class PermissionRoleDelegate implements Serializable {
    * @param action is the action on the assignment (e.g. read, write, assign (default))
    * @param attributeDefName
    * @param subject 
+   * @return result
    */
-  public void removeSubjectRolePermission(String action, AttributeDefName attributeDefName, Subject subject) {
+  public AttributeAssignResult removeSubjectRolePermission(String action, AttributeDefName attributeDefName, Subject subject) {
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
-    removeSubjectRolePermission(action, attributeDefName, member);
+    return removeSubjectRolePermission(action, attributeDefName, member);
   }
 
   /**
@@ -156,9 +160,10 @@ public class PermissionRoleDelegate implements Serializable {
    * add a permission to a role / subject pair (effective membership)
    * @param attributeDefName
    * @param member 
+   * @return result
    */
-  public void removeSubjectRolePermission(AttributeDefName attributeDefName, Member member) {
-    removeSubjectRolePermission(null, attributeDefName, member);
+  public AttributeAssignResult removeSubjectRolePermission(AttributeDefName attributeDefName, Member member) {
+    return removeSubjectRolePermission(null, attributeDefName, member);
   }
 
   /**
@@ -166,9 +171,10 @@ public class PermissionRoleDelegate implements Serializable {
    * @param action is the action on the assignment (e.g. read, write, assign (default))
    * @param attributeDefName
    * @param member 
+   * @return attribute assign result
    */
-  public void removeSubjectRolePermission(String action, AttributeDefName attributeDefName, Member member) {
-    this.group.getAttributeDelegateEffMship(member).removeAttribute(action, attributeDefName);
+  public AttributeAssignResult removeSubjectRolePermission(String action, AttributeDefName attributeDefName, Member member) {
+    return this.group.getAttributeDelegateEffMship(member).removeAttribute(action, attributeDefName);
   }
 
   /**

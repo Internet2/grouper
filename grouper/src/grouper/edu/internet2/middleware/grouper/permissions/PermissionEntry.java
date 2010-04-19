@@ -14,6 +14,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -657,10 +658,22 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
   public static enum PermissionType {
 
     /** permission assigned to role */
-    role,
+    role {
+
+      @Override
+      public AttributeAssignType convertToAttributeAssignType() {
+        return AttributeAssignType.group;
+      }
+    },
     
     /** permission assigned to role and user combined */
-    role_subject;
+    role_subject {
+
+      @Override
+      public AttributeAssignType convertToAttributeAssignType() {
+        return AttributeAssignType.any_mem;
+      }
+    };
     
     /**
      * do a case-insensitive matching
@@ -675,6 +688,12 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
 
     }
 
+    /**
+     * convert to attribute assign type
+     * @return type
+     */
+    public abstract AttributeAssignType convertToAttributeAssignType();
+    
   }
   
   /** type of permission, either assigned to role, or assigned to role and user combined: role_subject */

@@ -63,7 +63,7 @@ public class WsResponseMeta {
   
   /**
    * 
-   * @return
+   * @return millis
    */
   public String getMillis() {
     if (this.millis == -1) {

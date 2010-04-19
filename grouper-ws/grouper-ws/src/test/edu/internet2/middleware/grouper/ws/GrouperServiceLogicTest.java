@@ -11,6 +11,7 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -42,15 +43,20 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupMember;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssign;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssignValue;
@@ -98,7 +104,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetPermissionAssignments"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignPermissions"));
   }
 
   /**
@@ -2609,6 +2615,433 @@ public class GrouperServiceLogicTest extends GrouperTest {
     AttributeAssign attributeAssign2 = attributeAssign.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
     assertEquals(attributeDefName.getName(), attributeAssign2.getAttributeDefName().getName());
     
+    
+  }
+
+  /**
+   * test assign permissions
+   */
+  public void testAssignPermissions() {
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setAttributeDefType(AttributeDefType.perm);
+    attributeDef.setMultiValued(true);
+    attributeDef.setMultiAssignable(true);
+    attributeDef.store();
+    
+    Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:groupTestAttrAssign").assignName("test:groupTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").assignTypeOfGroup(TypeOfGroup.role).save();
+  
+    Role role = group;
+    
+    
+    //Error case attribute assign type
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    WsAssignPermissionsResults wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, null, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, null, null, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
+        false, null, false, null);
+  
+    assertEquals("You must pass in a permissionType", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue("You must pass in a permissionType", 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains("You need to pass in a permissionType"));
+  
+    //Error case lookups and names
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("Cant do defName and assign lookup", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue(wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains("If you are passing in assign lookup ids to query, you cant specify attribute def names"));
+  
+    
+    //cant pass in attr assign ids and owners
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("Why is there more than one type of lookup?", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue("Why is there more than one type of lookup?", 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains("Why is there more than one type of lookup?"));
+  
+    
+    //Need to pass in permission assign operation
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, 
+        null, null, 
+        null, null, null, null, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("Need to pass in permissionAssignOperation", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue("Need to pass in permissionAssignOperation: " + wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains("You need to pass in an permissionAssignOperation"));
+
+    
+    
+    //Cant pass in attr def name ids when sending in attribute assign id
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    AttributeAssignResult attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, new WsAttributeDefNameLookup[]{
+            new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, new String[]{"a"}, null, 
+        false, null, false, null);
+    
+      assertEquals("If you are passing in assign lookup ids to query, you cant specify attribute def names", 
+          WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+          wsAssignPermissionsResults.getResultMetadata().getResultCode());
+      assertTrue(wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+          wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains(
+            "If you are passing in assign lookup ids to query, you cant specify attribute def names"));
+
+      
+          
+    //Why is there more than one type of lookup?
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, new String[]{"a"}, null, 
+        false, null, false, null);
+    
+      assertEquals("Why is there more than one type of lookup?", 
+          WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+          wsAssignPermissionsResults.getResultMetadata().getResultCode());
+      assertTrue(wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+          wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains(
+            "Why is there more than one type of lookup?"));
+
+    
+    //Cant pass in actions when sending in attribute assign id
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, new String[]{"a"}, null, 
+        false, null, false, null);
+    
+    assertEquals("Cant pass in actions when using attribute assign id lookup", 
+        WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue(wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains(
+          "Cant pass in actions when using attribute assign id lookup"));
+
+    //Cant pass in assignmentNotes when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.remove_permission, "notes", 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("Cant pass in assignmentNotes when deleting attributes", 
+        WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue(wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains(
+            "Cant pass in assignmentNotes when deleting attributes"));
+
+    //Cant pass in assignmentEnabledTime when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.remove_permission, null, 
+        new Timestamp(0), null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("Cant pass in assignmentEnabledTime when deleting attributes", 
+        WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue(wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains(
+            "Cant pass in assignmentEnabledTime when deleting attributes"));
+    
+    //Cant pass in assignmentDisabledTime when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.remove_permission, null, 
+        null, new Timestamp(0), null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("Cant pass in assignmentDisabledTime when deleting attributes", 
+        WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue(wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains(
+            "Cant pass in assignmentDisabledTime when deleting attributes"));
+    
+
+    //Cant pass in delegatable when deleting attributes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.remove_permission, null, 
+        null, null, AttributeAssignDelegatable.TRUE, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("Cant pass in delegatable when deleting attributes", 
+        WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertTrue(wsAssignPermissionsResults.getResultMetadata().getResultMessage(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultMessage().contains(
+            "Cant pass in delegatable when deleting attributes"));
+    
+    //lets assign by id (should ignore)
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("assign an existing attribute is ok", 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertEquals("F", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getChanged());    
+
+    
+    //lets delete by id (should delete)
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.remove_permission, null, 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("delete an existing attribute is ok", 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertEquals("T", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getChanged());    
+
+
+    //lets assign by id and assign notes
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    role.getPermissionRoleDelegate().removeRolePermission(attributeDefName);
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    String id = attributeAssign.getId();
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.assign_permission, "notes", 
+        null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("assign an existing attribute is ok", 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertEquals("T", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getChanged());    
+    assertEquals("notes", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getWsAttributeAssigns()[0].getNotes());
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    assertEquals("notes", attributeAssign.getNotes());
+    
+    
+    //lets assign by id and assign enabled
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    role.getPermissionRoleDelegate().removeRolePermission(attributeDefName);
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    id = attributeAssign.getId();
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.assign_permission, null, 
+        new Timestamp(123L), null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("assign an existing attribute is ok", 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertEquals("T", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getChanged());    
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    assertEquals(new Timestamp(123L), attributeAssign.getEnabledTime());
+    
+    
+    //lets assign by id and assign disabled
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    role.getPermissionRoleDelegate().removeRolePermission(attributeDefName);
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    id = attributeAssign.getId();
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, new Timestamp(123L), null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("assign an existing attribute is ok", 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertEquals("T", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getChanged());    
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    assertEquals(new Timestamp(123L), attributeAssign.getDisabledTime());
+    
+    //lets assign by id and assign delegatable
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    role.getPermissionRoleDelegate().removeRolePermission(attributeDefName);
+    attributeAssignResult = role.getPermissionRoleDelegate().assignRolePermission(attributeDefName);
+    attributeAssign = attributeAssignResult.getAttributeAssign();
+    id = attributeAssign.getId();
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, null, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, AttributeAssignDelegatable.TRUE, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
+        null, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("assign an existing attribute is ok", 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertEquals("T", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getChanged());    
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(id, attributeAssign.getId());
+    assertEquals(AttributeAssignDelegatable.TRUE, attributeAssign.getAttributeAssignDelegatable());
+    
+    
+    //lets assign a new by group owner
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    role.getPermissionRoleDelegate().removeRolePermission(attributeDefName);
+
+
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, AttributeAssignDelegatable.TRUE, null, 
+        new WsGroupLookup[]{new WsGroupLookup(role.getName(), null)}, null, null, null, 
+        false, null, false, null);
+    
+    assertEquals("assign an existing attribute is ok", 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertEquals("T", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getChanged());    
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = group.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertNotNull(attributeAssign.getId());
+
+    //lets assign a new by group owner and subject
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    role.getPermissionRoleDelegate().removeRolePermission(attributeDefName);
+
+    WsMembershipAnyLookup wsMembershipAnyLookup = new WsMembershipAnyLookup(
+        new WsGroupLookup(role.getName(), null), new WsSubjectLookup(SubjectTestHelper.SUBJ4_ID, null, null));
+
+    wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
+        GrouperWsVersion.v1_6_000, PermissionType.role_subject, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
+        PermissionAssignOperation.assign_permission, null, 
+        null, null, AttributeAssignDelegatable.TRUE, null, 
+        null, new WsMembershipAnyLookup[]{wsMembershipAnyLookup}, null, null, 
+        false, null, false, null);
+    
+    assertEquals("assign an existing attribute is ok", 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignPermissionsResults.getResultMetadata().getResultCode());
+    assertEquals("T", wsAssignPermissionsResults.getWsAssignPermissionResults()[0].getChanged());    
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
+      .findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(role.getId(), SubjectTestHelper.SUBJ4_ID)), null, null, false);
+    assertEquals(1, attributeAssigns.size());
+    assertNotNull(attributeAssigns.iterator().next().getId());
+
+    
+
     
   }
 
