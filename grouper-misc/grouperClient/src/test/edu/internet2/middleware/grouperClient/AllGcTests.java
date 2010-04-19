@@ -6,7 +6,6 @@ package edu.internet2.middleware.grouperClient;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import edu.internet2.middleware.grouperClient.poc.GrouperClientLdapTest;
 import edu.internet2.middleware.grouperClient.poc.GrouperClientWsTest;
 import edu.internet2.middleware.grouperClient.util.AllGcUtilTests;
 

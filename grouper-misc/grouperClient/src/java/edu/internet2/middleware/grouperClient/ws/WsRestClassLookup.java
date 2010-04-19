@@ -17,6 +17,9 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributesResults
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignPermissionResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssign;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignValue;
@@ -66,6 +69,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignAttributesLit
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignAttributesRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignGrouperPrivilegesRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignPermissionsLiteRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignPermissionsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindStemsRequest;
@@ -129,6 +134,7 @@ public class WsRestClassLookup {
     addAliasClass(WsDeleteMemberResult.class);
     addAliasClass(WsDeleteMemberResults.class);
 
+    
     addAliasClass(WsFindGroupsResults.class);
     addAliasClass(WsFindStemsResults.class);
     addAliasClass(WsGetAttributeAssignmentsResults.class);
@@ -181,7 +187,13 @@ public class WsRestClassLookup {
     addAliasClass(WsGetPermissionAssignmentsResults.class);
     addAliasClass(WsPermissionAssign.class);
     addAliasClass(WsPermissionAssignDetail.class);
-    
+
+    addAliasClass(WsRestAssignPermissionsLiteRequest.class);
+    addAliasClass(WsRestAssignPermissionsRequest.class);
+    addAliasClass(WsAssignPermissionsLiteResults.class);
+    addAliasClass(WsAssignPermissionsResults.class);
+    addAliasClass(WsAssignPermissionResult.class);
+
     addAliasClass(WsRestDeleteMemberRequest.class);
     addAliasClass(WsRestFindGroupsRequest.class);
     addAliasClass(WsRestFindStemsRequest.class);
