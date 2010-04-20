@@ -17,6 +17,7 @@ package edu.internet2.middleware.ldappc.spml;
 import java.util.List;
 import java.util.Map;
 
+import edu.internet2.middleware.ldappc.spml.definitions.PSODefinition;
 import edu.internet2.middleware.ldappc.spml.definitions.TargetDefinition;
 import edu.internet2.middleware.ldappc.spml.request.ProvisioningRequest;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -29,7 +30,7 @@ public class PSPContext {
 
   private PSP provisioningServiceProvider;
 
-  private List<TargetDefinition> psoTargetDefinitions;
+  private Map<TargetDefinition, List<PSODefinition>> targetAndObjectDefinitions;
 
   public Map<String, BaseAttribute<?>> getAttributes() {
     return attributes;
@@ -55,11 +56,18 @@ public class PSPContext {
     this.provisioningServiceProvider = provisioningServiceProvider;
   }
 
-  public List<TargetDefinition> getPsoTargetDefinitions() {
-    return psoTargetDefinitions;
+  /**
+   * @return Returns the targetAndObjectDefinitions.
+   */
+  public Map<TargetDefinition, List<PSODefinition>> getTargetAndObjectDefinitions() {
+    return targetAndObjectDefinitions;
   }
 
-  public void setPsoTargetDefinitions(List<TargetDefinition> psoTargetDefinitions) {
-    this.psoTargetDefinitions = psoTargetDefinitions;
+  /**
+   * @param targetAndObjectDefinitions
+   *          The targetAndObjectDefinitions to set.
+   */
+  public void setTargetAndObjectDefinitions(Map<TargetDefinition, List<PSODefinition>> targetAndObjectDefinitions) {
+    this.targetAndObjectDefinitions = targetAndObjectDefinitions;
   }
 }

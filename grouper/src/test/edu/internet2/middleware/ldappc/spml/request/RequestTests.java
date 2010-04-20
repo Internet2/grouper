@@ -15,11 +15,11 @@
 package edu.internet2.middleware.ldappc.spml.request;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.cli.ParseException;
+import junit.textui.TestRunner;
+
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.opensaml.util.resource.ResourceException;
 import org.openspml.v2.msg.Marshallable;
@@ -38,6 +38,7 @@ import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spml.Request;
 import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.msg.spml.ReturnData;
+import org.openspml.v2.msg.spml.SchemaEntityRef;
 import org.openspml.v2.msg.spml.StatusCode;
 import org.openspml.v2.msg.spmlsearch.Query;
 import org.openspml.v2.msg.spmlsearch.Scope;
@@ -90,10 +91,9 @@ public class RequestTests extends XMLTestCase {
 
     try {
       PSPOptions pspOptions = new PSPOptions(null);
-      pspOptions.setConfDir(GrouperUtil.fileFromResourceName("/test/edu/internet2/middleware/ldappc/spml").getAbsolutePath());
+      pspOptions.setConfDir(GrouperUtil.fileFromResourceName("/test/edu/internet2/middleware/ldappc/spml")
+          .getAbsolutePath());
       psp = PSP.getPSP(pspOptions);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
     } catch (ResourceException e) {
       throw new RuntimeException(e);
     }
@@ -131,10 +131,11 @@ public class RequestTests extends XMLTestCase {
     request.setRequestID(BasePSPProvisioningTest.REQUESTID_TEST);
     request.setExecutionMode(ExecutionMode.SYNCHRONOUS);
     request.setId("id");
-    request.setTargetIds(Arrays.asList(new String[] { "target1", "target2" }));
+    request.addSchemaEntity(new SchemaEntityRef("target1", null));
+    request.addSchemaEntity(new SchemaEntityRef("target2", null));
     request.setReturnData(ReturnData.EVERYTHING);
 
-    String string = "CalcRequest[id=id,returnData=everything,targetIds=[target1, target2],requestID=REQUESTID_TEST]";
+    String string = "CalcRequest[id=id,requestID=REQUESTID_TEST,returnData=everything,schemaEntityRef=SchemaEntityRef[targetID=target1,entityName=<null>,isContainer=false],schemaEntityRef=SchemaEntityRef[targetID=target2,entityName=<null>,isContainer=false]]";
     assertEquals(string, request.toString());
 
     Marshallable object = verifySpml(request, "RequestTests.testCalculateRequest.xml", true);
@@ -143,7 +144,7 @@ public class RequestTests extends XMLTestCase {
     CalcRequest that = (CalcRequest) object;
 
     assertEquals(request.getId(), that.getId());
-    assertEquals(request.getTargetIds(), that.getTargetIds());
+    assertEquals(request.getSchemaEntities(), that.getSchemaEntities());
   }
 
   public void testCalculateResponse() {
@@ -182,7 +183,6 @@ public class RequestTests extends XMLTestCase {
     synchronizedResponse.setPsoID(id4);
 
     DiffResponse diffResponse = new DiffResponse();
-    diffResponse.addOpenContentAttr("ID", "id");
     diffResponse.setId("id");
     diffResponse.addRequest(deleteRequest);
     diffResponse.addRequest(addRequest);
@@ -209,7 +209,6 @@ public class RequestTests extends XMLTestCase {
     modifyResponse.setPso(pso2);
 
     SyncResponse syncResponse = new SyncResponse();
-    syncResponse.addOpenContentAttr("ID", "id");
     syncResponse.setId("id");
     syncResponse.addResponse(addResponse);
     syncResponse.addResponse(deleteResponse);
@@ -320,19 +319,16 @@ public class RequestTests extends XMLTestCase {
 
     DiffResponse diffResponse1 = new DiffResponse();
     diffResponse1.setId("id1");
-    diffResponse1.addOpenContentAttr("ID", "id1");
     diffResponse1.addRequest(deleteRequest);
     bulk.addResponse(diffResponse1);
 
     DiffResponse diffResponse2 = new DiffResponse();
     diffResponse2.setId("id2");
-    diffResponse2.addOpenContentAttr("ID", "id2");
     diffResponse2.addRequest(addRequest);
     bulk.addResponse(diffResponse2);
 
     DiffResponse diffResponse3 = new DiffResponse();
     diffResponse3.setId("id3");
-    diffResponse3.addOpenContentAttr("ID", "id3");
     diffResponse3.addRequest(modifyRequest);
     bulk.addResponse(diffResponse3);
 
@@ -366,19 +362,16 @@ public class RequestTests extends XMLTestCase {
 
     SyncResponse syncResponse1 = new SyncResponse();
     syncResponse1.setId("id1");
-    syncResponse1.addOpenContentAttr("ID", "id1");
     syncResponse1.addResponse(addResponse);
     bulk.addResponse(syncResponse1);
 
     SyncResponse syncResponse2 = new SyncResponse();
     syncResponse2.setId("id2");
-    syncResponse2.addOpenContentAttr("ID", "id2");
     syncResponse2.addResponse(modifyResponse);
     bulk.addResponse(syncResponse2);
 
     SyncResponse syncResponse3 = new SyncResponse();
     syncResponse3.setId("id3");
-    syncResponse3.addOpenContentAttr("ID", "id3");
     syncResponse3.addResponse(deleteResponse);
     bulk.addResponse(syncResponse3);
 

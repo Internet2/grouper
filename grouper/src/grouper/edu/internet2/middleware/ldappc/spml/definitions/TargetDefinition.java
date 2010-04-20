@@ -14,16 +14,16 @@
 
 package edu.internet2.middleware.ldappc.spml.definitions;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.OCEtoMarshallableAdapter;
 import org.openspml.v2.msg.spml.CapabilitiesList;
 import org.openspml.v2.msg.spml.Capability;
-import org.openspml.v2.msg.spml.PSO;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.Schema;
 import org.openspml.v2.msg.spml.SchemaEntityRef;
@@ -39,8 +39,6 @@ import org.openspml.v2.util.Spml2Exception;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.exception.LdappcException;
-import edu.internet2.middleware.ldappc.spml.PSPContext;
 import edu.internet2.middleware.ldappc.spml.provider.SpmlTargetProvider;
 
 public class TargetDefinition {
@@ -113,20 +111,6 @@ public class TargetDefinition {
     return names;
   }
 
-  public Set<String> getSourceIds(ReturnData returnData) {
-    Set<String> ids = new LinkedHashSet<String>();
-    for (PSODefinition psoDefinition : psoDefinitions) {
-      ids.add(psoDefinition.getPsoIdentifierDefinition().getRef());
-      if (returnData.equals(ReturnData.DATA) || returnData.equals(ReturnData.EVERYTHING)) {
-        ids.addAll(psoDefinition.getAttributeSourceIds());
-      }
-      if (returnData.equals(ReturnData.EVERYTHING)) {
-        ids.addAll(psoDefinition.getReferenceSourceIds());
-      }
-    }
-    return ids;
-  }
-
   public Target getTarget() throws Spml2Exception {
 
     if (target != null) {
@@ -135,12 +119,12 @@ public class TargetDefinition {
 
     target = new Target();
     target.setTargetID(getId());
-    // TODO support XSD ?
+    // FUTURE support XSD ?
     target.setProfile(new DSMLProfileRegistrar().getProfileURI());
 
     Schema schema = new Schema();
 
-    // TODO support other schemas ?
+    // FUTURE support other schemas ?
     DSMLSchema dsmlSchema = new DSMLSchema();
 
     CapabilitiesList cl = new CapabilitiesList();
@@ -167,7 +151,7 @@ public class TargetDefinition {
 
         AttributeDefinitionReference attrDefRef = new AttributeDefinitionReference();
         attrDefRef.setName(psoAttributeDefinition.getName());
-        // TODO attrRef.setRequired(required);
+        // FUTURE attrRef.setRequired(required);
         attrRefs.addAttributeDefinitionReference(attrDefRef);
       }
 
@@ -204,22 +188,6 @@ public class TargetDefinition {
     return target;
   }
 
-  public List<PSO> getPSO(PSPContext context) throws LdappcException, Spml2Exception {
-
-    String msg = "get pso '" + context.getProvisioningRequest().getId() + "' target '" + id + "'";
-    LOG.debug("{}", msg);
-
-    List<PSO> psos = new ArrayList<PSO>();
-    for (PSODefinition psoDefinition : this.getPsoDefinitions()) {
-      for (PSO pso : psoDefinition.getPSO(context)) {
-        psos.add(pso);
-      }
-    }
-
-    LOG.debug("{} returned {}", msg, psos.size());
-    return psos;
-  }
-
   public boolean isBundleModifications() {
     return bundleModifications;
   }
@@ -227,5 +195,15 @@ public class TargetDefinition {
   public void setBundleModifications(boolean bundleModifications) {
     LOG.debug("setting bundleModifications {}", bundleModifications);
     this.bundleModifications = bundleModifications;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("id", id);
+    toStringBuilder.append("bundleModifications", bundleModifications);
+    return toStringBuilder.toString();
   }
 }

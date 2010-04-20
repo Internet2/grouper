@@ -1,4 +1,4 @@
-<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='id'>
+<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
   <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' recursive='true'>
     <psoID ID='id1' targetID='target1'/>
   </deleteRequest>

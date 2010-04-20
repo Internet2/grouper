@@ -1,5 +1,5 @@
 <ldappc:bulkSyncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
-  <ldappc:syncResponse ID='id1'>
+  <ldappc:syncResponse>
     <addResponse xmlns='urn:oasis:names:tc:SPML:2:0'>
       <pso>
         <psoID ID='id1' targetID='target1'/>
@@ -8,7 +8,7 @@
     </addResponse>
     <ldappc:id ID='id1'/>
   </ldappc:syncResponse>
-  <ldappc:syncResponse ID='id2'>
+  <ldappc:syncResponse>
     <modifyResponse xmlns='urn:oasis:names:tc:SPML:2:0'>
       <pso>
         <psoID ID='id2' targetID='target1'/>
@@ -17,7 +17,7 @@
     </modifyResponse>
     <ldappc:id ID='id2'/>
   </ldappc:syncResponse>
-  <ldappc:syncResponse ID='id3'>
+  <ldappc:syncResponse>
     <deleteResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success'/>
     <ldappc:id ID='id3'/>
   </ldappc:syncResponse>

@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.slf4j.Logger;
 
@@ -106,5 +108,17 @@ public class PSOIdentifierDefinition {
     }
 
     return psoIDs;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("ref", ref);
+    toStringBuilder.append("baseId", baseId);
+    toStringBuilder.append("targetDefinitionID", targetDefinition.getId());
+    toStringBuilder.append("identifyingAttribute", identifyingAttribute);
+    return toStringBuilder.toString();
   }
 }

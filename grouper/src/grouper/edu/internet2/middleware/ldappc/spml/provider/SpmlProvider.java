@@ -18,10 +18,17 @@ import org.openspml.v2.msg.spml.Request;
 import org.openspml.v2.msg.spml.Response;
 
 /**
- * Provisioning Service Provider
+ * An SPML Provisioning Service Provider.
  */
 public interface SpmlProvider {
 
+  /**
+   * Execute a <code>Request</code> and return the <code>Response</code>.
+   * 
+   * @param request
+   *          the SPML request
+   * @return the SPML response, never null
+   */
   public Response execute(Request request);
 
 }

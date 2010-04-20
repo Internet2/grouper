@@ -35,12 +35,7 @@ import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public class SyncResponse extends ProvisioningResponse {
 
-  // private static final Logger LOG = LoggerFactory.getLogger(SyncResponse.class);
-
-  // private ListWithType m_response = new ArrayListWithType(Response.class);
-
   public void addResponse(AddResponse addResponse) {
-    // m_response.add(addResponse);
     try {
       this.addOpenContentElement(new OCEtoMarshallableAdapter(addResponse));
     } catch (Spml2Exception e) {
@@ -50,7 +45,6 @@ public class SyncResponse extends ProvisioningResponse {
   }
 
   public void addResponse(ModifyResponse modifyResponse) {
-    // m_response.add(modifyResponse);
     try {
       this.addOpenContentElement(new OCEtoMarshallableAdapter(modifyResponse));
     } catch (Spml2Exception e) {
@@ -60,7 +54,6 @@ public class SyncResponse extends ProvisioningResponse {
   }
 
   public void addResponse(DeleteResponse deleteResponse) {
-    // m_response.add(deleteResponse);
     try {
       this.addOpenContentElement(new OCEtoMarshallableAdapter(deleteResponse));
     } catch (Spml2Exception e) {
@@ -76,6 +69,8 @@ public class SyncResponse extends ProvisioningResponse {
       this.addResponse((DeleteResponse) response);
     } else if (response instanceof ModifyResponse) {
       this.addResponse((ModifyResponse) response);
+    } else if (response instanceof SynchronizedResponse) {
+      this.addResponse((SynchronizedResponse) response);
     } else {
       throw new LdappcException("Response " + response.getClass() + " is not supported.");
     }
@@ -126,7 +121,7 @@ public class SyncResponse extends ProvisioningResponse {
     return requests;
   }
 
-  public List<Response> getResponses() {
+  public List<Response> getAddDeleteModifyResponses() {
     List<Response> responses = new ArrayList<Response>();
     responses.addAll(this.getAddResponses());
     responses.addAll(this.getDeleteResponses());
@@ -159,17 +154,19 @@ public class SyncResponse extends ProvisioningResponse {
 
   public int hashCode() {
     int result = 1;
-    result = 29 * result + (this.getIdentifier() != null ? this.getIdentifier().hashCode() : 0);
+    result = 29 * result + (this.getId() != null ? this.getId().hashCode() : 0);
     result = 29 * result + (this.getError() != null ? this.getError().hashCode() : 0);
     result = 29 * result + (this.getErrorMessages() != null ? Arrays.asList(this.getErrorMessages()).hashCode() : 0);
     result = 29 * result + (this.getRequestID() != null ? this.getRequestID().hashCode() : 0);
     result = 29 * result + (this.getStatus() != null ? this.getStatus().hashCode() : 0);
     result = 29 * result
         + (this.getOpenContentAttrs() != null ? Arrays.asList(this.getOpenContentAttrs()).hashCode() : 0);
-    for (Response response : this.getResponses()) {
+    for (Response response : this.getAddDeleteModifyResponses()) {
       result = 29 * result + response.hashCode();
     }
-    // TODO does this include synchronizedResponses ? 
+    for (Response response : this.getSynchronizedResponses()) {
+      result = 29 * result + response.hashCode();
+    }
     return result;
   }
 
@@ -181,11 +178,12 @@ public class SyncResponse extends ProvisioningResponse {
       return false;
     }
 
+    // TODO calling super.equals() fails for some reason, e.g. OCEtoMarshallableAdapters
+
     final SyncResponse that = (SyncResponse) o;
 
     // ProvisioningResponse
-    if (this.getIdentifier() != null ? !this.getIdentifier().equals(that.getIdentifier())
-        : that.getIdentifier() != null) {
+    if (this.getId() != null ? !this.getId().equals(that.getId()) : that.getId() != null) {
       return false;
     }
 
@@ -242,6 +240,8 @@ public class SyncResponse extends ProvisioningResponse {
       }
     }
 
+    // TODO synchronized responses ?
+
     return true;
   }
 
@@ -257,6 +257,9 @@ public class SyncResponse extends ProvisioningResponse {
     }
     for (DeleteResponse response : this.getDeleteResponses()) {
       toStringBuilder.append(PSPUtil.toString(response));
+    }
+    for (SynchronizedResponse response : this.getSynchronizedResponses()) {
+      toStringBuilder.append(response);
     }
     return toStringBuilder.toString();
   }

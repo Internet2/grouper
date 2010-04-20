@@ -351,7 +351,6 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
   public LookupResponse execute(LookupRequest lookupRequest) {
 
-    this.setRequestId(lookupRequest);
     String msg = PSPUtil.toString(lookupRequest);
     LOG.info("{}", msg);
     if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupRequest));
@@ -814,7 +813,7 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       List<Reference> references = new ArrayList<Reference>();
       for (String value : values) {
         Reference reference = new Reference();
-        PSOIdentifier toPSOId = new PSOIdentifier();       
+        PSOIdentifier toPSOId = new PSOIdentifier();
         toPSOId.setID(LdapUtil.canonicalizeDn(value));
         toPSOId.setTargetID(this.getTargetDefinition().getId());
 

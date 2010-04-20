@@ -14,26 +14,29 @@
 
 package edu.internet2.middleware.ldappc.spml.request;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.openspml.v2.msg.BasicOpenContentAttr;
 import org.openspml.v2.msg.PrefixAndNamespaceTuple;
 import org.openspml.v2.msg.spml.BatchableRequest;
 import org.openspml.v2.msg.spml.ReturnData;
+import org.openspml.v2.msg.spml.SchemaEntityRef;
 import org.openspml.v2.util.xml.ArrayListWithType;
+import org.openspml.v2.util.xml.ListWithType;
+
+import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public abstract class ProvisioningRequest extends BatchableRequest {
 
-  // private String[] m_id = new String[1];
+  /** The identifier of the object to be provisioned. */
   private ID m_id;
 
+  /** The return data. */
   private ReturnData m_returnData = ReturnData.EVERYTHING;
 
-  // private List<String> m_targetId = new ArrayList<String>();
-  private ArrayListWithType m_targetId = new ArrayListWithType(ID.class);
+  /** The schema entities to be considered. */
+  private ListWithType m_schemaEntity = new ArrayListWithType(SchemaEntityRef.class);
 
   public ProvisioningRequest() {
   };
@@ -46,28 +49,8 @@ public abstract class ProvisioningRequest extends BatchableRequest {
     return m_id == null ? null : m_id.getID();
   }
 
-  public ID getIdentifier() {
-    return m_id;
-  }
-
   public void setId(String id) {
     this.m_id = new ID(id);
-    setID(id);
-  }
-
-  public void setIdentifier(ID id) {
-    this.m_id = id;
-    setID(id.getID());
-  }
-
-  protected void setID(String id) {
-    String oldId = this.findOpenContentAttrValueByName("ID");
-    if (oldId == null) {
-      this.addOpenContentAttr("ID", id);
-    } else {
-      this.removeOpenContentAttr(new BasicOpenContentAttr("ID", oldId));
-      this.addOpenContentAttr("ID", id);
-    }
   }
 
   public ReturnData getReturnData() {
@@ -78,41 +61,28 @@ public abstract class ProvisioningRequest extends BatchableRequest {
     m_returnData = data;
   }
 
-  public List<ID> getTargetIdentifiers() {
-    return m_targetId;
-  }
-
-  public List<String> getTargetIds() {
-    ArrayList<String> ids = new ArrayList<String>();
-    for (ID id : getTargetIdentifiers()) {
-      ids.add(id.getID());
-    }
-    return ids;
-  }
-
-  public void addTargetId(String id) {
-    if (id != null) {
-      m_targetId.add(new ID(id));
+  public void addSchemaEntity(SchemaEntityRef se) {
+    if (se != null) {
+      m_schemaEntity.add(se);
     }
   }
 
-  public void addTargetIdentifier(ID id) {
-    if (id != null) {
-      m_targetId.add(id);
+  public void setSchemaEntities(List<SchemaEntityRef> se) {
+    m_schemaEntity.clear();
+    for (SchemaEntityRef s : se) {
+      this.addSchemaEntity(s);
     }
   }
 
-  public void setTargetIds(List<String> targetIds) {
-    for (String targetId : targetIds) {
-      addTargetId(targetId);
-    }
+  public List<SchemaEntityRef> getSchemaEntities() {
+    return m_schemaEntity;
   }
 
   public int hashCode() {
     int result = super.hashCode();
     result = 29 * result + (m_id != null ? m_id.hashCode() : 0);
-    result = 29 * result + (m_targetId != null ? m_targetId.hashCode() : 0);
     result = 29 * result + (m_returnData != null ? m_returnData.hashCode() : 0);
+    result = 29 * result + (m_schemaEntity != null ? m_schemaEntity.hashCode() : 0);
     return result;
   }
 
@@ -132,10 +102,10 @@ public abstract class ProvisioningRequest extends BatchableRequest {
     if (!m_id.equals(that.m_id)) {
       return false;
     }
-    if (m_targetId != null ? !m_targetId.equals(that.m_targetId) : that.m_targetId != null) {
+    if (m_returnData != null ? !m_returnData.equals(that.m_returnData) : that.m_returnData != null) {
       return false;
     }
-    if (m_returnData != null ? !m_returnData.equals(that.m_returnData) : that.m_returnData != null) {
+    if (m_schemaEntity != null ? !m_schemaEntity.equals(that.m_schemaEntity) : that.m_schemaEntity != null) {
       return false;
     }
 
@@ -154,9 +124,11 @@ public abstract class ProvisioningRequest extends BatchableRequest {
   public String toString() {
     ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
     toStringBuilder.append("id", this.getId());
+    toStringBuilder.append("requestID", this.getRequestID());
     toStringBuilder.append("returnData", this.getReturnData());
-    toStringBuilder.append("targetIds", this.getTargetIds());
-    toStringBuilder.append("requestID", this.getRequestID());    
+    for (SchemaEntityRef s : this.getSchemaEntities()) {
+      toStringBuilder.append("schemaEntityRef", PSPUtil.toString(s));
+    }
     return toStringBuilder.toString();
   }
 }

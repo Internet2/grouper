@@ -1,4 +1,4 @@
-<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='edu:groupB' status='success' requestID='REQUESTID_TEST'>
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
   <ldappc:id ID='edu:groupB'/>
   <ldappc:pso entityName='group'>
     <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>

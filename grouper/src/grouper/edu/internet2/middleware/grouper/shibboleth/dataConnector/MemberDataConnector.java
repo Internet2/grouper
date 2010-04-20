@@ -15,10 +15,12 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 
@@ -238,6 +240,35 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
 
   public void validate() throws AttributeResolutionException {
 
+  }
+
+  /**
+   * {@inheritDoc}
+   * 
+   * The identifiers of {@link Member}s which are also {@link Group}s are omitted. This
+   * data connector considers only {@link Member} objects.
+   */
+  public Set<String> getAllIdentifiers() {
+    return this.getAllIdentifiers(null);
+  }
+
+  /**
+   * {@inheritDoc}
+   * 
+   * see {@link MemberDataConnector#getAllIdentifiers()}
+   * 
+   */
+  public Set<String> getAllIdentifiers(Date updatedSince) {
+    Set<String> identifiers = new TreeSet<String>();
+    for (Group group : this.getGroups(updatedSince)) {
+      for (Member member : group.getMembers()) {
+        // don't return Groups
+        if (!member.getSubjectSourceId().equals("g:gsa")) {
+          identifiers.add(member.getSubjectId());
+        }
+      }
+    }
+    return identifiers;
   }
 
 }

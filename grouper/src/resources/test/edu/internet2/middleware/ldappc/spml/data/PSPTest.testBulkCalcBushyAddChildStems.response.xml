@@ -1,5 +1,5 @@
 <ldappc:bulkCalcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
-  <ldappc:calcResponse ID='edu' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu'/>
     <ldappc:pso entityName='stem'>
       <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -14,7 +14,7 @@
       </data>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:courses' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:courses'/>
     <ldappc:pso entityName='stem'>
       <psoID ID='ou=courses,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -29,7 +29,7 @@
       </data>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:courses:fall' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:courses:fall'/>
     <ldappc:pso entityName='stem'>
       <psoID ID='ou=fall,ou=courses,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -44,7 +44,7 @@
       </data>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:courses:spring' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:courses:spring'/>
     <ldappc:pso entityName='stem'>
       <psoID ID='ou=spring,ou=courses,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -59,7 +59,7 @@
       </data>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:courses:fall:courseA' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:courses:fall:courseA'/>
     <ldappc:pso entityName='group'>
       <psoID ID='cn=courseA,ou=fall,ou=courses,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -82,7 +82,7 @@
       </capabilityData>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:courses:fall:courseB' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:courses:fall:courseB'/>
     <ldappc:pso entityName='group'>
       <psoID ID='cn=courseB,ou=fall,ou=courses,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -102,7 +102,7 @@
       </capabilityData>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:courses:spring:courseA' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:courses:spring:courseA'/>
     <ldappc:pso entityName='group'>
       <psoID ID='cn=courseA,ou=spring,ou=courses,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -125,7 +125,7 @@
       </capabilityData>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:courses:spring:courseB' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:courses:spring:courseB'/>
     <ldappc:pso entityName='group'>
       <psoID ID='cn=courseB,ou=spring,ou=courses,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -145,7 +145,7 @@
       </capabilityData>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:groupA' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:groupA'/>
     <ldappc:pso entityName='group'>
       <psoID ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -165,7 +165,7 @@
       </capabilityData>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:groupB' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:groupB'/>
     <ldappc:pso entityName='group'>
       <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -188,13 +188,13 @@
       </capabilityData>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='test.subject.0' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='test.subject.0'/>
     <ldappc:pso entityName='member'>
       <psoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='test.subject.1' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='test.subject.1'/>
     <ldappc:pso entityName='member'>
       <psoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>

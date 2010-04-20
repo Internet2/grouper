@@ -44,6 +44,7 @@ import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spml.QueryClause;
 import org.openspml.v2.msg.spml.Request;
 import org.openspml.v2.msg.spml.Response;
+import org.openspml.v2.msg.spml.SchemaEntityRef;
 import org.openspml.v2.msg.spml.StatusCode;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.openspml.v2.msg.spmlsearch.Query;
@@ -279,11 +280,11 @@ public class PSPUtil {
     return toStringBuilder.toString();
   }
 
-  public static String toString(Query query) { 
+  public static String toString(Query query) {
     if (query == null) {
       return null;
-    }   
-    ToStringBuilder toStringBuilder = new ToStringBuilder(query, ToStringStyle.SHORT_PREFIX_STYLE);    
+    }
+    ToStringBuilder toStringBuilder = new ToStringBuilder(query, ToStringStyle.SHORT_PREFIX_STYLE);
     for (QueryClause queryClause : query.getQueryClauses()) {
       if (queryClause instanceof LdapFilterQueryClause) {
         toStringBuilder.append("filter", ((LdapFilterQueryClause) queryClause).getFilter());
@@ -332,6 +333,16 @@ public class PSPUtil {
     ToStringBuilder toStringBuilder = new ToStringBuilder(searchResponse, ToStringStyle.SHORT_PREFIX_STYLE);
     toStringBuilder.append("psos", searchResponse.getPSOs().length);
     toStringBuilder.appendSuper(PSPUtil.toString((Response) searchResponse));
+    return toStringBuilder.toString();
+  }
+
+  public static String toString(SchemaEntityRef schemaEntityRef) {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(schemaEntityRef, ToStringStyle.SHORT_PREFIX_STYLE);
+    if (schemaEntityRef != null) {
+      toStringBuilder.append("targetID", schemaEntityRef.getTargetID());
+      toStringBuilder.append("entityName", schemaEntityRef.getEntityName());
+      toStringBuilder.append("isContainer", schemaEntityRef.isContainer());
+    }
     return toStringBuilder.toString();
   }
 

@@ -21,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.slf4j.Logger;
@@ -63,11 +65,11 @@ public class PSOReferencesDefinition {
   }
 
   public String getEmptyValue() {
-  return emptyValue;
+    return emptyValue;
   }
 
   public void setEmptyValue(String emptyValue) {
-  this.emptyValue = emptyValue;
+    this.emptyValue = emptyValue;
   }
 
   // TODO complete
@@ -128,5 +130,15 @@ public class PSOReferencesDefinition {
     }
 
     return references;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("name", name);
+    toStringBuilder.append("emptyValue", emptyValue);
+    return toStringBuilder.toString();
   }
 }

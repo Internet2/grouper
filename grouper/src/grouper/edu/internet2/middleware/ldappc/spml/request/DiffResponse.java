@@ -37,8 +37,6 @@ import edu.internet2.middleware.ldappc.util.PSPUtil;
 public class DiffResponse extends ProvisioningResponse {
 
   // cannot have more than one ArrayListWithType, or one ArrayListWithType and OCEs
-  // private ListWithType m_response = new ArrayListWithType(Response.class);
-  // private ListWithType m_response = new ArrayListWithType(Response.class);
 
   public void addRequest(AddRequest addRequest) {
     try {
@@ -140,6 +138,7 @@ public class DiffResponse extends ProvisioningResponse {
     for (ModifyRequest modifyRequest : this.getModifyRequests()) {
       psoIds.add(modifyRequest.getPsoID());
     }
+    // TODO what about delete ?
     for (SynchronizedResponse synchronizedResponse : this.getSynchronizedResponses()) {
       psoIds.add(synchronizedResponse.getPsoID());
     }
@@ -171,7 +170,7 @@ public class DiffResponse extends ProvisioningResponse {
 
   public int hashCode() {
     int result = 1;
-    result = 29 * result + (this.getIdentifier() != null ? this.getIdentifier().hashCode() : 0);
+    result = 29 * result + (this.getId() != null ? this.getId().hashCode() : 0);
     result = 29 * result + (this.getError() != null ? this.getError().hashCode() : 0);
     result = 29 * result + (this.getErrorMessages() != null ? Arrays.asList(this.getErrorMessages()).hashCode() : 0);
     result = 29 * result + (this.getRequestID() != null ? this.getRequestID().hashCode() : 0);
@@ -195,11 +194,12 @@ public class DiffResponse extends ProvisioningResponse {
       return false;
     }
 
+    // TODO calling super.equals() fails for some reason, e.g. OCEtoMarshallableAdapters
+
     final DiffResponse that = (DiffResponse) o;
 
     // ProvisioningResponse
-    if (this.getIdentifier() != null ? !this.getIdentifier().equals(that.getIdentifier())
-        : that.getIdentifier() != null) {
+    if (this.getId() != null ? !this.getId().equals(that.getId()) : that.getId() != null) {
       return false;
     }
 

@@ -14,8 +14,11 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 
@@ -92,7 +95,7 @@ public class StemDataConnector extends BaseGrouperDataConnector {
     name.setValues(GrouperUtil.toList(stem.getName()));
     attributes.put(name.getId(), name);
 
-    // displayName    
+    // displayName
     BasicAttribute<String> displayName = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
     displayName.setValues(GrouperUtil.toList(stem.getDisplayName()));
     attributes.put(displayName.getId(), displayName);
@@ -140,5 +143,32 @@ public class StemDataConnector extends BaseGrouperDataConnector {
     }
 
     return rootStem;
+  }
+
+  /**
+   * {@inheritDoc}
+   * 
+   * Stems which are parent to all groups returned from
+   * {@link BaseGrouperDataConnector#getGroups()} are returned. The root stem is omitted.
+   */
+  public Set<String> getAllIdentifiers() {
+    return this.getAllIdentifiers(null);
+  }
+
+  /**
+   * {@inheritDoc}
+   * 
+   * see {@link StemDataConnector#getAllIdentifiers()}
+   * 
+   */
+  public Set<String> getAllIdentifiers(Date updatedSince) {
+    Set<String> identifiers = new TreeSet<String>();
+    for (String stemName : GrouperUtil.findParentStemNames(this.getGroups(updatedSince))) {
+      // omit root
+      if (!stemName.equals(Stem.DELIM)) {
+        identifiers.add(stemName);
+      }
+    }
+    return identifiers;
   }
 }

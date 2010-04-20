@@ -15,8 +15,11 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 
@@ -145,5 +148,19 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
   /** {@inheritDoc} */
   public void validate() throws AttributeResolutionException {
 
+  }
+
+  /** {@inheritDoc} */
+  public Set<String> getAllIdentifiers() {
+    return this.getAllIdentifiers(null);
+  }
+
+  /** {@inheritDoc} */
+  public Set<String> getAllIdentifiers(Date updatedSince) {
+    Set<String> identifiers = new TreeSet<String>();
+    for (Group group : this.getGroups(updatedSince)) {
+      identifiers.add(group.getName());
+    }
+    return identifiers;
   }
 }

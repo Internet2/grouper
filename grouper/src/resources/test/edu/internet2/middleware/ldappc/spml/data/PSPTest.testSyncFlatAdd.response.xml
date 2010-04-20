@@ -1,10 +1,10 @@
-<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='edu:groupB' status='success' requestID='REQUESTID_TEST'>
+<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
   <addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='REQUESTID_TEST'>
     <pso entityName='group'>
       <psoID ID='cn=groupB,ou=testgroups,${base}' targetID='ldap'/>
       <data>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
-          <dsml:value>groupOfNames</dsml:value>
+          <dsml:value>${groupObjectClass}</dsml:value>
           <dsml:value>top</dsml:value>
         </dsml:attr>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>

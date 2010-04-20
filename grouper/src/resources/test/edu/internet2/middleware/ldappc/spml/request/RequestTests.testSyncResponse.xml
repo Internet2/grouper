@@ -1,4 +1,4 @@
-<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='id'>
+<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
   <addResponse xmlns='urn:oasis:names:tc:SPML:2:0'>
     <pso>
       <psoID ID='id1' targetID='target1'/>

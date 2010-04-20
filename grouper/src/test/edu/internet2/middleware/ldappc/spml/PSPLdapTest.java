@@ -13,11 +13,14 @@
  */
 package edu.internet2.middleware.ldappc.spml;
 
+import junit.textui.TestRunner;
+
 import org.openspml.v2.msg.spml.LookupRequest;
 import org.openspml.v2.msg.spml.LookupResponse;
 import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.msg.spml.ReturnData;
+import org.openspml.v2.msg.spml.SchemaEntityRef;
 import org.openspml.v2.msg.spmlsearch.SearchRequest;
 import org.openspml.v2.msg.spmlsearch.SearchResponse;
 
@@ -366,6 +369,21 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
     CalcRequest request = new CalcRequest();
     request.setRequestID(REQUESTID_TEST);
     request.setId(groupB.getName());
+    CalcResponse response = (CalcResponse) psp.execute(request);
+
+    verifySpml(response, DATA_PATH + "PSPTest.testCalcFlatAdd.response.xml");
+  }
+  
+  public void testCalcFlatAddSchemaEntity() throws Exception {
+
+    this.makeGroupDNStructureFlat();
+
+    loadLdif(DATA_PATH + "PSPTest.before.ldif");
+
+    CalcRequest request = new CalcRequest();
+    request.setRequestID(REQUESTID_TEST);
+    request.setId(groupB.getName());
+    request.addSchemaEntity(new SchemaEntityRef("ldap", "group"));
     CalcResponse response = (CalcResponse) psp.execute(request);
 
     verifySpml(response, DATA_PATH + "PSPTest.testCalcFlatAdd.response.xml");

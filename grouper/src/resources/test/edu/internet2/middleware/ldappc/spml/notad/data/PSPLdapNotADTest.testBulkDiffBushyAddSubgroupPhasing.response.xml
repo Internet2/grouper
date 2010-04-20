@@ -1,7 +1,7 @@
 <ldappc:bulkDiffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
-  <ldappc:diffResponse ID='edu' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:diffResponse status='success' requestID='REQUESTID_TEST'>
     <addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='stem' targetId='ldap' returnData='everything' requestID='REQUESTID_TEST'>
-      <psoID ID='ou=edu,ou=testgroups,dc=testgrouper,dc=edu' targetID='ldap'/>
+      <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
       <data>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
           <dsml:value>top</dsml:value>
@@ -14,9 +14,9 @@
     </addRequest>
     <ldappc:id ID='edu'/>
   </ldappc:diffResponse>
-  <ldappc:diffResponse ID='edu:groupA' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:diffResponse status='success' requestID='REQUESTID_TEST'>
     <addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='group' targetId='ldap' returnData='everything' requestID='REQUESTID_TEST'>
-      <psoID ID='cn=groupA,ou=edu,ou=testgroups,dc=testgrouper,dc=edu' targetID='ldap'/>
+      <psoID ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
       <data>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
           <dsml:value>top</dsml:value>
@@ -34,21 +34,21 @@
       </data>
       <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
         <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
-          <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,dc=testgrouper,dc=edu' targetID='ldap'/>
+          <spmlref:toPsoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
         </spmlref:reference>
         <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
-          <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,dc=testgrouper,dc=edu' targetID='ldap'/>
+          <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
         </spmlref:reference>
         <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
-          <spmlref:toPsoID ID='cn=groupB,ou=edu,ou=testgroups,dc=testgrouper,dc=edu' targetID='ldap'/>
+          <spmlref:toPsoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
         </spmlref:reference>
       </capabilityData>
     </addRequest>
     <ldappc:id ID='edu:groupA'/>
   </ldappc:diffResponse>
-  <ldappc:diffResponse ID='edu:groupB' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:diffResponse status='success' requestID='REQUESTID_TEST'>
     <addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='group' targetId='ldap' returnData='everything' requestID='REQUESTID_TEST'>
-      <psoID ID='cn=groupB,ou=edu,ou=testgroups,dc=testgrouper,dc=edu' targetID='ldap'/>
+      <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
       <data>
         <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
           <dsml:value>top</dsml:value>
@@ -70,15 +70,15 @@
       </data>
       <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
         <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
-          <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,dc=testgrouper,dc=edu' targetID='ldap'/>
+          <spmlref:toPsoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
         </spmlref:reference>
       </capabilityData>
     </addRequest>
     <ldappc:id ID='edu:groupB'/>
   </ldappc:diffResponse>
-  <ldappc:diffResponse ID='test.subject.0' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:diffResponse status='success' requestID='REQUESTID_TEST'>
     <modifyRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='member' returnData='everything' requestID='REQUESTID_TEST'>
-      <psoID ID='cn=test.subject.0,ou=testpeople,dc=testgrouper,dc=edu' targetID='ldap'/>
+      <psoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
       <modification modificationMode='add'>
         <dsml:modification xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass' operation='add'>
           <dsml:value>eduMember</dsml:value>
@@ -92,9 +92,9 @@
     </modifyRequest>
     <ldappc:id ID='test.subject.0'/>
   </ldappc:diffResponse>
-  <ldappc:diffResponse ID='test.subject.1' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:diffResponse status='success' requestID='REQUESTID_TEST'>
     <modifyRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='member' returnData='everything' requestID='REQUESTID_TEST'>
-      <psoID ID='cn=test.subject.1,ou=testpeople,dc=testgrouper,dc=edu' targetID='ldap'/>
+      <psoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
       <modification modificationMode='add'>
         <dsml:modification xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass' operation='add'>
           <dsml:value>eduMember</dsml:value>

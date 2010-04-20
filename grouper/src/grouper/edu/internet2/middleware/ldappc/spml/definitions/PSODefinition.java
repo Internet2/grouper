@@ -19,6 +19,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spml.Extensible;
 import org.openspml.v2.msg.spml.PSO;
 import org.openspml.v2.msg.spml.PSOIdentifier;
@@ -160,6 +162,18 @@ public class PSODefinition {
     return ids;
   }
 
+  public Set<String> getSourceIds(ReturnData returnData) {
+    Set<String> set = new LinkedHashSet<String>();
+    set.add(this.getPsoIdentifierDefinition().getRef());
+    if (returnData.equals(ReturnData.DATA) || returnData.equals(ReturnData.EVERYTHING)) {
+      set.addAll(this.getAttributeSourceIds());
+    }
+    if (returnData.equals(ReturnData.EVERYTHING)) {
+      set.addAll(this.getReferenceSourceIds());
+    }
+    return set;
+  }
+
   public List<PSO> getPSO(PSPContext context) throws LdappcException, Spml2Exception {
 
     String msg = "get pso '" + context.getProvisioningRequest().getId() + "' object '" + id + "' return '"
@@ -222,5 +236,15 @@ public class PSODefinition {
 
     LOG.debug("{} returned {}", msg, psos.size());
     return psos;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("id", id);
+    toStringBuilder.append("authoritative", authoritative);
+    return toStringBuilder.toString();
   }
 }

@@ -16,13 +16,11 @@ package edu.internet2.middleware.ldappc.spml;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.opensaml.util.resource.ResourceException;
 import org.openspml.v2.msg.OCEtoMarshallableAdapter;
@@ -46,7 +44,9 @@ import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spml.Request;
 import org.openspml.v2.msg.spml.Response;
 import org.openspml.v2.msg.spml.ReturnData;
+import org.openspml.v2.msg.spml.SchemaEntityRef;
 import org.openspml.v2.msg.spml.StatusCode;
+import org.openspml.v2.msg.spmlbatch.OnError;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.openspml.v2.msg.spmlsearch.Query;
 import org.openspml.v2.msg.spmlsearch.SearchRequest;
@@ -58,14 +58,6 @@ import org.openspml.v2.util.xml.ObjectFactory;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.GroupDataConnector;
-import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.definitions.IdentifyingAttribute;
@@ -77,6 +69,8 @@ import edu.internet2.middleware.ldappc.spml.request.BulkCalcRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkCalcResponse;
 import edu.internet2.middleware.ldappc.spml.request.BulkDiffRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkDiffResponse;
+import edu.internet2.middleware.ldappc.spml.request.BulkProvisioningRequest;
+import edu.internet2.middleware.ldappc.spml.request.BulkProvisioningRequestHandler;
 import edu.internet2.middleware.ldappc.spml.request.BulkSyncRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkSyncResponse;
 import edu.internet2.middleware.ldappc.spml.request.CalcRequest;
@@ -95,37 +89,36 @@ import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.AttributeAuthority;
 import edu.internet2.middleware.shibboleth.common.attribute.AttributeRequestException;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
-import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethAttributeResolver;
 import edu.internet2.middleware.shibboleth.common.profile.provider.BaseSAMLProfileRequestContext;
 import edu.internet2.middleware.shibboleth.common.service.ServiceException;
 
 /**
- * An SPML 2 Provisioning Service Provider
- * 
+ * An incomplete SPML 2 Provisioning Service Provider.
  */
 public class PSP extends BaseSpmlProvider {
 
+  /** Logger. */
   private static final Logger LOG = GrouperUtil.getLogger(PSP.class);
 
-  /** Configuration xml node name. */
+  /** Configuration xml element name. */
   public static final String DEFAULT_BEAN_NAME = "ldappc";
 
-  /** Configuration files. */
+  /** Required bootstrap configuration files. */
   private static String[] CONFIG_FILES = { "ldappc-internal.xml", "ldappc-services.xml", };
 
+  /** Spring identifier. */
   private String id;
 
+  /** The Shibboleth attribute authority. */
   private AttributeAuthority attributeAuthority;
 
+  /** Map of target identifiers to target definitions. */
   private Map<String, TargetDefinition> targetDefinitions;
 
-  private GrouperSession grouperSession;
-
+  /** Runtime configuration. */
   private PSPOptions pspOptions;
 
-  /**
-   * Default constructor. Must exist for Spring configuration.
-   */
+  /** Constructor */
   public PSP() {
   }
 
@@ -179,9 +172,12 @@ public class PSP extends BaseSpmlProvider {
       try {
         PSPContext context = this.getProvisioningContext(calcRequest);
 
-        for (TargetDefinition targetDefinition : context.getPsoTargetDefinitions()) {
-          for (PSO pso : targetDefinition.getPSO(context)) {
-            calcResponse.addPSO(pso);
+        Map<TargetDefinition, List<PSODefinition>> map = context.getTargetAndObjectDefinitions();
+        for (TargetDefinition targetDefinition : map.keySet()) {
+          for (PSODefinition psoDefinition : map.get(targetDefinition)) {
+            for (PSO pso : psoDefinition.getPSO(context)) {
+              calcResponse.addPSO(pso);
+            }
           }
         }
 
@@ -200,9 +196,9 @@ public class PSP extends BaseSpmlProvider {
     }
 
     if (calcResponse.getStatus().equals(StatusCode.SUCCESS)) {
-      LOG.info(PSPUtil.toString(calcResponse));
+      LOG.info("{}", calcResponse);
     } else {
-      LOG.error(PSPUtil.toString(calcResponse));
+      LOG.error("{}", calcResponse);
     }
     if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(calcResponse));
     mdc.stop();
@@ -220,13 +216,14 @@ public class PSP extends BaseSpmlProvider {
     diffResponse.setRequestID(this.getOrGenerateRequestID(diffRequest));
 
     if (this.isValid(diffRequest, diffResponse)) {
+      // TODO this is not great
       new PSPDiffer(this, diffRequest, diffResponse).diff();
     }
 
     if (diffResponse.getStatus().equals(StatusCode.SUCCESS)) {
-      LOG.info(PSPUtil.toString(diffResponse));
+      LOG.info("{}", diffResponse);
     } else {
-      LOG.error(PSPUtil.toString(diffResponse));
+      LOG.error("{}", diffResponse);
     }
     if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(diffResponse));
     mdc.stop();
@@ -235,15 +232,15 @@ public class PSP extends BaseSpmlProvider {
 
   public SyncResponse execute(SyncRequest syncRequest) {
 
-    this.setRequestId(syncRequest);
     MDCHelper mdc = new MDCHelper(syncRequest).start();
     LOG.info("{}", syncRequest);
     if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(syncRequest));
 
     SyncResponse syncResponse = new SyncResponse();
+    syncResponse.setStatus(StatusCode.SUCCESS);
     syncResponse.setRequestID(this.getOrGenerateRequestID(syncRequest));
 
-    if (GrouperUtil.isBlank(syncRequest.getId())) {
+    if (!this.isValid(syncRequest, syncResponse)) {
       fail(syncResponse, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_ID);
       LOG.error("{}", syncResponse);
       if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(syncResponse));
@@ -254,10 +251,10 @@ public class PSP extends BaseSpmlProvider {
 
     // first, calculate the diff
     DiffRequest diffRequest = new DiffRequest();
-    this.setRequestId(diffRequest);
     diffRequest.setId(syncRequest.getId());
-    diffRequest.setTargetIds(syncRequest.getTargetIds());
+    diffRequest.setRequestID(this.generateRequestID());
     diffRequest.setReturnData(syncRequest.getReturnData());
+    diffRequest.setSchemaEntities(syncRequest.getSchemaEntities());
 
     DiffResponse diffResponse = this.execute(diffRequest);
 
@@ -272,6 +269,7 @@ public class PSP extends BaseSpmlProvider {
     for (Request request : diffResponse.getRequests()) {
 
       Response response = this.execute(request);
+      syncResponse.addResponse(response);
 
       if (response.getStatus().equals(StatusCode.FAILURE)) {
         fail(syncResponse, response.getError(), response.getErrorMessages());
@@ -280,20 +278,13 @@ public class PSP extends BaseSpmlProvider {
         mdc.stop();
         return syncResponse;
       }
-
-      try {
-        syncResponse.addResponse(response);
-      } catch (LdappcException e) {
-        fail(syncResponse, ErrorCode.CUSTOM_ERROR, e);
-        LOG.error("{}", syncResponse);
-        if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(syncResponse));
-        mdc.stop();
-        return syncResponse;
-      }
     }
 
-    syncResponse.setStatus(StatusCode.SUCCESS);
-    LOG.info("{}", syncResponse);
+    if (syncResponse.getStatus().equals(StatusCode.SUCCESS)) {
+      LOG.info("{}", syncResponse);
+    } else {
+      LOG.error("{}", syncResponse);
+    }
     if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(syncResponse));
     mdc.stop();
     return syncResponse;
@@ -472,8 +463,9 @@ public class PSP extends BaseSpmlProvider {
 
   public ListTargetsResponse execute(ListTargetsRequest listTargetsRequest) {
 
-    this.setRequestId(listTargetsRequest);
-    LOG.trace("list targets request:\n{}", this.toXML(listTargetsRequest));
+    MDCHelper mdc = new MDCHelper(listTargetsRequest).start();
+    LOG.info("{}", listTargetsRequest);
+    if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(listTargetsRequest));
 
     ListTargetsResponse listTargetsResponse = new ListTargetsResponse();
     listTargetsResponse.setStatus(StatusCode.SUCCESS);
@@ -485,11 +477,16 @@ public class PSP extends BaseSpmlProvider {
       }
     } catch (Spml2Exception e) {
       // TODO UNSUPPORTED_PROFILE instead of CUSTOM_ERROR as appropriate
-      LOG.error("An SPML2 error occurred.", e);
       fail(listTargetsResponse, ErrorCode.CUSTOM_ERROR, e);
     }
 
-    LOG.trace("list targets response:\n{}", this.toXML(listTargetsResponse));
+    if (listTargetsResponse.getStatus().equals(StatusCode.SUCCESS)) {
+      LOG.info(PSPUtil.toString(listTargetsResponse));
+    } else {
+      LOG.error(PSPUtil.toString(listTargetsResponse));
+    }
+    if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(listTargetsResponse));
+    mdc.stop();
     return listTargetsResponse;
   }
 
@@ -504,28 +501,45 @@ public class PSP extends BaseSpmlProvider {
     bulkCalcResponse.setStatus(StatusCode.SUCCESS);
     bulkCalcResponse.setRequestID(this.getOrGenerateRequestID(bulkCalcRequest));
 
-    Set<String> identifiers = this.getAllIdentifiers();
+    if (!this.isValid(bulkCalcRequest, bulkCalcResponse)) {
+      LOG.error("{}", bulkCalcResponse);
+      if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkCalcResponse));
+      mdc.stop();
+      return bulkCalcResponse;
+    }
 
-    // calc
+    // get all identifiers
+    BulkProvisioningRequestHandler handler = new BulkProvisioningRequestHandler(this, bulkCalcRequest);
+    Set<String> identifiers = handler.getAllIdentifiers();
+
+    // new CalcRequest for each identifier
     for (String identifier : identifiers) {
       CalcRequest calcRequest = new CalcRequest();
       calcRequest.setId(identifier);
-      calcRequest.setTargetIds(bulkCalcRequest.getTargetIds());
+      calcRequest.setRequestID(this.generateRequestID());
       calcRequest.setReturnData(bulkCalcRequest.getReturnData());
-      this.setRequestId(calcRequest);
+      calcRequest.setSchemaEntities(bulkCalcRequest.getSchemaEntities());
 
       CalcResponse calcResponse = this.execute(calcRequest);
+      bulkCalcResponse.addResponse(calcResponse);
 
-      // first failure encountered
+      // first failure encountered, stop processing if OnError.EXIT
       if (calcResponse.getStatus() != StatusCode.SUCCESS && bulkCalcResponse.getStatus() != StatusCode.FAILURE) {
         bulkCalcResponse.setStatus(StatusCode.FAILURE);
-        // FUTURE break on error toggle ?
+        if (bulkCalcRequest.getOnError().equals(OnError.EXIT)) {
+          LOG.error("{}", bulkCalcResponse);
+          if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkCalcResponse));
+          mdc.stop();
+          return bulkCalcResponse;
+        }
       }
-
-      bulkCalcResponse.addResponse(calcResponse);
     }
 
-    LOG.info("{}", bulkCalcResponse);
+    if (bulkCalcResponse.getStatus().equals(StatusCode.SUCCESS)) {
+      LOG.info("{}", bulkCalcResponse);
+    } else {
+      LOG.error("{}", bulkCalcResponse);
+    }
     if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkCalcResponse));
     mdc.stop();
     return bulkCalcResponse;
@@ -541,83 +555,75 @@ public class PSP extends BaseSpmlProvider {
     bulkDiffResponse.setStatus(StatusCode.SUCCESS);
     bulkDiffResponse.setRequestID(this.getOrGenerateRequestID(bulkDiffRequest));
 
-    Map<String, List<PSOIdentifier>> correctMap = new HashMap<String, List<PSOIdentifier>>();
+    if (!this.isValid(bulkDiffRequest, bulkDiffResponse)) {
+      LOG.error("{}", bulkDiffResponse);
+      if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkDiffResponse));
+      mdc.stop();
+      return bulkDiffResponse;
+    }
 
-    Set<String> identifiers = this.getAllIdentifiers();
+    // PSOIdentifiers that should exist
+    Set<PSOIdentifier> correctPsoIds = new LinkedHashSet<PSOIdentifier>();
 
+    // get all identifiers
+    BulkProvisioningRequestHandler handler = new BulkProvisioningRequestHandler(this, bulkDiffRequest);
+    Set<String> identifiers = handler.getAllIdentifiers();
+
+    // new DiffRequest for each identifier
     for (String identifier : identifiers) {
       DiffRequest diffRequest = new DiffRequest();
       diffRequest.setId(identifier);
-      diffRequest.setTargetIds(bulkDiffRequest.getTargetIds());
+      diffRequest.setRequestID(this.generateRequestID());
       diffRequest.setReturnData(bulkDiffRequest.getReturnData());
-      this.setRequestId(diffRequest);
+      diffRequest.setSchemaEntities(bulkDiffRequest.getSchemaEntities());
 
       DiffResponse diffResponse = this.execute(diffRequest);
-
-      if (diffResponse.getStatus() != StatusCode.SUCCESS && bulkDiffResponse.getStatus() != StatusCode.FAILURE) {
-        bulkDiffResponse.setStatus(StatusCode.FAILURE);
-        // FUTURE break on error toggle ?
-      }
-
       bulkDiffResponse.addResponse(diffResponse);
 
-      // build map of correct ids
-      if (diffResponse.getStatus() == StatusCode.SUCCESS) {
-        for (PSOIdentifier psoID : diffResponse.getPsoIds()) {
-          String targetId = psoID.getTargetID();
-          if (!correctMap.containsKey(targetId)) {
-            correctMap.put(targetId, new ArrayList<PSOIdentifier>());
-          }
-          correctMap.get(targetId).add(psoID);
+      // first failure encountered, stop processing if OnError.EXIT
+      if (diffResponse.getStatus() != StatusCode.SUCCESS && bulkDiffResponse.getStatus() != StatusCode.FAILURE) {
+        bulkDiffResponse.setStatus(StatusCode.FAILURE);
+        if (bulkDiffRequest.getOnError().equals(OnError.EXIT)) {
+          LOG.error("{}", bulkDiffResponse);
+          if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkDiffResponse));
+          mdc.stop();
+          return bulkDiffResponse;
         }
       }
-    }
 
-    // map of all existing ids
-    Map<String, List<PSOIdentifier>> currentMap = new HashMap<String, List<PSOIdentifier>>();
-    List<String> targetIds = bulkDiffRequest.getTargetIds();
-    if (targetIds.isEmpty()) {
-      targetIds = new ArrayList<String>(this.getTargetDefinitions().keySet());
-    }
-
-    for (String targetId : targetIds) {
-      TargetDefinition targetDefinition = targetDefinitions.get(targetId);
-
-      if (GrouperUtil.isBlank(targetDefinition)) {
-        fail(bulkDiffResponse, ErrorCode.NO_SUCH_IDENTIFIER);
-        LOG.error("{}", bulkDiffResponse);
-        if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkDiffResponse));
-        mdc.stop();
-        return bulkDiffResponse;
-      }
-
-      List<PSOIdentifier> psoIds = this.searchForPsoIds(targetDefinition);
-      if (psoIds == null) {
-        fail(bulkDiffResponse, ErrorCode.CUSTOM_ERROR, "An error occured while searching.");
-        LOG.error("{}", bulkDiffResponse);
-        if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkDiffResponse));
-        mdc.stop();
-        return bulkDiffResponse;
-      }
-
-      currentMap.put(targetId, psoIds);
-    }
-
-    for (String targetId : currentMap.keySet()) {
-      for (PSOIdentifier psoID : currentMap.get(targetId)) {
-        if (correctMap.get(targetId) == null || !correctMap.get(targetId).contains(psoID)) {
-          DeleteRequest deleteRequest = new DeleteRequest();
-          deleteRequest.setPsoID(psoID);
-          this.setRequestId(deleteRequest);
-          DiffResponse diffResponse = new DiffResponse();
-          diffResponse.setId(psoID.getID());
-          diffResponse.addRequest(deleteRequest);
-          bulkDiffResponse.addResponse(diffResponse);
-        }
+      if (diffResponse.getStatus().equals(StatusCode.SUCCESS)) {
+        correctPsoIds.addAll(diffResponse.getPsoIds());
       }
     }
 
-    LOG.info("{}", bulkDiffResponse);
+    // search for PSOIdentifiers which currently exist
+    Set<PSOIdentifier> currentPsoIds = this.searchForPsoIds(this.getTargetAndObjectDefinitions(bulkDiffRequest));
+    if (currentPsoIds == null) {
+      fail(bulkDiffResponse, ErrorCode.CUSTOM_ERROR, "An error occured while searching.");
+      LOG.error("{}", bulkDiffResponse);
+      if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkDiffResponse));
+      mdc.stop();
+      return bulkDiffResponse;
+    }
+
+    // DeleteRequests for identifiers which exist but shouldn't
+    for (PSOIdentifier psoId : currentPsoIds) {
+      if (!correctPsoIds.contains(psoId)) {
+        DeleteRequest deleteRequest = new DeleteRequest();
+        deleteRequest.setPsoID(psoId);
+        deleteRequest.setRequestID(this.generateRequestID());
+        DiffResponse diffResponse = new DiffResponse();
+        diffResponse.setId(psoId.getID());
+        diffResponse.addRequest(deleteRequest);
+        bulkDiffResponse.addResponse(diffResponse);
+      }
+    }
+
+    if (bulkDiffResponse.getStatus().equals(StatusCode.SUCCESS)) {
+      LOG.info("{}", bulkDiffResponse);
+    } else {
+      LOG.error("{}", bulkDiffResponse);
+    }
     if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkDiffResponse));
     mdc.stop();
     return bulkDiffResponse;
@@ -633,14 +639,23 @@ public class PSP extends BaseSpmlProvider {
     bulkSyncResponse.setStatus(StatusCode.SUCCESS);
     bulkSyncResponse.setRequestID(this.getOrGenerateRequestID(bulkSyncRequest));
 
+    if (!this.isValid(bulkSyncRequest, bulkSyncResponse)) {
+      LOG.error("{}", bulkSyncResponse);
+      if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkSyncResponse));
+      mdc.stop();
+      return bulkSyncResponse;
+    }
+
     BulkDiffRequest bulkDiffRequest = new BulkDiffRequest();
-    bulkDiffRequest.setTargetIds(bulkSyncRequest.getTargetIds());
+    bulkDiffRequest.setOnError(bulkSyncRequest.getOnError());
+    bulkDiffRequest.setRequestID(this.generateRequestID());
     bulkDiffRequest.setReturnData(bulkSyncRequest.getReturnData());
-    this.setRequestId(bulkDiffRequest);
+    bulkDiffRequest.setSchemaEntities(bulkSyncRequest.getSchemaEntities());
+    bulkDiffRequest.setUpdatedSince(bulkSyncRequest.getUpdatedSinceAsDate());
 
     BulkDiffResponse bulkDiffResponse = this.execute(bulkDiffRequest);
 
-    if (bulkDiffResponse.getStatus() != StatusCode.SUCCESS) {
+    if (bulkDiffResponse.getStatus() != StatusCode.SUCCESS && bulkSyncRequest.getOnError().equals(OnError.EXIT)) {
       fail(bulkSyncResponse, bulkDiffResponse.getError(), bulkDiffResponse.getErrorMessages());
       LOG.error("{}", bulkSyncResponse);
       if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkSyncResponse));
@@ -677,25 +692,24 @@ public class PSP extends BaseSpmlProvider {
 
         Response response = targetDefinition.getProvider().execute(request);
 
+        SyncResponse syncResponse = new SyncResponse();
+        syncResponse.setId(diffResponse.getId());
+        syncResponse.addResponse(response);
+        bulkSyncResponse.addResponse(syncResponse);
+
+        // first failure encountered, stop processing if OnError.EXIT
         if (response.getStatus() != StatusCode.SUCCESS && bulkSyncResponse.getStatus() != StatusCode.FAILURE) {
           bulkSyncResponse.setStatus(StatusCode.FAILURE);
-          // FUTURE break on error toggle ?
-        }
-
-        try {
-          SyncResponse syncResponse = new SyncResponse();
-          syncResponse.setId(diffResponse.getId());
-          syncResponse.addResponse(response);
-          bulkSyncResponse.addResponse(syncResponse);
-        } catch (LdappcException e) {
-          fail(bulkSyncResponse, ErrorCode.CUSTOM_ERROR, e);
-          LOG.error("{}", bulkSyncResponse);
-          if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkSyncResponse));
-          mdc.stop();
-          return bulkSyncResponse;
+          if (bulkSyncRequest.getOnError().equals(OnError.EXIT)) {
+            LOG.error("{}", bulkSyncResponse);
+            if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkSyncResponse));
+            mdc.stop();
+            return bulkSyncResponse;
+          }
         }
       }
 
+      // include synchronized responses
       for (SynchronizedResponse synchronizedResponse : diffResponse.getSynchronizedResponses()) {
         SyncResponse syncResponse = new SyncResponse();
         syncResponse.setId(diffResponse.getId());
@@ -704,7 +718,11 @@ public class PSP extends BaseSpmlProvider {
       }
     }
 
-    LOG.info("{}", bulkSyncResponse);
+    if (bulkSyncResponse.getStatus().equals(StatusCode.SUCCESS)) {
+      LOG.info("{}", bulkSyncResponse);
+    } else {
+      LOG.error("{}", bulkSyncResponse);
+    }
     if (pspOptions.isLogSpml()) LOG.info("\n{}", this.toXML(bulkSyncResponse));
     mdc.stop();
     return bulkSyncResponse;
@@ -738,13 +756,15 @@ public class PSP extends BaseSpmlProvider {
     attributeRequestContext.setPrincipalName(provisioningRequest.getId());
 
     // get targets specified in request before building the context
-    List<TargetDefinition> psoTargetDefinitions = this.getTargetDefinitions(provisioningRequest);
-    provContext.setPsoTargetDefinitions(psoTargetDefinitions);
+    Map<TargetDefinition, List<PSODefinition>> map = this.getTargetAndObjectDefinitions(provisioningRequest);
+    provContext.setTargetAndObjectDefinitions(map);
 
     // determine attribute resolver requested attributes
     LinkedHashSet<String> attributeIds = new LinkedHashSet<String>();
-    for (TargetDefinition psoTargetDefinition : psoTargetDefinitions) {
-      attributeIds.addAll(psoTargetDefinition.getSourceIds(provisioningRequest.getReturnData()));
+    for (TargetDefinition psoTargetDefinition : map.keySet()) {
+      for (PSODefinition psoDefinition : map.get(psoTargetDefinition)) {
+        attributeIds.addAll(psoDefinition.getSourceIds(provisioningRequest.getReturnData()));
+      }
     }
     attributeRequestContext.setRequestedAttributes(attributeIds);
 
@@ -761,29 +781,75 @@ public class PSP extends BaseSpmlProvider {
     return targetDefinitions;
   }
 
-  public List<TargetDefinition> getTargetDefinitions(ProvisioningRequest provisioningRequest) throws LdappcException {
-
-    ArrayList<TargetDefinition> defs = new ArrayList<TargetDefinition>();
-
-    if (provisioningRequest.getTargetIds().isEmpty()) {
-      defs.addAll(targetDefinitions.values());
+  public Map<TargetDefinition, List<PSODefinition>> getTargetAndObjectDefinitions(ProvisioningRequest request)
+      throws LdappcException {
+    Map<TargetDefinition, List<PSODefinition>> map = new LinkedHashMap<TargetDefinition, List<PSODefinition>>();
+    if (request.getSchemaEntities().isEmpty()) {
+      map.putAll(this.getTargetAndObjectDefinitions(new SchemaEntityRef()));
     } else {
-      for (String targetId : provisioningRequest.getTargetIds()) {
-        TargetDefinition targetDefinition = targetDefinitions.get(targetId);
-        if (targetDefinition == null) {
-          LOG.error("Unknown target id '{}", targetId);
-          throw new LdappcException("Unknown target id " + targetId);
-        }
-        defs.add(targetDefinition);
+      for (SchemaEntityRef schemaEntityRef : request.getSchemaEntities()) {
+        map.putAll(this.getTargetAndObjectDefinitions(schemaEntityRef));
       }
     }
+    return map;
+  }
 
-    if (defs.isEmpty()) {
-      LOG.error("Unknown target ids " + provisioningRequest.getTargetIds());
-      throw new LdappcException("Unknown target ids " + provisioningRequest.getTargetIds());
+  public Map<TargetDefinition, List<PSODefinition>> getTargetAndObjectDefinitions(SchemaEntityRef schemaEntityRef)
+      throws LdappcException {
+    String msg = "get target and object definitions for " + PSPUtil.toString(schemaEntityRef);
+    LOG.debug(msg);
+
+    Map<TargetDefinition, List<PSODefinition>> map = new LinkedHashMap<TargetDefinition, List<PSODefinition>>();
+
+    String targetId = schemaEntityRef == null ? null : schemaEntityRef.getTargetID();
+    String objectId = schemaEntityRef == null ? null : schemaEntityRef.getEntityName();
+
+    if (GrouperUtil.isBlank(targetId) && GrouperUtil.isBlank(objectId)) {
+
+      for (TargetDefinition targetDefinition : targetDefinitions.values()) {
+        map.put(targetDefinition, targetDefinition.getPsoDefinitions());
+      }
+
+    } else if (GrouperUtil.isBlank(targetId)) {
+
+      for (TargetDefinition targetDefinition : targetDefinitions.values()) {
+        PSODefinition psoDefinition = targetDefinition.getPSODefinition(objectId);
+        if (psoDefinition == null) {
+          LOG.error("Unknown object id '" + objectId + "'");
+          throw new LdappcException("Unknown object id '" + objectId + "'");
+        }
+        map.put(targetDefinition, new ArrayList<PSODefinition>());
+        map.get(targetDefinition).add(psoDefinition);
+      }
+
+    } else if (GrouperUtil.isBlank(objectId)) {
+
+      TargetDefinition targetDefinition = targetDefinitions.get(targetId);
+      if (targetDefinition == null) {
+        LOG.error("Unknown target id '" + targetId + "'");
+        throw new LdappcException("Unknown target id '" + targetId + "'");
+      }
+      map.put(targetDefinition, targetDefinition.getPsoDefinitions());
+
+    } else {
+
+      TargetDefinition targetDefinition = targetDefinitions.get(targetId);
+      if (targetDefinition == null) {
+        LOG.error("Unknown target id '" + targetId + "'");
+        throw new LdappcException("Unknown target id '" + targetId + "'");
+      }
+      PSODefinition psoDefinition = targetDefinition.getPSODefinition(objectId);
+      if (psoDefinition == null) {
+        LOG.error("Unknown object id '" + objectId + "'");
+        throw new LdappcException("Unknown object id '" + objectId + "'");
+      }
+      map.put(targetDefinition, new ArrayList<PSODefinition>());
+      map.get(targetDefinition).add(psoDefinition);
+
     }
 
-    return defs;
+    LOG.debug("{} found {}", msg, map);
+    return map;
   }
 
   @Override
@@ -858,7 +924,7 @@ public class PSP extends BaseSpmlProvider {
   public AddRequest add(PSO pso, ReturnData returnData) {
 
     AddRequest addRequest = new AddRequest();
-    this.setRequestId(addRequest);
+    addRequest.setRequestID(this.generateRequestID());
     addRequest.setReturnData(returnData);
 
     String entityName = pso.findOpenContentAttrValueByName(PSODefinition.ENTITY_NAME_ATTRIBUTE);
@@ -888,148 +954,52 @@ public class PSP extends BaseSpmlProvider {
     return addRequest;
   }
 
-  public Set<Group> getAllGroups() {
+  public Set<PSOIdentifier> searchForPsoIds(Map<TargetDefinition, List<PSODefinition>> map) {
+    Set<PSOIdentifier> psoIds = new LinkedHashSet<PSOIdentifier>();
 
-    Set<Group> groups = new TreeSet<Group>();
+    for (TargetDefinition targetDefinition : map.keySet()) {
+      for (PSODefinition psoDef : map.get(targetDefinition)) {
 
-    String[] attrResolverBeans = this.getApplicationContext()
-                .getBeanNamesForType(ShibbolethAttributeResolver.class);
-    for (String attrResolverBean : attrResolverBeans) {
-      ShibbolethAttributeResolver attributeResolver = (ShibbolethAttributeResolver) this.getApplicationContext()
-                    .getBean(attrResolverBean);
-
-      String[] groupDataConnBeans = attributeResolver.getServiceContext().getBeanNamesForType(
-                    GroupDataConnector.class);
-      for (String groupDataConnBean : groupDataConnBeans) {
-        GroupDataConnector groupDataConnector = (GroupDataConnector) attributeResolver.getServiceContext()
-                        .getBean(groupDataConnBean);
-
-        GroupQueryFilter filter = groupDataConnector.getGroupQueryFilter();
-        if (filter == null) {
-          Stem root = StemFinder.findRootStem(this.getGrouperSession());
-          groups.addAll(root.getChildGroups(Scope.SUB));
-        } else {
-          groups.addAll(groupDataConnector.getGroupQueryFilter().getResults(this.getGrouperSession()));
-        }
-      }
-    }
-
-    LOG.debug("found {} groups", groups);
-    return groups;
-  }
-
-  public Set<String> getAllIdentifiers() {
-    Set<String> identifiers = new LinkedHashSet<String>();
-
-    // FUTURE perhaps implement GrouperDataConnector.getAll();
-    Set<Group> groups = this.getAllGroups();
-
-    // stems
-    Set<String> stemNames = GrouperUtil.findParentStemNames(groups);
-    for (String stemName : new TreeSet<String>(stemNames)) {
-      // omit root
-      if (stemName.equals(Stem.DELIM)) {
-        continue;
-      }
-      identifiers.add(stemName);
-    }
-
-    // groups
-    for (Group group : groups) {
-      identifiers.add(group.getName());
-    }
-
-    // members
-    Set<Member> members = new TreeSet<Member>();
-    for (Group group : groups) {
-      for (Member member : group.getMembers()) {
-        // only provision groups once
-        if (member.getSubjectSourceId().equals("g:gsa")) {
+        // TODO not thoroughly thought-out
+        if (!psoDef.isAuthoritative()) {
           continue;
         }
-        members.add(member);
-      }
-    }
-    for (Member member : members) {
-      identifiers.add(member.getSubjectId());
-    }
 
-    return identifiers;
-  }
+        PSOIdentifier basePsoId = new PSOIdentifier();
+        basePsoId.setID(psoDef.getPsoIdentifierDefinition().getBaseId());
 
-  public List<PSOIdentifier> searchForPsoIds(TargetDefinition targetDefinition) {
-    List<PSOIdentifier> psoIds = new ArrayList<PSOIdentifier>();
+        // TODO custom filter
+        IdentifyingAttribute ia = psoDef.getPsoIdentifierDefinition().getIdentifyingAttribute();
+        LdapFilterQueryClause filterQueryClause = new LdapFilterQueryClause();
+        String filter = ia.getName() + "=" + ia.getValue();
+        filterQueryClause.setFilter(filter);
 
-    for (PSODefinition psoDef : targetDefinition.getPsoDefinitions()) {
-      // TODO remove
-      LOG.debug("psoDef authoritative {}", psoDef.isAuthoritative());
-      if (!psoDef.isAuthoritative()) {
-        continue;
-      }
+        Query query = new Query();
+        query.setTargetID(targetDefinition.getId());
+        query.setBasePsoID(basePsoId);
+        query.addQueryClause(filterQueryClause);
+        query.setScope(org.openspml.v2.msg.spmlsearch.Scope.SUBTREE);
 
-      PSOIdentifier basePsoId = new PSOIdentifier();
-      basePsoId.setID(psoDef.getPsoIdentifierDefinition().getBaseId());
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.setReturnData(ReturnData.IDENTIFIER);
+        searchRequest.setQuery(query);
 
-      // TODO custom filter
-      IdentifyingAttribute ia = psoDef.getPsoIdentifierDefinition().getIdentifyingAttribute();
-      LdapFilterQueryClause filterQueryClause = new LdapFilterQueryClause();
-      String filter = ia.getName() + "=" + ia.getValue();
-      filterQueryClause.setFilter(filter);
+        SearchResponse response = this.execute(searchRequest);
 
-      Query query = new Query();
-      query.setTargetID(targetDefinition.getId());
-      query.setBasePsoID(basePsoId);
-      query.addQueryClause(filterQueryClause);
-      query.setScope(org.openspml.v2.msg.spmlsearch.Scope.SUBTREE);
-
-      SearchRequest searchRequest = new SearchRequest();
-      searchRequest.setReturnData(ReturnData.IDENTIFIER);
-      searchRequest.setQuery(query);
-
-      SearchResponse response = this.execute(searchRequest);
-
-      if (response.getStatus() == StatusCode.SUCCESS) {
-        for (PSO pso : response.getPSOs()) {
-          psoIds.add(pso.getPsoID());
+        if (response.getStatus() == StatusCode.SUCCESS) {
+          for (PSO pso : response.getPSOs()) {
+            psoIds.add(pso.getPsoID());
+          }
+        } else {
+          LOG.error("An error occurred while searching.");
+          return null;
         }
-      } else {
-        LOG.error("An error occurred while searching.");
-        return null;
       }
     }
 
     LOG.debug("found {} pso ids", psoIds.size());
 
     return psoIds;
-  }
-
-  private GrouperSession getGrouperSession() {
-    if (grouperSession == null) {
-      // TODO make user configurable
-      grouperSession = GrouperSession.startRootSession();
-    }
-    return grouperSession;
-  }
-
-  public boolean isValid(PSOIdentifier psoID, Response response) {
-
-    if (GrouperUtil.isBlank(psoID) || GrouperUtil.isBlank(psoID.getID())) {
-      fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_PSO_ID);
-      return false;
-    }
-
-    if (GrouperUtil.isBlank(psoID.getTargetID())) {
-      fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_TARGET_ID);
-      return false;
-    }
-
-    TargetDefinition targetDefinition = targetDefinitions.get(psoID.getTargetID());
-    if (targetDefinition == null) {
-      fail(response, ErrorCode.NO_SUCH_IDENTIFIER, "Unknown target id '" + psoID.getTargetID() + "'");
-      return false;
-    }
-
-    return true;
   }
 
   public boolean isValid(AddRequest addRequest, AddResponse addResponse) {
@@ -1068,6 +1038,17 @@ public class PSP extends BaseSpmlProvider {
 
   }
 
+  public boolean isValid(BulkProvisioningRequest provisioningRequest, ProvisioningResponse provisioningResponse) {
+    try {
+      this.getTargetAndObjectDefinitions(provisioningRequest);
+    } catch (LdappcException e) {
+      fail(provisioningResponse, ErrorCode.NO_SUCH_IDENTIFIER, e.getMessage());
+      return false;
+    }
+  
+    return true;
+  }
+
   public boolean isValid(ModifyRequest modifyRequest, ModifyResponse modifyResponse) {
 
     if (!this.isValid(modifyRequest.getPsoID(), modifyResponse)) {
@@ -1090,6 +1071,60 @@ public class PSP extends BaseSpmlProvider {
         fail(modifyResponse, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_UNSUPPORTED_MODIFICATION_MODE);
         return false;
       }
+    }
+
+    return true;
+  }
+
+  public boolean isValid(ProvisioningRequest provisioningRequest, ProvisioningResponse provisioningResponse) {
+
+    if (GrouperUtil.isBlank(provisioningRequest.getId())) {
+      fail(provisioningResponse, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_ID);
+      return false;
+    }
+
+    try {
+      this.getTargetAndObjectDefinitions(provisioningRequest);
+    } catch (LdappcException e) {
+      fail(provisioningResponse, ErrorCode.NO_SUCH_IDENTIFIER, e.getMessage());
+      return false;
+    }
+
+    return true;
+  }
+  
+  public boolean isValid(PSOIdentifier psoID, Response response) {
+
+    if (GrouperUtil.isBlank(psoID) || GrouperUtil.isBlank(psoID.getID())) {
+      fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_PSO_ID);
+      return false;
+    }
+
+    if (GrouperUtil.isBlank(psoID.getTargetID())) {
+      fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_TARGET_ID);
+      return false;
+    }
+
+    TargetDefinition targetDefinition = targetDefinitions.get(psoID.getTargetID());
+    if (targetDefinition == null) {
+      fail(response, ErrorCode.NO_SUCH_IDENTIFIER, "Unknown target id '" + psoID.getTargetID() + "'");
+      return false;
+    }
+
+    return true;
+  }
+
+  public boolean isValid(Response response) {
+
+    if (response.getStatus() == null) {
+      fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_STATUS);
+      return false;
+    }
+
+    if (!(response.getStatus().equals(StatusCode.SUCCESS)
+        || response.getStatus().equals(StatusCode.FAILURE) || response.getStatus().equals(StatusCode.PENDING))) {
+      fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_UNSUPPORTED_STATUS);
+      return false;
     }
 
     return true;
@@ -1118,29 +1153,4 @@ public class PSP extends BaseSpmlProvider {
     return true;
   }
 
-  public boolean isValid(Response response) {
-
-    if (response.getStatus() == null) {
-      fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_STATUS);
-      return false;
-    }
-
-    if (!(response.getStatus().equals(StatusCode.SUCCESS)
-        || response.getStatus().equals(StatusCode.FAILURE) || response.getStatus().equals(StatusCode.PENDING))) {
-      fail(response, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_UNSUPPORTED_STATUS);
-      return false;
-    }
-
-    return true;
-  }
-
-  public boolean isValid(ProvisioningRequest provisioningRequest, ProvisioningResponse provisioningResponse) {
-
-    if (GrouperUtil.isBlank(provisioningRequest.getId())) {
-      fail(provisioningResponse, ErrorCode.MALFORMED_REQUEST, PSPConstants.ERROR_NULL_ID);
-      return false;
-    }
-
-    return true;
-  }
 }

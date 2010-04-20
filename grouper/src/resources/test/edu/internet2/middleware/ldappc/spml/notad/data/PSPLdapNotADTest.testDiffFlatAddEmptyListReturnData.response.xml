@@ -1,4 +1,4 @@
-<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='edu:groupB' status='success' requestID='REQUESTID_TEST'>
+<ldappc:diffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
   <addRequest xmlns='urn:oasis:names:tc:SPML:2:0' entityName='group' targetId='ldap' returnData='data' requestID='REQUESTID_TEST'>
     <psoID ID='cn=groupB,ou=testgroups,${base}' targetID='ldap'/>
     <data>

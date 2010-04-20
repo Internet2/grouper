@@ -16,6 +16,8 @@ package edu.internet2.middleware.ldappc.spml.definitions;
 
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.profiles.dsml.DSMLAttr;
 import org.openspml.v2.profiles.dsml.DSMLProfileException;
 import org.openspml.v2.profiles.dsml.DSMLValue;
@@ -28,13 +30,10 @@ public class PSOAttributeDefinition {
 
   private String name;
 
-  // TODO handle multiValued
   private boolean isMultiValued;
-  
-  // TODO complete this logic
+
   private boolean retainAll;
 
-  
   public String getRef() {
     return ref;
   }
@@ -63,11 +62,9 @@ public class PSOAttributeDefinition {
     return retainAll;
   }
 
-
   public void setRetainAll(boolean retainAll) {
     this.retainAll = retainAll;
   }
-
 
   public DSMLAttr getAttribute(Map<String, BaseAttribute<?>> attributes) throws DSMLProfileException {
 
@@ -90,5 +87,17 @@ public class PSOAttributeDefinition {
     }
 
     return dsmlAttr;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("name", name);
+    toStringBuilder.append("ref", ref);
+    toStringBuilder.append("retainAll", retainAll);
+    toStringBuilder.append("isMultiValued", isMultiValued);
+    return toStringBuilder.toString();
   }
 }

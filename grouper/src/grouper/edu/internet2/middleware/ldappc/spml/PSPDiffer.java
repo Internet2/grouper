@@ -62,7 +62,7 @@ import edu.internet2.middleware.ldappc.util.PSPUtil;
  */
 
 // TODO Most of these methods assume an <code>PSODefinition.ENTITY_NAME_ATTRIBUTE</code>
-// TODO DSMLModifications assumed
+// FUTURE DSMLModifications assumed
 
 public class PSPDiffer {
 
@@ -105,10 +105,10 @@ public class PSPDiffer {
 
     // Calculate how the id should be provisioned.
     CalcRequest calcRequest = new CalcRequest();
-    psp.setRequestId(calcRequest);
     calcRequest.setId(diffRequest.getId());
-    calcRequest.setTargetIds(diffRequest.getTargetIds());
+    calcRequest.setRequestID(psp.generateRequestID());
     calcRequest.setReturnData(diffRequest.getReturnData());
+    calcRequest.setSchemaEntities(diffRequest.getSchemaEntities());
     CalcResponse calcResponse = psp.execute(calcRequest);
 
     if (calcResponse.getStatus().equals(StatusCode.FAILURE)) {
@@ -120,8 +120,8 @@ public class PSPDiffer {
       // Lookup a PSO Identifier to see if and/or how it is provisioned.
       LookupRequest lookupRequest = new LookupRequest();
       lookupRequest.setPsoID(correctPSO.getPsoID());
+      lookupRequest.setRequestID(psp.generateRequestID());
       lookupRequest.setReturnData(diffRequest.getReturnData());
-      psp.setRequestId(lookupRequest);
 
       LookupResponse lookupResponse = psp.execute(lookupRequest);
 
@@ -132,7 +132,7 @@ public class PSPDiffer {
       } else if (lookupResponse.getStatus().equals(StatusCode.FAILURE)) {
         // any other error is a failure
         psp.fail(diffResponse, lookupResponse.getError(), "Lookup request failed.");
-        // TODO do we ever continue on failure ?
+        // FUTURE do we ever continue on failure ?
         return;
       } else {
         try {
@@ -204,7 +204,7 @@ public class PSPDiffer {
 
     if (psp.getTargetDefinitions().get(correctPSO.getPsoID().getTargetID()).isBundleModifications()) {
       ModifyRequest modifyRequest = new ModifyRequest();
-
+      modifyRequest.setRequestID(psp.generateRequestID());
       modifyRequest.setPsoID(correctPSO.getPsoID());
       if (correctEntityName != null) {
         modifyRequest.addOpenContentAttr(PSODefinition.ENTITY_NAME_ATTRIBUTE, correctEntityName);
@@ -215,7 +215,6 @@ public class PSPDiffer {
       for (Modification modification : referenceMods) {
         modifyRequest.addModification(modification);
       }
-      psp.setRequestId(modifyRequest);
       modifyRequests.add(modifyRequest);
     } else {
       modifyRequests.addAll(this.unbundleDataModifications(dataMods, correctPSO.getPsoID(), correctEntityName));
@@ -367,7 +366,7 @@ public class PSPDiffer {
         DSMLValue[] dsmlValues = dsmlModification.getValues();
         for (DSMLValue dsmlValue : dsmlValues) {
           ModifyRequest unbundledModifyRequest = new ModifyRequest();
-          psp.setRequestId(unbundledModifyRequest);
+          unbundledModifyRequest.setRequestID(psp.generateRequestID());
           unbundledModifyRequest.setPsoID(psoID);
           if (entityName != null) {
             unbundledModifyRequest.addOpenContentAttr(PSODefinition.ENTITY_NAME_ATTRIBUTE, entityName);
@@ -410,7 +409,7 @@ public class PSPDiffer {
       for (String typeOfReference : references.keySet()) {
         for (Reference reference : references.get(typeOfReference)) {
           ModifyRequest unbundledModifyRequest = new ModifyRequest();
-          psp.setRequestId(unbundledModifyRequest);
+          unbundledModifyRequest.setRequestID(psp.generateRequestID());
           unbundledModifyRequest.setPsoID(psoID);
           if (entityName != null) {
             unbundledModifyRequest.addOpenContentAttr(PSODefinition.ENTITY_NAME_ATTRIBUTE, entityName);

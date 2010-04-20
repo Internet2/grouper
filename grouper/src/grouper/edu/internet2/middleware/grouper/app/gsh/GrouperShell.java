@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGsh;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportGsh;
+import edu.internet2.middleware.ldappc.spml.PSPOptions;
 
 /**
  * Grouper Management Shell.
@@ -74,6 +75,9 @@ public class GrouperShell {
 
     mainLookups.put("-ldappc",  
       "edu.internet2.middleware.ldappc.Ldappc");
+    
+    mainLookups.put("-" + PSPOptions.NAME,
+        "edu.internet2.middleware.ldappc.spml.PSPCLI");
 
   }
   

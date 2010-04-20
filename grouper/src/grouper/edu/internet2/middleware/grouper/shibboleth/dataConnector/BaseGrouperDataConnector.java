@@ -15,14 +15,21 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField;
@@ -37,7 +44,7 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
-public abstract class BaseGrouperDataConnector extends BaseDataConnector {
+public abstract class BaseGrouperDataConnector extends BaseDataConnector implements SourceDataConnector {
 
   /** logger */
   private static final Logger LOG = GrouperUtil.getLogger(BaseGrouperDataConnector.class);
@@ -264,6 +271,47 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector {
    */
   public void setSubjectIdentifier(AttributeIdentifier subjectIdentifier) {
     this.subjectIdentifier = subjectIdentifier;
+  }
+
+  /**
+   * Query for all groups matching the group query filter. If no group query filter has
+   * been configured, then return all groups.
+   * 
+   * @return the groups returned from the group query filter or all groups
+   */
+  public Set<Group> getGroups(Date lastModifyTime) {
+    String msg = "get groups since '" + lastModifyTime + "'";
+    LOG.debug(msg);
+
+    Set<Group> groups = new TreeSet<Group>();
+    GroupQueryFilter filter = this.getGroupQueryFilter();
+    if (filter == null) {
+      Stem root = StemFinder.findRootStem(this.getGrouperSession());
+      groups.addAll(root.getChildGroups(Scope.SUB));
+    } else {
+      groups.addAll(this.getGroupQueryFilter().getResults(this.getGrouperSession()));
+    }
+    LOG.debug("{} found {} before filtering", msg, groups.size());
+
+    // filter by lastModifyTime
+    if (lastModifyTime != null) {
+      Iterator<Group> iterator = groups.iterator();
+      while (iterator.hasNext()) {
+        Group group = iterator.next();
+        if (group.getCreateTime().after(lastModifyTime)) continue;
+        if (group.getModifyTime().after(lastModifyTime)) continue;
+        if (group.getLastMembershipChange() != null) {
+          Date memberModifyTime = new Date(group.getLastMembershipChange().getTime());
+          if (memberModifyTime.after(lastModifyTime)) {
+            continue;
+          }
+        }
+        // remove from selection
+        iterator.remove();
+      }
+    }
+    LOG.debug("{} found {}", msg, groups.size());
+    return groups;
   }
 
 }

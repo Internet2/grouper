@@ -1,5 +1,5 @@
-<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='edu:groupB' status='success' requestID='REQUESTID_TEST'>
-  <modifyResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2010/03/22-15:32:43.126_-1863240720'>
+<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
+  <modifyResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='REQUESTID_TEST'>
     <pso entityName='group'>
       <psoID ID='cn=groupB,ou=testgroups,${base}' targetID='ldap'/>
       <data>

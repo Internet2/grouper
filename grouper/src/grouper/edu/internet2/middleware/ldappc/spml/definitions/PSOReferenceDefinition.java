@@ -18,10 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spml.ErrorCode;
 import org.openspml.v2.msg.spml.PSO;
 import org.openspml.v2.msg.spml.Request;
 import org.openspml.v2.msg.spml.ReturnData;
+import org.openspml.v2.msg.spml.SchemaEntityRef;
 import org.openspml.v2.msg.spml.StatusCode;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.slf4j.Logger;
@@ -107,8 +110,11 @@ public class PSOReferenceDefinition {
       CalcRequest calcRequest = new CalcRequest();
       calcRequest.setReturnData(ReturnData.IDENTIFIER);
       calcRequest.setId(id.toString());
-      calcRequest.addTargetId(this.getToPSODefinition().getPsoIdentifierDefinition().getTargetDefinition().getId());
-
+      SchemaEntityRef schemaEntityRef = new SchemaEntityRef();
+      schemaEntityRef.setTargetID(this.getToPSODefinition().getPsoIdentifierDefinition().getTargetDefinition().getId());
+      schemaEntityRef.setEntityName(this.getToPSODefinition().getId());
+      calcRequest.addSchemaEntity(schemaEntityRef);
+      
       CalcResponse calcResponse = (CalcResponse) context.getProvisioningServiceProvider()
           .execute((Request) calcRequest);
 
@@ -155,5 +161,17 @@ public class PSOReferenceDefinition {
     }
 
     return references;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("ref", ref);
+    toStringBuilder.append("toPSODefinition", toPSODefinition.getId());
+    toStringBuilder.append("onNotFound", onNotFound);
+    toStringBuilder.append("multipleResults", multipleResults);
+    return toStringBuilder.toString();
   }
 }

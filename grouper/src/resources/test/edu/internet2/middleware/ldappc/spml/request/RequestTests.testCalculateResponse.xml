@@ -1,4 +1,4 @@
-<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='id'>
+<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
   <ldappc:id ID='id'/>
   <ldappc:pso>
     <psoID ID='id1' targetID='target1'/>

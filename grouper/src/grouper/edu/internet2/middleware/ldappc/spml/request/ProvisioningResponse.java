@@ -16,7 +16,6 @@ package edu.internet2.middleware.ldappc.spml.request;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.openspml.v2.msg.BasicOpenContentAttr;
 import org.openspml.v2.msg.PrefixAndNamespaceTuple;
 import org.openspml.v2.msg.spml.Response;
 
@@ -24,42 +23,15 @@ import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public abstract class ProvisioningResponse extends Response {
 
+  /** The identifier of the object to be provisioned. */
   private ID m_id;
 
   public String getId() {
-    if (m_id == null) {
-      return null;
-    }
-    return m_id.getID();
+    return m_id == null ? null : m_id.getID();
   }
 
   public void setId(String id) {
     this.m_id = new ID(id);
-    setID(id);
-  }
-
-  /**
-   * Same as getId, but returns an <code>ID</code> rather than a String.
-   * 
-   * @return
-   */
-  public ID getIdentifier() {
-    return m_id;
-  }
-
-  public void setIdentifier(ID id) {
-    this.m_id = id;
-    setID(id.getID());
-  }
-
-  protected void setID(String id) {
-    String oldId = this.findOpenContentAttrValueByName("ID");
-    if (oldId == null) {
-      this.addOpenContentAttr("ID", id);
-    } else {
-      this.removeOpenContentAttr(new BasicOpenContentAttr("ID", oldId));
-      this.addOpenContentAttr("ID", id);
-    }
   }
 
   public PrefixAndNamespaceTuple[] getNamespacesInfo() {

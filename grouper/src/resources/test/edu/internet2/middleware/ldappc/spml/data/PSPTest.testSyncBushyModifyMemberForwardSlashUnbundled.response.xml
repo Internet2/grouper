@@ -1,4 +1,4 @@
-<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='edu:group/F' status='success' requestID='REQUESTID_TEST'>
+<ldappc:syncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
   <modifyResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='REQUEST_ID'>
     <pso entityName='group'>
       <psoID ID='cn=group/F,ou=edu,ou=testgroups,${base}' targetID='ldap'/>

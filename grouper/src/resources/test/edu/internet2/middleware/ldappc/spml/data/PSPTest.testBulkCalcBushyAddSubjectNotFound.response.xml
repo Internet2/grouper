@@ -1,5 +1,5 @@
 <ldappc:bulkCalcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='failure' requestID='REQUESTID_TEST'>
-  <ldappc:calcResponse ID='edu' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu'/>
     <ldappc:pso entityName='stem'>
       <psoID ID='ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -14,7 +14,7 @@
       </data>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:groupA' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:groupA'/>
     <ldappc:pso entityName='group'>
       <psoID ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -34,7 +34,7 @@
       </capabilityData>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='edu:groupB' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='edu:groupB'/>
     <ldappc:pso entityName='group'>
       <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
@@ -57,19 +57,19 @@
       </capabilityData>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='test.subject.0' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='test.subject.0'/>
     <ldappc:pso entityName='member'>
       <psoID ID='cn=test.subject.0,ou=testpeople,${base}' targetID='ldap'/>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='test.subject.1' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:calcResponse status='success' requestID='REQUESTID_TEST'>
     <ldappc:id ID='test.subject.1'/>
     <ldappc:pso entityName='member'>
       <psoID ID='cn=test.subject.1,ou=testpeople,${base}' targetID='ldap'/>
     </ldappc:pso>
   </ldappc:calcResponse>
-  <ldappc:calcResponse ID='test.subject.2' status='failure' requestID='REQUESTID_TEST' error='noSuchIdentifier'>
+  <ldappc:calcResponse status='failure' requestID='REQUESTID_TEST' error='noSuchIdentifier'>
     <errorMessage>Unable to calculate provisioned object.</errorMessage>
     <ldappc:id ID='test.subject.2'/>
   </ldappc:calcResponse>

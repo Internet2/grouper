@@ -14,6 +14,9 @@
 
 package edu.internet2.middleware.ldappc.spml.definitions;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class IdentifyingAttribute {
 
   private String name;
@@ -34,5 +37,15 @@ public class IdentifyingAttribute {
 
   public void setValue(String value) {
     this.value = value;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    toStringBuilder.append("name", name);
+    toStringBuilder.append("value", value);
+    return toStringBuilder.toString();
   }
 }

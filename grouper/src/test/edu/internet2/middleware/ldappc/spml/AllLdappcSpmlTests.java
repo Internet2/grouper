@@ -18,10 +18,15 @@ public class AllLdappcSpmlTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.ldappc.spml");
     //$JUnit-BEGIN$
-    suite.addTestSuite(PSPTest.class);
-    //$JUnit-END$
+    // suite.addTestSuite(PSPMultipleLdapTest.class);
     suite.addTest(AllLdappcSpmlConfigTests.suite());
     suite.addTest(AllLdappcSpmlRequestTests.suite());
+    suite.addTestSuite(PSPOptionsTest.class);
+    suite.addTestSuite(PSPTest.class);
+    suite.addTestSuite(PSPLdapTest.class);
+    suite.addTestSuite(PSPLdapNotADTest.class);
+    //$JUnit-END$
+    
     return suite;
   }
 
