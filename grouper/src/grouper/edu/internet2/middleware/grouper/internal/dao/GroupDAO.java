@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
@@ -485,7 +486,7 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException;
   
   /**
-   * 
+   * @param field
    * @param scope
    * @param grouperSession
    * @param subject
@@ -497,7 +498,7 @@ public interface GroupDAO extends GrouperDAO {
    * @return the groups
    * @throws GrouperDAOException
    */
-  Set<Group> getAllGroupsMembershipSecure(String scope, GrouperSession grouperSession, 
+  Set<Group> getAllGroupsMembershipSecure(Field field, String scope, GrouperSession grouperSession, 
       Subject subject, QueryOptions queryOptions, Boolean enabled, 
       MembershipType membershipType, Stem stem, Scope stemScope)
     throws  GrouperDAOException;

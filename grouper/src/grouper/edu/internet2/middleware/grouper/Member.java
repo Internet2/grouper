@@ -1017,7 +1017,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     try {
       return GrouperDAOFactory.getFactory().getGroup().getAllGroupsMembershipSecure(
-          scope, grouperSession, this.getSubject(), queryOptions, enabled, membershipType, stem, stemScope);
+          field, scope, grouperSession, this.getSubject(), queryOptions, enabled, membershipType, stem, stemScope);
     } catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = "problem retrieving groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 

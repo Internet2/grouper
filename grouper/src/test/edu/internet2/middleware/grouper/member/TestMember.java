@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -218,6 +219,64 @@ public class TestMember extends GrouperTest {
     memberships = member.getNonImmediateMemberships();
     assertEquals(2, memberships.size());
     
+  }
+  
+  /**
+   * 
+   */
+  public void testGetGroupsWithField() {
+    Subject subj0 = SubjectTestHelper.SUBJ0;
+    Subject subj1 = SubjectTestHelper.SUBJ1;
+    
+    GrouperSession s = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(s);
+    
+    Member member0 = MemberFinder.findBySubject(s, subj0, true);
+    
+    GroupType groupType = GroupType.createType(s, "customType", false);
+    groupType.addList(s, "customList1", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    groupType.addList(s, "customList2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    groupType.addList(s, "customList3", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    
+    Stem top = root.addChildStem("top", "top");
+    Group group1 = top.addChildGroup("group1", "group1");
+    Group group2 = top.addChildGroup("group2", "group2");
+    Group group3 = top.addChildGroup("group3", "group3");
+    Group group4 = top.addChildGroup("group4", "group4");
+    Group group5 = top.addChildGroup("group5", "group5");
+    Group group6 = top.addChildGroup("group6", "group6");
+    
+    group1.addType(groupType);
+    group2.addType(groupType);
+    group3.addType(groupType);
+    group4.addType(groupType);
+    group5.addType(groupType);
+    group6.addType(groupType);
+    
+    group1.addMember(subj0);
+    group2.addMember(subj0, FieldFinder.find("customList1", true));
+    group3.grantPriv(subj0, AccessPrivilege.UPDATE);
+    group4.addMember(subj0, FieldFinder.find("customList3", true));
+    group5.addMember(subj0, FieldFinder.find("customList3", true));
+    group6.addMember(subj1, FieldFinder.find("customList1", true));
+    
+    Set<Group> groups = member0.getGroups(FieldFinder.find("members", true));
+    assertEquals(1, groups.size());
+    assertEquals(group1.getUuid(), groups.iterator().next().getUuid());
+    
+    groups = member0.getGroups(FieldFinder.find("customList1", true));
+    assertEquals(1, groups.size());
+    assertEquals(group2.getUuid(), groups.iterator().next().getUuid());
+
+    groups = member0.getGroups(FieldFinder.find("updaters", true));
+    assertEquals(1, groups.size());
+    assertEquals(group3.getUuid(), groups.iterator().next().getUuid());
+    
+    groups = member0.getGroups(FieldFinder.find("customList2", true));
+    assertEquals(0, groups.size());
+
+    groups = member0.getGroups(FieldFinder.find("customList3", true));
+    assertEquals(2, groups.size());
   }
   
   /**

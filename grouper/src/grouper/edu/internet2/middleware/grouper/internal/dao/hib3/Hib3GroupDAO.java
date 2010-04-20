@@ -1696,7 +1696,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.Boolean, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)
    */
-  public Set<Group> getAllGroupsMembershipSecure(String scope,
+  public Set<Group> getAllGroupsMembershipSecure(Field field, String scope,
       GrouperSession grouperSession, Subject subject, QueryOptions queryOptions,
       Boolean enabled, MembershipType membershipType, Stem stem, Scope stemScope)
       throws GrouperDAOException {
@@ -1727,7 +1727,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       }
     }
     
-    String listId = Group.getDefaultList().getUuid();
+    String listId = field.getUuid();
   
     StringBuilder sql = new StringBuilder("select distinct theGroup from Group theGroup, " +
         " MembershipEntry listMembership ");
