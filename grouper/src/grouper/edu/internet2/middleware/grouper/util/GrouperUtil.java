@@ -1870,6 +1870,25 @@ public class GrouperUtil {
    *          is the delimited input to split and trim
    * @param separator
    *          is what to split on
+   * 
+   * @return the set of items after split and trimmed, or null if input is null.  will be trimmed to empty
+   */
+  public static Set<String> splitTrimToSet(String input, String separator) {
+    if (isBlank(input)) {
+      return null;
+    }
+    String[] array =  splitTrim(input, separator);
+    return toSet(array);
+  }
+
+  /**
+   * split a string based on a separator into an array, and trim each entry (see
+   * the Commons Util trim() for more details)
+   * 
+   * @param input
+   *          is the delimited input to split and trim
+   * @param separator
+   *          is what to split on
    * @param treatAdjacentSeparatorsAsOne
    * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
    */
@@ -9889,7 +9908,7 @@ public class GrouperUtil {
    * Return the zero element of the array, if it exists, null if the array is empty.
    * If there is more than one element in the list, an exception is thrown.
    * @param <T>
-   * @param list is the container of objects to get the first of.
+   * @param array is the container of objects to get the first of.
    * @return the first object, null, or exception.
    */
   public static <T> T arrayPopOne(T[] array) {

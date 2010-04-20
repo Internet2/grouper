@@ -56,7 +56,7 @@ public class PropertiesConfiguration implements Configuration {
    * @return properties
    * @since   1.2.1
    */
-  private Properties getProperties() {
+  public Properties getProperties() {
     if ( this.cfg == null ) {
       try {
         this.cfg = GrouperUtil.propertiesFromResourceName(this.resource, false, true);

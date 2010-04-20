@@ -98,5 +98,6 @@
 	<classpathentry kind="lib" path="lib/jdbcSamples/sqljdbc4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/xpp3_min.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-jexl.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/smack.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

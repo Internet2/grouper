@@ -99,13 +99,12 @@ public class GrouperLoaderConfig {
    * Get a Grouper configuration parameter.
    * 
    * <pre class="eg">
-   * String wheel = GrouperConfig.getProperty(&quot;groups.wheel.group&quot;);
+   * String wheel = GrouperLoaderConfig.getProperty(&quot;groups.wheel.group&quot;);
    * </pre>
    * 
    * @param property to lookup
    * @return Value of configuration parameter or an empty string if parameter
    *         is invalid.
-   * @since 1.1.0
    */
   public static String getPropertyString(String property) {
     return getPropertyString(property, "");
@@ -115,13 +114,44 @@ public class GrouperLoaderConfig {
    * Get a Grouper configuration parameter.
    * 
    * <pre class="eg">
-   * String wheel = GrouperConfig.getProperty(&quot;groups.wheel.group&quot;);
+   * String wheel = GrouperLoaderConfig.getProperty(&quot;groups.wheel.group&quot;);
+   * </pre>
+   * 
+   * @param property to lookup
+   * @param required if property is required.  if so, exception if not found.  if not, null if not found.
+   * note if value is not filled in, but name is there, then still exception if required
+   * @return Value of configuration parameter or null if parameter
+   *         is not there
+   */
+  public static String getPropertyString(String property, boolean required) {
+    String result = getPropertyString(property, null);
+    if (result == null && required) {
+      throw new RuntimeException("Cant find property: '" + property + "' in config file: grouper-loader.properties");
+    }
+    return result;
+  }
+
+  /**
+   * get all properties including test properties
+   * @return properties
+   */
+  public static Properties properties() {
+    Properties properties = new Properties();
+    properties.putAll(retrievePropertiesConfiguration().getProperties());
+    properties.putAll(testConfig);
+    return properties;
+  }
+  
+  /**
+   * Get a Grouper configuration parameter.
+   * 
+   * <pre class="eg">
+   * String wheel = GrouperLoaderConfig.getProperty(&quot;groups.wheel.group&quot;);
    * </pre>
    * 
    * @param property to lookup
    * @param defaultValue is the value if the property isnt found
    * @return Value of configuration parameter or the default value (will trim the value)
-   * @since 1.1.0
    */
   public static String getPropertyString(String property, String defaultValue) {
     String value = null;
