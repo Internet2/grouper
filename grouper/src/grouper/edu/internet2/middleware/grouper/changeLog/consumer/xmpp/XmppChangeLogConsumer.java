@@ -73,6 +73,16 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
     return Morph.decryptIfFile(pass);
   }
   
+  /**
+   * xmpp resource
+   * @return the resource
+   */
+  private static String xmppResource() {
+    return GrouperLoaderConfig.getPropertyString("xmpp.resource", true);
+  }
+  
+  
+  
   /** keep a reference here so we dont have to keep logging in */
   private static XMPPConnection xmppConnection = null;
 
@@ -103,7 +113,7 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
         xmppConnection = new XMPPConnection(config);
         xmppConnection.connect();
   
-        xmppConnection.login(xmppUser(), xmppPass());
+        xmppConnection.login(xmppUser(), xmppPass(), xmppResource());
         
       }
       
@@ -196,7 +206,7 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
         if (GrouperUtil.length(subjectAttributeNames) > 0) {
           Subject subject = SourceManager.getInstance().getSource(sourceId).getSubject(subjectId, false);
           if (subject != null) {
-            subjectAttributeValues = new String[GrouperUtil.length(subjectAttributeNames.length)];
+            subjectAttributeValues = new String[GrouperUtil.length(subjectAttributeNames)];
             for (int i=0;i<subjectAttributeNames.length;i++) {
               String attributeName = subjectAttributeNames[i];
               String value = null;
@@ -207,7 +217,8 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
               } else {
                 value = subject.getAttributeValueOrCommaSeparated(attributeName);
               }
-              subjectAttributeValues[i] = value;
+              //trim to empty so it isnt <null/> in xstream
+              subjectAttributeValues[i] = StringUtils.trimToEmpty(value);
             }
           }
         } else {
