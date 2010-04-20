@@ -1,9 +1,9 @@
-package edu.internet2.middleware.grouper.changeLog.consumer.xmpp;
+package edu.internet2.middleware.grouperClientExt.xmpp;
 
 
 /**
  * <pre>
- * Action: ADD_MEMBER, and REMOVE_MEMBER
+ * action: ADD_MEMBER, and REMOVE_MEMBER
  * </pre>
  * @author mchyzer
  */
