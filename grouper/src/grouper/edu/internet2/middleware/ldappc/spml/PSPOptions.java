@@ -63,10 +63,7 @@ public class PSPOptions {
        * {@inheritDoc}
        */
       public Option getOption() {
-        Option option = new Option("bulkCalc", true, "Calculate provisioning for all identifiers.");
-        option.setOptionalArg(true);
-        option.setArgName("id");
-        return option;
+        return new Option("bulkCalc", "Calculate provisioning for all identifiers.");
       }
     },
 
@@ -84,10 +81,7 @@ public class PSPOptions {
        * {@inheritDoc}
        */
       public Option getOption() {
-        Option option = new Option("bulkDiff", true, "Determine provisioning difference for all identifiers.");
-        option.setOptionalArg(true);
-        option.setArgName("id");
-        return option;
+        return new Option("bulkDiff", "Determine provisioning difference for all identifiers.");
       }
     },
 
@@ -105,10 +99,7 @@ public class PSPOptions {
        * {@inheritDoc}
        */
       public Option getOption() {
-        Option option = new Option("bulkSync", true, "Synchronize provisioning for all identifiers.");
-        option.setOptionalArg(true);
-        option.setArgName("id");
-        return option;
+        return new Option("bulkSync", "Synchronize provisioning for all identifiers.");
       }
     },
 
@@ -210,13 +201,16 @@ public class PSPOptions {
     public List<ProvisioningRequest> getRequests(CommandLine line) {
 
       List<ProvisioningRequest> requests = new ArrayList<ProvisioningRequest>();
-      for (String id : line.getOptionValues(this.getOpt())) {
-        ProvisioningRequest request = this.getNewProvisioningRequest();
-        request.setId(id);
-        requests.add(request);
+      if (this.getOption().hasArg()) {
+        for (String id : line.getOptionValues(this.getOpt())) {
+          ProvisioningRequest request = this.getNewProvisioningRequest();
+          request.setId(id);
+          requests.add(request);
+        }
+      } else {
+        requests.add(this.getNewProvisioningRequest());
       }
       return requests;
-
     }
   }
 
