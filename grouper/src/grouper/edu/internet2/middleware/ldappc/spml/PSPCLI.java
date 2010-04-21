@@ -15,6 +15,7 @@
 package edu.internet2.middleware.ldappc.spml;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,6 +27,7 @@ import org.openspml.v2.msg.spml.Response;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.ldappc.spml.request.BulkProvisioningRequest;
 
 /**
  * Run the <code>ProvisioningServiceProvider</code> from the command line.
@@ -37,6 +39,9 @@ public class PSPCLI extends TimerTask {
 
   /** The provisioning service provider. */
   private PSP psp;
+
+  /** The timer for scheduling runs, Quartz would be nice too. */
+  private Timer timer = new Timer();
 
   /**
    * Run this application.
@@ -96,20 +101,39 @@ public class PSPCLI extends TimerTask {
       LOG.info("Starting {}", PSPOptions.NAME);
       LOG.debug("Starting {} with options {}", PSPOptions.NAME, psp.getPspOptions());
 
+      Date now = new Date();
+
       StopWatch sw = new StopWatch();
       sw.start();
 
       for (Request request : psp.getPspOptions().getRequests()) {
+        // set updated since for bulk requests
+        if (request instanceof BulkProvisioningRequest && psp.getPspOptions().getLastModifyTime() != null) {
+          ((BulkProvisioningRequest) request).setUpdatedSince(psp.getPspOptions().getLastModifyTime());
+        }
+        // print requests if so configured
         if (psp.getPspOptions().isPrintRequests()) {
           psp.getPspOptions().getPrintStream().print(psp.toXML(request));
         }
+        // execute request
         Response response = psp.execute(request);
+        // print response
         psp.getPspOptions().getPrintStream().print(psp.toXML(response));
       }
       psp.getPspOptions().getPrintStream().close();
 
       sw.stop();
       LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
+
+      // update last modified time
+      for (Request request : psp.getPspOptions().getRequests()) {
+        if (request instanceof BulkProvisioningRequest) {
+          if (psp.getPspOptions().getLastModifyTime() != null) {
+            psp.getPspOptions().setLastModifyTime(now);
+            break;
+          }
+        }
+      }
 
     } catch (IOException e) {
       LOG.error("Unable to write SPML.", e);
@@ -121,8 +145,17 @@ public class PSPCLI extends TimerTask {
    * Schedule this <code>TimerTask</code>.
    */
   public void schedule() {
-    Timer timer = new Timer();
+
     timer.schedule(this, 0, 1000 * psp.getPspOptions().getInterval());
+  }
+
+  /**
+   * Get the timer
+   * 
+   * @return the {@link Timer}
+   */
+  public Timer getTimer() {
+    return timer;
   }
 
 }

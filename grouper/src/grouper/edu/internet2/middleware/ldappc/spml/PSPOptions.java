@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -308,6 +309,9 @@ public class PSPOptions {
           if (request instanceof BulkProvisioningRequest) {
             try {
               ((BulkProvisioningRequest) request).setUpdatedSince(line.getOptionValue(this.getOpt()));
+              if (pspOptions.getLastModifyTime() == null) {
+                pspOptions.setLastModifyTime(((BulkProvisioningRequest) request).getUpdatedSinceAsDate());
+              }
             } catch (java.text.ParseException e) {
               throw new IllegalArgumentException(e);
             }
@@ -511,6 +515,9 @@ public class PSPOptions {
   /** The interval in seconds between polling actions. */
   private int interval = 0;
 
+  /** The lastModifyTime. */
+  private Date lastModifyTime;
+
   /** Whether or not to log SPML requests and responses */
   private boolean logSpml;
 
@@ -559,6 +566,13 @@ public class PSPOptions {
    */
   public int getInterval() {
     return interval;
+  }
+
+  /**
+   * @return Returns the lastModifyTime.
+   */
+  public Date getLastModifyTime() {
+    return lastModifyTime;
   }
 
   /**
@@ -706,6 +720,14 @@ public class PSPOptions {
    */
   public void setInterval(int interval) {
     this.interval = interval;
+  }
+
+  /**
+   * @param lastModifyTime
+   *          The lastModifyTime to set.
+   */
+  public void setLastModifyTime(Date lastModifyTime) {
+    this.lastModifyTime = lastModifyTime;
   }
 
   /**

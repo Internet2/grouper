@@ -22,6 +22,7 @@ public class AllLdappcSpmlTests {
     suite.addTest(AllLdappcSpmlConfigTests.suite());
     suite.addTest(AllLdappcSpmlRequestTests.suite());
     suite.addTestSuite(PSPOptionsTest.class);
+    suite.addTestSuite(PSPCLITest.class);
     suite.addTestSuite(PSPTest.class);
     suite.addTestSuite(PSPLdapTest.class);
     suite.addTestSuite(PSPLdapNotADTest.class);
