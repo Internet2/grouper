@@ -25,11 +25,14 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
@@ -123,117 +126,126 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
   }
 
   /** {@inheritDoc} */
-  public Map<String, BaseAttribute> resolve(ShibbolethResolutionContext resolutionContext)
+  public Map<String, BaseAttribute> resolve(final ShibbolethResolutionContext resolutionContext)
       throws AttributeResolutionException {
 
-    String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
-    String msg = "'" + principalName + "' dc '" + this.getId() + "'";
-    LOG.debug("resolve {}", msg);
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
-          .getRequestedAttributesIds());
-      if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
-        for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
-          LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
-        }
-      }
-    }
+    Map<String, BaseAttribute> attributes = (Map<String, BaseAttribute>) GrouperSession.callbackGrouperSession(
+        getGrouperSession(),
+        new GrouperSessionHandler() {
 
-    Map<String, BaseAttribute> attributes = new HashMap<String, BaseAttribute>();
+          public Map<String, BaseAttribute> callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-    // find subject
-    Subject subject = SubjectFinder.findByIdOrIdentifier(principalName, false);
-    if (subject == null) {
-      LOG.debug("resolve {} subject not found", msg);
-      return attributes;
-    }
-    LOG.debug("resolve {} found subject '{}'", msg, GrouperUtil.subjectToString(subject));
+            String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
+            String msg = "'" + principalName + "' dc '" + getId() + "'";
+            LOG.debug("resolve {}", msg);
+            if (LOG.isTraceEnabled()) {
+              LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
+                  .getRequestedAttributesIds());
+              if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
+                for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
+                  LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
+                }
+              }
+            }
 
-    // don't return group objects, that's the GroupDataConnector
-    if (subject.getSourceId().equals(SubjectFinder.internal_getGSA().getId())) {
-      LOG.debug("resolve {} returning empty map for '{}' source", msg, SubjectFinder.internal_getGSA().getId());
-      return attributes;
-    }
+            Map<String, BaseAttribute> attributes = new HashMap<String, BaseAttribute>();
 
-    // only return subjects from configured sources
-    if (this.getSourceIdentifiersAsStrings() != null) {
-      if (!this.getSourceIdentifiersAsStrings().contains(subject.getSourceId())) {
-        LOG.debug("resolve {} returning empty map for unknown source '{}'", msg, subject.getSourceId());
-        return attributes;
-      }
-    }
+            // find subject
+            Subject subject = SubjectFinder.findByIdOrIdentifier(principalName, false);
+            if (subject == null) {
+              LOG.debug("resolve {} subject not found", msg);
+              return attributes;
+            }
+            LOG.debug("resolve {} found subject '{}'", msg, GrouperUtil.subjectToString(subject));
 
-    // find member
-    Member member = MemberFinder.findBySubject(getGrouperSession(), subject, false);
-    if (member == null) {
-      LOG.debug("resolve {} member not found", msg);
-      return attributes;
-    }
-    LOG.debug("resolve {} found member '{}'", msg, member);
+            // don't return group objects, that's the GroupDataConnector
+            if (subject.getSourceId().equals(SubjectFinder.internal_getGSA().getId())) {
+              LOG.debug("resolve {} returning empty map for '{}' source", msg, SubjectFinder.internal_getGSA().getId());
+              return attributes;
+            }
 
-    // id
-    BasicAttribute<String> id = new BasicAttribute<String>(ID_ATTRIBUTE_NAME);
-    id.setValues(Arrays.asList(new String[] { subject.getId() }));
-    attributes.put(id.getId(), id);
+            // only return subjects from configured sources
+            if (getSourceIdentifiersAsStrings() != null) {
+              if (!getSourceIdentifiersAsStrings().contains(subject.getSourceId())) {
+                LOG.debug("resolve {} returning empty map for unknown source '{}'", msg, subject.getSourceId());
+                return attributes;
+              }
+            }
 
-    // defined subject attributes
-    LOG.debug("resolve {} subjectIDs {}", msg, this.getSubjectAttributeIdentifiers());
-    for (AttributeIdentifier attributeIdentifier : this.getSubjectAttributeIdentifiers()) {
-      LOG.debug("resolve {} member {} field {}", new Object[] { msg, member, attributeIdentifier });
-      if (subject.getSourceId().equals(attributeIdentifier.getSource())) {
-        // name
-        if (attributeIdentifier.getId().equals(GrouperConfig.ATTRIBUTE_NAME)) {
-          String name = subject.getName();
-          if (name != null) {
-            BasicAttribute<String> nameAttribute = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_NAME);
-            nameAttribute.setValues(GrouperUtil.toList(name));
-            attributes.put(nameAttribute.getId(), nameAttribute);
+            // find member
+            Member member = MemberFinder.findBySubject(getGrouperSession(), subject, false);
+            if (member == null) {
+              LOG.debug("resolve {} member not found", msg);
+              return attributes;
+            }
+            LOG.debug("resolve {} found member '{}'", msg, member);
+
+            // id
+            BasicAttribute<String> id = new BasicAttribute<String>(ID_ATTRIBUTE_NAME);
+            id.setValues(Arrays.asList(new String[] { subject.getId() }));
+            attributes.put(id.getId(), id);
+
+            // defined subject attributes
+            LOG.debug("resolve {} subjectIDs {}", msg, getSubjectAttributeIdentifiers());
+            for (AttributeIdentifier attributeIdentifier : getSubjectAttributeIdentifiers()) {
+              LOG.debug("resolve {} member {} field {}", new Object[] { msg, member, attributeIdentifier });
+              if (subject.getSourceId().equals(attributeIdentifier.getSource())) {
+                // name
+                if (attributeIdentifier.getId().equals(GrouperConfig.ATTRIBUTE_NAME)) {
+                  String name = subject.getName();
+                  if (name != null) {
+                    BasicAttribute<String> nameAttribute = new BasicAttribute<String>(GrouperConfig.ATTRIBUTE_NAME);
+                    nameAttribute.setValues(GrouperUtil.toList(name));
+                    attributes.put(nameAttribute.getId(), nameAttribute);
+                  }
+                  // description
+                } else if (attributeIdentifier.getId().equals(GrouperConfig.ATTRIBUTE_DESCRIPTION)) {
+                  String description = subject.getDescription();
+                  if (description != null && !description.equals(GrouperConfig.EMPTY_STRING)) {
+                    BasicAttribute<String> descriptionAttribute = new BasicAttribute<String>(
+                        GrouperConfig.ATTRIBUTE_DESCRIPTION);
+                    descriptionAttribute.setValues(GrouperUtil.toList(description));
+                    attributes.put(descriptionAttribute.getId(), descriptionAttribute);
+                  }
+                  // other attributes
+                } else {
+                  Set<String> values = subject.getAttributeValues(attributeIdentifier.getId());
+                  if (values != null && !values.isEmpty()) {
+                    BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeIdentifier.getId());
+                    basicAttribute.setValues(values);
+                    attributes.put(basicAttribute.getId(), basicAttribute);
+                  }
+                }
+              }
+            }
+
+            // groups
+            for (GroupsField groupsField : getGroupsFields()) {
+              BaseAttribute<Group> attr = groupsField.getAttribute(member, getGroupQueryFilter());
+              if (attr != null) {
+                attributes.put(groupsField.getId(), attr);
+              }
+            }
+
+            // privs
+            for (PrivilegeField privilegeField : getPrivilegeFields()) {
+              BaseAttribute<Group> attr = privilegeField.getAttribute(subject);
+              if (attr != null) {
+                attributes.put(privilegeField.getId(), attr);
+              }
+            }
+
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("resolve {} attributes {}", msg, attributes.size());
+              for (String key : attributes.keySet()) {
+                for (Object value : attributes.get(key).getValues()) {
+                  LOG.debug("resolve {} '{}' : {}", new Object[] { msg, key, PSPUtil.getString(value) });
+                }
+              }
+            }
+            return attributes;
           }
-          // description
-        } else if (attributeIdentifier.getId().equals(GrouperConfig.ATTRIBUTE_DESCRIPTION)) {
-          String description = subject.getDescription();
-          if (description != null && !description.equals(GrouperConfig.EMPTY_STRING)) {
-            BasicAttribute<String> descriptionAttribute = new BasicAttribute<String>(
-                GrouperConfig.ATTRIBUTE_DESCRIPTION);
-            descriptionAttribute.setValues(GrouperUtil.toList(description));
-            attributes.put(descriptionAttribute.getId(), descriptionAttribute);
-          }
-          // other attributes
-        } else {
-          Set<String> values = subject.getAttributeValues(attributeIdentifier.getId());
-          if (values != null && !values.isEmpty()) {
-            BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeIdentifier.getId());
-            basicAttribute.setValues(values);
-            attributes.put(basicAttribute.getId(), basicAttribute);
-          }
-        }
-      }
-    }
-
-    // groups
-    for (GroupsField groupsField : getGroupsFields()) {
-      BaseAttribute<Group> attr = groupsField.getAttribute(member, this.getGroupQueryFilter());
-      if (attr != null) {
-        attributes.put(groupsField.getId(), attr);
-      }
-    }
-
-    // privs
-    for (PrivilegeField privilegeField : getPrivilegeFields()) {
-      BaseAttribute<Group> attr = privilegeField.getAttribute(subject);
-      if (attr != null) {
-        attributes.put(privilegeField.getId(), attr);
-      }
-    }
-
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("resolve {} attributes {}", msg, attributes.size());
-      for (String key : attributes.keySet()) {
-        for (Object value : attributes.get(key).getValues()) {
-          LOG.debug("resolve {} '{}' : {}", new Object[] { msg, key, PSPUtil.getString(value) });
-        }
-      }
-    }
+        });
 
     return attributes;
   }

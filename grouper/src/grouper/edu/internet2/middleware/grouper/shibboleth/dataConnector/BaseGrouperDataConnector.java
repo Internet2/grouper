@@ -31,6 +31,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
@@ -103,6 +105,10 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
   // FUTURE probably should use spring for this configuration
   public void initialize() throws GrouperException {
 
+    // make sure the session can be instantiated
+    this.getGrouperSession();
+    LOG.info("started grouper session '" + this.getGrouperSession() + "' for '" + this.getId() + "'");
+
     for (AttributeIdentifier fieldIdentifier : fieldIdentifiers) {
 
       LOG.debug("attribute identifier '{}' for dc '{}'", fieldIdentifier, this.getId());
@@ -145,20 +151,16 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
     privilegeFields.trimToSize();
     membersFields.trimToSize();
     groupsFields.trimToSize();
-
-    // make sure the session can be instantiated
-    this.getGrouperSession();
-
   }
 
   /**
-   * Get a <code>GrouperSession</code>. Start a new session if necessary, otherwise use
-   * the session from the threadlocal. The session is started using the {@link Subject}
-   * identified by the configured subject identifier.
+   * Start a new session if necessary, otherwise reuse existing session. The session is
+   * started using the {@link Subject} identified by the configured subject identifier.
+   * This session is not added to the threadlocal.
    * 
    * @return the <code>GrouperSession</code>
    * @throws SubjectNotFoundException
-   *           if the <code>Subject</code> identified by the subjectId cannot be found
+   *           if the {@link Subject} identified by the subjectId cannot be found
    */
   public GrouperSession getGrouperSession() throws SubjectNotFoundException {
     if (grouperSession == null) {
@@ -279,39 +281,47 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
    * 
    * @return the groups returned from the group query filter or all groups
    */
-  public Set<Group> getGroups(Date lastModifyTime) {
-    String msg = "get groups since '" + lastModifyTime + "'";
-    LOG.debug(msg);
+  public Set<Group> getGroups(final Date lastModifyTime) {
 
-    Set<Group> groups = new TreeSet<Group>();
-    GroupQueryFilter filter = this.getGroupQueryFilter();
-    if (filter == null) {
-      Stem root = StemFinder.findRootStem(this.getGrouperSession());
-      groups.addAll(root.getChildGroups(Scope.SUB));
-    } else {
-      groups.addAll(this.getGroupQueryFilter().getResults(this.getGrouperSession()));
-    }
-    LOG.debug("{} found {} before filtering", msg, groups.size());
+    Set<Group> groups = (Set<Group>) GrouperSession.callbackGrouperSession(getGrouperSession(),
+        new GrouperSessionHandler() {
 
-    // filter by lastModifyTime
-    if (lastModifyTime != null) {
-      Iterator<Group> iterator = groups.iterator();
-      while (iterator.hasNext()) {
-        Group group = iterator.next();
-        if (group.getCreateTime().after(lastModifyTime)) continue;
-        if (group.getModifyTime().after(lastModifyTime)) continue;
-        if (group.getLastMembershipChange() != null) {
-          Date memberModifyTime = new Date(group.getLastMembershipChange().getTime());
-          if (memberModifyTime.after(lastModifyTime)) {
-            continue;
+          public Set<Group> callback(GrouperSession grouperSession) throws GrouperSessionException {
+            String msg = "get groups since '" + lastModifyTime + "'";
+            LOG.debug(msg);
+
+            Set<Group> groups = new TreeSet<Group>();
+            GroupQueryFilter filter = getGroupQueryFilter();
+            if (filter == null) {
+              Stem root = StemFinder.findRootStem(grouperSession);
+              groups.addAll(root.getChildGroups(Scope.SUB));
+            } else {
+              groups.addAll(getGroupQueryFilter().getResults(grouperSession));
+            }
+
+            LOG.debug("{} found {} before filtering", msg, groups.size());
+            // filter by lastModifyTime
+            if (lastModifyTime != null) {
+              Iterator<Group> iterator = groups.iterator();
+              while (iterator.hasNext()) {
+                Group group = iterator.next();
+                if (group.getCreateTime().after(lastModifyTime)) continue;
+                if (group.getModifyTime().after(lastModifyTime)) continue;
+                if (group.getLastMembershipChange() != null) {
+                  Date memberModifyTime = new Date(group.getLastMembershipChange().getTime());
+                  if (memberModifyTime.after(lastModifyTime)) {
+                    continue;
+                  }
+                }
+                // remove from selection
+                iterator.remove();
+              }
+            }
+            LOG.debug("{} found {}", msg, groups.size());
+            return groups;
           }
-        }
-        // remove from selection
-        iterator.remove();
-      }
-    }
-    LOG.debug("{} found {}", msg, groups.size());
+        });
+
     return groups;
   }
-
 }

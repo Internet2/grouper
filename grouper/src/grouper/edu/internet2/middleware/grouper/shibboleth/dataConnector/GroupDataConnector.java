@@ -26,7 +26,10 @@ import org.slf4j.Logger;
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
@@ -49,98 +52,108 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
   private static final Logger LOG = GrouperUtil.getLogger(GroupDataConnector.class);
 
   /** {@inheritDoc} */
-  public Map<String, BaseAttribute> resolve(ShibbolethResolutionContext resolutionContext)
+  public Map<String, BaseAttribute> resolve(final ShibbolethResolutionContext resolutionContext)
       throws AttributeResolutionException {
 
-    String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
-    String msg = "'" + principalName + "' dc '" + this.getId() + "'";
-    LOG.debug("resolve {}", msg);
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
-          .getRequestedAttributesIds());
-      if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
-        for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
-          LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
-        }
-      }
-    }
+    Map<String, BaseAttribute> attributes = (Map<String, BaseAttribute>) GrouperSession.callbackGrouperSession(
+        getGrouperSession(),
+        new GrouperSessionHandler() {
 
-    Map<String, BaseAttribute> attributes = new LinkedHashMap<String, BaseAttribute>();
+          public Map<String, BaseAttribute> callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-    // find group
-    Group group = GroupFinder.findByName(getGrouperSession(), principalName, false);
-    if (group == null) {
-      LOG.debug("resolve {} group not found", msg);
-      return attributes;
-    }
-    LOG.debug("resolve {} found group '{}'", msg, group);
+            String principalName = resolutionContext.getAttributeRequestContext().getPrincipalName();
+            String msg = "'" + principalName + "' dc '" + getId() + "'";
+            LOG.debug("resolve {}", msg);
+            if (LOG.isTraceEnabled()) {
+              LOG.trace("resolve {} requested attribute ids {}", msg, resolutionContext.getAttributeRequestContext()
+                  .getRequestedAttributesIds());
+              if (resolutionContext.getAttributeRequestContext().getRequestedAttributesIds() != null) {
+                for (String attrId : resolutionContext.getAttributeRequestContext().getRequestedAttributesIds()) {
+                  LOG.trace("resolve {} requested attribute '{}'", msg, attrId);
+                }
+              }
+            }
 
-    // does group match query filter
-    if (this.getGroupQueryFilter() != null) {
-      if (!this.getGroupQueryFilter().matchesGroup(group)) {
-        LOG.debug("resolve {} group {} does not match filter", msg, group);
-        return attributes;
-      }
-    }
+            Map<String, BaseAttribute> attributes = new LinkedHashMap<String, BaseAttribute>();
 
-    // internal attributes
-    for (String attributeName : Group.INTERNAL_FIELD_ATTRIBUTES) {
-      String value = (String) GrouperUtil.fieldValue(group, attributeName);
-      if (value != null) {
-        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
-        basicAttribute.setValues(Arrays.asList(new String[] { value }));
-        attributes.put(attributeName, basicAttribute);
-      }
-    }
+            // find group
+            Group group = GroupFinder.findByName(getGrouperSession(), principalName, false);
+            if (group == null) {
+              LOG.debug("resolve {} group not found", msg);
+              return attributes;
+            }
+            LOG.debug("resolve {} found group '{}'", msg, group);
 
-    // custom attributes
-    Map<String, Attribute> customAttributes = group.getAttributesMap(false);
-    for (String attributeName : customAttributes.keySet()) {
-      String value = customAttributes.get(attributeName).getValue();
-      if (value != null) {
-        BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
-        basicAttribute.setValues(Arrays.asList(new String[] { value }));
-        attributes.put(attributeName, basicAttribute);
-      }
-    }
+            // does group match query filter
+            if (getGroupQueryFilter() != null) {
+              if (!getGroupQueryFilter().matchesGroup(group)) {
+                LOG.debug("resolve {} group {} does not match filter", msg, group);
+                return attributes;
+              }
+            }
 
-    // members
-    for (MembersField membersField : getMembersFields()) {
-      BaseAttribute<Member> attr = membersField.getAttribute(group);
-      if (attr != null) {
-        attributes.put(membersField.getId(), attr);
-      }
-    }
+            // internal attributes
+            for (String attributeName : Group.INTERNAL_FIELD_ATTRIBUTES) {
+              String value = (String) GrouperUtil.fieldValue(group, attributeName);
+              if (value != null) {
+                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
+                basicAttribute.setValues(Arrays.asList(new String[] { value }));
+                attributes.put(attributeName, basicAttribute);
+              }
+            }
 
-    // groups
-    for (GroupsField groupsField : getGroupsFields()) {
-      BaseAttribute<Group> attr = groupsField.getAttribute(group.toMember());
-      if (attr != null) {
-        attributes.put(groupsField.getId(), attr);
-      }
-    }
+            // custom attributes
+            Map<String, Attribute> customAttributes = group.getAttributesMap(false);
+            for (String attributeName : customAttributes.keySet()) {
+              String value = customAttributes.get(attributeName).getValue();
+              if (value != null) {
+                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
+                basicAttribute.setValues(Arrays.asList(new String[] { value }));
+                attributes.put(attributeName, basicAttribute);
+              }
+            }
 
-    // privs
-    for (PrivilegeField privilegeField : getPrivilegeFields()) {
-      BaseAttribute<Subject> attr = privilegeField.getAttribute(group);
-      if (attr != null) {
-        attributes.put(privilegeField.getId(), attr);
-      }
-    }
+            // members
+            for (MembersField membersField : getMembersFields()) {
+              BaseAttribute<Member> attr = membersField.getAttribute(group);
+              if (attr != null) {
+                attributes.put(membersField.getId(), attr);
+              }
+            }
 
-    // stem attribute
-    BasicAttribute<String> stem = new BasicAttribute<String>(PARENT_STEM_NAME_ATTR);
-    stem.setValues(Arrays.asList(new String[] { group.getParentStemName() }));
-    attributes.put(stem.getId(), stem);
+            // groups
+            for (GroupsField groupsField : getGroupsFields()) {
+              BaseAttribute<Group> attr = groupsField.getAttribute(group.toMember());
+              if (attr != null) {
+                attributes.put(groupsField.getId(), attr);
+              }
+            }
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("resolve {} attributes {}", msg, attributes.size());
-      for (String key : attributes.keySet()) {
-        for (Object value : attributes.get(key).getValues()) {
-          LOG.debug("resolve {} '{}' : {}", new Object[] { msg, key, PSPUtil.getString(value) });
-        }
-      }
-    }
+            // privs
+            for (PrivilegeField privilegeField : getPrivilegeFields()) {
+              BaseAttribute<Subject> attr = privilegeField.getAttribute(group);
+              if (attr != null) {
+                attributes.put(privilegeField.getId(), attr);
+              }
+            }
+
+            // stem attribute
+            BasicAttribute<String> stem = new BasicAttribute<String>(PARENT_STEM_NAME_ATTR);
+            stem.setValues(Arrays.asList(new String[] { group.getParentStemName() }));
+            attributes.put(stem.getId(), stem);
+
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("resolve {} attributes {}", msg, attributes.size());
+              for (String key : attributes.keySet()) {
+                for (Object value : attributes.get(key).getValues()) {
+                  LOG.debug("resolve {} '{}' : {}", new Object[] { msg, key, PSPUtil.getString(value) });
+                }
+              }
+            }
+
+            return attributes;
+          }
+        });
 
     return attributes;
   }
