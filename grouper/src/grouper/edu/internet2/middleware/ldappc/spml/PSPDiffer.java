@@ -177,8 +177,6 @@ public class PSPDiffer {
 
     List<ModifyRequest> modifyRequests = new ArrayList<ModifyRequest>();
 
-    LOG.info("correct {} current {}", correctPSO, currentPSO);
-
     if (!correctPSO.getPsoID().equals(currentPSO.getPsoID())) {
       LOG.error("Unable to diff objects with different identifiers : '{}' and '{}'", PSPUtil.getString(correctPSO
                 .getPsoID()), PSPUtil.toString(currentPSO.getPsoID()));
