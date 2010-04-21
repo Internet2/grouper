@@ -5,7 +5,9 @@
 package edu.internet2.middleware.grouper.changeLog.consumer.xmpp;
 
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,6 +24,7 @@ import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -35,7 +38,8 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
- * send configured group member changes to xmpp
+ * send configured group member changes to xmpp.  If there is a problem with XMPP,
+ * it will disconnect and reconnect, and if still problems, will sleep 30 seconds, and try some more.
  */
 public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
 
@@ -87,14 +91,13 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
   private static XMPPConnection xmppConnection = null;
 
   /**
-   * get a chat for a jabber id.  Note this doesnt listen on the channel
-   * @param jabberId
-   * @param payload of the message
+   * get an xmpp connection
+   * @return xmpp connection
    */
-  private static synchronized void sendMessage(String jabberId, String payload) {
-    
-    try {
-      if (xmppConnection == null || !xmppConnection.isAuthenticated() || !xmppConnection.isConnected()) {
+  private static synchronized XMPPConnection xmppConnection() {
+    if (xmppConnection == null || !xmppConnection.isAuthenticated() || !xmppConnection.isConnected()) {
+      try {
+        chatMap.clear();
         if (xmppConnection != null) {
           try {
             xmppConnection.disconnect();
@@ -114,16 +117,66 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
         xmppConnection.connect();
   
         xmppConnection.login(xmppUser(), xmppPass(), xmppResource());
-        
+      } catch (XMPPException xe) {
+        throw new RuntimeException(xe);
       }
-      
-      
-      ChatManager chatManager = xmppConnection.getChatManager();
+    }
+    return xmppConnection;
+  }
   
-      Chat chat = chatManager.createChat(jabberId, null);
+  /** chat map */
+  private static Map<String, Chat> chatMap = Collections.synchronizedMap(new HashMap<String, Chat>());
+
+  /**
+   * get or make a chat
+   * @param jabberId
+   * @return the chat
+   */
+  private static Chat chat(String jabberId) {
+    
+    Chat chat = chatMap.get(jabberId);
+    if (chat == null) {
+      
+      ChatManager chatManager = xmppConnection().getChatManager();
+      chat = chatManager.createChat(jabberId, null);
+      chatMap.put(jabberId, chat);
+    }
+    return chat;
+    
+  }
   
-      chat.sendMessage(payload);
+  /**
+   * get a chat for a jabber id.  Note this doesnt listen on the channel
+   * @param jabberId
+   * @param payload of the message
+   */
+  private static synchronized void sendMessage(String jabberId, String payload) {
+    
+    try {
+      
+      Chat chat = chat(jabberId);
+      try {
+        chat.sendMessage(payload);
+      } catch (XMPPException xe) {
+        
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Problem in first pass to " + jabberId, xe);
+        }
+        //after first try, clear out the chat and try again
+        try {
+          chatMap.clear();
+          xmppConnection.disconnect();
+        } catch (Exception e) {
+          //this is ok
+        }
+        //try again
+        chat = chat(jabberId);
+        chat.sendMessage(payload);
+      }
     } catch (XMPPException xmppException) {
+      //lets chill out for a while, there might be big problems
+      GrouperUtil.sleep(30000);
+      
       throw new RuntimeException("Problem with XMPP to " + jabberId, xmppException);
     }
 
@@ -184,64 +237,83 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
    * @param action
    */
   public void processChangeLogEntry(String groupName, String sourceId, String subjectId, String action) {
-    //first lets see if the group name matches:
-    List<XmppJob> xmppJobs = XmppJob.retrieveXmppJobs();
-    for (XmppJob xmppJob : xmppJobs) {
-      boolean matches = false;
-      for (String currentGroupName : GrouperUtil.nonNull(xmppJob.getGroupNames())) {
-        if (StringUtils.equals(currentGroupName, groupName)) {
-          matches = true;
-          break;
-        }
-      }
-      Pattern pattern = xmppJob.retrievePattern();
-      if (!matches && pattern != null) {
-        if (pattern.matcher(groupName).matches()) {
-          matches = true;
-        }
-      }
-      if (matches) {
-        String[] subjectAttributeNames = xmppJob.getSubjectAttributeNames();
-        String[] subjectAttributeValues = null;
-        if (GrouperUtil.length(subjectAttributeNames) > 0) {
-          Subject subject = SourceManager.getInstance().getSource(sourceId).getSubject(subjectId, false);
-          if (subject != null) {
-            subjectAttributeValues = new String[GrouperUtil.length(subjectAttributeNames)];
-            for (int i=0;i<subjectAttributeNames.length;i++) {
-              String attributeName = subjectAttributeNames[i];
-              String value = null;
-              if (StringUtils.equals("name", attributeName)) {
-                value = subject.getName();
-              } else if (StringUtils.equals("description", attributeName)) {
-                value = subject.getDescription();
-              } else {
-                value = subject.getAttributeValueOrCommaSeparated(attributeName);
-              }
-              //trim to empty so it isnt <null/> in xstream
-              subjectAttributeValues[i] = StringUtils.trimToEmpty(value);
-            }
+    
+    StringBuilder logMessage = new StringBuilder("groupName: " + groupName + " matches: ");
+    try {
+      int matchCount = 0;
+      
+      //first lets see if the group name matches:
+      List<XmppJob> xmppJobs = XmppJob.retrieveXmppJobs();
+      for (XmppJob xmppJob : xmppJobs) {
+        boolean matches = false;
+        for (String currentGroupName : GrouperUtil.nonNull(xmppJob.getGroupNames())) {
+          if (StringUtils.equals(currentGroupName, groupName)) {
+            matches = true;
+            break;
           }
-        } else {
-          subjectAttributeNames = null;
         }
-        XmppMembershipChange xmppMembershipChange = new XmppMembershipChange();
-        xmppMembershipChange.setAction(action);
-        xmppMembershipChange.setGroupName(groupName);
-        XmppSubject xmppSubject = new XmppSubject();
-        xmppSubject.setId(subjectId);
-        xmppSubject.setSourceId(sourceId);
-        xmppSubject.setAttributeValues(subjectAttributeValues);
-        xmppMembershipChange.setXmppSubject(xmppSubject);
-        xmppMembershipChange.setSubjectAttributeNames(subjectAttributeNames);
-        
-        XStream xStream = xstream();
-        StringWriter stringWriter = new StringWriter();
-        xStream.marshal(xmppMembershipChange, new CompactWriter(stringWriter));
-        String xml = stringWriter.toString();
-        for (String jabberId : xmppJob.getSendToXmppJabberIds()) {
-          sendMessage(jabberId, xml);
+        Pattern pattern = xmppJob.retrievePattern();
+        if (!matches && pattern != null) {
+          if (pattern.matcher(groupName).matches()) {
+            matches = true;
+          }
+        }
+        if (matches) {
+          matchCount++;
+          logMessage.append(xmppJob.getJobName()).append(", ");
+          String[] subjectAttributeNames = xmppJob.getSubjectAttributeNames();
+          String[] subjectAttributeValues = null;
+          if (GrouperUtil.length(subjectAttributeNames) > 0) {
+            Subject subject = SourceManager.getInstance().getSource(sourceId).getSubject(subjectId, false);
+            if (subject != null) {
+              subjectAttributeValues = new String[GrouperUtil.length(subjectAttributeNames)];
+              for (int i=0;i<subjectAttributeNames.length;i++) {
+                String attributeName = subjectAttributeNames[i];
+                String value = null;
+                if (StringUtils.equals("name", attributeName)) {
+                  value = subject.getName();
+                } else if (StringUtils.equals("description", attributeName)) {
+                  value = subject.getDescription();
+                } else {
+                  value = subject.getAttributeValueOrCommaSeparated(attributeName);
+                }
+                //trim to empty so it isnt <null/> in xstream
+                subjectAttributeValues[i] = StringUtils.trimToEmpty(value);
+              }
+            }
+          } else {
+            subjectAttributeNames = null;
+          }
+          XmppMembershipChange xmppMembershipChange = new XmppMembershipChange();
+          xmppMembershipChange.setAction(action);
+          xmppMembershipChange.setGroupName(groupName);
+          XmppSubject xmppSubject = new XmppSubject();
+          xmppSubject.setId(subjectId);
+          xmppSubject.setSourceId(sourceId);
+          xmppSubject.setAttributeValues(subjectAttributeValues);
+          xmppMembershipChange.setXmppSubject(xmppSubject);
+          xmppMembershipChange.setSubjectAttributeNames(subjectAttributeNames);
+          
+          XStream xStream = xstream();
+          StringWriter stringWriter = new StringWriter();
+          xStream.marshal(xmppMembershipChange, new CompactWriter(stringWriter));
+          String xml = stringWriter.toString();
+          for (String jabberId : xmppJob.getSendToXmppJabberIds()) {
+            logMessage.append(" sending to jid: ").append(jabberId).append(" ");
+            sendMessage(jabberId, xml);
+            logMessage.append(" success, ");
+          }
         }
       }
+      if (matchCount == 0) {
+        logMessage.append("none");
+      }
+    } catch (RuntimeException re) {
+      LOG.error("Problem with groupName: " + groupName + ", " + logMessage, re);
+      throw re;
+    } 
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(logMessage.toString());
     }
   }
   

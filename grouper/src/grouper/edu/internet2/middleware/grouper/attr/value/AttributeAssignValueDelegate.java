@@ -1414,6 +1414,12 @@ public class AttributeAssignValueDelegate {
     }
     AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
     switch (attributeDef.getValueType()) {
+      case timestamp:
+        Long timestampLong = attributeAssignValue.getValueInteger();
+        if (timestampLong == null) {
+          return null;
+        }
+        return AttributeAssignValue.dateToString(new Timestamp(timestampLong));
       case string:
         return attributeAssignValue.getValueString();
       case floating:
