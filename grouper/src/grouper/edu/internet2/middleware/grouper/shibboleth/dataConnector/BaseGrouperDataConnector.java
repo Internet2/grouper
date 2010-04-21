@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.BaseField
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.MembersField;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.PrivilegeField;
+import edu.internet2.middleware.grouper.shibboleth.filter.ConditionalGroupQueryFilter;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -151,6 +152,15 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
     privilegeFields.trimToSize();
     membersFields.trimToSize();
     groupsFields.trimToSize();
+
+    // FUTURE improve session handling
+    if (groupQueryFilter != null) {
+      groupQueryFilter.setGrouperSession(grouperSession);
+      if (groupQueryFilter instanceof ConditionalGroupQueryFilter) {
+        ((ConditionalGroupQueryFilter) groupQueryFilter).getGroupFilter0().setGrouperSession(grouperSession);
+        ((ConditionalGroupQueryFilter) groupQueryFilter).getGroupFilter1().setGrouperSession(grouperSession);
+      }
+    }
   }
 
   /**
@@ -287,7 +297,7 @@ public abstract class BaseGrouperDataConnector extends BaseDataConnector impleme
         new GrouperSessionHandler() {
 
           public Set<Group> callback(GrouperSession grouperSession) throws GrouperSessionException {
-            String msg = "get groups since '" + lastModifyTime + "'";
+            String msg = "get groups since '" + lastModifyTime + "' for '" + getId() + "'";
             LOG.debug(msg);
 
             Set<Group> groups = new TreeSet<Group>();

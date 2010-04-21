@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 /**
  * Selects groups possessing an attribute name and value.
@@ -42,7 +43,20 @@ public class ExactAttributeGroupFilter extends BaseGroupQueryFilter {
   public ExactAttributeGroupFilter(String name, String value) {
     this.name = name;
     this.value = value;
-    this.setQueryFilter(new GroupAttributeFilter(name, value, StemFinder.findRootStem(getGrouperSession())));
+  }
+
+  /**
+   * If the query filter is null, create a new {@link GroupAttributeFilter}. As this
+   * filter relies upon a {@link GrouperSession}, this method should be called after the
+   * session has been started in the parent {@link BaseGrouperDataConnector}.
+   * 
+   * {@inheritDoc}
+   */
+  public QueryFilter<Group> getQueryFilter() {
+    if (super.getQueryFilter() == null) {
+      this.setQueryFilter(new GroupAttributeFilter(name, value, StemFinder.findRootStem(getGrouperSession())));
+    }
+    return super.getQueryFilter();
   }
 
   /** {@inheritDoc} */

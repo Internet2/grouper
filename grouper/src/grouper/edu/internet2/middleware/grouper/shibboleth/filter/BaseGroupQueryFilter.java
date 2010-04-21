@@ -44,9 +44,6 @@ public abstract class BaseGroupQueryFilter implements GroupQueryFilter {
    * @return the grouper session
    */
   public GrouperSession getGrouperSession() {
-    if (grouperSession == null) {
-      grouperSession = GrouperSession.staticGrouperSession();
-    }
     return grouperSession;
   }
 
@@ -67,4 +64,14 @@ public abstract class BaseGroupQueryFilter implements GroupQueryFilter {
   public void setQueryFilter(QueryFilter<Group> queryFilter) {
     this.queryFilter = queryFilter;
   }
+
+  /**
+   * Set the grouper session.
+   * 
+   * @param grouperSession
+   */
+  public void setGrouperSession(GrouperSession grouperSession) {
+    this.grouperSession = grouperSession;
+  }
+
 }

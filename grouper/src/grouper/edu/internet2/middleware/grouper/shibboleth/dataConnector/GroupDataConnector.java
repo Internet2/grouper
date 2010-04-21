@@ -90,6 +90,7 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
                 LOG.debug("resolve {} group {} does not match filter", msg, group);
                 return attributes;
               }
+              LOG.debug("resolve {} group {} matches filter", msg, group);
             }
 
             // internal attributes

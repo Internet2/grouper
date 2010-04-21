@@ -45,7 +45,7 @@ public class StemNameGroupFilter extends BaseGroupQueryFilter {
   public StemNameGroupFilter(String name, String scope) {
     this.name = name;
     this.scope = Scope.valueOf(scope);
-    this.setQueryFilter(new GroupsInStemFilter(name, this.scope, false));
+    this.setQueryFilter(new GroupsInStemFilter(name, this.scope, true));
   }
 
   /** {@inheritDoc} */

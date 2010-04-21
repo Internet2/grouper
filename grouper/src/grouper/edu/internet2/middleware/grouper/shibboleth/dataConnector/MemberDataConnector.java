@@ -273,7 +273,7 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
   public Set<String> getAllIdentifiers(Date updatedSince) {
     Set<String> identifiers = new TreeSet<String>();
     for (Group group : this.getGroups(updatedSince)) {
-      for (Member member : group.getMembers()) {
+      for (Member member : this.getMembers(group)) {
         // don't return Groups
         if (!member.getSubjectSourceId().equals("g:gsa")) {
           identifiers.add(member.getSubjectId());
@@ -281,6 +281,23 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
       }
     }
     return identifiers;
+  }
+
+  /**
+   * Get the members of a group using this object's grouper session callback.
+   * 
+   * @param group
+   *          the {@link Group}
+   * @return the <code>Set</code> of {@link Member}s
+   */
+  public Set<Member> getMembers(final Group group) {
+    return (Set<Member>) GrouperSession.callbackGrouperSession(getGrouperSession(),
+        new GrouperSessionHandler() {
+
+          public Set<Member> callback(GrouperSession grouperSession) throws GrouperSessionException {
+            return group.getMembers();
+          }
+        });
   }
 
 }
