@@ -198,9 +198,11 @@ public abstract class BaseSpmlProvider extends BaseReloadableService implements 
     response.setError(errorCode);
     if (messages != null) {
       for (String message : messages) {
-        // TODO for Active Directory, find a better way
-        message = message.replace((char) 0x0, '_');
-        response.addErrorMessage(message);
+        if (message != null) {
+          // TODO for Active Directory, find a better way
+          message = message.replace((char) 0x0, '_');
+          response.addErrorMessage(message);
+        }
       }
     }
     return response;
