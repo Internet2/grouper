@@ -14,12 +14,15 @@
 
 package edu.internet2.middleware.ldappc.spml;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.opensaml.util.resource.ResourceException;
 import org.openspml.v2.msg.spml.Request;
@@ -41,7 +44,7 @@ public class PSPCLI extends TimerTask {
   private PSP psp;
 
   /** The timer for scheduling runs, Quartz would be nice too. */
-  private Timer timer = new Timer();
+  private Timer timer;
 
   /**
    * Run this application.
@@ -101,6 +104,13 @@ public class PSPCLI extends TimerTask {
       LOG.info("Starting {}", PSPOptions.NAME);
       LOG.debug("Starting {} with options {}", PSPOptions.NAME, psp.getPspOptions());
 
+      PrintStream printStream = null;
+      if (GrouperUtil.isBlank(psp.getPspOptions().getOutputFile())) {
+        printStream = System.out;
+      } else {
+        printStream = new PrintStream(FileUtils.openOutputStream(new File(psp.getPspOptions().getOutputFile())));
+      }
+
       Date now = new Date();
 
       StopWatch sw = new StopWatch();
@@ -113,14 +123,18 @@ public class PSPCLI extends TimerTask {
         }
         // print requests if so configured
         if (psp.getPspOptions().isPrintRequests()) {
-          psp.getPspOptions().getPrintStream().print(psp.toXML(request));
+          printStream.print(psp.toXML(request));
         }
         // execute request
         Response response = psp.execute(request);
         // print response
-        psp.getPspOptions().getPrintStream().print(psp.toXML(response));
+        printStream.print(psp.toXML(response));
       }
-      psp.getPspOptions().getPrintStream().close();
+      
+      printStream.flush();
+      if (!printStream.equals(System.out)) {
+        printStream.close();
+      }
 
       sw.stop();
       LOG.info("End of {} execution : {} ms", PSPOptions.NAME, sw.getTime());
@@ -145,7 +159,7 @@ public class PSPCLI extends TimerTask {
    * Schedule this <code>TimerTask</code>.
    */
   public void schedule() {
-
+    timer = new Timer();
     timer.schedule(this, 0, 1000 * psp.getPspOptions().getInterval());
   }
 

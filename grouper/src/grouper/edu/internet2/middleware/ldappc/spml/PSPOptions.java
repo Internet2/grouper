@@ -14,9 +14,6 @@
 
 package edu.internet2.middleware.ldappc.spml;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,13 +26,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.SchemaEntityRef;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.spml.request.BulkCalcRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkDiffRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkProvisioningRequest;
@@ -320,6 +315,26 @@ public class PSPOptions {
       }
     },
 
+    /** log spml requests and responses */
+    logSpml {
+
+      /**
+       * {@inheritDoc}
+       */
+      public Option getOption() {
+        return new Option("logSpml", "Log SPML requests and responses.");
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public void handle(PSPOptions pspOptions, CommandLine line) {
+        if (line.hasOption(this.getOpt())) {
+          pspOptions.setLogSpml(true);
+        }
+      }
+    },
+
     /** output file */
     output {
 
@@ -530,9 +545,6 @@ public class PSPOptions {
   /** Whether or not to print the SPML requests as well as the responses. */
   private boolean printRequests;
 
-  /** Output destination. */
-  private PrintStream printStream;
-
   /** The cli args represented as SPML requests. */
   private List<ProvisioningRequest> requests;
 
@@ -583,25 +595,6 @@ public class PSPOptions {
   }
 
   /**
-   * Returns the <code>PrintStream</code> to which output will be written.
-   * 
-   * @return the output stream
-   * @throws IOException
-   *           if the <code>File</code> cannot be written to
-   */
-  public PrintStream getPrintStream() throws IOException {
-    if (printStream == null) {
-      if (GrouperUtil.isBlank(outputFile)) {
-        printStream = System.out;
-      } else {
-        printStream = new PrintStream(FileUtils.openOutputStream(new File(outputFile)));
-      }
-    }
-
-    return printStream;
-  }
-
-  /**
    * Returns the result of parsing the command line arguments in the form of
    * <code>ProvisioningRequest</code>s ready to be executed by the <code>PSP</code>.
    * 
@@ -639,6 +632,7 @@ public class PSPOptions {
     options.addOption(Opts.entityName.getOption());
     options.addOption(Opts.interval.getOption());
     options.addOption(Opts.lastModifyTime.getOption());
+    options.addOption(Opts.logSpml.getOption());
     options.addOption(Opts.output.getOption());
     options.addOption(Opts.requestID.getOption());
     options.addOption(Opts.printRequests.getOption());
