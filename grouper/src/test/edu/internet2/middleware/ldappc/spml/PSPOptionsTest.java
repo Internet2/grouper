@@ -14,13 +14,10 @@
 
 package edu.internet2.middleware.ldappc.spml;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.MissingOptionException;
@@ -28,7 +25,6 @@ import org.apache.commons.cli.ParseException;
 import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.SchemaEntityRef;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.spml.request.CalcRequest;
 import edu.internet2.middleware.ldappc.spml.request.ProvisioningRequest;
 
@@ -38,6 +34,7 @@ import edu.internet2.middleware.ldappc.spml.request.ProvisioningRequest;
 public class PSPOptionsTest extends TestCase {
 
   public static void main(String[] args) {
+    TestRunner.run(PSPOptionsTest.class);
     // TestRunner.run(new PSPOptionsTest("testCalc"));
   }
 
@@ -107,75 +104,4 @@ public class PSPOptionsTest extends TestCase {
     }
   }
 
-  public void testRun() throws Exception {
-
-    File tmpFile = File.createTempFile("PSPOptionsTest", ".tmp");
-    tmpFile.deleteOnExit();
-
-    String confDir = GrouperUtil.fileFromResourceName(PSPLdapTest.CONFIG_PATH).getAbsolutePath();
-
-    List<String> cmds = new ArrayList<String>();
-    // calc ID=test
-    cmds.add("-" + PSPOptions.Mode.calc.getOpt());
-    cmds.add("test");
-
-    // tmp file output
-    cmds.add("-" + PSPOptions.Opts.output.getOpt());
-    cmds.add(tmpFile.getAbsolutePath());
-
-    // conf dir
-    cmds.add("-" + PSPOptions.Opts.conf.getOpt());
-    cmds.add(confDir);
-
-    // request id
-    cmds.add("-" + PSPOptions.Opts.requestID);
-    cmds.add("REQUEST1");
-
-    // returnData = data
-    cmds.add("-" + PSPOptions.Opts.returnData.getOpt());
-
-    // print requests
-    cmds.add("-" + PSPOptions.Opts.printRequests.getOpt());
-
-    // updated since
-    cmds.add("-" + PSPOptions.Opts.lastModifyTime.getOpt());
-    cmds.add("2010-04-14_15:23:53");
-
-    String[] args = cmds.toArray(new String[] {});
-
-    PSPOptions options = new PSPOptions(args);
-    options.parseCommandLineOptions();
-
-    PSPCLI.main(args);
-
-    String correct = "<ldappc:calcRequest xmlns:ldappc='http://grouper.internet2.edu/ldappc' requestID='REQUEST1' returnData='data'>"
-        + System.getProperty("line.separator")
-        + "  <ldappc:id ID='test'/>"
-        + System.getProperty("line.separator")
-        + "</ldappc:calcRequest>"
-        + System.getProperty("line.separator")
-        + "<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='failure' requestID='REQUEST1' error='noSuchIdentifier'>"
-        + System.getProperty("line.separator")
-        + "  <errorMessage>Unable to calculate provisioned object.</errorMessage>"
-        + System.getProperty("line.separator")
-        + "  <ldappc:id ID='test'/>"
-        + System.getProperty("line.separator")
-        + "</ldappc:calcResponse>"
-        + System.getProperty("line.separator");
-
-    String actual = GrouperUtil.readFileIntoString(tmpFile);
-
-    assertEquals(correct, actual);
-
-    Calendar calendar = new GregorianCalendar();
-    calendar.set(Calendar.YEAR, 2010);
-    calendar.set(Calendar.MONTH, Calendar.APRIL);
-    calendar.set(Calendar.DAY_OF_MONTH, 14);
-    calendar.set(Calendar.HOUR_OF_DAY, 15);
-    calendar.set(Calendar.MINUTE, 23);
-    calendar.set(Calendar.SECOND, 53);
-    calendar.set(Calendar.MILLISECOND, 0);
-
-    // assertEquals(calendar.getTime(), options.getLastModifyTime());
-  }
 }

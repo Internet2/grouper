@@ -50,7 +50,8 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   public static final String DATA_PATH = CONFIG_PATH + "/data/";
 
   public static void main(String[] args) {
-    // TestRunner.run(new PSPLdapTest("testBulkSyncBushyAddChildStems"));
+    TestRunner.run(PSPLdapTest.class);
+    // TestRunner.run(new PSPLdapTest("testLookupNoSuchIdentifier"));
   }
 
   public PSPLdapTest(String name) {
@@ -373,7 +374,7 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
 
     verifySpml(response, DATA_PATH + "PSPTest.testCalcFlatAdd.response.xml");
   }
-  
+
   public void testCalcFlatAddSchemaEntity() throws Exception {
 
     this.makeGroupDNStructureFlat();
