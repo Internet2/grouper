@@ -84,15 +84,15 @@ public abstract class BaseSpmlProvider extends BaseReloadableService implements 
 
     } catch (NoSuchMethodException e) {
       fail(response, ErrorCode.UNSUPPORTED_OPERATION, e);
-      LOG.error(PSPUtil.toString(response));
+      LOG.error(PSPUtil.toString(response), e);
       LOG.trace("response:\n{}", this.toXML(response));
     } catch (IllegalAccessException e) {
       fail(response, ErrorCode.UNSUPPORTED_OPERATION, e);
-      LOG.error(PSPUtil.toString(response));
+      LOG.error(PSPUtil.toString(response), e);
       LOG.trace("response:\n{}", this.toXML(response));
     } catch (InvocationTargetException e) {
       fail(response, ErrorCode.UNSUPPORTED_OPERATION, e);
-      LOG.error(PSPUtil.toString(response));
+      LOG.error(PSPUtil.toString(response), e);
       LOG.trace("response:\n{}", this.toXML(response));
     }
 
