@@ -74,6 +74,9 @@ public class XmppMembershipChange {
    */
   private XmppSubject xmppSubject;
 
+  /** jobName for this group */
+  private String jobName;
+
   /**
    * subject to add / remove
    * @return the results
@@ -88,6 +91,22 @@ public class XmppMembershipChange {
    */
   public void setXmppSubject(XmppSubject results1) {
     this.xmppSubject = results1;
+  }
+
+  /**
+   * jobName for this group
+   * @return the jobName
+   */
+  public String getJobName() {
+    return this.jobName;
+  }
+
+  /**
+   * jobName for this group
+   * @param jobName1 the jobName to set
+   */
+  public void setJobName(String jobName1) {
+    this.jobName = jobName1;
   }
 
   /**

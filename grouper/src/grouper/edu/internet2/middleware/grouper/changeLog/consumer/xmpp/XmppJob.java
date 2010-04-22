@@ -79,6 +79,20 @@ public class XmppJob {
             }
           }
           {
+            String requireSourcesString = (String)properties.get("xmpp.job." + jobName + ".requireSources");
+            if (!StringUtils.isBlank(requireSourcesString)) {
+              Set<String> requireSourcesSet = GrouperUtil.splitTrimToSet(requireSourcesString, ",");
+              xmppJob.setRequireSources(requireSourcesSet);
+            }
+          }
+          {
+            String requireAttributesString = (String)properties.get("xmpp.job." + jobName + ".requireAttributes");
+            if (!StringUtils.isBlank(requireAttributesString)) {
+              Set<String> requireAttributesSet = GrouperUtil.splitTrimToSet(requireAttributesString, ",");
+              xmppJob.setRequireAttributes(requireAttributesSet);
+            }
+          }
+          {
             String groupRegex = (String)properties.get("xmpp.job." + jobName + ".groupRegex");
             if (!StringUtils.isBlank(groupRegex)) {
               xmppJob.setGroupRegex(groupRegex);
@@ -118,7 +132,51 @@ public class XmppJob {
    */
   private Set<String> groupNames = null;
 
+  /**
+   * if any sources here, then make sure subjects are in these sources
+   */
+  private Set<String> requireSources = null;
   
+  /**
+   * if any attributes here, then make sure subjects are in these sources
+   */
+  private Set<String> requireAttributes = null;
+  
+  
+  /**
+   * if any sources here, then make sure subjects are in these sources
+   * @return the requireSources
+   */
+  public Set<String> getRequireSources() {
+    return this.requireSources;
+  }
+
+  /**
+   * if any sources here, then make sure subjects are in these sources
+   * @param requireSources1 the requireSources to set
+   */
+  public void setRequireSources(Set<String> requireSources1) {
+    this.requireSources = requireSources1;
+  }
+
+  /**
+   * if any attributes here, then make sure subjects are in these sources
+   * @return the requireAttributes
+   */
+  public Set<String> getRequireAttributes() {
+    return this.requireAttributes;
+  }
+
+  /**
+   * if any attributes here, then make sure subjects are in these sources
+   * @param requireAttributes1 the requireAttributes to set
+   */
+  public void setRequireAttributes(Set<String> requireAttributes1) {
+    this.requireAttributes = requireAttributes1;
+  }
+
+
+
   /**
    * where to send notifications
    * @return the sentToXmppJabberIds

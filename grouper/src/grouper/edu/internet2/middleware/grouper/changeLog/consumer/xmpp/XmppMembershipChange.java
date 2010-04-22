@@ -15,6 +15,27 @@ public class XmppMembershipChange {
   /** group name that has a membership change */
   private String groupName;
   
+  /** jobName for this group */
+  private String jobName;
+  
+  
+  /**
+   * jobName for this group
+   * @return the jobName
+   */
+  public String getJobName() {
+    return this.jobName;
+  }
+
+  
+  /**
+   * jobName for this group
+   * @param jobName1 the jobName to set
+   */
+  public void setJobName(String jobName1) {
+    this.jobName = jobName1;
+  }
+
   /**
    * group name that has a membership change
    * @return the groupName

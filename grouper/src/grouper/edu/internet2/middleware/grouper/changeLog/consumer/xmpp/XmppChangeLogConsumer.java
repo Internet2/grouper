@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -244,7 +245,7 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
       
       //first lets see if the group name matches:
       List<XmppJob> xmppJobs = XmppJob.retrieveXmppJobs();
-      for (XmppJob xmppJob : xmppJobs) {
+      OUTER: for (XmppJob xmppJob : xmppJobs) {
         boolean matches = false;
         for (String currentGroupName : GrouperUtil.nonNull(xmppJob.getGroupNames())) {
           if (StringUtils.equals(currentGroupName, groupName)) {
@@ -259,12 +260,50 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
           }
         }
         if (matches) {
+          Subject subject = null;
+          
+          {
+            //see if require sources
+            Set<String> requireSources = xmppJob.getRequireSources();
+            if (GrouperUtil.length(requireSources) > 0) {
+              if (!requireSources.contains(sourceId)) {
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug("Skipping " + subjectId + " for groupName " + groupName + " since in source " + sourceId);
+                }
+                continue OUTER;
+              }
+            }
+          }
+          
+          {
+            //see if require attributes
+            Set<String> requireAttributes = xmppJob.getRequireAttributes();
+            if (GrouperUtil.length(requireAttributes) > 0) {
+              if (subject == null) {
+                subject = SourceManager.getInstance().getSource(sourceId).getSubject(subjectId, false);
+              }
+              if (subject == null) {
+                continue OUTER;
+              }
+              for (String requireAttribute : requireAttributes) {
+                if (StringUtils.isBlank(subject.getAttributeValue(requireAttribute))) {
+                  if (LOG.isDebugEnabled()) {
+                    LOG.debug("Skipping " + subjectId + " for groupName " + groupName + " since doesnt have attribute: " + requireAttribute);
+                  }
+                  continue OUTER;
+                }
+              }
+            }
+          }
+          
           matchCount++;
           logMessage.append(xmppJob.getJobName()).append(", ");
           String[] subjectAttributeNames = xmppJob.getSubjectAttributeNames();
           String[] subjectAttributeValues = null;
           if (GrouperUtil.length(subjectAttributeNames) > 0) {
-            Subject subject = SourceManager.getInstance().getSource(sourceId).getSubject(subjectId, false);
+            if (subject == null) {
+              subject = SourceManager.getInstance().getSource(sourceId).getSubject(subjectId, false);
+            }
             if (subject != null) {
               subjectAttributeValues = new String[GrouperUtil.length(subjectAttributeNames)];
               for (int i=0;i<subjectAttributeNames.length;i++) {
@@ -287,6 +326,7 @@ public class XmppChangeLogConsumer extends ChangeLogConsumerBase {
           XmppMembershipChange xmppMembershipChange = new XmppMembershipChange();
           xmppMembershipChange.setAction(action);
           xmppMembershipChange.setGroupName(groupName);
+          xmppMembershipChange.setJobName(xmppJob.getJobName());
           XmppSubject xmppSubject = new XmppSubject();
           xmppSubject.setId(subjectId);
           xmppSubject.setSourceId(sourceId);
