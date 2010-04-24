@@ -231,6 +231,7 @@ public class HibUtils {
     
     //not sure it could ever be null...
     if (object != null) {
+      hibernateSession.getSession().flush();
       hibernateSession.getSession().evict(object);
     }
   }
