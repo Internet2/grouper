@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperClientExt.xmpp;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -12,7 +13,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -131,21 +131,21 @@ public class GrouperClientXmppJob {
           {
             String groupNamesString = (String)properties.get("grouperClient.xmpp.job." + jobName + ".groupNames");
             if (!GrouperClientUtils.isBlank(groupNamesString)) {
-              Set<String> groupNamesSet = GrouperUtil.splitTrimToSet(groupNamesString, ",");
+              Set<String> groupNamesSet = new HashSet<String>(GrouperClientUtils.splitTrimToList(groupNamesString, ","));
               xmppJob.setGroupNames(groupNamesSet);
             }
           }
           {
             String requireSourcesString = (String)properties.get("grouperClient.xmpp.job." + jobName + ".requireSources");
             if (!GrouperClientUtils.isBlank(requireSourcesString)) {
-              Set<String> requireSourcesSet = GrouperUtil.splitTrimToSet(requireSourcesString, ",");
+              Set<String> requireSourcesSet = new HashSet<String>(GrouperClientUtils.splitTrimToList(requireSourcesString, ","));
               xmppJob.setRequireSources(requireSourcesSet);
             }
           }
           {
             String requireAttributesString = (String)properties.get("grouperClient.xmpp.job." + jobName + ".requireAttributes");
             if (!GrouperClientUtils.isBlank(requireAttributesString)) {
-              Set<String> requireAttributesSet = GrouperUtil.splitTrimToSet(requireAttributesString, ",");
+              Set<String> requireAttributesSet = new HashSet<String>(GrouperClientUtils.splitTrimToList(requireAttributesString, ","));
               xmppJob.setRequireAttributes(requireAttributesSet);
             }
           }
@@ -175,28 +175,28 @@ public class GrouperClientXmppJob {
             xmppJob.setFullRefreshQuartzCronString(fullRefreshQuartzCronString);
           }
           {
-            //only needed for file handler
-            String targetFile = (String)properties.get("grouperClient.xmpp.job." + jobName + ".targetFile");
+            //only needed for file handler              grouperClient.xmpp.job.myJobName.fileHandler.targetFile
+            String targetFile = (String)properties.get("grouperClient.xmpp.job." + jobName + ".fileHandler.targetFile");
             
             xmppJob.setTargetFile(targetFile);
           }
           {
             //only needed for file handler
-            String filePrefix = (String)properties.get("grouperClient.xmpp.job." + jobName + ".filePrefix");
+            String filePrefix = (String)properties.get("grouperClient.xmpp.job." + jobName + ".fileHandler.filePrefix");
             
             xmppJob.setFilePrefix(filePrefix);
           }
           {
             //only needed for file handler
-            String iteratorEl = (String)properties.get("grouperClient.xmpp.job." + jobName + ".iteratorEl");
+            String iteratorEl = (String)properties.get("grouperClient.xmpp.job." + jobName + ".fileHandler.iteratorEl");
             
             xmppJob.setIteratorEl(iteratorEl);
           }
           {
             //only needed for file handler
-            String fileSuffix = (String)properties.get("grouperClient.xmpp.job." + jobName + ".fileSuffix");
+            String fileSuffix = (String)properties.get("grouperClient.xmpp.job." + jobName + ".fileHandler.fileSuffix");
             
-            xmppJob.setTargetFile(fileSuffix);
+            xmppJob.setFileSuffix(fileSuffix);
           }
           theXmppJobs.add(xmppJob);
         }

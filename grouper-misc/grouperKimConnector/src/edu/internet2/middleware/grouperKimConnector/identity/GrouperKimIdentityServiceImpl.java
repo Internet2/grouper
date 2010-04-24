@@ -709,8 +709,39 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
         debugMap.put("key_" + key, searchCriteria.get(key));
       }
     }
+    
+    //entityTypes.active=Y, principals.principalName=mchyzer, active=Y, entityTypes.entityTypeCode=PERSON|SYSTEM
+    if ("Y".equals(searchCriteria.get("entityTypes.active"))) {
+      searchCriteria.remove("entityTypes.active");
+    }
+    if ("Y".equals(searchCriteria.get("active"))) {
+      searchCriteria.remove("active");
+    }
+    searchCriteria.remove("entityTypes.entityTypeCode");
+    
+    String principalName = null;
+    if (searchCriteria.containsKey("principals.principalName")) {
+      principalName = searchCriteria.get("principals.principalName");
+    }
+
     List<KimEntityDefaultInfo> result = null;
-    debugMap.put("result", "null");
+
+    if (!GrouperClientUtils.isBlank(principalName)) {
+      KimEntityDefaultInfo kimEntityDefaultInfo = getEntityDefaultInfoByPrincipalName(principalName);
+
+      if (kimEntityDefaultInfo != null) {
+        result = GrouperClientUtils.toList(kimEntityDefaultInfo);
+      } else {
+        result = null;
+      }
+    }
+
+    if (result == null) {
+      debugMap.put("result", "null");
+    } else {
+      debugMap.put("result", "nonnull");
+    }
+    
     if (LOG.isDebugEnabled()) {
       LOG.debug(GrouperKimUtils.mapForLog(debugMap));
     }
@@ -731,7 +762,26 @@ public class GrouperKimIdentityServiceImpl implements IdentityService {
       }
     }
     List<KimEntityInfo> result = null;
-    debugMap.put("result", "null");
+
+    String principalName = null;
+    if (searchCriteria.containsKey("principals.principalName")) {
+      principalName = searchCriteria.get("principals.principalName");
+    }
+
+    if (!GrouperClientUtils.isBlank(principalName)) {
+      KimEntityInfo kimEntityInfo = getEntityInfoByPrincipalName(principalName);
+
+      if (kimEntityInfo != null) {
+        result = GrouperClientUtils.toList(kimEntityInfo);
+      } else {
+        result = null;
+      }
+    }
+    if (result == null) {
+      debugMap.put("result", "null");
+    } else {
+      debugMap.put("result", "nonnull");
+    }
     if (LOG.isDebugEnabled()) {
       LOG.debug(GrouperKimUtils.mapForLog(debugMap));
     }

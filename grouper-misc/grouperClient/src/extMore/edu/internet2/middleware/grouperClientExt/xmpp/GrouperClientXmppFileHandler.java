@@ -6,12 +6,11 @@ package edu.internet2.middleware.grouperClientExt.xmpp;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -46,8 +45,8 @@ public class GrouperClientXmppFileHandler implements GrouperClientXmppHandler {
     }
     StringBuilder result = new StringBuilder(pre);
     List<String> resultList = new ArrayList<String>();
-    for (XmppSubject xmppSubject : GrouperUtil.nonNull(subjects)) {
-      String outputTemplate = GrouperClientUtils.propertiesValue(grouperClientXmppJob.getIteratorEl(), true);
+    for (XmppSubject xmppSubject : GrouperClientUtils.nonNull(subjects)) {
+      String outputTemplate = grouperClientXmppJob.getIteratorEl();
       outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
       substituteMap.put("subject", xmppSubject);

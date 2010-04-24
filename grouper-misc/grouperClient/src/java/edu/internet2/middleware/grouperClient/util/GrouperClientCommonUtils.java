@@ -53,8 +53,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -8415,7 +8413,7 @@ public class GrouperClientCommonUtils  {
    * @return the string, or null if the date was null
    */
   public static Date stringToDate(String dateString) {
-    if (StringUtils.isBlank(dateString)) {
+    if (isBlank(dateString)) {
       return null;
     }
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(WS_DATE_FORMAT);

@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.XppDriver;
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppJob.XmppJobEventAction;
 
@@ -378,8 +377,15 @@ public class GrouperClientXmppMain {
    * @return the pass
    */
   private static String xmppPass() {
+    
+    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
+        "encrypt.disableExternalFileLookup", false, true);
+    
+    //lets lookup if file
     String pass = GrouperClientUtils.propertiesValue("grouperClient.xmpp.pass", true);
-    return Morph.decryptIfFile(pass);
+    String passFromFile = GrouperClientUtils.readFromFileIfFile(pass, disableExternalFileLookup);
+    
+    return passFromFile;
   }
 
   /**
@@ -470,7 +476,7 @@ public class GrouperClientXmppMain {
           log.debug("Group " + groupName + " already contains subject: " + xmppSubject.getId());
         }
       }
-    } else if (GrouperClientUtils.equals(action, "REMOVE_MEMBER")) {
+    } else if (GrouperClientUtils.equals(action, "DELETE_MEMBER")) {
       if (newList.contains(xmppSubject)) {
         int i=0;
         while (true) {

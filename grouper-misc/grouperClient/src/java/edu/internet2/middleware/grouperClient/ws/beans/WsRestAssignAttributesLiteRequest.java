@@ -4,9 +4,6 @@
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
-import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
-import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
-
 
 /**
  * request bean in body of rest request
@@ -235,14 +232,6 @@ public class WsRestAssignAttributesLiteRequest implements WsRequestBean {
   public void setAttributeAssignOperation(String attributeAssignOperation1) {
     this.attributeAssignOperation = attributeAssignOperation1;
   }
-
-  /**
-   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
-   */
-  public GrouperRestHttpMethod retrieveRestHttpMethod() {
-    return GrouperRestHttpMethod.PUT;
-  }
-
 
   /** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
   private String clientVersion;
