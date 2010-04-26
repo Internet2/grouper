@@ -486,7 +486,7 @@ public class GrouperUiFilter implements Filter {
       if (theClass.equals("Misc") || theClass.startsWith("SimpleMembershipUpdate")) {
         return UiSection.SIMPLE_MEMBERSHIP_UPDATE;
       }
-      if (theClass.startsWith("SubjectPicker")) {
+      if (theClass.startsWith("SubjectPicker") || theClass.startsWith("AttributeDefNamePicker")) {
         return UiSection.SUBJECT_PICKER;
       }
     }
