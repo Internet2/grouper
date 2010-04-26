@@ -73,4 +73,14 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    */
   public void saveUpdateProperties(AttributeDefName attributeDefName);
 
+  /**
+   * search for attributeDefName by name, display name, or description.  This is a secure method, a GrouperSession must be open.
+   * Note, you should add the % signs before calling this method
+   * @param searchField substring to search for
+   * @param searchInAttributeDefIds ids to search in or null for all
+   * @return the attribute def names or empty set
+   */
+  public Set<AttributeDefName> findAllSecure(String searchField, Set<String> searchInAttributeDefIds);
+
+  
 }

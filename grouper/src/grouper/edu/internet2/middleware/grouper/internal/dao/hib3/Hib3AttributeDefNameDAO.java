@@ -2,20 +2,30 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
+import edu.internet2.middleware.grouper.exception.AttributeDefNameTooManyResults;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Data Access Object for attribute def name
@@ -209,6 +219,65 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       .setString("id", id)
       .listSet(AttributeDefName.class);
   
+    return attributeDefNames;
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findAllSecure(java.lang.String, java.util.Set)
+   */
+  public Set<AttributeDefName> findAllSecure(String searchField,
+      Set<String> searchInAttributeDefIds) {
+
+    {
+      String searchFieldNoPercents = StringUtils.replace(StringUtils.defaultString(searchField), "%", "");
+      
+      if (StringUtils.isBlank(searchFieldNoPercents) || searchFieldNoPercents.length() < 2) {
+        throw new RuntimeException("Need to pass in a searchField of at least 2 chars");
+      }
+    }
+    
+    String searchFieldLower = searchField.toLowerCase();
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    Subject grouperSessionSubject = grouperSession.getSubject();
+    
+    StringBuilder sqlTables = new StringBuilder("from AttributeDefName as attributeDefName ");
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    
+    StringBuilder sqlWhereClause =  new StringBuilder(" (lower(attributeDefName.extensionDb) like :searchField " +
+      "or lower(attributeDefName.displayExtensionDb) like :searchField " +
+      "or lower(attributeDefName.description) like :searchField) ");
+
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+        grouperSessionSubject, byHqlStatic, 
+        sqlTables, sqlWhereClause, "attributeDefName.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+
+    StringBuilder sql;
+    sql = sqlTables.append(" where ").append(sqlWhereClause);
+    
+    if (GrouperUtil.length(searchInAttributeDefIds) > 0) {
+      sql.append(" and attributeDefName.attributeDefId in (");
+      sql.append(HibUtils.convertToInClause(searchInAttributeDefIds, byHqlStatic));
+      sql.append(") ");
+    }
+    
+    Set<AttributeDefName> attributeDefNames = byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindAll")
+      .setString("searchField", searchFieldLower)
+      .listSet(AttributeDefName.class);
+
+    int maxSize = GrouperConfig.getPropertyInt("findAllAttributeDefNames.maxResultSize", 30000);
+    if (maxSize > -1) {
+      if (maxSize < attributeDefNames.size()) {
+        throw new AttributeDefNameTooManyResults("Too many results: " 
+            + attributeDefNames.size() + ", '" + searchField + "'");
+      }
+    }
+    
     return attributeDefNames;
 
   }

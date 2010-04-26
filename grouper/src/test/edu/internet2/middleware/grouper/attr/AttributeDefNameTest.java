@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.util.Set;
+
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -18,6 +20,7 @@ import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author mchyzer
@@ -30,7 +33,7 @@ public class AttributeDefNameTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new AttributeDefNameTest("testFindAll"));
   }
   
   /**
@@ -172,6 +175,48 @@ public class AttributeDefNameTest extends GrouperTest {
     return attributeDefName;
   }
 
+  /**
+   * make sure update properties are detected correctly
+   */
+  public void testFindAll() {
+    
+    GrouperSession.startRootSession();
+    
+    AttributeDefName attributeDefName = exampleAttributeDefNameDb("test", "testAttributeDefName1");
+    AttributeDefName attributeDefName2 = exampleAttributeDefNameDb("test", "testAttributeDefName2");
+    
+    Set<AttributeDefName> attributeDefNames = AttributeDefNameFinder.findAll("blah", null);
+    assertEquals(0, GrouperUtil.length(attributeDefNames));
+    
+    attributeDefNames = AttributeDefNameFinder.findAll("blah", GrouperUtil.toSet(attributeDefName.getAttributeDefId(), attributeDefName2.getAttributeDefId()));
+    assertEquals(0, GrouperUtil.length(attributeDefNames));
+
+    
+    attributeDefNames = AttributeDefNameFinder.findAll("TESTA", null);
+    
+    assertEquals(2, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(attributeDefName));
+    assertTrue(attributeDefNames.contains(attributeDefName2));
+    
+    attributeDefNames = AttributeDefNameFinder.findAll("testa", GrouperUtil.toSet(attributeDefName.getAttributeDefId(), attributeDefName2.getAttributeDefId()));
+    
+    assertEquals(2, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(attributeDefName));
+    assertTrue(attributeDefNames.contains(attributeDefName2));
+    
+    attributeDefNames = AttributeDefNameFinder.findAll("name1", null);
+    
+    assertEquals(1, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(attributeDefName));
+    
+    attributeDefNames = AttributeDefNameFinder.findAll("name2", GrouperUtil.toSet(attributeDefName.getAttributeDefId(), attributeDefName2.getAttributeDefId()));
+    
+    assertEquals(1, GrouperUtil.length(attributeDefNames));
+    assertTrue(attributeDefNames.contains(attributeDefName2));
+    
+    
+    
+  }
   
   /**
    * make sure update properties are detected correctly
