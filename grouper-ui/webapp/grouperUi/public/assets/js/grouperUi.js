@@ -81,6 +81,14 @@ function processUrl() {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "subjectPickerElementName=" +  urlArgObjectMap.subjectPickerElementName;
     }
+    if (typeof urlArgObjectMap.attributeDefNamePickerName != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "attributeDefNamePickerName=" +  urlArgObjectMap.attributeDefNamePickerName;
+    }
+    if (typeof urlArgObjectMap.attributeDefNamePickerElementName != 'undefined') {
+      ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
+      ajaxUrl += "attributeDefNamePickerElementName=" +  urlArgObjectMap.attributeDefNamePickerElementName;
+    }
     ajax(ajaxUrl);
   }
 }
@@ -1769,6 +1777,22 @@ function guiSubmitSubjectPickerToUrl(subjectPickerElementName, subjectId, screen
   document.getElementById("subject.subjectPickerElementName.elementId").value = subjectPickerElementName;
   document.getElementById("subject.id.elementId").value = subjectId;
   document.getElementById("subject.screenLabel.elementId").value = screenLabel;
+  document.getElementById("submitToUrlFormId").submit();
+  return false;
+}
+
+/**
+ * submit the attributeDefName to a url
+ * @param attributeDefNameId
+ * @param sourceId
+ * @param name
+ * @param description
+ * @return false
+ */
+function guiSubmitAttributeDefNamePickerToUrl(attributeDefNamePickerElementName, attributeDefNameId, screenLabel) {
+  document.getElementById("attributeDefName.attributeDefNamePickerElementName.elementId").value = attributeDefNamePickerElementName;
+  document.getElementById("attributeDefName.id.elementId").value = attributeDefNameId;
+  document.getElementById("attributeDefName.screenLabel.elementId").value = screenLabel;
   document.getElementById("submitToUrlFormId").submit();
   return false;
 }
