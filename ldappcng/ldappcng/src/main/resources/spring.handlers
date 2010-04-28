@@ -1,0 +1,2 @@
+http\://grouper.internet2.edu/shibboleth/2.0 = edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler
+http\://grouper.internet2.edu/ldappc = edu.internet2.middleware.ldappc.spml.config.LdappcNamespaceHandler

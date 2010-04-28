@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--************************************************************-->
+<!--  pstc_spmlv2_aync.xsd                                      -->
+<!--  Draft schema for SPML v2.0 asynchronous capabilities.     -->
+<!--                                                            -->
+<!--  Editors:                                                  -->
+<!--    Jeff Bohren (Jeff_Bohren@bmc.com)                       -->
+<!--                                                            -->
+<!--                                                            -->
+<!-- Copyright (C) The Organization for the Advancement of      -->
+<!-- Structured Information Standards [OASIS] 2005. All Rights  -->
+<!-- Reserved.                                                  -->
+<!--************************************************************-->
+<schema targetNamespace="urn:oasis:names:tc:SPML:2:0:async" 
+        xmlns:spml="urn:oasis:names:tc:SPML:2:0"
+        xmlns:spmlasync ="urn:oasis:names:tc:SPML:2:0:async"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+        elementFormDefault="qualified">
+    
+    <import namespace="urn:oasis:names:tc:SPML:2:0" 
+            schemaLocation="pstc_spmlv2_core.xsd"/>
+    		
+	<complexType name="CancelRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<attribute name="asyncRequestID" type="xsd:string" use="required"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="CancelResponseType">
+		<complexContent>
+			<extension base="spml:ResponseType">
+				<attribute name="asyncRequestID" type="xsd:string" use="required"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="StatusRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<attribute name="returnResults" type="xsd:boolean" use="optional"  default="false" />		
+				<attribute name="asyncRequestID" type="xsd:string" use="optional"/>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="StatusResponseType">
+		<complexContent>
+			<extension base="spml:ResponseType">
+				<attribute name="asyncRequestID" type="xsd:string" use="optional"/>
+			</extension>
+		</complexContent>		
+	</complexType>
+
+	<element name="cancelRequest" type="spmlasync:CancelRequestType"/>
+	<element name="cancelResponse" type="spmlasync:CancelResponseType"/>
+	<element name="statusRequest" type="spmlasync:StatusRequestType"/>
+	<element name="statusResponse" type="spmlasync:StatusResponseType"/>
+
+</schema>

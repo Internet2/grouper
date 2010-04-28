@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema targetNamespace="http://grouper.internet2.edu/shibboleth/2.0"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
+  xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+  xmlns:resource="urn:mace:shibboleth:2.0:resource"
+  xmlns:service="urn:mace:shibboleth:2.0:services"
+  xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+  xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad"
+  xmlns:authority="urn:mace:shibboleth:2.0:attribute:authority"
+  elementFormDefault="qualified">
+
+  <import namespace="http://www.springframework.org/schema/beans" />
+
+  <import namespace="urn:mace:shibboleth:2.0:services" schemaLocation="classpath:/schema/shibboleth-2.0-services.xsd" />
+  <import namespace="urn:mace:shibboleth:2.0:resolver" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver.xsd" />
+  <import namespace="urn:mace:shibboleth:2.0:resolver:ad" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd" />
+  <import namespace="urn:mace:shibboleth:2.0:resolver:dc" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd" />
+  <import namespace="urn:mace:shibboleth:2.0:resource" schemaLocation="classpath:/schema/shibboleth-2.0-resource.xsd" />
+  <import namespace="urn:mace:shibboleth:2.0:attribute:authority" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-authority.xsd" />
+
+  <annotation>
+    <documentation>Grouper support for the Shibboleth 2.0 Attribute Resolver</documentation>
+  </annotation>
+
+  <complexType name="GroupDataConnector">
+    <annotation>
+      <documentation>
+        A data connector that returns Group information from Grouper.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGrouperDataConnectorType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="MemberDataConnector">
+    <annotation>
+      <documentation>
+        A data connector that returns Member information from Grouper.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGrouperDataConnectorType">
+        <sequence>
+          <annotation>
+            <documentation>
+              Filters the data connector to only return Members whose Subject is managed by this Source.
+            </documentation>
+          </annotation>
+          <element ref="grouper:Source" minOccurs="0" maxOccurs="unbounded" />
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="StemDataConnector">
+      <annotation>
+      <documentation>
+        A data connector that can returns Stem information from Grouper.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGrouperDataConnectorType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="SPMLDataConnector">
+    <annotation>
+      <documentation>
+        A data connector that can returns information from an SPML provider.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGrouperDataConnectorType">
+        <sequence>
+          <element name="FilterTemplate" type="string">
+            <annotation>
+              <documentation>TODO</documentation>
+            </annotation>
+          </element>
+        </sequence>
+        <attribute name="provider" type="string" use="required" />
+        <attribute name="base" type="string" use="required" />
+        <attribute name="scope" type="grouper:ScopeType" use="optional" default="subTree" />
+        <attribute name="returnData" type="grouper:ReturnDataType" use="optional" default="everything" />
+        <attribute name="templateEngine" type="string" fixed="shibboleth.TemplateEngine">
+          <annotation>
+            <documentation>TODO</documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <simpleType name="ScopeType">
+    <annotation>
+      <documentation>
+        The SPML search scope.
+      </documentation>
+    </annotation>
+    <restriction base="string">
+      <enumeration value="pso" />
+      <enumeration value="oneLevel" />
+      <enumeration value="subTree" />
+    </restriction>
+  </simpleType>
+
+  <simpleType name="ReturnDataType">
+    <annotation>
+      <documentation>
+        The SPML ReturnData parameter.
+      </documentation>
+    </annotation>
+    <restriction base="string">
+      <enumeration value="identifier" />
+      <enumeration value="data" />
+      <enumeration value="everything" />
+    </restriction>
+  </simpleType>
+
+  <complexType name="BaseGrouperDataConnectorType">
+    <annotation>
+      <documentation>
+        A data connector that returns information from Grouper.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resolver:BaseDataConnectorType">
+        <annotation>
+          <documentation>
+            Inherits from the Shibboleth BaseDataConnector
+          </documentation>
+        </annotation>
+        <sequence>
+          <element ref="grouper:GroupFilter" minOccurs="0" maxOccurs="1">
+            <annotation>
+              <documentation>
+                Filters the returned objects.
+              </documentation>
+            </annotation>
+          </element>
+          <element ref="grouper:Attribute" minOccurs="0" maxOccurs="unbounded">
+            <annotation>
+              <documentation>
+                Filters the attributes of the returned objects.
+              </documentation>
+            </annotation>
+          </element>
+          <element name="SubjectIdentifier" type="grouper:IdType" minOccurs="0" maxOccurs="1">
+            <annotation>
+              <documentation>
+                The subject with which to start Grouper Sessions.
+              </documentation>
+            </annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="Attribute" type="grouper:IdType">
+    <annotation>
+      <documentation>
+        Represents a Grouper attribute.
+      </documentation>
+    </annotation>
+  </element>
+
+  <complexType name="IdType">
+    <annotation>
+      <documentation>
+        The identifier id and source id.
+      </documentation>
+    </annotation>
+    <attribute name="id" type="string" use="required" />
+    <attribute name="source" type="string" default="g:gsa" />
+  </complexType>
+
+  <element name="Source" type="grouper:SourceType">
+    <annotation>
+      <documentation>
+        Represents a Subject Source
+      </documentation>
+    </annotation>
+  </element>
+  <complexType name="SourceType">
+    <attribute name="id" type="string" use="required">
+      <annotation>
+        <documentation>
+          The Source identifier
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="Member">
+    <annotation>
+      <documentation>
+        A Grouper Member.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+        <sequence>
+          <element ref="grouper:Attribute" minOccurs="1" maxOccurs="unbounded" >
+          <annotation>
+            <documentation>
+              The Member attributes.
+            </documentation>
+          </annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="Group">
+    <annotation>
+      <documentation>
+        A Grouper Group.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+        <sequence>
+          <element ref="grouper:Attribute" minOccurs="1" maxOccurs="unbounded">
+            <annotation>
+              <documentation>
+                The Group attributes.
+              </documentation>
+            </annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="Subject">
+    <annotation>
+      <documentation>
+        A Grouper Subject.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+        <sequence>
+          <element ref="grouper:Attribute" minOccurs="1" maxOccurs="unbounded">
+            <annotation>
+              <documentation>
+                The Subject attributes.
+              </documentation>
+            </annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="LdapDnPSOIdentifier">
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+        <attribute name="structure" use="required">
+          <annotation>
+            <documentation>
+              An SPML PSOIdentifier which is an LDAP DN.
+            </documentation>
+          </annotation>
+          <simpleType>
+            <restriction base="string">
+              <enumeration value="flat" />
+              <enumeration value="bushy" />
+            </restriction>
+          </simpleType>
+        </attribute>
+        <attribute name="base" type="string" use="required">
+          <annotation>
+            <documentation>TODO</documentation>
+          </annotation>
+        </attribute>
+        <attribute name="rdnAttributeName" type="string" use="required">
+          <annotation>
+            <documentation>TODO</documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="PSOIdentifier">
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="GroupFilter" type="grouper:BaseGroupFilterType">
+  </element>
+  <complexType name="BaseGroupFilterType" abstract="true">
+    <annotation>
+      <documentation>
+        The filter is capable of returning the set of matching groups or determining if a group matches the
+        filter.  
+      </documentation>
+    </annotation>
+  </complexType>
+
+  <complexType name="ExactAttribute">
+    <annotation>
+      <documentation>
+        Filter by exact attribute name and value.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGroupFilterType">
+        <attribute name="name" type="string" use="required">
+          <annotation>
+            <documentation>
+              The name of the attribute.
+            </documentation>
+          </annotation>
+        </attribute>
+        <attribute name="value" type="string" use="required">
+          <annotation>
+            <documentation>
+              The value of the attribute.
+            </documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="StemName">
+    <annotation>
+      <documentation>
+        Filter by stem name.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGroupFilterType">
+        <attribute name="name" type="string" use="required">
+          <annotation>
+            <documentation>
+              The stem name.
+            </documentation>
+          </annotation>
+        </attribute>
+        <attribute name="scope" use="required">
+          <annotation>
+            <documentation>
+              Return objects within this scope.
+            </documentation>
+          </annotation>
+          <simpleType>
+            <restriction base="string">
+              <annotation>
+                <documentation>
+                  "SUB" : return all objects under this stem and child stems.
+                  "ONE" : return objects only under this stem and not child stems.
+                </documentation>
+              </annotation>
+              <enumeration value="SUB" />
+              <enumeration value="ONE" />
+            </restriction>
+          </simpleType>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="AND">
+    <annotation>
+      <documentation>
+        Filter by the union of two filters.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGroupFilterType">
+        <sequence>
+          <element ref="grouper:GroupFilter" />
+          <element ref="grouper:GroupFilter" />
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="OR">
+    <annotation>
+      <documentation>
+        Filter by the intersection of two filters.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGroupFilterType">
+        <sequence>
+          <element ref="grouper:GroupFilter" />
+          <element ref="grouper:GroupFilter" />
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="Minus">
+    <annotation>
+      <documentation>
+        Filter by the complement of two filters.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGroupFilterType">
+        <sequence>
+          <element ref="grouper:GroupFilter" />
+          <element ref="grouper:GroupFilter" />
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="SimpleAttributeAuthority">
+    <annotation>
+      <documentation>
+        A Shibboleth 2.0 Attribute Authority which supports filtering. Does not encode attributes.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="authority:AttributeAuthorityType">
+      </extension>
+    </complexContent>
+  </complexType>
+  
+    <complexType name="ClasspathPropertyReplacement">
+    <annotation>
+      <documentation>
+        A resource filter that replaces ${KEY} macros with the values associated with the KEY in a property
+        file.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="resource:ResourceFilterType">
+        <attribute name="propertyFile" type="string" use="required">
+          <annotation>
+            <documentation>Classpath location of the Java property file used during macro expansion.</documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+</schema>
