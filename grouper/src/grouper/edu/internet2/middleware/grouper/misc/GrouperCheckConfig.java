@@ -32,6 +32,9 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -402,6 +405,8 @@ public class GrouperCheckConfig {
       GrouperStartup.initData(false);
       
       checkGroups();
+      
+      checkAttributes();
       
       //delegate to subject API to check configs
       SubjectCheckConfig.checkConfig();
@@ -1392,6 +1397,57 @@ public class GrouperCheckConfig {
       System.err.println("Grouper warning: " + error);
       LOG.warn(error);
     }
+  }
+
+  /**
+   * make sure configured attributes are there 
+   */
+  public static void checkAttributes() {
+    
+    boolean autoconfigure = GrouperConfig.getPropertyBoolean("grouper.attribute.loader.autoconfigure", false);
+    if (!autoconfigure) {
+      return;
+    }
+
+    boolean wasInCheckConfig = inCheckConfig;
+    if (!wasInCheckConfig) {
+      inCheckConfig = true;
+    }
+
+    String rootStemName = GrouperConfig.getProperty("grouper.attribute.rootStem");
+    if (StringUtils.isBlank(rootStemName)) {
+      throw new RuntimeException("If autoconfiguring attributes, you need to configure a root stem");
+    }
+
+    GrouperSession grouperSession = null;
+    boolean startedGrouperSession = false;
+    try {
+      grouperSession = GrouperSession.staticGrouperSession(false);
+
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession();
+        startedGrouperSession = true;
+      }
+      
+      Stem stem = StemFinder.findByName(grouperSession, rootStemName, false);
+      if (stem == null) {
+        stem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+          .assignDescription("folder for built in Grouper attributes").assignName(rootStemName)
+          .save();
+      }
+      
+      
+    } catch (SessionException se) {
+      throw new RuntimeException(se);
+    } finally {
+      if (startedGrouperSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+      if (!wasInCheckConfig) {
+        inCheckConfig = false;
+      }
+    }
+    
   }
   
 }
