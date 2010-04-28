@@ -1,3 +1,0 @@
-<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='failure' requestID='REQUESTID_TEST' error='malformedRequest'>
-  <errorMessage>An id is required.</errorMessage>
-</ldappc:calcResponse>

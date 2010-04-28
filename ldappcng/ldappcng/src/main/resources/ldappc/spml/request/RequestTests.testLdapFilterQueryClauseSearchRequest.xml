@@ -1,8 +1,0 @@
-<spmlsearch:searchRequest xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlsearch='urn:oasis:names:tc:SPML:2:0:search' returnData='identifier'>
-  <spmlsearch:query targetID='targetID' scope='subTree'>
-    <ldappc:LdapFilterQueryClause xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
-      <ldappc:filter>(&amp;(objectClass=person)(uid=foo))</ldappc:filter>
-    </ldappc:LdapFilterQueryClause>
-    <spmlsearch:basePsoID ID='ou=groups'/>
-  </spmlsearch:query>
-</spmlsearch:searchRequest>
