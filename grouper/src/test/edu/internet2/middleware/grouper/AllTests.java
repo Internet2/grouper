@@ -44,13 +44,11 @@ import edu.internet2.middleware.grouper.membership.AllMembershipTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.permissions.AllPermissionsTests;
 import edu.internet2.middleware.grouper.privs.AllPrivsTests;
-import edu.internet2.middleware.grouper.shibboleth.AllShibbolethTests;
 import edu.internet2.middleware.grouper.subj.AllSubjectTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AllValidatorTests;
 import edu.internet2.middleware.grouper.xml.AllXmlTests;
-import edu.internet2.middleware.ldappc.AllLdappcJunitTests;
 
 /**
  * Run default tests.
@@ -200,8 +198,10 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllMiscTests.suite());
     suite.addTest(AllPermissionsTests.suite());
     suite.addTest(AllPrivsTests.suite());
+
     if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
-      suite.addTest(AllShibbolethTests.suite());
+      Class theClass = GrouperUtil.forName("edu.internet2.middleware.grouper.shibboleth.AllShibbolethTests");
+      suite.addTest((Test)GrouperUtil.callMethod(theClass, "suite"));
     }
     suite.addTest(AllSubjectTests.suite());
     suite.addTest(AllUtilTests.suite());
@@ -209,7 +209,8 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllXmlTests.suite());
 
     if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
-      suite.addTest(AllLdappcJunitTests.suite());
+      Class theClass = GrouperUtil.forName("edu.internet2.middleware.ldappc.AllLdappcJunitTests");
+      suite.addTest((Test)GrouperUtil.callMethod(theClass, "suite"));
     }
 
     return suite;
