@@ -1,0 +1,20 @@
+<ldappc:bulkDiffResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:diffResponse>
+    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' recursive='false' requestID='REQUESTID_TEST'>
+      <psoID ID='cn=group/F,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    </deleteRequest>
+    <ldappc:id ID='cn=group/F,ou=edu,ou=testgroups,${base}'/>
+  </ldappc:diffResponse>
+  <ldappc:diffResponse>
+    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' recursive='false' requestID='REQUESTID_TEST'>
+      <psoID ID='cn=groupA,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    </deleteRequest>
+    <ldappc:id ID='cn=groupA,ou=edu,ou=testgroups,${base}'/>
+  </ldappc:diffResponse>
+  <ldappc:diffResponse>
+    <deleteRequest xmlns='urn:oasis:names:tc:SPML:2:0' recursive='false' requestID='REQUESTID_TEST'>
+      <psoID ID='cn=groupB,ou=edu,ou=testgroups,${base}' targetID='ldap'/>
+    </deleteRequest>
+    <ldappc:id ID='cn=groupB,ou=edu,ou=testgroups,${base}'/>
+  </ldappc:diffResponse>
+</ldappc:bulkDiffResponse>
