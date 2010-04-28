@@ -432,12 +432,12 @@
   	<!-- 
   	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/ldappc.schema" />
   	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/kitneduperson.schema" />
-  	-->
   	
   	<mkdir dir="${dist.binary.zip}/resources/test"/>
   	<copy todir="${dist.binary.zip}/resources/test">
       <fileset dir="${resources.dir}/test"/>        
     </copy>
+    -->
     
      <if>
       <not>
@@ -498,10 +498,12 @@
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
       <!-- include src/resources/schema and src/resources/META-INF -->
+      <!--	
       <fileset dir="${resources.dir}">
         <include name="META-INF/*" />
         <include name="schema/*" />
       </fileset>
+      -->
       <fileset dir="misc">
         <include name="META-INF/*" />
       </fileset>
