@@ -79,6 +79,7 @@
     <then><copy file="${conf.dir}/spy.example.properties" 
       tofile="${conf.dir}/spy.properties" /></then>
   </if>
+  <!--	
   <if><not><available file="${conf.dir}/ldappc.properties" /></not>
     <then><copy file="${conf.dir}/ldappc.example.properties" 
       tofile="${conf.dir}/ldappc.properties" /></then>
@@ -87,6 +88,7 @@
   	<then><copy file="${resources.dir.test.ldappc}/ldappc.test.example.properties" 
   		tofile="${resources.dir.test.ldappc}/ldappc.test.properties" /></then>
   </if>
+  -->
 
   <!-- TARGETS -->
 
@@ -283,6 +285,7 @@
       </fileset>
     </copy>
 
+  	<!--
     <mkdir dir="${dist.binary.zip}/lib/ldappc"/>
     <copy todir="${dist.binary.zip}/lib/ldappc">
     	<fileset dir="${lib.dir}/ldappc">
@@ -324,7 +327,8 @@
         <include name="*.jar"/>
       </fileset>
     </copy>
-  	
+    -->
+    
    <!--<mkdir dir="${dist.binary.zip}/lib/test"/>
     <copy todir="${dist.binary.zip}/lib/test">
       <fileset dir="${lib.dir}/test">
@@ -425,8 +429,10 @@
       </fileset>
     </copy>
 
+  	<!-- 
   	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/ldappc.schema" />
   	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/kitneduperson.schema" />
+  	-->
   	
   	<mkdir dir="${dist.binary.zip}/resources/test"/>
   	<copy todir="${dist.binary.zip}/resources/test">
