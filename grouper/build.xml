@@ -26,8 +26,7 @@
   <property file="${basedir}/build.properties"/>
 
   <!-- validate the build.properties -->
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): resources.dir" unless="resources.dir" />
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): resources.dir.test.ldappc" unless="resources.dir.test.ldappc" />
+  <!-- fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): resources.dir" unless="resources.dir" / -->
   
   <property file="${basedir}/misc/version.properties"/>
 
@@ -114,6 +113,39 @@
   </target>
   <!-- target: clean -->
 
+  <target name="ldappcng" description="after an ant dist in ldappcng, run this target to copy the conf and libs to grouper for gsh" >
+    <copy todir="lib/custom">
+      <fileset dir="${ldappcng.basedir}/lib/apacheds">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${ldappcng.basedir}/lib/ldappc" >
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${ldappcng.basedir}/lib/shibboleth" >
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${ldappcng.basedir}/lib/shibboleth/endorsed" >
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${ldappcng.basedir}/lib/test" >
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${ldappcng.basedir}/lib/test/shibboleth" >
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${ldappcng.basedir}/lib/vt-ldap" >
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${ldappcng.basedir}/dist/" >
+        <include name="ldappcng.jar"/>
+      </fileset>
+    </copy>
+    <copy todir="confCustom">
+      <fileset dir="${ldappcng.basedir}/conf" />
+      <fileset dir="${ldappcng.basedir}/src/main/resources" />
+    </copy>
+  </target>
+  
   <!-- target: compile -->
   <target name="compile" 
           description="Compile .java files, copy Hibernate mapping files"
@@ -285,50 +317,7 @@
       </fileset>
     </copy>
 
-  	<!--
-    <mkdir dir="${dist.binary.zip}/lib/ldappc"/>
-    <copy todir="${dist.binary.zip}/lib/ldappc">
-    	<fileset dir="${lib.dir}/ldappc">
-    		<include name="*.jar"/>
-    	</fileset>
-    </copy>
   	
-    <mkdir dir="${dist.binary.zip}/lib/apacheds"/>
-    <copy todir="${dist.binary.zip}/lib/apacheds">
-    	<fileset dir="${lib.dir}/apacheds">
-    		<include name="*.jar"/>
-    	</fileset>
-    </copy>
-  	  
-    <mkdir dir="${dist.binary.zip}/lib/shibboleth"/>
-    <copy todir="${dist.binary.zip}/lib/shibboleth">
-      <fileset dir="${lib.dir}/shibboleth">
-        <include name="*.jar"/>
-      </fileset>
-    </copy>
-  	
-    <mkdir dir="${dist.binary.zip}/lib/shibboleth/endorsed"/>
-    <copy todir="${dist.binary.zip}/lib/shibboleth/endorsed">
-      <fileset dir="${lib.dir}/shibboleth/endorsed">
-        <include name="*.jar"/>
-      </fileset>
-    </copy>
-  	
-  	<mkdir dir="${dist.binary.zip}/lib/vt-ldap"/>
-    <copy todir="${dist.binary.zip}/lib/vt-ldap">
-    	<fileset dir="${lib.dir}/vt-ldap">
-    		<include name="*.jar"/>
-    	</fileset>
-    </copy>
-
-    <mkdir dir="${dist.binary.zip}/lib/test/shibboleth"/>
-    <copy todir="${dist.binary.zip}/lib/test/shibboleth">
-      <fileset dir="${lib.dir}/test/shibboleth">
-        <include name="*.jar"/>
-      </fileset>
-    </copy>
-    -->
-    
    <!--<mkdir dir="${dist.binary.zip}/lib/test"/>
     <copy todir="${dist.binary.zip}/lib/test">
       <fileset dir="${lib.dir}/test">
@@ -428,16 +417,6 @@
         <include name="**"/>
       </fileset>
     </copy>
-
-  	<!-- 
-  	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/ldappc.schema" />
-  	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/kitneduperson.schema" />
-  	
-  	<mkdir dir="${dist.binary.zip}/resources/test"/>
-  	<copy todir="${dist.binary.zip}/resources/test">
-      <fileset dir="${resources.dir}/test"/>        
-    </copy>
-    -->
     
      <if>
       <not>
@@ -497,13 +476,6 @@
         <attribute name="Implementation-URL"      value="${impl.url}"/>
         <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
-      <!-- include src/resources/schema and src/resources/META-INF -->
-      <!--	
-      <fileset dir="${resources.dir}">
-        <include name="META-INF/*" />
-        <include name="schema/*" />
-      </fileset>
-      -->
       <fileset dir="misc">
         <include name="META-INF/*" />
       </fileset>

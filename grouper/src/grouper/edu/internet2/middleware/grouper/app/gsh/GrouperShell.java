@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -186,6 +187,11 @@ private static boolean handleSpecialCase(String[] args) {
 		  Method method = claz.getMethod("main", String[].class);
 		  method.invoke(null, (Object)mainArgs);
 	  }catch(Exception e) {
+	    if (ExceptionUtils.getFullStackTrace(e).contains("PSPCLI")) {
+	      String error = "Make sure you have run 'ant dist' in ldappcng, and 'ant ldappcng' in grouper to copy the libs over";
+        LOG.fatal(error);
+        System.err.println(error);
+	    }
 		  if(e instanceof RuntimeException) {
 			  throw (RuntimeException)e;
 		  }

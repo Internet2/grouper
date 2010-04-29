@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -39,6 +40,7 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeDefName;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -780,4 +782,34 @@ public class AttributeDefName extends GrouperAPI
     
   }
 
+  /**
+   * store this group (update) to database
+   */
+  public void store() {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
+            //make sure subject is allowed to do this
+            Subject subject = GrouperSession.staticGrouperSession().getSubject();
+            AttributeDef attributeDef2 = AttributeDefName.this.getAttributeDef();
+            if (!attributeDef2.getPrivilegeDelegate().canAttrAdmin(subject)) {
+              throw new InsufficientPrivilegeException(GrouperUtil
+                  .subjectToString(subject)
+                  + " is not attrAdmin on attributeDef: " + attributeDef2.getName());
+            }
+            
+            GrouperDAOFactory.getFactory().getAttributeDefName().saveOrUpdate(AttributeDefName.this);
+            return null;
+          }
+        });
+  }
+  
+
+  
 }

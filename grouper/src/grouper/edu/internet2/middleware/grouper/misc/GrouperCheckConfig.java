@@ -36,6 +36,12 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
@@ -1435,7 +1441,40 @@ public class GrouperCheckConfig {
           .assignDescription("folder for built in Grouper attributes").assignName(rootStemName)
           .save();
       }
+
+      {
+        //see if attributeDef is there
+        String attributeDefLoaderTypeDefName = rootStemName + ":attributeDefLoaderType";
+        AttributeDef attributeDef = AttributeDefFinder.findByName(attributeDefLoaderTypeDefName, false);
+        if (attributeDef == null) {
+          attributeDef = stem.addChildAttributeDef(attributeDefLoaderTypeDefName, AttributeDefType.type);
+          attributeDef.setAssignToAttributeDef(true);
+          attributeDef.setValueType(AttributeDefValueType.string);
+          attributeDef.store();
+        }
+      }      
       
+      {
+        //see if attributeDef is there
+        String attributeDefLoaderDefName = rootStemName + ":attributeDefLoaderDef";
+        AttributeDef attributeDef = AttributeDefFinder.findByName(attributeDefLoaderDefName, false);
+        if (attributeDef == null) {
+          attributeDef = stem.addChildAttributeDef(attributeDefLoaderDefName, AttributeDefType.attr);
+          attributeDef.setAssignToAttributeDef(true);
+          attributeDef.setValueType(AttributeDefValueType.string);
+          attributeDef.store();
+        }
+        
+        //add some names
+        {
+          AttributeDefName attributeLoaderType = AttributeDefNameFinder.findByName(rootStemName + ":attributeLoaderType", false);
+          if (attributeLoaderType == null) {
+            attributeLoaderType = stem.addChildAttributeDefName(attributeDef, "attributeLoaderType", "attributeLoaderType");
+            attributeLoaderType.setDescription("Type of loader, e.g. ATTR_SQL_SIMPLE");
+            attributeLoaderType.store();
+          }
+        }
+      }
       
     } catch (SessionException se) {
       throw new RuntimeException(se);
