@@ -1,0 +1,629 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+BaseSpmlProvider
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="BaseSpmlProvider";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlTargetProvider.html?view=co" title="class in edu.internet2.middleware.ldappc.spml.provider"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="BaseSpmlProvider.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.ldappc.spml.provider</FONT>
+<BR>
+Class BaseSpmlProvider</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by ">edu.internet2.middleware.shibboleth.common.config.BaseService
+      <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by ">edu.internet2.middleware.shibboleth.common.config.BaseReloadableService
+          <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.ldappc.spml.provider.BaseSpmlProvider</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/SpmlProvider.html?view=co" title="interface in edu.internet2.middleware.ldappc.spml.provider">SpmlProvider</A>, edu.internet2.middleware.shibboleth.common.service.ReloadableService, edu.internet2.middleware.shibboleth.common.service.Service, org.springframework.beans.factory.BeanNameAware, org.springframework.context.ApplicationContextAware</DD>
+</DL>
+<DL>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlTargetProvider.html?view=co" title="class in edu.internet2.middleware.ldappc.spml.provider">BaseSpmlTargetProvider</A>, <A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/PSP.html?view=co" title="class in edu.internet2.middleware.ldappc.spml">PSP</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public abstract class <B>BaseSpmlProvider</B><DT>extends edu.internet2.middleware.shibboleth.common.config.BaseReloadableService<DT>implements <A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/SpmlProvider.html?view=co" title="interface in edu.internet2.middleware.ldappc.spml.provider">SpmlProvider</A></DL>
+</PRE>
+
+<P>
+Base class for SPMLv2 Provisioning Service Providers. Handling of requests is provided
+ by subclasses. Extends Shibboleth's <CODE>BaseReloadableService</CODE>.
+<P>
+
+<P>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#methodName">methodName</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Method name to look for in subclasses.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#BaseSpmlProvider()">BaseSpmlProvider</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.openspml.v2.msg.spml.Response</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#execute(org.openspml.v2.msg.spml.Request)">execute</A></B>(org.openspml.v2.msg.spml.Request&nbsp;request)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute a <code>Request</code> and return the <code>Response</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.openspml.v2.msg.spml.Response</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#fail(org.openspml.v2.msg.spml.Response, org.openspml.v2.msg.spml.ErrorCode, java.lang.Exception)">fail</A></B>(org.openspml.v2.msg.spml.Response&nbsp;response,
+     org.openspml.v2.msg.spml.ErrorCode&nbsp;errorCode,
+     java.lang.Exception&nbsp;e)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;See <A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#fail(org.openspml.v2.msg.spml.Response, org.openspml.v2.msg.spml.ErrorCode, java.lang.String...)"><CODE>fail(Response, ErrorCode, String...)</CODE></A>
+ 
+ The messages from the given exception are added to the response.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.openspml.v2.msg.spml.Response</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#fail(org.openspml.v2.msg.spml.Response, org.openspml.v2.msg.spml.ErrorCode, java.lang.String...)">fail</A></B>(org.openspml.v2.msg.spml.Response&nbsp;response,
+     org.openspml.v2.msg.spml.ErrorCode&nbsp;errorCode,
+     java.lang.String...&nbsp;messages)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the status code of the given response to failure and set the error code and
+ messages.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#generateRequestID()">generateRequestID</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Generate a reasonably unique id.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#getId()">getId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#getOrGenerateRequestID(org.openspml.v2.msg.spml.Request)">getOrGenerateRequestID</A></B>(org.openspml.v2.msg.spml.Request&nbsp;request)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return the request ID of the given request or generate a new request ID.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.openspml.v2.msg.XMLMarshaller</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#getXMLMarshaller()">getXMLMarshaller</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return the XML marshaller, which will be instantiated once and reused per instance of
+ this class.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;org.openspml.v2.msg.XMLUnmarshaller</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#getXmlUnmarshaller()">getXmlUnmarshaller</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return the XML unmarshaller, which will be instantiated once and reused per instance
+ of this class.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#setId(java.lang.String)">setId</A></B>(java.lang.String&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the id.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#setXMLMarshaller(org.openspml.v2.msg.XMLMarshaller)">setXMLMarshaller</A></B>(org.openspml.v2.msg.XMLMarshaller&nbsp;xmlMarshaller)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the XML marshaller</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#setXmlUnmarshaller(org.openspml.v2.msg.XMLUnmarshaller)">setXmlUnmarshaller</A></B>(org.openspml.v2.msg.XMLUnmarshaller&nbsp;xmlUnmarshaller)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the XML unmarshaller</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#toXML(org.openspml.v2.msg.Marshallable)">toXML</A></B>(org.openspml.v2.msg.Marshallable&nbsp;marshallable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return the XML representation of the given object.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.config.BaseReloadableService"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.shibboleth.common.config.BaseReloadableService</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>destroy, getPollingFrequency, getPollingRetryAttempts, getPollingTimer, initialize, reload, setPollingFrequency, setPollingRetryAttempts, setPollingTimer</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.config.BaseService"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.shibboleth.common.config.BaseService</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>getApplicationContext, getServiceConfigurations, getServiceContext, isDestroyed, isInitialized, setApplicationContext, setBeanName, setServiceConfigurations</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>equals, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.service.Service"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface edu.internet2.middleware.shibboleth.common.service.Service</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>isDestroyed, isInitialized</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="methodName"><!-- --></A><H3>
+methodName</H3>
+<PRE>
+public static final java.lang.String <B>methodName</B></PRE>
+<DL>
+<DD>Method name to look for in subclasses.
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.ldappc.spml.provider.BaseSpmlProvider.methodName">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="BaseSpmlProvider()"><!-- --></A><H3>
+BaseSpmlProvider</H3>
+<PRE>
+public <B>BaseSpmlProvider</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="execute(org.openspml.v2.msg.spml.Request)"><!-- --></A><H3>
+execute</H3>
+<PRE>
+public org.openspml.v2.msg.spml.Response <B>execute</B>(org.openspml.v2.msg.spml.Request&nbsp;request)</PRE>
+<DL>
+<DD>Execute a <code>Request</code> and return the <code>Response</code>.
+ 
+ Only the synchronous execution mode is supported.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/SpmlProvider.html?view=co#execute(org.openspml.v2.msg.spml.Request)">execute</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/SpmlProvider.html?view=co" title="interface in edu.internet2.middleware.ldappc.spml.provider">SpmlProvider</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>request</CODE> - the SPML request
+<DT><B>Returns:</B><DD>the SPML response, never null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getId()"><!-- --></A><H3>
+getId</H3>
+<PRE>
+public java.lang.String <B>getId</B>()</PRE>
+<DL>
+<DD>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getId</CODE> in interface <CODE>edu.internet2.middleware.shibboleth.common.service.Service</CODE><DT><B>Overrides:</B><DD><CODE>getId</CODE> in class <CODE>edu.internet2.middleware.shibboleth.common.config.BaseService</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setId(java.lang.String)"><!-- --></A><H3>
+setId</H3>
+<PRE>
+public void <B>setId</B>(java.lang.String&nbsp;id)</PRE>
+<DL>
+<DD>Sets the id.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getXMLMarshaller()"><!-- --></A><H3>
+getXMLMarshaller</H3>
+<PRE>
+public org.openspml.v2.msg.XMLMarshaller <B>getXMLMarshaller</B>()</PRE>
+<DL>
+<DD>Return the XML marshaller, which will be instantiated once and reused per instance of
+ this class.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the <CODE>XMLMarshaller</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setXMLMarshaller(org.openspml.v2.msg.XMLMarshaller)"><!-- --></A><H3>
+setXMLMarshaller</H3>
+<PRE>
+public void <B>setXMLMarshaller</B>(org.openspml.v2.msg.XMLMarshaller&nbsp;xmlMarshaller)</PRE>
+<DL>
+<DD>Set the XML marshaller
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>xmlMarshaller</CODE> - the <CODE>XMLMarshaller</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getXmlUnmarshaller()"><!-- --></A><H3>
+getXmlUnmarshaller</H3>
+<PRE>
+public org.openspml.v2.msg.XMLUnmarshaller <B>getXmlUnmarshaller</B>()</PRE>
+<DL>
+<DD>Return the XML unmarshaller, which will be instantiated once and reused per instance
+ of this class.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the <CODE>XMLUnmarshaller</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setXmlUnmarshaller(org.openspml.v2.msg.XMLUnmarshaller)"><!-- --></A><H3>
+setXmlUnmarshaller</H3>
+<PRE>
+public void <B>setXmlUnmarshaller</B>(org.openspml.v2.msg.XMLUnmarshaller&nbsp;xmlUnmarshaller)</PRE>
+<DL>
+<DD>Set the XML unmarshaller
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>xmlUnmarshaller</CODE> - the <CODE>XMLUnmarshaller</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="fail(org.openspml.v2.msg.spml.Response, org.openspml.v2.msg.spml.ErrorCode, java.lang.Exception)"><!-- --></A><H3>
+fail</H3>
+<PRE>
+public org.openspml.v2.msg.spml.Response <B>fail</B>(org.openspml.v2.msg.spml.Response&nbsp;response,
+                                              org.openspml.v2.msg.spml.ErrorCode&nbsp;errorCode,
+                                              java.lang.Exception&nbsp;e)</PRE>
+<DL>
+<DD>See <A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlProvider.html?view=co#fail(org.openspml.v2.msg.spml.Response, org.openspml.v2.msg.spml.ErrorCode, java.lang.String...)"><CODE>fail(Response, ErrorCode, String...)</CODE></A>
+ 
+ The messages from the given exception are added to the response.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>response</CODE> - the <CODE>Response</CODE><DD><CODE>errorCode</CODE> - the <CODE>ErrorCode</CODE><DD><CODE>e</CODE> - the exception
+<DT><B>Returns:</B><DD>the updated <CODE>Response</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="fail(org.openspml.v2.msg.spml.Response, org.openspml.v2.msg.spml.ErrorCode, java.lang.String...)"><!-- --></A><H3>
+fail</H3>
+<PRE>
+public org.openspml.v2.msg.spml.Response <B>fail</B>(org.openspml.v2.msg.spml.Response&nbsp;response,
+                                              org.openspml.v2.msg.spml.ErrorCode&nbsp;errorCode,
+                                              java.lang.String...&nbsp;messages)</PRE>
+<DL>
+<DD>Set the status code of the given response to failure and set the error code and
+ messages.
+ 
+ Kludge : the 0x0 unicode character is replaced with an underscore to avoid exceptions
+ when handling Active Directory error messages.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>response</CODE> - the <CODE>Response</CODE><DD><CODE>errorCode</CODE> - the <CODE>ErrorCode</CODE><DD><CODE>messages</CODE> - error text
+<DT><B>Returns:</B><DD>the updated <CODE>Response</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="generateRequestID()"><!-- --></A><H3>
+generateRequestID</H3>
+<PRE>
+public java.lang.String <B>generateRequestID</B>()</PRE>
+<DL>
+<DD>Generate a reasonably unique id.
+ 
+ see <A HREF="../../../../../../edu/internet2/middleware/ldappc/util/PSPUtil.html?view=co#uniqueRequestId()"><CODE>PSPUtil.uniqueRequestId()</CODE></A>
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getOrGenerateRequestID(org.openspml.v2.msg.spml.Request)"><!-- --></A><H3>
+getOrGenerateRequestID</H3>
+<PRE>
+public java.lang.String <B>getOrGenerateRequestID</B>(org.openspml.v2.msg.spml.Request&nbsp;request)</PRE>
+<DL>
+<DD>Return the request ID of the given request or generate a new request ID.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>request</CODE> - 
+<DT><B>Returns:</B><DD>the request ID</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toXML(org.openspml.v2.msg.Marshallable)"><!-- --></A><H3>
+toXML</H3>
+<PRE>
+public java.lang.String <B>toXML</B>(org.openspml.v2.msg.Marshallable&nbsp;marshallable)</PRE>
+<DL>
+<DD>Return the XML representation of the given object. Return null if an exception
+ occurs.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>marshallable</CODE> - the <CODE>Marshallable</CODE> object
+<DT><B>Returns:</B><DD>the XML representation</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/ldappc/spml/provider/BaseSpmlTargetProvider.html?view=co" title="class in edu.internet2.middleware.ldappc.spml.provider"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="BaseSpmlProvider.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

@@ -1,0 +1,860 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+Ldappc
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="Ldappc";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../edu/internet2/middleware/ldappc/ConfigManager.html?view=co" title="class in edu.internet2.middleware.ldappc"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../edu/internet2/middleware/ldappc/LdappcConfig.html?view=co" title="interface in edu.internet2.middleware.ldappc"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="Ldappc.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.ldappc</FONT>
+<BR>
+Class Ldappc</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by ">java.util.TimerTask
+      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.ldappc.Ldappc</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD>java.lang.Runnable</DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public final class <B>Ldappc</B><DT>extends java.util.TimerTask</DL>
+</PRE>
+
+<P>
+Initiates provisioning.
+<P>
+
+<P>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#STATUS_MODIFIED">STATUS_MODIFIED</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Indicates the group has been modified since the last modification date.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#STATUS_NEW">STATUS_NEW</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Indicates the group is new since the last modification date.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#STATUS_UNCHANGED">STATUS_UNCHANGED</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Indicates the group has not been modified since the last modification date.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#STATUS_UNKNOWN">STATUS_UNKNOWN</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Indicates a last modification date was not provided so the group's status is unknown.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#Ldappc(edu.internet2.middleware.ldappc.LdappcOptions)">Ldappc</A></B>(<A HREF="../../../../edu/internet2/middleware/ldappc/LdappcOptions.html?view=co" title="class in edu.internet2.middleware.ldappc">LdappcOptions</A>&nbsp;options)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#Ldappc(edu.internet2.middleware.ldappc.LdappcOptions, edu.internet2.middleware.ldappc.LdappcConfig, edu.vt.middleware.ldap.Ldap)">Ldappc</A></B>(<A HREF="../../../../edu/internet2/middleware/ldappc/LdappcOptions.html?view=co" title="class in edu.internet2.middleware.ldappc">LdappcOptions</A>&nbsp;options,
+       <A HREF="../../../../edu/internet2/middleware/ldappc/LdappcConfig.html?view=co" title="interface in edu.internet2.middleware.ldappc">LdappcConfig</A>&nbsp;configuration,
+       edu.vt.middleware.ldap.Ldap&nbsp;ldap)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.io.File</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#calculate()">calculate</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calculate provisioning and write to a file.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;javax.naming.Name</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#calculateGroupDn(edu.internet2.middleware.grouper.Group)">calculateGroupDn</A></B>(edu.internet2.middleware.grouper.Group&nbsp;group)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This calculates the DN of the given group.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;javax.naming.directory.BasicAttributes</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#calculateStemAttributes(javax.naming.Name)">calculateStemAttributes</A></B>(javax.naming.Name&nbsp;stemDn)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calculate a stem's attributes, essentially ou = stem name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;javax.naming.Name</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#calculateStemDn(edu.internet2.middleware.grouper.Group)">calculateStemDn</A></B>(edu.internet2.middleware.grouper.Group&nbsp;group)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calculates the group's parent OU DN.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.List&lt;javax.naming.Name&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#calculateStemDns(edu.internet2.middleware.grouper.Group)">calculateStemDns</A></B>(edu.internet2.middleware.grouper.Group&nbsp;group)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Calculates all parent OU DNs for the given group.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#determineStatus(edu.internet2.middleware.grouper.Group)">determineStatus</A></B>(edu.internet2.middleware.grouper.Group&nbsp;group)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determines the status of the group based on the lastModifyTime provided in the
+ GrouperOptions.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.io.File</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#dryRun()">dryRun</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Write changes that would be made during provisioning to a file.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.shibboleth.common.attribute.AttributeAuthority</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getAttributeAuthority()">getAttributeAuthority</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the AttributeAuthority if configured to use the attribute-resolver-mapping,
+ otherwise null.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethAttributeResolver</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getAttributeResolver()">getAttributeResolver</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the ShibbolethAttributeResolver if configured to do so, otherwise null.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/ldappc/LdappcConfig.html?view=co" title="interface in edu.internet2.middleware.ldappc">LdappcConfig</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getConfig()">getConfig</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the Grouper provisioner configuration.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.vt.middleware.ldap.Ldap</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getContext()">getContext</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the Ldap context.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getGroupData(edu.internet2.middleware.grouper.Group)">getGroupData</A></B>(edu.internet2.middleware.grouper.Group&nbsp;group)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns group data string.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getMemberData(edu.internet2.middleware.grouper.Member)">getMemberData</A></B>(edu.internet2.middleware.grouper.Member&nbsp;member)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns member data string.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/ldappc/LdappcOptions.html?view=co" title="class in edu.internet2.middleware.ldappc">LdappcOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getOptions()">getOptions</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the Grouper provisioner options.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;javax.naming.Name</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getRootDn()">getRootDn</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../edu/internet2/middleware/ldappc/util/SubjectCache.html?view=co" title="class in edu.internet2.middleware.ldappc.util">SubjectCache</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getSubjectCache()">getSubjectCache</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the subject cache.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.io.BufferedWriter</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#getWriter()">getWriter</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the private writer.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#initialize()">initialize</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Load configuration, connect to ldap, instantiate the subject cache, and start
+ Grouper.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#main(java.lang.String[])">main</A></B>(java.lang.String[]&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#provision()">provision</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Provision Grouper data to a directory.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#run()">run</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.util.TimerTask"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.util.TimerTask</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>cancel, scheduledExecutionTime</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>equals, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="STATUS_NEW"><!-- --></A><H3>
+STATUS_NEW</H3>
+<PRE>
+public static final int <B>STATUS_NEW</B></PRE>
+<DL>
+<DD>Indicates the group is new since the last modification date.
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html?view=co#edu.internet2.middleware.ldappc.Ldappc.STATUS_NEW">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="STATUS_MODIFIED"><!-- --></A><H3>
+STATUS_MODIFIED</H3>
+<PRE>
+public static final int <B>STATUS_MODIFIED</B></PRE>
+<DL>
+<DD>Indicates the group has been modified since the last modification date.
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html?view=co#edu.internet2.middleware.ldappc.Ldappc.STATUS_MODIFIED">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="STATUS_UNCHANGED"><!-- --></A><H3>
+STATUS_UNCHANGED</H3>
+<PRE>
+public static final int <B>STATUS_UNCHANGED</B></PRE>
+<DL>
+<DD>Indicates the group has not been modified since the last modification date.
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html?view=co#edu.internet2.middleware.ldappc.Ldappc.STATUS_UNCHANGED">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="STATUS_UNKNOWN"><!-- --></A><H3>
+STATUS_UNKNOWN</H3>
+<PRE>
+public static final int <B>STATUS_UNKNOWN</B></PRE>
+<DL>
+<DD>Indicates a last modification date was not provided so the group's status is unknown.
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../constant-values.html?view=co#edu.internet2.middleware.ldappc.Ldappc.STATUS_UNKNOWN">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="Ldappc(edu.internet2.middleware.ldappc.LdappcOptions)"><!-- --></A><H3>
+Ldappc</H3>
+<PRE>
+public <B>Ldappc</B>(<A HREF="../../../../edu/internet2/middleware/ldappc/LdappcOptions.html?view=co" title="class in edu.internet2.middleware.ldappc">LdappcOptions</A>&nbsp;options)</PRE>
+<DL>
+</DL>
+<HR>
+
+<A NAME="Ldappc(edu.internet2.middleware.ldappc.LdappcOptions, edu.internet2.middleware.ldappc.LdappcConfig, edu.vt.middleware.ldap.Ldap)"><!-- --></A><H3>
+Ldappc</H3>
+<PRE>
+public <B>Ldappc</B>(<A HREF="../../../../edu/internet2/middleware/ldappc/LdappcOptions.html?view=co" title="class in edu.internet2.middleware.ldappc">LdappcOptions</A>&nbsp;options,
+              <A HREF="../../../../edu/internet2/middleware/ldappc/LdappcConfig.html?view=co" title="interface in edu.internet2.middleware.ldappc">LdappcConfig</A>&nbsp;configuration,
+              edu.vt.middleware.ldap.Ldap&nbsp;ldap)</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="main(java.lang.String[])"><!-- --></A><H3>
+main</H3>
+<PRE>
+public static void <B>main</B>(java.lang.String[]&nbsp;args)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="run()"><!-- --></A><H3>
+run</H3>
+<PRE>
+public void <B>run</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>run</CODE> in interface <CODE>java.lang.Runnable</CODE><DT><B>Specified by:</B><DD><CODE>run</CODE> in class <CODE>java.util.TimerTask</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="initialize()"><!-- --></A><H3>
+initialize</H3>
+<PRE>
+public void <B>initialize</B>()</PRE>
+<DL>
+<DD>Load configuration, connect to ldap, instantiate the subject cache, and start
+ Grouper.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="provision()"><!-- --></A><H3>
+provision</H3>
+<PRE>
+public void <B>provision</B>()
+               throws <A HREF="../../../../edu/internet2/middleware/ldappc/exception/LdappcException.html?view=co" title="class in edu.internet2.middleware.ldappc.exception">LdappcException</A>,
+                      javax.naming.NamingException,
+                      java.io.IOException</PRE>
+<DL>
+<DD>Provision Grouper data to a directory.
+<P>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.NamingException</CODE>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/ldappc/exception/LdappcException.html?view=co" title="class in edu.internet2.middleware.ldappc.exception">LdappcException</A></CODE>
+<DD><CODE>java.io.IOException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dryRun()"><!-- --></A><H3>
+dryRun</H3>
+<PRE>
+public java.io.File <B>dryRun</B>()
+                    throws <A HREF="../../../../edu/internet2/middleware/ldappc/exception/LdappcException.html?view=co" title="class in edu.internet2.middleware.ldappc.exception">LdappcException</A>,
+                           javax.naming.NamingException,
+                           java.io.IOException</PRE>
+<DL>
+<DD>Write changes that would be made during provisioning to a file.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/ldappc/exception/LdappcException.html?view=co" title="class in edu.internet2.middleware.ldappc.exception">LdappcException</A></CODE>
+<DD><CODE>javax.naming.NamingException</CODE>
+<DD><CODE>java.io.IOException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="calculate()"><!-- --></A><H3>
+calculate</H3>
+<PRE>
+public java.io.File <B>calculate</B>()
+                       throws java.io.IOException,
+                              <A HREF="../../../../edu/internet2/middleware/ldappc/exception/ConfigurationException.html?view=co" title="class in edu.internet2.middleware.ldappc.exception">ConfigurationException</A>,
+                              javax.naming.NamingException</PRE>
+<DL>
+<DD>Calculate provisioning and write to a file. No changes are made to the target
+ directory.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>File the ldif file
+<DT><B>Throws:</B>
+<DD><CODE>java.io.IOException</CODE>
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/ldappc/exception/ConfigurationException.html?view=co" title="class in edu.internet2.middleware.ldappc.exception">ConfigurationException</A></CODE>
+<DD><CODE>javax.naming.NamingException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getMemberData(edu.internet2.middleware.grouper.Member)"><!-- --></A><H3>
+getMemberData</H3>
+<PRE>
+public static java.lang.String <B>getMemberData</B>(edu.internet2.middleware.grouper.Member&nbsp;member)</PRE>
+<DL>
+<DD>Returns member data string.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>member</CODE> - Member
+<DT><B>Returns:</B><DD>member data string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupData(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+getGroupData</H3>
+<PRE>
+public static java.lang.String <B>getGroupData</B>(edu.internet2.middleware.grouper.Group&nbsp;group)</PRE>
+<DL>
+<DD>Returns group data string.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - Group
+<DT><B>Returns:</B><DD>group data string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectCache()"><!-- --></A><H3>
+getSubjectCache</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/ldappc/util/SubjectCache.html?view=co" title="class in edu.internet2.middleware.ldappc.util">SubjectCache</A> <B>getSubjectCache</B>()</PRE>
+<DL>
+<DD>Gets the subject cache.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the subject cache</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getContext()"><!-- --></A><H3>
+getContext</H3>
+<PRE>
+public edu.vt.middleware.ldap.Ldap <B>getContext</B>()</PRE>
+<DL>
+<DD>Get the Ldap context. Will create a new instance if necessary, otherwise will re-use
+ existing connection.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the LDAP context.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getConfig()"><!-- --></A><H3>
+getConfig</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/ldappc/LdappcConfig.html?view=co" title="interface in edu.internet2.middleware.ldappc">LdappcConfig</A> <B>getConfig</B>()</PRE>
+<DL>
+<DD>Get the Grouper provisioner configuration.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>Grouper provisioner configuration</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getOptions()"><!-- --></A><H3>
+getOptions</H3>
+<PRE>
+public <A HREF="../../../../edu/internet2/middleware/ldappc/LdappcOptions.html?view=co" title="class in edu.internet2.middleware.ldappc">LdappcOptions</A> <B>getOptions</B>()</PRE>
+<DL>
+<DD>Get the Grouper provisioner options.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>Grouper provisioner options</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="determineStatus(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+determineStatus</H3>
+<PRE>
+public int <B>determineStatus</B>(edu.internet2.middleware.grouper.Group&nbsp;group)</PRE>
+<DL>
+<DD>Determines the status of the group based on the lastModifyTime provided in the
+ GrouperOptions.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - Group
+<DT><B>Returns:</B><DD>Status of the group, either <A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#STATUS_NEW"><CODE>STATUS_NEW</CODE></A>, <A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#STATUS_MODIFIED"><CODE>STATUS_MODIFIED</CODE></A>,
+         <A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#STATUS_UNCHANGED"><CODE>STATUS_UNCHANGED</CODE></A> or <A HREF="../../../../edu/internet2/middleware/ldappc/Ldappc.html?view=co#STATUS_UNKNOWN"><CODE>STATUS_UNKNOWN</CODE></A>.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getRootDn()"><!-- --></A><H3>
+getRootDn</H3>
+<PRE>
+public javax.naming.Name <B>getRootDn</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="calculateGroupDn(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+calculateGroupDn</H3>
+<PRE>
+public javax.naming.Name <B>calculateGroupDn</B>(edu.internet2.middleware.grouper.Group&nbsp;group)
+                                   throws javax.naming.NamingException,
+                                          <A HREF="../../../../edu/internet2/middleware/ldappc/exception/LdappcException.html?view=co" title="class in edu.internet2.middleware.ldappc.exception">LdappcException</A></PRE>
+<DL>
+<DD>This calculates the DN of the given group.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - Group
+<DT><B>Returns:</B><DD>DN for the associated LDAP entry
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.NamingException</CODE> - thrown if a Naming error occurs.
+<DD><CODE><A HREF="../../../../edu/internet2/middleware/ldappc/exception/LdappcException.html?view=co" title="class in edu.internet2.middleware.ldappc.exception">LdappcException</A></CODE> - thrown if the RDN attribute is not defined for the group.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="calculateStemDn(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+calculateStemDn</H3>
+<PRE>
+public javax.naming.Name <B>calculateStemDn</B>(edu.internet2.middleware.grouper.Group&nbsp;group)
+                                  throws javax.naming.NamingException</PRE>
+<DL>
+<DD>Calculates the group's parent OU DN.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - Group
+<DT><B>Returns:</B><DD>OU DN under which the group entry must be created.
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.NamingException</CODE> - thrown if a Naming exception occured.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="calculateStemDns(edu.internet2.middleware.grouper.Group)"><!-- --></A><H3>
+calculateStemDns</H3>
+<PRE>
+public java.util.List&lt;javax.naming.Name&gt; <B>calculateStemDns</B>(edu.internet2.middleware.grouper.Group&nbsp;group)
+                                                   throws javax.naming.NamingException</PRE>
+<DL>
+<DD>Calculates all parent OU DNs for the given group.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - 
+<DT><B>Returns:</B><DD>a List of OU DNs
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.NamingException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="calculateStemAttributes(javax.naming.Name)"><!-- --></A><H3>
+calculateStemAttributes</H3>
+<PRE>
+public javax.naming.directory.BasicAttributes <B>calculateStemAttributes</B>(javax.naming.Name&nbsp;stemDn)
+                                                               throws javax.naming.InvalidNameException</PRE>
+<DL>
+<DD>Calculate a stem's attributes, essentially ou = stem name.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>stemDn</CODE> - the DN of the stem
+<DT><B>Returns:</B><DD>the stem's attributes
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.InvalidNameException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getWriter()"><!-- --></A><H3>
+getWriter</H3>
+<PRE>
+public java.io.BufferedWriter <B>getWriter</B>()</PRE>
+<DL>
+<DD>Get the private writer.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeAuthority()"><!-- --></A><H3>
+getAttributeAuthority</H3>
+<PRE>
+public edu.internet2.middleware.shibboleth.common.attribute.AttributeAuthority <B>getAttributeAuthority</B>()</PRE>
+<DL>
+<DD>Returns the AttributeAuthority if configured to use the attribute-resolver-mapping,
+ otherwise null.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute authority or null.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeResolver()"><!-- --></A><H3>
+getAttributeResolver</H3>
+<PRE>
+public edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ShibbolethAttributeResolver <B>getAttributeResolver</B>()</PRE>
+<DL>
+<DD>Returns the ShibbolethAttributeResolver if configured to do so, otherwise null.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute resolver or null.</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../edu/internet2/middleware/ldappc/ConfigManager.html?view=co" title="class in edu.internet2.middleware.ldappc"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../edu/internet2/middleware/ldappc/LdappcConfig.html?view=co" title="interface in edu.internet2.middleware.ldappc"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="Ldappc.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

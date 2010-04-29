@@ -1,0 +1,867 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+AttributeModifier
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="AttributeModifier";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AttributeModifier.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.ldappc.synchronize</FONT>
+<BR>
+Class AttributeModifier</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.ldappc.synchronize.AttributeModifier</B>
+</PRE>
+<DL>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/DnAttributeModifier.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize">DnAttributeModifier</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <B>AttributeModifier</B><DT>extends java.lang.Object</DL>
+</PRE>
+
+<P>
+This is a synchronizer helper class for modifying LDAP attribute values. It is to be
+ used in the following manner.
+ <ol>
+ <li>Initialize it with the current values stored in the attribute to be modified. If
+ the current attribute is empty, call <A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#init(javax.naming.directory.Attribute)"><CODE>init(Attribute)</CODE></A> passing <code>null</code>
+ . Otherwise call <A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#init(javax.naming.directory.Attribute)"><CODE>init(Attribute)</CODE></A> passing an Attribute holding the current set
+ of values. <br>
+ <li>For each value the attribute is to hold, call <A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#store(java.lang.String)"><CODE>store(String)</CODE></A> passing the
+ value. The AttributeModifier determines whether or not the value is an existing value
+ that must remain or is a new value to be added to the attribute.<br>
+ <li>After storing all of the values to be included in the attribute, call
+ <A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getModifications()"><CODE>getModifications()</CODE></A> to generate an array of
+ <CODE>ModificationItem</CODE>s that can be used to update the
+ directory. Applying these modifications will result in the attribute holding the
+ desired set of values.
+ </ol>
+ Note that if no values are stored, the modifications generated by AttributeModifier
+ will result in the attribute holding no values. This may not be acceptable for example
+ if the attribute is a <i>MUST</i> attribute. To ensure the generated modifications will
+ always result in the attribute holding a value, the AttributeModifier supports a <i>no
+ value</i>. If the <i>no value</i> is set to a non-null String and no values are stored,
+ the generated modifications will result in attribute holding just the <i>no value</i>.
+ <p>
+ The following assumptions apply when using an AttributeModifier.
+ <ul>
+ <li>An attribute value is to be included exactly once
+ <li>The AttributeModifier is correctly initialized with the current values
+ <li>The attribute in the directory has not been modified prior to applying the
+ generated modifications.
+ </ul>
+<P>
+
+<P>
+<HR>
+
+<P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize">AttributeModifier.Values</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Implements optional case ignoring set by backing it with a Map, mapping the possibly
+ lowercased values to the actual values.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#AttributeModifier(java.lang.String)">AttributeModifier</A></B>(java.lang.String&nbsp;attributeName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an <code>AttributeModifier</code> for the attribute name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#AttributeModifier(java.lang.String, boolean)">AttributeModifier</A></B>(java.lang.String&nbsp;attributeName,
+                  boolean&nbsp;caseSensitive)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an <code>AttributeModifier</code> for the attribute name with the case
+ sensitivity for string comparisions set as given.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#AttributeModifier(java.lang.String, java.lang.String)">AttributeModifier</A></B>(java.lang.String&nbsp;attributeName,
+                  java.lang.String&nbsp;noValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an <code>AttributeModifier</code> for the attribute name with the given
+ "no value" value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#AttributeModifier(java.lang.String, java.lang.String, boolean)">AttributeModifier</A></B>(java.lang.String&nbsp;attributeName,
+                  java.lang.String&nbsp;noValue,
+                  boolean&nbsp;caseSensitive)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an <code>AttributeModifier</code> for the attribute name with the given
+ "no value" value and case sensitivity.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#clear()">clear</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clears all of the existing values to be added or deleted.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;javax.naming.directory.Attribute</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getAdditions()">getAdditions</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an attribute with the values to be added.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize">AttributeModifier.Values</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getAdds()">getAdds</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getAttributeName()">getAttributeName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the attribute name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize">AttributeModifier.Values</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getDeletes()">getDeletes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.List&lt;org.openspml.v2.msg.spml.Modification&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getDSMLModification()">getDSMLModification</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;javax.naming.directory.ModificationItem[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getModifications()">getModifications</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an array of modification items necessary to update attribute based on the
+ state of this object.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getNoValue()">getNoValue</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the "no value" value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.List&lt;org.openspml.v2.msg.spml.Modification&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getReferenceModification()">getReferenceModification</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize">AttributeModifier.Values</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#getRetainedValues()">getRetainedValues</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#init()">init</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initializes this with an empty value set.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#init(javax.naming.directory.Attribute)">init</A></B>(javax.naming.directory.Attribute&nbsp;attribute)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initializes this with the values from the given attribute.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#init(java.util.Collection)">init</A></B>(java.util.Collection&lt;java.lang.String&gt;&nbsp;collection)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initializes this with the values from the given collection.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#initDSML(org.openspml.v2.profiles.dsml.DSMLValue...)">initDSML</A></B>(org.openspml.v2.profiles.dsml.DSMLValue...&nbsp;dsmlValues)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#initReference(java.util.Collection)">initReference</A></B>(java.util.Collection&lt;org.openspml.v2.msg.spmlref.Reference&gt;&nbsp;references)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#isCaseSensitive()">isCaseSensitive</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Indicates whether or not the AttributeModifier is case sensitive when comparing
+ attribute value strings.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#retainAll()">retainAll</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This method retains all of the current values.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#setAttributeName(java.lang.String)">setAttributeName</A></B>(java.lang.String&nbsp;attributeName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the attribute name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#setNoValue(java.lang.String)">setNoValue</A></B>(java.lang.String&nbsp;noValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the "no value" value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#store(java.util.Collection)">store</A></B>(java.util.Collection&lt;org.openspml.v2.msg.spmlref.Reference&gt;&nbsp;references)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#store(org.openspml.v2.profiles.dsml.DSMLValue[])">store</A></B>(org.openspml.v2.profiles.dsml.DSMLValue[]&nbsp;dsmlValues)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#store(java.lang.String)">store</A></B>(java.lang.String&nbsp;attrValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stores the attribute value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.html?view=co#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>equals, getClass, hashCode, notify, notifyAll, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="AttributeModifier(java.lang.String)"><!-- --></A><H3>
+AttributeModifier</H3>
+<PRE>
+public <B>AttributeModifier</B>(java.lang.String&nbsp;attributeName)</PRE>
+<DL>
+<DD>Constructs an <code>AttributeModifier</code> for the attribute name. This
+ AttributeModifier is case insensitive and assumes the attribute is not required as
+ the "no value" is not defined.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - Name of the attribute</DL>
+</DL>
+<HR>
+
+<A NAME="AttributeModifier(java.lang.String, java.lang.String)"><!-- --></A><H3>
+AttributeModifier</H3>
+<PRE>
+public <B>AttributeModifier</B>(java.lang.String&nbsp;attributeName,
+                         java.lang.String&nbsp;noValue)</PRE>
+<DL>
+<DD>Constructs an <code>AttributeModifier</code> for the attribute name with the given
+ "no value" value. This AttributeModifier is case insensitive.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - Name of the attribute<DD><CODE>noValue</CODE> - "no value" value (null if the attribute is not required).</DL>
+</DL>
+<HR>
+
+<A NAME="AttributeModifier(java.lang.String, boolean)"><!-- --></A><H3>
+AttributeModifier</H3>
+<PRE>
+public <B>AttributeModifier</B>(java.lang.String&nbsp;attributeName,
+                         boolean&nbsp;caseSensitive)</PRE>
+<DL>
+<DD>Constructs an <code>AttributeModifier</code> for the attribute name with the case
+ sensitivity for string comparisions set as given. it is assumed that the attribute is
+ not required as the "no value" is not defined.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - Name of the attribute<DD><CODE>caseSensitive</CODE> - boolean indicating if attribute value comparisions are case sensitive.</DL>
+</DL>
+<HR>
+
+<A NAME="AttributeModifier(java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+AttributeModifier</H3>
+<PRE>
+public <B>AttributeModifier</B>(java.lang.String&nbsp;attributeName,
+                         java.lang.String&nbsp;noValue,
+                         boolean&nbsp;caseSensitive)</PRE>
+<DL>
+<DD>Constructs an <code>AttributeModifier</code> for the attribute name with the given
+ "no value" value and case sensitivity.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - Name of the attribute<DD><CODE>noValue</CODE> - "no value" value (null if the attribute is not required).<DD><CODE>caseSensitive</CODE> - boolean indicating if attribute value comparisions are case sensitive.</DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="getAttributeName()"><!-- --></A><H3>
+getAttributeName</H3>
+<PRE>
+public java.lang.String <B>getAttributeName</B>()</PRE>
+<DL>
+<DD>Gets the attribute name.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>Attribute name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeName(java.lang.String)"><!-- --></A><H3>
+setAttributeName</H3>
+<PRE>
+public void <B>setAttributeName</B>(java.lang.String&nbsp;attributeName)</PRE>
+<DL>
+<DD>Sets the attribute name.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - the attribute name to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getNoValue()"><!-- --></A><H3>
+getNoValue</H3>
+<PRE>
+public java.lang.String <B>getNoValue</B>()</PRE>
+<DL>
+<DD>Gets the "no value" value. If not <code>null</code>, this value is stored in the
+ attribute when the modifications identified here would result in the attribute having
+ no values.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>"no value" value</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setNoValue(java.lang.String)"><!-- --></A><H3>
+setNoValue</H3>
+<PRE>
+public void <B>setNoValue</B>(java.lang.String&nbsp;noValue)</PRE>
+<DL>
+<DD>Set the "no value" value. If not <code>null</code>, this value is stored in the
+ attribute when the modifications identified here would result in the attribute having
+ no values.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>noValue</CODE> - "no value" string, or <code>null</code> if the attribute is not required to
+          have values.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isCaseSensitive()"><!-- --></A><H3>
+isCaseSensitive</H3>
+<PRE>
+public boolean <B>isCaseSensitive</B>()</PRE>
+<DL>
+<DD>Indicates whether or not the AttributeModifier is case sensitive when comparing
+ attribute value strings.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD><code>true</code> if case sensitive, and <code>false</code> otherwise</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clear()"><!-- --></A><H3>
+clear</H3>
+<PRE>
+public void <B>clear</B>()</PRE>
+<DL>
+<DD>Clears all of the existing values to be added or deleted.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="init()"><!-- --></A><H3>
+init</H3>
+<PRE>
+public void <B>init</B>()</PRE>
+<DL>
+<DD>Initializes this with an empty value set.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="init(javax.naming.directory.Attribute)"><!-- --></A><H3>
+init</H3>
+<PRE>
+public void <B>init</B>(javax.naming.directory.Attribute&nbsp;attribute)
+          throws javax.naming.NamingException</PRE>
+<DL>
+<DD>Initializes this with the values from the given attribute. This clears any
+ pre-existing values, and populates it with the given list of values.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attribute</CODE> - Attribute
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.NamingException</CODE> - thrown if an error occurs accessing the attribute values
+<DD><CODE>javax.naming.directory.InvalidAttributeValueException</CODE> - thrown if a non-String value is encountered</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="init(java.util.Collection)"><!-- --></A><H3>
+init</H3>
+<PRE>
+public void <B>init</B>(java.util.Collection&lt;java.lang.String&gt;&nbsp;collection)</PRE>
+<DL>
+<DD>Initializes this with the values from the given collection. This clears any
+ pre-existing values, and populates it with the given list of values.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>collection</CODE> - Initial values</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="initDSML(org.openspml.v2.profiles.dsml.DSMLValue...)"><!-- --></A><H3>
+initDSML</H3>
+<PRE>
+public void <B>initDSML</B>(org.openspml.v2.profiles.dsml.DSMLValue...&nbsp;dsmlValues)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="initReference(java.util.Collection)"><!-- --></A><H3>
+initReference</H3>
+<PRE>
+public void <B>initReference</B>(java.util.Collection&lt;org.openspml.v2.msg.spmlref.Reference&gt;&nbsp;references)
+                   throws org.openspml.v2.util.Spml2Exception</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE>org.openspml.v2.util.Spml2Exception</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="store(java.lang.String)"><!-- --></A><H3>
+store</H3>
+<PRE>
+public void <B>store</B>(java.lang.String&nbsp;attrValue)</PRE>
+<DL>
+<DD>Stores the attribute value. This identifies the value as one that must either remain
+ from the original set or be added to the attribute.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attrValue</CODE> - Attribute value
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.NamingException</CODE> - thrown if a naming exception occurs</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="store(org.openspml.v2.profiles.dsml.DSMLValue[])"><!-- --></A><H3>
+store</H3>
+<PRE>
+public void <B>store</B>(org.openspml.v2.profiles.dsml.DSMLValue[]&nbsp;dsmlValues)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="store(java.util.Collection)"><!-- --></A><H3>
+store</H3>
+<PRE>
+public void <B>store</B>(java.util.Collection&lt;org.openspml.v2.msg.spmlref.Reference&gt;&nbsp;references)
+           throws org.openspml.v2.util.Spml2Exception</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE>org.openspml.v2.util.Spml2Exception</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAdditions()"><!-- --></A><H3>
+getAdditions</H3>
+<PRE>
+public javax.naming.directory.Attribute <B>getAdditions</B>()</PRE>
+<DL>
+<DD>Returns an attribute with the values to be added. This is based on the state of this
+ object. If there are no values being added and the "no
+ value" value is defined, the "no value" is included. This ignores any existing
+ attribute values.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>Attribute holding values to be added</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getModifications()"><!-- --></A><H3>
+getModifications</H3>
+<PRE>
+public javax.naming.directory.ModificationItem[] <B>getModifications</B>()
+                                                           throws javax.naming.NamingException</PRE>
+<DL>
+<DD>Returns an array of modification items necessary to update attribute based on the
+ state of this object.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>A possibly empty array of ModificationItems.
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.NamingException</CODE> - thrown if a naming error occurs</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDSMLModification()"><!-- --></A><H3>
+getDSMLModification</H3>
+<PRE>
+public java.util.List&lt;org.openspml.v2.msg.spml.Modification&gt; <B>getDSMLModification</B>()
+                                                                          throws org.openspml.v2.profiles.dsml.DSMLProfileException</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE>org.openspml.v2.profiles.dsml.DSMLProfileException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getReferenceModification()"><!-- --></A><H3>
+getReferenceModification</H3>
+<PRE>
+public java.util.List&lt;org.openspml.v2.msg.spml.Modification&gt; <B>getReferenceModification</B>()
+                                                                               throws org.openspml.v2.util.Spml2Exception</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE>org.openspml.v2.util.Spml2Exception</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAdds()"><!-- --></A><H3>
+getAdds</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize">AttributeModifier.Values</A> <B>getAdds</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDeletes()"><!-- --></A><H3>
+getDeletes</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize">AttributeModifier.Values</A> <B>getDeletes</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retainAll()"><!-- --></A><H3>
+retainAll</H3>
+<PRE>
+public void <B>retainAll</B>()</PRE>
+<DL>
+<DD>This method retains all of the current values.
+<P>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE>javax.naming.NamingException</CODE> - thrown if a naming error occurs</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getRetainedValues()"><!-- --></A><H3>
+getRetainedValues</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize">AttributeModifier.Values</A> <B>getRetainedValues</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public java.lang.String <B>toString</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE>toString</CODE> in class <CODE>java.lang.Object</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/ldappc/synchronize/AttributeModifier.Values.html?view=co" title="class in edu.internet2.middleware.ldappc.synchronize"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AttributeModifier.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

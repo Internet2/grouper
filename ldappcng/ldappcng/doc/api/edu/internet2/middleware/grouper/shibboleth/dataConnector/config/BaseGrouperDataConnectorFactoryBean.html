@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+BaseGrouperDataConnectorFactoryBean
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="BaseGrouperDataConnectorFactoryBean";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorBeanDefinitionParser.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.config"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/GroupDataConnectorBeanDefinitionParser.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.config"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="BaseGrouperDataConnectorFactoryBean.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.shibboleth.dataConnector.config</FONT>
+<BR>
+Class BaseGrouperDataConnectorFactoryBean</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../../../../../../resources/inherit.gif" ALT="extended by ">org.springframework.beans.factory.config.AbstractFactoryBean
+      <IMG SRC="../../../../../../../resources/inherit.gif" ALT="extended by ">edu.internet2.middleware.shibboleth.common.config.attribute.resolver.AbstractResolutionPluginFactoryBean
+          <IMG SRC="../../../../../../../resources/inherit.gif" ALT="extended by ">edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorFactoryBean
+              <IMG SRC="../../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.shibboleth.dataConnector.config.BaseGrouperDataConnectorFactoryBean</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD>org.springframework.beans.factory.BeanClassLoaderAware, org.springframework.beans.factory.BeanFactoryAware, org.springframework.beans.factory.DisposableBean, org.springframework.beans.factory.FactoryBean, org.springframework.beans.factory.InitializingBean</DD>
+</DL>
+<DL>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/GroupDataConnectorFactoryBean.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.config">GroupDataConnectorFactoryBean</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/MemberDataConnectorFactoryBean.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.config">MemberDataConnectorFactoryBean</A>, <A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/StemDataConnectorFactoryBean.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.config">StemDataConnectorFactoryBean</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public abstract class <B>BaseGrouperDataConnectorFactoryBean</B><DT>extends edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorFactoryBean</DL>
+</PRE>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorFactoryBean.html?view=co#BaseGrouperDataConnectorFactoryBean()">BaseGrouperDataConnectorFactoryBean</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.List&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorFactoryBean.html?view=co#getFieldIdentifiers()">getFieldIdentifiers</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.filter">GroupQueryFilter</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorFactoryBean.html?view=co#getGroupQueryFilter()">getGroupQueryFilter</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorFactoryBean.html?view=co#getSubjectIdentifier()">getSubjectIdentifier</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorFactoryBean.html?view=co#setFieldIdentifiers(java.util.List)">setFieldIdentifiers</A></B>(java.util.List&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&gt;&nbsp;fieldIdentifiers)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorFactoryBean.html?view=co#setGroupQueryFilter(edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter)">setGroupQueryFilter</A></B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.filter">GroupQueryFilter</A>&nbsp;groupQueryFilter)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorFactoryBean.html?view=co#setSubjectIdentifier(edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier)">setSubjectIdentifier</A></B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&nbsp;subjectIdentifier)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorFactoryBean"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorFactoryBean</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>getFailoverDataConnectorId, setFailoverDataConnectorIds</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.config.attribute.resolver.AbstractResolutionPluginFactoryBean"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.shibboleth.common.config.attribute.resolver.AbstractResolutionPluginFactoryBean</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>getDependencyIds, getPluginId, setDependencyIds, setPluginId</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_org.springframework.beans.factory.config.AbstractFactoryBean"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class org.springframework.beans.factory.config.AbstractFactoryBean</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>afterPropertiesSet, destroy, getObject, getObjectType, isSingleton, setBeanClassLoader, setBeanFactory, setSingleton</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>equals, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="BaseGrouperDataConnectorFactoryBean()"><!-- --></A><H3>
+BaseGrouperDataConnectorFactoryBean</H3>
+<PRE>
+public <B>BaseGrouperDataConnectorFactoryBean</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="getFieldIdentifiers()"><!-- --></A><H3>
+getFieldIdentifiers</H3>
+<PRE>
+public java.util.List&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&gt; <B>getFieldIdentifiers</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setFieldIdentifiers(java.util.List)"><!-- --></A><H3>
+setFieldIdentifiers</H3>
+<PRE>
+public void <B>setFieldIdentifiers</B>(java.util.List&lt;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&gt;&nbsp;fieldIdentifiers)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupQueryFilter()"><!-- --></A><H3>
+getGroupQueryFilter</H3>
+<PRE>
+public <A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.filter">GroupQueryFilter</A> <B>getGroupQueryFilter</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGroupQueryFilter(edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter)"><!-- --></A><H3>
+setGroupQueryFilter</H3>
+<PRE>
+public void <B>setGroupQueryFilter</B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.filter">GroupQueryFilter</A>&nbsp;groupQueryFilter)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectIdentifier()"><!-- --></A><H3>
+getSubjectIdentifier</H3>
+<PRE>
+public <A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A> <B>getSubjectIdentifier</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>Returns the subjectIdentifier.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSubjectIdentifier(edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier)"><!-- --></A><H3>
+setSubjectIdentifier</H3>
+<PRE>
+public void <B>setSubjectIdentifier</B>(<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&nbsp;subjectIdentifier)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subjectIdentifier</CODE> - The subjectIdentifier to set.</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/BaseGrouperDataConnectorBeanDefinitionParser.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.config"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/config/GroupDataConnectorBeanDefinitionParser.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.config"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="BaseGrouperDataConnectorFactoryBean.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

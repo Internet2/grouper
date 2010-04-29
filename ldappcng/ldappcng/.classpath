@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper_trunk"/>
 	<classpathentry kind="lib" path="lib/apacheds/apacheds-bootstrap-extract-1.5.5.jar"/>

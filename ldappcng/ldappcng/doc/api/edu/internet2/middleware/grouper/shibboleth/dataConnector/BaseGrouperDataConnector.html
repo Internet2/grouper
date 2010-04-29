@@ -1,0 +1,629 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+BaseGrouperDataConnector
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="BaseGrouperDataConnector";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/GroupDataConnector.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="BaseGrouperDataConnector.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.shibboleth.dataConnector</FONT>
+<BR>
+Class BaseGrouperDataConnector</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by ">edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.AbstractResolutionPlugIn&lt;java.util.Map&lt;java.lang.String,edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute&gt;&gt;
+      <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by ">edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector
+          <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.shibboleth.dataConnector.BaseGrouperDataConnector</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/SourceDataConnector.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.dataConnector">SourceDataConnector</A>, edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector, edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ResolutionPlugIn&lt;java.util.Map&lt;java.lang.String,edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute&gt;&gt;</DD>
+</DL>
+<DL>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/GroupDataConnector.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector">GroupDataConnector</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/MemberDataConnector.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector">MemberDataConnector</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/StemDataConnector.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector">StemDataConnector</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public abstract class <B>BaseGrouperDataConnector</B><DT>extends edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector<DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/SourceDataConnector.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.dataConnector">SourceDataConnector</A></DL>
+</PRE>
+
+<P>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#PARENT_STEM_NAME_ATTR">PARENT_STEM_NAME_ATTR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the name of the attribute whose value is the name of the parent stem</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#BaseGrouperDataConnector()">BaseGrouperDataConnector</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.grouper.GrouperSession</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#getGrouperSession()">getGrouperSession</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start a new session if necessary, otherwise reuse existing session.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.filter">GroupQueryFilter</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#getGroupQueryFilter()">getGroupQueryFilter</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the filter which determines the groups which will be considered by this data connector.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.Set&lt;edu.internet2.middleware.grouper.Group&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#getGroups(java.util.Date)">getGroups</A></B>(java.util.Date&nbsp;lastModifyTime)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Query for all groups matching the group query filter.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/field/GroupsField.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.field">GroupsField</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#getGroupsFields()">getGroupsFields</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The representation of the attributes which return groups.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/field/MembersField.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.field">MembersField</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#getMembersFields()">getMembersFields</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The representation of the attributes which return members.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/field/PrivilegeField.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.field">PrivilegeField</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#getPrivilegeFields()">getPrivilegeFields</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The representation of the attributes which return privileges.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#getSubjectAttributeIdentifiers()">getSubjectAttributeIdentifiers</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The <A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util"><CODE>AttributeIdentifier</CODE></A>s for subject attributes.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#getSubjectIdentifier()">getSubjectIdentifier</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get the subject and source identifier used to start <CODE>GrouperSession</CODE>s.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#initialize()">initialize</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Make sure that the attributes to return as specified in the data connector configuration are valid, and initialize
+ the necessary objects.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#setFieldIdentifiers(java.util.List)">setFieldIdentifiers</A></B>(java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&gt;&nbsp;fieldIdentifiers)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the identifiers of the attributes to return.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#setGroupQueryFilter(edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter)">setGroupQueryFilter</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.filter">GroupQueryFilter</A>&nbsp;groupQueryFilter)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the group query filter</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/BaseGrouperDataConnector.html?view=co#setSubjectIdentifier(edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier)">setSubjectIdentifier</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&nbsp;subjectIdentifier)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the subject and source identifier used to start <CODE>GrouperSession</CODE>s.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>getFailoverDependencyId, setFailoverDependencyIds</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.AbstractResolutionPlugIn"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.AbstractResolutionPlugIn</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>getDependencyIds, getId, setId</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>equals, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.shibboleth.dataConnector.SourceDataConnector"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface edu.internet2.middleware.grouper.shibboleth.dataConnector.<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/SourceDataConnector.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.dataConnector">SourceDataConnector</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/SourceDataConnector.html?view=co#getAllIdentifiers()">getAllIdentifiers</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/SourceDataConnector.html?view=co#getAllIdentifiers(java.util.Date)">getAllIdentifiers</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>getFailoverDependencyId</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ResolutionPlugIn"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.ResolutionPlugIn</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>getDependencyIds, getId, resolve, validate</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="PARENT_STEM_NAME_ATTR"><!-- --></A><H3>
+PARENT_STEM_NAME_ATTR</H3>
+<PRE>
+public static final java.lang.String <B>PARENT_STEM_NAME_ATTR</B></PRE>
+<DL>
+<DD>the name of the attribute whose value is the name of the parent stem
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.shibboleth.dataConnector.BaseGrouperDataConnector.PARENT_STEM_NAME_ATTR">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="BaseGrouperDataConnector()"><!-- --></A><H3>
+BaseGrouperDataConnector</H3>
+<PRE>
+public <B>BaseGrouperDataConnector</B>()</PRE>
+<DL>
+<DD>Constructor.
+<P>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="initialize()"><!-- --></A><H3>
+initialize</H3>
+<PRE>
+public void <B>initialize</B>()
+                throws edu.internet2.middleware.grouper.exception.GrouperException</PRE>
+<DL>
+<DD>Make sure that the attributes to return as specified in the data connector configuration are valid, and initialize
+ the necessary objects.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE>edu.internet2.middleware.grouper.exception.GrouperException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperSession()"><!-- --></A><H3>
+getGrouperSession</H3>
+<PRE>
+public edu.internet2.middleware.grouper.GrouperSession <B>getGrouperSession</B>()
+                                                                  throws edu.internet2.middleware.subject.SubjectNotFoundException</PRE>
+<DL>
+<DD>Start a new session if necessary, otherwise reuse existing session. The session is
+ started using the <CODE>Subject</CODE> identified by the configured subject identifier.
+ This session is not added to the threadlocal.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the <code>GrouperSession</code>
+<DT><B>Throws:</B>
+<DD><CODE>edu.internet2.middleware.subject.SubjectNotFoundException</CODE> - if the <CODE>Subject</CODE> identified by the subjectId cannot be found</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupQueryFilter()"><!-- --></A><H3>
+getGroupQueryFilter</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.filter">GroupQueryFilter</A> <B>getGroupQueryFilter</B>()</PRE>
+<DL>
+<DD>Get the filter which determines the groups which will be considered by this data connector.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the GroupQueryFilter or <tt>null</tt> if all groups should be considered</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGroupQueryFilter(edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter)"><!-- --></A><H3>
+setGroupQueryFilter</H3>
+<PRE>
+public void <B>setGroupQueryFilter</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/filter/GroupQueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.shibboleth.filter">GroupQueryFilter</A>&nbsp;groupQueryFilter)</PRE>
+<DL>
+<DD>Set the group query filter
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupQueryFilter</CODE> - the GroupQueryFilter</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setFieldIdentifiers(java.util.List)"><!-- --></A><H3>
+setFieldIdentifiers</H3>
+<PRE>
+public void <B>setFieldIdentifiers</B>(java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&gt;&nbsp;fieldIdentifiers)</PRE>
+<DL>
+<DD>Set the identifiers of the attributes to return.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>fieldIdentifiers</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupsFields()"><!-- --></A><H3>
+getGroupsFields</H3>
+<PRE>
+public java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/field/GroupsField.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.field">GroupsField</A>&gt; <B>getGroupsFields</B>()</PRE>
+<DL>
+<DD>The representation of the attributes which return groups.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the groups fields</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getMembersFields()"><!-- --></A><H3>
+getMembersFields</H3>
+<PRE>
+public java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/field/MembersField.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.field">MembersField</A>&gt; <B>getMembersFields</B>()</PRE>
+<DL>
+<DD>The representation of the attributes which return members.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the members fields</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPrivilegeFields()"><!-- --></A><H3>
+getPrivilegeFields</H3>
+<PRE>
+public java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/field/PrivilegeField.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector.field">PrivilegeField</A>&gt; <B>getPrivilegeFields</B>()</PRE>
+<DL>
+<DD>The representation of the attributes which return privileges.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the privileges fields</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectAttributeIdentifiers()"><!-- --></A><H3>
+getSubjectAttributeIdentifiers</H3>
+<PRE>
+public java.util.List&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&gt; <B>getSubjectAttributeIdentifiers</B>()</PRE>
+<DL>
+<DD>The <A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util"><CODE>AttributeIdentifier</CODE></A>s for subject attributes.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute identifiers</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectIdentifier()"><!-- --></A><H3>
+getSubjectIdentifier</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A> <B>getSubjectIdentifier</B>()</PRE>
+<DL>
+<DD>Get the subject and source identifier used to start <CODE>GrouperSession</CODE>s.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>Returns the source and subject identifier.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSubjectIdentifier(edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier)"><!-- --></A><H3>
+setSubjectIdentifier</H3>
+<PRE>
+public void <B>setSubjectIdentifier</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/util/AttributeIdentifier.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.util">AttributeIdentifier</A>&nbsp;subjectIdentifier)</PRE>
+<DL>
+<DD>Set the subject and source identifier used to start <CODE>GrouperSession</CODE>s.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subjectIdentifier</CODE> - The source and subject identifier to set.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroups(java.util.Date)"><!-- --></A><H3>
+getGroups</H3>
+<PRE>
+public java.util.Set&lt;edu.internet2.middleware.grouper.Group&gt; <B>getGroups</B>(java.util.Date&nbsp;lastModifyTime)</PRE>
+<DL>
+<DD>Query for all groups matching the group query filter. If no group query filter has
+ been configured, then return all groups.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the groups returned from the group query filter or all groups</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/shibboleth/dataConnector/GroupDataConnector.html?view=co" title="class in edu.internet2.middleware.grouper.shibboleth.dataConnector"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="BaseGrouperDataConnector.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>
