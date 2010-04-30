@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.exception.AttributeDefScopeNotFoundExcep
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefScopeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -151,17 +152,25 @@ public class Hib3AttributeDefScopeDAO extends Hib3DAO implements AttributeDefSco
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefScopeDAO#findByAttributeDefId(java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefScopeDAO#findByAttributeDefId(java.lang.String, QueryOptions)
    */
-  public Set<AttributeDefScope> findByAttributeDefId(String attributeDefId) {
+  public Set<AttributeDefScope> findByAttributeDefId(String attributeDefId, QueryOptions queryOptions) {
     Set<AttributeDefScope> attributeDefScopes = HibernateSession.byHqlStatic()
       .createQuery("from AttributeDefScope as theAttributeDefScope where " +
           "theAttributeDefScope.attributeDefId = :theAttributeDefId")
+      .options(queryOptions)
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByUuidOrName")
       .setString("theAttributeDefId", attributeDefId)
       .listSet(AttributeDefScope.class);
     return attributeDefScopes;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefScopeDAO#delete(edu.internet2.middleware.grouper.attr.AttributeDefScope)
+   */
+  public void delete(AttributeDefScope attributeDefScope) {
+    HibernateSession.byObjectStatic().delete(attributeDefScope);
   }
 
 } 

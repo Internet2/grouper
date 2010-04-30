@@ -167,5 +167,13 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
       .toString();
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#getAttributeAssignable()
+   */
+  @Override
+  public AttributeAssignable getAttributeAssignable() {
+    return this.membership;
+  }
+
 
 }

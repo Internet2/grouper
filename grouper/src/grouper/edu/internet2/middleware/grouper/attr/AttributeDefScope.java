@@ -13,6 +13,9 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -477,5 +480,44 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
     
   }
 
+  /**
+   * Delete this group from the Groups Registry.
+   * <pre class="eg">
+   * try {
+   *   g.delete();
+   * }
+   * catch (GroupDeleteException e0) {
+   *   // Unable to delete group
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to delete this group
+   * }
+   * </pre>
+   * @throws  GroupDeleteException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void delete() throws GroupDeleteException, InsufficientPrivilegeException {
+    GrouperDAOFactory.getFactory().getAttributeDefScope().delete(this);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    if (this.createdOnDb == null) {
+      this.setCreatedOnDb(System.currentTimeMillis());
+    }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    this.setLastUpdatedDb(System.currentTimeMillis());
+  }
 
 }

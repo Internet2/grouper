@@ -53,8 +53,15 @@ public interface AttributeDefScopeDAO extends GrouperDAO {
   /**
    * find all the scopes for a def
    * @param attributeDefId
+   * @param queryOptions 
    * @return the attribute def scopes
    */
-  public Set<AttributeDefScope> findByAttributeDefId(String attributeDefId);
+  public Set<AttributeDefScope> findByAttributeDefId(String attributeDefId, QueryOptions queryOptions);
+
+  /** 
+   * delete an attribute def scope object 
+   * @param attributeDefScope
+   */
+  public void delete(AttributeDefScope attributeDefScope);
 
 }

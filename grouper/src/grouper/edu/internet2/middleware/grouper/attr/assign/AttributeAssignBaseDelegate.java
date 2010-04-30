@@ -12,12 +12,16 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefScope;
+import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.exception.AttributeOwnerNotInScopeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -61,7 +65,8 @@ public abstract class AttributeAssignBaseDelegate {
    */
   public abstract void assertCanUpdateAttributeDefName(AttributeDefName attributeDefName);
 
-  /** delegatable result */
+  /** delegatable result.  CH 2010/04/29: can we cache this here???? seems wrong since
+   * a different attributeDefName will have a different result... hmmm */
   private AttributeAssignDelegatable attributeAssignDelegatable = null;
   
   /**
@@ -419,6 +424,8 @@ public abstract class AttributeAssignBaseDelegate {
           .getAttributeDefActionDelegate().allowedAction(action, true).getId());
     }
     
+    this.assertScopeOk(attributeDef);
+
     attributeAssign.saveOrUpdate();
 
     return new AttributeAssignResult(true, attributeAssign);
@@ -771,6 +778,38 @@ public abstract class AttributeAssignBaseDelegate {
   }
 
   /**
+   * 
+   * @param attributeDef
+   */
+  public void assertScopeOk(AttributeDef attributeDef) {
+    
+    Set<AttributeDefScope> attributeDefScopes = attributeDef.getAttributeDefScopeDelegate().retrieveAttributeDefScopes();
+    
+    //if 0 ignore
+    if (GrouperUtil.length(attributeDefScopes) > 0) {
+      AttributeAssignable attributeAssignable = this.getAttributeAssignable();
+      for (AttributeDefScope attributeDefScope : attributeDefScopes) {
+        AttributeDefScopeType attributeDefScopeType = attributeDefScope.getAttributeDefScopeType();
+        //if any succeed we are all good
+        if (attributeDefScopeType.allowedAssignment(attributeDefScope, attributeAssignable, attributeDef)) {
+          return;
+        }
+        
+      }
+      
+      //default to false
+      throw new AttributeOwnerNotInScopeException("Cant find a scope definition that fits this assignment: " 
+          + attributeDef + ", " + attributeAssignable);
+    }
+  }
+  
+  /**
+   * get the assignable object
+   * @return the assignable object
+   */
+  public abstract AttributeAssignable getAttributeAssignable();    
+  
+  /**
    * add a multi assignable attribute
    * @param action is the action on the assignment (null means default action)
    * @param attributeDefName
@@ -790,6 +829,8 @@ public abstract class AttributeAssignBaseDelegate {
       this.assertCanUpdateAttributeDefName(attributeDefName);
     }
   
+    this.assertScopeOk(attributeDef);
+    
     AttributeAssign attributeAssign = newAttributeAssign(action, attributeDefName, uuid);
     
     if (StringUtils.isBlank(attributeAssign.getAttributeAssignActionId())) {

@@ -181,5 +181,13 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     throw new RuntimeException("Cannot grant an attribute on stem assignment");
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#getAttributeAssignable()
+   */
+  @Override
+  public AttributeAssignable getAttributeAssignable() {
+    return this.stem;
+  }
+
 
 }

@@ -12,9 +12,11 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -30,7 +32,7 @@ public class AttributeDefScopeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefScopeTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new AttributeDefScopeTest("testTypeScope"));
   }
   
   /**
@@ -101,6 +103,76 @@ public class AttributeDefScopeTest extends GrouperTest {
   }
   
   /**
+   * 
+   */
+  public void testTypeScope() {
+    
+    AttributeDefName attributeDefTypeName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "someType");
+    AttributeDef attributeDefType = attributeDefTypeName.getAttributeDef();
+    
+    attributeDefType.setAssignToGroup(true);
+    
+    attributeDefType.setAttributeDefType(AttributeDefType.type);
+    attributeDefType.store();
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
+    
+    // this type can only be assigned to or under stem test2
+    
+    GrouperSession.stopQuietly(this.grouperSession);
+    
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    //not allowed
+    try {
+      attributeDefType.getAttributeDefScopeDelegate().assignStemSubScope(stem2);
+      fail("Not allowed");
+    } catch (Exception e) {
+      //good
+    }
+    GrouperSession.stopQuietly(this.grouperSession);
+    this.grouperSession = GrouperSession.startRootSession();
+    
+    //do this as grouper system, should work
+    attributeDefType.getAttributeDefScopeDelegate().assignStemSubScope(stem2);
+    
+    Group group3 = new GroupSave(this.grouperSession).assignName("test3:whatever").assignCreateParentStemsIfNotExist(true).save();
+    
+    try {
+      group3.getAttributeDelegate().assignAttribute(attributeDefTypeName);
+      fail("Should not be in scope");
+    } catch (Exception e) {
+      //good
+    }
+    
+    Group group2 = new GroupSave(this.grouperSession).assignName("test2:whatever").assignCreateParentStemsIfNotExist(true).save();
+    
+    //this is in scope
+    group2.getAttributeDelegate().assignAttribute(attributeDefTypeName);
+
+    //#######################
+    // try an attribute def dependent on an attribute def name
+    
+    AttributeDefName attributeDefAttrName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "someAttr");
+    AttributeDef attributeDefAttr = attributeDefAttrName.getAttributeDef();
+    
+    attributeDefAttr.setAssignToGroup(true);
+    attributeDefAttr.store();
+    
+    attributeDefAttr.getAttributeDefScopeDelegate().assignTypeDependence(attributeDefTypeName);
+    
+    try {
+      group3.getAttributeDelegate().assignAttribute(attributeDefAttrName);
+      fail("Should not happen");
+    } catch (Exception e) {
+      //good
+    }
+
+    //this is ok
+    group2.getAttributeDelegate().assignAttribute(attributeDefAttrName);
+        
+  }
+  
+  /**
    * make an example AttributeDefScope from db for testing
    * @return an example AttributeDefScope
    */
@@ -115,7 +187,7 @@ public class AttributeDefScopeTest extends GrouperTest {
     }
     
     AttributeDefScope attributeDefScope = attributeDef.getAttributeDefScopeDelegate()
-      .newScope(AttributeDefScopeType.attributeDefNameIdAssigned, "scopeString", null);
+      .addScope(AttributeDefScopeType.attributeDefNameIdAssigned, "scopeString", null);
     attributeDefScope.saveOrUpdate();
     return attributeDefScope;
   }
@@ -140,15 +212,15 @@ public class AttributeDefScopeTest extends GrouperTest {
     AttributeDef attributeDef = AttributeDefTest.exampleAttributeDefDb("test", "attributeDefScopeMultiple");
     
     AttributeDefScope attributeDefScope1 = attributeDef.getAttributeDefScopeDelegate()
-      .newScope(AttributeDefScopeType.attributeDefNameIdAssigned, "scopeString1", null);
+      .addScope(AttributeDefScopeType.attributeDefNameIdAssigned, "scopeString1", null);
     attributeDefScope1.saveOrUpdate();
 
     AttributeDefScope attributeDefScope2 = attributeDef.getAttributeDefScopeDelegate()
-      .newScope(AttributeDefScopeType.attributeDefNameIdAssigned, "scopeString2", null);
+      .addScope(AttributeDefScopeType.attributeDefNameIdAssigned, "scopeString2", null);
     attributeDefScope2.saveOrUpdate();
 
     AttributeDefScope attributeDefScope3 = attributeDef.getAttributeDefScopeDelegate()
-      .newScope(AttributeDefScopeType.inStem, "scopeString1", null);
+      .addScope(AttributeDefScopeType.inStem, "scopeString1", null);
     attributeDefScope3.saveOrUpdate();
     
     //get by id

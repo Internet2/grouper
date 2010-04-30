@@ -173,4 +173,12 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
     throw new RuntimeException("Cannot grant an attribute on attribute assignment");
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#getAttributeAssignable()
+   */
+  @Override
+  public AttributeAssignable getAttributeAssignable() {
+    return this.attributeAssignToAssignTo;
+  }
+
 }

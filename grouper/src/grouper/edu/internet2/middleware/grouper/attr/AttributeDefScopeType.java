@@ -1,5 +1,16 @@
 package edu.internet2.middleware.grouper.attr;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -9,17 +20,160 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public enum AttributeDefScopeType {
 
   /** for member type attributes, filter on sourceId (none means allow all) */
-  sourceId,
+  sourceId {
+
+    @Override
+    public boolean allowedAssignment(AttributeDefScope attributeDefScope,
+        AttributeAssignable attributeAssignable, AttributeDef attributeDef) {
+      
+      //if member, check source, else, just false, no error
+      if (attributeAssignable instanceof Member) {
+        if (StringUtils.equals(attributeDefScope.getScopeString(), ((Member)attributeAssignable).getSubjectSourceId())) {
+          return true;
+        }
+      }
+      return false;
+    }
+  },
   
   /** this attribute can be assigned only if another attribute def name id is assigned */
-  attributeDefNameIdAssigned,
+  attributeDefNameIdAssigned {
+
+    @Override
+    public boolean allowedAssignment(final AttributeDefScope attributeDefScope,
+        final AttributeAssignable attributeAssignable, final AttributeDef attributeDef) {
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+
+      return (Boolean)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          return attributeAssignable.getAttributeDelegate().hasAttributeById(
+              StringUtils.trimToNull(attributeDefScope.getScopeString2()), attributeDefScope.getScopeString());
+          
+        }
+      });
+      
+    }
+  },
   
   /** stemId of the stem the object needs to be in for this attribute to be assigned */
-  inStem,
+  inStem {
+
+    @Override
+    public boolean allowedAssignment(AttributeDefScope attributeDefScope,
+        AttributeAssignable attributeAssignable, AttributeDef attributeDef) {
+
+      if (attributeAssignable instanceof Group) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((Group)attributeAssignable).getParentUuid());
+      }
+      
+      if (attributeAssignable instanceof Stem) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((Stem)attributeAssignable).getParentUuid());
+      }
+      
+      if (attributeAssignable instanceof AttributeDef) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeDef)attributeAssignable).getStemId());
+      }
+      
+      return false;
+      
+    }
+  },
   
   /** matching generally on namepsace names, its a like string in DB.  Can be stem or substem */
-  nameLike;
+  nameLike {
 
+    @Override
+    public boolean allowedAssignment(AttributeDefScope attributeDefScope,
+        AttributeAssignable attributeAssignable, AttributeDef attributeDef) {
+      if (attributeAssignable instanceof Group) {
+        return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), ((Group) attributeAssignable).getName());
+      }
+      
+      if (attributeAssignable instanceof Stem) {
+        return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), ((Stem) attributeAssignable).getName());
+      }
+      
+      if (attributeAssignable instanceof AttributeDef) {
+        return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), ((AttributeDef) attributeAssignable).getName());
+      }
+      
+      if (attributeAssignable instanceof Member) {
+        return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), ((Member) attributeAssignable).getSubjectId());
+      }
+      
+      return false;
+    }
+  },
+  
+  /** matching exact name */
+  nameEquals {
+
+    @Override
+    public boolean allowedAssignment(AttributeDefScope attributeDefScope,
+        AttributeAssignable attributeAssignable, AttributeDef attributeDef) {
+      if (attributeAssignable instanceof Group) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((Group) attributeAssignable).getName());
+      }
+      
+      if (attributeAssignable instanceof Stem) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((Stem) attributeAssignable).getName());
+      }
+      
+      if (attributeAssignable instanceof AttributeDef) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeDef) attributeAssignable).getName());
+      }
+      
+      return false;
+    }
+  },
+  
+  /** matching exact id */
+  idEquals {
+
+    @Override
+    public boolean allowedAssignment(AttributeDefScope attributeDefScope,
+        AttributeAssignable attributeAssignable, AttributeDef attributeDef) {
+      if (attributeAssignable instanceof Group) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((Group) attributeAssignable).getId());
+      }
+      
+      if (attributeAssignable instanceof Stem) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((Stem) attributeAssignable).getUuid());
+      }
+      
+      if (attributeAssignable instanceof AttributeDef) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeDef) attributeAssignable).getId());
+      }
+      
+      if (attributeAssignable instanceof Membership) {
+        //id can equal or immediate membership id and type is immediate
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((Membership) attributeAssignable).getUuid())
+          || (StringUtils.equals("immediate", ((Membership)attributeAssignable).getType())
+            &&  StringUtils.equals(attributeDefScope.getScopeString(), 
+                ((Membership) attributeAssignable).getImmediateMembershipId()));
+      }
+
+      if (attributeAssignable instanceof AttributeAssign) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeAssign) attributeAssignable).getId());
+      }
+      
+      return false;
+    }
+  };
+  
+  /**
+   * 
+   * @param attributeDefScope
+   * @param attributeAssignable
+   * @param attributeDef
+   * @return true if allowed, false if not allowed
+   */
+  public abstract boolean allowedAssignment(AttributeDefScope attributeDefScope, 
+      AttributeAssignable attributeAssignable, AttributeDef attributeDef);
+  
   /**
    * do a case-insensitive matching
    * 

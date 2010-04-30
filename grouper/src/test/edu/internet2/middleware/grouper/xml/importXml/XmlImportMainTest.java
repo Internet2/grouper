@@ -230,7 +230,7 @@ public class XmlImportMainTest extends GrouperTest {
 //    attributeAssignValue.setValueString("string");
 //    HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValue);
 
-    Set<AttributeDefScope> attributeDefScopes = GrouperDAOFactory.getFactory().getAttributeDefScope().findByAttributeDefId(studentsAttrDef.getUuid());
+    Set<AttributeDefScope> attributeDefScopes = GrouperDAOFactory.getFactory().getAttributeDefScope().findByAttributeDefId(studentsAttrDef.getUuid(), null);
     assertEquals(1, attributeDefScopes.size());
     AttributeDefScope attributeDefScope = attributeDefScopes.iterator().next();
     assertEquals("whatever", attributeDefScope.getScopeString());

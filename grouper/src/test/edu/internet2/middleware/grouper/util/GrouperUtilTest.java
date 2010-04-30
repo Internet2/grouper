@@ -31,10 +31,22 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testUrlProperties"));
+    TestRunner.run(new GrouperUtilTest("testMatchSqlString"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
+ 
+  /**
+   * 
+   */
+  public void testMatchSqlString() {
+    //  * e.g. if the input is a:b:%, and the input is: a:b:test:that, then it returns true
+    assertTrue(GrouperUtil.matchSqlString("a:b:%", "a:b:test:that"));
+    assertFalse(GrouperUtil.matchSqlString("a:b:%", "a:c:test:that"));
+    assertTrue(GrouperUtil.matchSqlString("a_b:%", "a:b:test:that"));
+    assertTrue(GrouperUtil.matchSqlString("a%b:%", "aasdfasdfb:test:that"));
+  }
+
   
   /**
    * see that properties can be retrieved from url

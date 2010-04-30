@@ -111,6 +111,32 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class GrouperUtil {
 
   /**
+   * see if a sql like string matches a real string.
+   * e.g. if the input is a:b:%, and the input is: a:b:test:that, then it returns true
+   * @param sqlMatcher
+   * @param testText
+   * @return true if matches, false if not
+   */
+  public static boolean matchSqlString(String sqlMatcher, String testText) {
+    
+    //first do slashes
+    String regexString = StringUtils.replace(sqlMatcher, "\\", "\\\\");
+    
+    //then do everything else
+    regexString = replace(regexString, 
+        new String[]{"$",   "^",   "*",   "(",   ")",   "+",   "[",   "{",   "]",   "}",   "|",   "\"", ".",   "?"},
+        new String[]{"\\$", "\\^", "\\*", "\\(", "\\)", "\\+", "\\[", "\\{", "\\]", "\\}", "\\|", "\"", "\\.", "\\?", }); 
+    
+    //then do the underscores and percents
+    regexString = StringUtils.replace(regexString, "_", ".");
+    regexString = "^" + StringUtils.replace(regexString, "%", ".*") + "$";
+    
+    Pattern pattern = Pattern.compile(regexString, Pattern.DOTALL);
+    Matcher matcher = pattern.matcher(testText);
+    return matcher.matches();
+  }
+  
+  /**
    * shorten a set if it is too long
    * @param <T>
    * @param theSet

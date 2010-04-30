@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -203,6 +204,14 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
       .append( "group", this.group)
       .append( "member", this.member )
       .toString();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#getAttributeAssignable()
+   */
+  @Override
+  public AttributeAssignable getAttributeAssignable() {
+    return new GroupMember(this.group, this.member);
   }
 
 
