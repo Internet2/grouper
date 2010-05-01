@@ -115,7 +115,7 @@ public class AttributeDefScopeTest extends GrouperTest {
     attributeDefType.setAttributeDefType(AttributeDefType.type);
     attributeDefType.store();
     
-    Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
+    Stem stem2 = new StemSave(grouperSession).assignName("test2").assignStemNameToEdit("test2").save();
     
     // this type can only be assigned to or under stem test2
     

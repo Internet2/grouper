@@ -187,6 +187,13 @@ public class AttributeDefScopeDelegate {
    */
   public Set<AttributeDefScope> removeScope(AttributeDefScopeType attributeDefScopeType, 
       String scopeString) {
+    
+    //make sure you can admin the constraint scope
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    if (!PrivilegeHelper.canAttrAdmin(grouperSession, this.attributeDef, grouperSession.getSubject())) {
+      throw new RuntimeException("Cannot attr_admin attributeDef: " + this.attributeDef.getName());
+    }
+
     Set<AttributeDefScope> attributeDefScopes = new HashSet<AttributeDefScope>();
     for (AttributeDefScope attributeDefScope : this.retrieveAttributeDefScopes()) {
       if (GrouperUtil.equals(attributeDefScopeType, attributeDefScope.getAttributeDefScopeType())
@@ -207,6 +214,13 @@ public class AttributeDefScopeDelegate {
    */
   public Set<AttributeDefScope> removeScope(AttributeDefScopeType attributeDefScopeType, 
       String scopeString, String scopeString2) {
+    
+    //make sure you can admin the constraint scope
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    if (!PrivilegeHelper.canAttrAdmin(grouperSession, this.attributeDef, grouperSession.getSubject())) {
+      throw new RuntimeException("Cannot attr_admin attributeDef: " + this.attributeDef.getName());
+    }
+    
     Set<AttributeDefScope> attributeDefScopes = new HashSet<AttributeDefScope>();
     for (AttributeDefScope attributeDefScope : this.retrieveAttributeDefScopes()) {
       if (GrouperUtil.equals(attributeDefScopeType, attributeDefScope.getAttributeDefScopeType())

@@ -385,5 +385,13 @@
           overflowToDisk="false"
     />
 
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefScopeDAO.FindByUuidOrName"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="30"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+  />
+
 
 </ehcache>

@@ -1406,6 +1406,32 @@ public class GrouperCheckConfig {
   }
 
   /**
+   * make sure an attribute is there or add it if not
+   * @param stem
+   * @param attributeDef 
+   * @param extension
+   * @param description
+   * @param logAutocreate 
+   * @return the attribute def name
+   */
+  private static AttributeDefName checkAttribute(Stem stem, AttributeDef attributeDef, String extension, String description, boolean logAutocreate) {
+    String attributeDefNameName = stem.getName() + ":" + extension;
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeDefNameName, false);
+    if (attributeDefName == null) {
+      attributeDefName = stem.addChildAttributeDefName(attributeDef, extension, extension);
+      attributeDefName.setDescription(description);
+      attributeDefName.store();
+      
+      if (logAutocreate) {
+        String error = "auto-created attributeDefName: " + attributeDefNameName;
+        System.err.println("Grouper note: " + error);
+        LOG.warn(error);
+      }
+    }
+    return attributeDefName;
+  }
+  
+  /**
    * make sure configured attributes are there 
    */
   public static void checkAttributes() {
@@ -1424,7 +1450,10 @@ public class GrouperCheckConfig {
     if (StringUtils.isBlank(rootStemName)) {
       throw new RuntimeException("If autoconfiguring attributes, you need to configure a root stem");
     }
-
+    
+    //namespace this separate from other builtins
+    rootStemName += ":attrLoader";
+    
     GrouperSession grouperSession = null;
     boolean startedGrouperSession = false;
     try {
@@ -1442,16 +1471,22 @@ public class GrouperCheckConfig {
           .save();
       }
 
+      AttributeDefName attributeLoaderTypeName = null;
+      
       {
         //see if attributeDef is there
-        String attributeDefLoaderTypeDefName = rootStemName + ":attributeDefLoaderType";
-        AttributeDef attributeDef = AttributeDefFinder.findByName(attributeDefLoaderTypeDefName, false);
-        if (attributeDef == null) {
-          attributeDef = stem.addChildAttributeDef(attributeDefLoaderTypeDefName, AttributeDefType.type);
-          attributeDef.setAssignToAttributeDef(true);
-          attributeDef.setValueType(AttributeDefValueType.string);
-          attributeDef.store();
+        String attributeDefLoaderTypeDefName = rootStemName + ":attributeDefLoaderTypeDef";
+        AttributeDef attributeDefType = AttributeDefFinder.findByName(attributeDefLoaderTypeDefName, false);
+        if (attributeDefType == null) {
+          attributeDefType = stem.addChildAttributeDef("attributeDefLoaderTypeDef", AttributeDefType.type);
+          attributeDefType.setAssignToAttributeDef(true);
+          attributeDefType.store();
         }
+        
+        //add a name
+        attributeLoaderTypeName = checkAttribute(stem, attributeDefType, "attributeLoader", 
+            "is a loader based attribute def, the looader attributes will be available to be assigned", wasInCheckConfig);
+        
       }      
       
       {
@@ -1459,21 +1494,33 @@ public class GrouperCheckConfig {
         String attributeDefLoaderDefName = rootStemName + ":attributeDefLoaderDef";
         AttributeDef attributeDef = AttributeDefFinder.findByName(attributeDefLoaderDefName, false);
         if (attributeDef == null) {
-          attributeDef = stem.addChildAttributeDef(attributeDefLoaderDefName, AttributeDefType.attr);
+          attributeDef = stem.addChildAttributeDef("attributeDefLoaderDef", AttributeDefType.attr);
           attributeDef.setAssignToAttributeDef(true);
           attributeDef.setValueType(AttributeDefValueType.string);
           attributeDef.store();
         }
         
+        //make sure the other def means this one is allowed
+        attributeDef.getAttributeDefScopeDelegate().assignTypeDependence(attributeLoaderTypeName);
+        
         //add some names
-        {
-          AttributeDefName attributeLoaderType = AttributeDefNameFinder.findByName(rootStemName + ":attributeLoaderType", false);
-          if (attributeLoaderType == null) {
-            attributeLoaderType = stem.addChildAttributeDefName(attributeDef, "attributeLoaderType", "attributeLoaderType");
-            attributeLoaderType.setDescription("Type of loader, e.g. ATTR_SQL_SIMPLE");
-            attributeLoaderType.store();
-          }
-        }
+        checkAttribute(stem, attributeDef, "attributeLoaderType", "Type of loader, e.g. ATTR_SQL_SIMPLE", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderDbName", 
+          "DB name in grouper-loader.properties or default grouper db if blank", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderScheduleType", 
+          "Type of schedule.  Defaults to CRON if a cron schedule is entered, or START_TO_START_INTERVAL if an interval is entered", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderQuartzCron", 
+          "If a CRON schedule type, this is the cron setting string from the quartz product to run a job daily, hourly, weekly, etc", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderIntervalSeconds", 
+          "If a START_TO_START_INTERVAL schedule type, this is the number of seconds between runs", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderPriority", 
+          "Quartz has a fixed threadpool (max configured in the grouper-loader.properties), and when the max is reached, then jobs are prioritized by this integer.  The higher the better, and the default if not set is 5.", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderAttrsLike", 
+          "If empty, then orphans will be left alone.  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderAttrQuery", 
+          "SQL query with at least some of the following columns: attr_name, attr_display_name, attr_description", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderAttrSetQuery", 
+          "SQL query with at least the following columns: if_has_attr_name, then_has_attr_name", wasInCheckConfig);
       }
       
     } catch (SessionException se) {

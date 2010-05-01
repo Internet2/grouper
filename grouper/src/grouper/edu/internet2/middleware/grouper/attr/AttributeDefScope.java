@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -520,4 +521,18 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
     this.setLastUpdatedDb(System.currentTimeMillis());
   }
 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append( "type", this.attributeDefScopeType)
+      .append( "scopeString", this.scopeString )
+      .append( "scopeString2", this.scopeString2 )
+      .toString();
+    
+  }
+  
+  
 }
