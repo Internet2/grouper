@@ -59,6 +59,7 @@ public class TestFindBadMemberships extends GrouperTest {
   private Subject subjC;
   private Subject subjD;
   private Subject subjE;
+  private Subject subjF;
   
   /**
    * @param name
@@ -90,11 +91,12 @@ public class TestFindBadMemberships extends GrouperTest {
    * @throws Exception
    */
   private void setUpComposites() throws Exception {
-    R r = R.populateRegistry(0, 0, 4);
+    R r = R.populateRegistry(0, 0, 6);
     subjA = r.getSubject("a");
     subjB = r.getSubject("b");
     subjC = r.getSubject("c");
     subjD = r.getSubject("d");
+    subjF = r.getSubject("f");
 
     grouperSession = SessionHelper.getRootSession();
     Stem root = StemFinder.findRootStem(grouperSession);
@@ -142,6 +144,7 @@ public class TestFindBadMemberships extends GrouperTest {
     left2.addMember(subjA);
     left2.addMember(subjB);
     left2.addMember(subjE);
+    left2.addMember(subjF);
     right2.addMember(subjB);
     left3.addMember(subjA);
     right3.addMember(subjA);
@@ -182,8 +185,11 @@ public class TestFindBadMemberships extends GrouperTest {
     setUpComposites();
     
     Membership ms1 = MembershipFinder.findCompositeMembership(grouperSession, owner1, subjC, true);
-    Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjE, true);
+    Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjF, true);
     Membership ms3 = MembershipFinder.findCompositeMembership(grouperSession, owner3, subjA, true);
+    
+    Membership ms4 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjE, false);
+    assertNull(ms4);
     
     ms1.delete();
     ms2.delete();
@@ -207,7 +213,7 @@ public class TestFindBadMemberships extends GrouperTest {
     setUpComposites();
     
     Membership ms1 = MembershipFinder.findCompositeMembership(grouperSession, owner1, subjC, true);
-    Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjE, true);
+    Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjF, true);
     Membership ms3 = MembershipFinder.findCompositeMembership(grouperSession, owner3, subjA, true);
     
     ms1.setHibernateVersionNumber(-1L);
@@ -246,7 +252,7 @@ public class TestFindBadMemberships extends GrouperTest {
     setUpComposites();
     
     Membership ms1 = MembershipFinder.findCompositeMembership(grouperSession, owner1, subjC, true);
-    Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjE, true);
+    Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjF, true);
     Membership ms3 = MembershipFinder.findCompositeMembership(grouperSession, owner3, subjA, true);
     
     Member member = MemberFinder.findBySubject(grouperSession, subjD, true);
@@ -276,7 +282,7 @@ public class TestFindBadMemberships extends GrouperTest {
     setUpComposites();
     
     Membership ms1 = MembershipFinder.findCompositeMembership(grouperSession, owner1, subjC, true);
-    Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjE, true);
+    Membership ms2 = MembershipFinder.findCompositeMembership(grouperSession, owner2, subjF, true);
     Membership ms3 = MembershipFinder.findCompositeMembership(grouperSession, owner3, subjA, true);
     
     ms1.setType(MembershipType.IMMEDIATE.getTypeString());

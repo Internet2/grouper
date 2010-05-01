@@ -387,7 +387,7 @@ public class TestDisabledMembership extends TestCase {
     top2.grantPriv(owner.toSubject(), AccessPrivilege.UPDATE);
     stem.grantPriv(owner.toSubject(), NamingPrivilege.CREATE);
 
-    verifyMemberships(20, 6, 6, true, true, true, true, true, true);
+    verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     // disable owner -> top1
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
@@ -398,7 +398,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
 
-    verifyMemberships(14, 6, 6, false, true, true, true, true, true);
+    verifyMemberships(12, 4, 4, false, true, true, true, true, true);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         top1.getUuid(), owner.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, false);
@@ -408,7 +408,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
     
-    verifyMemberships(20, 6, 6, true, true, true, true, true, true);
+    verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     // disable owner -> top2 (update priv)
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
@@ -419,7 +419,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
 
-    verifyMemberships(20, 6, 0, true, false, true, true, true, true);
+    verifyMemberships(16, 4, 0, true, false, true, true, true, true);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         top2.getUuid(), owner.toMember().getUuid(), FieldFinder.find("updaters", true), MembershipType.IMMEDIATE.getTypeString(), true, false);
@@ -429,7 +429,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
     
-    verifyMemberships(20, 6, 6, true, true, true, true, true, true);
+    verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     // disable owner -> stem (create priv)
     ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
@@ -440,7 +440,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
 
-    verifyMemberships(20, 0, 6, true, true, false, true, true, true);
+    verifyMemberships(16, 0, 4, true, true, false, true, true, true);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
         stem.getUuid(), owner.toMember().getUuid(), FieldFinder.find("creators", true), MembershipType.IMMEDIATE.getTypeString(), true, false);
@@ -450,7 +450,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
     
-    verifyMemberships(20, 6, 6, true, true, true, true, true, true);
+    verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     // disable one -> left
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
@@ -471,7 +471,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
     
-    verifyMemberships(20, 6, 6, true, true, true, true, true, true);
+    verifyMemberships(16, 4, 4, true, true, true, true, true, true);
 
     
     // disable two -> one
@@ -483,7 +483,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
 
-    verifyMemberships(12, 4, 4, true, true, true, true, false, true);
+    verifyMemberships(10, 3, 3, true, true, true, true, false, true);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         one.getUuid(), two.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, false);
@@ -493,7 +493,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
     
-    verifyMemberships(20, 6, 6, true, true, true, true, true, true);
+    verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     
     // disable SC -> two
@@ -505,7 +505,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
 
-    verifyMemberships(15, 5, 5, true, true, true, true, true, false);
+    verifyMemberships(11, 3, 3, true, true, true, true, true, false);
     
     ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         two.getUuid(), MemberFinder.findBySubject(r.rs, c, true).getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, false);
@@ -515,7 +515,7 @@ public class TestDisabledMembership extends TestCase {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
     
-    verifyMemberships(20, 6, 6, true, true, true, true, true, true);
+    verifyMemberships(16, 4, 4, true, true, true, true, true, true);
   }
   
   private void verifyMemberships(int members, int creators, int updaters, boolean top1ToOwnerEnabled,
@@ -567,16 +567,10 @@ public class TestDisabledMembership extends TestCase {
       assertEquals(1, ms2.getDepth());
       
       if (leftToOneEnabled) {
-        Membership ms3 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(top1.getUuid(), one.toMember().getUuid(), membersField, MembershipType.EFFECTIVE.getTypeString(), true, true);
-        assertEquals(1, ms3.getDepth());
-        
         Membership ms4 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(top1.getUuid(), b.getUuid(), membersField, MembershipType.EFFECTIVE.getTypeString(), true, true);
         assertEquals(1, ms4.getDepth());
        
         if (oneToTwoEnabled) {
-          Membership ms5 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(top1.getUuid(), two.toMember().getUuid(), membersField, MembershipType.EFFECTIVE.getTypeString(), true, true);
-          assertEquals(1, ms5.getDepth());
-          
           if (twoToSCEnabled) {
             Membership ms6 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(top1.getUuid(), c.getUuid(), membersField, MembershipType.EFFECTIVE.getTypeString(), true, true);
             assertEquals(1, ms6.getDepth());
@@ -628,16 +622,10 @@ public class TestDisabledMembership extends TestCase {
     assertEquals(0, ms16.getDepth());
     
     if (leftToOneEnabled) {
-      Membership ms17 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(owner.getUuid(), one.toMember().getUuid(), membersField, MembershipType.COMPOSITE.getTypeString(), true, true);
-      assertEquals(0, ms17.getDepth());
-      
       Membership ms18 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(owner.getUuid(), b.getUuid(), membersField, MembershipType.COMPOSITE.getTypeString(), true, true);
       assertEquals(0, ms18.getDepth());
       
       if (oneToTwoEnabled) {
-        Membership ms19 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(owner.getUuid(), two.toMember().getUuid(), membersField, MembershipType.COMPOSITE.getTypeString(), true, true);
-        assertEquals(0, ms19.getDepth());
-        
         if (twoToSCEnabled) {
           Membership ms20 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(owner.getUuid(), c.getUuid(), membersField, MembershipType.COMPOSITE.getTypeString(), true, true);
           assertEquals(0, ms20.getDepth());
@@ -653,16 +641,10 @@ public class TestDisabledMembership extends TestCase {
       assertEquals(1, ms22.getDepth());
       
       if (leftToOneEnabled) {
-        Membership ms23 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(top2.getUuid(), one.toMember().getUuid(), updatersField, MembershipType.EFFECTIVE.getTypeString(), true, true);
-        assertEquals(1, ms23.getDepth());
-  
         Membership ms24 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(top2.getUuid(), b.getUuid(), updatersField, MembershipType.EFFECTIVE.getTypeString(), true, true);
         assertEquals(1, ms24.getDepth());
         
         if (oneToTwoEnabled) {
-          Membership ms25 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(top2.getUuid(), two.toMember().getUuid(), updatersField, MembershipType.EFFECTIVE.getTypeString(), true, true);
-          assertEquals(1, ms25.getDepth());
-         
           if (twoToSCEnabled) {
             Membership ms26 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(top2.getUuid(), c.getUuid(), updatersField, MembershipType.EFFECTIVE.getTypeString(), true, true);
             assertEquals(1, ms26.getDepth());
@@ -679,16 +661,10 @@ public class TestDisabledMembership extends TestCase {
       assertEquals(1, ms28.getDepth());
       
       if (leftToOneEnabled) {
-        Membership ms29 = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem.getUuid(), one.toMember().getUuid(), creatorsField, MembershipType.EFFECTIVE.getTypeString(), true, true);
-        assertEquals(1, ms29.getDepth());
-        
         Membership ms30 = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem.getUuid(), b.getUuid(), creatorsField, MembershipType.EFFECTIVE.getTypeString(), true, true);
         assertEquals(1, ms30.getDepth());
         
         if (oneToTwoEnabled) {
-          Membership ms31 = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem.getUuid(), two.toMember().getUuid(), creatorsField, MembershipType.EFFECTIVE.getTypeString(), true, true);
-          assertEquals(1, ms31.getDepth());
-          
           if (twoToSCEnabled) {
             Membership ms32 = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem.getUuid(), c.getUuid(), creatorsField, MembershipType.EFFECTIVE.getTypeString(), true, true);
             assertEquals(1, ms32.getDepth());

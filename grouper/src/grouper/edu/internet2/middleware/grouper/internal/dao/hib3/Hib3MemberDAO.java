@@ -28,13 +28,11 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -395,6 +393,8 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#_internal_membersIntersection(java.lang.String, java.lang.String)
    */
   public Set<String> _internal_membersIntersection(String groupUuid1, String groupUuid2) {
+    String groupSubjectSourceId = SubjectFinder.internal_getGSA().getId();
+
     Set<String> memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid " +
     		"from Member theMember, " +
@@ -406,10 +406,12 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         "and theMembership.fieldId = :fuuid " +
         "and theMembership2.fieldId = :fuuid " +
         "and theMembership.enabledDb = 'T' " +
-        "and theMembership2.enabledDb = 'T' ")
+        "and theMembership2.enabledDb = 'T' " +
+        "and theMember.subjectSourceIdDb <> :groupSubjectSourceId ")
         .setString("group1uuid", groupUuid1)
         .setString("group2uuid", groupUuid2)
         .setString("fuuid", Group.getDefaultList().getUuid())
+        .setString("groupSubjectSourceId", groupSubjectSourceId)
         .listSet(String.class);
     return memberUuids;
   }
@@ -419,6 +421,8 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#_internal_membersUnion(java.lang.String, java.lang.String)
    */
   public Set<String> _internal_membersUnion(String groupUuid1, String groupUuid2) {
+    String groupSubjectSourceId = SubjectFinder.internal_getGSA().getId();
+
     Set<String> memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid " +
         "from Member theMember, " +
@@ -427,10 +431,12 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         " :group2uuid) " +
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMembership.fieldId = :fuuid " +
-        "and theMembership.enabledDb = 'T' ")
+        "and theMembership.enabledDb = 'T' " +
+        "and theMember.subjectSourceIdDb <> :groupSubjectSourceId ")
         .setString("group1uuid", groupUuid1)
         .setString("group2uuid", groupUuid2)
         .setString("fuuid", Group.getDefaultList().getUuid())
+        .setString("groupSubjectSourceId", groupSubjectSourceId)
         .listSet(String.class);
     return memberUuids;
   }
@@ -440,6 +446,8 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#_internal_membersComplement(java.lang.String, java.lang.String)
    */
   public Set<String> _internal_membersComplement(String groupUuid1, String groupUuid2) {
+    String groupSubjectSourceId = SubjectFinder.internal_getGSA().getId();
+
     Set<String> memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid from Member theMember, " +
         "MembershipEntry theMembership " +
@@ -447,12 +455,14 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMembership.fieldId = :fuuid " +
         "and theMembership.enabledDb = 'T' " +
+        "and theMember.subjectSourceIdDb <> :groupSubjectSourceId " +
         "and not exists (select theMembership2.memberUuid from MembershipEntry theMembership2 " +
         "where theMembership2.memberUuid = theMember.uuid and theMembership2.fieldId = :fuuid " +
         "and theMembership2.ownerGroupId = :group2uuid and theMembership2.enabledDb = 'T') ")
         .setString("group1uuid", groupUuid1)
         .setString("group2uuid", groupUuid2)
         .setString("fuuid", Group.getDefaultList().getUuid())
+        .setString("groupSubjectSourceId", groupSubjectSourceId)
         .listSet(String.class);
     return memberUuids;
   }

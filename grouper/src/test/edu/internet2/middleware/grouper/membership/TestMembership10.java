@@ -474,22 +474,21 @@ public class TestMembership10 extends TestCase {
 
   public  void verifyMemberships() throws Exception {
 
-    // gA should have two members only
-    T.amount("Verify number of memberships for gA", 2, gA.getCompositeMemberships().size());
+    // gA should have one member only
+    T.amount("Verify number of memberships for gA", 1, gA.getCompositeMemberships().size());
     Assert.assertTrue("Verify SB -> gA", gA.hasMember(subjB));
-    Assert.assertTrue("Verify gD -> gA", gA.hasMember(gD.toSubject()));
 
     // verify the total number of list memberships
     Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-    T.amount("Number of list memberships", 15, listMemberships.size());
+    T.amount("Number of list memberships", 13, listMemberships.size());
 
     // verify the total number of update privileges
     Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-    T.amount("Number of update privileges", 3, updateMemberships.size());
+    T.amount("Number of update privileges", 2, updateMemberships.size());
 
     // verify the total number of create privileges
     Set<Membership> createMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldCreators);
-    T.amount("Number of create privileges", 3, createMemberships.size());
+    T.amount("Number of create privileges", 2, createMemberships.size());
   }
 
 }

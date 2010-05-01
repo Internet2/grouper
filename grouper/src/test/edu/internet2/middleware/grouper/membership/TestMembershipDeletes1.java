@@ -173,18 +173,18 @@ public class TestMembershipDeletes1 extends TestCase {
       // add and remove SF -> gI
       gI.addMember(subjFDel);
       gI.deleteMember(subjFDel);
-      T.amount("Number of list memberships", 49, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
+      T.amount("Number of list memberships", 46, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 3, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
 
       // remove composite gJ
       gJ.deleteCompositeMember();
-      T.amount("Number of list memberships", 58, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
+      T.amount("Number of list memberships", 55, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
 
       // remove composite gH
       gH.deleteCompositeMember();
-      T.amount("Number of list memberships", 38, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
+      T.amount("Number of list memberships", 35, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 1, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
       gH.addCompositeMember(CompositeType.COMPLEMENT, gI, gJ);
 
@@ -196,7 +196,7 @@ public class TestMembershipDeletes1 extends TestCase {
 
       // remove composite gA
       gA.deleteCompositeMember();
-      T.amount("Number of list memberships", 47, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
+      T.amount("Number of list memberships", 44, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 3, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
 

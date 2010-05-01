@@ -517,6 +517,42 @@ public enum GrouperDdl implements DdlVersionable {
   },
   
   /**
+   * <pre>
+   * remove composite memberships where the member is a group
+   * </pre>
+   */
+  V24 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      int count = 0;
+      
+      try {
+        count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_memberships ms, grouper_members m " +
+          "  where ms.member_id = m.id and ms.mship_type='composite' and m.subject_source='g:gsa'");
+      } catch (Exception e) {
+        LOG.info("Problem getting count of composite memberships where the member is a group.");
+      }
+      if (count > 0) {   
+        // this is more complicated than it should be because of mysql
+        // http://bugs.mysql.com/bug.php?id=5037
+        ddlVersionBean.appendAdditionalScriptUnique(
+            "\ndelete from grouper_memberships where id in " +
+            "  (select x.id from " +
+            "    (select ms.id from grouper_memberships ms, grouper_members m " +
+            "      where ms.member_id = m.id and ms.mship_type='composite' and m.subject_source='g:gsa') x);\ncommit;\n");
+      }
+    }
+  },
+  
+  /**
    * delete backup cols if configured to and if exist
    */
   V11 {

@@ -8,6 +8,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.flat.FlatMembership;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO;
@@ -236,6 +237,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
   }
 
   public Set<FlatMembership> findBadFlatMemberships() {
+    String groupSubjectSourceId = SubjectFinder.internal_getGSA().getId();
+
     Set<FlatMembership> mships = HibernateSession
       .byHqlStatic()
       .createQuery("select flatMship from FlatMembership flatMship where " +
@@ -254,7 +257,7 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
           "    and type.actionName='deletePrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type, Member m, FlatMembership flatMship2 " +
           "    where temp.string09=:fieldId and type.actionName='deleteMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId " +
-          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='g:gsa' " +
+          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='" + groupSubjectSourceId + "' " +
           "    and flatMship2.memberId = m.uuid and flatMship.ownerId=flatMship2.ownerId and flatMship.fieldId = flatMship2.fieldId)")
       .setCacheable(false).setCacheRegion(KLASS + ".FindBadFlatMemberships")
       .setString("fieldId", Group.getDefaultList().getUuid())
@@ -264,6 +267,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
   }
 
   public Set<Membership> findMissingFlatMemberships(int page, int batchSize) {
+    String groupSubjectSourceId = SubjectFinder.internal_getGSA().getId();
+
     Set<Membership> mships = HibernateSession
       .byHqlStatic()
       .createQuery("select ms from MembershipEntry ms where ms.enabledDb='T' and " +
@@ -284,7 +289,7 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
           "    and type.actionName='addPrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type, Member m, MembershipEntry ms2 " +
           "    where temp.string09=:fieldId and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId " +
-          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='g:gsa' " +
+          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='" + groupSubjectSourceId + "' " +
           "    and ms2.memberUuid = m.uuid " +
           "    and (ms.ownerGroupId is not null and ms.ownerGroupId=ms2.ownerGroupId " +
           "         or ms.ownerStemId is not null and ms.ownerStemId=ms2.ownerStemId " +
@@ -300,6 +305,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
   }
   
   public long findMissingFlatMembershipsCount() {
+    String groupSubjectSourceId = SubjectFinder.internal_getGSA().getId();
+
     long count = HibernateSession
       .byHqlStatic()
       .createQuery("select count(*) from MembershipEntry ms where ms.enabledDb='T' and " +
@@ -320,7 +327,7 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
           "    and type.actionName='addPrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type, Member m, MembershipEntry ms2 " +
           "    where temp.string09=:fieldId and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId " +
-          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='g:gsa' " +
+          "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='" + groupSubjectSourceId + "' " +
           "    and ms2.memberUuid = m.uuid " +
           "    and (ms.ownerGroupId is not null and ms.ownerGroupId=ms2.ownerGroupId " +
           "         or ms.ownerStemId is not null and ms.ownerStemId=ms2.ownerStemId " +

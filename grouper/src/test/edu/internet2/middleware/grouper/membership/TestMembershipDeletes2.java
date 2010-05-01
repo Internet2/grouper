@@ -154,9 +154,6 @@ public class TestMembershipDeletes2 extends TestCase {
     // SA -> gA
     MembershipTestHelper.verifyCompositeMembership(r.rs, "SA -> gA", gA, subjA);
 
-    // gD -> gA
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gD -> gA", gA, gD.toSubject());
-
     // SB -> gA
     MembershipTestHelper.verifyImmediateMembership(r.rs, "SB -> gA", gA, subjB, fieldUpdaters);
 
@@ -169,17 +166,11 @@ public class TestMembershipDeletes2 extends TestCase {
     // SA -> gE
     MembershipTestHelper.verifyCompositeMembership(r.rs, "SA -> gE", gE, subjA);
 
-    // gD -> gE
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gD -> gE", gE, gD.toSubject());
-
     // gE -> gG
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gE -> gG", gG, gE.toSubject(), fieldUpdaters);
 
     // SA -> gG (parent: gE -> gG) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gG", gG, subjA, gE, 1, gG, gE.toSubject(), null, 0, fieldUpdaters);
-
-    // gD -> gG (parent: gE -> gG) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gG", gG, gD.toSubject(), gE, 1, gG, gE.toSubject(), null, 0, fieldUpdaters);
 
     // gI -> gH
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gI -> gH", gH, gI.toSubject(), fieldUpdaters);
@@ -190,17 +181,11 @@ public class TestMembershipDeletes2 extends TestCase {
     // SA -> gH (parent: gA -> gH) (depth: 2)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gH", gH, subjA, gA, 2, gH, gA.toSubject(), gI, 1, fieldUpdaters);
 
-    // gD -> gH (parent: gA -> gH) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gH", gH, gD.toSubject(), gA, 2, gH, gA.toSubject(), gI, 1, fieldUpdaters);
-
     // gA -> gI
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gA -> gI", gI, gA.toSubject(), fieldMembers);
 
     // SA -> gI (parent: gA -> gI) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gI", gI, subjA, gA, 1, gI, gA.toSubject(), null, 0, fieldMembers);
-
-    // gD -> gI (parent: gA -> gI) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gI", gI, gD.toSubject(), gA, 1, gI, gA.toSubject(), null, 0, fieldMembers);
 
     // gA -> gJ
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gA -> gJ", gJ, gA.toSubject(), fieldUpdaters);
@@ -208,30 +193,23 @@ public class TestMembershipDeletes2 extends TestCase {
     // SA -> gJ (parent: gA -> gJ) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gJ", gJ, subjA, gA, 1, gJ, gA.toSubject(), null, 0, fieldUpdaters); 
 
-    // gD -> gJ (parent: gA -> gJ) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gJ", gJ, gD.toSubject(), gA, 1, gJ, gA.toSubject(), null, 0, fieldUpdaters); 
-
     // gE -> nsA
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gE -> nsA", nsA, gE.toSubject(), fieldCreators);
 
     // SA -> nsA (parent: gE -> nsA) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> nsA", nsA, subjA, gE, 1, nsA, gE.toSubject(), null, 0, fieldCreators); 
 
-    // gD -> nsA (parent: gE -> nsA) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> nsA", nsA, gD.toSubject(), gE, 1, nsA, gE.toSubject(), null, 0, fieldCreators); 
-
-
     // verify the total number of list memberships
     Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-    T.amount("Number of list memberships", 9, listMemberships.size());
+    T.amount("Number of list memberships", 6, listMemberships.size());
 
     // verify the total number of update privileges
     Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-    T.amount("Number of update privileges", 11, updateMemberships.size());
+    T.amount("Number of update privileges", 8, updateMemberships.size());
 
     // verify the total number of create privileges
     Set<Membership> createMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldCreators);
-    T.amount("Number of create privileges", 3, createMemberships.size());
+    T.amount("Number of create privileges", 2, createMemberships.size());
   }
 
 }

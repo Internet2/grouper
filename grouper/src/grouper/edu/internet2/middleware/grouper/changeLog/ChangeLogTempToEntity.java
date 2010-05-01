@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.flat.FlatAttributeDef;
@@ -525,7 +526,7 @@ public class ChangeLogTempToEntity {
     
     // if the field is the default list, then we have to see if the owner is a member of other groups, stems, or attr defs
     if (Group.getDefaultList().getUuid().equals(fieldId)) {
-      Member memberGroup = GrouperDAOFactory.getFactory().getMember().findBySubject(groupId, "g:gsa", true);
+      Member memberGroup = GrouperDAOFactory.getFactory().getMember().findBySubject(groupId, SubjectFinder.internal_getGSA().getId(), true);
       Set<FlatMembership> flatMships = GrouperDAOFactory.getFactory().getFlatMembership().findByMemberId(memberGroup.getUuid());
       Iterator<FlatMembership> flatMshipsIter = flatMships.iterator();
       while (flatMshipsIter.hasNext()) {
@@ -595,7 +596,7 @@ public class ChangeLogTempToEntity {
     
     // if the field is the default list, then we have to see if the owner is a member of other groups, stems, or attr defs
     if (Group.getDefaultList().getUuid().equals(fieldId)) {
-      Member memberGroup = GrouperDAOFactory.getFactory().getMember().findBySubject(groupId, "g:gsa", true);
+      Member memberGroup = GrouperDAOFactory.getFactory().getMember().findBySubject(groupId, SubjectFinder.internal_getGSA().getId(), true);
       Set<FlatMembership> flatMships = GrouperDAOFactory.getFactory().getFlatMembership().findByMemberId(memberGroup.getUuid());
       Iterator<FlatMembership> flatMshipsIter = flatMships.iterator();
       while (flatMshipsIter.hasNext()) {

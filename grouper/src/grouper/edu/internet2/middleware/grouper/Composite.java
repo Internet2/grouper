@@ -466,6 +466,18 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
+
+    // fix composites
+    Set<String> groupIds = Membership.fixComposites(this.getFactorOwnerUuid(), membersDeletedOnPreDelete);
+    
+    // update last_membership_change
+    if (membersDeletedOnPreDelete.size() > 0) {
+      groupIds.add(this.getFactorOwnerUuid());
+    }
+    
+    Membership.updateLastMembershipChangeDuringMembersListUpdate(groupIds);
+    
+    membersDeletedOnPreDelete = null;
     
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_DELETE, HooksCompositeBean.class, 
@@ -540,6 +552,10 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
         this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_UPDATE, true, false);
   }
 
+  /** we're using this to save members deleted during a composite delete onPreDelete so it can be used again onPostDelete */
+  private Set<String> membersDeletedOnPreDelete;
+
+  
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
@@ -551,23 +567,13 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
         this.getFactorOwnerUuid(), Group.getDefaultList(), false);
 
-    Set<String> membersList = new LinkedHashSet<String>();
+    membersDeletedOnPreDelete = new LinkedHashSet<String>();
     Iterator<Membership> iter = mships.iterator();
     while (iter.hasNext()) {
-      membersList.add(iter.next().getMemberUuid());
+      membersDeletedOnPreDelete.add(iter.next().getMemberUuid());
     }
     
     GrouperDAOFactory.getFactory().getMembership().delete(mships);
-
-    // fix composites
-    Set<String> groupIds = Membership.fixComposites(this.getFactorOwnerUuid(), membersList);
-    
-    // update last_membership_change
-    if (membersList.size() > 0) {
-      groupIds.add(this.getFactorOwnerUuid());
-    }
-    
-    Membership.updateLastMembershipChangeDuringMembersListUpdate(groupIds);
     
     // update the membership type of the group set to 'immediate'
     GroupSet selfGroupSet = 
@@ -588,9 +594,6 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
-    
-    //make sure the composite group is not a member of either factor
-    this.errorIfCompositeIsSubMember();
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_PRE_INSERT, HooksCompositeBean.class, 
@@ -742,33 +745,6 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     ms.setViaCompositeId(viaCompositeId);
 
     return ms;
-  }
-
-  
-  /**
-   * make sure the composite group is not a submember of either factor
-   */
-  private void errorIfCompositeIsSubMember() {
-    
-    String memberId = this.getOwnerGroup().toMember().getUuid();
-
-    Set<Membership> memberships = GrouperDAOFactory.getFactory()
-      .getMembership().findAllByGroupOwnerAndMemberAndField(this.getLeftFactorUuid(), 
-          memberId, Group.getDefaultList(), false);
-    
-    if (GrouperUtil.length(memberships) > 0) {
-      throw new IllegalStateException("Membership paths from a left factor to the composite are not allowed. " 
-          + this.getLeftFactorUuid() + ", " + memberId);
-    }
-    memberships = GrouperDAOFactory.getFactory()
-      .getMembership().findAllByGroupOwnerAndMemberAndField(this.getRightFactorUuid(), 
-          memberId, Group.getDefaultList(), false);
-    
-    if (GrouperUtil.length(memberships) > 0) {
-      throw new IllegalStateException("Membership paths from a right factor to the composite are not allowed. " 
-          + this.getRightFactorUuid() + ", " + memberId);
-    }
-
   }
 
   /**

@@ -637,9 +637,6 @@ public class TestMembership4 extends TestCase {
     // SB -> gD
     MembershipTestHelper.verifyCompositeMembership(r.rs, "SB -> gD", gD, subjB);
 
-    // gA -> gD
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gA -> gD", gD, gA.toSubject());
-
     // SA -> gE
     MembershipTestHelper.verifyCompositeMembership(r.rs, "SA -> gE", gE, subjA);
 
@@ -648,24 +645,6 @@ public class TestMembership4 extends TestCase {
 
     // SD -> gE
     MembershipTestHelper.verifyCompositeMembership(r.rs, "SD -> gE", gE, subjD);
-
-    // gA -> gE
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gA -> gE", gE, gA.toSubject());
-
-    // gH -> gE
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gH -> gE", gE, gH.toSubject());
-
-    // gD -> gE
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gD -> gE", gE, gD.toSubject());
-
-    // gQ -> gE
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gQ -> gE", gE, gQ.toSubject());
-
-    // gR -> gE
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gR -> gE", gE, gR.toSubject());
-
-    // gS -> gE
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gS -> gE", gE, gS.toSubject());
 
     // gH -> gF
     Membership gHgF = MembershipTestHelper.verifyImmediateMembership(r.rs, "gH -> gF", gF, gH.toSubject());
@@ -697,9 +676,6 @@ public class TestMembership4 extends TestCase {
     // SB -> gG (parent: gD -> gG) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SB -> gG", gG, subjB, gD, 1, gG, gD.toSubject(), null, 0);
 
-    // gA -> gG (parent: gD -> gG) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gG", gG, gA.toSubject(), gD, 1, gG, gD.toSubject(), null, 0);
-
     // SA -> gH
     MembershipTestHelper.verifyImmediateMembership(r.rs, "SA -> gH", gH, subjA);
 
@@ -721,27 +697,6 @@ public class TestMembership4 extends TestCase {
     // SD -> gI
     MembershipTestHelper.verifyCompositeMembership(r.rs, "SD -> gI", gI, subjD);
 
-    // gA -> gI
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gA -> gI", gI, gA.toSubject());
-
-    // gD -> gI
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gD -> gI", gI, gD.toSubject());
-
-    // gE -> gI
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gE -> gI", gI, gE.toSubject());
-
-    // gH -> gI
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gH -> gI", gI, gH.toSubject());
-
-    // gQ -> gI
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gQ -> gI", gI, gQ.toSubject());
-
-    // gR -> gI
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gR -> gI", gI, gR.toSubject());
-
-    // gS -> gI
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gS -> gI", gI, gS.toSubject());
-
     // gE -> gJ
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gE -> gJ", gJ, gE.toSubject());
 
@@ -753,24 +708,6 @@ public class TestMembership4 extends TestCase {
 
     // SD -> gJ (parent: gE -> gJ) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gJ", gJ, subjD, gE, 1, gJ, gE.toSubject(), null, 0);
-
-    // gA -> gJ (parent: gE -> gJ) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gJ", gJ, gA.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
-
-    // gD -> gJ (parent: gE -> gJ) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gJ", gJ, gD.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
-
-    // gH -> gJ (parent: gE -> gJ) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gH -> gJ", gJ, gH.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
-
-    // gQ -> gJ (parent: gE -> gJ) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gQ -> gJ", gJ, gQ.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
-
-    // gR -> gJ (parent: gE -> gJ) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gR -> gJ", gJ, gR.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
-
-    // gS -> gJ (parent: gE -> gJ) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gS -> gJ", gJ, gS.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
 
     // SC -> gK
     MembershipTestHelper.verifyImmediateMembership(r.rs, "SC -> gK", gK, subjC);
@@ -790,27 +727,6 @@ public class TestMembership4 extends TestCase {
     // SD -> gL (parent: gI -> gL) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gL", gL, subjD, gI, 1, gL, gI.toSubject(), null, 0);
 
-    // gA -> gL (parent: gI -> gL) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gL", gL, gA.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
-
-    // gD -> gL (parent: gI -> gL) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gL", gL, gD.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
-
-    // gE -> gL (parent: gI -> gL) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gE -> gL", gL, gE.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
-
-    // gH -> gL (parent: gI -> gL) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gH -> gL", gL, gH.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
-
-    // gQ -> gL (parent: gI -> gL) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gQ -> gL", gL, gQ.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
-
-    // gR -> gL (parent: gI -> gL) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gR -> gL", gL, gR.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
-
-    // gS -> gL (parent: gI -> gL) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gS -> gL", gL, gS.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
-
     // gJ -> gM
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gJ -> gM", gM, gJ.toSubject());
 
@@ -823,26 +739,8 @@ public class TestMembership4 extends TestCase {
     // SD -> gM (parent: gE -> gM) (depth: 2)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gM", gM, subjD, gE, 2, gM, gE.toSubject(), gJ, 1);
 
-    // gA -> gM (parent: gE -> gM) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gM", gM, gA.toSubject(), gE, 2, gM, gE.toSubject(), gJ, 1);
-
-    // gD -> gM (parent: gE -> gM) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gM", gM, gD.toSubject(), gE, 2, gM, gE.toSubject(), gJ, 1);
-
-    // gH -> gM (parent: gE -> gM) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gH -> gM", gM, gH.toSubject(), gE, 2, gM, gE.toSubject(), gJ, 1);
-
-    // gQ -> gM (parent: gE -> gM) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gQ -> gM", gM, gQ.toSubject(), gE, 2, gM, gE.toSubject(), gJ, 1);
-
     // gE -> gM (parent: gJ -> gM) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "gE -> gM", gM, gE.toSubject(), gJ, 1, gM, gJ.toSubject(), null, 0);
-
-    // gR -> gM (parent: gE -> gM) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gR -> gM", gM, gR.toSubject(), gE, 2, gM, gE.toSubject(), gJ, 1);
-
-    // gS -> gM (parent: gE -> gM) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gS -> gM", gM, gS.toSubject(), gE, 2, gM, gE.toSubject(), gJ, 1);
 
     // gG -> gN
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gG -> gN", gN, gG.toSubject());
@@ -850,17 +748,11 @@ public class TestMembership4 extends TestCase {
     // SB -> gN (parent: gD -> gN) (depth: 2)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SB -> gN", gN, subjB, gD, 2, gN, gD.toSubject(), gG, 1);
 
-    // gA -> gN (parent: gD -> gN) (depth: 2)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gN", gN, gA.toSubject(), gD, 2, gN, gD.toSubject(), gG, 1);
-
     // gD -> gN (parent: gG -> gN) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gN", gN, gD.toSubject(), gG, 1, gN, gG.toSubject(), null, 0);
 
     // SB -> gP
     MembershipTestHelper.verifyCompositeMembership(r.rs, "SB -> gP", gP, subjB);
-
-    // gA -> gP
-    MembershipTestHelper.verifyCompositeMembership(r.rs, "gA -> gP", gP, gA.toSubject());
 
     // SD -> gQ
     MembershipTestHelper.verifyImmediateMembership(r.rs, "SD -> gQ", gQ, subjD);
@@ -877,9 +769,6 @@ public class TestMembership4 extends TestCase {
     // gP -> gT
     MembershipTestHelper.verifyImmediateMembership(r.rs, "gP -> gT", gT, gP.toSubject());
 
-    // gA -> gT (parent: gP -> gT) (depth: 1)
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gA -> gT", gT, gA.toSubject(), gP, 1, gT, gP.toSubject(), null, 0);
-
     // SB -> gT (parent: gP -> gT) (depth: 1)
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SB -> gT", gT, subjB, gP, 1, gT, gP.toSubject(), null, 0);
 
@@ -887,7 +776,7 @@ public class TestMembership4 extends TestCase {
     // verify the total number of memberships
     Set<Membership> allMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, Group.getDefaultList());
 
-    T.amount("Number of memberships", 86, allMemberships.size());
+    T.amount("Number of memberships", 49, allMemberships.size());
   }
 
   public void deleteMemberships() throws Exception {

@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper.membership;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -82,10 +81,16 @@ public class TestMembership11 extends GrouperTest {
   Field fieldMembers;
   Field fieldUpdaters;
 
+  /**
+   * @param name
+   */
   public TestMembership11(String name) {
     super(name);
   }
 
+  /**
+   * 
+   */
   public void testNestedComposites() {
     LOG.info("testNestedComposites");
     try {
@@ -118,9 +123,6 @@ public class TestMembership11 extends GrouperTest {
 
       fieldMembers = Group.getDefaultList();
       fieldUpdaters = FieldFinder.find("updaters", true);
-
-      Set<Membership> listMemberships;
-      Set<Membership> updateMemberships;
 
       // Test 1
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
@@ -817,26 +819,6 @@ public class TestMembership11 extends GrouperTest {
       
       verifyMemberships();
 
-      // verify this works with the bad membership finder utility
-      Set<Group> goodGroups = new LinkedHashSet<Group>();
-      Set<Group> badGroups = new LinkedHashSet<Group>();
-      
-      goodGroups.add(gA);
-      goodGroups.add(gB);
-      goodGroups.add(gC);
-      goodGroups.add(gD);
-      goodGroups.add(gE);
-      goodGroups.add(gF);
-      goodGroups.add(gG);
-      goodGroups.add(gH);
-      goodGroups.add(gI);
-      goodGroups.add(gJ);
-      goodGroups.add(gK);
-      goodGroups.add(gL);
-      goodGroups.add(gM);
-      goodGroups.add(gN);
-
-
       r.rs.stop();
     }
     catch (Exception e) {
@@ -844,7 +826,9 @@ public class TestMembership11 extends GrouperTest {
     }
   }
 
-
+  /**
+   * @throws Exception
+   */
   public  void verifyMemberships() throws Exception {
 
     // gA should have two members only
@@ -853,12 +837,11 @@ public class TestMembership11 extends GrouperTest {
     Assert.assertTrue("Verify SD -> gA", gA.hasMember(subjD));
 
     // gE should have five members only
-    T.amount("Verify number of memberships for gE", 5, gE.getCompositeMemberships().size());
+    T.amount("Verify number of memberships for gE", 4, gE.getCompositeMemberships().size());
     Assert.assertTrue("Verify SC -> gE", gE.hasMember(subjC));
     Assert.assertTrue("Verify SD -> gE", gE.hasMember(subjD));
     Assert.assertTrue("Verify SE -> gE", gE.hasMember(subjE));
     Assert.assertTrue("Verify all -> gE", gE.hasMember(all));
-    Assert.assertTrue("Verify gH -> gE", gE.hasMember(gH.toSubject()));
 
     // gH should have two members only
     T.amount("Verify number of memberships for gH", 2, gH.getCompositeMemberships().size());
@@ -881,31 +864,32 @@ public class TestMembership11 extends GrouperTest {
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SC -> gG", gG, subjC, gH, 1, gG, gH.toSubject(), null, 0, fieldMembers);
 
     // gD should have 5 effective privileges
-    T.amount("Verify number of effective privileges for gD", 5, gD.getEffectiveMemberships().size());
+    T.amount("Verify number of effective privileges for gD", 4, gD.getEffectiveMemberships().size());
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "all -> gD", gD, all, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SC -> gD", gD, subjC, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gD", gD, subjD, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SE -> gD", gD, subjE, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gH -> gD", gD, gH.toSubject(), gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
 
     // gB should have 6 effective privileges
-    T.amount("Verify number of effective privileges for gB", 6, gB.getEffectiveMemberships().size());
+    T.amount("Verify number of effective privileges for gB", 5, gB.getEffectiveMemberships().size());
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "gE -> gB", gB, gE.toSubject(), gD, 1, gB, gD.toSubject(), null, 0, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "all -> gB", gB, all, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SC -> gB", gB, subjC, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gB", gB, subjD, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SE -> gB", gB, subjE, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gH -> gB", gB, gH.toSubject(), gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
 
     // verify the total number of list memberships
     Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-    T.amount("Number of list memberships", 49, listMemberships.size());
+    T.amount("Number of list memberships", 46, listMemberships.size());
 
     // verify the total number of update privileges
     Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
     T.amount("Number of update privileges", 3, updateMemberships.size());
   }
 
+  /**
+   * @throws Exception
+   */
   public void deleteMemberships() throws Exception {
     gA.deleteCompositeMember();
     gB.deleteMember(gD.toSubject());
