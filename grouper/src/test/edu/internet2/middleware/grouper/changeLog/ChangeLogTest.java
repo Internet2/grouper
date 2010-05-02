@@ -3188,6 +3188,7 @@ public class ChangeLogTest extends GrouperTest {
 
     Subject rootSubject = SubjectFinder.findRootSubject();
     Member rootMember = MemberFinder.findBySubject(grouperSession, rootSubject, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
 
     
     //##################################
@@ -3196,13 +3197,12 @@ public class ChangeLogTest extends GrouperTest {
     Group g1 = this.edu.addChildGroup("group1", "group1");
     Group g2 = this.edu.addChildGroup("group2", "group2");
     Group g3 = this.edu.addChildGroup("group3", "group3");
-    Group g4 = this.edu.addChildGroup("group4", "group4");
     Group g5 = this.edu.addChildGroup("group5", "group5");
     Group g6 = this.edu.addChildGroup("group6", "group6");
     
     g5.grantPriv(g1.toSubject(), AccessPrivilege.UPDATE);
     g6.addMember(g1.toSubject());
-    g2.addMember(g4.toSubject());
+    g2.addMember(member1.getSubject());
     
     ChangeLogTempToEntity.convertRecords();
 
@@ -3251,7 +3251,7 @@ public class ChangeLogTest extends GrouperTest {
     // add immediate that causes composite
     
     g1.addCompositeMember(CompositeType.UNION, g2, g3);
-    g2.deleteMember(g4.toSubject());
+    g2.deleteMember(member1.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
     
@@ -3263,7 +3263,7 @@ public class ChangeLogTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
-    g2.addMember(g4.toSubject());
+    g2.addMember(member1.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
 
@@ -3285,7 +3285,7 @@ public class ChangeLogTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
     Membership immediate = GrouperDAOFactory.getFactory().getMembership()
-      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), g4.toMember().getUuid(), 
+      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), member1.getUuid(), 
           Group.getDefaultList(), "immediate", true, true);
     
     immediate.setEnabled(false);
@@ -3323,7 +3323,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
     assertEquals("Shoud have no changes to flat memberships", flatMembershipCount - 1, newFlatMembershipCount);
 
-    immediate.setMember(g4.toMember());
+    immediate.setMember(member1);
     GrouperDAOFactory.getFactory().getMembership().update(immediate);
 
     ChangeLogTempToEntity.convertRecords();
@@ -3367,7 +3367,7 @@ public class ChangeLogTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
     immediate = GrouperDAOFactory.getFactory().getMembership()
-      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), g4.toMember().getUuid(), 
+      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), member1.getUuid(), 
           Group.getDefaultList(), "immediate", true, true);
     immediate.setMember(rootMember);
     GrouperDAOFactory.getFactory().getMembership().update(immediate);
