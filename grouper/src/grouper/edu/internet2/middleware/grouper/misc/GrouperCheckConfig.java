@@ -1525,7 +1525,7 @@ public class GrouperCheckConfig {
         checkAttribute(stem, attributeDef, "attributeLoaderPriority", 
           "Quartz has a fixed threadpool (max configured in the grouper-loader.properties), and when the max is reached, then jobs are prioritized by this integer.  The higher the better, and the default if not set is 5.", wasInCheckConfig);
         checkAttribute(stem, attributeDef, "attributeLoaderAttrsLike", 
-          "If empty, then orphans will be left alone.  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted", wasInCheckConfig);
+          "If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted", wasInCheckConfig);
         checkAttribute(stem, attributeDef, "attributeLoaderAttrQuery", 
           "SQL query with at least some of the following columns: attr_name, attr_display_name, attr_description", wasInCheckConfig);
         checkAttribute(stem, attributeDef, "attributeLoaderAttrSetQuery", 

@@ -180,7 +180,7 @@ public class GrouperLoader {
   public static final String ATTRIBUTE_LOADER_PRIORITY = "attributeLoaderPriority";
 
   /**
-   * If empty, then orphans will be left alone.  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
+   * If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
    */
   public static final String ATTRIBUTE_LOADER_ATTRS_LIKE = "attributeLoaderAttrsLike";
   

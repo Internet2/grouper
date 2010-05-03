@@ -160,7 +160,7 @@ public class LoaderJobBean {
   private String groupQuery;
   
   /**
-   * If empty, then orphans will be left alone.  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
+   * If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
    */
   private String attributeLoaderAttrsLike;
   
@@ -214,7 +214,7 @@ public class LoaderJobBean {
   }
 
   /**
-   * If empty, then orphans will be left alone.  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
+   * If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
    * @return attrs like
    */
   public String getAttributeLoaderAttrsLike() {
@@ -222,7 +222,7 @@ public class LoaderJobBean {
   }
 
   /**
-   * If empty, then orphans will be left alone.  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
+   * If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
    * @param attributeLoaderAttrsLike1
    */
   public void setAttributeLoaderAttrsLike(String attributeLoaderAttrsLike1) {
