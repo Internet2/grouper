@@ -436,7 +436,7 @@ public class AttributeDefTest extends GrouperTest {
     attributeDef.setAssignToMemberAssn(true);
     attributeDef.setAssignToStem(true);
     attributeDef.setAssignToStemAssn(true);
-    attributeDef.setAttributeDefIsPublic(true);
+    attributeDef.setAttributeDefPublic(true);
     attributeDef.setAttributeDefType(AttributeDefType.attr);
     attributeDef.setContextId("contextId");
     attributeDef.setCreatedOnDb(4L);

@@ -43,6 +43,13 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
@@ -57,6 +64,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
 import edu.internet2.middleware.grouper.misc.GrouperReportException;
@@ -108,7 +116,7 @@ public enum GrouperLoaderType {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void syncGroupMembership(LoaderJobBean loaderJobBean) {
+    public void runJob(LoaderJobBean loaderJobBean) {
       
 //      String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
 //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
@@ -155,7 +163,7 @@ public enum GrouperLoaderType {
        */
       @SuppressWarnings("unchecked")
       @Override
-      public void syncGroupMembership(LoaderJobBean loaderJobBean) {
+      public void runJob(LoaderJobBean loaderJobBean) {
         
         Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
         
@@ -290,7 +298,7 @@ public enum GrouperLoaderType {
        */
       @SuppressWarnings("unchecked")
       @Override
-      public void syncGroupMembership(LoaderJobBean loaderJobBean) {
+      public void runJob(LoaderJobBean loaderJobBean) {
         
         String groupNameOverall = loaderJobBean.getGroupNameOverall();
         GrouperLoaderDb grouperLoaderDb = loaderJobBean.getGrouperLoaderDb();
@@ -536,8 +544,11 @@ public enum GrouperLoaderType {
           long groupStartedMillis = System.currentTimeMillis();
           
           //if we are configured to, get the group names in one fell swoop
-          boolean getMembershipsAtOnce = false && GrouperLoaderConfig.getPropertyBoolean(
-              "loader.getAllGroupListMembershipsAtOnce", false);
+          // && GrouperLoaderConfig.getPropertyBoolean(
+          // "loader.getAllGroupListMembershipsAtOnce", false);
+          //2010/05/02 I think this didnt pan out as a performance gain...
+          boolean getMembershipsAtOnce = false;
+          
           
           //set of immediate memberships in the regsitry, key is group name, multikey by subjectId, and optionally sourceId
           Map<String, Set<MultiKey>> membershipsInRegistry = new HashMap<String, Set<MultiKey>>();
@@ -733,7 +744,7 @@ public enum GrouperLoaderType {
            */
           @SuppressWarnings("unchecked")
           @Override
-          public void syncGroupMembership(LoaderJobBean loaderJobBean) {
+          public void runJob(LoaderJobBean loaderJobBean) {
             
             Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
             
@@ -835,7 +846,64 @@ public enum GrouperLoaderType {
             }
             
           }
-        };
+        }, 
+        
+    /** 
+     * simple sql query where all results are all members of group.
+     * must have a subject_id col, and optionally a subject_source_id col
+     */
+    ATTR_SQL_SIMPLE{
+      
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+       */
+      @Override
+      public boolean attributeRequired(String attributeName) {
+        //cant think of a required one
+        return false;
+      }
+    
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+       */
+      @Override
+      public boolean attributeOptional(String attributeName) {
+        return StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_ATTR_QUERY, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_ATTR_SET_QUERY, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_ATTRS_LIKE, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_DB_NAME, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_INTERVAL_SECONDS, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_PRIORITY, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_QUARTZ_CRON, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_SCHEDULE_TYPE, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_TYPE, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_ACTION_QUERY, attributeName)
+            || StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_ACTION_SET_QUERY, attributeName);
+      }
+      
+      /**
+       * sync up an attributeDefinition membership based on query and db
+       */
+      @SuppressWarnings("unchecked")
+      @Override
+      public void runJob(LoaderJobBean loaderJobBean) {
+
+        //      GrouperLoaderDb grouperLoaderDb, attributeDefName
+        //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
+        //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
+        //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
+        
+        syncOneAttributeDef(loaderJobBean.getAttributeDefName(), loaderJobBean.getHib3GrouploaderLogOverall(), 
+            loaderJobBean.getGrouperLoaderDb(), 
+            loaderJobBean.getStartTime(), loaderJobBean.getGrouperSession(), 
+            loaderJobBean.getAttributeLoaderAttrsLike(), loaderJobBean.getAttributeLoaderAttrQuery(), 
+            loaderJobBean.getAttributeLoaderAttrSetQuery(), loaderJobBean.getAttributeLoaderActionQuery(), 
+            loaderJobBean.getAttributeLoaderActionSetQuery());
+        
+      }
+    };
   
   /**
    * if this job name is for this type
@@ -898,7 +966,7 @@ public enum GrouperLoaderType {
    * sync up a group membership based on query and db
    * @param loaderJobBean is the bean data
    */
-  public abstract void syncGroupMembership(LoaderJobBean loaderJobBean);
+  public abstract void runJob(LoaderJobBean loaderJobBean);
   
   /**
    * see if an attribute if optional or not (if not, then it is either required or forbidden)
@@ -1060,6 +1128,35 @@ public enum GrouperLoaderType {
   }
   
   /**
+   * make sure if an attribute is required that it exists (non blank).  throw exception if problem
+   * @param attributeDef is the group to get the attribute from
+   * @param attributeName
+   * @return the attribute value
+   */
+  String attributeValueValidateRequiredAttrDef(AttributeDef attributeDef, String attributeName) {
+    
+    String attributeValue = attributeDef.getAttributeValueDelegate().retrieveValueString(GrouperCheckConfig.attributeLoaderStemName() + ":" + attributeName);
+    
+    boolean hasValue = StringUtils.isNotBlank(attributeValue);
+    boolean isRequired = this.attributeRequired(attributeName);
+    boolean isOptional = this.attributeOptional(attributeName);
+    
+    //must have value if required
+    if (!hasValue && isRequired) {
+      throw new RuntimeException("Attribute '" + attributeName + "' is required, but is not set for loader type: " 
+          + this.name() + ", attributeDefName: " + attributeDef.getName());
+    }
+    
+    // must not have value if not required or optional
+    if (hasValue && !isRequired && !isOptional) {
+      LOG.error("Attribute '" + attributeName + "' is not required or optional, " +
+          "but is set to '" + attributeValue + "' for loader type: " 
+          + this.name() + ", attributeDefName: " + attributeDef.getName());
+    }
+    return attributeValue;
+  }
+  
+  /**
    * 
    * @param dayList
    * @return true if today is in day list, false if not
@@ -1116,7 +1213,7 @@ public enum GrouperLoaderType {
     }
     
     hib3GrouploaderLog.setMillisGetData((int)(System.currentTimeMillis()-startTime));
-
+  
     long startTimeLoadData = System.currentTimeMillis();
     
     int totalCount = 0;
@@ -1125,14 +1222,14 @@ public enum GrouperLoaderType {
     GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
     
     try {
-
+  
       int numberOfRows = grouperLoaderResultset.numberOfRows();
       hib3GrouploaderLog.setTotalCount(numberOfRows);
-
+  
       if (LOG.isDebugEnabled()) {
         LOG.debug(groupName + " syncing " + numberOfRows + " rows");
       }
-
+  
       String groupExtension = StringUtils.isBlank(groupDisplayNameForInsert) ? GrouperUtil.extensionFromName(groupName) : 
         GrouperUtil.extensionFromName(groupDisplayNameForInsert);
       
@@ -1153,7 +1250,7 @@ public enum GrouperLoaderType {
       } else {
         theGroup = GroupFinder.findByName(grouperSession, groupName, true);
       }
-
+  
       final Group[] group = new Group[]{theGroup};
       
       //see if we are adding types
@@ -1239,7 +1336,7 @@ public enum GrouperLoaderType {
         LOG.debug("Done assigning privilege to related groups: " + theGroup.getName());
       }
       hib3GrouploaderLog.setGroupUuid(group[0].getUuid());
-
+  
       Set<LoaderMemberWrapper> currentMembers = new LinkedHashSet<LoaderMemberWrapper>();
       
       if (groupMembers != null) {
@@ -1352,7 +1449,7 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
           hib3GrouploaderLog.store();
         }
-
+  
       }
       
       
@@ -1378,7 +1475,7 @@ public enum GrouperLoaderType {
       final GrouperTransactionType grouperTransactionType = useTransactions ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING 
           : GrouperTransactionType.NONE;
       GrouperTransaction.callbackGrouperTransaction(grouperTransactionType, new GrouperTransactionHandler() {
-
+  
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
           
@@ -1394,7 +1491,7 @@ public enum GrouperLoaderType {
                   LOG.debug(groupName + " removing: " + count + " of " + numberOfRows + " members" 
                       + (alreadyDeleted ? ", [note: was already deleted... weird]" : ""));
                 }
-
+  
               } catch (Exception e) {
                 GrouperUtil.injectInException(e, "Problem deleting member: " 
                     + member + ", ");
@@ -1441,7 +1538,7 @@ public enum GrouperLoaderType {
                 group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid(), true);
               }
               TOTAL_COUNT[0]++;
-
+  
             }
             if (grouperTransactionType != GrouperTransactionType.NONE) {
               grouperTransaction.commit(GrouperCommitType.COMMIT_IF_NEW_TRANSACTION);
@@ -1460,7 +1557,7 @@ public enum GrouperLoaderType {
       hib3GrouploaderLog.setStatus(status.name());
       //take out the job status
       hib3GrouploaderLog.setJobMessage(jobMessage.toString());
-
+  
       if (LOG.isInfoEnabled()) {
         LOG.info(groupName + " done syncing membership, processed " + totalCount + " records.  Total members: " 
             + hib3GrouploaderLog.getTotalCount() + ", inserts: " + hib3GrouploaderLog.getInsertCount()
@@ -1478,6 +1575,751 @@ public enum GrouperLoaderType {
       } catch (Exception e) {
         //dont worry, just trying to store the log at end
       }
+    }
+  }
+
+  /**
+   * get an attribute value, or null, or a default if exists
+   * @param attributeDef
+   * @param attributeName
+   * @return the attribute value
+   */
+  public static String attributeValueOrDefaultOrNullAttrDef(AttributeDef attributeDef, String attributeName) {
+    
+    String attributeValue = attributeDef.getAttributeValueDelegate().retrieveValueString(
+        GrouperCheckConfig.attributeLoaderStemName() + ":" + attributeName);
+    
+    //if value, go with that
+    if (!StringUtils.isBlank(attributeValue)) {
+      return attributeValue;
+    }
+    
+    if (StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_TYPE, attributeName)) {
+      //this is all we have so far
+      return GrouperLoaderType.ATTR_SQL_SIMPLE.name();
+    }
+    
+    if (StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_DB_NAME, attributeName)) {
+      //assume default database
+      return "grouper";
+    }
+  
+    if (StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_SCHEDULE_TYPE, attributeName)) {
+      String cron = attributeDef.getAttributeValueDelegate().retrieveValueString(GrouperLoader.ATTRIBUTE_LOADER_SCHEDULE_TYPE);
+      boolean hasCron = StringUtils.isNotBlank(cron); 
+      String intervalSeconds = attributeDef.getAttributeValueDelegate().retrieveValueString(GrouperLoader.ATTRIBUTE_LOADER_INTERVAL_SECONDS);
+      boolean hasIntervalSeconds = StringUtils.isNotBlank(intervalSeconds);
+      
+      if (!hasCron && !hasIntervalSeconds) {
+        return GrouperLoaderScheduleType.START_TO_START_INTERVAL.name();
+      }
+      
+    }
+    
+    if (StringUtils.equals(GrouperLoader.ATTRIBUTE_LOADER_INTERVAL_SECONDS, attributeName)) {
+      String scheduleTypeString = attributeValueOrDefaultOrNullAttrDef(attributeDef, GrouperLoader.ATTRIBUTE_LOADER_SCHEDULE_TYPE);
+      GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.valueOfIgnoreCase(scheduleTypeString, false);
+      if (grouperLoaderScheduleType != null && grouperLoaderScheduleType.equals(GrouperLoaderScheduleType.START_TO_START_INTERVAL)) {
+  
+        //default to 1 day
+        return Integer.toString(60 * 60 * 24);
+      }
+    }
+  
+    return attributeValue;
+  }
+
+  /**
+   * @param attributeDefName
+   * @param hib3GrouploaderLog
+   * @param grouperLoaderDb 
+   * @param startTime
+   * @param grouperSession 
+   * @param attributeLoaderAttrsLike 
+   * @param attributeLoaderAttrQuery 
+   * @param attributeLoaderAttrSetQuery 
+   * @param attributeLoaderActionQuery 
+   * @param attributeLoaderActionSetQuery 
+   */
+  @SuppressWarnings("unchecked")
+  protected static void syncOneAttributeDef(final String attributeDefName,
+      Hib3GrouperLoaderLog hib3GrouploaderLog, GrouperLoaderDb grouperLoaderDb, 
+      long startTime,
+      final GrouperSession grouperSession, String attributeLoaderAttrsLike, 
+      String attributeLoaderAttrQuery, String attributeLoaderAttrSetQuery,
+      String attributeLoaderActionQuery, String attributeLoaderActionSetQuery  ) {
+    
+    //keep this separate so we can prepend stuff inside...
+    final StringBuilder jobMessage = new StringBuilder(StringUtils.defaultString(hib3GrouploaderLog.getJobMessage()));
+    
+    final String[] jobStatus = new String[1];
+    
+    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(attributeDefName + " start syncing attributeDef");
+    }
+    
+    hib3GrouploaderLog.setMillisGetData((int)(System.currentTimeMillis()-startTime));
+
+    long startTimeLoadData = System.currentTimeMillis();
+    
+    int[] totalCount = new int[]{0};
+    int[] processedCount = new int[]{0};
+    
+    //assume success
+    GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
+    
+    try {
+      
+      AttributeDef theAttributeDef = AttributeDefFinder.findByName(attributeDefName, true);
+
+      //####################################
+      //## ALL ATTRIBUTE DEF NAMES AND LIKE
+      //
+      //lets get all of them
+      Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory()
+        .getAttributeDefName().findByAttributeDef(theAttributeDef.getId());
+      
+      totalCount[0] += attributeDefNames.size();
+      
+      //easy lookups
+      Map<String, AttributeDefName> attributeDefNamesById = new HashMap<String, AttributeDefName>();
+      Map<String, AttributeDefName> attributeDefNamesByName = new HashMap<String, AttributeDefName>();
+      for (AttributeDefName current : attributeDefNames) {
+        attributeDefNamesById.put(current.getId(), current);
+        attributeDefNamesByName.put(current.getName(), current);
+      }
+      
+      helperSyncAttributeDefNames(attributeDefName, hib3GrouploaderLog, grouperLoaderDb,
+          grouperSession, attributeLoaderAttrsLike, attributeLoaderAttrQuery, jobMessage,
+          jobStatus, totalCount, processedCount, theAttributeDef, attributeDefNames,
+          attributeDefNamesById, attributeDefNamesByName);
+      
+      helperSyncAttributeDefNameSets(attributeDefName, hib3GrouploaderLog,
+          grouperLoaderDb, attributeLoaderAttrSetQuery, jobMessage, jobStatus,
+          totalCount, processedCount, theAttributeDef, attributeDefNamesByName, 
+          attributeDefNamesById, attributeLoaderAttrsLike);
+
+      //####################################
+      //## ALL ATTRIBUTE ACTIONS
+      if (!StringUtils.isBlank(attributeLoaderActionQuery) || !StringUtils.isBlank(attributeLoaderActionSetQuery)) {
+        //
+        //lets get all of them
+        Set<AttributeAssignAction> actions = null;
+        Map<String, AttributeAssignAction> actionsByName = null;
+        Map<String, AttributeAssignAction> actionsById = null;
+
+        actions = GrouperDAOFactory.getFactory()
+          .getAttributeAssignAction().findByAttributeDefId(theAttributeDef.getId());
+
+        actionsByName = new HashMap<String, AttributeAssignAction>();
+        actionsById = new HashMap<String, AttributeAssignAction>();
+
+        for (AttributeAssignAction current : actions) {
+          actionsByName.put(current.getName(), current);
+          actionsById.put(current.getId(), current);
+        }
+
+        totalCount[0] += actions.size();
+        
+        
+        helperSyncAttributeActions(attributeDefName, hib3GrouploaderLog, grouperLoaderDb,
+            attributeLoaderActionQuery, jobMessage, jobStatus,
+            totalCount, processedCount, theAttributeDef, actionsByName, actionsById);
+        
+        helperSyncAttributeActionSets(attributeDefName, hib3GrouploaderLog,
+            grouperLoaderDb, attributeLoaderActionSetQuery, jobMessage, jobStatus,
+            totalCount, processedCount, theAttributeDef, actions, actionsByName, actionsById);
+        
+      //###################################
+      //## END ATTRIBUTE ACTIONS OVERALL
+      }
+      
+      hib3GrouploaderLog.setStatus(status.name());
+      //take out the job status
+      hib3GrouploaderLog.setJobMessage(jobMessage.toString());
+
+      if (LOG.isInfoEnabled()) {
+        LOG.info(attributeDefName + " done syncing attributeDef, processed " + processedCount[0] + " records.  Total members: " 
+            + totalCount[0] + ", inserts: " + hib3GrouploaderLog.getInsertCount()
+            + ", deletes: " + hib3GrouploaderLog.getDeleteCount());
+      }
+    } catch (Exception e) {
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+      hib3GrouploaderLog.insertJobMessage(ExceptionUtils.getFullStackTrace(e));
+      LOG.error("Problem with attributeDef: " + attributeDefName, e);
+      throw new RuntimeException("Problem with attributeDef: " + attributeDefName, e);
+    } finally {
+      hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+      try {
+        hib3GrouploaderLog.store();
+      } catch (Exception e) {
+        //dont worry, just trying to store the log at end
+      }
+    }
+  }
+
+  /**
+   * 
+   * @param attributeDefName
+   * @param hib3GrouploaderLog
+   * @param grouperLoaderDb
+   * @param attributeLoaderActionSetQuery
+   * @param jobMessage
+   * @param jobStatus
+   * @param totalCount
+   * @param processedCount
+   * @param theAttributeDef
+   * @param actions
+   * @param actionsByName
+   * @param actionsById 
+   */
+  private static void helperSyncAttributeActionSets(final String attributeDefName,
+      Hib3GrouperLoaderLog hib3GrouploaderLog, GrouperLoaderDb grouperLoaderDb,
+      String attributeLoaderActionSetQuery, final StringBuilder jobMessage,
+      final String[] jobStatus, int[] totalCount, int[] processedCount,
+      AttributeDef theAttributeDef, Set<AttributeAssignAction> actions,
+      Map<String, AttributeAssignAction> actionsByName, Map<String, AttributeAssignAction> actionsById ) {
+    if (!StringUtils.isBlank(attributeLoaderActionSetQuery)) {
+      //####################################
+      //## ALL ATTRIBUTE ACTION SETS
+      //
+      //lets get all of them
+      Set<AttributeAssignActionSet> actionSets = null;
+      Map<MultiKey, AttributeAssignActionSet> actionSetsByIfThenName = null;
+      
+      if (!StringUtils.isBlank(attributeLoaderActionSetQuery)) {
+        actionSets = GrouperDAOFactory.getFactory()
+          .getAttributeAssignActionSet().findByDepthOneForAttributeDef(theAttributeDef.getId());
+        
+        actionSetsByIfThenName = new HashMap<MultiKey, AttributeAssignActionSet>();
+        
+        for (AttributeAssignActionSet current : actionSets) {
+          AttributeAssignAction ifHasAttributeAssignAction = actionsById.get(current.getIfHasAttrAssignActionId());
+          AttributeAssignAction thenHasAttributeAssignAction = actionsById.get(current.getThenHasAttrAssignActionId());
+          actionSetsByIfThenName.put(new MultiKey(ifHasAttributeAssignAction.getName(), thenHasAttributeAssignAction.getName()), current);
+        }
+        
+        totalCount[0] += actions.size();
+      }
+      
+      GrouperLoaderResultset attributeActionSetResultset = new GrouperLoaderResultset(
+          grouperLoaderDb, attributeLoaderActionSetQuery);
+      
+      int numberOfRows = attributeActionSetResultset.numberOfRows();
+      hib3GrouploaderLog.addTotalCount(numberOfRows);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(attributeDefName + " syncing " + numberOfRows + " attributeActionSet rows");
+      }
+      
+      int count = 0;
+      
+      //loop through new ones
+      int numberOfAttributeActionSets = attributeActionSetResultset.numberOfRows();
+      processedCount[0] += numberOfAttributeActionSets;
+      
+      for (int i=0; i<attributeActionSetResultset.numberOfRows(); i++) {
+        
+        String ifHasActionName = (String)attributeActionSetResultset.getCell(
+            i, GrouperLoaderResultset.IF_HAS_ACTION_NAME_COL, true);
+        
+        String thenHasActionName = (String)attributeActionSetResultset.getCell(
+            i, GrouperLoaderResultset.THEN_HAS_ACTION_NAME_COL, false);
+        
+        //see if ok
+        MultiKey multiSetKey = new MultiKey(ifHasActionName, thenHasActionName);
+        AttributeAssignActionSet existingAttributeActionSet = actionSetsByIfThenName.get(multiSetKey);
+        
+        if (existingAttributeActionSet != null) {
+          
+          //if found we are in sync
+          actionSetsByIfThenName.remove(multiSetKey);
+          
+        } else {
+                      
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(attributeDefName + " will insert " + ifHasActionName + " --> " + thenHasActionName
+                + ", " + count + " of " + numberOfAttributeActionSets + " attributeActionSets");
+          }
+          totalCount[0]++;
+          
+          AttributeAssignAction ifHasAttributeAction = actionsByName.get(ifHasActionName);
+          AttributeAssignAction thenHasAttributeAction = actionsByName.get(thenHasActionName);
+          
+          //this is an insert
+          ifHasAttributeAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(thenHasAttributeAction);
+          
+          hib3GrouploaderLog.addInsertCount(1);
+                      
+        }
+        attributeActionSetResultset.remove(i);
+        i--; //since we are removing a row, we need to decrement where we are...
+        
+        if (count != 0 && count % 500 == 0) {
+          String logStatus = attributeDefName + " processed " + totalCount[0] 
+            + " attributeActionSet records, finding new attributeActionSets to insert/remove, " + count 
+            + " of " + numberOfAttributeActionSets + " attributeActionSets";
+          LOG.info(logStatus);
+          jobStatus[0] = logStatus;
+          hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
+          hib3GrouploaderLog.store();
+        }
+
+        count++;
+        
+        //###################################
+        //## END ATTRIBUTE ACTION SET
+      }
+      
+      
+      //##########################
+      //## Now we can remove ones in DB that shouldnt be there
+      for (MultiKey current : GrouperUtil.nonNull(actionSetsByIfThenName).keySet()) {
+        
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(attributeDefName + " will delete action " + current.getKey(0) + " --> " + current.getKey(1));
+        }
+        totalCount[0]--;
+        
+        String ifHasActionName = (String)current.getKey(0);
+        
+        String thenHasActionName = (String)current.getKey(1);
+          
+        AttributeAssignAction ifHasAttributeAction = actionsByName.get(ifHasActionName);
+        AttributeAssignAction thenHasAttributeAction = actionsByName.get(thenHasActionName);
+        
+        ifHasAttributeAction.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(thenHasAttributeAction);
+        
+        hib3GrouploaderLog.addDeleteCount(1);
+      }
+
+      //###################################
+      //## END ATTRIBUTE ACTION SET
+    }
+  }
+
+  /**
+   * 
+   * @param attributeDefName
+   * @param hib3GrouploaderLog
+   * @param grouperLoaderDb
+   * @param attributeLoaderActionQuery
+   * @param jobMessage
+   * @param jobStatus
+   * @param totalCount
+   * @param processedCount
+   * @param theAttributeDef
+   * @param actionsByName
+   * @param actionsById 
+   */
+  private static void helperSyncAttributeActions(final String attributeDefName,
+      Hib3GrouperLoaderLog hib3GrouploaderLog, GrouperLoaderDb grouperLoaderDb,
+      String attributeLoaderActionQuery,
+      final StringBuilder jobMessage, final String[] jobStatus, int[] totalCount,
+      int[] processedCount, AttributeDef theAttributeDef,
+      Map<String, AttributeAssignAction> actionsByName, Map<String, AttributeAssignAction> actionsById) {
+    //####################################
+    //## NEW ATTRIBUTE ACTIONS TO IMPORT
+    //
+    if (!StringUtils.isBlank(attributeLoaderActionQuery)) {
+      
+      Map<String, AttributeAssignAction> actionsToRemove = new HashMap<String, AttributeAssignAction>(actionsByName);
+      
+      GrouperLoaderResultset attributeActionResultset = new GrouperLoaderResultset(
+          grouperLoaderDb, attributeLoaderActionQuery);
+      int numberOfRows = attributeActionResultset.numberOfRows();
+      hib3GrouploaderLog.addTotalCount(numberOfRows);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(attributeDefName + " syncing " + numberOfRows + " attributeAction rows");
+      }
+
+      int count = 0;
+      //loop through new ones
+      int numberOfAttributeActions = attributeActionResultset.numberOfRows();
+      processedCount[0] += numberOfAttributeActions;
+      
+      for (int i=0; i<attributeActionResultset.numberOfRows(); i++) {
+        
+        String action = (String)attributeActionResultset.getCell(
+            i, GrouperLoaderResultset.ACTION_NAME_COL, true);
+        
+        //see if ok
+        AttributeAssignAction existingAttributeAssignAction = actionsByName.get(action);
+        
+        if (existingAttributeAssignAction != null) {
+          
+          //if found we are in sync
+          actionsToRemove.remove(action);
+          
+        } else {
+                      
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(attributeDefName + " will insert action " + action
+                + ", " + count + " of " + numberOfAttributeActions + " attributeActions");
+          }
+          totalCount[0]++;
+          
+          //this is an insert
+          AttributeAssignAction actionInserted = theAttributeDef.getAttributeDefActionDelegate().addAction(action);
+          
+          hib3GrouploaderLog.addInsertCount(1);
+          
+          actionsByName.put(action, actionInserted);
+          actionsById.put(actionInserted.getId(), actionInserted);
+                      
+        }
+        attributeActionResultset.remove(i);
+        i--; //since we are removing a row, we need to decrement where we are...
+        
+        if (count != 0 && count % 500 == 0) {
+          String logStatus = attributeDefName + " processed " + totalCount[0] 
+            + " attributeAction records, finding new attributeActions to insert/remove, " + count 
+            + " of " + numberOfAttributeActions + " attributeActions";
+          LOG.info(logStatus);
+          jobStatus[0] = logStatus;
+          hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
+          hib3GrouploaderLog.store();
+        }
+
+        count++;
+        
+        //###################################
+        //## END ATTRIBUTE ACTION ADD
+      }
+      
+      
+      //##########################
+      //## Now we can remove actions in DB that shouldnt be there
+      for (String currentAction : actionsToRemove.keySet()) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(attributeDefName + " will delete action " + currentAction);
+        }
+        totalCount[0]--;
+          
+        theAttributeDef.getAttributeDefActionDelegate().removeAction(currentAction);
+        
+        hib3GrouploaderLog.addDeleteCount(1);
+      }
+
+      
+      //###################################
+      //## END ATTRIBUTE ACTION OVERALL
+    }
+  }
+
+  /**
+   * 
+   * @param attributeDefName
+   * @param hib3GrouploaderLog
+   * @param grouperLoaderDb
+   * @param attributeLoaderAttrSetQuery
+   * @param jobMessage
+   * @param jobStatus
+   * @param totalCount
+   * @param processedCount
+   * @param theAttributeDef
+   * @param attributeDefNamesByName
+   * @param attributeDefNamesById 
+   * @param attributeLoaderAttrsLike 
+   */
+  private static void helperSyncAttributeDefNameSets(final String attributeDefName,
+      Hib3GrouperLoaderLog hib3GrouploaderLog, GrouperLoaderDb grouperLoaderDb,
+      String attributeLoaderAttrSetQuery, final StringBuilder jobMessage,
+      final String[] jobStatus, int[] totalCount, int[] processedCount,
+      AttributeDef theAttributeDef, Map<String, AttributeDefName> attributeDefNamesByName,
+      Map<String, AttributeDefName> attributeDefNamesById, String attributeLoaderAttrsLike) {
+    //###################################
+    //## QUERY FOR ATTRIBUTE DEF NAME SET
+    if (!StringUtils.isBlank(attributeLoaderAttrSetQuery)) {
+      
+      GrouperLoaderResultset attributeDefNameSetResultset = new GrouperLoaderResultset(
+          grouperLoaderDb, attributeLoaderAttrSetQuery);
+      Set<AttributeDefNameSet> existingAttributeDefNameSets = GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSet().findByDepthOneForAttributeDef(theAttributeDef.getId());
+      
+      Map<MultiKey, AttributeDefNameSet> attributeDefNameSetMap = new HashMap<MultiKey,AttributeDefNameSet>();
+      
+      //make a lookup map
+      for (AttributeDefNameSet attributeDefNameSet : existingAttributeDefNameSets) {
+        
+        AttributeDefName ifHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getIfHasAttributeDefNameId());
+        AttributeDefName thenHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getThenHasAttributeDefNameId());
+        
+        attributeDefNameSetMap.put(new MultiKey(ifHasAttributeDefName.getName(), 
+            thenHasAttributeDefName.getName()), attributeDefNameSet);
+        
+      }
+      
+      int numberOfRows = attributeDefNameSetResultset.numberOfRows();
+      hib3GrouploaderLog.addTotalCount(numberOfRows);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(attributeDefName + " syncing " + numberOfRows + " attributeDefNameSet rows");
+      }
+      
+      int count = 0;
+      //loop through new ones
+      int numberOfAttributeDefNameSets = attributeDefNameSetResultset.numberOfRows();
+      processedCount[0] += numberOfAttributeDefNameSets;
+      
+      for (int i=0; i<attributeDefNameSetResultset.numberOfRows(); i++) {
+        
+        String ifHasDefNameName = (String)attributeDefNameSetResultset.getCell(
+            i, GrouperLoaderResultset.IF_HAS_ATTR_NAME_COL, true);
+        
+        String thenHasDefNameName = (String)attributeDefNameSetResultset.getCell(
+            i, GrouperLoaderResultset.THEN_HAS_ATTR_NAME_COL, false);
+        
+        //see if ok
+        MultiKey multiSetKey = new MultiKey(ifHasDefNameName, thenHasDefNameName);
+        AttributeDefNameSet existingAttributeDefNameSet = attributeDefNameSetMap.get(multiSetKey);
+        
+        if (existingAttributeDefNameSet != null) {
+          
+          //if found we are in sync
+          attributeDefNameSetMap.remove(multiSetKey);
+          
+        } else {
+                      
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(attributeDefName + " will insert " + ifHasDefNameName + " --> " + thenHasDefNameName
+                + ", " + count + " of " + numberOfAttributeDefNameSets + " attributeDefNameSets");
+          }
+          totalCount[0]++;
+          
+          AttributeDefName ifHasAttributeDefName = attributeDefNamesByName.get(ifHasDefNameName);
+          AttributeDefName thenHasAttributeDefName = attributeDefNamesByName.get(thenHasDefNameName);
+          
+          //this is an insert
+          ifHasAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(thenHasAttributeDefName);
+          
+          hib3GrouploaderLog.addInsertCount(1);
+                      
+        }
+        attributeDefNameSetResultset.remove(i);
+        i--; //since we are removing a row, we need to decrement where we are...
+        
+        if (count != 0 && count % 500 == 0) {
+          String logStatus = attributeDefName + " processed " + totalCount[0] 
+            + " attributeDefNameSet records, finding new attributeDefNameSets to insert/remove, " + count 
+            + " of " + numberOfAttributeDefNameSets + " attributeDefNameSets";
+          LOG.info(logStatus);
+          jobStatus[0] = logStatus;
+          hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
+          hib3GrouploaderLog.store();
+        }
+
+        count++;
+        
+        //###################################
+        //## END ATTRIBUTE DEF NAME SET
+      }
+      
+      
+      //##########################
+      if (!StringUtils.isBlank(attributeLoaderAttrsLike)) {
+        //## Now we can remove ones in DB that shouldnt be there
+        for (MultiKey current : GrouperUtil.nonNull(attributeDefNameSetMap).keySet()) {
+          String ifHasDefNameName = (String)current.getKey(0);
+          
+          String thenHasDefNameName = (String)current.getKey(1);
+            
+          //make sure these are covered
+          if (GrouperUtil.matchSqlString(attributeLoaderAttrsLike, ifHasDefNameName)
+              && GrouperUtil.matchSqlString(attributeLoaderAttrsLike, thenHasDefNameName)) {
+            
+            if (LOG.isDebugEnabled()) {
+              LOG.debug(attributeDefName + " will delete " + ifHasDefNameName + " --> " + thenHasDefNameName);
+            }
+
+            AttributeDefName ifHasAttributeDefName = attributeDefNamesByName.get(ifHasDefNameName);
+            AttributeDefName thenHasAttributeDefName = attributeDefNamesByName.get(thenHasDefNameName);
+            
+            totalCount[0]--;
+            
+            ifHasAttributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(thenHasAttributeDefName);
+            
+            hib3GrouploaderLog.addDeleteCount(1);
+          } else {
+            
+            if (LOG.isDebugEnabled()) {
+              LOG.debug(attributeDefName + " will not delete " + ifHasDefNameName + " --> " + thenHasDefNameName 
+                  + ", since one or both doesnt match sql like string: '" + attributeLoaderAttrsLike + "'");
+            }
+
+          }
+          
+        }
+        
+      }
+      
+    }
+  }
+
+  /**
+   * 
+   * @param attributeDefName
+   * @param hib3GrouploaderLog
+   * @param grouperLoaderDb
+   * @param grouperSession
+   * @param attributeLoaderAttrsLike
+   * @param attributeLoaderAttrQuery
+   * @param jobMessage
+   * @param jobStatus
+   * @param totalCount
+   * @param processedCount
+   * @param theAttributeDef
+   * @param attributeDefNames
+   * @param attributeDefNamesById
+   * @param attributeDefNamesByName
+   */
+  private static void helperSyncAttributeDefNames(final String attributeDefName,
+      Hib3GrouperLoaderLog hib3GrouploaderLog, GrouperLoaderDb grouperLoaderDb,
+      final GrouperSession grouperSession, String attributeLoaderAttrsLike,
+      String attributeLoaderAttrQuery, final StringBuilder jobMessage,
+      final String[] jobStatus, int[] totalCount, int[] processedCount,
+      AttributeDef theAttributeDef, Set<AttributeDefName> attributeDefNames,
+      Map<String, AttributeDefName> attributeDefNamesById,
+      Map<String, AttributeDefName> attributeDefNamesByName) {
+    //#############################
+    // SYNC ATTRIBUTE DEF NAMES
+    if (!StringUtils.isBlank(attributeLoaderAttrQuery)) {
+
+      //lets find all like attributeDefNames managed
+      Set<AttributeDefName> attributeDefNamesLike = null;
+      
+      if (!StringUtils.isBlank(attributeLoaderAttrsLike)) {
+        if (StringUtils.equals("%", attributeLoaderAttrsLike)) {
+          attributeDefNamesLike = new HashSet<AttributeDefName>(attributeDefNames);
+        } else {
+          attributeDefNamesLike = GrouperDAOFactory.getFactory().getAttributeDefName()
+            .findByAttributeDefLike(theAttributeDef.getId(), attributeLoaderAttrsLike);
+        }
+      }
+      
+      //###################################
+      //## QUERY FOR ATTRIBUTE DEF NAMES FROM QUERY (NEW LIST)
+      GrouperLoaderResultset attributeDefNameResultset = null;
+      
+      if (!StringUtils.isBlank(attributeLoaderAttrQuery)) {
+        attributeDefNameResultset = new GrouperLoaderResultset(
+            grouperLoaderDb, attributeLoaderAttrQuery);
+      }
+      
+      int numberOfRows = attributeDefNameResultset.numberOfRows();
+      hib3GrouploaderLog.addTotalCount(numberOfRows);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(attributeDefName + " syncing " + numberOfRows + " attributeDefName rows");
+      }
+      
+      int count = 0;
+      //loop through new ones
+      int numberOfAttributeDefNames = attributeDefNameResultset.numberOfRows();
+      processedCount[0] += numberOfAttributeDefNames;
+      
+      for (int i=0; i<attributeDefNameResultset.numberOfRows(); i++) {
+        
+        //the size changes as we iterate through...  so check again
+        if (i >= attributeDefNameResultset.numberOfRows()) {
+          break;
+        }
+        
+        String name = (String)attributeDefNameResultset.getCell(
+            i, GrouperLoaderResultset.ATTR_NAME_COL, true);
+        
+        String displayName = (String)attributeDefNameResultset.getCell(
+            i, GrouperLoaderResultset.ATTR_DISPLAY_NAME_COL, false);
+        
+        String description = (String)attributeDefNameResultset.getCell(
+            i, GrouperLoaderResultset.ATTR_DESCRIPTION_COL, false);
+        
+        //see if ok
+        AttributeDefName existingAttributeDefName = attributeDefNamesByName.get(name);
+        
+        if (existingAttributeDefName != null) {
+          
+          boolean hasChange = false;
+          
+          if (!StringUtils.isBlank(displayName)) {
+            
+            //get extension
+            String displayExtension = GrouperUtil.extensionFromName(displayName);
+            if (!StringUtils.equals(displayExtension, existingAttributeDefName.getDisplayExtension())) {
+              existingAttributeDefName.setDisplayExtensionDb(displayExtension);
+              hasChange = true;
+            }
+            
+          }
+          if (!StringUtils.isBlank(description)) {
+            
+            if (!StringUtils.equals(description, existingAttributeDefName.getDescription())) {
+              existingAttributeDefName.setDescription(description);
+              hasChange = true;
+            }
+          }
+
+          if (hasChange) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug(attributeDefName + " will update " + existingAttributeDefName.getName() 
+                  + ", " + count + " of " + numberOfAttributeDefNames + " attributeDefNames");
+            }
+            existingAttributeDefName.store();
+            hib3GrouploaderLog.addUpdateCount(1);
+          }
+          
+          //manage the list to remove
+          attributeDefNames.remove(existingAttributeDefName);
+          if (attributeDefNamesLike != null) {
+            attributeDefNamesLike.remove(existingAttributeDefName);
+          }
+          
+        } else {
+          
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(attributeDefName + " will insert " + existingAttributeDefName.getName() 
+                + ", " + count + " of " + numberOfAttributeDefNames + " attributeDefNames");
+          }
+          totalCount[0]++;
+          //this is an insert
+          AttributeDefName insertAttributeDefName = new AttributeDefNameSave(grouperSession, theAttributeDef).assignName(name)
+            .assignDisplayName(displayName).assignDescription(description).assignCreateParentStemsIfNotExist(true).save();
+          hib3GrouploaderLog.addInsertCount(1);
+          
+          //might need these for foreign keys later
+          attributeDefNamesById.put(insertAttributeDefName.getId(), insertAttributeDefName);
+          attributeDefNamesByName.put(insertAttributeDefName.getName(), insertAttributeDefName);
+          
+        }
+        attributeDefNameResultset.remove(i);
+        i--; //since we are removing a row, we need to decrement where we are...
+        
+        if (count != 0 && count % 500 == 0) {
+          String logStatus = attributeDefName + " processed " + totalCount[0] 
+            + " records, finding new attributeDefNames to update/remove, " + count 
+            + " of " + numberOfAttributeDefNames + " attributeDefNames";
+          LOG.info(logStatus);
+          jobStatus[0] = logStatus;
+          hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
+          hib3GrouploaderLog.store();
+        }
+
+        count++;
+      }
+      
+      //##########################
+      //## Now we can remove ones in DB that shouldnt be there
+      for (AttributeDefName current : GrouperUtil.nonNull(attributeDefNamesLike)) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(attributeDefName + " will delete " + current.getName());
+        }
+        totalCount[0]--;
+        current.delete();
+        hib3GrouploaderLog.addDeleteCount(1);
+      }
+      
     }
   }
 

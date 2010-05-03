@@ -157,7 +157,7 @@ public class XmlExportAttributeDefTest extends GrouperTest {
     assertEquals(true, attributeDef.isAssignToMemberAssn());
     assertEquals(true, attributeDef.isAssignToStem());
     assertEquals(true, attributeDef.isAssignToStemAssn());
-    assertEquals(true, attributeDef.isAttributeDefIsPublic());
+    assertEquals(true, attributeDef.isAttributeDefPublic());
     assertEquals(AttributeDefType.attr, attributeDef.getAttributeDefType());
     assertEquals("contextId", attributeDef.getContextId());
     assertEquals(new Long(4L), attributeDef.getCreatedOnDb());

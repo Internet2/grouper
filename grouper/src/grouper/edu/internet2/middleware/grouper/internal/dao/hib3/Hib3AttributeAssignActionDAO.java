@@ -63,7 +63,7 @@ public class Hib3AttributeAssignActionDAO extends Hib3DAO implements AttributeAs
    */
   public Set<AttributeAssignAction> findByAttributeDefId(String attributeDefId) {
     Set<AttributeAssignAction> attributeAssignActions = HibernateSession.byHqlStatic().createQuery(
-      "from AttributeAssignAction where attributeDefId = :theAttributeDefId")
+      "from AttributeAssignAction where attributeDefId = :theAttributeDefId order by nameDb")
       .setString("theAttributeDefId", attributeDefId).listSet(AttributeAssignAction.class);
     
     return attributeAssignActions;

@@ -134,4 +134,12 @@ public interface AttributeAssignActionSetDAO extends GrouperDAO {
    */
   public void saveUpdateProperties(AttributeAssignActionSet attributeAssignActionSet);
 
+
+  /**
+   * find by depth one for attribute def
+   * @param attributeDefId
+   * @return the attribute assign action set or null if not there
+   */
+  public Set<AttributeAssignActionSet> findByDepthOneForAttributeDef(String attributeDefId);
+
 }

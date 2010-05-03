@@ -20,22 +20,24 @@ public class AllAttributeTests {
     suite.addTest(AllAttrAssignTests.suite());
 
     //$JUnit-BEGIN$
-    suite.addTestSuite(EffMshipAttributeSecurityTest.class);
-    suite.addTestSuite(GroupAttributeSecurityTest.class);
-    suite.addTestSuite(AttrAssignAttributeSecurityTest.class);
-    suite.addTestSuite(AttributeDefNameSetTest.class);
-    suite.addTestSuite(AttributeAssignTest.class);
-    suite.addTestSuite(MembershipAttributeSecurityTest.class);
-    suite.addTestSuite(AttributeDefTest.class);
-    suite.addTestSuite(StemAttributeSecurityTest.class);
-    suite.addTestSuite(AttributeDefNameTest.class);
-    suite.addTestSuite(AttributeDefAttributeSecurityTest.class);
     suite.addTestSuite(AttributeDefScopeTest.class);
+    suite.addTestSuite(EffMshipAttributeSecurityTest.class);
+    suite.addTestSuite(AttributeDefNameSetTest.class);
     suite.addTestSuite(MemberAttributeSecurityTest.class);
+    suite.addTestSuite(MembershipAttributeSecurityTest.class);
+    suite.addTestSuite(AttributeDefNameSaveTest.class);
+    suite.addTestSuite(AttributeDefTest.class);
+    suite.addTestSuite(AttrAssignAttributeSecurityTest.class);
+    suite.addTestSuite(AttributeAssignTest.class);
+    suite.addTestSuite(AttributeDefNameTest.class);
+    suite.addTestSuite(AttributeDefSaveTest.class);
+    suite.addTestSuite(GroupAttributeSecurityTest.class);
+    suite.addTestSuite(StemAttributeSecurityTest.class);
+    suite.addTestSuite(AttributeDefAttributeSecurityTest.class);
     //$JUnit-END$
 
     suite.addTest(AllAttrAssignTests.suite());
-    
+
     return suite;
   }
 

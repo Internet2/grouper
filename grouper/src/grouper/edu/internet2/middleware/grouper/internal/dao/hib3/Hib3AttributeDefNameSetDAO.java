@@ -282,5 +282,17 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
         .setString("theId", attributeDefNameSet.getId()).executeUpdate();
   }
 
+  /**
+   * @see AttributeDefNameSetDAO#findByDepthOneForAttributeDef(String)
+   */
+  public Set<AttributeDefNameSet> findByDepthOneForAttributeDef(String attributeDefId) {
+    Set<AttributeDefNameSet> attributeDefNameSets = HibernateSession.byHqlStatic().createQuery(
+        "select distinct adns from AttributeDefNameSet as adns, AttributeDefName as adn " +
+        "where adn.id = adns.ifHasAttributeDefNameId " +
+        "and adn.attributeDefId = :theId and adns.depth = 1 ")
+        .setString("theId", attributeDefId).listSet(AttributeDefNameSet.class);
+    return attributeDefNameSets;
+  }
+
 } 
 

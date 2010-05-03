@@ -1036,22 +1036,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
   }
 
   /**
-   * if the attribute def is public, otherwise you just see it in this stem and substem
-   * @return if public
-   */
-  public boolean isAttributeDefIsPublic() {
-    return attributeDefPublic;
-  }
-
-  /**
-   * if the attribute def is public, otherwise you just see it in this stem and substem
-   * @param attributeDefIsPublic1
-   */
-  public void setAttributeDefIsPublic(boolean attributeDefIsPublic1) {
-    this.attributeDefPublic = attributeDefIsPublic1;
-  }
-
-  /**
    * stem that this attribute is in
    * @return the stem id
    */

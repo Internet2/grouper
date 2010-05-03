@@ -82,5 +82,12 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    */
   public Set<AttributeDefName> findAllSecure(String searchField, Set<String> searchInAttributeDefIds);
 
+  /**
+   * search for all by attribute def id, and like string
+   * @param attributeDefId 
+   * @param likeString 
+   * @return the attribute def names or empty set
+   */
+  public Set<AttributeDefName> findByAttributeDefLike(String attributeDefId, String likeString);
   
 }

@@ -6,10 +6,15 @@ package edu.internet2.middleware.grouper.app.loader;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import junit.textui.TestRunner;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
@@ -20,6 +25,13 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -28,6 +40,8 @@ import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -55,7 +69,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderTypesGroupMeta"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderAttributeDefActions"));
   }
 
   /**
@@ -472,6 +486,10 @@ public class GrouperLoaderTest extends GrouperTest {
       GrouperLoaderConfig.testConfig.put("groups.create.grant.all.read", "false");
       GrouperLoaderConfig.testConfig.put("groups.create.grant.all.view", "false");
 
+      ApiConfig.testConfig.put("grouper.attribute.rootStem", "my:attrRoot");
+      ApiConfig.testConfig.put("grouper.attribute.loader.autoconfigure", "true");
+
+      
       ensureTestgrouperLoaderTables();
   
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader").executeUpdate();
@@ -485,6 +503,9 @@ public class GrouperLoaderTest extends GrouperTest {
       setupTestConfigForIncludeExclude();
       
       GrouperStartup.initIncludeExcludeType();
+
+      GrouperCheckConfig.checkAttributes();
+      
       
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -611,6 +632,499 @@ public class GrouperLoaderTest extends GrouperTest {
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
 
   }
+
+  /**
+   * test the loader
+   * @throws Exception 
+   */
+  public void testLoaderAttributeDef() throws Exception {
+    
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    
+    TestgrouperLoader aToB = new TestgrouperLoader("a:a", "a:b:b", null);
+    testDataList.add(aToB);
+    TestgrouperLoader aToC = new TestgrouperLoader("a:a", "a:c:c", null);
+    testDataList.add(aToC);
+    TestgrouperLoader bToD = new TestgrouperLoader("a:b:b", "a:b:d:d", null);
+    testDataList.add(bToD);
+  
+    TestgrouperLoaderGroups attributeDefNameA = new TestgrouperLoaderGroups("a:a", 
+        "theA:theA", "This is the a attributeDefName");
+    testDataList.add(attributeDefNameA);
+    TestgrouperLoaderGroups attributeDefNameB = new TestgrouperLoaderGroups("a:b:b", 
+        "theA:theB:theB", "This is the b attributeDefName");
+    testDataList.add(attributeDefNameB);
+    TestgrouperLoaderGroups attributeDefNameC = new TestgrouperLoaderGroups("a:c:c", 
+        "theA:theC:theC", "This is the c attributeDefName");
+    testDataList.add(attributeDefNameC);
+    TestgrouperLoaderGroups attributeDefNameD = new TestgrouperLoaderGroups("a:b:d:d", 
+        "theA:theB:theD:theD", "This is the d attributeDefName");
+    testDataList.add(attributeDefNameD);
+    TestgrouperLoaderGroups attributeDefNameE = new TestgrouperLoaderGroups("a:b:e:e", 
+        "theA:theB:theE:theE", "This is the e attributeDefName");
+    testDataList.add(attributeDefNameE);
+    TestgrouperLoaderGroups attributeDefNameF = new TestgrouperLoaderGroups("a:f:f", 
+        "theA:theF:theF", "This is the f attributeDefName");
+    testDataList.add(attributeDefNameF);
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add an attributeDef which will load these
+    AttributeDef orgsAttributeDef = new AttributeDefSave(this.grouperSession)
+      .assignName("loader:orgs").assignCreateParentStemsIfNotExist(true).save();
+
+    //assign the type
+    orgsAttributeDef.getAttributeDelegate().assignAttributeByName(
+        GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoader");
+
+    //now we can configure the loader
+    orgsAttributeDef.getAttributeValueDelegate().assignValue(
+        GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderType", "ATTR_SQL_SIMPLE");
+    orgsAttributeDef.getAttributeValueDelegate().assignValue(
+        GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderQuartzCron", "0 0 0 0 0 ?");
+    orgsAttributeDef.getAttributeValueDelegate().assignValue(
+        GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderAttrQuery", 
+        "select group_name as attr_name, group_display_name as attr_display_name, " +
+        "group_description as attr_description from testgrouper_loader_groups");
+    orgsAttributeDef.getAttributeValueDelegate().assignValue(
+        GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderAttrSetQuery", 
+        "select col1 as if_has_attr_name, col2 as then_has_attr_name from testgrouper_loader");
+    
+    //we should have 0 attributeDefNames now
+    Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(orgsAttributeDef.getId());
+    
+    assertEquals(0, attributeDefNames.size());
+    
+    //we should have 1 action
+    Set<String> actionNames = orgsAttributeDef.getAttributeDefActionDelegate().allowedActionStrings();
+    
+    assertEquals(1, actionNames.size());
+    assertEquals("assign", actionNames.iterator().next());
+    
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
+
+    //now we should have 6 orgs and 3 relationships
+    List<AttributeDefName> attributeDefNamesList = new ArrayList<AttributeDefName>(GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(orgsAttributeDef.getId()));
+    
+    Map<String, AttributeDefName> attributeDefNamesById = new HashMap<String, AttributeDefName>();
+    for (AttributeDefName attributeDefName : attributeDefNamesList) {
+      attributeDefNamesById.put(attributeDefName.getId(), attributeDefName);
+    }
+    
+    
+    assertEquals(6, attributeDefNamesList.size());
+    assertEquals("a:a", attributeDefNamesList.get(0).getName());
+    assertEquals("a:b:b", attributeDefNamesList.get(1).getName());
+    assertEquals("a:b:d:d", attributeDefNamesList.get(2).getName());
+    assertEquals("a:b:e:e", attributeDefNamesList.get(3).getName());
+    assertEquals("a:c:c", attributeDefNamesList.get(4).getName());
+    assertEquals("a:f:f", attributeDefNamesList.get(5).getName());
+
+    
+    Set<AttributeDefNameSet> attributeDefNameSets = GrouperDAOFactory.getFactory()
+      .getAttributeDefNameSet().findByDepthOneForAttributeDef(orgsAttributeDef.getId());
+    
+    Set<MultiKey> attributeDefNameSetMultiKeyNames = new HashSet<MultiKey>();
+    
+    for (AttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
+      AttributeDefName ifHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getIfHasAttributeDefNameId());
+      AttributeDefName thenHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getThenHasAttributeDefNameId());
+      attributeDefNameSetMultiKeyNames.add(new MultiKey(ifHasAttributeDefName.getName(), thenHasAttributeDefName.getName()));
+    }
+    
+    assertEquals(3, attributeDefNameSets.size());
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:a", "a:b:b")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:a", "a:c:c")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:d:d")));
+    
+    assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
+    assertEquals(9, hib3GrouperLoaderLog.getInsertCount().intValue());
+    assertEquals(0, hib3GrouperLoaderLog.getUpdateCount().intValue());
+    assertEquals(0, hib3GrouperLoaderLog.getDeleteCount().intValue());
+
+    //#########################################
+    //## do nothing, should do nothing
+    
+    hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
+
+    //now we should have 6 orgs and 3 relationships
+    attributeDefNamesList = new ArrayList<AttributeDefName>(GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(orgsAttributeDef.getId()));
+    
+    attributeDefNamesById = new HashMap<String, AttributeDefName>();
+    for (AttributeDefName attributeDefName : attributeDefNamesList) {
+      attributeDefNamesById.put(attributeDefName.getId(), attributeDefName);
+    }
+    
+    
+    assertEquals(6, attributeDefNamesList.size());
+    assertEquals("a:a", attributeDefNamesList.get(0).getName());
+    assertEquals("a:b:b", attributeDefNamesList.get(1).getName());
+    assertEquals("a:b:d:d", attributeDefNamesList.get(2).getName());
+    assertEquals("a:b:e:e", attributeDefNamesList.get(3).getName());
+    assertEquals("a:c:c", attributeDefNamesList.get(4).getName());
+    assertEquals("a:f:f", attributeDefNamesList.get(5).getName());
+
+    
+    attributeDefNameSets = GrouperDAOFactory.getFactory()
+      .getAttributeDefNameSet().findByDepthOneForAttributeDef(orgsAttributeDef.getId());
+    
+    attributeDefNameSetMultiKeyNames = new HashSet<MultiKey>();
+    
+    for (AttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
+      AttributeDefName ifHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getIfHasAttributeDefNameId());
+      AttributeDefName thenHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getThenHasAttributeDefNameId());
+      attributeDefNameSetMultiKeyNames.add(new MultiKey(ifHasAttributeDefName.getName(), thenHasAttributeDefName.getName()));
+    }
+    
+    assertEquals(3, attributeDefNameSets.size());
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:a", "a:b:b")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:a", "a:c:c")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:d:d")));
+    
+    assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
+    assertEquals(0, hib3GrouperLoaderLog.getInsertCount().intValue());
+    assertEquals(0, hib3GrouperLoaderLog.getUpdateCount().intValue());
+    assertEquals(0, hib3GrouperLoaderLog.getDeleteCount().intValue());
+    
+
+    //#########################################
+    //## Add one, delete one (update if applicable)
+    
+    HibernateSession.byObjectStatic().delete(aToC);
+    TestgrouperLoader bToE = new TestgrouperLoader("a:b:b", "a:b:e:e", null);
+    HibernateSession.byObjectStatic().saveOrUpdate(bToE);
+  
+    attributeDefNameA.setGroupDescription("new description");
+    HibernateSession.byObjectStatic().saveOrUpdate(attributeDefNameA);
+    
+    HibernateSession.byObjectStatic().delete(attributeDefNameF);
+    TestgrouperLoaderGroups attributeDefNameG = new TestgrouperLoaderGroups("a:g:g", 
+        "theA:theG:theG", "This is the g attributeDefName");
+    HibernateSession.byObjectStatic().saveOrUpdate(attributeDefNameG);
+    
+    hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
+
+    //now we should have 7 orgs and 3 relationships
+    attributeDefNamesList = new ArrayList<AttributeDefName>(GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(orgsAttributeDef.getId()));
+    
+    attributeDefNamesById = new HashMap<String, AttributeDefName>();
+    for (AttributeDefName attributeDefName : attributeDefNamesList) {
+      attributeDefNamesById.put(attributeDefName.getId(), attributeDefName);
+    }
+    
+    //not deleted yet since no like string
+    assertEquals(7, attributeDefNamesList.size());
+    assertEquals("a:a", attributeDefNamesList.get(0).getName());
+    assertEquals("a:b:b", attributeDefNamesList.get(1).getName());
+    assertEquals("a:b:d:d", attributeDefNamesList.get(2).getName());
+    assertEquals("a:b:e:e", attributeDefNamesList.get(3).getName());
+    assertEquals("a:c:c", attributeDefNamesList.get(4).getName());
+    assertEquals("a:f:f", attributeDefNamesList.get(5).getName());
+    assertEquals("a:g:g", attributeDefNamesList.get(6).getName());
+
+    
+    attributeDefNameSets = GrouperDAOFactory.getFactory()
+      .getAttributeDefNameSet().findByDepthOneForAttributeDef(orgsAttributeDef.getId());
+    
+    attributeDefNameSetMultiKeyNames = new HashSet<MultiKey>();
+    
+    for (AttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
+      AttributeDefName ifHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getIfHasAttributeDefNameId());
+      AttributeDefName thenHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getThenHasAttributeDefNameId());
+      attributeDefNameSetMultiKeyNames.add(new MultiKey(ifHasAttributeDefName.getName(), thenHasAttributeDefName.getName()));
+    }
+    
+    assertEquals(3, attributeDefNameSets.size());
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:a", "a:b:b")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:e:e")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:d:d")));
+    
+    //this is 9 since it doesnt count existing values...
+    assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
+    assertEquals(2, hib3GrouperLoaderLog.getInsertCount().intValue());
+    assertEquals(1, hib3GrouperLoaderLog.getUpdateCount().intValue());
+    assertEquals(1, hib3GrouperLoaderLog.getDeleteCount().intValue());
+
+
+    //#########################################
+    //## Set the like string, and it should delete
+    
+    orgsAttributeDef.getAttributeValueDelegate().assignValue(
+        GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderAttrsLike", "%");
+
+    hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
+
+    //now we should have 6 orgs and 3 relationships
+    attributeDefNamesList = new ArrayList<AttributeDefName>(GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(orgsAttributeDef.getId()));
+    
+    attributeDefNamesById = new HashMap<String, AttributeDefName>();
+    for (AttributeDefName attributeDefName : attributeDefNamesList) {
+      attributeDefNamesById.put(attributeDefName.getId(), attributeDefName);
+    }
+    
+    //not deleted yet since no like string
+    assertEquals(6, attributeDefNamesList.size());
+    assertEquals("a:a", attributeDefNamesList.get(0).getName());
+    assertEquals("a:b:b", attributeDefNamesList.get(1).getName());
+    assertEquals("a:b:d:d", attributeDefNamesList.get(2).getName());
+    assertEquals("a:b:e:e", attributeDefNamesList.get(3).getName());
+    assertEquals("a:c:c", attributeDefNamesList.get(4).getName());
+    assertEquals("a:g:g", attributeDefNamesList.get(5).getName());
+
+    
+    attributeDefNameSets = GrouperDAOFactory.getFactory()
+      .getAttributeDefNameSet().findByDepthOneForAttributeDef(orgsAttributeDef.getId());
+    
+    attributeDefNameSetMultiKeyNames = new HashSet<MultiKey>();
+    
+    for (AttributeDefNameSet attributeDefNameSet : attributeDefNameSets) {
+      AttributeDefName ifHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getIfHasAttributeDefNameId());
+      AttributeDefName thenHasAttributeDefName = attributeDefNamesById.get(attributeDefNameSet.getThenHasAttributeDefNameId());
+      attributeDefNameSetMultiKeyNames.add(new MultiKey(ifHasAttributeDefName.getName(), thenHasAttributeDefName.getName()));
+    }
+    
+    assertEquals(3, attributeDefNameSets.size());
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:a", "a:b:b")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:e:e")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:d:d")));
+    
+    assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
+    assertEquals(0, hib3GrouperLoaderLog.getInsertCount().intValue());
+    assertEquals(0, hib3GrouperLoaderLog.getUpdateCount().intValue());
+    assertEquals(1, hib3GrouperLoaderLog.getDeleteCount().intValue());
+
+    
+    
+//    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+//    assertEquals("The loader:group 1", overallGroup1.getDisplayName());
+//    Group systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);
+//    assertEquals("This is the first group", systemOfRecordGroup1.getDescription());
+//    assertEquals("The loader:group 1 system of record", systemOfRecordGroup1.getDisplayName());
+//    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
+//    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ1));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ2));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ3));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ4));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ5));
+//    assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ6));
+    
+  
+  
+  }
+
+  /**
+     * test the loader
+     * @throws Exception 
+     */
+    public void testLoaderAttributeDefActions() throws Exception {
+      
+      List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+      
+      TestgrouperLoader aToB = new TestgrouperLoader("a:a", "a:b:b", null);
+      testDataList.add(aToB);
+      TestgrouperLoader aToC = new TestgrouperLoader("a:a", "a:c:c", null);
+      testDataList.add(aToC);
+      TestgrouperLoader bToD = new TestgrouperLoader("a:b:b", "a:b:d:d", null);
+      testDataList.add(bToD);
+    
+      TestgrouperLoaderGroups attributeDefNameA = new TestgrouperLoaderGroups("a:a", 
+          null, null);
+      testDataList.add(attributeDefNameA);
+      TestgrouperLoaderGroups attributeDefNameB = new TestgrouperLoaderGroups("a:b:b", 
+          null, null);
+      testDataList.add(attributeDefNameB);
+      TestgrouperLoaderGroups attributeDefNameC = new TestgrouperLoaderGroups("a:c:c", 
+          null, null);
+      testDataList.add(attributeDefNameC);
+      TestgrouperLoaderGroups attributeDefNameD = new TestgrouperLoaderGroups("a:b:d:d", 
+          null, null);
+      testDataList.add(attributeDefNameD);
+      TestgrouperLoaderGroups attributeDefNameE = new TestgrouperLoaderGroups("a:b:e:e", 
+          null, null);
+      testDataList.add(attributeDefNameE);
+      TestgrouperLoaderGroups attributeDefNameF = new TestgrouperLoaderGroups("a:f:f", 
+          null, null);
+      testDataList.add(attributeDefNameF);
+      
+      HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+    
+      //lets add an attributeDef which will load these
+      AttributeDef orgsAttributeDef = new AttributeDefSave(this.grouperSession)
+        .assignName("loader:orgs").assignCreateParentStemsIfNotExist(true).save();
+  
+      //assign the type
+      orgsAttributeDef.getAttributeDelegate().assignAttributeByName(
+          GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoader");
+  
+      //now we can configure the loader
+      orgsAttributeDef.getAttributeValueDelegate().assignValue(
+          GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderType", "ATTR_SQL_SIMPLE");
+      orgsAttributeDef.getAttributeValueDelegate().assignValue(
+          GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderQuartzCron", "0 0 0 0 0 ?");
+      orgsAttributeDef.getAttributeValueDelegate().assignValue(
+          GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderActionQuery", 
+          "select group_name as action_name from testgrouper_loader_groups");
+      orgsAttributeDef.getAttributeValueDelegate().assignValue(
+          GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderActionSetQuery", 
+          "select col1 as if_has_action_name, col2 as then_has_action_name from testgrouper_loader");
+      
+      //we should have 0 attributeDefNames now
+      Set<AttributeAssignAction> attributeActions = orgsAttributeDef.getAttributeDefActionDelegate().allowedActions();
+      
+      assertEquals(1, attributeActions.size());
+      
+      //we should have 1 action
+      Set<String> actionNames = orgsAttributeDef.getAttributeDefActionDelegate().allowedActionStrings();
+      
+      assertEquals(1, actionNames.size());
+      assertEquals("assign", actionNames.iterator().next());
+      
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
+  
+      //now we should have 6 actions and 3 relationships
+      List<AttributeAssignAction> attributeActionsList = new ArrayList<AttributeAssignAction>(orgsAttributeDef.getAttributeDefActionDelegate().allowedActions());
+      
+      Map<String, AttributeAssignAction> attributeActionsById = new HashMap<String, AttributeAssignAction>();
+      for (AttributeAssignAction attributeAction : attributeActionsList) {
+        attributeActionsById.put(attributeAction.getId(), attributeAction);
+      }
+      
+      
+      assertEquals(6, attributeActionsList.size());
+      assertEquals("a:a", attributeActionsList.get(0).getName());
+      assertEquals("a:b:b", attributeActionsList.get(1).getName());
+      assertEquals("a:b:d:d", attributeActionsList.get(2).getName());
+      assertEquals("a:b:e:e", attributeActionsList.get(3).getName());
+      assertEquals("a:c:c", attributeActionsList.get(4).getName());
+      assertEquals("a:f:f", attributeActionsList.get(5).getName());
+  
+      
+      Set<AttributeAssignActionSet> attributeActionSets = GrouperDAOFactory.getFactory()
+        .getAttributeAssignActionSet().findByDepthOneForAttributeDef(orgsAttributeDef.getId());
+      
+      Set<MultiKey> attributeActionSetMultiKeyNames = new HashSet<MultiKey>();
+      
+      for (AttributeAssignActionSet attributeActionSet : attributeActionSets) {
+        AttributeAssignAction ifHasAction = attributeActionsById.get(attributeActionSet.getIfHasAttrAssignActionId());
+        AttributeAssignAction thenHasAction = attributeActionsById.get(attributeActionSet.getThenHasAttrAssignActionId());
+        attributeActionSetMultiKeyNames.add(new MultiKey(ifHasAction.getName(), thenHasAction.getName()));
+      }
+      
+      assertEquals(3, attributeActionSets.size());
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:a", "a:b:b")));
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:a", "a:c:c")));
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:d:d")));
+      
+      assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
+      assertEquals(9, hib3GrouperLoaderLog.getInsertCount().intValue());
+      assertEquals(0, hib3GrouperLoaderLog.getUpdateCount().intValue());
+      //deletes "assign"
+      assertEquals(1, hib3GrouperLoaderLog.getDeleteCount().intValue());
+  
+      //#########################################
+      //## do nothing, should do nothing
+      
+      hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
+  
+      //now we should have 6 orgs and 3 relationships
+      attributeActionsList = new ArrayList<AttributeAssignAction>(orgsAttributeDef.getAttributeDefActionDelegate().allowedActions());
+      
+      attributeActionsById = new HashMap<String, AttributeAssignAction>();
+      for (AttributeAssignAction attributeAction : attributeActionsList) {
+        attributeActionsById.put(attributeAction.getId(), attributeAction);
+      }
+      
+      
+      assertEquals(6, attributeActionsList.size());
+      assertEquals("a:a", attributeActionsList.get(0).getName());
+      assertEquals("a:b:b", attributeActionsList.get(1).getName());
+      assertEquals("a:b:d:d", attributeActionsList.get(2).getName());
+      assertEquals("a:b:e:e", attributeActionsList.get(3).getName());
+      assertEquals("a:c:c", attributeActionsList.get(4).getName());
+      assertEquals("a:f:f", attributeActionsList.get(5).getName());
+  
+      
+      attributeActionSets = GrouperDAOFactory.getFactory()
+        .getAttributeAssignActionSet().findByDepthOneForAttributeDef(orgsAttributeDef.getId());
+      
+      attributeActionSetMultiKeyNames = new HashSet<MultiKey>();
+      
+      for (AttributeAssignActionSet attributeActionSet : attributeActionSets) {
+        AttributeAssignAction ifHasAction = attributeActionsById.get(attributeActionSet.getIfHasAttrAssignActionId());
+        AttributeAssignAction thenHasAction = attributeActionsById.get(attributeActionSet.getThenHasAttrAssignActionId());
+        attributeActionSetMultiKeyNames.add(new MultiKey(ifHasAction.getName(), thenHasAction.getName()));
+      }      
+
+      assertEquals(3, attributeActionSets.size());
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:a", "a:b:b")));
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:a", "a:c:c")));
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:d:d")));
+      
+      assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
+      assertEquals(0, hib3GrouperLoaderLog.getInsertCount().intValue());
+      assertEquals(0, hib3GrouperLoaderLog.getUpdateCount().intValue());
+      assertEquals(0, hib3GrouperLoaderLog.getDeleteCount().intValue());
+      
+  
+      //#########################################
+      //## Add one, delete one (update if applicable)
+      
+      HibernateSession.byObjectStatic().delete(aToC);
+      TestgrouperLoader bToE = new TestgrouperLoader("a:b:b", "a:b:e:e", null);
+      HibernateSession.byObjectStatic().saveOrUpdate(bToE);
+    
+      attributeDefNameA.setGroupDescription("new description");
+      HibernateSession.byObjectStatic().saveOrUpdate(attributeDefNameA);
+      
+      HibernateSession.byObjectStatic().delete(attributeDefNameF);
+      TestgrouperLoaderGroups attributeDefNameG = new TestgrouperLoaderGroups("a:g:g", 
+          "theA:theG:theG", "This is the g attributeDefName");
+      HibernateSession.byObjectStatic().saveOrUpdate(attributeDefNameG);
+      
+      hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
+  
+      //now we should have 7 orgs and 3 relationships
+      attributeActionsList = new ArrayList<AttributeAssignAction>(orgsAttributeDef.getAttributeDefActionDelegate().allowedActions());
+      
+      attributeActionsById = new HashMap<String, AttributeAssignAction>();
+      for (AttributeAssignAction attributeAction : attributeActionsList) {
+        attributeActionsById.put(attributeAction.getId(), attributeAction);
+      }
+      
+      assertEquals(6, attributeActionsList.size());
+      assertEquals("a:a", attributeActionsList.get(0).getName());
+      assertEquals("a:b:b", attributeActionsList.get(1).getName());
+      assertEquals("a:b:d:d", attributeActionsList.get(2).getName());
+      assertEquals("a:b:e:e", attributeActionsList.get(3).getName());
+      assertEquals("a:c:c", attributeActionsList.get(4).getName());
+      assertEquals("a:g:g", attributeActionsList.get(5).getName());
+  
+      
+      attributeActionSets = GrouperDAOFactory.getFactory()
+        .getAttributeAssignActionSet().findByDepthOneForAttributeDef(orgsAttributeDef.getId());
+      
+      attributeActionSetMultiKeyNames = new HashSet<MultiKey>();
+      
+      for (AttributeAssignActionSet attributeActionSet : attributeActionSets) {
+        AttributeAssignAction ifHasAction = attributeActionsById.get(attributeActionSet.getIfHasAttrAssignActionId());
+        AttributeAssignAction thenHasAction = attributeActionsById.get(attributeActionSet.getThenHasAttrAssignActionId());
+        attributeActionSetMultiKeyNames.add(new MultiKey(ifHasAction.getName(), thenHasAction.getName()));
+      }      
+      
+      assertEquals(3, attributeActionSets.size());
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:a", "a:b:b")));
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:e:e")));
+      assertTrue(attributeActionSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:d:d")));
+      
+      //this is 9 since it doesnt count existing values...
+      assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
+      assertEquals(2, hib3GrouperLoaderLog.getInsertCount().intValue());
+      assertEquals(0, hib3GrouperLoaderLog.getUpdateCount().intValue());
+      assertEquals(2, hib3GrouperLoaderLog.getDeleteCount().intValue());
+  
+  
+    
+    }
   
   
 //  /**

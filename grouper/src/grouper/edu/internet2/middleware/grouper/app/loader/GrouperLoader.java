@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -147,6 +149,61 @@ public class GrouperLoader {
    */
   public static final String GROUPER_LOADER_DB_NAME = "grouperLoaderDbName";
   
+  /**
+   * Type of loader, e.g. ATTR_SQL_SIMPLE
+   */
+  public static final String ATTRIBUTE_LOADER_TYPE = "attributeLoaderType";
+  
+  /**
+   * DB name in grouper-loader.properties or default grouper db if blank
+   */
+  public static final String ATTRIBUTE_LOADER_DB_NAME = "attributeLoaderDbName";
+  
+  /**
+   * Type of schedule.  Defaults to CRON if a cron schedule is entered, or START_TO_START_INTERVAL if an interval is entered
+   */
+  public static final String ATTRIBUTE_LOADER_SCHEDULE_TYPE = "attributeLoaderScheduleType";
+  
+  /**
+   * If a CRON schedule type, this is the cron setting string from the quartz product to run a job daily, hourly, weekly, etc.  e.g. daily at 7am: 0 0 7 * * ?
+   */
+  public static final String ATTRIBUTE_LOADER_QUARTZ_CRON = "attributeLoaderQuartzCron";
+
+  /**
+   * If a START_TO_START_INTERVAL schedule type, this is the number of seconds between runs
+   */
+  public static final String ATTRIBUTE_LOADER_INTERVAL_SECONDS = "attributeLoaderIntervalSeconds";
+  
+  /**
+   * Quartz has a fixed threadpool (max configured in the grouper-loader.properties), and when the max is reached, then jobs are prioritized by this integer.  The higher the better, and the default if not set is 5.
+   */
+  public static final String ATTRIBUTE_LOADER_PRIORITY = "attributeLoaderPriority";
+
+  /**
+   * If empty, then orphans will be left alone.  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
+   */
+  public static final String ATTRIBUTE_LOADER_ATTRS_LIKE = "attributeLoaderAttrsLike";
+  
+  /**
+   * SQL query with at least some of the following columns: attr_name, attr_display_name, attr_description
+   */
+  public static final String ATTRIBUTE_LOADER_ATTR_QUERY = "attributeLoaderAttrQuery";
+  
+  /**
+   * SQL query with at least the following columns: if_has_attr_name, then_has_attr_name
+   */
+  public static final String ATTRIBUTE_LOADER_ATTR_SET_QUERY = "attributeLoaderAttrSetQuery";
+  
+  /**
+   * SQL query with at least the following column: action_name
+   */
+  public static final String ATTRIBUTE_LOADER_ACTION_QUERY = "attributeLoaderActionQuery";
+  
+  /**
+   * SQL query with at least the following columns: if_has_action_name, then_has_action_name
+   */
+  public static final String ATTRIBUTE_LOADER_ACTION_SET_QUERY = "attributeLoaderActionSetQuery";
+
   /**
    * scheduler factory singleton
    */
@@ -599,16 +656,66 @@ public class GrouperLoader {
         String grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
         Group group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
         return runJobOnceForGroup(grouperSession, group);
+      } else if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
+        int uuidIndexStart = jobName.lastIndexOf("__");
+        
+        String grouperLoaderAttributeDefUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+        AttributeDef attributeDef = AttributeDefFinder.findById(grouperLoaderAttributeDefUuid, true);
+        return runJobOnceForAttributeDef(grouperSession, attributeDef);
+        
       }
       Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
       hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
       hib3GrouperLoaderLog.setJobName(jobName);
-      GrouperLoaderJob.runJob(hib3GrouperLoaderLog, null, grouperSession);
+      GrouperLoaderJob.runJob(hib3GrouperLoaderLog, (Group)null, grouperSession);
       
       return "loader ran successfully: " + hib3GrouperLoaderLog.getJobMessage();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * @param attributeDef
+   * @param grouperSession
+   * @return status
+   */
+  public static Hib3GrouperLoaderLog _internal_runJobOnceForAttributeDef(GrouperSession grouperSession, AttributeDef attributeDef) {
+    try {
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
+      
+      if (!attributeDef.getAttributeDelegate().hasAttributeByName(GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoader")) {
+        throw new RuntimeException("Cant find attributeLoader type of attributeDef: " + attributeDef.getName());
+      }
+      String grouperLoaderTypeString = attributeDef.getAttributeValueDelegate()
+        .retrieveValueString(GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderType");
+
+      GrouperLoaderType grouperLoaderType = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeString, true);
+      
+      hib3GrouperLoaderLog.setJobName(grouperLoaderType.name() + "__" + attributeDef.getName() + "__" + attributeDef.getUuid());
+      hib3GrouperLoaderLog.setJobType(grouperLoaderTypeString);
+  
+      GrouperLoaderJob.runJobAttrDef(hib3GrouperLoaderLog, attributeDef, grouperSession);
+      
+      return hib3GrouperLoaderLog;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+  /**
+   * @param attributeDef
+   * @param grouperSession
+   * @return status
+   */
+  public static String runJobOnceForAttributeDef(GrouperSession grouperSession, AttributeDef attributeDef) {
+
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = _internal_runJobOnceForAttributeDef(grouperSession, attributeDef);
+    
+    return "loader ran successfully, inserted " + hib3GrouperLoaderLog.getInsertCount()
+      + " memberships, deleted " + hib3GrouperLoaderLog.getDeleteCount() + " records, total record count: "
+      + hib3GrouperLoaderLog.getTotalCount();
   }
   
 }

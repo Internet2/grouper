@@ -1380,8 +1380,8 @@ public class GrouperCheckConfig {
     }
     if (missingProps.size() > 0) {
       String error = "missing from file: " + resourceName + ", the following " +
-      		"properties (which are in the example file: " + resourceExampleName
-      		+ "): " + GrouperUtil.setToString(missingProps);
+          "properties (which are in the example file: " + resourceExampleName
+          + "): " + GrouperUtil.setToString(missingProps);
       System.err.println("Grouper warning: " + error);
       LOG.warn(error);
     }
@@ -1398,7 +1398,7 @@ public class GrouperCheckConfig {
     }
     if (missingProps.size() > 0) {
       String error = "properties are in file: " + resourceName + " (but not in " +
-      		"the example file: " + resourceExampleName
+          "the example file: " + resourceExampleName
           + "): " + GrouperUtil.setToString(missingProps);
       System.err.println("Grouper warning: " + error);
       LOG.warn(error);
@@ -1430,6 +1430,21 @@ public class GrouperCheckConfig {
     }
     return attributeDefName;
   }
+
+  /**
+   * return the stem name where the attribute loader attirbutes go, without colon on end
+   * @return stem name
+   */
+  public static String attributeLoaderStemName() {
+    String rootStemName = GrouperConfig.getProperty("grouper.attribute.rootStem");
+    if (StringUtils.isBlank(rootStemName)) {
+      throw new RuntimeException("If autoconfiguring attributes, you need to configure a root stem");
+    }
+    
+    //namespace this separate from other builtins
+    rootStemName += ":attrLoader";
+    return rootStemName;
+  }
   
   /**
    * make sure configured attributes are there 
@@ -1446,13 +1461,7 @@ public class GrouperCheckConfig {
       inCheckConfig = true;
     }
 
-    String rootStemName = GrouperConfig.getProperty("grouper.attribute.rootStem");
-    if (StringUtils.isBlank(rootStemName)) {
-      throw new RuntimeException("If autoconfiguring attributes, you need to configure a root stem");
-    }
-    
-    //namespace this separate from other builtins
-    rootStemName += ":attrLoader";
+    String rootStemName = attributeLoaderStemName();
     
     GrouperSession grouperSession = null;
     boolean startedGrouperSession = false;
@@ -1510,7 +1519,7 @@ public class GrouperCheckConfig {
         checkAttribute(stem, attributeDef, "attributeLoaderScheduleType", 
           "Type of schedule.  Defaults to CRON if a cron schedule is entered, or START_TO_START_INTERVAL if an interval is entered", wasInCheckConfig);
         checkAttribute(stem, attributeDef, "attributeLoaderQuartzCron", 
-          "If a CRON schedule type, this is the cron setting string from the quartz product to run a job daily, hourly, weekly, etc", wasInCheckConfig);
+          "If a CRON schedule type, this is the cron setting string from the quartz product to run a job daily, hourly, weekly, etc.  e.g. daily at 7am: 0 0 7 * * ?", wasInCheckConfig);
         checkAttribute(stem, attributeDef, "attributeLoaderIntervalSeconds", 
           "If a START_TO_START_INTERVAL schedule type, this is the number of seconds between runs", wasInCheckConfig);
         checkAttribute(stem, attributeDef, "attributeLoaderPriority", 
@@ -1521,6 +1530,11 @@ public class GrouperCheckConfig {
           "SQL query with at least some of the following columns: attr_name, attr_display_name, attr_description", wasInCheckConfig);
         checkAttribute(stem, attributeDef, "attributeLoaderAttrSetQuery", 
           "SQL query with at least the following columns: if_has_attr_name, then_has_attr_name", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderActionQuery", 
+            "SQL query with at least the following column: action_name", wasInCheckConfig);
+        checkAttribute(stem, attributeDef, "attributeLoaderActionSetQuery", 
+            "SQL query with at least the following columns: if_has_action_name, then_has_action_name", wasInCheckConfig);
+                
       }
       
     } catch (SessionException se) {

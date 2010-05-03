@@ -2917,7 +2917,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @throws StemNotFoundException 
    * @throws StemAddException 
    */
-  static Stem _createStemAndParentStemsIfNotExist(GrouperSession grouperSession, String stemName, String stemDisplayNameForInserts)
+  public static Stem _createStemAndParentStemsIfNotExist(GrouperSession grouperSession, String stemName, String stemDisplayNameForInserts)
      throws InsufficientPrivilegeException, StemNotFoundException, StemAddException {
     //note, no need for GrouperSession inverse of control
     String[] stems = StringUtils.split(stemName, ':');

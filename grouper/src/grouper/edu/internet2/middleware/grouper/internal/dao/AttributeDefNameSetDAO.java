@@ -51,6 +51,13 @@ public interface AttributeDefNameSetDAO extends GrouperDAO {
   public Set<AttributeDefNameSet> findByThenHasAttributeDefNameId(String id);
 
   /**
+   * find by depth one for attribute def
+   * @param attributeDefId
+   * @return the attribute def name set or null if not there
+   */
+  public Set<AttributeDefNameSet> findByDepthOneForAttributeDef(String attributeDefId);
+
+  /**
    * <pre>
    * this will help with deletes.  It will find sets who have if's which match thens provided, and thens which 
    * match ifs provided.

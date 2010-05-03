@@ -213,7 +213,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    */
   public Set<AttributeDefName> findByAttributeDef(String id) {
     Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic()
-      .createQuery("from AttributeDefName where attributeDefId = :id")
+      .createQuery("from AttributeDefName where attributeDefId = :id order by name")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByAttributeDef")
       .setString("id", id)
@@ -280,6 +280,29 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     
     return attributeDefNames;
 
+  }
+
+  /**
+   * @see AttributeDefNameDAO#findByAttributeDefLike(String, String)
+   */
+  public Set<AttributeDefName> findByAttributeDefLike(String attributeDefId,
+      String likeString) {
+    
+    //if all
+    if (StringUtils.equals(likeString, "%")) {
+      return findByAttributeDef(attributeDefId);
+    }
+
+    //if some
+    Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic()
+      .createQuery("from AttributeDefName where attributeDefId = :id and name like :likeString")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByAttributeDefLike")
+      .setString("id", attributeDefId)
+      .setString("likeString", likeString)
+      .listSet(AttributeDefName.class);
+  
+    return attributeDefNames;
   }
 
 } 

@@ -288,5 +288,20 @@ public class Hib3AttributeAssignActionSetDAO extends Hib3DAO implements Attribut
         .setString("theId", attributeAssignActionSet.getId()).executeUpdate();
   }
 
+  /**
+   * @see AttributeAssignActionSetDAO#findByDepthOneForAttributeDef(String)
+   */
+  public Set<AttributeAssignActionSet> findByDepthOneForAttributeDef(String attributeDefId) {
+    Set<AttributeAssignActionSet> attributeAssignActionSets = HibernateSession.byHqlStatic().createQuery(
+        "select distinct theAttributeAssignActionSet from AttributeAssignActionSet as theAttributeAssignActionSet, "
+        + "AttributeAssignAction theAttributeAssignAction "
+        + "where theAttributeAssignActionSet.ifHasAttrAssignActionId = theAttributeAssignAction.id "
+        + "and theAttributeAssignAction.attributeDefId = :theAttributeDefId " 
+        + "and theAttributeAssignActionSet.depth = 1")
+    .setString("theAttributeDefId", attributeDefId)
+    .listSet(AttributeAssignActionSet.class);
+  return attributeAssignActionSets;
+  }
+
 } 
 

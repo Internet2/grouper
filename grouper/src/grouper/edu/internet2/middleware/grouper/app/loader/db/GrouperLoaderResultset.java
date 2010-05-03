@@ -42,6 +42,11 @@ public class GrouperLoaderResultset {
   /**
    * 
    */
+  public static final String ACTION_NAME_COL = "ACTION_NAME";
+
+  /**
+   * 
+   */
   public static final String GROUP_NAME_COL = "GROUP_NAME";
 
   /**
@@ -74,6 +79,41 @@ public class GrouperLoaderResultset {
    */
   public static final String GROUP_ADMINS_COL = "ADMINS";
 
+  /**
+   * 
+   */
+  public static final String ATTR_NAME_COL = "ATTR_NAME";
+
+  /**
+   * 
+   */
+  public static final String ATTR_DISPLAY_NAME_COL = "ATTR_DISPLAY_NAME";
+
+  /**
+   * 
+   */
+  public static final String ATTR_DESCRIPTION_COL = "ATTR_DESCRIPTION";
+
+  /**
+   * 
+   */
+  public static final String IF_HAS_ATTR_NAME_COL = "IF_HAS_ATTR_NAME";
+
+  /**
+   * 
+   */
+  public static final String THEN_HAS_ATTR_NAME_COL = "THEN_HAS_ATTR_NAME";
+  
+  /**
+   * 
+   */
+  public static final String IF_HAS_ACTION_NAME_COL = "IF_HAS_ACTION_NAME";
+
+  /**
+   * 
+   */
+  public static final String THEN_HAS_ACTION_NAME_COL = "THEN_HAS_ACTION_NAME";
+  
   /**
    * 
    */
@@ -391,6 +431,14 @@ public class GrouperLoaderResultset {
    */
   public void remove(Row row) {
     this.data.remove(row);
+  }
+
+  /**
+   * remove by row index
+   * @param i
+   */
+  public void remove(int i) {
+    this.data.remove(i);
   }
 
   /**
