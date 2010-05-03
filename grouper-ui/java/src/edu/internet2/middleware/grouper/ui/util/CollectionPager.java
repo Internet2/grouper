@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * Convenience class for use in UI to encapsulate paging logic, and enable
  * creation of HTML links which maintain context
@@ -35,7 +37,10 @@ import java.util.Map;
  */
 
 public class CollectionPager implements Serializable {
-	private Collection collection;
+
+  private Collection alwaysShowCollection;
+  
+  private Collection collection;
 
 	private HashMap params = new HashMap();
 
@@ -82,8 +87,9 @@ public class CollectionPager implements Serializable {
 	 * @param pageSizeStr
 	 * @param pageSize
 	 */
-	public CollectionPager(Collection collection, int count, String startStr,
+	public CollectionPager(Collection theAlwaysShowCollection, Collection collection, int count, String startStr,
 			int start, String pageSizeStr, int pageSize) {
+	  this.alwaysShowCollection = theAlwaysShowCollection;
 		if (startStr != null)
 			this.startStr = startStr;
 		if (pageSizeStr != null)
@@ -180,11 +186,26 @@ public class CollectionPager implements Serializable {
 	 * @return Collection
 	 */
 	public Collection getCollection() {
-		if (!complete)
-			return collection;
-		Object[] arr = collection.toArray();
-		return new ArrayList(Arrays.asList(arr).subList(start, getLast()));
+		if (GrouperUtil.length(this.alwaysShowCollection) == 0) {
+		  return this.getCollectionHelper();
+		}
+		ArrayList arrayList = new ArrayList();
+		arrayList.addAll(this.alwaysShowCollection);
+		arrayList.addAll(this.getCollectionHelper());
+		return arrayList;
 	}
+
+  /**
+   * Returns the collection.
+   * 
+   * @return Collection
+   */
+  private Collection getCollectionHelper() {
+    if (!complete)
+      return collection;
+    Object[] arr = collection.toArray();
+    return new ArrayList(Arrays.asList(arr).subList(start, getLast()));
+  }
 
 	/**
 	 * Returns the count.

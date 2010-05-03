@@ -510,7 +510,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			membershipMaps.add(0,compMap);
 			uniqueMembershipCount++;
 		}
-		CollectionPager pager = new CollectionPager(membershipMaps,uniqueMembershipCount,
+		CollectionPager pager = new CollectionPager(null, membershipMaps,uniqueMembershipCount,
 				null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
 		pager.setTarget(mapping.getPath());

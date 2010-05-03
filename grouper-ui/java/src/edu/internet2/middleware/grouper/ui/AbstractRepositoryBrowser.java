@@ -284,7 +284,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
         int sortLimit=Integer.parseInt(sortLimitString);
         
         allChildren = MembershipFinder.internal_findAllImmediateByGroupAndFieldAndPage(
-            group, field, (start/pageSize)+1, pageSize, sortLimit, resultSizeArray);
+            group, field, start, pageSize, sortLimit, resultSizeArray);
         resultSize = resultSizeArray[0];
         sortedChildren=LowLevelGrouperCapableAction.sort(allChildren,request,context, resultSize);
 
@@ -311,7 +311,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 					throw new RuntimeException(node + " is not recognised");
         }
         List<GroupAsMap> listOfMaps = getChildrenAsMaps(s, stemName,
-          (start/pageSize)+1, pageSize, resultSizeArray);
+          start, pageSize, resultSizeArray);
           
         if (this.pagedQuery()) {
           resultSize = resultSizeArray[0];  
@@ -895,6 +895,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
     children=getChildGroups(stem, queryOptions);
     if (GrouperUtil.length(resultSize) >= 1) {
       if (this.pagedQuery()) {
+        //note: add in the size of the stems
         resultSize[0] = queryOptions.getCount().intValue();
       }
     }

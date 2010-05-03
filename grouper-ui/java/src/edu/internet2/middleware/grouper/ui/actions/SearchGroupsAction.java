@@ -232,7 +232,7 @@ public class SearchGroupsAction extends GrouperCapableAction {
 			groupResMaps=GrouperHelper.embellishGroupMapsWithSubjectPrivs(grouperSession, groupResMaps,(Subject)session.getAttribute("groupSearchSubject"));
 		}
 			//Set up the CollectionPager for the view
-		CollectionPager pager = new CollectionPager(groupResMaps, groupRes
+		CollectionPager pager = new CollectionPager(null, groupResMaps, groupRes
 				.size(), null, start, null, pageSize);
 
 		

@@ -213,7 +213,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		int end = start + pageSize;
 		if (end > mapResults.size())
 			end = mapResults.size();
-		CollectionPager pager = new CollectionPager(mapResults, mapResults
+		CollectionPager pager = new CollectionPager(null, mapResults, mapResults
 				.size(), null, start, null, pageSize);
 
 		pager.setParam("searchTerm", searchTerm);
