@@ -496,7 +496,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * add flat tables
+   * add flat tables, add column to grouper_attribute_assign_value, remove composite memberships where the member is a group
    * </pre>
    */
   V23 {
@@ -513,33 +513,11 @@ public enum GrouperDdl implements DdlVersionable {
       
       addAttributeFloatValueCol(database);
 
-    }
-  },
-  
-  /**
-   * <pre>
-   * remove composite memberships where the member is a group
-   * </pre>
-   */
-  V24 {
-    
-    /**
-     * 
-     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
-     */
-    @Override
-    public void updateVersionFromPrevious(Database database, 
-        DdlVersionBean ddlVersionBean) {
-
-      int count = 0;
       
-      try {
-        count = HibernateSession.bySqlStatic().select(int.class, 
+      int count = HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_memberships ms, grouper_members m " +
           "  where ms.member_id = m.id and ms.mship_type='composite' and m.subject_source='g:gsa'");
-      } catch (Exception e) {
-        LOG.info("Problem getting count of composite memberships where the member is a group.");
-      }
+
       if (count > 0) {   
         // this is more complicated than it should be because of mysql
         // http://bugs.mysql.com/bug.php?id=5037
@@ -549,6 +527,7 @@ public enum GrouperDdl implements DdlVersionable {
             "    (select ms.id from grouper_memberships ms, grouper_members m " +
             "      where ms.member_id = m.id and ms.mship_type='composite' and m.subject_source='g:gsa') x);\ncommit;\n");
       }
+      
     }
   },
   
