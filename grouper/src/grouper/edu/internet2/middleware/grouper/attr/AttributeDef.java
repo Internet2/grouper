@@ -446,6 +446,8 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * store this group (update) to database
    */
   public void store() {
+    
+    this.getAttributeDefActionDelegate().configureActionList(GrouperUtil.toSet("read", "write"));
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {

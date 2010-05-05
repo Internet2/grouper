@@ -68,7 +68,9 @@ public class GrouperLoader {
     
     //this will find all schedulable groups, and schedule them
     GrouperLoaderType.scheduleLoads();
-    
+
+    GrouperLoaderType.scheduleAttributeLoads();
+
     scheduleMaintenanceJobs();
     scheduleChangeLogJobs();
   }

@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -1529,6 +1530,22 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     return results;
 
     
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAttributeDefsByAttributeDefNameId(java.lang.String)
+   */
+  public Set<AttributeDef> findAttributeDefsByAttributeDefNameId(
+      String attributeDefNameId) {
+    Set<AttributeDef> attributeDefs = HibernateSession.byHqlStatic().createQuery(
+        "select distinct theAttributeDef " +
+        "from AttributeAssign theAttributeAssign, AttributeDef theAttributeDef " +
+        "where theAttributeAssign.attributeDefNameId = :theAttributeDefNameId " +
+        "and theAttributeAssign.ownerAttributeDefId = theAttributeDef.id " +
+        "and theAttributeAssign.enabledDb = 'T'")
+        .setString("theAttributeDefNameId", attributeDefNameId)
+        .listSet(AttributeDef.class);
+    return attributeDefs;
   }
 
   

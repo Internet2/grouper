@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.hooks.LoaderHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLoaderBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
@@ -56,6 +57,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     
     Group group = null;
+    AttributeDef attributeDef = null;
     GrouperSession grouperSession = null;
     try {
       grouperSession = GrouperSession.startRootSession();
@@ -63,12 +65,11 @@ public class GrouperLoaderJob implements Job, StatefulJob {
   
       hib3GrouploaderLog.setJobName(jobName);
       
-      String grouperLoaderGroupUuid = null;
-      String grouperLoaderQuartzCronFromGroup = null;
-      String grouperLoaderTypeFromGroup = null;
-      String grouperLoaderScheduleTypeFromGroup = null;
-      Integer grouperLoaderPriorityFromGroup = null;
-      Integer grouperLoaderIntervalSecondsFromGroup = null;
+      String grouperLoaderQuartzCronFromOwner = null;
+      String grouperLoaderTypeFromOwner = null;
+      String grouperLoaderScheduleTypeFromOwner = null;
+      Integer grouperLoaderPriorityFromOwner = null;
+      Integer grouperLoaderIntervalSecondsFromOwner = null;
       
       //job name is GrouperLoaderType__groupname__uuid
       GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
@@ -78,32 +79,67 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         int uuidIndexStart = jobName.lastIndexOf("__");
         
         if (uuidIndexStart >= 0) {
+          String grouperLoaderGroupUuid = null;
           grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+          hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
+
           
           group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
-          grouperLoaderQuartzCronFromGroup = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+          grouperLoaderQuartzCronFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
               GrouperLoader.GROUPER_LOADER_QUARTZ_CRON);
-          grouperLoaderScheduleTypeFromGroup = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+          grouperLoaderScheduleTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
               GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE);
-          grouperLoaderTypeFromGroup = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+          grouperLoaderTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
               GrouperLoader.GROUPER_LOADER_TYPE);
-          grouperLoaderIntervalSecondsFromGroup = GrouperUtil.intObjectValue(
+          grouperLoaderIntervalSecondsFromOwner = GrouperUtil.intObjectValue(
               GrouperLoaderType.attributeValueOrDefaultOrNull(group,
               GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS), true);
-          grouperLoaderPriorityFromGroup = GrouperUtil.intObjectValue(
+          grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(
               GrouperLoaderType.attributeValueOrDefaultOrNull(group,
               GrouperLoader.GROUPER_LOADER_PRIORITY), true);
           
           //lets reset the job name in case the name has changed
-          jobName = grouperLoaderTypeFromGroup + "__" + group.getName() + "__" + group.getUuid();
+          jobName = grouperLoaderTypeFromOwner + "__" + group.getName() + "__" + group.getUuid();
+          hib3GrouploaderLog.setJobName(jobName);
+          
+        }
+      }
+      
+      if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
+        
+        int uuidIndexStart = jobName.lastIndexOf("__");
+        
+        if (uuidIndexStart >= 0) {
+          String grouperLoaderAttrDefUuid = null;
+          grouperLoaderAttrDefUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+          hib3GrouploaderLog.setGroupUuid(grouperLoaderAttrDefUuid);
+
+          
+          attributeDef = AttributeDefFinder.findById(grouperLoaderAttrDefUuid, true);
+          
+          grouperLoaderQuartzCronFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
+              GrouperLoader.ATTRIBUTE_LOADER_QUARTZ_CRON);
+          grouperLoaderScheduleTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
+              GrouperLoader.ATTRIBUTE_LOADER_SCHEDULE_TYPE);
+          grouperLoaderTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
+              GrouperLoader.ATTRIBUTE_LOADER_TYPE);
+          grouperLoaderIntervalSecondsFromOwner = GrouperUtil.intObjectValue(
+              GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef,
+              GrouperLoader.ATTRIBUTE_LOADER_INTERVAL_SECONDS), true);
+          grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(
+              GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef,
+              GrouperLoader.ATTRIBUTE_LOADER_PRIORITY), true);
+          
+          //lets reset the job name in case the name has changed
+          jobName = grouperLoaderTypeFromOwner + "__" + attributeDef.getName() + "__" + attributeDef.getId();
           hib3GrouploaderLog.setJobName(jobName);
           
         }
       }
       
       //switch the job type?
-      if (!StringUtils.isBlank(grouperLoaderTypeFromGroup)) {
-        GrouperLoaderType grouperLoaderTypeFromGroupEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeFromGroup, true);
+      if (!StringUtils.isBlank(grouperLoaderTypeFromOwner)) {
+        GrouperLoaderType grouperLoaderTypeFromGroupEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeFromOwner, true);
         if (!grouperLoaderTypeFromGroupEnum.equals(grouperLoaderType)) {
           LOG.debug("Grouper loader type has changed to " + grouperLoaderTypeFromGroupEnum
               + " from " + grouperLoaderType + ", for job: " + jobName);
@@ -111,8 +147,6 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         }
       }
       
-      hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
-
       Trigger trigger = context.getTrigger();
       String grouperLoaderQuartzCron = null;
       String grouperLoaderScheduleType = null;
@@ -128,36 +162,36 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       
       boolean scheduleChange = false;
       
-      if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromGroup)
-          && !StringUtils.equals(grouperLoaderScheduleTypeFromGroup, grouperLoaderScheduleType)) {
+      if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner)
+          && !StringUtils.equals(grouperLoaderScheduleTypeFromOwner, grouperLoaderScheduleType)) {
         scheduleChange = true;
       }
-      if (!StringUtils.isBlank(grouperLoaderQuartzCronFromGroup)
-          && !StringUtils.equals(grouperLoaderQuartzCronFromGroup, grouperLoaderQuartzCron)) {
+      if (!StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)
+          && !StringUtils.equals(grouperLoaderQuartzCronFromOwner, grouperLoaderQuartzCron)) {
         scheduleChange = true;
       }
-      if (grouperLoaderIntervalSecondsFromGroup != null
-          && !ObjectUtils.equals(grouperLoaderIntervalSecondsFromGroup, grouperLoaderIntervalSeconds)) {
+      if (grouperLoaderIntervalSecondsFromOwner != null
+          && !ObjectUtils.equals(grouperLoaderIntervalSecondsFromOwner, grouperLoaderIntervalSeconds)) {
         scheduleChange = true;
       }
-      if (grouperLoaderPriorityFromGroup != null && 
-          !ObjectUtils.equals(grouperLoaderPriorityFromGroup, trigger.getPriority())) {
+      if (grouperLoaderPriorityFromOwner != null && 
+          !ObjectUtils.equals(grouperLoaderPriorityFromOwner, trigger.getPriority())) {
         scheduleChange = true;
       }
       
       //see if the runtime settings have changed
       if (scheduleChange) {
         
-        GrouperLoaderScheduleType grouperLoaderScheduleTypeEnumFromGroup = GrouperLoaderScheduleType
-          .valueOfIgnoreCase(grouperLoaderScheduleTypeFromGroup, true);
+        GrouperLoaderScheduleType grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType
+          .valueOfIgnoreCase(grouperLoaderScheduleTypeFromOwner, true);
         
-        if (grouperLoaderScheduleTypeEnumFromGroup.equals(GrouperLoaderScheduleType.START_TO_START_INTERVAL)) {
-          if (grouperLoaderIntervalSecondsFromGroup == null) {
-            grouperLoaderIntervalSecondsFromGroup = 60*60*24;
+        if (grouperLoaderScheduleTypeEnumFromOwner.equals(GrouperLoaderScheduleType.START_TO_START_INTERVAL)) {
+          if (grouperLoaderIntervalSecondsFromOwner == null) {
+            grouperLoaderIntervalSecondsFromOwner = 60*60*24;
           }
         }
-        if (grouperLoaderScheduleTypeEnumFromGroup.equals(GrouperLoaderScheduleType.CRON)) {
-          if (StringUtils.isBlank(grouperLoaderQuartzCronFromGroup)) {
+        if (grouperLoaderScheduleTypeEnumFromOwner.equals(GrouperLoaderScheduleType.CRON)) {
+          if (StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)) {
             throw new RuntimeException("Cron cant be blank if cron schedule: " + jobName);
           }
         }
@@ -166,31 +200,37 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       if (grouperLoaderType != null) {
         hib3GrouploaderLog.setJobType(grouperLoaderType.name());
       }
-      if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromGroup)) {
-        hib3GrouploaderLog.setJobScheduleType(grouperLoaderScheduleTypeFromGroup);
+      if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner)) {
+        hib3GrouploaderLog.setJobScheduleType(grouperLoaderScheduleTypeFromOwner);
       }
-      hib3GrouploaderLog.setJobScheduleIntervalSeconds(grouperLoaderIntervalSecondsFromGroup);
+      hib3GrouploaderLog.setJobScheduleIntervalSeconds(grouperLoaderIntervalSecondsFromOwner);
       
-      if (grouperLoaderPriorityFromGroup != null || trigger != null) {
+      if (grouperLoaderPriorityFromOwner != null || trigger != null) {
         
-        hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriorityFromGroup != null ? grouperLoaderPriorityFromGroup 
+        hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriorityFromOwner != null ? grouperLoaderPriorityFromOwner 
             : trigger.getPriority());
       }
 
-      hib3GrouploaderLog.setJobScheduleQuartzCron(!StringUtils.isBlank(grouperLoaderQuartzCronFromGroup) ? 
-          grouperLoaderQuartzCronFromGroup : grouperLoaderQuartzCron );
+      hib3GrouploaderLog.setJobScheduleQuartzCron(!StringUtils.isBlank(grouperLoaderQuartzCronFromOwner) ? 
+          grouperLoaderQuartzCronFromOwner : grouperLoaderQuartzCron );
       
       if (scheduleChange) {
         LOG.warn("Detected a grouper loader schedule change in job: " + jobName + ", to: " 
-            + grouperLoaderScheduleTypeFromGroup + ", cron: " + grouperLoaderQuartzCronFromGroup
-            + ", interval: " + grouperLoaderIntervalSecondsFromGroup);
+            + grouperLoaderScheduleTypeFromOwner + ", cron: " + grouperLoaderQuartzCronFromOwner
+            + ", interval: " + grouperLoaderIntervalSecondsFromOwner);
         
-        GrouperLoaderType.scheduleJob(jobName, true, grouperLoaderScheduleTypeFromGroup, grouperLoaderQuartzCronFromGroup,
-            grouperLoaderIntervalSecondsFromGroup, grouperLoaderPriorityFromGroup);
+        GrouperLoaderType.scheduleJob(jobName, true, grouperLoaderScheduleTypeFromOwner, grouperLoaderQuartzCronFromOwner,
+            grouperLoaderIntervalSecondsFromOwner, grouperLoaderPriorityFromOwner);
         
       }
       
-      runJob(hib3GrouploaderLog, group, grouperSession);
+      if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
+        
+        runJobAttrDef(hib3GrouploaderLog, attributeDef, grouperSession);
+      } else {
+        //all other jobs go through here
+        runJob(hib3GrouploaderLog, group, grouperSession);
+      }
     } catch (Exception e) {
       LOG.error("Error running up job", e);
       if (!(e instanceof JobExecutionException)) {

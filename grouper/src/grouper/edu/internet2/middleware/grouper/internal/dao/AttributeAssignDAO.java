@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -137,6 +138,12 @@ public interface AttributeAssignDAO extends GrouperDAO {
    * @return the attribute assigns or empty if not there
    */
   public Set<AttributeAssign> findByOwnerAttributeDefId(String ownerAttributeDefId);
+
+  /**
+   * @param attributeDefNameId
+   * @return the attribute defs or empty if not there
+   */
+  public Set<AttributeDef> findAttributeDefsByAttributeDefNameId(String attributeDefNameId);
 
   /**
    * @param ownerGroupId
