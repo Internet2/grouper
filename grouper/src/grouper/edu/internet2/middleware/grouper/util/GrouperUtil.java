@@ -70,10 +70,10 @@ import net.sf.json.util.PropertyFilter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.jexl.Expression;
-import org.apache.commons.jexl.ExpressionFactory;
-import org.apache.commons.jexl.JexlContext;
-import org.apache.commons.jexl.JexlHelper;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
@@ -1344,7 +1344,28 @@ public class GrouperUtil {
     
     return "{\"" + object.getClass().getSimpleName() + "\":" + json + "}";
   }
+  /**
+   * convert an object to json without wrapping it with the simple class name.
+   * @param object
+   * @return the string of json
+   */
+  public static String jsonConvertToNoWrap(Object object) {
+	    if (object == null) {
+	      throw new NullPointerException();
+	    }
 
+	    JsonConfig jsonConfig = new JsonConfig();  
+	    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){  
+	       public boolean apply( Object source, String name, Object value ) {  
+	          return value == null; 
+	       }  
+	    });  
+	    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );  
+	    String json = jsonObject.toString();
+	    
+	    return json;
+	  }
+  
   /**
    * convert an object to json.  note this wraps the gson with the object simple name so it can be revived
    * @param object
@@ -1425,8 +1446,21 @@ public class GrouperUtil {
 
     return object;
   }
-  
-  
+  /**
+   * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
+   * @param json is the json string, not wrapped with a simple class name
+   * @param theClass is the class that the object should be coverted into.
+   * Note: only the top level object needs to be registered
+   * @param json
+   * @param theClass
+   * @return the object
+   */
+  public static Object jsonConvertFrom (String json, Class<?> theClass) {
+	  	JSONObject jsonObject = JSONObject.fromObject( json );
+	    Object object = JSONObject.toBean( jsonObject, theClass );  
+	    return object;
+	  
+  }
   /**
    * get the extension from name.  if name is a:b:c, name is c
    * @param name
@@ -8202,16 +8236,16 @@ public class GrouperUtil {
       return stringToParse;
     }
     try {
-      JexlContext jc = JexlHelper.createContext();
+      JexlContext jc = new MapContext();
   
       int index = 0;
       
       for (String key: variableMap.keySet()) {
-        jc.getVars().put(key, variableMap.get(key));
+        jc.set(key, variableMap.get(key));
       }
       
       //allow utility methods
-      jc.getVars().put("grouperUtil", new GrouperUtil());
+      jc.set("grouperUtil", new GrouperUtil());
       
       // matching ${ exp }   (non-greedy)
       Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
@@ -8226,7 +8260,7 @@ public class GrouperUtil {
         //here is the script inside the curlies
         String script = matcher.group(1);
         
-        Expression e = ExpressionFactory.createExpression(script);
+        Expression e = new JexlEngine().createExpression(script);
   
         //this is the result of the evaluation
         Object o = e.evaluate(jc);

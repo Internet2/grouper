@@ -786,6 +786,7 @@ public enum GrouperLoaderType {
                 
                 ChangeLogProcessorMetadata changeLogProcessorMetadata = new ChangeLogProcessorMetadata();
                 changeLogProcessorMetadata.setHib3GrouperLoaderLog(hib3GrouploaderLog);
+                changeLogProcessorMetadata.setConsumerName(consumerName);
                 
                 //lets get 100 records
                 List<ChangeLogEntry> changeLogEntryList = GrouperDAOFactory.getFactory().getChangeLogEntry()
@@ -905,7 +906,7 @@ public enum GrouperLoaderType {
             loaderJobBean.getAttributeLoaderActionSetQuery());
         
       }
-    };
+        };
   
   /**
    * if this job name is for this type
@@ -955,7 +956,16 @@ public enum GrouperLoaderType {
    */
   public static final String GROUPER_CHANGE_LOG_CONSUMER_PREFIX = "CHANGE_LOG_consumer_";
 
+  /**
+   * esb http listener name
+   */
+  public static final String GROUPER_ESB_HTTP_LISTENER = "CHANGE_LOG_esb_http_listener";
   
+  /**
+   * esb xmpp listener name
+   */
+  public static final String GROUPER_ESB_XMMP_LISTENER = "CHANGE_LOG_esb_xmpp_listener";
+  /**
   
   /**
    * see if an attribute if required or not
@@ -1315,7 +1325,7 @@ public enum GrouperLoaderType {
     }
     
     hib3GrouploaderLog.setMillisGetData((int)(System.currentTimeMillis()-startTime));
-  
+
     long startTimeLoadData = System.currentTimeMillis();
     
     int totalCount = 0;
@@ -1324,14 +1334,14 @@ public enum GrouperLoaderType {
     GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
     
     try {
-  
+
       int numberOfRows = grouperLoaderResultset.numberOfRows();
       hib3GrouploaderLog.setTotalCount(numberOfRows);
-  
+
       if (LOG.isDebugEnabled()) {
         LOG.debug(groupName + " syncing " + numberOfRows + " rows");
       }
-  
+
       String groupExtension = StringUtils.isBlank(groupDisplayNameForInsert) ? GrouperUtil.extensionFromName(groupName) : 
         GrouperUtil.extensionFromName(groupDisplayNameForInsert);
       
@@ -1352,7 +1362,7 @@ public enum GrouperLoaderType {
       } else {
         theGroup = GroupFinder.findByName(grouperSession, groupName, true);
       }
-  
+
       final Group[] group = new Group[]{theGroup};
       
       //see if we are adding types
@@ -1438,7 +1448,7 @@ public enum GrouperLoaderType {
         LOG.debug("Done assigning privilege to related groups: " + theGroup.getName());
       }
       hib3GrouploaderLog.setGroupUuid(group[0].getUuid());
-  
+
       Set<LoaderMemberWrapper> currentMembers = new LinkedHashSet<LoaderMemberWrapper>();
       
       if (groupMembers != null) {
@@ -1551,7 +1561,7 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setJobMessage(jobStatus[0] + ", " + jobMessage);
           hib3GrouploaderLog.store();
         }
-  
+
       }
       
       
@@ -1577,7 +1587,7 @@ public enum GrouperLoaderType {
       final GrouperTransactionType grouperTransactionType = useTransactions ? GrouperTransactionType.READ_WRITE_OR_USE_EXISTING 
           : GrouperTransactionType.NONE;
       GrouperTransaction.callbackGrouperTransaction(grouperTransactionType, new GrouperTransactionHandler() {
-  
+
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
           
@@ -1593,7 +1603,7 @@ public enum GrouperLoaderType {
                   LOG.debug(groupName + " removing: " + count + " of " + numberOfRows + " members" 
                       + (alreadyDeleted ? ", [note: was already deleted... weird]" : ""));
                 }
-  
+
               } catch (Exception e) {
                 GrouperUtil.injectInException(e, "Problem deleting member: " 
                     + member + ", ");
@@ -1640,7 +1650,7 @@ public enum GrouperLoaderType {
                 group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid(), true);
               }
               TOTAL_COUNT[0]++;
-  
+
             }
             if (grouperTransactionType != GrouperTransactionType.NONE) {
               grouperTransaction.commit(GrouperCommitType.COMMIT_IF_NEW_TRANSACTION);
@@ -1659,7 +1669,7 @@ public enum GrouperLoaderType {
       hib3GrouploaderLog.setStatus(status.name());
       //take out the job status
       hib3GrouploaderLog.setJobMessage(jobMessage.toString());
-  
+
       if (LOG.isInfoEnabled()) {
         LOG.info(groupName + " done syncing membership, processed " + totalCount + " records.  Total members: " 
             + hib3GrouploaderLog.getTotalCount() + ", inserts: " + hib3GrouploaderLog.getInsertCount()
@@ -2587,6 +2597,7 @@ public enum GrouperLoaderType {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+
 
   /**
    * @param jobName 

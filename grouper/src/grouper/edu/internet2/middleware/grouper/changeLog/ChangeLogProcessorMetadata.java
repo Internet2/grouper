@@ -7,6 +7,25 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
  */
 public class ChangeLogProcessorMetadata {
 
+  /** name of consumer in config file */
+  private String consumerName;
+  
+  /**
+   * name of consumer in config file
+   * @return consumer name
+   */
+  public String getConsumerName() {
+    return consumerName;
+  }
+
+  /**
+   * name of consumer in config file
+   * @param consumerName1
+   */
+  public void setConsumerName(String consumerName1) {
+    this.consumerName = consumerName1;
+  }
+
   /** log for job */
   private Hib3GrouperLoaderLog hib3GrouperLoaderLog;
 

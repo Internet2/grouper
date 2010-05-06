@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/grouper"/>
+	<classpathentry kind="src" path="src/esb"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="confForTest"/>
 	<classpathentry kind="src" path="conf"/>
@@ -59,5 +60,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-codec.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-util.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/commons-httpclient.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

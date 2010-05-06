@@ -5,6 +5,8 @@
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -16,6 +18,7 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -68,11 +71,13 @@ public class GrouperLoader {
     
     //this will find all schedulable groups, and schedule them
     GrouperLoaderType.scheduleLoads();
-
+    
     GrouperLoaderType.scheduleAttributeLoads();
-
+    
     scheduleMaintenanceJobs();
     scheduleChangeLogJobs();
+    //this will schedule ESB listener jobs if enabled
+    scheduleEsbListenerJobs();
   }
 
   /**
@@ -611,6 +616,172 @@ public class GrouperLoader {
   }
 
   /**
+   * 
+   */
+  public static void scheduleEsbListenerJobs() {
+
+    int priority = 1;
+    GregorianCalendar cal = new GregorianCalendar();
+    cal.add(GregorianCalendar.SECOND, 5);
+    Date runTime = cal.getTime();
+    // String cronString = "15 55 13 * * ?";
+    //cronString = cal.getTime().getSeconds() + " " + cal.getTime().getMinutes() + " " + cal.getTime().getHours() + " * * ?"; 
+    //System.out.println(cronString);
+    boolean runEsbHttpListener = GrouperLoaderConfig.getPropertyBoolean(
+        "esb.lisenters.http.enable", false);
+    if (runEsbHttpListener) {
+      LOG.info("Starting experimental HTTP(S) listener");
+      try {
+        String port = GrouperLoaderConfig.getPropertyString("esb.lisenters.http.port",
+            "8080");
+        String bindAddress = GrouperLoaderConfig.getPropertyString(
+            "esb.lisenters.http.bindaddress", "127.0.0.1");
+        String authConfigFile = GrouperLoaderConfig.getPropertyString(
+            "esb.lisenters.http.authConfigFile", "");
+        String sslKeystore = GrouperLoaderConfig.getPropertyString(
+            "esb.lisenters.http.ssl.keystore", "");
+        String sslKeyPassword = GrouperLoaderConfig.getPropertyString(
+            "esb.lisenters.http.ssl.keyPassword", "");
+        String sslTrustStore = GrouperLoaderConfig.getPropertyString(
+            "esb.lisenters.http.ssl.trustStore", "");
+        String sslTrustPassword = GrouperLoaderConfig.getPropertyString(
+            "esb.lisenters.http.ssl.trustPassword", "");
+        String sslPassword = GrouperLoaderConfig.getPropertyString(
+            "esb.lisenters.http.ssl.password", "");
+        //at this point we have all the attributes and we know the required ones are there, and logged when 
+        //forbidden ones are there
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+        //the name of the job must be unique, so use the group name since one job per group (at this point)
+        JobDetail jobDetail = new JobDetail(GrouperLoaderType.GROUPER_ESB_HTTP_LISTENER,
+            null,
+              GrouperUtil
+                  .forName("edu.internet2.middleware.grouper.esb.listener.EsbHttpServer"));
+
+        //schedule this job to run in 5 seconds
+
+        SimpleTrigger simpleTrigger = new SimpleTrigger(
+            GrouperLoaderType.GROUPER_ESB_HTTP_LISTENER + "_trigger", null, runTime);
+        simpleTrigger.setPriority(priority);
+
+        jobDetail.getJobDataMap().put("port", port);
+        jobDetail.getJobDataMap().put("bindAddress", bindAddress);
+        jobDetail.getJobDataMap().put("authConfigFile", authConfigFile);
+        jobDetail.getJobDataMap().put("keystore", sslKeystore);
+        jobDetail.getJobDataMap().put("keyPassword", sslKeyPassword);
+        jobDetail.getJobDataMap().put("trustStore", sslTrustStore);
+        jobDetail.getJobDataMap().put("trustPassword", sslTrustPassword);
+        jobDetail.getJobDataMap().put("keystore", sslKeystore);
+        jobDetail.getJobDataMap().put("password", sslPassword);
+
+        scheduler.scheduleJob(jobDetail, simpleTrigger);
+
+      } catch (Exception e) {
+        String errorMessage = "Could not schedule job: '"
+            + GrouperLoaderType.GROUPER_ESB_HTTP_LISTENER + "'";
+        LOG.error(errorMessage, e);
+        errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+        try {
+          //lets enter a log entry so it shows up as error in the db
+          Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+          hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+          hib3GrouploaderLog.setJobMessage(errorMessage);
+          hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_ESB_HTTP_LISTENER);
+          hib3GrouploaderLog.setJobSchedulePriority(priority);
+          hib3GrouploaderLog.setJobScheduleQuartzCron("5 seconds from now");
+          hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
+          hib3GrouploaderLog.setJobType(GrouperLoaderType.GROUPER_ESB_HTTP_LISTENER);
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+          hib3GrouploaderLog.store();
+
+        } catch (Exception e2) {
+          LOG.error("Problem logging to loader db log", e2);
+        }
+      }
+    } else {
+      LOG.info("Not starting experimental HTTP(S) listener");
+    }
+
+    boolean runEsbHXmppListener = GrouperLoaderConfig.getPropertyBoolean(
+        "esb.lisenters.xmpp.enable", false);
+    if (runEsbHXmppListener) {
+      LOG.info("Starting experimental XMPP listener");
+      try {
+
+        String server = GrouperLoaderConfig.getPropertyString(
+            "esb.listeners.xmpp.server", "");
+        if (server.equals("")) {
+          LOG.warn("XMPP server must be configured in grouper-loader.properties");
+        }
+        String port = GrouperLoaderConfig.getPropertyString("esb.listeners.xmpp.port",
+            "5222");
+        String username = GrouperLoaderConfig.getPropertyString(
+            "esb.listeners.xmpp.username", "");
+        if (username.equals("")) {
+          LOG.warn("XMPP username must be configured in grouper-loader.properties");
+        }
+        String password = GrouperLoaderConfig.getPropertyString(
+            "esb.listeners.xmpp.password", "");
+        if (password.equals("")) {
+          LOG.warn("XMPP password must be configured in grouper-loader.properties");
+        }
+        String sendername = GrouperLoaderConfig.getPropertyString(
+            "esb.listeners.xmpp.sendername", "");
+        if (server.equals("")) {
+          LOG.warn("XMPP sendername must be configured in grouper-loader.properties");
+        }
+        if (!(server.equals("")) & !(username.equals("")) && !(password.equals(""))
+            && !(sendername.equals(""))) {
+          Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+          //the name of the job must be unique, so use the group name since one job per group (at this point)
+          JobDetail jobDetail = new JobDetail(
+              GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER,
+              null,
+                GrouperUtil
+                    .forName("edu.internet2.middleware.grouper.esb.listener.EsbXmppListener"));
+
+          SimpleTrigger simpleTrigger = new SimpleTrigger(
+              GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER + "_trigger", null, runTime);
+          simpleTrigger.setPriority(priority);
+
+          jobDetail.getJobDataMap().put("port", port);
+          jobDetail.getJobDataMap().put("server", server);
+          jobDetail.getJobDataMap().put("username", username);
+          jobDetail.getJobDataMap().put("password", password);
+          jobDetail.getJobDataMap().put("sendername", sendername);
+
+          scheduler.scheduleJob(jobDetail, simpleTrigger);
+        }
+
+      } catch (Exception e) {
+        String errorMessage = "Could not schedule job: '"
+            + GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER + "'";
+        LOG.error(errorMessage, e);
+        errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+        try {
+          //lets enter a log entry so it shows up as error in the db
+          Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+          hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+          hib3GrouploaderLog.setJobMessage(errorMessage);
+          hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER);
+          hib3GrouploaderLog.setJobSchedulePriority(priority);
+          hib3GrouploaderLog.setJobScheduleQuartzCron("5 seconds from now");
+          hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
+          hib3GrouploaderLog.setJobType(GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER);
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+          hib3GrouploaderLog.store();
+
+        } catch (Exception e2) {
+          LOG.error("Problem logging to loader db log", e2);
+        }
+      }
+    } else {
+      LOG.info("Not starting experimental XMPP listener");
+    }
+  }
+
+  /**
    * @param group
    * @param grouperSession
    * @return status
@@ -676,7 +847,7 @@ public class GrouperLoader {
       throw new RuntimeException(e);
     }
   }
-
+  
   /**
    * @param attributeDef
    * @param grouperSession

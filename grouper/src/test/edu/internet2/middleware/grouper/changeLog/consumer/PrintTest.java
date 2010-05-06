@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 public class PrintTest extends ChangeLogConsumerBase {
 
   /**
-   * @see edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase#processChangeLogEntries(java.util.List, edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata)
+   * @see edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase#processChangeLogEntries(List, ChangeLogProcessorMetadata)
    */
   @Override
   public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,

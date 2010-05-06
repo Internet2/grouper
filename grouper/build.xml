@@ -162,14 +162,32 @@
             source="1.5"
             target="1.5"
     >
-      <classpath refid="project.classpath" />
+      <classpath refid="project.noesb.classpath" />
 <!--  TODO 20061011 I'll eventually have to deal with this migration
       <compilerarg  value="-Xlint:unchecked"  />
 -->
     </javac>
-    <!-- CH 20080215 copy source to the build dir... -->    
+
+    <javac  srcdir="src/esb" 
+            destdir="${build.dir.grouper}"
+            debug="true"
+            deprecation="${compile.deprecation}"
+            optimize="${compile.optimize}"
+            source="1.5"
+            target="1.5"
+    >
+      <classpath refid="project.classpath" />
+    </javac>
+
+  	
+  	<!-- CH 20080215 copy source to the build dir... -->    
     <copy todir="${build.dir.grouper}">
       <fileset dir="${src.dir.grouper}">
+        <include name="**/*.java"/>      <!-- source -->
+        <include name="**/*.hbm.xml"/>      <!-- hibernate mappings -->
+        <include name="**/*.properties"/>   <!-- xml default export|import properties -->
+      </fileset>
+      <fileset dir="src/esb">
         <include name="**/*.java"/>      <!-- source -->
         <include name="**/*.hbm.xml"/>      <!-- hibernate mappings -->
         <include name="**/*.properties"/>   <!-- xml default export|import properties -->
@@ -612,6 +630,28 @@
     <mkdir dir="${ext.dir.lib}"/> <!-- a bit of a hack -->
     <mkdir dir="${ext.dir}/conf"/>
     <!-- only define our classpath once -->
+    <path id="project.noesb.classpath">
+      <!-- for configuration files -->
+      <pathelement location="${conf.dir}"/>
+      <pathelement location="${ext.dir}/conf"/>
+      <fileset dir="${lib.dir}">
+      	<exclude name="jetty/*.jar"/>
+        <include name="**/*.jar"/>
+      </fileset>
+      <!--<fileset dir="dist/lib">
+        <include name="**/*.jar"/>
+      </fileset>-->
+      <fileset dir="${ext.dir.lib}">
+        <include name="**/*.jar"/>
+      </fileset>
+      <pathelement  location="${build.dir.grouper}"/>
+      <pathelement  location="${build.dir.grouper}"/>
+      <pathelement  location="${build.dir.test}"/>
+      <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
+      <pathelement path="${java.class.path}"/>
+    </path>
+
+    <!-- only define our classpath once -->
     <path id="project.classpath">
       <!-- for configuration files -->
       <pathelement location="${conf.dir}"/>
@@ -631,7 +671,8 @@
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
       <pathelement path="${java.class.path}"/>
     </path>
-    <pathconvert  targetos="unix"
+  	
+  	<pathconvert  targetos="unix"
                   property="project.classpath.string" 
                   refid="project.classpath"
     />
