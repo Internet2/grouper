@@ -513,19 +513,22 @@ public enum GrouperDdl implements DdlVersionable {
       
       addAttributeFloatValueCol(database);
 
-      
-      int count = HibernateSession.bySqlStatic().select(int.class, 
-          "select count(*) from grouper_memberships ms, grouper_members m " +
-          "  where ms.member_id = m.id and ms.mship_type='composite' and m.subject_source='g:gsa'");
-
-      if (count > 0) {   
-        // this is more complicated than it should be because of mysql
-        // http://bugs.mysql.com/bug.php?id=5037
-        ddlVersionBean.appendAdditionalScriptUnique(
-            "\ndelete from grouper_memberships where id in " +
-            "  (select x.id from " +
-            "    (select ms.id from grouper_memberships ms, grouper_members m " +
-            "      where ms.member_id = m.id and ms.mship_type='composite' and m.subject_source='g:gsa') x);\ncommit;\n");
+      if (GrouperDdlUtils.assertTablesThere(false, false, Membership.TABLE_GROUPER_MEMBERSHIPS)) {
+        
+        int count = HibernateSession.bySqlStatic().select(int.class, 
+            "select count(*) from grouper_memberships ms, grouper_members m " +
+            "  where ms.member_id = m.id and ms.mship_type='composite' and m.subject_source='g:gsa'");
+  
+        if (count > 0) {   
+          // this is more complicated than it should be because of mysql
+          // http://bugs.mysql.com/bug.php?id=5037
+          ddlVersionBean.appendAdditionalScriptUnique(
+              "\ndelete from grouper_memberships where id in " +
+              "  (select x.id from " +
+              "    (select ms.id from grouper_memberships ms, grouper_members m " +
+              "      where ms.member_id = m.id and ms.mship_type='composite' and m.subject_source='g:gsa') x);\ncommit;\n");
+        }
+        
       }
       
     }
