@@ -192,7 +192,7 @@ public class SearchStemsAction extends GrouperCapableAction {
 		session.setAttribute("advancedSearchStemFieldParams",searchFieldParams);
 
 		//Set up CollectionPager for results
-		CollectionPager pager = new CollectionPager(stemRes, total, null,
+		CollectionPager pager = new CollectionPager(null, stemRes, total, null,
 				start, null, pageSize);
 		pager.setParams(searchFieldParams);
 		pager.setParam("searchTerm", query);

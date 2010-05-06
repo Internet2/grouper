@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -145,10 +146,21 @@ public class RemoveGroupMembersAction extends GrouperCapableAction {
 		//Identify the group whose membership we are showing
 		String groupId = (String)groupForm.get("groupId");
 		
+    if (groupId == null || groupId.length() == 0)
+      groupId = (String) session.getAttribute("findForNode");
+		
+    if(isEmpty(groupId)) {
+      String msg = "No stem or group or findForNode available";
+      LOG.error(msg);
+      throw new UnrecoverableErrorException("error.delete-group.missing-parameter");
+    }
 		
 		String listField = request.getParameter("listField");
 		String membershipField = "members";
 		
+    if(isEmpty(listField)) {
+      listField = (String) session.getAttribute("findForListField");
+    }
 		if(!isEmpty(listField)) membershipField=listField;
 		Field mField = FieldFinder.find(membershipField, true);
 		

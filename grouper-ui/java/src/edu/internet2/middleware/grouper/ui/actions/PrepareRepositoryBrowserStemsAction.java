@@ -51,7 +51,9 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
+import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -454,7 +456,25 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		browseForm.set("pageSize", "" + pageSize);
 		//Set up CollectionPager for view
 		if(resultSize<children.size()) resultSize=children.size();
-		CollectionPager pager = new CollectionPager(children, resultSize, null,
+		
+		int groupResultSize = 0;
+		int stemResultSize = 0;
+		ArrayList stems = new ArrayList();
+		ArrayList groups = new ArrayList();
+		for (Object theChild : children) {
+		  
+		  if (theChild instanceof GroupAsMap) {
+		    groups.add(theChild);
+	      groupResultSize++;
+	    } else if (theChild instanceof StemAsMap) {
+	      stems.add(theChild);
+		    stemResultSize++;
+		  } else {
+		    throw new RuntimeException("Not expecting child: " + GrouperUtil.className(theChild));
+		  }
+		}
+		
+		CollectionPager pager = new CollectionPager(stems, groups, resultSize, null,
 				start, null, pageSize);
 		if (!isFlat)
 			pager.setParam("currentNode", currentNodeId);

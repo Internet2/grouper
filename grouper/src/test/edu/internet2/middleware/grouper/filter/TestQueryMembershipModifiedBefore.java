@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -42,7 +43,8 @@ import edu.internet2.middleware.subject.Subject;
 public class TestQueryMembershipModifiedBefore extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new TestQueryMembershipModifiedBefore("testFindSomething"));
+    //TestRunner.run(new TestQueryMembershipModifiedBefore("testFindSomething"));
+    TestRunner.run(TestQueryMembershipModifiedBefore.class);
   }
 
   private static final Log LOG = GrouperUtil
@@ -60,6 +62,9 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
    */
   public void testFindSomething() {
     try {
+
+      ApiConfig.testConfig.put("groups.wheel.use", "false");
+      RegistryReset.internal_resetRegistryAndAddTestSubjects();
 
       ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
       ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
@@ -190,6 +195,10 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
    */
   public void testFindNothing() {
     try {
+
+      ApiConfig.testConfig.put("groups.wheel.use", "false");
+      RegistryReset.internal_resetRegistryAndAddTestSubjects();
+
       R r = R.populateRegistry(0, 0, 0);
       //do 5 seconds ago in case the auto-create kicked in...
       GrouperQuery gq = GrouperQuery.createQuery(r.rs,

@@ -445,7 +445,7 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 			resultsAsMaps.add(auditMap);
 		}
 	    
-	    CollectionPager pager = new CollectionPager(resultsAsMaps,count,
+	    CollectionPager pager = new CollectionPager(null, resultsAsMaps,count,
 				null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
 		pager.setTarget(mapping.getPath());

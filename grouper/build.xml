@@ -479,6 +479,9 @@
       <fileset dir="misc">
         <include name="META-INF/*" />
       </fileset>
+      <fileset dir="misc">
+        <include name="META-INF/*" />
+      </fileset>
     </jar>
     <copy file="${dist.dir}/lib/${app.name}-${DSTAMP}.jar"   
           tofile="${dist.dir}/lib/${app.name}.jar" 

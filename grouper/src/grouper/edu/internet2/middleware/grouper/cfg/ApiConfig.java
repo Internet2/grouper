@@ -162,6 +162,11 @@ public class ApiConfig implements Configuration {
     String propertiesFileLocation = grouperPropertiesFile == null ? "not found" 
         : GrouperUtil.fileCanonicalPath(grouperPropertiesFile); 
     resultString.append("grouper.properties read from: " + propertiesFileLocation + "\n");
+
+    if (GrouperConfig.getPropertyBoolean("grouper.api.readonly", false)) {
+      resultString.append("grouper.api.readonly:         true\n");
+    }
+    
     resultString.append("Grouper current directory is: " + new File("").getAbsolutePath() + "\n");
     //get log4j file
     File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");

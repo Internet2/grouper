@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -27,7 +29,6 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
@@ -40,6 +41,10 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  * ajax methods for simple membership update filters (autocompletes)
  */
 public class SimpleMembershipUpdateFilter {
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = LogFactory.getLog(SimpleMembershipUpdateFilter.class);
 
   /**
    * clear the membership filter
@@ -80,7 +85,7 @@ public class SimpleMembershipUpdateFilter {
         GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GrouperUiUtils.message("simpleMembershipUpdate.errorNotEnoughGroupChars", false), "bullet_error.png");
       } else {
-        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleMembershipUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("displayNameDb");
+        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleMembershipUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("theGroup.displayNameDb");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
         
@@ -111,10 +116,15 @@ public class SimpleMembershipUpdateFilter {
       
       GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
-    } catch (NoSessionException se) {
-      throw se;
     } catch (Exception se) {
-      throw new RuntimeException("Error searching for groups: '" + GrouperUiUtils.escapeHtml(searchTerm, true) + "', " + se.getMessage(), se);
+      LOG.error("Error searching for groups: '" + GrouperUiUtils.escapeHtml(searchTerm, true) + "', " + se.getMessage(), se);
+      
+      //dont rethrow or the control will get confused
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+          GrouperUiUtils.escapeHtml("Error searching for groups: " + searchTerm + ", " + se.getMessage(), true), null);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -184,10 +194,15 @@ public class SimpleMembershipUpdateFilter {
       
       GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
-    } catch (NoSessionException se) {
-      throw se;
     } catch (Exception se) {
-      throw new RuntimeException("Error searching for members: '" + searchTerm + "', " + se.getMessage(), se);
+      LOG.error("Error searching for members: '" + searchTerm + "', " + se.getMessage(), se);
+
+      //dont rethrow or the control will get confused
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+          GrouperUiUtils.escapeHtml("Error searching for members: " + searchTerm + ", " + se.getMessage(), true), null);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -266,10 +281,15 @@ public class SimpleMembershipUpdateFilter {
       
       GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
-    } catch (NoSessionException se) {
-      throw se;
     } catch (Exception se) {
-      throw new RuntimeException("Error searching for members: '" + searchTerm + "', " + se.getMessage(), se);
+      LOG.error("Error searching for members: '" + searchTerm + "', " + se.getMessage(), se);
+
+      //dont rethrow or the control will get confused
+      StringBuilder xmlBuilder = new StringBuilder(GrouperUiUtils.DHTMLX_OPTIONS_START);
+      GrouperUiUtils.dhtmlxOptionAppend(xmlBuilder, null, 
+          GrouperUiUtils.escapeHtml("Error searching for members: " + searchTerm + ", " + se.getMessage(), true), null);
+      xmlBuilder.append(GrouperUiUtils.DHTMLX_OPTIONS_END);
+      GrouperUiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }

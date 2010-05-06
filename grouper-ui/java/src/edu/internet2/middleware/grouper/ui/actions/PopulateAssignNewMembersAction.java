@@ -363,7 +363,7 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 
 		int start = Integer.parseInt(startStr);
 		int pageSize = getPageSize(session);
-		CollectionPager pager = new CollectionPager(subjectRes, total, null,
+		CollectionPager pager = new CollectionPager(null, subjectRes, total, null,
 				start, null, pageSize);
 		Map searchFieldParams = filterParameters(request,"searchField.");
 		if(!searchFieldParams.isEmpty()){

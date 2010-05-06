@@ -49,7 +49,9 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -68,6 +70,8 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
+    //TestRunner.run(new TestGroup("testNoLocking"));
+    TestRunner.run(TestGroup.class);
     TestRunner.run(new TestGroup("testXmlInsert"));
     //TestRunner.run(TestGroup.class);
   }
@@ -539,6 +543,38 @@ public class TestGroup extends GrouperTest {
     }
 
   }
+ 
+  /**
+   * 
+   */
+  public void testGetAllGroupsSecure() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    QueryOptions queryOptions = new QueryOptions().paging(
+        200, 1, true).sortAsc("theGroup.displayNameDb");
+    Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%test%", 
+        grouperSession, grouperSession.getSubject(), 
+        GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
+    
+    groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%test%", 
+        grouperSession, grouperSession.getSubject(), 
+        GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), null);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%test%", 
+        grouperSession, grouperSession.getSubject(), 
+        GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
+    
+    groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%test%", 
+        grouperSession, grouperSession.getSubject(), 
+        GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), null);
+
+    
+    GrouperSession.stopQuietly(grouperSession);
+  }
+  
   
   /**
    * make an example group for testing

@@ -204,7 +204,7 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
 		int start = Integer.parseInt(startStr);
 		int pageSize = getPageSize(session);
-		CollectionPager pager = new CollectionPager(subjectPrivilegeMaps,
+		CollectionPager pager = new CollectionPager(null, subjectPrivilegeMaps,
 				subjectPrivilegeMaps.size(), null, start, null, pageSize);
 		pager.setParam("groupId", groupId);
 		pager.setParam("privilege", privilege);

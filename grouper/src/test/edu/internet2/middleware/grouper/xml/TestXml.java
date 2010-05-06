@@ -49,12 +49,13 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestXml.java,v 1.2.2.1 2009-12-18 21:03:44 tzeller Exp $
  * @since   1.1.0
  */
 public class TestXml extends GrouperTest {
 
   public static void main(String[] args) {
+    TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
     TestRunner.run(new TestXml("testUpdateOkDoNotAddMissingGroups"));
   }
   

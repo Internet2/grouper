@@ -489,7 +489,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		int end = start + pageSize;
 		if (end > subjectScopeMaps.size())
 			end = subjectScopeMaps.size();
-		CollectionPager pager = new CollectionPager(subjectScopeMaps, subjectScopeMaps
+		CollectionPager pager = new CollectionPager(null, subjectScopeMaps, subjectScopeMaps
 				.size(), null, start, null, pageSize);
 		
 		if(!isEmpty(listField))pager.setParam("listField", listField);
