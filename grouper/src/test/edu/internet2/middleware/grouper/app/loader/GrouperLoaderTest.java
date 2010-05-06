@@ -893,7 +893,14 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals(0, hib3GrouperLoaderLog.getUpdateCount().intValue());
     assertEquals(1, hib3GrouperLoaderLog.getDeleteCount().intValue());
 
+    //##########################
+    // try different like string to run query
     
+    orgsAttributeDef.getAttributeValueDelegate().assignValue(
+        GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoaderAttrsLike", "%%");
+
+    hib3GrouperLoaderLog = GrouperLoader._internal_runJobOnceForAttributeDef(this.grouperSession, orgsAttributeDef);
+
     
 //    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
 //    assertEquals("The loader:group 1", overallGroup1.getDisplayName());
