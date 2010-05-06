@@ -6,17 +6,17 @@
   <div class="sectionBody">
     <ul>
       <c:forEach items="${attributeDefNamePickerContainer.pickerResultAttributeDefNames}" var="pickerResultAttributeDefName">
-        <div>
+        <li>
           ${fn:escapeXml(pickerResultAttributeDefName.screenLabel) } 
           <c:if test="${attributeDefNamePickerContainer.submitToUrl}">
             (<a href="#" onclick="return guiSubmitAttributeDefNamePickerToUrl('${attributeDefNamePickerContainer.attributeDefNamePickerElementName}', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefNameId) }','${grouper:escapeJavascript(pickerResultAttributeDefName.screenLabel) }' ); ">Select</a>)
           </c:if>
-          <%-- c:if test="${!attributeDefNamePickerContainer.submitToUrl}">
-            (<a href="#" onclick="guiOpener().grouperAttributeDefNameSelected('${attributeDefNamePickerContainer.attributeDefNamePickerElementName}', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefNameId) }','${grouper:escapeJavascript(pickerResultAttributeDefName.screenLabel) }', ${pickerResultAttributeDefName.attributeDefNameObjectName} ); window.close(); return false;">Select</a>)
-          </c:if --%>
-            (<a href="#" onclick="window.close(); return false;">Select</a>)
+          <c:if test="${!attributeDefNamePickerContainer.submitToUrl}">
+            (<a href="#" onclick="guiOpener().grouperAttributeDefNameSelected('${attributeDefNamePickerContainer.attributeDefNamePickerElementName}', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefNameId) }','${grouper:escapeJavascript(pickerResultAttributeDefName.screenLabel) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.id) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.name) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.displayName) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.description) }' ); window.close(); return false;">Select</a>)
+          </c:if>
+            
           
-        </div>
+        </li>
       </c:forEach>
     </ul>
   </div>

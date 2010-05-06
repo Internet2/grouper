@@ -10,7 +10,10 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -25,6 +28,65 @@ public class PickerResultAttributeDefName implements Serializable, Comparable<Pi
   /** picker result javascript attributeDefName */
   private PickerResultJavascriptAttributeDefName pickerResultJavascriptAttributeDefName;
   
+  /**
+   * if attributeDefName is a:b:c, then return b:c
+   * @return the parent name and this name
+   */
+  public String getParentAndName() {
+    String name = this.attributeDefName.getName();
+    int lastColonIndex = name.lastIndexOf(':');
+    int secondToLastColonIndex = lastColonIndex == -1 ? -1 : name.lastIndexOf(':', lastColonIndex-1);
+    if (secondToLastColonIndex == -1) {
+      return name;
+    }
+    return name.substring(secondToLastColonIndex+1, name.length());
+  }
+  
+  /**
+   * if attributeDefName is a:b:c, then return b:c
+   * @return the parent name and this name
+   */
+  public String getParentAndDisplayName() {
+    String displayName = this.attributeDefName.getDisplayName();
+    int lastColonIndex = displayName.lastIndexOf(':');
+    int secondToLastColonIndex = lastColonIndex == -1 ? -1 : displayName.lastIndexOf(':', lastColonIndex-1);
+    if (secondToLastColonIndex == -1) {
+      return displayName;
+    }
+    return displayName.substring(secondToLastColonIndex+1, displayName.length());
+  }
+  
+  /**
+   * if attributeDefName is a:b:c:d, then return b:c:d
+   * @return the parent name and this name
+   */
+  public String getGrandParentAndName() {
+    String name = this.attributeDefName.getName();
+    int lastColonIndex = name.lastIndexOf(':');
+    int secondToLastColonIndex = lastColonIndex == -1 ? -1 : name.lastIndexOf(':', lastColonIndex-1);
+    int thirdToLastColonIndex = secondToLastColonIndex == -1 ? -1 : name.lastIndexOf(':', secondToLastColonIndex-1);
+    if (thirdToLastColonIndex == -1) {
+      return name;
+    }
+    return name.substring(thirdToLastColonIndex+1, name.length());
+  }
+  
+  /**
+   * if attributeDefName is a:b:c:d, then return b:c:d
+   * @return the parent name and this name
+   */
+  public String getGrandParentAndDisplayName() {
+    
+    String displayName = this.attributeDefName.getDisplayName();
+    int lastColonIndex = displayName.lastIndexOf(':');
+    int secondToLastColonIndex = lastColonIndex == -1 ? -1 : displayName.lastIndexOf(':', lastColonIndex-1);
+    int thirdToLastColonIndex = secondToLastColonIndex == -1 ? -1 : displayName.lastIndexOf(':', secondToLastColonIndex-1);
+    if (thirdToLastColonIndex == -1) {
+      return displayName;
+    }
+    return displayName.substring(thirdToLastColonIndex+1, displayName.length());
+  }
+
   /**
    * @return the pickerResultJavascriptAttributeDefName
    */
@@ -57,27 +119,6 @@ public class PickerResultAttributeDefName implements Serializable, Comparable<Pi
    */
   public void setIndex(int index1) {
     this.index = index1;
-  }
-
-  /**
-   * this is either a variable name or null
-   */
-  private String attributeDefNameObjectName;
-  
-  
-  /**
-   * @return the attributeDefNameObjectName
-   */
-  public String getAttributeDefNameObjectName() {
-    return this.attributeDefNameObjectName;
-  }
-
-  
-  /**
-   * @param attributeDefNameObjectName1 the attributeDefNameObjectName to set
-   */
-  public void setAttributeDefNameObjectName(String attributeDefNameObjectName1) {
-    this.attributeDefNameObjectName = attributeDefNameObjectName1;
   }
 
   /**

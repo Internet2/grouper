@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
+import java.io.Serializable;
 import java.util.ResourceBundle;
 
 /**
@@ -27,7 +28,7 @@ import java.util.ResourceBundle;
  * @version $Id: GrouperComparatorHelper.java,v 1.2 2007-04-17 08:40:07 isgwb Exp $
  */
 
-public interface GrouperComparatorHelper {
+public interface GrouperComparatorHelper extends Serializable {
 	
 	/**
 	 * Determine the correct String for sorting

@@ -44,8 +44,9 @@ public class StemComparatorHelper implements GrouperComparatorHelper{
 		// TODO Auto-generated constructor stub
 	}
 	
-	
-	/* (non-Javadoc)
+
+	/**
+	 * 
 	 * @see edu.internet2.middleware.grouper.ui.GrouperComparatorHelper#getComparisonString(java.lang.Object, java.util.ResourceBundle, java.lang.String)
 	 */
 	public String getComparisonString(Object obj, ResourceBundle config,
@@ -99,6 +100,12 @@ public class StemComparatorHelper implements GrouperComparatorHelper{
 		return sb.toString();
 	}
 	
+	/**
+	 * 
+	 * @param stem
+	 * @param attr
+	 * @return string
+	 */
 	private String getStemAttribute(Stem stem, String attr) {
 		if("extension".equals(attr)) {
 			return stem.getExtension();
