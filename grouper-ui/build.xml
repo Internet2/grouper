@@ -133,18 +133,6 @@
     <delete dir="${basedir}/webapp/WEB-INF/lib" includes="*.jar" />
     <copy todir="${basedir}/webapp/WEB-INF/lib">
       <fileset dir="${basedir}/java/lib" includes="*.jar" />
-      <fileset dir="${grouper.lib.dir}/../shibboleth">
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${grouper.lib.dir}/../apacheds">
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${grouper.lib.dir}/../vt-ldap">
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${grouper.lib.dir}/../ldappc">
-        <include name="*.jar"/>
-      </fileset>
       <fileset dir="${grouper.lib.dir}/../jdbcSamples">
         <include name="*.jar"/>
       </fileset>
@@ -460,6 +448,7 @@
 		</if>
 	  
 	  
+		
 		<!-- Call any site specific build script. This may be used to introduce site specific Struts action,
 		  	     local Subject implementations etc -->
 		<antcall target="-additional-build">
@@ -530,10 +519,10 @@
 	</target>
 	
 	<target name="-copyContextXmlToMetaInf" if="deploy.context.xml">
+	  
 	  <if>
      <equals arg1="true" arg2="${should.copy.context.xml.to.metainf}"/>
      <then>
-
   		<filter token="deploy.docbase" value="${deploy.docbase}"/>
   		<filter token="deploy.context.path" value="${deploy.context.path}"/>
   		<copy file="${deploy.context.xml}" tofile="${webapp.folder}/META-INF/context.xml" filtering="true" overwrite="true"/>
