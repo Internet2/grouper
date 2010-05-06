@@ -342,18 +342,6 @@
     <copy todir="${basedir}/webapp/WEB-INF/lib">
       <fileset dir="${basedir}/lib/axis" includes="*.jar" />
       <fileset dir="${basedir}/lib/rampart" includes="*.jar" />
-      <fileset dir="${grouper.lib.dir}/../shibboleth">
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${grouper.lib.dir}/../apacheds">
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${grouper.lib.dir}/../vt-ldap">
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${grouper.lib.dir}/../ldappc">
-        <include name="*.jar"/>
-      </fileset>
       <fileset dir="${grouper.lib.dir}/../jdbcSamples">
         <include name="*.jar"/>
       </fileset>
