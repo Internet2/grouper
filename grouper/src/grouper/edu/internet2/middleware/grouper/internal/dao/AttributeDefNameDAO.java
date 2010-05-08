@@ -78,9 +78,10 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * Note, you should add the % signs before calling this method
    * @param searchField substring to search for
    * @param searchInAttributeDefIds ids to search in or null for all
+   * @param queryOptions 
    * @return the attribute def names or empty set
    */
-  public Set<AttributeDefName> findAllSecure(String searchField, Set<String> searchInAttributeDefIds);
+  public Set<AttributeDefName> findAllSecure(String searchField, Set<String> searchInAttributeDefIds, QueryOptions queryOptions);
 
   /**
    * search for all by attribute def id, and like string

@@ -10,10 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -25,9 +22,6 @@ public class PickerResultAttributeDefName implements Serializable, Comparable<Pi
   /** attributeDefName */
   private AttributeDefName attributeDefName;
 
-  /** picker result javascript attributeDefName */
-  private PickerResultJavascriptAttributeDefName pickerResultJavascriptAttributeDefName;
-  
   /**
    * if attributeDefName is a:b:c, then return b:c
    * @return the parent name and this name
@@ -85,21 +79,6 @@ public class PickerResultAttributeDefName implements Serializable, Comparable<Pi
       return displayName;
     }
     return displayName.substring(thirdToLastColonIndex+1, displayName.length());
-  }
-
-  /**
-   * @return the pickerResultJavascriptAttributeDefName
-   */
-  public PickerResultJavascriptAttributeDefName getPickerResultJavascriptAttributeDefName() {
-    return this.pickerResultJavascriptAttributeDefName;
-  }
-  
-  /**
-   * @param pickerResultJavascriptAttributeDefName1 the pickerResultJavascriptAttributeDefName to set
-   */
-  public void setPickerResultJavascriptAttributeDefName(
-      PickerResultJavascriptAttributeDefName pickerResultJavascriptAttributeDefName1) {
-    this.pickerResultJavascriptAttributeDefName = pickerResultJavascriptAttributeDefName1;
   }
 
   /**

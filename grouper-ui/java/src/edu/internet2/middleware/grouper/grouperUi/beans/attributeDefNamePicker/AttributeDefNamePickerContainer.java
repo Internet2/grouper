@@ -103,25 +103,6 @@ public class AttributeDefNamePickerContainer implements Serializable {
     }
   }
 
-  /** script of all the attributeDefName objects */
-  private String attributeDefNamesScript;
-  
-  /**
-   * script of all the attributeDefName objects
-   * @return the attributeDefNamesScript
-   */
-  public String getAttributeDefNamesScript() {
-    return this.attributeDefNamesScript;
-  }
-  
-  /**
-   * script of all the attributeDefName objects
-   * @param attributeDefNamesScript1 the attributeDefNamesScript to set
-   */
-  public void setAttributeDefNamesScript(String attributeDefNamesScript1) {
-    this.attributeDefNamesScript = attributeDefNamesScript1;
-  }
-
   /**
    * store to session scope
    */

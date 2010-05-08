@@ -6,10 +6,9 @@ package edu.internet2.middleware.grouper.attr.finder;
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
@@ -43,18 +42,15 @@ public class AttributeDefNameFinder {
   
   /**
    * search for attributeDefName by name, display name, or description.  This is a secure method, a GrouperSession must be open.
-   * This will add the % to the input to look for a substring
+   * You need to add %'s to it for wildcards
    * @param searchField substring to search for
    * @param searchInAttributeDefIds ids to search in or null for all
+   * @param queryOptions 
    * @return the attribute def names or empty set
    */
-  public static Set<AttributeDefName> findAll(String searchField, Set<String> searchInAttributeDefIds) {
+  public static Set<AttributeDefName> findAll(String searchField, Set<String> searchInAttributeDefIds, QueryOptions queryOptions) {
     
-    if (!StringUtils.isBlank(searchField)) {
-      searchField = "%" + searchField + "%";
-    }
-    
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findAllSecure(searchField, searchInAttributeDefIds);
+    return GrouperDAOFactory.getFactory().getAttributeDefName().findAllSecure(searchField, searchInAttributeDefIds, queryOptions);
   }
   
 }

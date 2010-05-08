@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -224,10 +225,10 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findAllSecure(java.lang.String, java.util.Set)
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO#findAllSecure(java.lang.String, java.util.Set, QueryOptions)
    */
   public Set<AttributeDefName> findAllSecure(String searchField,
-      Set<String> searchInAttributeDefIds) {
+      Set<String> searchInAttributeDefIds, QueryOptions queryOptions) {
 
     {
       String searchFieldNoPercents = StringUtils.replace(StringUtils.defaultString(searchField), "%", "");
@@ -264,7 +265,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     }
     
     Set<AttributeDefName> attributeDefNames = byHqlStatic
-      .createQuery(sql.toString())
+      .createQuery(sql.toString()).options(queryOptions)
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindAll")
       .setString("searchField", searchFieldLower)

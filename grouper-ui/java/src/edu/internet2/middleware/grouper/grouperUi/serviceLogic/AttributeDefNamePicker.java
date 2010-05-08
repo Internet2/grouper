@@ -27,11 +27,11 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameTooManyResults;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeDefNamePicker.AttributeDefNamePickerConfigNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeDefNamePicker.AttributeDefNamePickerContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.attributeDefNamePicker.AttributeDefNamePickerJavascriptBean;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeDefNamePicker.PickerResultAttributeDefName;
-import edu.internet2.middleware.grouper.grouperUi.beans.attributeDefNamePicker.PickerResultJavascriptAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -166,6 +166,11 @@ public class AttributeDefNamePicker {
     
     Subject actAsSubject = SourceManager.getInstance().getSource(actAsSource).getSubject(actAsSubjectId, true);
     GrouperSession grouperSession = null;
+    
+    int maxResults = attributeDefNamePickerContainer.configValueInt("maxAttributeDefNamesResults");
+    
+    Set<AttributeDefName> attributeDefNamesExact = null;
+    
     try {
       grouperSession = GrouperSession.start(actAsSubject);
       Set<String> searchInAttributeDefIds = new HashSet<String>();
@@ -173,9 +178,21 @@ public class AttributeDefNamePicker {
         AttributeDef attributeDef = AttributeDefFinder.findByName(attributeDefName, true);
         searchInAttributeDefIds.add(attributeDef.getId());
       }
+
+      //lets look for exact matches
+      attributeDefNamesExact = AttributeDefNameFinder.findAll(searchField, searchInAttributeDefIds, new QueryOptions().paging(QueryPaging.page(maxResults, 1, false)));
       
-      attributeDefNames = AttributeDefNameFinder.findAll(searchField, searchInAttributeDefIds);
+      //add some wildcards
+      if (!StringUtils.isBlank(searchField)) {
+        searchField = "%" + searchField + "%";
+      }
       
+      attributeDefNames = AttributeDefNameFinder.findAll(searchField, searchInAttributeDefIds, new QueryOptions().paging(QueryPaging.page(maxResults, 1, false)));
+      
+      if (attributeDefNames.size() == maxResults) {
+        tooManyResults = true;
+      }
+
     } catch (AttributeDefNameTooManyResults stmr) {
       tooManyResults = true;
     } finally {
@@ -186,22 +203,25 @@ public class AttributeDefNamePicker {
     if (attributeDefNames == null) {
       attributeDefNames = new LinkedHashSet<AttributeDefName>();
     }
-        
+
+    if (maxResults < GrouperUtil.length(attributeDefNames)) {
+      
+      tooManyResults = true;
+      attributeDefNames = GrouperUtil.setShorten(attributeDefNames, maxResults);
+    }
+
+    //insert the exact matches at the beginning
+    if (GrouperUtil.length(attributeDefNamesExact) > 0) {
+      attributeDefNamesExact.addAll(attributeDefNames);
+      attributeDefNames = attributeDefNamesExact;
+    }
+    
     if (GrouperUtil.length(attributeDefNames) == 0) {
       
       String error = attributeDefNamePickerContainer.textMessage("noResultsFound");
       guiResponseJs.addAction(GuiScreenAction.newAlert(error));
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsDiv", ""));
       return;
-    }
-
-    
-    int maxResults = attributeDefNamePickerContainer.configValueInt("maxAttributeDefNamesResults");
-    
-    if (maxResults < GrouperUtil.length(attributeDefNames)) {
-      
-      tooManyResults = true;
-      attributeDefNames = GrouperUtil.setShorten(attributeDefNames, maxResults);
     }
 
     if (tooManyResults) {
@@ -218,7 +238,8 @@ public class AttributeDefNamePicker {
     }
 
     //sort these first
-    Collections.sort(pickerResultAttributeDefNameList);
+    //dont sort, sorted from DB
+    //Collections.sort(pickerResultAttributeDefNameList);
     
     PickerResultAttributeDefName[] pickerResultAttributeDefNames = GrouperUtil.toArray(pickerResultAttributeDefNameList, PickerResultAttributeDefName.class);
     
@@ -227,12 +248,6 @@ public class AttributeDefNamePicker {
     for (int i=0;i<pickerResultAttributeDefNames.length;i++) {
 
       pickerResultAttributeDefNames[i].setIndex(i);
-      
-      PickerResultJavascriptAttributeDefName attributeDefNameForJavascript = convertAttributeDefNameToPickerAttributeDefNameForJavascript(
-          pickerResultAttributeDefNames[i].getAttributeDefName(), pickerResultAttributeDefNames[i]);
-      
-      //this could be used for EL
-      pickerResultAttributeDefNames[i].setPickerResultJavascriptAttributeDefName(attributeDefNameForJavascript);
       
       i++;
     }
@@ -245,27 +260,4 @@ public class AttributeDefNamePicker {
       "/WEB-INF/grouperUi/templates/attributeDefNamePicker/attributeDefNamePickerResults.jsp"));
   }
 
-  /**
-   * 
-   * @param attributeDefName
-   * @param pickerResultAttributeDefName
-   * @return the picker result attributeDefName which is a different object, special for javascript
-   */
-  @SuppressWarnings("unchecked")
-  private static PickerResultJavascriptAttributeDefName convertAttributeDefNameToPickerAttributeDefNameForJavascript(AttributeDefName attributeDefName, PickerResultAttributeDefName pickerResultAttributeDefName) {
-    AttributeDefNamePickerContainer attributeDefNamePickerContainer = AttributeDefNamePickerContainer.retrieveFromRequest();
-    
-    String attributeDefNameId = attributeDefNamePickerContainer.configValueBoolean("attributeDefNameObject.include.attributeDefNameId") ? attributeDefName.getId() : null;
-    String name = attributeDefNamePickerContainer.configValueBoolean("attributeDefNameObject.include.name") ? attributeDefName.getName() : null;
-    String displayName = attributeDefNamePickerContainer.configValueBoolean("attributeDefNameObject.include.displayName") ? attributeDefName.getDisplayName() : null;
-    String description = attributeDefNamePickerContainer.configValueBoolean("attributeDefNameObject.include.description") ? attributeDefName.getDescription() : null;
-        
-    //note: this isnt really the right type, but thats ok, Java will forgive
-    AttributeDefNamePickerJavascriptBean attributeDefNameForJavascript = new AttributeDefNamePickerJavascriptBean(description, attributeDefNameId, name, displayName);
-    
-    PickerResultJavascriptAttributeDefName pickerAttributeDefNameForJavascript = new PickerResultJavascriptAttributeDefName(attributeDefNameForJavascript);
-    pickerAttributeDefNameForJavascript.setIndex(pickerResultAttributeDefName.getIndex());
-    return pickerAttributeDefNameForJavascript;
-  }
-  
 }

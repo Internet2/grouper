@@ -28,6 +28,9 @@
     <input type="hidden" name="attributeDefName.id" id="attributeDefName.id.elementId" />
     <input type="hidden" name="attributeDefName.attributeDefNamePickerElementName" id="attributeDefName.attributeDefNamePickerElementName.elementId" />
     <input type="hidden" name="attributeDefName.screenLabel" id="attributeDefName.screenLabel.elementId" />
+    <input type="hidden" name="attributeDefName.attributeDefNameName" id="attributeDefName.attributeDefNameName.elementId" />
+    <input type="hidden" name="attributeDefName.attributeDefNameDisplayName" id="attributeDefName.attributeDefNameDisplayName.elementId" />
+    <input type="hidden" name="attributeDefName.attributeDefNameDescription" id="attributeDefName.attributeDefNameDescription.elementId" />
   </form>
 
 </c:if>

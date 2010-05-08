@@ -1783,16 +1783,23 @@ function guiSubmitSubjectPickerToUrl(subjectPickerElementName, subjectId, screen
 
 /**
  * submit the attributeDefName to a url
- * @param attributeDefNameId
+ * attributeDefNamePickerElementName
+ * @param subjectId
  * @param sourceId
  * @param name
  * @param description
  * @return false
  */
-function guiSubmitAttributeDefNamePickerToUrl(attributeDefNamePickerElementName, attributeDefNameId, screenLabel) {
+function guiSubmitAttributeDefNamePickerToUrl(attributeDefNamePickerElementName, attributeDefNameId, 
+    screenLabel, attributeDefNameName, attributeDefNameDisplayName, attributeDefNameDescription) {
+  //alert(screenLabel);
   document.getElementById("attributeDefName.attributeDefNamePickerElementName.elementId").value = attributeDefNamePickerElementName;
   document.getElementById("attributeDefName.id.elementId").value = attributeDefNameId;
   document.getElementById("attributeDefName.screenLabel.elementId").value = screenLabel;
+  document.getElementById("attributeDefName.attributeDefNameName.elementId").value = attributeDefNameName;
+  document.getElementById("attributeDefName.attributeDefNameDisplayName.elementId").value = attributeDefNameDisplayName;
+  document.getElementById("attributeDefName.attributeDefNameDescription.elementId").value = attributeDefNameDescription;
   document.getElementById("submitToUrlFormId").submit();
   return false;
 }
+

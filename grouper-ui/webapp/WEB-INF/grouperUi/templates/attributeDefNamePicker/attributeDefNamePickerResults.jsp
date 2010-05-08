@@ -9,10 +9,10 @@
         <li>
           ${fn:escapeXml(pickerResultAttributeDefName.screenLabel) } 
           <c:if test="${attributeDefNamePickerContainer.submitToUrl}">
-            (<a href="#" onclick="return guiSubmitAttributeDefNamePickerToUrl('${attributeDefNamePickerContainer.attributeDefNamePickerElementName}', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefNameId) }','${grouper:escapeJavascript(pickerResultAttributeDefName.screenLabel) }' ); ">Select</a>)
+            (<a href="#" onclick="return guiSubmitAttributeDefNamePickerToUrl('${attributeDefNamePickerContainer.attributeDefNamePickerElementName}', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefNameId) }','${grouper:escapeJavascript(pickerResultAttributeDefName.screenLabel) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.name) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.displayName) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.description) }' ); ">Select</a>)
           </c:if>
           <c:if test="${!attributeDefNamePickerContainer.submitToUrl}">
-            (<a href="#" onclick="guiOpener().grouperAttributeDefNameSelected('${attributeDefNamePickerContainer.attributeDefNamePickerElementName}', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefNameId) }','${grouper:escapeJavascript(pickerResultAttributeDefName.screenLabel) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.id) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.name) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.displayName) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.description) }' ); window.close(); return false;">Select</a>)
+            (<a href="#" onclick="guiOpener().grouperAttributeDefNameSelected('${attributeDefNamePickerContainer.attributeDefNamePickerElementName}', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefNameId) }','${grouper:escapeJavascript(pickerResultAttributeDefName.screenLabel) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.name) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.displayName) }', '${grouper:escapeJavascript(pickerResultAttributeDefName.attributeDefName.description) }' ); window.close(); return false;">Select</a>)
           </c:if>
             
           
@@ -22,7 +22,5 @@
   </div>
 </div>
 
-<%-- all the attributeDefName objects converted to javascript --%>
-${attributeDefNamePickerContainer.attributeDefNamesScript }
 
 <!-- end attributeDefNamePicker/attributeDefNamePickerResults.jsp: search results page -->
