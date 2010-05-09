@@ -415,7 +415,10 @@ public class EsbConsumer extends ChangeLogConsumerBase {
                 .getPropertyString("changeLog.consumer." + consumerName
                     + ".publisher.addSubjectAttributes"));
           }
-          String eventJsonString = GrouperUtil.jsonConvertToNoWrap(event);
+          // add event to array, only one event supported for now
+          EsbEvents events = new EsbEvents();
+          events.addEsbEvent(event);
+          String eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
           //String eventJsonString = gson.toJson(event);
           // add indenting for debugging
           // add subject attributes if configured
