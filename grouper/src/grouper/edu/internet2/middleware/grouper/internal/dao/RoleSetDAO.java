@@ -133,4 +133,23 @@ public interface RoleSetDAO extends GrouperDAO {
    */
   public void saveUpdateProperties(RoleSet roleSet);
 
+  /**
+   * @param groupId
+   * @param exceptionIfNotFound
+   * @return roleSet
+   */
+  public RoleSet findSelfRoleSet(String groupId, boolean exceptionIfNotFound);
+  
+  /**
+   * @param id
+   * @return set of rolesets
+   */
+  public Set<RoleSet> findByIfHasRoleIdImmediate(String id);
+  
+  /**
+   * @param id
+   * @return set of rolesets
+   */
+  public Set<RoleSet> findByThenHasRoleIdImmediate(String id);
+
 }

@@ -100,6 +100,26 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
       .setString("theId", id).listSet(RoleSet.class);
     return roleSets;
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#findByIfHasRoleIdImmediate(java.lang.String)
+   */
+  public Set<RoleSet> findByIfHasRoleIdImmediate(String id) {
+    Set<RoleSet> roleSets = HibernateSession.byHqlStatic().createQuery(
+      "from RoleSet where ifHasRoleId = :theId and depth = 1")
+      .setString("theId", id).listSet(RoleSet.class);
+    return roleSets;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#findByThenHasRoleIdImmediate(java.lang.String)
+   */
+  public Set<RoleSet> findByThenHasRoleIdImmediate(String id) {
+    Set<RoleSet> roleSets = HibernateSession.byHqlStatic().createQuery(
+      "from RoleSet where thenHasRoleId = :theId and depth = 1")
+      .setString("theId", id).listSet(RoleSet.class);
+    return roleSets;
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#findByIfThenHasRoleId(java.lang.String, java.lang.String)
@@ -273,6 +293,19 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
         .setLong("theLastUpdated", roleSet.getLastUpdatedDb())
         .setString("theContextId", roleSet.getContextId())
         .setString("theId", roleSet.getId()).executeUpdate();
+  }
+
+  public RoleSet findSelfRoleSet(String groupId, boolean exceptionIfNotFound) {
+    RoleSet roleSet = HibernateSession.byHqlStatic().createQuery(
+        "from RoleSet where ifHasRoleId = :groupId and thenHasRoleId = :groupId and depth = 0")
+        .setString("groupId", groupId)
+        .uniqueResult(RoleSet.class);
+    
+    if (roleSet == null && exceptionIfNotFound) {
+      throw new RoleSetNotFoundException("Self roleSet for not found for " + groupId);
+    }
+    
+    return roleSet;
   }
 
 } 

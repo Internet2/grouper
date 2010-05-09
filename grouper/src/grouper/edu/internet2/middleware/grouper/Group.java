@@ -40,6 +40,7 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignEffMshipDelegate;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignGroupDelegate;
@@ -111,7 +112,9 @@ import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionRoleDelegate;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.permissions.role.RoleHierarchyType;
 import edu.internet2.middleware.grouper.permissions.role.RoleInheritanceDelegate;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -4092,6 +4095,57 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   throw new GroupModifyAlreadyExistsException("Group with name " + 
                       Group.this.getNameDb() + " already exists.");
                 }
+              }
+              
+              
+              if (Group.this.dbVersionDifferentFields().contains(FIELD_TYPE_OF_GROUP)) {
+                TypeOfGroup oldTypeOfGroup = Group.this.dbVersion().getTypeOfGroup();
+                TypeOfGroup newTypeOfGroup = Group.this.getTypeOfGroup();
+                
+                if (oldTypeOfGroup.equals(TypeOfGroup.group) && newTypeOfGroup.equals(TypeOfGroup.role)) {
+                  // converting group to role
+                  RoleSet existingRoleSet = GrouperDAOFactory.getFactory().getRoleSet().findSelfRoleSet(Group.this.getUuid(), false);
+                  if (existingRoleSet == null) {
+                    RoleSet roleSet = new RoleSet();
+                    roleSet.setId(GrouperUuid.getUuid());
+                    roleSet.setDepth(0);
+                    roleSet.setIfHasRoleId(Group.this.getId());
+                    roleSet.setThenHasRoleId(Group.this.getId());
+                    roleSet.setType(RoleHierarchyType.self);
+                    roleSet.setParentRoleSetId(roleSet.getId());
+                    roleSet.saveOrUpdate();
+                  }
+                } else if (oldTypeOfGroup.equals(TypeOfGroup.role) && newTypeOfGroup.equals(TypeOfGroup.group)) {
+                  // converting role to group
+                  Set<RoleSet> roleSets = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleIdImmediate(Group.this.getUuid());
+                  Iterator<RoleSet> iter = roleSets.iterator();
+                  while (iter.hasNext()) {
+                    RoleSet roleSet = iter.next();
+                    roleSet.getIfHasRole().getRoleInheritanceDelegate().removeRoleFromInheritFromThis(roleSet.getThenHasRole());
+                  }
+                  
+                  roleSets = GrouperDAOFactory.getFactory().getRoleSet().findByThenHasRoleIdImmediate(Group.this.getUuid());
+                  iter = roleSets.iterator();
+                  while (iter.hasNext()) {
+                    RoleSet roleSet = iter.next();
+                    roleSet.getIfHasRole().getRoleInheritanceDelegate().removeRoleFromInheritFromThis(roleSet.getThenHasRole());
+                  }
+                  
+                  RoleSet selfRoleSet = GrouperDAOFactory.getFactory().getRoleSet().findSelfRoleSet(Group.this.getUuid(), false);
+                  if (selfRoleSet != null) {
+                    selfRoleSet.delete();
+                  }
+
+                  Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getUuid());
+                  Iterator<AttributeAssign> attributeAssignsIter = attributeAssigns.iterator();
+                  while (attributeAssignsIter.hasNext()) {
+                    AttributeAssign attributeAssign = attributeAssignsIter.next();
+                    if (attributeAssign.getAttributeDef().getAttributeDefType().equals(AttributeDefType.perm)) {
+                      attributeAssign.delete();
+                    }
+                  }
+                }
+
               }
 
               

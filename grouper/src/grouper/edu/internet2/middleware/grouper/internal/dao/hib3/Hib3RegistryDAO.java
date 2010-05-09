@@ -160,7 +160,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3MemberDAO.reset(hibernateSession);
             Hib3RegistrySubjectDAO.reset(hibernateSession);
 
-            new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().addAllMissingGroupSets();
+            new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
             
             return null;
           }

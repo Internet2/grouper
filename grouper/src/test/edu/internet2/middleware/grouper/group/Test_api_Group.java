@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.group;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Set;
 
 import junit.textui.TestRunner;
 
@@ -37,6 +38,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
@@ -52,6 +56,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -124,6 +130,83 @@ public class Test_api_Group extends GrouperTest {
 
   public void tearDown() {
     super.tearDown();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_group_to_role() throws Exception {
+    Stem stem = root.addChildStem("stem", "stem");
+    Group group = stem.addChildGroup("group", "group");
+    
+    Set<RoleSet> roleSets = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(group.getUuid());
+    assertEquals(0, roleSets.size());
+    
+    group.setTypeOfGroup(TypeOfGroup.role);
+    group.store();
+    
+    roleSets = GrouperDAOFactory.getFactory().getRoleSet().findByIfHasRoleId(group.getUuid());
+    assertEquals(1, roleSets.size());
+    RoleSet roleSet = roleSets.iterator().next();
+    assertEquals(0, roleSet.getDepth());
+    assertEquals(group.getUuid(), roleSet.getThenHasRoleId());
+    assertEquals(roleSet.getId(), roleSet.getParentRoleSetId());
+    assertEquals("self", roleSet.getTypeDb());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_role_to_group() throws Exception {
+    Stem stem = root.addChildStem("stem", "stem");
+    Role role1 = stem.addChildRole("role1", "role1");
+    Role role2 = stem.addChildRole("role2", "role2");
+    Role role3 = stem.addChildRole("role3", "role3");
+    Role role4 = stem.addChildRole("role4", "role4");
+    Role role5 = stem.addChildRole("role5", "role5");
+
+    Group group2 = GrouperDAOFactory.getFactory().getGroup().findByName("stem:role2", true);
+    Group group3 = GrouperDAOFactory.getFactory().getGroup().findByName("stem:role3", true);
+    
+    role1.getRoleInheritanceDelegate().addRoleToInheritFromThis(role2);
+    role2.getRoleInheritanceDelegate().addRoleToInheritFromThis(role3);
+    role3.getRoleInheritanceDelegate().addRoleToInheritFromThis(role4);
+    role4.getRoleInheritanceDelegate().addRoleToInheritFromThis(role5);
+    
+    AttributeDef attributeDefPerm = stem.addChildAttributeDef("attributeDefPerm", AttributeDefType.perm);
+    attributeDefPerm.setAssignToGroup(true);
+    attributeDefPerm.store();
+    
+    AttributeDef attributeDefAttr = stem.addChildAttributeDef("attributeDefAttr", AttributeDefType.attr);
+    attributeDefAttr.setAssignToGroup(true);
+    attributeDefAttr.store();
+    
+    AttributeDefName attributePerm = stem.addChildAttributeDefName(attributeDefPerm, "attributePerm", "attributePerm");
+    AttributeDefName attributeAttr = stem.addChildAttributeDefName(attributeDefAttr, "attributeAttr", "attributeAttr");
+    
+    group2.getPermissionRoleDelegate().assignRolePermission(attributePerm);
+    group2.getAttributeDelegate().assignAttribute(attributeAttr);
+    group3.getPermissionRoleDelegate().assignRolePermission(attributePerm);
+    group3.getAttributeDelegate().assignAttribute(attributeAttr);
+    
+    group3.setTypeOfGroup(TypeOfGroup.group);
+    group3.store();
+
+    assertNotNull(GrouperDAOFactory.getFactory().getRoleSet().findSelfRoleSet(role1.getId(), false));
+    assertNotNull(GrouperDAOFactory.getFactory().getRoleSet().findSelfRoleSet(role2.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getRoleSet().findSelfRoleSet(role3.getId(), false));
+    assertNotNull(GrouperDAOFactory.getFactory().getRoleSet().findSelfRoleSet(role4.getId(), false));
+    assertNotNull(GrouperDAOFactory.getFactory().getRoleSet().findSelfRoleSet(role5.getId(), false));
+    
+    assertNotNull(GrouperDAOFactory.getFactory().getRoleSet().findByIfThenImmediate(role1.getId(), role2.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getRoleSet().findByIfThenImmediate(role2.getId(), role3.getId(), false));
+    assertNull(GrouperDAOFactory.getFactory().getRoleSet().findByIfThenImmediate(role3.getId(), role4.getId(), false));
+    assertNotNull(GrouperDAOFactory.getFactory().getRoleSet().findByIfThenImmediate(role4.getId(), role5.getId(), false));
+
+    assertTrue(group2.getAttributeDelegate().hasAttribute(attributeAttr));
+    assertTrue(group2.getAttributeDelegate().hasAttribute(attributePerm));
+    assertTrue(group3.getAttributeDelegate().hasAttribute(attributeAttr));
+    assertFalse(group3.getAttributeDelegate().hasAttribute(attributePerm));
   }
   
   /**

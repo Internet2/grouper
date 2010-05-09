@@ -1685,6 +1685,22 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public Group internal_addChildGroup(final String extn, final String dExtn, final String uuid) 
     throws GroupAddException, InsufficientPrivilegeException {
+    
+    return internal_addChildGroup(extn, dExtn, uuid, null);
+  }
+  
+  /**
+   * add child group with uuid
+   * @param extn extension
+   * @param dExtn display extension
+   * @param uuid uuid
+   * @param typeOfGroup
+   * @return group 
+   * @throws GroupAddException if problem 
+   * @throws InsufficientPrivilegeException if problem 
+   */
+  public Group internal_addChildGroup(final String extn, final String dExtn, final String uuid, final TypeOfGroup typeOfGroup) 
+    throws GroupAddException, InsufficientPrivilegeException {
 
     Set types = new LinkedHashSet<GroupType>();
     try {
@@ -1694,7 +1710,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     } 
     
     return internal_addChildGroup(GrouperSession.staticGrouperSession(), extn, dExtn, uuid, 
-        null, types, new HashMap<String, String>(), true, null);    
+        null, types, new HashMap<String, String>(), true, typeOfGroup);    
   }
   
   /**
@@ -3386,9 +3402,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
         //note, roles are modeled as groups
-        Group group = Stem.this.internal_addChildGroup(extension, displayExtension, uuid);
-        group.setTypeOfGroup(TypeOfGroup.role);
-        group.store();
+        Group group = Stem.this.internal_addChildGroup(extension, displayExtension, uuid, TypeOfGroup.role);
         
         RoleSet roleSet = new RoleSet();
         roleSet.setId(StringUtils.isBlank(uuid) ? GrouperUuid.getUuid() : uuid);
@@ -3398,6 +3412,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         roleSet.setType(RoleHierarchyType.self);
         roleSet.setParentRoleSetId(roleSet.getId());
         roleSet.saveOrUpdate();
+        
         return group;
       }
       
