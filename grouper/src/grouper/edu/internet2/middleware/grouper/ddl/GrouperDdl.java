@@ -496,7 +496,8 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * add flat tables, add column to grouper_attribute_assign_value, remove composite memberships where the member is a group
+   * add flat tables, add column to grouper_attribute_assign_value, remove composite memberships where the member is a group,
+   * add owner_id column to grouper_group_set
    * </pre>
    */
   V23 {
@@ -509,7 +510,7 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
 
-      addFlatTables(ddlVersionBean, database);
+      addFlatTables(database);
       
       addAttributeFloatValueCol(database);
 
@@ -530,6 +531,8 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
       }
+      
+      addGroupSetOwnerIdColumn(database, ddlVersionBean);
       
     }
   },
@@ -1707,7 +1710,7 @@ public enum GrouperDdl implements DdlVersionable {
 
       addPrivilegeManagement(ddlVersionBean, database, groupsTableNew);
       
-      addFlatTables(ddlVersionBean, database);
+      addFlatTables(database);
     }
 
   }, 
@@ -2524,6 +2527,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_CREATE_TIME, "number of millis since 1970 that this record was created");
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
+        GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_OWNER_ID, "owner id");
+    
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_OWNER_ATTR_DEF_ID, "owner attr def if applicable");
 
@@ -3343,6 +3349,7 @@ public enum GrouperDdl implements DdlVersionable {
             "MEMBER_ID", 
             "FIELD_ID", 
             "IMMEDIATE_FIELD_ID", 
+            "OWNER_ID", 
             "OWNER_ATTR_DEF_ID", 
             "OWNER_GROUP_ID", 
             "OWNER_STEM_ID", 
@@ -3366,6 +3373,7 @@ public enum GrouperDdl implements DdlVersionable {
             "MEMBER_ID: id in the grouper_members table", 
             "FIELD_ID: id in the grouper_fields table", 
             "IMMEDIATE_FIELD_ID: id in the grouper_fields table for the immediate (or composite) membership that causes this membership", 
+            "OWNER_ID: owner id", 
             "OWNER_ATTR_DEF_ID: owner attribute def id if applicable", 
             "OWNER_GROUP_ID: owner group if applicable", 
             "OWNER_STEM_ID: owner stem if applicable", 
@@ -3390,6 +3398,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "ms.member_id, "
             + "gs.field_id, "
             + "ms.field_id, "
+            + "gs.owner_id, "
             + "gs.owner_attr_def_id, "
             + "gs.owner_group_id, "
             + "gs.owner_stem_id, " 
@@ -5310,8 +5319,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean 
    * @param requireNewMembershipColumns 
    */
-  private static void runMembershipAndGroupSetConversion(Database database, 
-      @SuppressWarnings("unused") DdlVersionBean ddlVersionBean,
+  private static void runMembershipAndGroupSetConversion(Database database, DdlVersionBean ddlVersionBean,
       boolean requireNewMembershipColumns) {
 
     Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
@@ -5379,20 +5387,21 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_disabled_time_idx", false, Membership.COLUMN_DISABLED_TIMESTAMP);
     
-    addGroupSetTable(database);
+    addGroupSetTable(database, ddlVersionBean);
   }
 
   /**
    * 
    * @param database
+   * @param ddlVersionBean
    */
-  private static void addGroupSetTable(Database database) {
+  private static void addGroupSetTable(Database database, DdlVersionBean ddlVersionBean) {
     Table grouperGroupSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
         GroupSet.TABLE_GROUPER_GROUP_SET);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "id", 
         Types.VARCHAR, "40", true, true);
-    
+        
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "owner_attr_def_id",
         Types.VARCHAR, "40", false, false);
 
@@ -5428,6 +5437,8 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "member_field_id",
         Types.VARCHAR, "40", false, true);
+    
+    addGroupSetOwnerIdColumn(database, ddlVersionBean);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "mship_type",
         Types.VARCHAR, "16", false, true);
@@ -6018,7 +6029,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean
    * @param database
    */
-  private static void addFlatTables(@SuppressWarnings("unused") DdlVersionBean ddlVersionBean, Database database) {
+  private static void addFlatTables(Database database) {
     {
       Table flatMembershipsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS);
@@ -6143,6 +6154,25 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatAttributeDefTable.getName(), 
           "flat_attrdef_context_idx", false, FlatAttributeDef.COLUMN_CONTEXT_ID);
+    }
+  }
+  
+  private static void addGroupSetOwnerIdColumn(Database database, DdlVersionBean ddlVersionBean) {
+    boolean tableExists = GrouperDdlUtils.assertTablesThere(false, false, GroupSet.TABLE_GROUPER_GROUP_SET);
+     
+    Table grouperGroupSet = GrouperDdlUtils.ddlutilsFindTable(database, GroupSet.TABLE_GROUPER_GROUP_SET);
+    boolean columnNew = tableExists && grouperGroupSet.findColumn(GroupSet.COLUMN_OWNER_ID) == null;
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, GroupSet.COLUMN_OWNER_ID,
+        Types.VARCHAR, "40", false, !tableExists);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+        "group_set_owner_field_idx", false, "owner_id", "field_id");
+    
+    if (columnNew) {  
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_group_set set owner_id = owner_group_id where owner_group_id is not null;\ncommit;\n");
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_group_set set owner_id = owner_stem_id where owner_stem_id is not null;\ncommit;\n");
+      ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_group_set set owner_id = owner_attr_def_id where owner_attr_def_id is not null;\ncommit;\n");      
     }
   }
 

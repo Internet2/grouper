@@ -243,14 +243,8 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select flatMship from FlatMembership flatMship where " +
       		"not exists (select 1 from MembershipEntry ms " +
-      		"    where flatMship.ownerId=ms.ownerGroupId " +
+      		"    where flatMship.ownerId=ms.ownerId " +
       		"    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId and ms.enabledDb='T') " +
-          "and not exists (select 1 from MembershipEntry ms " +
-          "    where flatMship.ownerId=ms.ownerStemId " +
-          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId and ms.enabledDb='T') " +
-          "and not exists (select 1 from MembershipEntry ms " +
-          "    where flatMship.ownerId=ms.ownerAttrDefId " +
-          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId and ms.enabledDb='T') " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string06 = flatMship.ownerId and temp.string09=flatMship.fieldId " +
           "    and type.actionName='deleteMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type where temp.string07 = flatMship.ownerId and temp.string10=flatMship.fieldId " +
@@ -273,27 +267,19 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select ms from MembershipEntry ms where ms.enabledDb='T' and " +
           "not exists (select 1 from FlatMembership flatMship " +
-          "    where flatMship.ownerId=ms.ownerGroupId " +
-          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
-          "and not exists (select 1 from FlatMembership flatMship " +
-          "    where flatMship.ownerId=ms.ownerStemId " +
-          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
-          "and not exists (select 1 from FlatMembership flatMship " +
-          "    where flatMship.ownerId=ms.ownerAttrDefId " +
+          "    where flatMship.ownerId=ms.ownerId " +
           "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string06 = ms.ownerGroupId and temp.string09=ms.fieldId " +
           "    and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where (temp.string07 = ms.ownerGroupId or temp.string07 = ms.ownerStemId or temp.string07 = ms.ownerAttrDefId) and temp.string10=ms.fieldId " +
+          "    where temp.string07 = ms.ownerId and temp.string10=ms.fieldId " +
           "    and type.actionName='addPrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type, Member m, MembershipEntry ms2 " +
           "    where temp.string09=:fieldId and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId " +
           "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='" + groupSubjectSourceId + "' " +
           "    and ms2.memberUuid = m.uuid " +
-          "    and (ms.ownerGroupId is not null and ms.ownerGroupId=ms2.ownerGroupId " +
-          "         or ms.ownerStemId is not null and ms.ownerStemId=ms2.ownerStemId " +
-          "         or ms.ownerAttrDefId is not null and ms.ownerAttrDefId=ms2.ownerAttrDefId) " +
+          "    and ms.ownerId=ms2.ownerId " +
           "    and ms.fieldId = ms2.fieldId and ms2.enabledDb='T') " +
           "order by ms.immediateMembershipId, ms.groupSetId")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatMemberships")
@@ -311,27 +297,19 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
       .byHqlStatic()
       .createQuery("select count(*) from MembershipEntry ms where ms.enabledDb='T' and " +
           "not exists (select 1 from FlatMembership flatMship " +
-          "    where flatMship.ownerId=ms.ownerGroupId " +
-          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
-          "and not exists (select 1 from FlatMembership flatMship " +
-          "    where flatMship.ownerId=ms.ownerStemId " +
-          "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
-          "and not exists (select 1 from FlatMembership flatMship " +
-          "    where flatMship.ownerId=ms.ownerAttrDefId " +
+          "    where flatMship.ownerId=ms.ownerId " +
           "    and flatMship.memberId=ms.memberUuid and flatMship.fieldId=ms.fieldId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string06 = ms.ownerGroupId and temp.string09=ms.fieldId " +
           "    and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where (temp.string07 = ms.ownerGroupId or temp.string07 = ms.ownerStemId or temp.string07 = ms.ownerAttrDefId) and temp.string10=ms.fieldId " +
+          "    where temp.string07 = ms.ownerId and temp.string10=ms.fieldId " +
           "    and type.actionName='addPrivilege' and type.changeLogCategory='privilege' and type.id=temp.changeLogTypeId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type, Member m, MembershipEntry ms2 " +
           "    where temp.string09=:fieldId and type.actionName='addMembership' and type.changeLogCategory='membership' and type.id=temp.changeLogTypeId " +
           "    and m.subjectIdDb=temp.string06 and m.subjectSourceIdDb='" + groupSubjectSourceId + "' " +
           "    and ms2.memberUuid = m.uuid " +
-          "    and (ms.ownerGroupId is not null and ms.ownerGroupId=ms2.ownerGroupId " +
-          "         or ms.ownerStemId is not null and ms.ownerStemId=ms2.ownerStemId " +
-          "         or ms.ownerAttrDefId is not null and ms.ownerAttrDefId=ms2.ownerAttrDefId) " +
+          "    and ms.ownerId=ms2.ownerId " +
           "    and ms.fieldId = ms2.fieldId and ms2.enabledDb='T')")
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingFlatMembershipsCount")
       .setString("fieldId", Group.getDefaultList().getUuid())

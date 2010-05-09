@@ -59,6 +59,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   
   /** number of millis since 1970 that this record was created */
   public static final String COLUMN_CREATE_TIME = "create_time";
+
+  /** owner id */
+  public static final String COLUMN_OWNER_ID = "owner_id";
   
   /** owner group if applicable */
   public static final String COLUMN_OWNER_GROUP_ID = "owner_group_id";
@@ -126,6 +129,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   /** constant for field name for: memberStemId */
   public static final String FIELD_MEMBER_STEM_ID = "memberStemId";
 
+  /** constant for field name for: ownerId */
+  public static final String FIELD_OWNER_ID = "ownerId";
+  
   /** constant for field name for: ownerGroupId */
   public static final String FIELD_OWNER_GROUP_ID = "ownerGroupId";
 
@@ -161,7 +167,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATE_TIME, FIELD_CREATOR_ID, FIELD_DEPTH, FIELD_VIA_GROUP_ID,
       FIELD_FIELD_ID, FIELD_MSHIP_TYPE, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_MEMBER_GROUP_ID, 
-      FIELD_MEMBER_STEM_ID, FIELD_OWNER_GROUP_ID, FIELD_MEMBER_FIELD_ID,  
+      FIELD_MEMBER_STEM_ID, FIELD_OWNER_GROUP_ID, FIELD_MEMBER_FIELD_ID, FIELD_OWNER_ID,
       FIELD_OWNER_GROUP_ID_NULL, FIELD_OWNER_STEM_ID, FIELD_OWNER_STEM_ID_NULL, FIELD_PARENT_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -195,6 +201,9 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
   
   /** create time */
   private Long createTime = new Date().getTime();
+  
+  /** owner id */
+  private String ownerId;
   
   /** group id for group memberships.  this is the owner. */
   private String ownerGroupId;
@@ -824,6 +833,20 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     this.createTime = createTime;
   }
 
+  /**
+   * @return owner id
+   */
+  public String getOwnerId() {
+    return ownerId;
+  }
+  
+  /**
+   * Set owner id.  This is for internal use only.
+   * @param ownerId
+   */
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
+  }
   
   /**
    * @return group id for the owner if this is a group membership
@@ -841,6 +864,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     setOwnerGroupIdNull(ownerGroupId);
     if (ownerGroupId == null) {
       setOwnerGroupIdNull(GroupSet.nullColumnValue);
+    } else {
+      setOwnerId(ownerGroupId);
     }
   }
 
@@ -879,6 +904,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     setOwnerStemIdNull(ownerStemId);
     if (ownerStemId == null) {
       setOwnerStemIdNull(GroupSet.nullColumnValue);
+    } else {
+      setOwnerId(ownerStemId);
     }
   }
 
@@ -1019,6 +1046,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     this.setOwnerAttrDefIdNull(ownerAttrDefId1);
     if (ownerAttrDefId1 == null) {
       this.setOwnerAttrDefIdNull(GroupSet.nullColumnValue);
+    } else {
+      setOwnerId(ownerAttrDefId1);
     }
   }
 
