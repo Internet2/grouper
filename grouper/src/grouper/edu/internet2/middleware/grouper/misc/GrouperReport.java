@@ -248,6 +248,9 @@ public class GrouperReport {
       
       long loaderErrorCount = -1;
       for (GrouperLoaderStatus grouperLoaderStatus : GrouperLoaderStatus.values()) {
+        if (GrouperLoaderStatus.SUCCESS.equals(grouperLoaderStatus)) {
+          continue;
+        }
         Long loaderCount = HibernateSession.byHqlStatic().createQuery(
             "select count(*) from Hib3GrouperLoaderLog where status = '" + grouperLoaderStatus.name() + "' and lastUpdated > :lastUpdated")
             .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
@@ -256,8 +259,8 @@ public class GrouperReport {
           loaderErrorCount = loaderCount;
         }
         
-        if (grouperLoaderStatus == GrouperLoaderStatus.SUCCESS 
-            || grouperLoaderStatus == GrouperLoaderStatus.ERROR || loaderCount > 0) {
+        if (grouperLoaderStatus != GrouperLoaderStatus.SUCCESS 
+            && (grouperLoaderStatus == GrouperLoaderStatus.ERROR || loaderCount > 0)) {
           String label = grouperLoaderStatus.getFriendlyString();
           result.append(label).append(":").append(StringUtils.repeat(" ", 22-label.length()))
             .append(formatCommas(loaderCount)).append("\n");

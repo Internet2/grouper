@@ -25,7 +25,13 @@ public class GrouperReportTest extends GrouperTest {
   public void testReport() {
     @SuppressWarnings("unused")
     String report = GrouperReport.report(false, false);
+    
+    //System.out.println(report + "\n\n\n\n\n\n");
+    
     report = GrouperReport.report(true, true);
+
+    //System.out.println(report + "\n\n\n\n\n\n");
+
   }
   
 }
