@@ -2654,6 +2654,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), this.getMember().getSubjectId(),
           ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), this.getType(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
@@ -2665,6 +2666,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.ACCESS.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_GROUP,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.PRIVILEGE_ADD.membershipType.name(), this.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.NAMING.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
@@ -2676,6 +2678,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.NAMING.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_STEM,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerStemId(),
+          ChangeLogLabels.PRIVILEGE_ADD.membershipType.name(), this.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getStem().getName()).save();
     } else if (this.getListType().equals(FieldType.ATTRIBUTE_DEF.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
@@ -2687,6 +2690,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), FieldType.ATTRIBUTE_DEF.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_ATTRIBUTE_DEF,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerAttrDefId(),
+          ChangeLogLabels.PRIVILEGE_ADD.membershipType.name(), this.getType(),
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getAttributeDef().getName()).save();
     } else {
       throw new RuntimeException("unexpected field type: " + this.getListType());
@@ -2711,6 +2715,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), member.getSubjectId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), member.getSubjectSourceId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
@@ -2722,6 +2727,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.ACCESS.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_GROUP,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.PRIVILEGE_DELETE.membershipType.name(), this.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getGroup().getName()).save();
     } else if (this.getListType().equals(FieldType.NAMING.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
@@ -2733,6 +2739,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.NAMING.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_STEM,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerStemId(),
+          ChangeLogLabels.PRIVILEGE_DELETE.membershipType.name(), this.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getStem().getName()).save();
     } else if (this.getListType().equals(FieldType.ATTRIBUTE_DEF.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
@@ -2744,6 +2751,7 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.ATTRIBUTE_DEF.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), OWNER_TYPE_ATTRIBUTE_DEF,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), this.getOwnerAttrDefId(),
+          ChangeLogLabels.PRIVILEGE_DELETE.membershipType.name(), this.getType(),
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), this.getAttributeDef().getName()).save();
     } else {
       throw new RuntimeException("unexpected field type: " + this.getListType());

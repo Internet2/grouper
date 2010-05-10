@@ -295,8 +295,8 @@ public class ChangeLogType extends GrouperAPI implements Hib3GrouperVersioned {
     int index=1;
     for (String labelString : GrouperUtil.nonNull(labelStrings, String.class)) {
       GrouperUtil.assignField(this, "labelString" + (index<10 ? "0" : "") + index, labelString);
-      if (index > 10) {
-        throw new RuntimeException("Cant send more than 10 labelStrings: " + labelStrings.length);
+      if (index > 12) {
+        throw new RuntimeException("Cant send more than 12 labelStrings: " + labelStrings.length);
       }
       index++;
     }

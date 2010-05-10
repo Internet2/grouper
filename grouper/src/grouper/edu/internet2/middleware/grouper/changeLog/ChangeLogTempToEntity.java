@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.flat.FlatAttributeDef;
@@ -65,6 +66,8 @@ public class ChangeLogTempToEntity {
     addedMembershipOwnerAndFields = new HashMap<String, List<String>>();
     deletedMembershipOwnerAndFields = new HashMap<String, List<String>>();
     
+    final boolean includeNonFlattenedMemberships = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeNonFlattenedMemberships", false);
+    final boolean includeNonFlattenedPrivileges = GrouperLoaderConfig.getPropertyBoolean("changeLog.includeNonFlattenedPrivileges", false);
     
     int count = 0;
     
@@ -105,10 +108,24 @@ public class ChangeLogTempToEntity {
                 ChangeLogTempToEntity.processMembershipDelete(CHANGE_LOG_ENTRY);
               }
               
-              if (!CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) && 
-                  !CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) &&
-                  !CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD) &&
-                  !CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
+              if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) ||
+                  CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
+                
+                if (includeNonFlattenedMemberships) {
+                  //insert into the non temp table
+                  CHANGE_LOG_ENTRY.setTempObject(false);
+                  CHANGE_LOG_ENTRY.save();
+                }
+              } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD) ||
+                  CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
+                
+                if (includeNonFlattenedPrivileges) {
+                  //insert into the non temp table
+                  CHANGE_LOG_ENTRY.setTempObject(false);
+                  CHANGE_LOG_ENTRY.save();
+                }
+              } else {
+                
                 //insert into the non temp table
                 CHANGE_LOG_ENTRY.setTempObject(false);
                 CHANGE_LOG_ENTRY.save();
@@ -356,6 +373,7 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.PRIVILEGE_ADD.privilegeType.name(), privilegeType,
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), ownerType,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), ownerId,
+          ChangeLogLabels.PRIVILEGE_ADD.membershipType.name(), "flattened",
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), ownerName);
       changeLogEntry.setContextId(contextId);
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
@@ -439,6 +457,7 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), privilegeType,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), ownerType,
           ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), ownerId,
+          ChangeLogLabels.PRIVILEGE_DELETE.membershipType.name(), "flattened",
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), ownerName);
       changeLogEntry.setContextId(contextId);
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
@@ -496,6 +515,7 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), memberToAdd.getSubjectId(),
           ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), memberToAdd.getSubjectSourceId(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), groupId,
+          ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), "flattened",
           ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), groupName);
       changeLogEntry.setContextId(contextId);
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
@@ -680,6 +700,7 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), flatMembership.getMember().getSubjectId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), flatMembership.getMember().getSubjectSourceId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), groupId,
+          ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), "flattened",
           ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), groupName);
       changeLogEntry.setContextId(contextId);
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());

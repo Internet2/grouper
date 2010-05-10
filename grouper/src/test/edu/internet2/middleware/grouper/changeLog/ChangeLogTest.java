@@ -3423,6 +3423,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
     assertEquals(g3g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3443,6 +3444,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
     assertEquals(g3g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g3g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3468,6 +3470,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
     assertEquals(g3g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3486,6 +3489,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
     assertEquals(g3g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g3g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3512,6 +3516,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(g3g4Priv.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(g3g4Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3534,6 +3539,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(g3g5Priv.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(g3g5Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3561,6 +3567,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(g3g4Priv.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(g3g4Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3581,6 +3588,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(g3g5Priv.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(g3g5Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3606,6 +3614,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("attributeDef", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(a3g4Priv.getAttributeDef().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(a3g4Priv.getAttributeDef().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3629,6 +3638,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("attributeDef", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(a3g5Priv.getAttributeDef().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(a3g5Priv.getAttributeDef().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3656,6 +3666,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("attributeDef", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(a3g4Priv.getAttributeDef().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(a3g4Priv.getAttributeDef().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
   
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3676,6 +3687,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("attributeDef", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(a3g5Priv.getAttributeDef().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(a3g5Priv.getAttributeDef().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3702,6 +3714,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(s3g4Priv.getStem().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(s3g4Priv.getStem().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3724,6 +3737,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(s3g5Priv.getStem().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(s3g5Priv.getStem().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3751,6 +3765,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(s3g4Priv.getStem().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(s3g4Priv.getStem().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
   
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3771,6 +3786,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(s3g5Priv.getStem().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(s3g5Priv.getStem().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3798,6 +3814,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
     assertEquals(g3g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3818,6 +3835,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
     assertEquals(g3g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g3g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3838,6 +3856,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g2g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
     assertEquals(g2g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g2g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3858,6 +3877,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g2g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
     assertEquals(g2g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g2g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3880,6 +3900,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(g1g4Priv.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(g1g4Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3902,6 +3923,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(g1g5Priv.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(g1g5Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3924,6 +3946,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(s0g4Priv.getStem().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(s0g4Priv.getStem().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3946,6 +3969,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(s0g5Priv.getStem().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(s0g5Priv.getStem().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3968,6 +3992,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("attributeDef", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(a0g4Priv.getAttributeDef().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(a0g4Priv.getAttributeDef().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -3990,6 +4015,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("attributeDef", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType));
     assertEquals(a0g5Priv.getAttributeDef().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId));
     assertEquals(a0g5Priv.getAttributeDef().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4019,6 +4045,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
     assertEquals(g3g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4037,6 +4064,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
     assertEquals(g3g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g3g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4055,6 +4083,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g2g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
     assertEquals(g2g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g2g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4073,6 +4102,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g2g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
     assertEquals(g2g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g2g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4093,6 +4123,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(g1g4Priv.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(g1g4Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4113,6 +4144,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("group", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(g1g5Priv.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(g1g5Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4133,6 +4165,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(s0g4Priv.getStem().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(s0g4Priv.getStem().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4153,6 +4186,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(s0g5Priv.getStem().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(s0g5Priv.getStem().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4173,6 +4207,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("attributeDef", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(a0g4Priv.getAttributeDef().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(a0g4Priv.getAttributeDef().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
@@ -4193,6 +4228,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("attributeDef", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType));
     assertEquals(a0g5Priv.getAttributeDef().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId));
     assertEquals(a0g5Priv.getAttributeDef().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
+    assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
     flatMship = GrouperDAOFactory.getFactory().getFlatMembership()

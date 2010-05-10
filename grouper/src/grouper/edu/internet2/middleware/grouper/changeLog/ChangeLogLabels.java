@@ -474,7 +474,10 @@ public class ChangeLogLabels {
     memberId,
     
     /** field id */
-    fieldId;
+    fieldId,
+    
+    /** membershipType */
+    membershipType;
   };
   
   /**
@@ -504,7 +507,10 @@ public class ChangeLogLabels {
     ownerId,
     
     /** ownerName */
-    ownerName;
+    ownerName,
+    
+    /** membershipType */
+    membershipType;
   };
   
   /**
@@ -540,6 +546,9 @@ public class ChangeLogLabels {
     memberId,
     
     /** field id */
-    fieldId;
+    fieldId,
+    
+    /** membershipType */
+    membershipType;
   };
 }
