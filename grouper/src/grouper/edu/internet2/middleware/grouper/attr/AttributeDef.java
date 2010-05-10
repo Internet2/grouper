@@ -315,6 +315,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * @return the delegate
    */
   public AttributeDefActionDelegate getAttributeDefActionDelegate() {
+    //why does this not check for null and only create if needed???
     this.attributeDefActionDelegate = new AttributeDefActionDelegate(this);
     return this.attributeDefActionDelegate;
   }
@@ -447,7 +448,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    */
   public void store() {
     
-    this.getAttributeDefActionDelegate().configureActionList(GrouperUtil.toSet("read", "write"));
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
