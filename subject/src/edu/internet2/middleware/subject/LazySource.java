@@ -200,7 +200,6 @@ public class LazySource implements Source {
   /**
    * @see edu.internet2.middleware.subject.Source#getInitParam(java.lang.String)
    */
-  @Override
   public String getInitParam(String name1) {
     return this.getSource().getInitParam(name1);
   }
@@ -208,7 +207,6 @@ public class LazySource implements Source {
   /**
    * @see edu.internet2.middleware.subject.Source#getInitParams()
    */
-  @Override
   public Properties getInitParams() {
     return this.getSource().getInitParams();
   }
