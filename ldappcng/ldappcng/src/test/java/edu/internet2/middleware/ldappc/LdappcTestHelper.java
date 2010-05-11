@@ -818,7 +818,8 @@ public class LdappcTestHelper {
       // TODO ignore order ?
       // correctDetailedDiff.overrideElementQualifier(new
       // RecursiveElementNameAndTextQualifier());
-
+      correctDetailedDiff.overrideDifferenceListener(ignoreRequestID);
+      
       if (!correctDetailedDiff.getAllDifferences().isEmpty()) {
         LOG.debug("differences   \n'{}'", correctDetailedDiff.getAllDifferences());
         LOG.debug("diff to string\n'{}'", correctDetailedDiff.toString());
@@ -834,6 +835,7 @@ public class LdappcTestHelper {
       unmarshalledDiff.overrideDifferenceListener(ignoreRequestID);
 
       DetailedDiff unmarshalledDetailedDiff = new DetailedDiff(unmarshalledDiff);
+      unmarshalledDetailedDiff.overrideDifferenceListener(ignoreRequestID);
       if (!unmarshalledDetailedDiff.getAllDifferences().isEmpty()) {
         LOG.debug("differences '{}'", unmarshalledDetailedDiff.getAllDifferences());
         LOG.debug("diff '{}'", unmarshalledDetailedDiff.toString());

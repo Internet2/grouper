@@ -1,0 +1,57 @@
+<!-- Binary distribution, along with dependency jar files -->
+<assembly>
+    <id>bin</id>
+    <formats>
+        <!--  <format>tar.gz</format> -->
+        <format>zip</format>
+    </formats>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <excludes>
+                <exclude>edu.internet2.middleware:shibboleth:*</exclude>
+                <exclude>org.apache.xerces:*</exclude>
+                <exclude>org.apache.xalan:*</exclude>
+                <exclude>org.apache.ant:*</exclude>
+                <exclude>ant-contrib:*</exclude>
+                <exclude>edu.internet2.middleware:ant-extensions:*</exclude>
+            </excludes>
+            <includes>
+                <include>*:jar:*</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>src/installer/lib</outputDirectory>
+            <includes>
+                <include>org.apache.ant:*</include>
+                <include>ant-contrib:*</include>
+                <include>edu.internet2.middleware:ant-extensions:*</include>
+                <include>org.bouncycastle:*</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>/endorsed</outputDirectory>
+            <includes>
+                <include>org.apache.xerces:*</include>
+                <include>org.apache.xalan:*</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+
+    <fileSets>
+        <!-- Copy conf directory -->
+        <fileSet>
+            <directory>conf</directory>
+            <outputDirectory>/conf</outputDirectory>
+        </fileSet>
+
+        <!--
+            Documentation <fileSet> <directory>doc/</directory> <outputDirectory>/doc</outputDirectory> </fileSet>
+            <fileSet> <directory>target/site/apidocs</directory> <outputDirectory>/doc/api</outputDirectory> </fileSet>
+        -->
+    </fileSets>
+    
+
+    
+</assembly>

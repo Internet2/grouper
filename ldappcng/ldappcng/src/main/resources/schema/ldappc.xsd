@@ -16,6 +16,7 @@
   <import namespace="urn:mace:shibboleth:2.0:services" schemaLocation="classpath:/schema/shibboleth-2.0-services.xsd" />
   <import namespace="urn:mace:shibboleth:2.0:resolver" schemaLocation="classpath:/schema/shibboleth-2.0-attribute-resolver.xsd" />
   <import namespace="urn:oasis:names:tc:SPML:2:0" schemaLocation="classpath:/schema/pstc_spmlv2_core.xsd" />
+  <import namespace="http://grouper.internet2.edu/shibboleth/2.0" schemaLocation="classpath:/schema/shibboleth-2.0-grouper.xsd" />
   <!--
     <import namespace="urn:oasis:names:tc:SPML:2:0:DSML" schemaLocation="classpath:/schema/pstc_spmlv2_dsml.xsd" />
   -->
@@ -207,6 +208,71 @@
         <documentation>TODO</documentation>
       </annotation>
     </attribute>
+  </complexType>
+  
+   <complexType name="SPMLDataConnector">
+    <annotation>
+      <documentation>
+        A data connector that can returns information from an SPML provider.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="grouper:BaseGrouperDataConnectorType">
+        <sequence>
+          <element name="FilterTemplate" type="string">
+            <annotation>
+              <documentation>TODO</documentation>
+            </annotation>
+          </element>
+        </sequence>
+        <attribute name="provider" type="string" use="required" />
+        <attribute name="base" type="string" use="required" />
+        <attribute name="scope" type="grouper:ScopeType" use="optional" default="subTree" />
+        <attribute name="returnData" type="grouper:ReturnDataType" use="optional" default="everything" />
+        <attribute name="templateEngine" type="string" fixed="shibboleth.TemplateEngine">
+          <annotation>
+            <documentation>TODO</documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="LdapDnPSOIdentifier">
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+        <attribute name="structure" use="required">
+          <annotation>
+            <documentation>
+              An SPML PSOIdentifier which is an LDAP DN.
+            </documentation>
+          </annotation>
+          <simpleType>
+            <restriction base="string">
+              <enumeration value="flat" />
+              <enumeration value="bushy" />
+            </restriction>
+          </simpleType>
+        </attribute>
+        <attribute name="base" type="string" use="required">
+          <annotation>
+            <documentation>TODO</documentation>
+          </annotation>
+        </attribute>
+        <attribute name="rdnAttributeName" type="string" use="required">
+          <annotation>
+            <documentation>TODO</documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="PSOIdentifier">
+    <complexContent>
+      <extension base="resolver:BaseAttributeDefinitionType">
+      </extension>
+    </complexContent>
   </complexType>
 
 </schema>

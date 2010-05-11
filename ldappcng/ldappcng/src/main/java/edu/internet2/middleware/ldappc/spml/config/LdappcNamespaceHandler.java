@@ -14,6 +14,9 @@
 
 package edu.internet2.middleware.ldappc.spml.config;
 
+import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config.PSOIdentifierAttributeDefinitionBeanDefinitionParser;
+import edu.internet2.middleware.grouper.shibboleth.dataConnector.config.SPMLDataConnectorBeanDefinitionParser;
 import edu.internet2.middleware.shibboleth.common.config.BaseSpringNamespaceHandler;
 
 public class LdappcNamespaceHandler extends BaseSpringNamespaceHandler {
@@ -48,5 +51,14 @@ public class LdappcNamespaceHandler extends BaseSpringNamespaceHandler {
 
     registerBeanDefinitionParser(IdentifyingAttributeBeanDefinitionParser.TYPE_NAME,
         new IdentifyingAttributeBeanDefinitionParser());
+    
+    registerBeanDefinitionParser(PSOIdentifierAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
+            new PSOIdentifierAttributeDefinitionBeanDefinitionParser());
+    
+    registerBeanDefinitionParser(LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser.TYPE_NAME,
+            new LdapDnPSOIdentifierAttributeDefinitionBeanDefinitionParser());
+    
+    registerBeanDefinitionParser(SPMLDataConnectorBeanDefinitionParser.TYPE_NAME,
+            new SPMLDataConnectorBeanDefinitionParser());
   }
 }

@@ -29,16 +29,16 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
+import edu.internet2.middleware.ldappc.spml.config.LdappcNamespaceHandler;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.dataConnector.BaseDataConnectorBeanDefinitionParser;
 
 public class SPMLDataConnectorBeanDefinitionParser extends BaseDataConnectorBeanDefinitionParser {
 
   private final Logger LOG = LoggerFactory.getLogger(SPMLDataConnectorBeanDefinitionParser.class);
 
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "SPMLDataConnector");
+  public static final QName TYPE_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "SPMLDataConnector");
 
-  public static final QName FILTER_ELEMENT_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "FilterTemplate");
+  public static final QName FILTER_ELEMENT_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "FilterTemplate");
 
   protected Class<?> getBeanClass(Element element) {
     return SPMLDataConnectorFactoryBean.class;

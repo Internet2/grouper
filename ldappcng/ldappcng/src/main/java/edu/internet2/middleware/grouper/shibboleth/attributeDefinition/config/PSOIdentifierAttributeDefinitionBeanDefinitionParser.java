@@ -25,13 +25,13 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
+import edu.internet2.middleware.ldappc.spml.config.LdappcNamespaceHandler;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionBeanDefinitionParser;
 
 public class PSOIdentifierAttributeDefinitionBeanDefinitionParser extends
     BaseAttributeDefinitionBeanDefinitionParser {
 
-  public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "PSOIdentifier");
+  public static final QName TYPE_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "PSOIdentifier");
 
   private final Logger LOG = LoggerFactory.getLogger(PSOIdentifierAttributeDefinitionBeanDefinitionParser.class);
 
