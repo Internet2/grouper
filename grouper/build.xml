@@ -113,37 +113,37 @@
   </target>
   <!-- target: clean -->
 
-  <target name="ldappcng" description="after an ant dist in ldappcng, run this target to copy the conf and libs to grouper for gsh" >
+  <target name="ldappcng" description="after 'mvn package -DskipTests' in ldappcng, run this target to copy the conf and libs to grouper for gsh">
+    <mkdir dir="${ldappcng.dir}" />
+    <if>
+      <available file="${ldappcng.basedir}/target/ldappcng-${version}-bin.zip" />
+      <then>
+        <unzip src="${ldappcng.basedir}/target/ldappcng-${version}-bin.zip" dest="${ldappcng.dir}" />
+      </then>
+      <elseif>
+        <available file="${ldappcng.basedir}/target/ldappcng-${version}-SNAPSHOT-bin.zip" />
+        <then>
+          <unzip src="${ldappcng.basedir}/target/ldappcng-${version}-SNAPSHOT-bin.zip" dest="${ldappcng.dir}" />
+          <move file="${ldappcng.dir}/ldappcng-${version}-SNAPSHOT" tofile="${ldappcng.dir}/ldappcng-${version}" />
+        </then>
+      </elseif>
+      <else>
+        <echo message="Could not find ldappcng binary package, try 'mvn package -DskipTests' in ${ldappcng.basedir}" />
+      </else>
+    </if>
+
     <copy todir="lib/custom">
-      <fileset dir="${ldappcng.basedir}/lib/apacheds">
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${ldappcng.basedir}/lib/ldappc" >
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${ldappcng.basedir}/lib/shibboleth" >
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${ldappcng.basedir}/lib/shibboleth/endorsed" >
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${ldappcng.basedir}/lib/test" >
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${ldappcng.basedir}/lib/test/shibboleth" >
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${ldappcng.basedir}/lib/vt-ldap" >
-        <include name="*.jar"/>
-      </fileset>
-      <fileset dir="${ldappcng.basedir}/dist/" >
-        <include name="ldappcng.jar"/>
+      <fileset dir="${ldappcng.dir}/ldappcng-${version}/lib">
+        <include name="*.jar" />
+        <exclude name="grouper*.jar" />
+        <exclude name="subject*.jar" />
+        <exclude name="morphString*.jar" />
       </fileset>
     </copy>
     <copy todir="confCustom">
-      <fileset dir="${ldappcng.basedir}/conf" />
-      <fileset dir="${ldappcng.basedir}/src/main/resources" />
+      <fileset dir="${ldappcng.dir}/ldappcng-${version}/conf" />
     </copy>
+
   </target>
   
   <!-- target: compile -->
