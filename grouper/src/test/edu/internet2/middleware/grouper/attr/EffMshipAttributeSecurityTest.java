@@ -193,6 +193,8 @@ public class EffMshipAttributeSecurityTest extends GrouperTest {
     assertEquals(1, attributeDelegate.retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, attributeDelegate.retrieveAssignments(attributeDefName2_2).size());
     
+    assertEquals(3, attributeDelegate.retrieveAssignments().size());
+
     assertTrue(attributeDelegate.removeAttribute(attributeDefName1_1).isChanged());
     
     assertFalse(attributeDelegate.hasAttribute(attributeDefName1_1));

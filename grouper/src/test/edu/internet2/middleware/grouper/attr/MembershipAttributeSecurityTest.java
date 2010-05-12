@@ -32,8 +32,8 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new MembershipAttributeSecurityTest("testGrouperSystem"));
-    TestRunner.run(MembershipAttributeSecurityTest.class);
+    TestRunner.run(new MembershipAttributeSecurityTest("testGrouperSystem"));
+    //TestRunner.run(MembershipAttributeSecurityTest.class);
 
   }
 
@@ -189,6 +189,8 @@ public class MembershipAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.membership.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.membership.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
+    assertEquals(3, this.membership.getAttributeDelegate().retrieveAssignments().size());
+
     assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
     assertFalse(this.membership.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     assertTrue(this.membership.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());

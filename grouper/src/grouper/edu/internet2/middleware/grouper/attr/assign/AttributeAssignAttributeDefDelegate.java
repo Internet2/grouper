@@ -187,5 +187,23 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
     return this.attributeDef;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeAssignsByOwner()
+   */
+  @Override
+  Set<AttributeAssign> retrieveAttributeAssignsByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findAttributeDefAttributeAssignments(null, null, null, 
+          GrouperUtil.toSet(this.attributeDef.getId()), null, null, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeDefNamesByOwner()
+   */
+  @Override
+  Set<AttributeDefName> retrieveAttributeDefNamesByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findAttributeDefAttributeDefNames(null, null, null, GrouperUtil.toSet(this.attributeDef.getId()),null, true);
+  }
 
 }

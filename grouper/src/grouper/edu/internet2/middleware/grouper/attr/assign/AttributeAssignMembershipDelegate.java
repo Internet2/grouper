@@ -175,5 +175,23 @@ public class AttributeAssignMembershipDelegate extends AttributeAssignBaseDelega
     return this.membership;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeAssignsByOwner()
+   */
+  @Override
+  Set<AttributeAssign> retrieveAttributeAssignsByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findMembershipAttributeAssignments(null, null, null, 
+          GrouperUtil.toSet(this.membership.getImmediateMembershipId()), null, null, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeDefNamesByOwner()
+   */
+  @Override
+  Set<AttributeDefName> retrieveAttributeDefNamesByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findMembershipAttributeDefNames(null, null, null, GrouperUtil.toSet(this.membership.getImmediateMembershipId()),null, true);
+  }
 
 }

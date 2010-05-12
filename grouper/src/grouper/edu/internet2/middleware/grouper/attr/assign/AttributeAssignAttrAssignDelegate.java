@@ -181,4 +181,21 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
     return this.attributeAssignToAssignTo;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeAssignsByOwner()
+   */
+  @Override
+  Set<AttributeAssign> retrieveAttributeAssignsByOwner() {
+    throw new RuntimeException("This is not implemented");
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeDefNamesByOwner()
+   */
+  @Override
+  Set<AttributeDefName> retrieveAttributeDefNamesByOwner() {
+    throw new RuntimeException("This is not implemented");
+  }
+
 }

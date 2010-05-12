@@ -139,7 +139,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
   Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefId(
       String attributeDefId) {
     return GrouperDAOFactory.getFactory()
-    .getAttributeAssign().findByGroupIdAndAttributeDefId(this.group.getUuid(), attributeDefId);
+      .getAttributeAssign().findByGroupIdAndAttributeDefId(this.group.getUuid(), attributeDefId);
   }
 
   /**
@@ -169,6 +169,25 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
   @Override
   public AttributeAssignable getAttributeAssignable() {
     return this.group;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeAssignsByOwner()
+   */
+  @Override
+  Set<AttributeAssign> retrieveAttributeAssignsByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeAssignments(null, null, null, 
+          GrouperUtil.toSet(this.group.getUuid()), null, null, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeDefNamesByOwner()
+   */
+  @Override
+  Set<AttributeDefName> retrieveAttributeDefNamesByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findGroupAttributeDefNames(null, null, null, GrouperUtil.toSet(this.group.getId()),null, true);
   }
 
 

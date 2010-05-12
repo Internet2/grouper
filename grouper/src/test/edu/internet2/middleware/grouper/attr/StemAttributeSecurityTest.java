@@ -30,7 +30,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new StemAttributeSecurityTest("testSecuritySubj5"));
+    TestRunner.run(new StemAttributeSecurityTest("testGrouperSystem"));
   }
 
   /** grouper sesion */
@@ -178,6 +178,8 @@ public class StemAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
+    assertEquals(3, this.stem.getAttributeDelegate().retrieveAssignments().size());
+
     assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
     assertFalse(this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     assertTrue(this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());

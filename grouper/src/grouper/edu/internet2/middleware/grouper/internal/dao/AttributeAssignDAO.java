@@ -418,6 +418,113 @@ public interface AttributeAssignDAO extends GrouperDAO {
    */
   public Set<AttributeAssign> findAssignmentsOnAssignments(Collection<AttributeAssign> attributeAssigns, 
       AttributeAssignType attributeAssignType, Boolean enabled);
-  
+
+  /**
+   * securely search for attribute def names.  need to pass in either the assign ids, def ids, def name ids, or group ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param groupIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @return the assignments
+   */
+  public Set<AttributeDefName> findGroupAttributeDefNames(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> groupIds, Collection<String> actions, Boolean enabled);
+
+  /**
+   * securely search for attribute def names.  need to pass in either the assign ids, def ids, def name ids, or member ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param memberIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @return the assignments
+   */
+  public Set<AttributeDefName> findMemberAttributeDefNames(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> memberIds, Collection<String> actions, 
+      Boolean enabled);
+
+  /**
+   * securely search for attribute def names.  need to pass in either the assign ids, def ids, def name ids, or membership ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param membershipIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @return the assignments
+   */
+  public Set<AttributeDefName> findMembershipAttributeDefNames(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> membershipIds, Collection<String> actions, 
+      Boolean enabled);
+
+  /**
+   * securely search for attribute def names.  need to pass in either the assign ids, def ids, def name ids, or stem ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param stemIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @return the assignments
+   */
+  public Set<AttributeDefName> findStemAttributeDefNames(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> stemIds, Collection<String> actions, 
+      Boolean enabled);
+
+  /**
+   * securely search for attribute def names.  need to pass in either the assign ids, def ids, def name ids, or membership ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param groupIdsAndMemberIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @return the assignments
+   */
+  public Set<AttributeDefName> findAnyMembershipAttributeDefNames(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<MultiKey> groupIdsAndMemberIds, Collection<String> actions, 
+      Boolean enabled);
+
+  /**
+   * securely search for attributeDefNames.  need to pass in either the assign ids, def ids, def name ids, or attribute def assign to ids
+   * cannot have more than 100 bind variables
+   * @param attributeAssignIds
+   * @param attributeDefIds optional
+   * @param attributeDefNameIds mutually exclusive with attributeDefIds
+   * @param attributeDefAssignToIds optional
+   * @param actions (null means all actions)
+   * @param enabled (null means all, true means enabled, false means disabled)
+   * @return the assignments
+   */
+  public Set<AttributeDefName> findAttributeDefAttributeDefNames(
+      Collection<String> attributeAssignIds,
+      Collection<String> attributeDefIds, 
+      Collection<String> attributeDefNameIds,
+      Collection<String> attributeDefAssignToIds, Collection<String> actions, 
+      Boolean enabled);
+
   
 }

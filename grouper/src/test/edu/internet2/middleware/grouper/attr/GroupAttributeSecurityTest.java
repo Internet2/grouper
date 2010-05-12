@@ -30,8 +30,8 @@ public class GroupAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new GroupAttributeSecurityTest("assignPrivilegeToGroup"));
-    TestRunner.run(GroupAttributeSecurityTest.class);
+    TestRunner.run(new GroupAttributeSecurityTest("testGrouperSystem"));
+    //TestRunner.run(GroupAttributeSecurityTest.class);
   }
 
   /** grouper sesion */
@@ -185,6 +185,9 @@ public class GroupAttributeSecurityTest extends GrouperTest {
     assertEquals(0, this.group.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
     assertEquals(1, this.group.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.group.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
+    
+    assertEquals(3, this.group.getAttributeDelegate().retrieveAssignments().size());
+    
     
     assertTrue(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
     assertFalse(this.group.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());

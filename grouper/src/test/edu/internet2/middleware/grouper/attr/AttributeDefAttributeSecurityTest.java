@@ -29,7 +29,7 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefAttributeSecurityTest("testSecuritySubj7"));
+    TestRunner.run(new AttributeDefAttributeSecurityTest("testGrouperSystem"));
   }
 
   /** grouper sesion */
@@ -177,6 +177,8 @@ public class AttributeDefAttributeSecurityTest extends GrouperTest {
     assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_1).size());
     assertEquals(1, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments(attributeDefName2_2).size());
     
+    assertEquals(3, this.attributeDefToAssignTo.getAttributeDelegate().retrieveAssignments().size());
+
     assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_1).isChanged());
     assertFalse(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName1_2).isChanged());
     assertTrue(this.attributeDefToAssignTo.getAttributeDelegate().removeAttribute(attributeDefName2_1).isChanged());

@@ -189,5 +189,23 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     return this.stem;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeAssignsByOwner()
+   */
+  @Override
+  Set<AttributeAssign> retrieveAttributeAssignsByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findStemAttributeAssignments(null, null, null, 
+          GrouperUtil.toSet(this.stem.getUuid()), null, null, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeDefNamesByOwner()
+   */
+  @Override
+  Set<AttributeDefName> retrieveAttributeDefNamesByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findStemAttributeDefNames(null, null, null, GrouperUtil.toSet(this.stem.getUuid()),null, true);
+  }
 
 }

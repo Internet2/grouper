@@ -361,6 +361,12 @@ public abstract class AttributeAssignBaseDelegate {
   abstract Set<AttributeAssign> retrieveAttributeAssignsByOwnerAndAttributeDefId(String attributeDefId);
 
   /**
+   * get attribute assigns by owner and attribute def id
+   * @return set of assigns or empty if none there
+   */
+  abstract Set<AttributeAssign> retrieveAttributeAssignsByOwner();
+
+  /**
    * 
    * @param attributeDefNameId
    * @return if added or already there
@@ -842,6 +848,27 @@ public abstract class AttributeAssignBaseDelegate {
   
     return new AttributeAssignResult(true, attributeAssign);
   
+  }
+
+  /**
+   * get attribute def names by owner and attribute def id
+   * @return set of def names or empty if none there
+   */
+  abstract Set<AttributeDefName> retrieveAttributeDefNamesByOwner();
+
+  /**
+   * @return the attributes for an owner
+   */
+  public Set<AttributeDefName> retrieveAttributes() {
+    return retrieveAttributeDefNamesByOwner();
+  }
+
+  /**
+   * find the assignments of any name associated with an owner
+   * @return the set of assignments or the empty set
+   */
+  public Set<AttributeAssign> retrieveAssignments() {
+    return retrieveAttributeAssignsByOwner();
   }
 
   

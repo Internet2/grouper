@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
@@ -214,5 +215,23 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
     return new GroupMember(this.group, this.member);
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeAssignsByOwner()
+   */
+  @Override
+  Set<AttributeAssign> retrieveAttributeAssignsByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findAnyMembershipAttributeAssignments(null, null, null, 
+          GrouperUtil.toSet(new MultiKey(this.group.getId(), this.member.getUuid())), null, null, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate#retrieveAttributeDefNamesByOwner()
+   */
+  @Override
+  Set<AttributeDefName> retrieveAttributeDefNamesByOwner() {
+    return GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findAnyMembershipAttributeDefNames(null, null, null, GrouperUtil.toSet(new MultiKey(this.group.getId(), this.member.getUuid())),null, true);
+  }
 
 }
