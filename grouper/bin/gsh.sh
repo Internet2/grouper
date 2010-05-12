@@ -106,13 +106,8 @@ GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/grouper.jar
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/grouper/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/custom/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/jdbcSamples/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/shibboleth/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/ldappc/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/vt-ldap/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/apacheds/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/ant/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/test/*
-GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/lib/test/shibboleth/*
 GROUPER_CP=${GROUPER_CP}:${GROUPER_HOME}/dist/lib/test/*
 
 # Append resources

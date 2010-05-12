@@ -83,10 +83,6 @@ rem Append third party .jars
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/grouper/*
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/custom/*
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/jdbcSamples/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/shibboleth/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/ldappc/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/vt-ldap/*
-set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/apacheds/*
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/ant/*
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/lib/test/*
 set GROUPER_CP=%GROUPER_CP%;%GROUPER_HOME%/dist/lib/test/*
