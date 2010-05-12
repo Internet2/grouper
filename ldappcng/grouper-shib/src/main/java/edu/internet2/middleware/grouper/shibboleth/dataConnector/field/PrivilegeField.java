@@ -14,7 +14,6 @@
 
 package edu.internet2.middleware.grouper.shibboleth.dataConnector.field;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
