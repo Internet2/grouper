@@ -10,8 +10,13 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.GenericApplicationContext;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
 public class GroupDataConnectorTests extends BaseDataConnectorTest {
@@ -23,8 +28,8 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
   }
 
   public static void main(String[] args) {
-    //TestRunner.run(GroupDataConnectorTests.class);
-    TestRunner.run(new GroupDataConnectorTests("testAllA"));
+    TestRunner.run(GroupDataConnectorTests.class);
+    // TestRunner.run(new GroupDataConnectorTests("testAttributeDef"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Group group, AttributeMap correctMap) {
@@ -86,11 +91,11 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
     correctAttributesA.setAttribute("members", memberSubj0);
     correctAttributesA.setAttribute("members:all", memberSubj0);
     correctAttributesA.setAttribute("members:immediate", memberSubj0);
-    
+
     correctAttributesA.setAttribute("groups", groupB);
     correctAttributesA.setAttribute("groups:all", groupB);
     correctAttributesA.setAttribute("groups:immediate", groupB);
-    
+
     correctAttributesA.setAttribute("admins", SubjectTestHelper.SUBJ3);
 
     runResolveTest("testAll", groupA, correctAttributesA);
@@ -258,7 +263,7 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
       throw new RuntimeException(e);
     }
   }
-  
+
   public void testFilterMinus() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
@@ -281,7 +286,7 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
       throw new RuntimeException(e);
     }
   }
-  
+
   public void testFilterMinusNotFound() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
@@ -371,7 +376,7 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
       throw new RuntimeException(e);
     }
   }
-  
+
   public void testMatchFilterMinus() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(RESOLVER_CONFIG);
@@ -395,6 +400,24 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void testAttributeDef() {
+    AttributeDef attributeDef = parentStem.addChildAttributeDef("attrDef", AttributeDefType.attr);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.setMultiValued(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+
+    AttributeDefName attributeDefName = parentStem.addChildAttributeDefName(attributeDef, "mailAlternateAddress",
+        "mailAlternateAddress");
+
+    groupA.getAttributeValueDelegate().assignValuesString(attributeDefName.getName(),
+        GrouperUtil.toSet("foo@memphis.edu", "bar@memphis.edu"), true);
+
+    correctAttributesA.setAttribute("parentStem:mailAlternateAddress", "foo@memphis.edu", "bar@memphis.edu");
+
+    runResolveTest("testAttributesOnly", groupA, correctAttributesA);
   }
 
 }

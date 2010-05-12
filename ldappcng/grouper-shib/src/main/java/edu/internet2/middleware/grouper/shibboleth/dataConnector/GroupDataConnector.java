@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.GroupsField;
@@ -55,8 +57,7 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
       throws AttributeResolutionException {
 
     Map<String, BaseAttribute> attributes = (Map<String, BaseAttribute>) GrouperSession.callbackGrouperSession(
-        getGrouperSession(),
-        new GrouperSessionHandler() {
+        getGrouperSession(), new GrouperSessionHandler() {
 
           public Map<String, BaseAttribute> callback(GrouperSession grouperSession) throws GrouperSessionException {
 
@@ -99,6 +100,17 @@ public class GroupDataConnector extends BaseGrouperDataConnector {
                 BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeName);
                 basicAttribute.setValues(Arrays.asList(new String[] { value }));
                 attributes.put(attributeName, basicAttribute);
+              }
+            }
+
+            // attribute defs
+            Set<AttributeDefName> attributeDefNames = group.getAttributeDelegate().retrieveAttributes();
+            for (AttributeDefName attributeDefName : attributeDefNames) {
+              List<String> values = group.getAttributeValueDelegate().retrieveValuesString(attributeDefName.getName());
+              if (values != null && !values.isEmpty()) {
+                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName.getName());
+                basicAttribute.setValues(values);
+                attributes.put(attributeDefName.getName(), basicAttribute);
               }
             }
 
