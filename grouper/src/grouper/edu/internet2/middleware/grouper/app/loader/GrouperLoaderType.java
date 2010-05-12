@@ -771,7 +771,7 @@ public enum GrouperLoaderType {
               
               //if the sequence number is not set
               if (changeLogConsumer.getLastSequenceProcessed() == null) {
-                changeLogConsumer.setLastSequenceProcessed(GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(), 0l));
+                changeLogConsumer.setLastSequenceProcessed(GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(true), 0l));
                 GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
               }
               

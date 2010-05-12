@@ -794,7 +794,7 @@ public class ChangeLogEntry extends GrouperAPI {
    */
   private synchronized static long nextSequenceNumber() {
     if (nextSequenceNumber == null) {
-      nextSequenceNumber = maxSequenceNumber();
+      nextSequenceNumber = maxSequenceNumber(true);
       if (nextSequenceNumber == null) {
         nextSequenceNumber = 0l;
       }
@@ -805,11 +805,30 @@ public class ChangeLogEntry extends GrouperAPI {
 
   /**
    * max sequence number in DB
+   * @param considerConsumers if the consumers should be considered
    * @return the max sequence number (or null if not there)
    */
-  public static Long maxSequenceNumber() {
-    return HibernateSession.byHqlStatic().createQuery(
+  public static Long maxSequenceNumber(boolean considerConsumers) {
+    Long result = HibernateSession.byHqlStatic().createQuery(
         "select max(sequenceNumber) from ChangeLogEntryEntity").uniqueResult(Long.class);
+    if (considerConsumers) {
+      Long resultConsumer = HibernateSession.byHqlStatic().createQuery(
+        "select max(lastSequenceProcessed) from ChangeLogConsumer").uniqueResult(Long.class);
+      
+      //if we have a consumer
+      if (resultConsumer != null) {
+  
+        //if results
+        if (result != null) {
+          if (result > resultConsumer) {
+            return result;
+          }
+        }
+        //return consumer if better than result
+        return resultConsumer;
+      }
+    }
+    return result;
   }
   
   /**
