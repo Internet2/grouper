@@ -1735,8 +1735,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
-    String selectPrefix = "select distinct aa ";
-    String countPrefix = "select count(distinct aa) ";
+    String selectPrefix = "select distinct adn ";
+    String countPrefix = "select count(distinct adn) ";
     
     StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
     
@@ -1852,8 +1852,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
-    String selectPrefix = "select distinct aa ";
-    String countPrefix = "select count(distinct aa) ";
+    String selectPrefix = "select distinct adn ";
+    String countPrefix = "select count(distinct adn) ";
     
     StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn, ImmediateMembershipEntry ime ");
     
@@ -1981,8 +1981,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
-    String selectPrefix = "select distinct aa ";
-    String countPrefix = "select count(distinct aa) ";
+    String selectPrefix = "select distinct adn ";
+    String countPrefix = "select count(distinct adn) ";
     
     StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
     
@@ -2098,8 +2098,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
-    String selectPrefix = "select distinct aa ";
-    String countPrefix = "select count(distinct aa) ";
+    String selectPrefix = "select distinct adn ";
+    String countPrefix = "select count(distinct adn) ";
     
     StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn, MembershipEntry me ");
     
@@ -2225,8 +2225,8 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
-    String selectPrefix = "select distinct aa ";
-    String countPrefix = "select count(distinct aa) ";
+    String selectPrefix = "select distinct adn ";
+    String countPrefix = "select count(distinct adn) ";
     
     StringBuilder sqlTables = new StringBuilder(" from AttributeAssign aa, AttributeDefName adn ");
     
