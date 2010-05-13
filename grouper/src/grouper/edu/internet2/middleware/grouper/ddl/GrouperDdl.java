@@ -2046,6 +2046,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_assn_action_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_priv_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_change_log_entry_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
@@ -2057,8 +2058,11 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_roles_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_lw_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_attrdef_lw_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_attr_flat_lw_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_group_flat_lw_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_flat_lw_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_lw_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
     
@@ -2072,7 +2076,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_stems_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
-    
+        
   }
 
   /**
@@ -3085,7 +3089,127 @@ public enum GrouperDdl implements DdlVersionable {
                + "from grouper_audit_type gat, grouper_audit_entry gae "
                + "where gat.id = gae.audit_type_id ");
     }
-    
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_change_log_entry_v",
+        "Join of change log entry and change log type",
+        GrouperUtil.toSet("created_on", "change_log_category", "action_name", "sequence_number",
+             "label_string01", "string01", "label_string02", "string02",
+             "label_string03", "string03", "label_string04", "string04",
+             "label_string05", "string05", "label_string06", "string06",
+             "label_string07", "string07", "label_string08", "string08",
+             "label_string09", "string09", "label_string10", "string10",
+             "label_string11", "string11", "label_string12", "string12",
+             "context_id", "change_log_type_id"),
+         GrouperUtil.toSet(
+             "created_on: when this change happened, number of millis since 1970", 
+             "change_log_category: category of this change", 
+             "action_name: action of this change", 
+             "sequence_number: increasing integer of each change",
+             "label_string01: label of first string", 
+             "string01: value of first string", 
+             "label_string02: label of second string", 
+             "string02: value of second string",
+             "label_string03: label of third string", 
+             "string03: value of third string", 
+             "label_string04: label of fourth string", 
+             "string04: value of fourth string",
+             "label_string05: label of fifth string", 
+             "string05: value of fifth string", 
+             "label_string06: label of sixth string", 
+             "string06: value of sixth string",
+             "label_string07: label of seventh string", 
+             "string07: value of seventh string", 
+             "label_string08: label of eighth string", 
+             "string08: value of eighth string",
+             "label_string09: label of ninth string", 
+             "string09: value of ninth string", 
+             "label_string10: label of tenth string", 
+             "string10: value of tenth string",
+             "label_string11: label of eleventh string", 
+             "string11: value of eleventh string", 
+             "label_string12: label of twelfth string", 
+             "string12: value of twelfth string",
+             "context_id: links this record with an audit record", 
+             "change_log_type_id: id of this category and name"),
+             "SELECT gcle.created_on, gclt.change_log_category, gclt.action_name, gcle.sequence_number, " +
+             "       gclt.label_string01, gcle.string01, gclt.label_string02, gcle.string02, " +
+             "       gclt.label_string03, gcle.string03, gclt.label_string04, gcle.string04, " +
+             "       gclt.label_string05, gcle.string05, gclt.label_string06, gcle.string06, " +
+             "       gclt.label_string07, gcle.string07, gclt.label_string08, gcle.string08, " +
+             "       gclt.label_string09, gcle.string09, gclt.label_string10, gcle.string10, " +
+             "       gclt.label_string11, gcle.string11, gclt.label_string12, gcle.string12, " +
+             "       gcle.context_id, gcle.change_log_type_id " +
+             "  FROM grouper_change_log_type gclt, grouper_change_log_entry gcle " +
+             " WHERE gclt.id = gcle.change_log_type_id");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_attr_flat_lw_v",
+        "Lightweight view of memberships on attribute definitions, i.e. the privileges of attribute definitions, on the flat tables",
+        GrouperUtil.toSet("subject_id", "subject_source", 
+            "attribute_def_name" , "list_name", "list_type",
+            "attribute_def_id"),
+         GrouperUtil.toSet(
+             "subject_id: subject id of the subject of the membership", 
+             "subject_source: source of the subject of this membership", 
+             "attribute_def_name: name of the attribute_def that this membership is on" , 
+             "list_name: list name of this membership e.g. attrViewers", 
+             "list_type: type of this membership, e.g. attributeDef",
+             "attribute_def_id: id of this attribute_def"),
+             "SELECT gm.subject_id, gm.subject_source, " +
+             "       gad.name as attribute_def_name, gf.name as list_name, gf.type as list_type, " +
+             "       gad.id as attribute_def_id " +
+             "  FROM grouper_flat_memberships gfm, " +
+             "       grouper_attribute_def gad, " +
+             "       grouper_fields gf, " +
+             "       grouper_members gm " +
+             " WHERE gfm.owner_stem_id = gad.id " +
+             "   AND gfm.field_id = gf.id " +
+             "   AND gfm.member_id = gm.id ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_group_flat_lw_v",
+        "Lightweight view of memberships on grouper, i.e. the members or privileges of groups, on the flat tables",
+        GrouperUtil.toSet("subject_id", "subject_source", 
+            "group_name" , "list_name", "list_type",
+            "group_id"),
+         GrouperUtil.toSet(
+             "subject_id: subject id of the subject of the membership", 
+             "subject_source: source of the subject of this membership", 
+             "group_name: name of the group that this membership is on" , 
+             "list_name: list name of this membership e.g. viewers", 
+             "list_type: type of this membership, e.g. list or access",
+             "group_id: id of this group"),
+             "SELECT gm.subject_id subject_id, gm.subject_source subject_source, " +
+             "       gg.name group_name, gf.name list_name, gf.type list_type, " +
+             "       gg.id group_id " +
+             "  FROM grouper_flat_memberships gfm, " +
+             "       grouper_groups gg, " +
+             "       grouper_fields gf, " +
+             "       grouper_members gm " +
+             " WHERE gfm.owner_group_id = gg.id " +
+             "   AND gfm.field_id = gf.id " +
+             "   AND gfm.member_id = gm.id ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_stem_flat_lw_v",
+        "Lightweight view of memberships on stems, i.e. the privileges of stem, on the flat tables",
+        GrouperUtil.toSet("subject_id", "subject_source", 
+            "stem_name" , "list_name", "list_type",
+            "stem_id"),
+         GrouperUtil.toSet(
+             "subject_id: subject id of the subject of the membership", 
+             "subject_source: source of the subject of this membership", 
+             "stem_name: name of the stem that this membership is on" , 
+             "list_name: list name of this membership e.g. creators or stemmers", 
+             "list_type: type of this membership, e.g. naming",
+             "stem_id: id of this stem"),
+             "SELECT gm.subject_id, gm.subject_source, " +
+             "       gs.name as stem_name, gf.name as list_name, gf.type as list_type, gs.id as stem_id " +
+             "  FROM grouper_flat_memberships gfm, " +
+             "       grouper_stems gs, " +
+             "       grouper_fields gf, " +
+             "       grouper_members gm " +
+             " WHERE gfm.owner_stem_id = gs.id " +
+             "   AND gfm.field_id = gf.id " +
+             "   AND gfm.member_id = gm.id ");
+
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attributes_v",
         "Join of groups and attributes with friendly names.  Attributes are name/value pairs for groups.  " +
         "Each group type is related to a set of 0 to many attributes, each attribute is related to one group type." +
@@ -6026,7 +6150,6 @@ public enum GrouperDdl implements DdlVersionable {
 
   /**
    * add flat tables
-   * @param ddlVersionBean
    * @param database
    */
   private static void addFlatTables(Database database) {
@@ -6157,6 +6280,11 @@ public enum GrouperDdl implements DdlVersionable {
     }
   }
   
+  /**
+   * 
+   * @param database
+   * @param ddlVersionBean
+   */
   private static void addGroupSetOwnerIdColumn(Database database, DdlVersionBean ddlVersionBean) {
     boolean tableExists = GrouperDdlUtils.assertTablesThere(false, false, GroupSet.TABLE_GROUPER_GROUP_SET);
      
