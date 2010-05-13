@@ -7,10 +7,12 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult.WsHasMemberLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Result of seeing if one subject is a member of a group.  The number of
@@ -60,7 +62,17 @@ public class WsHasMemberResult implements ResultMetadataHolder {
 
     this.wsSubject = new WsSubject(wsSubjectLookup);
 
-    Subject subject = wsSubjectLookup.retrieveSubject();
+    Subject subject = null;
+    
+    try {
+      subject = wsSubjectLookup.retrieveSubject();
+    } catch (SubjectNotFoundException snfe) {
+      //if we should do the old way
+      if (GrouperWsConfig.getPropertyBoolean("ws.hasMember.subjectNotFound.returnsError", false)) {
+        throw snfe;
+      }
+      //this is ok, let the result show
+    }
 
     // make sure the subject is there
     if (subject == null) {
@@ -171,7 +183,9 @@ public class WsHasMemberResult implements ResultMetadataHolder {
      * @return true if success
      */
     public boolean isSuccess() {
-      return this.equals(IS_MEMBER) || this.equals(IS_NOT_MEMBER);
+      return this.equals(IS_MEMBER) || this.equals(IS_NOT_MEMBER) 
+      || (!GrouperWsConfig.getPropertyBoolean("ws.hasMember.subjectNotFound.returnsError", false) 
+          && this.equals(SUBJECT_NOT_FOUND));
     }
     
     /** 

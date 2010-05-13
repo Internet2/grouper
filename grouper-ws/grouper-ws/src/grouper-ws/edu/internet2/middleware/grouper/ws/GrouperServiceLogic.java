@@ -2048,11 +2048,21 @@ public class GrouperServiceLogic {
             continue;
           }
   
-          boolean hasMember = memberFilter.hasMember(group, wsSubjectLookup
-              .retrieveSubject(), fieldName);
-          wsHasMemberResult.assignResultCode(hasMember ? WsHasMemberResultCode.IS_MEMBER
-              : WsHasMemberResultCode.IS_NOT_MEMBER);
-  
+          if (StringUtils.equals(wsHasMemberResult.getResultMetadata().getResultCode(), 
+              WsHasMemberResultCode.SUBJECT_NOT_FOUND.name())) {
+
+            wsHasMemberResult.assignResultCode(WsHasMemberResultCode.IS_NOT_MEMBER);
+            wsHasMemberResult.getResultMetadata().setResultCode2(WsHasMemberResultCode.SUBJECT_NOT_FOUND.name());
+
+          } else {
+
+            boolean hasMember = memberFilter.hasMember(group, wsSubjectLookup
+                .retrieveSubject(), fieldName);
+            wsHasMemberResult.assignResultCode(hasMember ? WsHasMemberResultCode.IS_MEMBER
+                : WsHasMemberResultCode.IS_NOT_MEMBER);
+
+          }
+          
         } catch (Exception e) {
           wsHasMemberResult.assignResultCodeException(e, wsSubjectLookup);
         }

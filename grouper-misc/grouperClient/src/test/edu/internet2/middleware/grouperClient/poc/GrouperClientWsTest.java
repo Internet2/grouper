@@ -73,7 +73,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAssignPermissionsAnyMembership"));
+    TestRunner.run(new GrouperClientWsTest("testHasMemberNotFound"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -3162,6 +3162,68 @@ public class GrouperClientWsTest extends GrouperTest {
 
   }
 
+  /**
+   * @throws Exception
+   */
+  public void testHasMemberNotFound() throws Exception {
+    
+    // make sure group exists
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group = Group.saveGroup(grouperSession, "aStem:aGroup", null,
+        "aStem:aGroup", "aGroup", null, null, true);
+
+    // give permissions
+    String wsUserLabel = GrouperClientUtils.propertiesValue(
+        "grouperClient.webService.user.label", true);
+    String wsUserString = GrouperClientUtils.propertiesValue(
+        "grouperClient.webService." + wsUserLabel, true);
+    Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
+
+    group.grantPriv(wsUser, AccessPrivilege.READ, false);
+    group.grantPriv(wsUser, AccessPrivilege.VIEW, false);
+
+    // add some subjects
+    group.addMember(SubjectTestHelper.SUBJ0, false);
+    group.addMember(SubjectTestHelper.SUBJ1, false);
+
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+
+    try {
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=rwjdfskjlwirwklj",
+                  " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, GrouperUtil.length(outputLines));
+
+      Pattern pattern = Pattern
+          .compile("^Index (\\d+): success: T: code: ([A-Z_]+): (.+): (false|true)$");
+      Matcher matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("0", matcher.group(1));
+      assertEquals("IS_NOT_MEMBER", matcher.group(2));
+      assertEquals("rwjdfskjlwirwklj", matcher.group(3));
+      assertEquals("false", matcher.group(4));
+
+    } finally {
+      System.setOut(systemOut);
+    }
+
+  }
+  
   /**
    * @throws Exception
    */
