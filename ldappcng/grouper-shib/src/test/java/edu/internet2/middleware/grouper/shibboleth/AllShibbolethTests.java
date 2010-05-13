@@ -22,8 +22,8 @@ public class AllShibbolethTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.shibboleth");
     //$JUnit-BEGIN$
-    //$JUnit-END$
     suite.addTest(AllShibDataConnectorTests.suite());
+    //$JUnit-END$    
     return suite;
   }
 

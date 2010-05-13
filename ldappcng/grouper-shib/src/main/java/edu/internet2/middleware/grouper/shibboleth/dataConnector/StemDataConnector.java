@@ -16,6 +16,8 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -25,6 +27,8 @@ import org.slf4j.Logger;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -123,6 +127,23 @@ public class StemDataConnector extends BaseGrouperDataConnector {
               BasicAttribute<String> parentStemNameAttr = new BasicAttribute<String>(PARENT_STEM_NAME_ATTR);
               parentStemNameAttr.setValues(GrouperUtil.toList(parentStem.getName()));
               attributes.put(parentStemNameAttr.getId(), parentStemNameAttr);
+            }
+            
+            // attribute defs
+            // TODO ClassCastException workaround Set<AttributeDefName> attributeDefNames =
+            // stem.getAttributeDelegate().retrieveAttributes();
+            Set<AttributeDefName> attributeDefNames = new HashSet<AttributeDefName>();
+            Set<AttributeAssign> attributeAssigns = stem.getAttributeDelegate().retrieveAssignments();
+            for (AttributeAssign attributeAssign : attributeAssigns) {
+              attributeDefNames.add(attributeAssign.getAttributeDefName());
+            }
+            for (AttributeDefName attributeDefName : attributeDefNames) {
+              List<String> values = stem.getAttributeValueDelegate().retrieveValuesString(attributeDefName.getName());
+              if (values != null && !values.isEmpty()) {
+                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName.getName());
+                basicAttribute.setValues(values);
+                attributes.put(attributeDefName.getName(), basicAttribute);
+              }
             }
 
             if (LOG.isDebugEnabled()) {

@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,6 +30,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -231,6 +234,22 @@ public class MemberDataConnector extends BaseGrouperDataConnector {
               BaseAttribute<Group> attr = privilegeField.getAttribute(subject);
               if (attr != null) {
                 attributes.put(privilegeField.getId(), attr);
+              }
+            }
+            
+            // attribute defs
+            // TODO ClassCastException workaround Set<AttributeDefName> attributeDefNames = member.getAttributeDelegate().retrieveAttributes();
+            Set<AttributeDefName> attributeDefNames = new HashSet<AttributeDefName>();
+            Set<AttributeAssign> attributeAssigns = member.getAttributeDelegate().retrieveAssignments();            
+            for(AttributeAssign attributeAssign : attributeAssigns) {
+              attributeDefNames.add(attributeAssign.getAttributeDefName());
+            }
+            for (AttributeDefName attributeDefName : attributeDefNames) {
+              List<String> values = member.getAttributeValueDelegate().retrieveValuesString(attributeDefName.getName());
+              if (values != null && !values.isEmpty()) {
+                BasicAttribute<String> basicAttribute = new BasicAttribute<String>(attributeDefName.getName());
+                basicAttribute.setValues(values);
+                attributes.put(attributeDefName.getName(), basicAttribute);
               }
             }
 

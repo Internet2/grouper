@@ -8,6 +8,10 @@ import org.slf4j.Logger;
 import org.springframework.context.support.GenericApplicationContext;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
@@ -23,7 +27,7 @@ public class StemDataConnectorTests extends BaseDataConnectorTest {
 
   public static void main(String[] args) {
     TestRunner.run(StemDataConnectorTests.class);
-    // TestRunner.run(new StemDataConnectorTests("testRootStem"));
+    // TestRunner.run(new StemDataConnectorTests("testAttributeDef"));
   }
   
   private void runResolveTest(String groupDataConnectorName, Stem stem, AttributeMap correctMap) {
@@ -70,6 +74,24 @@ public class StemDataConnectorTests extends BaseDataConnectorTest {
   
   public void testAllChildStem() {
     runResolveTest("testAll", childStem, correctAttributesChildStem);
+  }
+  
+  public void testAttributeDef() {
+    AttributeDef attributeDef = parentStem.addChildAttributeDef("attrDef", AttributeDefType.attr);
+    attributeDef.setAssignToStem(true);
+    attributeDef.setMultiValued(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+
+    AttributeDefName attributeDefName = parentStem.addChildAttributeDefName(attributeDef, "stemAttrDef",
+        "stemAttrDef");
+
+    parentStem.getAttributeValueDelegate().assignValuesString(attributeDefName.getName(),
+        GrouperUtil.toSet("value1", "value2"), true);
+    
+    correctAttributesParentStem.setAttribute("parentStem:stemAttrDef", "value1", "value2");
+
+    runResolveTest("testAll", parentStem, correctAttributesParentStem);
   }
   
 }

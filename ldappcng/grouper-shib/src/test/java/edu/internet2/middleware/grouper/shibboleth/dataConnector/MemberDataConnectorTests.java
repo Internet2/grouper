@@ -10,6 +10,10 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.GenericApplicationContext;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -27,7 +31,7 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
 
   public static void main(String[] args) {
     TestRunner.run(MemberDataConnectorTests.class);
-    //TestRunner.run(new MemberDataConnectorTests("testUnknownSource"));
+    // TestRunner.run(new MemberDataConnectorTests("testAttributeDef"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Subject subject, AttributeMap correctMap) {
@@ -193,6 +197,30 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
     correct.addAttribute("admins", groupA);
 
     runResolveTest("testAdmins", SubjectTestHelper.SUBJ3, correct);
+  }
+  
+  public void testAttributeDef() {
+    memberSubj0.getAttributeDelegate().retrieveAttributes();
+    
+    AttributeDef attributeDef = parentStem.addChildAttributeDef("attrDef", AttributeDefType.attr);
+    attributeDef.setAssignToMember(true);
+    attributeDef.setMultiValued(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+
+    AttributeDefName attributeDefName = parentStem.addChildAttributeDefName(attributeDef, "mailAlternateAddress",
+        "mailAlternateAddress");
+
+    memberSubj0.getAttributeValueDelegate().assignValuesString(attributeDefName.getName(),
+        GrouperUtil.toSet("foo@memphis.edu", "bar@memphis.edu"), true);
+
+    AttributeMap correct = new AttributeMap();
+    correct.setAttribute("id", SubjectTestHelper.SUBJ0_ID);
+    correct.setAttribute("name", SubjectTestHelper.SUBJ0_NAME);
+    correct.setAttribute("description", "description." + SubjectTestHelper.SUBJ0_ID);   
+    correct.setAttribute("parentStem:mailAlternateAddress", "foo@memphis.edu", "bar@memphis.edu");
+
+    runResolveTest("testAttributesOnly", SubjectTestHelper.SUBJ0, correct);      
   }
 
 }
