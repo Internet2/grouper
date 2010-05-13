@@ -50,8 +50,8 @@ public class PSPLdapTest extends BasePSPProvisioningTest {
   public static final String DATA_PATH = CONFIG_PATH + "/data/";
 
   public static void main(String[] args) {
-    TestRunner.run(PSPLdapTest.class);
-    // TestRunner.run(new PSPLdapTest("testLookupNoSuchIdentifier"));
+    // TestRunner.run(PSPLdapTest.class);
+    TestRunner.run(new PSPLdapTest("testLookupNoSuchIdentifier"));
   }
 
   public PSPLdapTest(String name) {

@@ -5,6 +5,7 @@
 package edu.internet2.middleware.ldappc.spml;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.ldappc.spml.config.AllLdappcSpmlConfigTests;
 import edu.internet2.middleware.ldappc.spml.request.AllLdappcSpmlRequestTests;
@@ -13,7 +14,7 @@ import edu.internet2.middleware.ldappc.spml.request.AllLdappcSpmlRequestTests;
 /**
  *
  */
-public class AllLdappcSpmlTests {
+public class AllLdappcSpmlTests extends TestCase {
 
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.ldappc.spml");

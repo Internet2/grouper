@@ -86,9 +86,10 @@ public abstract class BaseProvisioningTest extends GrouperTest {
     base = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.base");
     LOG.debug("base {}", base);
 
+    String ldapUrl = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.ldapUrl");
+    
     if (useEmbedded()) {
       try {
-        String ldapUrl = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.ldapUrl");
         int port = new LdapURL(ldapUrl).getPort();
         EmbeddedApacheDS embeddedApacheDS = new EmbeddedApacheDS(port);
         embeddedApacheDS.startup();
@@ -98,6 +99,11 @@ public abstract class BaseProvisioningTest extends GrouperTest {
         fail("Unable to startup embedded ApacheDS server : " + e.getMessage());
       }
     }
+    
+    // TODO prompting fails under maven
+    // String user = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.serviceUser");        
+    // GrouperUtil.promptUserAboutChanges("test ldap and destroy everything under '"
+       //     + base + "'", true, "ldap", ldapUrl, user);
   }
 
   public void tearDown() {

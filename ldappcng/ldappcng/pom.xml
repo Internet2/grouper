@@ -9,7 +9,7 @@
 
     <name>LDAP Provisioning Connector - New/Next Generation</name>
     <description>
-        A provisioner.
+        Provisions group memberships from Grouper (or other DataConnector) to an LDAP directory (or other SPML target).
     </description>
 
     <repositories>
@@ -17,6 +17,15 @@
             <id>local</id>
             <name>local repository</name>
             <url>file://${basedir}/repository</url>
+        </repository>
+        <repository>
+            <id>shibboleth.internet2.edu</id>
+            <name>Internet2</name>
+            <layout>default</layout>
+            <url>http://shibboleth.internet2.edu/downloads/maven2</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>vt-middleware.googlecode.com.repo</id>
@@ -33,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
-            <artifactId>grouper-shibboleth</artifactId>
+            <artifactId>grouper-shib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -44,12 +53,15 @@
         <dependency>
             <groupId>edu.internet2.middleware</groupId>
             <artifactId>shibboleth-common</artifactId>
+            <!-- Waiting for 1.2.0. -->
             <version>1.1.4</version>
             <exclusions>
+                <!-- Exclude logback in lieu of sl4j-log4j12 binding. -->
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
+                <!-- Won't be necessary for 1.2.0 -->
                 <exclusion>
                     <groupId>edu.vt.middleware</groupId>
                     <artifactId>vt-ldap</artifactId>
@@ -66,10 +78,6 @@
             <artifactId>shared-ldap</artifactId>
             <version>0.9.15</version>
         </dependency>
-        <!--
-            <dependency> <groupId>org.apache.directory.shared</groupId> <artifactId>shared-ldif</artifactId>
-            <version>0.9.19</version> </dependency>
-        -->
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core</artifactId>
@@ -80,10 +88,6 @@
             <artifactId>apacheds-protocol-ldap</artifactId>
             <version>1.5.5</version>
         </dependency>
-        <!--
-            <dependency> <groupId>org.apache.directory.server</groupId> <artifactId>apacheds-jdbm-partition</artifactId>
-            <version>1.5.7</version> </dependency>
-        -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -111,6 +115,12 @@
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <filtering>true</filtering>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -126,9 +136,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <includes>
-                        <include>**/AllLdappcSpmlTests.java</include>
-                    </includes>
+                    <argLine>-Xmx512m</argLine>
                     <additionalClasspathElements>
                         <additionalClasspathElement>../grouper_trunk/confForTest</additionalClasspathElement>
                         <additionalClasspathElement>../grouper_trunk/conf</additionalClasspathElement>
@@ -137,33 +145,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/libForGrouper</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                            <excludeGroupIds>edu.internet2.middleware.grouper,edu.internet2.middleware.subject</excludeGroupIds>
-                            <stripVersion>true</stripVersion>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <descriptors>
                         <descriptor>src/main/assembly/bin.xml</descriptor>
-                        <!--  <descriptor>src/main/assembly/src.xml</descriptor> -->
+                        <descriptor>src/main/assembly/src.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>
@@ -178,5 +164,234 @@
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+                    </links>
+                    <quiet>true</quiet>
+                    <author>false</author>
+                    <version>true</version>
+                    <doctitle>${project.name} ${project.version} Java API.</doctitle>
+                    <windowtitle>${project.name} ${project.version} Java API.</windowtitle>
+                    <overview>src/main/java/overview.html</overview>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <profiles>
+        <profile>
+            <id>ldappc</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <includes>
+                                <include>**/AllLdappcJunitTests.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>ldappcng</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <includes>
+                                <include>**/AllLdappcSpmlTests.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>EmbeddedApacheDS</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <testUseEmbeddedLdap>true</testUseEmbeddedLdap>
+                <testUseActiveDirectory>false</testUseActiveDirectory>
+                <base>dc=testgrouper,dc=edu</base>
+                <groupObjectClass>groupOfNames</groupObjectClass>
+                <edu.vt.middleware.ldap.ldapUrl>ldap://127.0.0.1:10388</edu.vt.middleware.ldap.ldapUrl>
+                <edu.vt.middleware.ldap.base>dc=testgrouper,dc=edu</edu.vt.middleware.ldap.base>
+                <edu.vt.middleware.ldap.authtype>simple</edu.vt.middleware.ldap.authtype>
+                <edu.vt.middleware.ldap.serviceUser>uid=admin,ou=system</edu.vt.middleware.ldap.serviceUser>
+                <edu.vt.middleware.ldap.serviceCredential>secret</edu.vt.middleware.ldap.serviceCredential>
+                <edu.vt.middleware.ldap.ssl>false</edu.vt.middleware.ldap.ssl>
+                <edu.vt.middleware.ldap.tls>false</edu.vt.middleware.ldap.tls>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/ad/*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>AD</id>
+            <properties>
+                <testUseEmbeddedLdap>false</testUseEmbeddedLdap>
+                <testUseActiveDirectory>true</testUseActiveDirectory>
+                <base>dc=testgrouper,dc=edu</base>
+                <groupObjectClass>group</groupObjectClass>
+                <edu.vt.middleware.ldap.ldapUrl>ldaps://127.0.0.1:6362</edu.vt.middleware.ldap.ldapUrl>
+                <edu.vt.middleware.ldap.base>dc=testgrouper,dc=edu</edu.vt.middleware.ldap.base>
+                <edu.vt.middleware.ldap.authtype>simple</edu.vt.middleware.ldap.authtype>
+                <!-- <edu.vt.middleware.ldap.serviceUser>uid=admin,ou=system</edu.vt.middleware.ldap.serviceUser> -->
+                <!-- <edu.vt.middleware.ldap.serviceCredential>password</edu.vt.middleware.ldap.serviceCredential> -->
+                <edu.vt.middleware.ldap.ssl>true</edu.vt.middleware.ldap.ssl>
+                <edu.vt.middleware.ldap.tls>false</edu.vt.middleware.ldap.tls>
+                <edu.vt.middleware.ldap.pagedResultsSize>100</edu.vt.middleware.ldap.pagedResultsSize>
+                <edu.internet2.middleware.ldappc.useRangeSearchResultHandler>true</edu.internet2.middleware.ldappc.useRangeSearchResultHandler>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <!--  <version>2.5</version> -->
+                        <configuration>
+                            <excludes>
+                                <exclude>**/notad/*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>OpenLDAP</id>            
+            <properties>
+                <testUseEmbeddedLdap>false</testUseEmbeddedLdap>
+                <testUseActiveDirectory>false</testUseActiveDirectory>
+                <base>dc=testgrouper,dc=edu</base>
+                <groupObjectClass>groupOfNames</groupObjectClass>
+                <edu.vt.middleware.ldap.ldapUrl>ldap://127.0.0.1:10389</edu.vt.middleware.ldap.ldapUrl>
+                <edu.vt.middleware.ldap.base>dc=testgrouper,dc=edu</edu.vt.middleware.ldap.base>
+                <edu.vt.middleware.ldap.authtype>simple</edu.vt.middleware.ldap.authtype>
+                <!-- <edu.vt.middleware.ldap.serviceUser>uid=admin,ou=system</edu.vt.middleware.ldap.serviceUser> -->
+                <!-- <edu.vt.middleware.ldap.serviceCredential></edu.vt.middleware.ldap.serviceCredential> -->
+                <edu.vt.middleware.ldap.ssl>false</edu.vt.middleware.ldap.ssl>
+                <edu.vt.middleware.ldap.tls>false</edu.vt.middleware.ldap.tls>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/ad/*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>RedHat</id>
+            <properties>
+                <testUseEmbeddedLdap>false</testUseEmbeddedLdap>
+                <testUseActiveDirectory>false</testUseActiveDirectory>
+                <base>dc=testgrouper,dc=edu</base>
+                <groupObjectClass>groupOfNames</groupObjectClass>
+                <edu.vt.middleware.ldap.ldapUrl>ldap://127.0.0.1:6365</edu.vt.middleware.ldap.ldapUrl>
+                <edu.vt.middleware.ldap.base>dc=testgrouper,dc=edu</edu.vt.middleware.ldap.base>
+                <edu.vt.middleware.ldap.authtype>simple</edu.vt.middleware.ldap.authtype>
+                <!-- <edu.vt.middleware.ldap.serviceUser>uid=admin,ou=system</edu.vt.middleware.ldap.serviceUser> -->
+                <!-- <edu.vt.middleware.ldap.serviceCredential></edu.vt.middleware.ldap.serviceCredential> -->
+                <edu.vt.middleware.ldap.ssl>true</edu.vt.middleware.ldap.ssl>
+                <edu.vt.middleware.ldap.tls>false</edu.vt.middleware.ldap.tls>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/ad/*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+
+    <!-- Project Metadata -->
+    <url>http://grouper.internet2.edu</url>
+
+    <inceptionYear>2006</inceptionYear>
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Internet2</name>
+        <url>http://www.internet2.edu/</url>
+    </organization>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://bugs.internet2.edu/</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Grouper Users</name>
+            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
+            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
+            <post>grouper-users@internet2.edu</post>
+            <archive>https://mail.internet2.edu/wws/arc/grouper-users</archive>
+            <otherArchives>
+                <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+
+    <scm>
+        <connection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi/</connection>
+        <developerConnection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi</developerConnection>
+        <tag>HEAD</tag>
+        <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
+    </scm>
 
 </project>

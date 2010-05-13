@@ -53,7 +53,6 @@ public class AllLdappcJunitTests extends TestCase {
     suite.addTest(AllJUnitConfigurationTests.suite());
     suite.addTest(AllJUnitSynchronizerTests.suite());
     suite.addTest(AllJUnitUtilTests.suite());
-    // not quite yet suite.addTest(AllLdappcSpmlTests.suite());
 
     return new TestSetup(suite);
   }
