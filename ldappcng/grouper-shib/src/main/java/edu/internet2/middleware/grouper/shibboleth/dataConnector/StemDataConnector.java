@@ -16,7 +16,6 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +27,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -54,8 +52,7 @@ public class StemDataConnector extends BaseGrouperDataConnector {
       throws AttributeResolutionException {
 
     Map<String, BaseAttribute> attributes = (Map<String, BaseAttribute>) GrouperSession.callbackGrouperSession(
-        getGrouperSession(),
-        new GrouperSessionHandler() {
+        getGrouperSession(), new GrouperSessionHandler() {
 
           public Map<String, BaseAttribute> callback(GrouperSession grouperSession) throws GrouperSessionException {
 
@@ -128,15 +125,9 @@ public class StemDataConnector extends BaseGrouperDataConnector {
               parentStemNameAttr.setValues(GrouperUtil.toList(parentStem.getName()));
               attributes.put(parentStemNameAttr.getId(), parentStemNameAttr);
             }
-            
+
             // attribute defs
-            // TODO ClassCastException workaround Set<AttributeDefName> attributeDefNames =
-            // stem.getAttributeDelegate().retrieveAttributes();
-            Set<AttributeDefName> attributeDefNames = new HashSet<AttributeDefName>();
-            Set<AttributeAssign> attributeAssigns = stem.getAttributeDelegate().retrieveAssignments();
-            for (AttributeAssign attributeAssign : attributeAssigns) {
-              attributeDefNames.add(attributeAssign.getAttributeDefName());
-            }
+            Set<AttributeDefName> attributeDefNames = stem.getAttributeDelegate().retrieveAttributes();
             for (AttributeDefName attributeDefName : attributeDefNames) {
               List<String> values = stem.getAttributeValueDelegate().retrieveValuesString(attributeDefName.getName());
               if (values != null && !values.isEmpty()) {
@@ -174,13 +165,12 @@ public class StemDataConnector extends BaseGrouperDataConnector {
   private Stem getRootStem() {
     if (rootStem == null) {
 
-      rootStem = (Stem) GrouperSession.callbackGrouperSession(
-          getGrouperSession(), new GrouperSessionHandler() {
+      rootStem = (Stem) GrouperSession.callbackGrouperSession(getGrouperSession(), new GrouperSessionHandler() {
 
-            public Stem callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return StemFinder.findRootStem(grouperSession);
-            }
-          });
+        public Stem callback(GrouperSession grouperSession) throws GrouperSessionException {
+          return StemFinder.findRootStem(grouperSession);
+        }
+      });
     }
 
     return rootStem;
@@ -189,8 +179,8 @@ public class StemDataConnector extends BaseGrouperDataConnector {
   /**
    * {@inheritDoc}
    * 
-   * Stems which are parent to all groups returned from
-   * {@link BaseGrouperDataConnector#getGroups()} are returned. The root stem is omitted.
+   * Stems which are parent to all groups returned from {@link BaseGrouperDataConnector#getGroups()} are returned. The
+   * root stem is omitted.
    */
   public Set<String> getAllIdentifiers() {
     return this.getAllIdentifiers(null);
