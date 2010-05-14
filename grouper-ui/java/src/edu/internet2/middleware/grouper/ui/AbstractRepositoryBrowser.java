@@ -346,13 +346,15 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 							addChild=isValidChild(child);
 						}
 						if (addChild) {
-              if (!this.pagedQuery()) {
-							resultSize++;
-              }
+							if (!this.pagedQuery()) {
+								resultSize++;
+							}
 						
-              if (this.pagedQuery() || (resultSize >= start && resultSize < end)) {
+							if (this.pagedQuery() || (resultSize >= start && resultSize < end)) {
 								results.add(child);
 							}
+						}else if (this.pagedQuery()) {
+							resultSize--;
 						}
         }
 				if(totalCount!=null) {
