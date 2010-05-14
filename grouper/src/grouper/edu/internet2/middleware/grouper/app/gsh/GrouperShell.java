@@ -491,8 +491,10 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "                        Enter option to get additional usage for that " + GrouperConfig.NL
 	            + "                        option "                                        + GrouperConfig.NL
 	            
-	            + "  -xmlimport,           Invokes XmlExporter"                            + GrouperConfig.NL
-	            + "  -xmlexport,           Invokes XmlImporter"                            + GrouperConfig.NL
+	            + "  -xmlimport,           Invokes XmlImporter*"                           + GrouperConfig.NL
+	            + "                        *XML format has changed in v1.6. To import"     + GrouperConfig.NL
+	            + "                        the original XML format use -xmlimportold"      + GrouperConfig.NL
+	            + "  -xmlexport,           Invokes XmlExporter"                            + GrouperConfig.NL
 	            + "  -loader,              Invokes GrouperLoader"                          + GrouperConfig.NL
 	            + "  -registry,            Manipulate the Grouper schema and install"      + GrouperConfig.NL
 	            + "                        bootstrap data"                                 + GrouperConfig.NL
@@ -502,7 +504,7 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "                        Utility"                                        + GrouperConfig.NL
 	           
 	            + "  -findbadmemberships,  Check for membership data inconsistencies    "  + GrouperConfig.NL
-              + "  -ldappc,              Run the grouper ldap provisioning connector to send data to ldap    "  + GrouperConfig.NL
+                + "  -ldappc,              Run the grouper ldap provisioning connector to send data to ldap    "  + GrouperConfig.NL
 	            ;
 	  } // private static String _getUsage()
 
