@@ -919,7 +919,8 @@
 <target name="-html-with-subject" if="subject.folder">	
 	<javadoc 
 		
-		     
+		 maxmemory="256m"
+   
 		 destdir="doc/api"                
 		 classpathref="ui.class.path"       
 		 access="public"     
