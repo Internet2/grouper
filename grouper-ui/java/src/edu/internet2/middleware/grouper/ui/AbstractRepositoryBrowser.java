@@ -361,9 +361,11 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 				}
 		return results;
 	}
+  
+    
 	
 	/**
-	 * USed to filter unwanted children
+	 * Used to filter unwanted children
 	 * @return
 	 * @throws Exception
 	 */
@@ -877,18 +879,66 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
     }
     ArrayList res = new ArrayList();
     Set children = getChildStems(stem);
+    int stemCount=children.size();
+    int counter=0;
     Iterator it = children.iterator();
     Stem childStem = null;
     while(it.hasNext()) {
       childStem=(Stem)it.next();
-      res.add(GroupOrStem.findByStem(s,childStem));
+      if(counter >=start && counter <start+pageSize) {
+    	  //Page the stems
+    	  res.add(GroupOrStem.findByStem(s,childStem));
+      }
+      counter++;
     }
+    
+    //Strategy is to find a page size where all required resultscan be retrieved in a single page
+    //Therefore likely to have a different page size and pagenumber each time and are likely
+    //to return results ant start and/or end which are not required for UI
+    
+    //Values below will often be reset before use
+    boolean abortGroups=false;
+    int groupPage = 1;
+    int groupPageSize = pageSize;
+    int groupStart=1;
+    int end=0;
+    int groupLowOffset=0; //how many initial results to discard - assuming page size larger than results required
+    int groupHighOffset=pageSize; //where to start discarding end results -  - assuming page size larger than results required
+    if(start + pageSize <= stemCount) {
+    	//Enough stems to satisfy paging without getting to groups
+    	abortGroups=true;
+    	//0 indexed
+    	end = start + pageSize -1;
+    }else if(start + pageSize > stemCount && start <= stemCount){
+    	//show last of stems and first of groups
+    	end = start+pageSize-stemCount;
+    	groupHighOffset = end;
+	}else if(start > stemCount) {
+		//Not showing any stems
+		groupStart = start - stemCount;
+		end = groupStart + pageSize -1;
+		
+		//Figures out the page size, number and the start/end index of groups to be returnedeturned
+		int[] pageDetails = determineGroupPage(groupStart, end +1, pageSize);
+		groupPage = pageDetails[0];
+		groupPageSize=pageDetails[1];
+		int recStart=pageDetails[2];
+		int recEnd = pageDetails[3];
+		groupLowOffset = groupStart - recStart+1;
+		groupHighOffset = recEnd;
+	}
+
+    
+    if(groupPage<=0) {
+    	groupPage=1;
+    }
+    
+
     QueryOptions queryOptions = null;
     if (this.pagedQuery()) {
-      QueryPaging queryPaging = null;
-      queryPaging = new QueryPaging();
-      queryPaging.setPageSize(pageSize);
-      queryPaging.setFirstIndexOnPage(start);
+      QueryPaging queryPaging = new QueryPaging();
+      queryPaging.setPageSize(groupPageSize);
+      queryPaging.setPageNumber(groupPage);
       queryOptions = new QueryOptions().paging(queryPaging);
       queryOptions.retrieveCount(true);
     }
@@ -896,16 +946,45 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
     if (GrouperUtil.length(resultSize) >= 1) {
       if (this.pagedQuery()) {
         //note: add in the size of the stems
-        resultSize[0] = queryOptions.getCount().intValue();
+        resultSize[0] = queryOptions.getCount().intValue() + stemCount;
+        if(abortGroups) {
+        	return res;
+        }
       }
     }
     it = children.iterator();
     Group childGroup = null;
+    int groupCounter = 0;
     while(it.hasNext()) {
+      groupCounter++;
       childGroup=(Group)it.next();
-      res.add(GroupOrStem.findByGroup(s,childGroup));
+      if(groupCounter >= groupLowOffset && groupCounter <= groupHighOffset) {
+    	  res.add(GroupOrStem.findByGroup(s,childGroup));
+      }
     }
     return res;
+  }
+  
+  private int[] determineGroupPage(int groupStart, int end, int pagesize) {
+  	
+  	int counter = pagesize;
+  	int groupPage=0;
+  	int groupPagesize=0;
+  	while(true) {
+  		//increment counter until it can be used as a page size where required results 
+  		//can be returned in a single page
+  		int num = (end + counter -1) / counter;
+  		if(counter == end || ((num != 1 && (num - 1) * counter < groupStart))) {
+  			groupPagesize=counter;
+  			groupPage=num;
+  			break;
+  		}
+  		counter++;
+
+  	}
+  	return new int[] {groupPage,groupPagesize,(groupPage-1) * groupPagesize,groupPage * groupPagesize};
+  
+  	
   }
   
   /**
