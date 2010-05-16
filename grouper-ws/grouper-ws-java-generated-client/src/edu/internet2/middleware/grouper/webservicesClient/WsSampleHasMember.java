@@ -89,6 +89,9 @@ public class WsSampleHasMember implements WsSampleGenerated {
             WsHasMemberResults wsHasMemberResults = stub.hasMember(hasMember)
                                                         .get_return();
 
+            System.out.println("Result code: " + wsHasMemberResults.getResultMetadata().getResultCode());
+            System.out.println("Result message: " + wsHasMemberResults.getResultMetadata().getResultMessage());
+            
             System.out.println(ToStringBuilder.reflectionToString(
                     wsHasMemberResults));
 

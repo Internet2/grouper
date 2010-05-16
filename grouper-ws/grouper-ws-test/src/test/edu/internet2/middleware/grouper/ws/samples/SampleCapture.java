@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -82,7 +83,6 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDeleteLite
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRest;
@@ -732,7 +732,7 @@ public class SampleCapture {
       result.append("Grouper web service sample of service: " + samplesFolderName + ", "
           + clientClass.getSimpleName() + ", "
           + clientType.friendlyName() + ", "
-          + fileSuffixString + formatString2 + "for version: " + GrouperWsVersion.currentVersion().name() + "\n");
+          + fileSuffixString + formatString2 + "for version: " + GrouperVersion.currentVersion().toString() + "\n");
       
       result.append("\n\n#########################################\n");
       result.append("##\n");
