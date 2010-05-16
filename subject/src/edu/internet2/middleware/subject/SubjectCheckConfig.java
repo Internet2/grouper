@@ -17,6 +17,15 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * make sure the subject.xml config is correct
  */
 public class SubjectCheckConfig {
+
+  /** */
+  public static final String GROUPER_TEST_SUBJECT_BY_ID = "grouperTestSubjectByIdOnStartupASDFGHJ";
+
+  /** */
+  public static final String SUBJECT_ID_TO_FIND_ON_CHECK_CONFIG = "subjectIdToFindOnCheckConfig";
+
+  /** */
+  public static final String FIND_SUBJECT_BY_ID_ON_CHECK_CONFIG = "findSubjectByIdOnCheckConfig";
   
   /** logger */
   private static Log log = LogFactory.getLog(SubjectCheckConfig.class);
@@ -71,23 +80,24 @@ public class SubjectCheckConfig {
     }
     int sourceCount = 0;
     for (Source source: sources) {
+      
       sourceCount++;
       String error = "error with subject source id: " + source.getId() + ", name: " + source.getName()
         + ", ";
       try {
         source.checkConfig();
         
-        String findSubjectOnCheckConfigString = source.getInitParam("findSubjectOnCheckConfig");
+        String findSubjectOnCheckConfigString = source.getInitParam(FIND_SUBJECT_BY_ID_ON_CHECK_CONFIG);
         boolean findSubjectOnCheckConfig = SubjectUtils.booleanValue(findSubjectOnCheckConfigString, true);
         
         if (findSubjectOnCheckConfig) {
-          String subjectToFindOnCheckConfig = source.getInitParam("subjectToFindOnCheckConfig");
-          subjectToFindOnCheckConfig = SubjectUtils.defaultIfBlank(subjectToFindOnCheckConfig, "grouperTestSubjectOnStartupASDFGHJ");
-          source.getSubjectByIdOrIdentifier(subjectToFindOnCheckConfig, false);
+          String subjectToFindOnCheckConfig = source.getInitParam(SUBJECT_ID_TO_FIND_ON_CHECK_CONFIG);
+          subjectToFindOnCheckConfig = SubjectUtils.defaultIfBlank(subjectToFindOnCheckConfig, GROUPER_TEST_SUBJECT_BY_ID);
+          source.getSubject(subjectToFindOnCheckConfig, false);
         }
 
       } catch (Exception e) {
-        String theError = error + "problem with getSubject by id, in sources.xml: serachType searchSubject: ";
+        String theError = error + "problem with getSubject by id, in sources.xml: search searchSubject: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
         continue;
@@ -95,7 +105,15 @@ public class SubjectCheckConfig {
       
       try {
         
-        source.getSubjectByIdentifier("qwqertyuiopsadfsadfsdf", true);
+        String findSubjectOnCheckConfigString = source.getInitParam("findSubjectByIdentifiedOnCheckConfig");
+        boolean findSubjectOnCheckConfig = SubjectUtils.booleanValue(findSubjectOnCheckConfigString, true);
+        
+        if (findSubjectOnCheckConfig) {
+          String subjectIdentifierToFindOnCheckConfig = source.getInitParam("subjectIdentifierToFindOnCheckConfig");
+          subjectIdentifierToFindOnCheckConfig = SubjectUtils.defaultIfBlank(subjectIdentifierToFindOnCheckConfig, "grouperTestSubjectByIdentifierOnStartupASDFGHJ");
+          source.getSubjectByIdentifier(subjectIdentifierToFindOnCheckConfig, false);
+        }
+
       } catch (SubjectNotFoundException snfe) {
         //good!
       } catch (Exception e) {
@@ -107,7 +125,14 @@ public class SubjectCheckConfig {
     
       try {
         
-        source.search("qwqertyuiop");
+        String findSubjectOnCheckConfigString = source.getInitParam("findSubjectByStringOnCheckConfig");
+        boolean findSubjectOnCheckConfig = SubjectUtils.booleanValue(findSubjectOnCheckConfigString, true);
+        
+        if (findSubjectOnCheckConfig) {
+          String stringToFindOnCheckConfig = source.getInitParam("stringToFindOnCheckConfig");
+          stringToFindOnCheckConfig = SubjectUtils.defaultIfBlank(stringToFindOnCheckConfig, "grouperTestStringOnStartupASDFGHJ");
+          source.search(stringToFindOnCheckConfig);
+        }
         
       } catch (Exception e) {
         String theError = error + "problem with search, in sources.xml: serachType search: ";
