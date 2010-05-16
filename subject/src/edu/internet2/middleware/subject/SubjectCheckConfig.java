@@ -77,10 +77,15 @@ public class SubjectCheckConfig {
       try {
         source.checkConfig();
         
-        source.getSubject("qwqertyuiopsdfasdsdf", true);
+        String findSubjectOnCheckConfigString = source.getInitParam("findSubjectOnCheckConfig");
+        boolean findSubjectOnCheckConfig = SubjectUtils.booleanValue(findSubjectOnCheckConfigString, true);
+        
+        if (findSubjectOnCheckConfig) {
+          String subjectToFindOnCheckConfig = source.getInitParam("subjectToFindOnCheckConfig");
+          subjectToFindOnCheckConfig = SubjectUtils.defaultIfBlank(subjectToFindOnCheckConfig, "grouperTestSubjectOnStartupASDFGHJ");
+          source.getSubjectByIdOrIdentifier(subjectToFindOnCheckConfig, false);
+        }
 
-      } catch (SubjectNotFoundException snfe) {
-        //good!
       } catch (Exception e) {
         String theError = error + "problem with getSubject by id, in sources.xml: serachType searchSubject: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
