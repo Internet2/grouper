@@ -197,7 +197,7 @@ public class GrouperCheckConfig {
     long jarFileSize = -1;
     try {
       
-      File jarFile = GrouperUtil.jarFile(sampleClass);
+      File jarFile = GrouperUtil.jarFile(sampleClass, true);
       jarFileFullName = jarFile.getCanonicalPath();
       jarFileName = jarFile.getName();
       jarFileSize = jarFile.length();
@@ -1084,7 +1084,7 @@ public class GrouperCheckConfig {
     if (!StringUtils.equals(grouperVersionFromClass, grouperVersionFromProperties)
         || !StringUtils.equals(grouperVersionFromClass, grouperManifestVersion)) {
       if (grouperVersionFromProperties == null || grouperManifestVersion == null) {
-        File jarFile = GrouperUtil.jarFile(GrouperCheckConfig.class);
+        File jarFile = GrouperUtil.jarFile(GrouperCheckConfig.class, true);
         if (jarFile == null || !jarFile.exists() || jarFile.isDirectory()) {
           return;
         }
@@ -1247,7 +1247,7 @@ public class GrouperCheckConfig {
    * @throws Exception
    */
   public static String manifestProperty(Class sampleClass, String[] propertyNames) throws Exception {
-    File jarFile = GrouperUtil.jarFile(sampleClass);
+    File jarFile = GrouperUtil.jarFile(sampleClass, true);
     URL manifestUrl = new URL("jar:file:" + jarFile.getCanonicalPath() + "!/META-INF/MANIFEST.MF");
     Manifest manifest = new Manifest(manifestUrl.openStream());
     Map<String, Attributes> attributeMap = manifest.getEntries();

@@ -6,8 +6,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -48,7 +48,7 @@ public class WsGroupSaveResults implements WsResponseBean, ResultMetadataHolder 
     /** get the name label for a certain version of client 
      * @param clientVersion 
      * @return */
-    public String nameForVersion(GrouperWsVersion clientVersion) {
+    public String nameForVersion(GrouperVersion clientVersion) {
       return this.name();
     }
 
@@ -93,7 +93,7 @@ public class WsGroupSaveResults implements WsResponseBean, ResultMetadataHolder 
    * @param clientVersion 
    */
   public void assignResultCodeException(
-      WsGroupSaveResultsCode wsGroupSaveResultsCodeOverride, String theError, Exception e, GrouperWsVersion clientVersion) {
+      WsGroupSaveResultsCode wsGroupSaveResultsCodeOverride, String theError, Exception e, GrouperVersion clientVersion) {
 
     if (e instanceof WsInvalidQueryException) {
       wsGroupSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
@@ -125,7 +125,7 @@ public class WsGroupSaveResults implements WsResponseBean, ResultMetadataHolder 
    * @param groupSaveResultsCode
    * @param clientVersion 
    */
-  public void assignResultCode(WsGroupSaveResultsCode groupSaveResultsCode, GrouperWsVersion clientVersion) {
+  public void assignResultCode(WsGroupSaveResultsCode groupSaveResultsCode, GrouperVersion clientVersion) {
     this.getResultMetadata().assignResultCode(groupSaveResultsCode, clientVersion);
   }
 
@@ -137,7 +137,7 @@ public class WsGroupSaveResults implements WsResponseBean, ResultMetadataHolder 
    * @return true if success, false if not
    */
   public boolean tallyResults(GrouperTransactionType grouperTransactionType,
-      String theSummary, GrouperWsVersion clientVersion) {
+      String theSummary, GrouperVersion clientVersion) {
     //maybe already a failure
     boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
         .getSuccess(), true);

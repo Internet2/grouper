@@ -8,7 +8,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -186,7 +186,7 @@ public class WsResultMeta {
    * @param wsResultCode1 bean
    * @param clientVersion 
    */
-  public void assignResultCode(WsResultCode wsResultCode1, GrouperWsVersion clientVersion) {
+  public void assignResultCode(WsResultCode wsResultCode1, GrouperVersion clientVersion) {
     this.assignResultCode(wsResultCode1.nameForVersion(clientVersion));
     this.assignSuccess(GrouperServiceUtils.booleanToStringOneChar(wsResultCode1
         .isSuccess()));

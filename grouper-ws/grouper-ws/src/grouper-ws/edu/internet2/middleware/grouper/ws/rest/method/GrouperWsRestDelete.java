@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
@@ -40,7 +40,7 @@ public enum GrouperWsRestDelete {
      */
     @Override
     public WsResponseBean service(
-        GrouperWsVersion clientVersion, List<String> urlStrings,
+        GrouperVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
 
       //url should be: /v1_3_000/groups/aStem:aGroup/members
@@ -98,7 +98,7 @@ public enum GrouperWsRestDelete {
        */
       @Override
       public WsResponseBean service(
-          GrouperWsVersion clientVersion, List<String> urlStrings,
+          GrouperVersion clientVersion, List<String> urlStrings,
           WsRequestBean requestObject) {
   
         //url should be: /v1_3_000/stems/aStem:aStem2
@@ -134,7 +134,7 @@ public enum GrouperWsRestDelete {
    * @return the result object
    */
   public abstract WsResponseBean service(
-      GrouperWsVersion clientVersion, List<String> urlStrings, WsRequestBean requestObject);
+      GrouperVersion clientVersion, List<String> urlStrings, WsRequestBean requestObject);
 
   /**
    * do a case-insensitive matching

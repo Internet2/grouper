@@ -5865,15 +5865,6 @@ public class GrouperUtil {
     if (input instanceof Number) {
       return ((Number)input).intValue();
     }
-    if (false) {
-      if (input == null) {
-        return 0;
-      }
-      if (input instanceof String || isBlank((String)input)) {
-        return 0;
-      }
-    }
-    
     throw new RuntimeException("Cannot convert to int: " + className(input));
   }
 
@@ -8577,9 +8568,10 @@ public class GrouperUtil {
   /**
    * get a jar file from a sample class
    * @param sampleClass
+   * @param printError if error should be printed when there is a problem
    * @return the jar file
    */
-  public static File jarFile(Class sampleClass) {
+  public static File jarFile(Class sampleClass, boolean printError) {
     try {
       CodeSource codeSource = sampleClass.getProtectionDomain().getCodeSource();
       if (codeSource != null && codeSource.getLocation() != null) {
@@ -8603,8 +8595,10 @@ public class GrouperUtil {
         return file;
       }
     } catch (Exception e) {
-      e.printStackTrace();
-      System.err.println("Cant find jar for class: " + sampleClass + ", " + e.getMessage());
+      if (printError) {
+        e.printStackTrace();
+        System.err.println("Cant find jar for class: " + sampleClass + ", " + e.getMessage());
+      }
     }
     return null;
   }

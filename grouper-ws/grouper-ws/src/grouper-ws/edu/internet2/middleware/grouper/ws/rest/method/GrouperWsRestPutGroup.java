@@ -5,8 +5,8 @@ package edu.internet2.middleware.grouper.ws.rest.method;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
@@ -35,7 +35,7 @@ public enum GrouperWsRestPutGroup {
      */
     @Override
     public WsResponseBean service(
-        GrouperWsVersion clientVersion, String groupName, List<String> urlStrings,
+        GrouperVersion clientVersion, String groupName, List<String> urlStrings,
         WsRequestBean requestObject) {
 
       //maybe putting all members (url strings size 3)
@@ -76,7 +76,7 @@ public enum GrouperWsRestPutGroup {
      * @return the return object
    */
   public abstract WsResponseBean service(
-      GrouperWsVersion clientVersion, String groupName, List<String> urlStrings,
+      GrouperVersion clientVersion, String groupName, List<String> urlStrings,
       WsRequestBean requestObject);
 
   /**

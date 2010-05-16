@@ -10,8 +10,8 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -164,7 +164,7 @@ public class WsMemberChangeSubjectLiteResult implements WsResponseBean, ResultMe
     /** get the name label for a certain version of client 
      * @param clientVersion 
      * @return */
-    public String nameForVersion(GrouperWsVersion clientVersion) {
+    public String nameForVersion(GrouperVersion clientVersion) {
       return this.name();
     }
 

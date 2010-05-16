@@ -20,15 +20,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestResponseContentType;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * servlet for rest web services
@@ -113,13 +114,13 @@ public class GrouperRestServlet extends HttpServlet {
       wsRestResponseContentType = GrouperUtil.defaultIfNull(
           wsRestRequestContentType.calculateResponseContentType(), wsRestResponseContentType);
       
-      GrouperWsVersion clientVersion = null;
+      GrouperVersion clientVersion = null;
 
       if (urlStringsLength > 0) {
         boolean firstIsVersion = false;
         try {
           //first see if version
-          GrouperWsVersion.valueOfIgnoreCase(urlStrings.get(0), true);
+          GrouperVersion.valueOfIgnoreCase(urlStrings.get(0), true);
           firstIsVersion = true;
         } catch (Exception e) {
           //ignore
@@ -128,7 +129,7 @@ public class GrouperRestServlet extends HttpServlet {
         if (!firstIsVersion && urlStringsLength > 1) {
           
           //see if second is version (it better be at this point)
-          GrouperWsVersion.valueOfIgnoreCase(urlStrings.get(1), true);
+          GrouperVersion.valueOfIgnoreCase(urlStrings.get(1), true);
           
           //if so, then the first must be the content type
           String wsRestResponseContentTypeString = urlStrings.get(0);
@@ -146,9 +147,9 @@ public class GrouperRestServlet extends HttpServlet {
         clientVersionString = GrouperServiceUtils.popUrlString(urlStrings);
       }
       //will get enum and validate
-      clientVersion = GrouperWsVersion.valueOfIgnoreCase(clientVersionString, true);
+      clientVersion = GrouperVersion.valueOfIgnoreCase(clientVersionString, true);
 
-      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, warnings);
       
       WsRequestBean requestObject = null;
 
@@ -172,7 +173,7 @@ public class GrouperRestServlet extends HttpServlet {
       wsResponseBean = grouperRestHttpMethod.service(clientVersion, urlStrings, requestObject);
 
       //set this again, since it was probably just removed
-      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, warnings);
       
     } catch (GrouperRestInvalidRequest glir) {
 
@@ -235,7 +236,7 @@ public class GrouperRestServlet extends HttpServlet {
     } finally {
 
       IOUtils.closeQuietly(response.getWriter());
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersionUtils.removeCurrentClientVersion();
       restRequest.set(null);
     }
     

@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.ws;
 
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
+
 /**
  * result code enum
  */
@@ -27,6 +29,6 @@ public interface WsResultCode {
   /** get the name label for a certain version of client 
    * @param clientVersion 
    * @return */
-  public String nameForVersion(GrouperWsVersion clientVersion);
+  public String nameForVersion(GrouperVersion clientVersion);
   
 }

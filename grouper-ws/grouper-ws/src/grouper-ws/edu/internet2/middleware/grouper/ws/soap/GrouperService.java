@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
@@ -23,7 +24,6 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
@@ -136,7 +136,7 @@ public class GrouperService {
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       StemScope stemScope = StemScope.valueOfIgnoreCase(stemNameScope);
@@ -182,7 +182,7 @@ public class GrouperService {
 
     try {
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsFindStemsResults = GrouperServiceLogic.findStems(grouperWsVersion, wsStemQueryFilter, 
@@ -225,7 +225,7 @@ public class GrouperService {
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsFindGroupsResults = GrouperServiceLogic.findGroups(grouperWsVersion, wsQueryFilter, actAsSubjectLookup, 
@@ -301,7 +301,7 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       WsMemberFilter wsMemberFilter = GrouperServiceUtils
@@ -366,7 +366,7 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
   
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       WsMemberFilter wsMemberFilter = GrouperServiceUtils
@@ -442,7 +442,7 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       WsMemberFilter wsMemberFilter = GrouperServiceUtils
@@ -525,7 +525,7 @@ public class GrouperService {
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       wsHasMemberResults = GrouperServiceLogic.hasMember(grouperWsVersion, wsGroupLookup,
@@ -581,7 +581,7 @@ public class GrouperService {
 
     try {
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       wsStemDeleteLiteResult = GrouperServiceLogic.stemDeleteLite(grouperWsVersion, stemName, stemUuid, actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, 
@@ -639,7 +639,7 @@ public class GrouperService {
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       wsGroupDeleteLiteResult = GrouperServiceLogic.groupDeleteLite(grouperWsVersion, groupName,
@@ -783,13 +783,13 @@ public class GrouperService {
       String paramName1, String paramValue1) {
 
     WsGroupSaveLiteResult wsGroupSaveLiteResult = new WsGroupSaveLiteResult();
-    GrouperWsVersion grouperWsVersion = null;
+    GrouperVersion grouperWsVersion = null;
     try {
 
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
-      grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       SaveMode saveModeEnum = SaveMode.valueOfIgnoreCase(saveMode);
@@ -851,11 +851,11 @@ public class GrouperService {
 
     WsStemSaveLiteResult wsStemSaveLiteResult = new WsStemSaveLiteResult();
 
-    GrouperWsVersion grouperWsVersion = null;
+    GrouperVersion grouperWsVersion = null;
     
     try {
 
-      grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       SaveMode saveModeEnum = SaveMode.valueOfIgnoreCase(saveMode);
@@ -1154,14 +1154,14 @@ public class GrouperService {
       final String txType, final String includeGroupDetail, final WsParam[] params) {
 
     WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
-    GrouperWsVersion grouperWsVersion = null;
+    GrouperVersion grouperWsVersion = null;
     try {
 
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
 
-      grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
@@ -1202,14 +1202,14 @@ public class GrouperService {
       final String txType, final WsParam[] params) {
 
     WsStemSaveResults wsStemSaveResults = new WsStemSaveResults();
-    GrouperWsVersion grouperWsVersion = null;
+    GrouperVersion grouperWsVersion = null;
     try {
 
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
 
-      grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       wsStemSaveResults = GrouperServiceLogic.stemSave(grouperWsVersion, wsStemToSaves,
@@ -1253,7 +1253,7 @@ public class GrouperService {
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       wsStemDeleteResults = GrouperServiceLogic.stemDelete(grouperWsVersion, wsStemLookups,
@@ -1301,7 +1301,7 @@ public class GrouperService {
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       wsGroupDeleteResults = GrouperServiceLogic.groupDelete(grouperWsVersion, wsGroupLookups,
@@ -1343,7 +1343,7 @@ public class GrouperService {
      *            returned (anything more than just the id)
      * @param params optional: reserved for future use
      * @return the results
-     * @see GrouperWsVersion
+     * @see GrouperVersion
      */
     @SuppressWarnings("unchecked")
     public WsAddMemberResults addMember(final String clientVersion,
@@ -1373,7 +1373,7 @@ public class GrouperService {
         //get the field or null or invalid query exception
         Field field = GrouperServiceUtils.retrieveField(fieldName);
   
-        GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+        GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
             clientVersion, true);
   
         wsAddMemberResults = GrouperServiceLogic.addMember(grouperWsVersion, wsGroupLookup,
@@ -1439,7 +1439,7 @@ public class GrouperService {
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsDeleteMemberResults = GrouperServiceLogic.deleteMember(grouperWsVersion, wsGroupLookup,
@@ -1529,7 +1529,7 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       WsMemberFilter wsMemberFilter = GrouperServiceUtils
@@ -1625,7 +1625,7 @@ public class GrouperService {
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsAddMemberLiteResult = GrouperServiceLogic.addMemberLite(grouperWsVersion, groupName,
@@ -1891,7 +1891,7 @@ public class GrouperService {
         //get the field or null or invalid query exception
         Field field = GrouperServiceUtils.retrieveField(fieldName);
   
-        GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+        GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
             clientVersion, true);
   
         wsHasMemberLiteResult = GrouperServiceLogic.hasMemberLite(grouperWsVersion, groupName,
@@ -1970,7 +1970,7 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsMemberChangeSubjectLiteResult = GrouperServiceLogic.memberChangeSubjectLite(grouperWsVersion, oldSubjectId,
@@ -2005,7 +2005,7 @@ public class GrouperService {
    *            returned (anything more than just the id)
    * @param params optional: reserved for future use
    * @return the results
-   * @see GrouperWsVersion
+   * @see GrouperVersion
    */
   @SuppressWarnings("unchecked")
   public WsMemberChangeSubjectResults memberChangeSubject(final String clientVersion,
@@ -2025,7 +2025,7 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsMemberChangeSubjectResults = GrouperServiceLogic.memberChangeSubject(grouperWsVersion, wsMemberChangeSubjects,
@@ -2108,7 +2108,7 @@ public class GrouperService {
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsDeleteMemberLiteResult = GrouperServiceLogic.deleteMemberLite(grouperWsVersion, groupName,
@@ -2180,7 +2180,7 @@ public class GrouperService {
 
     try {
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       StemScope stemScope = StemScope.valueOfIgnoreCase(parentStemNameScope);
@@ -2292,7 +2292,7 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
   
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       wsGetGrouperPrivilegesLiteResult = GrouperServiceLogic.getGrouperPrivilegesLite(grouperWsVersion, subjectId, 
@@ -2408,7 +2408,7 @@ public class GrouperService {
       boolean allowedBoolean = GrouperServiceUtils.booleanValue(
           allowed, true, "allowed");
   
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       wsAssignGrouperPrivilegesLiteResult = GrouperServiceLogic.assignGrouperPrivilegesLite(grouperWsVersion, subjectId, 
@@ -2468,7 +2468,7 @@ public class GrouperService {
   
     try {
   
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       WsMemberFilter memberFilter = GrouperServiceUtils
         .convertMemberFilter(wsMemberFilter);
@@ -2564,7 +2564,7 @@ public class GrouperService {
   
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
     try {
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       WsMemberFilter memberFilter = GrouperServiceUtils
         .convertMemberFilter(wsMemberFilter);
@@ -2633,7 +2633,7 @@ public class GrouperService {
   
     try {
   
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       WsMemberFilter memberFilter = GrouperServiceUtils
         .convertMemberFilter(wsMemberFilter);
@@ -2723,7 +2723,7 @@ public class GrouperService {
 
     WsGetSubjectsResults wsGetSubjectsResults = new WsGetSubjectsResults();
     try {
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       WsMemberFilter memberFilter = GrouperServiceUtils
         .convertMemberFilter(wsMemberFilter);
@@ -2809,7 +2809,7 @@ public class GrouperService {
       boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanValue(
           replaceAllExisting, false, "replaceAllExisting");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       PrivilegeType privilegeTypeEnum = PrivilegeType.valueOfIgnoreCase(privilegeType);
@@ -2923,7 +2923,7 @@ public class GrouperService {
 
       AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.convertAttributeAssignType(attributeAssignType);
       
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsGetAttributeAssignmentsResults = GrouperServiceLogic.getAttributeAssignments(grouperWsVersion, attributeAssignTypeEnum, wsAttributeAssignLookups, wsAttributeDefLookups, wsAttributeDefNameLookups, wsOwnerGroupLookups, wsOwnerStemLookups, wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, actions, includeAssignmentsOnAssignmentsBoolean, actAsSubjectLookup, includeSubjectDetailBoolean, subjectAttributeNames, includeGroupDetailBoolean, params, enabled);
@@ -3021,7 +3021,7 @@ public class GrouperService {
 
       AttributeAssignType attributeAssignTypeEnum = GrouperServiceUtils.convertAttributeAssignType(attributeAssignType);
       
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
       wsGetAttributeAssignmentsResults = GrouperServiceLogic.getAttributeAssignmentsLite(
@@ -3123,7 +3123,7 @@ public class GrouperService {
       
       AttributeAssignDelegatable attributeAssignDelegatableEnum = GrouperServiceUtils.convertAttributeAssignDelegatable(delegatable);
       
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(grouperWsVersion, attributeAssignTypeEnum, 
@@ -3242,7 +3242,7 @@ public class GrouperService {
       
       AttributeAssignDelegatable attributeAssignDelegatableEnum = GrouperServiceUtils.convertAttributeAssignDelegatable(delegatable);
       
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       wsAssignAttributesLiteResults = GrouperServiceLogic.assignAttributesLite(
@@ -3326,7 +3326,7 @@ public class GrouperService {
       boolean includeAttributeAssignmentsBoolean = GrouperServiceUtils.booleanValue(
           includeAttributeAssignments, false, "includeAttributeAssignments");
   
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignments(grouperWsVersion, wsAttributeDefLookups, 
@@ -3419,7 +3419,7 @@ public class GrouperService {
       boolean includeAttributeAssignmentsBoolean = GrouperServiceUtils.booleanValue(
           includeAttributeAssignments, false, "includeAttributeAssignments");
       
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       wsGetPermissionAssignmentsResults = GrouperServiceLogic.getPermissionAssignmentsLite(
@@ -3504,7 +3504,7 @@ public class GrouperService {
       
       AttributeAssignDelegatable attributeAssignDelegatableEnum = GrouperServiceUtils.convertAttributeAssignDelegatable(delegatable);
       
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(grouperWsVersion, permissionTypeEnum, 
@@ -3594,7 +3594,7 @@ public class GrouperService {
       
       AttributeAssignDelegatable attributeAssignDelegatableEnum = GrouperServiceUtils.convertAttributeAssignDelegatable(delegatable);
       
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
       wsAssignPermissionsLiteResults = GrouperServiceLogic.assignPermissionsLite(

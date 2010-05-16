@@ -11,7 +11,7 @@ import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult.WsGroupSaveLiteResultCode;
@@ -60,10 +60,10 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -88,10 +88,10 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -115,10 +115,10 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -235,7 +235,7 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
     /** get the name label for a certain version of client 
      * @param clientVersion 
      * @return */
-    public String nameForVersion(GrouperWsVersion clientVersion) {
+    public String nameForVersion(GrouperVersion clientVersion) {
 
       return this.name();
     }
@@ -254,7 +254,7 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
    * @param groupSaveResultCode
    * @param clientVersion 
    */
-  public void assignResultCode(WsGroupSaveResultCode groupSaveResultCode, GrouperWsVersion clientVersion) {
+  public void assignResultCode(WsGroupSaveResultCode groupSaveResultCode, GrouperVersion clientVersion) {
     this.getResultMetadata().assignResultCode(
         groupSaveResultCode == null ? null : groupSaveResultCode.nameForVersion(clientVersion));
     this.getResultMetadata().assignSuccess(
@@ -304,7 +304,7 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
    * @param wsGroupToSave
    * @param clientVersion 
    */
-  public void assignResultCodeException(Exception e, WsGroupToSave wsGroupToSave, GrouperWsVersion clientVersion) {
+  public void assignResultCodeException(Exception e, WsGroupToSave wsGroupToSave, GrouperVersion clientVersion) {
     
     //get root exception (might be wrapped in wsInvalidQuery)
     Throwable mainThrowable = (e instanceof WsInvalidQueryException 

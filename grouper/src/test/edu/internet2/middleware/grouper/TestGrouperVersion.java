@@ -36,6 +36,34 @@ public class TestGrouperVersion extends TestCase {
    * make sure versions are compared right
    */
   public void testVersions() {
+    
+    assertEquals(new GrouperVersion("v1.2.3"), new GrouperVersion("1.2.3"));
+
+    //cli   ser   ok?
+    //1.5.2 1.5.2 T 
+    //1.5.2 1.5.1 T 
+    //1.5.1 1.5.2 T 
+    //1.5.2 1.4.0 (released before 1.5.2) F
+    //1.5.2 1.4.5 (released after 1.5.2) F 
+    //1.4.0 1.5.2 (released before 1.5.2) T
+    //1.4.5 1.5.2 (released after 1.5.2) T 
+    //1.6.0 1.5.2 F 
+    //1.5.2 1.6.0 T 
+    //2.0.0 1.5.2 F 
+    //1.5.2 2.0.0 T 
+
+    assertTrue(GrouperVersion.valueOfIgnoreCase("v1_5_002").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_5_002"), true));
+    assertTrue(GrouperVersion.valueOfIgnoreCase("v1_5_002").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_5_001"), true));
+    assertTrue(GrouperVersion.valueOfIgnoreCase("v1_5_001").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_5_002"), true));
+    assertFalse(GrouperVersion.valueOfIgnoreCase("v1_5_002").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"), true));
+    assertFalse(GrouperVersion.valueOfIgnoreCase("v1_5_002").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_4_005"), true));
+    assertTrue(GrouperVersion.valueOfIgnoreCase("v1_4_000").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_5_002"), true));
+    assertTrue(GrouperVersion.valueOfIgnoreCase("v1_4_005").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_5_002"), true));
+    assertFalse(GrouperVersion.valueOfIgnoreCase("v1_6_000").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_5_002"), true));
+    assertTrue(GrouperVersion.valueOfIgnoreCase("v1_5_002").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_6_000"), true));
+    assertFalse(GrouperVersion.valueOfIgnoreCase("v2_0_000").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v1_5_002"), true));
+    assertTrue(GrouperVersion.valueOfIgnoreCase("v1_5_002").lessThanMajorMinorArg(GrouperVersion.valueOfIgnoreCase("v2_0_000"), true));
+    
     assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.1", "3.0.0"));
     assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.1", "2.2.2"));
     assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.1.1", "3.0.2"));

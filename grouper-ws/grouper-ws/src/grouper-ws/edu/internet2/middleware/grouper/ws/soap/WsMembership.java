@@ -10,9 +10,10 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * Result of one member being retrieved from a group.
@@ -272,8 +273,8 @@ public class WsMembership implements Comparable<WsMembership> {
     this.setSubjectId(member.getSubjectId());
     this.setSubjectSourceId(member.getSubjectSourceId());
     
-    GrouperWsVersion clientVersion = GrouperWsVersion.retrieveCurrentClientVersion();
-    if (clientVersion != null && GrouperWsVersion.v1_6_000.lessThanArg(clientVersion, true)) {
+    GrouperVersion clientVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
+    if (clientVersion != null && GrouperVersion.valueOfIgnoreCase("v1_6_000").lessThanArg(clientVersion, true)) {
       this.setImmediateMembershipId(membership.getImmediateMembershipId());
     }
     

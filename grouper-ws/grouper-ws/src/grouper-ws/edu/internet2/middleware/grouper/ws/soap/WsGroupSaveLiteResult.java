@@ -5,12 +5,13 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * <pre>
@@ -38,10 +39,10 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -56,10 +57,10 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -74,10 +75,10 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -109,7 +110,7 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
     /** get the name label for a certain version of client 
      * @param clientVersion 
      * @return */
-    public String nameForVersion(GrouperWsVersion clientVersion) {
+    public String nameForVersion(GrouperVersion clientVersion) {
       return this.name();
     }
 
@@ -154,7 +155,7 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
    * @param clientVersion
    */
   public void assignResultCodeException(
-      WsGroupSaveLiteResultCode wsGroupSaveResultsCodeOverride, String theError, Exception e, GrouperWsVersion clientVersion) {
+      WsGroupSaveLiteResultCode wsGroupSaveResultsCodeOverride, String theError, Exception e, GrouperVersion clientVersion) {
 
     if (e instanceof WsInvalidQueryException) {
       wsGroupSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
@@ -186,7 +187,7 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
    * @param groupSaveResultsCode
    * @param clientVersion 
    */
-  public void assignResultCode(WsGroupSaveLiteResultCode groupSaveResultsCode, GrouperWsVersion clientVersion) {
+  public void assignResultCode(WsGroupSaveLiteResultCode groupSaveResultsCode, GrouperVersion clientVersion) {
     this.getResultMetadata().assignResultCode(groupSaveResultsCode, clientVersion);
   }
 
@@ -284,9 +285,9 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
         this.getResultMetadata().assignResultCode(
             wsGroupSaveResult.resultCode().convertToLiteCode());
       } catch (RuntimeException re) {
-        GrouperWsVersion clientVersion = GrouperWsVersion.retrieveCurrentClientVersion();
+        GrouperVersion clientVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
         //before 1.4 we had SUCCESS and nothing more descriptive, which isnt a real enum anymore
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           this.getResultMetadata().setResultCode(wsGroupSaveResult.getResultMetadata().getResultCode());
         } else {
           throw re;

@@ -5,7 +5,7 @@ package edu.internet2.middleware.grouper.ws.rest.method;
 
 import java.util.List;
 
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -30,7 +30,7 @@ public enum GrouperRestHttpMethod {
      */
     @Override
     public WsResponseBean service(
-        GrouperWsVersion clientVersion, List<String> urlStrings,
+        GrouperVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
 
       String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
@@ -57,7 +57,7 @@ public enum GrouperRestHttpMethod {
      */
     @Override
     public WsResponseBean service(
-        GrouperWsVersion clientVersion, List<String> urlStrings,
+        GrouperVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
       throw new RuntimeException("Invalid POST request");
     }
@@ -77,7 +77,7 @@ public enum GrouperRestHttpMethod {
      */
     @Override
     public WsResponseBean service(
-        GrouperWsVersion clientVersion, List<String> urlStrings,
+        GrouperVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
       
       String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
@@ -105,7 +105,7 @@ public enum GrouperRestHttpMethod {
      */
     @Override
     public WsResponseBean service(
-        GrouperWsVersion clientVersion, List<String> urlStrings,
+        GrouperVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
 
       String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
@@ -129,7 +129,7 @@ public enum GrouperRestHttpMethod {
    * @return the resultObject
    */
   public abstract WsResponseBean service(
-      GrouperWsVersion clientVersion, List<String> urlStrings, WsRequestBean requestObject);
+      GrouperVersion clientVersion, List<String> urlStrings, WsRequestBean requestObject);
 
   /**
    * do a case-insensitive matching

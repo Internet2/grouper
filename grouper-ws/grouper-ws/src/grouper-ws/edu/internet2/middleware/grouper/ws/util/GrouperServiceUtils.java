@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
@@ -46,7 +47,6 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
@@ -747,10 +747,10 @@ public final class GrouperServiceUtils {
    * @return the version
    * @throws WsInvalidQueryException
    */
-  public static GrouperWsVersion convertGrouperWsVersion(String theVersion)
+  public static GrouperVersion convertGrouperWsVersion(String theVersion)
       throws WsInvalidQueryException {
     try {
-      GrouperWsVersion version = GrouperWsVersion.valueOfIgnoreCase(theVersion, true);
+      GrouperVersion version = GrouperVersion.valueOfIgnoreCase(theVersion, true);
 
       return version;
     } catch (Exception e) {

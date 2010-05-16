@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult.WsStemSaveLiteResultCode;
@@ -80,10 +80,10 @@ public class WsStemSaveResult implements ResultMetadataHolder {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -106,10 +106,10 @@ public class WsStemSaveResult implements ResultMetadataHolder {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -132,10 +132,10 @@ public class WsStemSaveResult implements ResultMetadataHolder {
        * @param clientVersion 
        * @return */
       @Override
-      public String nameForVersion(GrouperWsVersion clientVersion) {
+      public String nameForVersion(GrouperVersion clientVersion) {
 
         //before 1.4 we had SUCCESS and nothing more descriptive
-        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
           return "SUCCESS";
         }
         return this.name();
@@ -215,7 +215,7 @@ public class WsStemSaveResult implements ResultMetadataHolder {
     /** get the name label for a certain version of client 
      * @param clientVersion 
      * @return */
-    public String nameForVersion(GrouperWsVersion clientVersion) {
+    public String nameForVersion(GrouperVersion clientVersion) {
       return this.name();
     }
 
@@ -239,7 +239,7 @@ public class WsStemSaveResult implements ResultMetadataHolder {
    * @param saveSaveResultCode
    * @param clientVersion 
    */
-  public void assignResultCode(WsStemSaveResultCode saveSaveResultCode, GrouperWsVersion clientVersion) {
+  public void assignResultCode(WsStemSaveResultCode saveSaveResultCode, GrouperVersion clientVersion) {
     this.getResultMetadata().assignResultCode(
         saveSaveResultCode == null ? null : saveSaveResultCode.nameForVersion(clientVersion));
     this.getResultMetadata().assignSuccess(saveSaveResultCode.isSuccess() ? "T" : "F");
@@ -259,7 +259,7 @@ public class WsStemSaveResult implements ResultMetadataHolder {
    * @param clientVersion
    */
   public void assignResultCodeException(Exception e, WsStemToSave wsStemToSave, 
-      GrouperWsVersion clientVersion) {
+      GrouperVersion clientVersion) {
     //get root exception (might be wrapped in wsInvalidQuery)
     Throwable mainThrowable = (e instanceof WsInvalidQueryException 
         && e.getCause() != null) ? e.getCause() : e;

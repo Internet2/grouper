@@ -8,9 +8,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 
 /**
  * response metadata (version, warnings, etc)
@@ -28,7 +28,7 @@ public class WsResponseMeta {
   /** 
    * if there are warnings, they will be there
    */
-  private StringBuilder resultWarnings = null;
+  private StringBuilder resultWarnings = new StringBuilder();
 
   /**
    * append error message to list of error messages
@@ -47,9 +47,17 @@ public class WsResponseMeta {
    * @return any warnings
    */
   public String getResultWarnings() {
-    return StringUtils.trimToNull(this.resultWarnings == null ? null : this.resultWarnings.toString());
+    return StringUtils.trimToNull(this.resultWarnings.toString());
   }
 
+  /**
+   * the builder for warnings
+   * @return the builder for warnings
+   */
+  public StringBuilder warnings() {
+    return this.resultWarnings;
+  }
+  
   /**
    * get the length of request (if specified in bean)
    */
@@ -73,7 +81,7 @@ public class WsResponseMeta {
   }
   
   /** server version */
-  private String serverVersion = GrouperWsVersion.currentVersion().name();
+  private String serverVersion = GrouperVersion.currentVersion().toString();
   /**
    * @return the serverVersion
    */

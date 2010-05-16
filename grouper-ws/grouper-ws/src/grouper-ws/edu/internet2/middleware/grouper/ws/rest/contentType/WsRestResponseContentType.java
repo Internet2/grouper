@@ -15,14 +15,15 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
-import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
 import edu.internet2.middleware.grouper.ws.rest.json.JsonConverter;
 import edu.internet2.middleware.grouper.ws.soap.WsSubject;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * possible content types by grouper ws rest
@@ -231,8 +232,8 @@ public enum WsRestResponseContentType {
         }
       }
     }
-    GrouperWsVersion clientVersion = GrouperWsVersion.retrieveCurrentClientVersion();
-    if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+    GrouperVersion clientVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
+    if (clientVersion != null && clientVersion.lessThanArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
       xstream.omitField(WsSubject.class, "identifierLookup");
     }
     //dont try to get fancy
