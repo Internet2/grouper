@@ -79,7 +79,7 @@ public class GrouperVersion {
    */
   public static GrouperVersion currentVersion() {
     if (currentVersion == null) {
-      currentVersion = new GrouperVersion(GROUPER_VERSION);
+      currentVersion = valueOfIgnoreCase(GROUPER_VERSION);
     }
     return currentVersion;
   }
