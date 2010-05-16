@@ -457,7 +457,9 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		//Set up CollectionPager for view
 		if(resultSize<children.size()) resultSize=children.size();
 		
-		int groupResultSize = 0;
+		
+		//Hopefully don't need any longer
+		/*int groupResultSize = 0;
 		int stemResultSize = 0;
 		ArrayList stems = new ArrayList();
 		ArrayList groups = new ArrayList();
@@ -475,6 +477,9 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		}
 		
 		CollectionPager pager = new CollectionPager(stems, groups, resultSize, null,
+				start, null, pageSize);
+				*/
+		CollectionPager pager = new CollectionPager(null,children, resultSize, null,
 				start, null, pageSize);
 		if (!isFlat)
 			pager.setParam("currentNode", currentNodeId);
