@@ -504,7 +504,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		  ? uniqueMemberships.subList(start, end) : uniqueMemberships;
 		List membershipMaps = GrouperHelper.memberships2Maps(
 				grouperSession, subList);
-		int uniqueMembershipCount = membershipCount;
+		int uniqueMembershipCount = uniqueMemberships.size();//membershipCount;
 		GrouperHelper.setMembershipCountPerSubjectOrGroup(membershipMaps,"group",countMap);
 		if(compMap!=null) {
 			membershipMaps.add(0,compMap);
