@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.ws;
 
+import java.util.Properties;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
@@ -57,6 +59,14 @@ public final class GrouperWsConfig {
     return retrievePropertiesConfiguration().getProperty(property);
   }
 
+  /**
+   * get all properties
+   * @return all properties
+   */
+  public static Properties getProperties() {
+    return retrievePropertiesConfiguration().getProperties();
+  }
+  
   /**
    * Get a Grouper configuration parameter.
    * 

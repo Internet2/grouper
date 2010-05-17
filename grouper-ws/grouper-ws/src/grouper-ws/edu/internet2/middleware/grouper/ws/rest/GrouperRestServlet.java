@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContent
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestResponseContentType;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
@@ -35,6 +36,10 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
  * servlet for rest web services
  */
 public class GrouperRestServlet extends HttpServlet {
+
+  static {
+    GrouperStatusServlet.registerStartup();
+  }
 
   /** keep track of if this is a rest request vs soap */
   private static ThreadLocal<Boolean> restRequest = new ThreadLocal<Boolean>();
@@ -80,6 +85,8 @@ public class GrouperRestServlet extends HttpServlet {
       throws ServletException, IOException {
 
     GrouperStartup.startup();
+
+    GrouperStatusServlet.incrementNumberOfRequest();
     
     GrouperServiceJ2ee.assignHttpServlet(this);
     restRequest.set(true);

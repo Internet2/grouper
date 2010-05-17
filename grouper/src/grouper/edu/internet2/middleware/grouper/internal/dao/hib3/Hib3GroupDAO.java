@@ -771,6 +771,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
 
   /**
+   * Note, this doesnt cache
    * @param _gt
    * @return set
    * @throws GrouperDAOException
@@ -778,25 +779,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> findAllByType(final GroupType _gt) 
     throws  GrouperDAOException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-
-            Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g, GroupTypeTuple as gtt " +
-                "where gtt.typeUuid = :type " +
-                "and gtt.groupUuid  = g.uuid"
-              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByType")
-              .setString( "type", _gt.getUuid() ).listSet(Group.class);
-
-            return groups;
-          }
-    });
-    return resultGroups;
+    
+    return findAllByType(_gt, new QueryOptions().secondLevelCache(false));
+    
   } 
 
   /**
@@ -1858,6 +1843,43 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         .setLong("theModifyTimeLong", group.getModifyTimeLong())
         .setString("theContextId", group.getContextId())
         .setString("theUuid", group.getUuid()).executeUpdate();
+  }
+
+  /**
+   * @see GroupDAO#findAllByType(GroupType, QueryOptions)
+   */
+  public Set<Group> findAllByType(final GroupType _gt, final QueryOptions queryOptions)
+      throws GrouperDAOException {
+    
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+
+            ByHql byHql = hibernateSession.byHql().createQuery(
+                "select g from Group as g, GroupTypeTuple as gtt " +
+                "where gtt.typeUuid = :type " +
+                "and gtt.groupUuid  = g.uuid"
+              );
+            
+            if (queryOptions != null && queryOptions.getSecondLevelCache() != null && !queryOptions.getSecondLevelCache()) {
+              byHql.setCacheable(false);
+            } else {
+              byHql.setCacheable(true);
+            }
+            
+            Set<Group> groups = byHql.setCacheRegion(KLASS + ".FindAllByType")
+              .setString( "type", _gt.getUuid() ).listSet(Group.class);
+
+            return groups;
+          }
+    });
+    return resultGroups;
+
+    
   }
 
 } 

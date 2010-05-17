@@ -1161,10 +1161,10 @@ public enum GrouperDdl implements DdlVersionable {
 
       //see if the grouper_ext_loader_log table is there
       String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_loader_job_name_idx " +
-          "ON grouper_loader_log (job_name(255));\n" : null;
+          "ON grouper_loader_log (job_name(255), status, ended_time);\n" : null;
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, "grouper_loader_log",
-          "grouper_loader_job_name_idx", scriptOverride, false, "job_name");
+          "grouper_loader_job_name_idx", scriptOverride, false, "job_name", "status", "ended_time");
 
       addContextIdColsLoader(database);
     }

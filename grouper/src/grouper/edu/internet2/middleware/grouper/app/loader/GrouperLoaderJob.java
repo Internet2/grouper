@@ -163,19 +163,34 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       boolean scheduleChange = false;
       
       if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner)
-          && !StringUtils.equals(grouperLoaderScheduleTypeFromOwner, grouperLoaderScheduleType)) {
+          && !StringUtils.equalsIgnoreCase(grouperLoaderScheduleTypeFromOwner, grouperLoaderScheduleType)) {
+        LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
+            + ", scheduleType from: " + grouperLoaderScheduleTypeFromOwner + ", to: " + grouperLoaderScheduleType);
+
         scheduleChange = true;
       }
       if (!StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)
           && !StringUtils.equals(grouperLoaderQuartzCronFromOwner, grouperLoaderQuartzCron)) {
+
+        LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
+            + ", quartzCron from: " + grouperLoaderQuartzCronFromOwner + ", to: " + grouperLoaderQuartzCron);
+
         scheduleChange = true;
       }
       if (grouperLoaderIntervalSecondsFromOwner != null
           && !ObjectUtils.equals(grouperLoaderIntervalSecondsFromOwner, grouperLoaderIntervalSeconds)) {
+
+        LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
+            + ", intervalSeconds from: " + grouperLoaderIntervalSecondsFromOwner + ", to: " + grouperLoaderIntervalSeconds);
+
         scheduleChange = true;
       }
       if (grouperLoaderPriorityFromOwner != null && 
           !ObjectUtils.equals(grouperLoaderPriorityFromOwner, trigger.getPriority())) {
+
+        LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
+            + ", priority from: " + grouperLoaderPriorityFromOwner + ", to: " + trigger.getPriority());
+
         scheduleChange = true;
       }
       

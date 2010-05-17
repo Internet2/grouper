@@ -218,9 +218,17 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * note, this doesnt cache
    * @since   1.2.0
    */
   Set<Group> findAllByType(GroupType _gt)
+    throws  GrouperDAOException;
+
+  /**
+   * this caches
+   * @since   1.2.0
+   */
+  Set<Group> findAllByType(GroupType _gt, QueryOptions queryOptions)
     throws  GrouperDAOException;
 
   /**

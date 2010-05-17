@@ -928,7 +928,7 @@ public enum GrouperLoaderType {
         return grouperLoaderType;
       }
     }
-    throw new RuntimeException("Cant fine job type for this name: " + jobName);
+    throw new RuntimeException("Cant find job type for this name: " + jobName);
   }
   
   /**
@@ -2429,7 +2429,7 @@ public enum GrouperLoaderType {
 
           if (hasChange) {
             if (LOG.isDebugEnabled()) {
-              LOG.debug(attributeDefName + " will update " + existingAttributeDefName.getName() 
+              LOG.debug(attributeDefName + " will update " + (existingAttributeDefName == null ? null : existingAttributeDefName.getName() )
                   + ", " + count + " of " + numberOfAttributeDefNames + " attributeDefNames");
             }
             existingAttributeDefName.store();
@@ -2445,7 +2445,7 @@ public enum GrouperLoaderType {
         } else {
           
           if (LOG.isDebugEnabled()) {
-            LOG.debug(attributeDefName + " will insert " + existingAttributeDefName.getName() 
+            LOG.debug(attributeDefName + " will insert " + (existingAttributeDefName == null ? null : existingAttributeDefName.getName() )
                 + ", " + count + " of " + numberOfAttributeDefNames + " attributeDefNames");
           }
           totalCount[0]++;

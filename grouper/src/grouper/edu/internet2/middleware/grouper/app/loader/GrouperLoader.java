@@ -887,7 +887,7 @@ public class GrouperLoader {
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = _internal_runJobOnceForAttributeDef(grouperSession, attributeDef);
     
     return "loader ran successfully, inserted " + hib3GrouperLoaderLog.getInsertCount()
-      + " memberships, deleted " + hib3GrouperLoaderLog.getDeleteCount() + " records, total record count: "
+      + " attrDefNames, deleted " + hib3GrouperLoaderLog.getDeleteCount() + " records, total record count: "
       + hib3GrouperLoaderLog.getTotalCount();
   }
   

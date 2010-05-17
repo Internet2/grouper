@@ -38,6 +38,16 @@
     <servlet-class>edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
+  <servlet>
+    <servlet-name>StatusServlet</servlet-name>
+    <display-name>Status Servlet</display-name>
+    <servlet-class>edu.internet2.middleware.grouper.ws.status.GrouperStatusServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>StatusServlet</servlet-name>
+    <url-pattern>/status</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>AxisServlet</servlet-name>
     <url-pattern>/services/*</url-pattern>

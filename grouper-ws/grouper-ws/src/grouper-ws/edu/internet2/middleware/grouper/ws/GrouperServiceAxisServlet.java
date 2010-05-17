@@ -18,6 +18,7 @@ import org.apache.axis2.transport.http.AxisServlet;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication;
 import edu.internet2.middleware.grouper.ws.security.RampartHandlerServer;
+import edu.internet2.middleware.grouper.ws.status.GrouperStatusServlet;
 
 
 /**
@@ -25,6 +26,10 @@ import edu.internet2.middleware.grouper.ws.security.RampartHandlerServer;
  */
 @SuppressWarnings("serial")
 public class GrouperServiceAxisServlet extends AxisServlet {
+
+  static {
+    GrouperStatusServlet.registerStartup();
+  }
 
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
@@ -35,6 +40,8 @@ public class GrouperServiceAxisServlet extends AxisServlet {
     
     GrouperStartup.startup();
     
+    GrouperStatusServlet.incrementNumberOfRequest();
+
     //stash in threadlocal, make sure this is first in this method!
     GrouperServiceJ2ee.assignHttpServlet(this);
 
