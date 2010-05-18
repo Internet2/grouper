@@ -46,6 +46,48 @@ import edu.internet2.middleware.grouperKimConnector.identity.GrouperKimIdentityS
  */
 public class GrouperKimUtils {
 
+
+  /**
+   * @param operation e.g. AttributeDefNamePicker.index
+   * @param arg1name e.g. attributeDefNamePickerName
+   * @param arg1value e.g. orgPicker
+   * @param arg2name e.g. attributeDefNamePickerElementName
+   * @param arg2value e.g. attributeDefName0
+   * @param windowName e.g. orgPicker
+   * @param width e.g. 700
+   * @param height e.g. 500
+   * @param buttonText e.g. Find org
+   * @return the html button text
+   * 
+   */
+  public static String xslGrouperButton(String operation, String arg1name, String arg1value, String arg2name,
+      String arg2value, String windowName, String width, String height, String buttonText) {
+    
+    //  <!--  button style="white-space: nowrap;"
+    //  onclick="var theWindow = window.open('http://localhost:8089/grouper/grouperUi/appHtml/grouper.html?operation=AttributeDefNamePicker.index&amp;attributeDefNamePickerName=orgPicker&amp;attributeDefNamePickerElementName=attributeDefName0','orgPicker', 'scrollbars,resizable,width=700,height=500'); theWindow.focus(); return false;"
+    //>Find org</button -->
+
+    StringBuilder result = new StringBuilder();
+    
+    result.append("      <button style=\"white-space: nowrap;\"\n");
+    
+    String fullUrl = GrouperClientUtils.propertiesValue("grouperClient.ui.url", true);
+    //strip last slash
+    if (fullUrl.endsWith("/")) {
+      fullUrl = fullUrl.substring(0, fullUrl.length()-1);
+    }
+    
+    result.append("      onclick=\"var theWindow = window.open('" + fullUrl 
+        + "/grouperUi/appHtml/grouper.html?operation=" + operation + "&amp;" + arg1name + "=" 
+        + arg1value + "&amp;" + arg2name + "=" + arg2value + "','" + windowName 
+        + "', 'scrollbars,resizable,width=" + width + ",height=" + height + "'); theWindow.focus(); return false;\"\n");
+    result.append(">" + buttonText + "</button>");
+    return result.toString();
+    
+    
+  }
+  
+  
   /**
    * get the first name from the name.  If the name has a space, do stuff before first space
    * note, if there is only one name, that goes in the last name with blank first name
@@ -546,15 +588,34 @@ public class GrouperKimUtils {
     if (GrouperClientUtils.isBlank(name)) {
       name = wsSubject.getName();
     }
+    
+    name = GrouperClientUtils.trim(name);
+    
     grouperKimEntityNameInfo.setFormattedName(name);
 
     if (grouperKimIdentitySourceProperties != null && !GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getFirstNameAttribute()) ) {
       String firstName = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getFirstNameAttribute());
       grouperKimEntityNameInfo.setFirstName(firstName);
     }
+    int nameSpaceIndex = !GrouperClientUtils.isBlank(name) ? name.indexOf(' ') : -1;
+    
+    //if no first name, take it from name
+    if (grouperKimIdentitySourceProperties != null && GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getFirstNameAttribute())
+        && nameSpaceIndex != -1) {
+      String firstName = name.substring(0,nameSpaceIndex);
+      grouperKimEntityNameInfo.setFirstName(firstName);
+    }
 
     if (grouperKimIdentitySourceProperties != null && !GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getLastNameAttribute()) ) {
       String lastName = subjectAttributeValue(wsSubject, attributeNames, grouperKimIdentitySourceProperties.getLastNameAttribute());
+      grouperKimEntityNameInfo.setLastName(lastName);
+    }
+
+    //if no last name, take it from name
+    if (grouperKimIdentitySourceProperties != null && GrouperClientUtils.isBlank(grouperKimIdentitySourceProperties.getLastNameAttribute())
+        && nameSpaceIndex != -1) {
+      String lastName = name.substring(nameSpaceIndex+1, name.length());
+      lastName = GrouperClientUtils.trim(lastName);
       grouperKimEntityNameInfo.setLastName(lastName);
     }
 
