@@ -1,5 +1,5 @@
 ##################################
-## Subject picker
+## Subject picker.  note, this should be named subjectPicker.properties for it to be valid.
 ## http://localhost:8090/grouper/grouperUi/appHtml/grouper.html?operation=SubjectPicker.index&subjectPickerName=subjectPickerExample&subjectPickerElementName=subject1
 ## subject picker config defaults
 
