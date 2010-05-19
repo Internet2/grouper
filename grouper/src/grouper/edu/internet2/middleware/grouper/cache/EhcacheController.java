@@ -39,6 +39,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class EhcacheController implements CacheController {
 
   /**
+   * 
+   */
+  private static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+  /**
    * singleton cache controller
    */
   private static EhcacheController ehcacheController = null;
@@ -206,37 +210,43 @@ public class EhcacheController implements CacheController {
     return new EhcacheStats( c.getStatistics() );
   }
 
+  /** original tmp dir */
+  private static final String ORIGINAL_TMP_DIR = System.getProperty(JAVA_IO_TMPDIR);
+  
   /** 
    * Initialize privilege cache.
    * @since   1.2.1
    */
   public void initialize() {
     if (this.mgr == null) {
-      URL url = this.getClass().getResource("/grouper.ehcache.xml");
-      if (url == null) {
-        throw new RuntimeException("Cant find resourse /grouper.ehcache.xml, " +
-        		"make sure it is on the classpath");
-      }
-      //trying to avoid warning of using the same dir
-      String tempDirKey = "java.io.tmpdir";
-      String tmpdir = System.getProperty(tempDirKey);
-      try {
-        String newTmpdir = StringUtils.trimToEmpty(tmpdir);
-        if (!newTmpdir.endsWith("\\") && !newTmpdir.endsWith("/")) {
-          newTmpdir += File.separator;
+      synchronized(EhcacheController.class) {
+        if (this.mgr == null) {
+          URL url = this.getClass().getResource("/grouper.ehcache.xml");
+          if (url == null) {
+            throw new RuntimeException("Cant find resourse /grouper.ehcache.xml, " +
+                "make sure it is on the classpath");
+          }
+          
+          //trying to avoid warning of using the same dir
+          try {
+            String newTmpdir = StringUtils.trimToEmpty(ORIGINAL_TMP_DIR);
+            if (!newTmpdir.endsWith("\\") && !newTmpdir.endsWith("/")) {
+              newTmpdir += File.separator;
+            }
+            newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
+            System.setProperty(JAVA_IO_TMPDIR, newTmpdir);
+            
+            synchronized(CacheManager.class) {
+              //now it should be using a unique directory
+              this.mgr = new CacheManager(url);
+            }
+          } finally {
+            //put tmpdir back
+            System.setProperty(JAVA_IO_TMPDIR, ORIGINAL_TMP_DIR);
+          }
+          
         }
-        newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
-        System.setProperty(tempDirKey, newTmpdir);
-        
-        synchronized(CacheManager.class) {
-          //now it should be using a unique directory
-          this.mgr = new CacheManager(url);
-        }
-      } finally {
-        //put tmpdir back
-        System.setProperty(tempDirKey, tmpdir);
       }
-      
     }
   }
   
