@@ -11,6 +11,7 @@ import java.sql.Types;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
@@ -534,6 +535,33 @@ public enum GrouperDdl implements DdlVersionable {
       
       addGroupSetOwnerIdColumn(database, ddlVersionBean);
       
+      //fix the enabled time col if wrong type
+      {
+        Table attributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(
+            database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN);
+        
+        Column column = GrouperDdlUtils.ddlutilsFindColumn(attributeAssignTable,
+            AttributeAssign.COLUMN_ENABLED_TIME);
+        
+        if (column.getTypeCode() == Types.CHAR || column.getTypeCode() == Types.VARCHAR) {
+          
+          if (ddlVersionBean.isMysql()) {
+            ddlVersionBean.appendAdditionalScriptUnique("alter table `grouper_attribute_assign` change `enabled_time` `enabled_time` bigint(20) NULL;\n");
+          } else if (ddlVersionBean.isOracle()) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE GROUPER_ATTRIBUTE_ASSIGN MODIFY(ENABLED_TIME NUMBER);\n");
+          } else if (ddlVersionBean.isPostgres()) {
+            ddlVersionBean.appendAdditionalScriptUnique("alter table grouper_attribute_assign alter column enabled_time type bigint;\n");
+          } else {
+            //do the default
+            column.setTypeCode(Types.BIGINT);
+            column.setSize("20");
+            column.setPrimaryKey(false);
+            column.setRequired(false);
+          }
+          
+          
+        }          
+      }
     }
   },
   
