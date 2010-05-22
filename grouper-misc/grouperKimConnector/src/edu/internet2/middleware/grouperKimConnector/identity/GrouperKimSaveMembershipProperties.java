@@ -46,6 +46,325 @@ public class GrouperKimSaveMembershipProperties {
   private String enteredGroupNamePrefix;
   
   
+  /** role to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions) */
+  private String roleForPermissions;
+
+  /** role to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with roleForPermissions) */
+  private String edocliteFieldRoleForPermissions;
+  
+  /** allowed roles (e.g. from edoclite form) or empty if not validating */
+  private String allowedRolesForPermissions;
+  
+  /** operation of assign|remove permissions (mutually exclusive with edocliteFieldOperationForPermissions) */
+  private String operationForPermissions;
+
+  /** operation to assign|remove permissions (read from edoclite) or empty if not doing permissions (mutually exclusive with operationForPermissions) */
+  private String edocliteFieldOperationForPermissions;
+
+  /** allowed operations (e.g. from edoclite form) or empty if not validating */
+  private String allowedOperationsForPermissions;
+
+  /** actions to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions) */
+  private String actionsForPermissions;
+
+  /** 
+   * actions to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with actionsForPermissions)
+   * this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
+   */
+  private String edocliteFieldPrefixActionsForPermissions;
+
+  /**
+   * allowed actions (e.g. from edoclite form) or empty if not validating
+   */
+  private String allowedActionsForPermissions;
+
+  /** permissions to assign or null if not doing permissions (mutually exclusive with edocliteFieldPrefixForPermissions) */
+  private String permissions;
+
+  /** 
+   * permissions to assign (read from edoclite) or empty if not doing permissions (mutually exclusive with permissions)
+   * this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
+   */
+  private String edocliteFieldPrefixForPermissions;
+
+  /**
+   * allowed permissions (e.g. from edoclite form) or empty if not validating
+   */
+  private String allowedPermissions;
+
+  /**
+   * regex of permissions allowed to assign, extra layer of security, optional
+   */
+  private String permissionsRegex;
+
+  /**
+   * this will be prefixed to the entered permission name so the whole stem doesnt 
+   * have to be put on screen (also helps sandbox out the security)
+   */
+  private String enteredPermissionNamePrefix;
+  
+  
+  
+  
+  /**
+   * role to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
+   * @return the roleForPermissions
+   */
+  public String getRoleForPermissions() {
+    return this.roleForPermissions;
+  }
+
+  
+  /**
+   * role to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
+   * @param roleForPermissions1 the roleForPermissions to set
+   */
+  public void setRoleForPermissions(String roleForPermissions1) {
+    this.roleForPermissions = roleForPermissions1;
+  }
+
+  
+  /**
+   * role to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with roleForPermissions)
+   * @return the edocliteFieldRoleForPermissions
+   */
+  public String getEdocliteFieldRoleForPermissions() {
+    return this.edocliteFieldRoleForPermissions;
+  }
+
+  
+  /**
+   * role to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with roleForPermissions)
+   * @param edocliteFieldRoleForPermissions1 the edocliteFieldRoleForPermissions to set
+   */
+  public void setEdocliteFieldRoleForPermissions(String edocliteFieldRoleForPermissions1) {
+    this.edocliteFieldRoleForPermissions = edocliteFieldRoleForPermissions1;
+  }
+
+  
+  /**
+   * allowed roles (e.g. from edoclite form) or empty if not validating
+   * @return the allowedRolesForPermissions
+   */
+  public String getAllowedRolesForPermissions() {
+    return this.allowedRolesForPermissions;
+  }
+
+  
+  /**
+   * allowed roles (e.g. from edoclite form) or empty if not validating
+   * @param allowedRolesForPermissions1 the allowedRolesForPermissions to set
+   */
+  public void setAllowedRolesForPermissions(String allowedRolesForPermissions1) {
+    this.allowedRolesForPermissions = allowedRolesForPermissions1;
+  }
+
+  
+  /**
+   * operation of assign|remove permissions (mutually exclusive with edocliteFieldOperationForPermissions)
+   * @return the operationForPermissions
+   */
+  public String getOperationForPermissions() {
+    return this.operationForPermissions;
+  }
+
+  
+  /**
+   * operation of assign|remove permissions (mutually exclusive with edocliteFieldOperationForPermissions)
+   * @param operationForPermissions1 the operationForPermissions to set
+   */
+  public void setOperationForPermissions(String operationForPermissions1) {
+    this.operationForPermissions = operationForPermissions1;
+  }
+
+  
+  /**
+   * operation to assign|remove permissions (read from edoclite) or empty if not doing permissions (mutually exclusive with operationForPermissions)
+   * @return the edocliteFieldOperationForPermissions
+   */
+  public String getEdocliteFieldOperationForPermissions() {
+    return this.edocliteFieldOperationForPermissions;
+  }
+
+  
+  /**
+   * operation to assign|remove permissions (read from edoclite) or empty if not doing permissions (mutually exclusive with operationForPermissions)
+   * @param edocliteFieldOperationForPermissions1 the edocliteFieldOperationForPermissions to set
+   */
+  public void setEdocliteFieldOperationForPermissions(
+      String edocliteFieldOperationForPermissions1) {
+    this.edocliteFieldOperationForPermissions = edocliteFieldOperationForPermissions1;
+  }
+
+  
+  /**
+   * allowed operations (e.g. from edoclite form) or empty if not validating
+   * @return the allowedOperationsForPermissions
+   */
+  public String getAllowedOperationsForPermissions() {
+    return this.allowedOperationsForPermissions;
+  }
+
+  
+  /**
+   * allowed operations (e.g. from edoclite form) or empty if not validating
+   * @param allowedOperationsForPermissions1 the allowedOperationsForPermissions to set
+   */
+  public void setAllowedOperationsForPermissions(String allowedOperationsForPermissions1) {
+    this.allowedOperationsForPermissions = allowedOperationsForPermissions1;
+  }
+
+  
+  /**
+   * actions to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
+   * @return the actionsForPermissions
+   */
+  public String getActionsForPermissions() {
+    return this.actionsForPermissions;
+  }
+
+  
+  /**
+   * actions to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
+   * @param actionsForPermissions1 the actionsForPermissions to set
+   */
+  public void setActionsForPermissions(String actionsForPermissions1) {
+    this.actionsForPermissions = actionsForPermissions1;
+  }
+
+  
+  /**
+   * actions to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with actionsForPermissions)
+   * this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
+   * @return the edocliteFieldPrefixActionsForPermissions
+   */
+  public String getEdocliteFieldPrefixActionsForPermissions() {
+    return this.edocliteFieldPrefixActionsForPermissions;
+  }
+
+  
+  /**
+   * actions to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with actionsForPermissions)
+   * this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
+   * @param edocliteFieldPrefixActionsForPermissions1 the edocliteFieldPrefixActionsForPermissions to set
+   */
+  public void setEdocliteFieldPrefixActionsForPermissions(
+      String edocliteFieldPrefixActionsForPermissions1) {
+    this.edocliteFieldPrefixActionsForPermissions = edocliteFieldPrefixActionsForPermissions1;
+  }
+
+  
+  /**
+   * allowed actions (e.g. from edoclite form) or empty if not validating
+   * @return the allowedActionsForPermissions
+   */
+  public String getAllowedActionsForPermissions() {
+    return this.allowedActionsForPermissions;
+  }
+
+  
+  /**
+   * allowed actions (e.g. from edoclite form) or empty if not validating
+   * @param allowedActionsForPermissions1 the allowedActionsForPermissions to set
+   */
+  public void setAllowedActionsForPermissions(String allowedActionsForPermissions1) {
+    this.allowedActionsForPermissions = allowedActionsForPermissions1;
+  }
+
+  
+  /**
+   * permissions to assign or null if not doing permissions (mutually exclusive with edocliteFieldPrefixForPermissions)
+   * @return the permissions
+   */
+  public String getPermissions() {
+    return this.permissions;
+  }
+
+  
+  /**
+   * permissions to assign or null if not doing permissions (mutually exclusive with edocliteFieldPrefixForPermissions)
+   * @param permissions1 the permissions to set
+   */
+  public void setPermissions(String permissions1) {
+    this.permissions = permissions1;
+  }
+
+  
+  /**
+   * permissions to assign (read from edoclite) or empty if not doing permissions (mutually exclusive with permissions)
+   * this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
+   * @return the edocliteFieldPrefixForPermissions
+   */
+  public String getEdocliteFieldPrefixForPermissions() {
+    return this.edocliteFieldPrefixForPermissions;
+  }
+
+  
+  /**
+   * permissions to assign (read from edoclite) or empty if not doing permissions (mutually exclusive with permissions)
+   * this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
+   * @param edocliteFieldPrefixForPermissions1 the edocliteFieldPrefixForPermissions to set
+   */
+  public void setEdocliteFieldPrefixForPermissions(String edocliteFieldPrefixForPermissions1) {
+    this.edocliteFieldPrefixForPermissions = edocliteFieldPrefixForPermissions1;
+  }
+
+  
+  /**
+   * allowed permissions (e.g. from edoclite form) or empty if not validating
+   * @return the allowedPermissions
+   */
+  public String getAllowedPermissions() {
+    return this.allowedPermissions;
+  }
+
+  
+  /**
+   * allowed permissions (e.g. from edoclite form) or empty if not validating
+   * @param allowedPermissions1 the allowedPermissions to set
+   */
+  public void setAllowedPermissions(String allowedPermissions1) {
+    this.allowedPermissions = allowedPermissions1;
+  }
+
+  
+  /**
+   * regex of permissions allowed to assign, extra layer of security, optional
+   * @return the permissionsRegex
+   */
+  public String getPermissionsRegex() {
+    return this.permissionsRegex;
+  }
+
+  
+  /**
+   * regex of permissions allowed to assign, extra layer of security, optional
+   * @param permissionsRegex1 the permissionsRegex to set
+   */
+  public void setPermissionsRegex(String permissionsRegex1) {
+    this.permissionsRegex = permissionsRegex1;
+  }
+
+  
+  /**
+   * this will be prefixed to the entered permission name so the whole stem doesnt 
+   * have to be put on screen (also helps sandbox out the security)
+   * @return the enteredPermissionNamePrefix
+   */
+  public String getEnteredPermissionNamePrefix() {
+    return this.enteredPermissionNamePrefix;
+  }
+
+  
+  /**
+   * this will be prefixed to the entered permission name so the whole stem doesnt 
+   * have to be put on screen (also helps sandbox out the security)
+   * @param enteredPermissionNamePrefix1 the enteredPermissionNamePrefix to set
+   */
+  public void setEnteredPermissionNamePrefix(String enteredPermissionNamePrefix1) {
+    this.enteredPermissionNamePrefix = enteredPermissionNamePrefix1;
+  }
+
   /**
    * this will be prefixed to the entered group name so the whole stem doesnt have to be put on screen (also helps sandbox out the security)
    * @return the enteredGroupNamePrefix
@@ -242,9 +561,14 @@ public class GrouperKimSaveMembershipProperties {
     //# configure postprocessor actions on document types.  The string "sampleProvisioning" ties the configs
     //# together, change that label for multiple
     //
+    //###### MISC
+    //# email addresses (comma separated) that should get an admin email that this was done (or errors)
+    //kuali.edoclite.saveMembership.sampleProvisioning.emailAdmins = mchyzer@isc.upenn.edu
+    //
     //# doctype name that this applies to
     //kuali.edoclite.saveMembership.sampleProvisioning.docTypeName = sampleProvisioning.doctype
     //
+    //###### GROUPS
     //# regex of group allowed to assign to, extra layer of security, optional
     //kuali.edoclite.saveMembership.sampleProvisioning.groupRegex = ^temp:[^:]+rovisionGroup$
     //
@@ -267,8 +591,56 @@ public class GrouperKimSaveMembershipProperties {
     //# groups (comma separated) id or name which the initiator will be unassigned from when the document is final
     //kuali.edoclite.saveMembership.sampleProvisioning.removeMembershipFromGroups = temp:anotherProvisionGroup
     //
-    //# email addresses (comma separated) that should get an admin email that this was done (or errors)
-    //kuali.edoclite.saveMembership.sampleProvisioning.emailAdmins = mchyzer@isc.upenn.edu
+    //###### PERMISSIONS ROLES
+    //# role to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
+    //kuali.edoclite.saveMembership.sampleProvisioning.roleForPermissions = some:role
+    //
+    //# role to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with roleForPermissions)
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldRoleForPermissions = someEdocliteFieldName
+    //
+    //# allowed roles (e.g. from edoclite form) or empty if not validating
+    //kuali.edoclite.saveMembership.sampleProvisioning.allowedRolesForPermissions = some:role1, some:role2
+    //
+    //###### PERMISSIONS OPERATIONS
+    //# operation of assign|remove permissions (mutually exclusive with edocliteFieldOperationForPermissions)
+    //kuali.edoclite.saveMembership.sampleProvisioning.operationForPermissions = assign_permission, remove_permission
+    //
+    //# operation to assign|remove permissions (read from edoclite) or empty if not doing permissions (mutually exclusive with operationForPermissions)
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldOperationForPermissions = someEdocliteFieldName
+    //
+    //# allowed operations (e.g. from edoclite form) or empty if not validating
+    //kuali.edoclite.saveMembership.sampleProvisioning.allowedOperationsForPermissions = assign_permission, remove_permission
+    //
+    //###### ACTIONS
+    //# actions to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
+    //kuali.edoclite.saveMembership.sampleProvisioning.actionsForPermissions = read,write
+    //
+    //# actions to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with actionsForPermissions)
+    //# this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPrefixActionsForPermissions = someEdocliteFieldName
+    //
+    //# allowed actions (e.g. from edoclite form) or empty if not validating
+    //kuali.edoclite.saveMembership.sampleProvisioning.allowedActionsForPermissions = read, write
+    //
+    //###### PERMISSIONS
+    //# permissions to assign or null if not doing permissions (mutually exclusive with edocliteFieldPrefixForPermissions)
+    //kuali.edoclite.saveMembership.sampleProvisioning.permissions = a:b, b:c
+    //
+    //# permissions to assign (read from edoclite) or empty if not doing permissions (mutually exclusive with permissions)
+    //# this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPrefixForPermissions = someEdocliteFieldName
+    //
+    //# allowed permissions (e.g. from edoclite form) or empty if not validating
+    //kuali.edoclite.saveMembership.sampleProvisioning.allowedPermissions = read, write
+    //
+    //# regex of permissions allowed to assign, extra layer of security, optional
+    //kuali.edoclite.saveMembership.sampleProvisioning.permissionsRegex = ^temp:[^:]+rovisionGroup$
+    //
+    //#this will be prefixed to the entered permission name so the whole stem doesnt 
+    //#have to be put on screen (also helps sandbox out the security)
+    //kuali.edoclite.saveMembership.sampleProvisioning.enteredPermissionNamePrefix = school:some:prefix:
+    //
+    //##################################################
     
     
     GrouperKimSaveMembershipProperties grouperKimSaveMembershipProperties = 
@@ -336,6 +708,90 @@ public class GrouperKimSaveMembershipProperties {
               String emailAdmins = GrouperClientUtils.propertiesValue(
                   "kuali.edoclite.saveMembership." + configName + ".emailAdmins", false);
               grouperKimSaveMembershipProperties.setEmailAdmins(emailAdmins);
+            }
+            
+            {
+              String roleForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".roleForPermissions", false);
+              grouperKimSaveMembershipProperties.setRoleForPermissions(roleForPermissions);
+            }
+            
+            {
+              String edocliteFieldRoleForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldRoleForPermissions", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldRoleForPermissions(edocliteFieldRoleForPermissions);
+            }
+
+            {
+              String allowedRolesForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".allowedRolesForPermissions", false);
+              grouperKimSaveMembershipProperties.setAllowedRolesForPermissions(allowedRolesForPermissions);
+            }
+
+            {
+              String operationForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".operationForPermissions", false);
+              grouperKimSaveMembershipProperties.setOperationForPermissions(operationForPermissions);
+            }
+
+            {
+              String edocliteFieldOperationForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldOperationForPermissions", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldOperationForPermissions(edocliteFieldOperationForPermissions);
+            }
+
+            {
+              String allowedOperationsForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".allowedOperationsForPermissions", false);
+              grouperKimSaveMembershipProperties.setAllowedOperationsForPermissions(allowedOperationsForPermissions);
+            }
+
+            {
+              String actionsForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".actionsForPermissions", false);
+              grouperKimSaveMembershipProperties.setActionsForPermissions(actionsForPermissions);
+            }
+
+            {
+              String edocliteFieldPrefixActionsForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldPrefixActionsForPermissions", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldPrefixActionsForPermissions(edocliteFieldPrefixActionsForPermissions);
+            }
+
+            {
+              String allowedActionsForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".allowedActionsForPermissions", false);
+              grouperKimSaveMembershipProperties.setAllowedActionsForPermissions(allowedActionsForPermissions);
+            }
+
+            {
+              String permissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".permissions", false);
+              grouperKimSaveMembershipProperties.setPermissions(permissions);
+            }
+
+            {
+              String edocliteFieldPrefixForPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldPrefixForPermissions", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldPrefixForPermissions(edocliteFieldPrefixForPermissions);
+            }
+            
+            {
+              String allowedPermissions = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".allowedPermissions", false);
+              grouperKimSaveMembershipProperties.setAllowedPermissions(allowedPermissions);
+            }
+            
+            {
+              String permissionsRegex = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".permissionsRegex", false);
+              grouperKimSaveMembershipProperties.setPermissionsRegex(permissionsRegex);
+            }
+
+            {
+              String enteredPermissionNamePrefix = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".enteredPermissionNamePrefix", false);
+              grouperKimSaveMembershipProperties.setEnteredPermissionNamePrefix(enteredPermissionNamePrefix);
             }
             
             break;

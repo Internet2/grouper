@@ -3,7 +3,6 @@
  */
 package edu.internet2.middleware.grouper.group;
 
-import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
