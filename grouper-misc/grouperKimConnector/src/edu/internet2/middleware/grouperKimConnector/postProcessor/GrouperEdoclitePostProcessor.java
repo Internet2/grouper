@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouperKimConnector.postProcessor;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +38,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.grouperClientMail.GrouperClientEmail;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperKimConnector.identity.GrouperKimSaveMembershipProperties;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimServiceUtils;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimSubject;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
@@ -92,18 +93,7 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
       }
       
       for (int i=0;i<200;i++) {
-        String action = null;
-        try {
-          //this xpath will give the value element for the operation to use in the assignment
-          action = xpath.evaluate(
-              "/documentContent/applicationContent/data/version[@current = \"true\"]" +
-              "/field[@name = \"" + prefixAction + i + "\"]/value", root);
-        } catch (NullPointerException npe) {
-  
-        } catch (XPathException xpe) {
-          //this probably means done
-          break;
-        }
+        String action = xpathValue(xpath, root, prefixAction + i);
         
         if (GrouperClientUtils.isBlank(action)) {
           continue;
@@ -123,6 +113,26 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
     }
     return actions;
   }
+  
+  /**
+   * get the xpath value from document
+   * @param xpath
+   * @param root
+   * @param fieldName
+   * @return the value
+   */
+  private static String xpathValue(XPath xpath, Element root, String fieldName) {
+    try {
+      //this xpath will give the value element for the group name
+      return xpath.evaluate(
+          "/documentContent/applicationContent/data/version[@current = \"true\"]" +
+          "/field[@name = \"" + fieldName + "\"]/value", root);
+
+    } catch (XPathException xpe) {
+      throw new RuntimeException("Problem looking for field: '" + fieldName + "'");
+    }
+  }
+
 
   /**
    * @param event
@@ -196,10 +206,35 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
               report.append("\n\n");
             }
 
+            Timestamp enabledTime = null;
+            {
+              String edocliteEnabledField = grouperKimSaveMembershipProperties.getEdocliteFieldGroupEnabledDate();
+              String enabledString = null;
+              
+              if (!GrouperClientUtils.isBlank(edocliteEnabledField)) {
+                enabledString = xpathValue(xpath, root, edocliteEnabledField);
+              }
+              if (!GrouperClientUtils.isBlank(enabledString)) {
+                enabledTime = GrouperClientUtils.toTimestamp(GrouperClientUtils.stringToDate2(enabledString));
+              }
+            }
+            Timestamp disabledTime = null;
+            {
+              String edocliteDisabledField = grouperKimSaveMembershipProperties.getEdocliteFieldGroupDisabledDate();
+              String disabledString = null;
+              
+              if (!GrouperClientUtils.isBlank(edocliteDisabledField)) {
+                disabledString = xpathValue(xpath, root, edocliteDisabledField);
+              }
+              if (!GrouperClientUtils.isBlank(disabledString)) {
+                disabledTime = GrouperClientUtils.toTimestamp(GrouperClientUtils.stringToDate2(disabledString));
+              }
+            }
+            
             if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getEdocliteFieldPrefix())) {
               
               processAddMemberToGroupByEdoclitePrefix(sendingEmail, report,
-                  grouperKimSaveMembershipProperties, wsSubject, root, xpath);
+                  grouperKimSaveMembershipProperties, wsSubject, root, xpath, enabledTime, disabledTime);
               
               
             }
@@ -207,8 +242,10 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
             if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getAddMembershipToGroups())) {
   
               String[] groupsToAdd = GrouperClientUtils.splitTrim(grouperKimSaveMembershipProperties.getAddMembershipToGroups(), ",");
+              
+              
               for (String groupToAdd : groupsToAdd) {
-                addMemberToGroup(sendingEmail, report, wsSubject, groupToAdd);
+                addMemberToGroup(sendingEmail, report, wsSubject, groupToAdd, enabledTime, disabledTime);
                 
               }
             }
@@ -234,9 +271,9 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
               Set<String> permissionNames = processPermissionNames(grouperKimSaveMembershipProperties, root, xpath);
               
               //provision role
-              addMemberToGroup(sendingEmail, report, wsSubject, roleName);
+              addMemberToGroup(sendingEmail, report, wsSubject, roleName, enabledTime, disabledTime);
               
-              addMemberPermissions(sendingEmail, report, wsSubject, roleName, operation, actions, permissionNames);
+              addMemberPermissions(sendingEmail, report, wsSubject, roleName, operation, actions, permissionNames, enabledTime, disabledTime);
               
               //end role/permissions provisioning
             }
@@ -276,28 +313,18 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
    * @param wsSubject
    * @param root
    * @param xpath
+   * @param enabledDate 
+   * @param disabledDate 
    */
   private static void processAddMemberToGroupByEdoclitePrefix(boolean sendingEmail,
       StringBuilder report,
       GrouperKimSaveMembershipProperties grouperKimSaveMembershipProperties,
-      WsSubject wsSubject, Element root, XPath xpath) {
+      WsSubject wsSubject, Element root, XPath xpath, Date enabledDate, Date disabledDate) {
     String eDocliteFieldPrefix = grouperKimSaveMembershipProperties.getEdocliteFieldPrefix();
     
-    OUTER200: for (int i=0;i<200;i++) {
+    for (int i=0;i<200;i++) {
       
-      String groupName = null;
-      try {
-        //this xpath will give the value element for the group name
-        groupName = xpath.evaluate(
-            "/documentContent/applicationContent/data/version[@current = \"true\"]" +
-            "/field[@name = \"" + eDocliteFieldPrefix + i + "\"]/value", root);
-
-      } catch (NullPointerException npe) {
-        //ignore this
-      } catch (XPathException xpe) {
-        //this means we are probably done here
-        break OUTER200;
-      }
+      String groupName = xpathValue(xpath, root, eDocliteFieldPrefix + i);
 
       if (GrouperClientUtils.isBlank(groupName)) {
         continue;
@@ -316,7 +343,7 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
         throw new RuntimeException("Not allowed to access groupName: '" + groupName + "'");
       }
       
-      addMemberToGroup(sendingEmail, report, wsSubject, groupName);
+      addMemberToGroup(sendingEmail, report, wsSubject, groupName, enabledDate, disabledDate);
                       
     }
   }
@@ -353,9 +380,11 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
    * @param report
    * @param wsSubject
    * @param groupToAdd
+   * @param enabledDate 
+   * @param disabledDate 
    */
   private static void addMemberToGroup(boolean sendingEmail, StringBuilder report,
-      WsSubject wsSubject, String groupToAdd) {
+      WsSubject wsSubject, String groupToAdd, Date enabledDate, Date disabledDate) {
     String groupName = groupToAdd.contains(":") ? groupToAdd : null;
     String groupId = groupToAdd.contains(":") ? null : groupToAdd;
     GcAddMember gcAddMember = new GcAddMember().addSubjectLookup(
@@ -367,6 +396,10 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
       gcAddMember.assignGroupUuid(groupId);
     }
     WsAddMemberResults wsAddMemberResults = gcAddMember.execute();
+
+    if (enabledDate != null || disabledDate != null) {
+      //lets get the 
+    }
     
     // based on result, add report
     if (sendingEmail) {
@@ -391,26 +424,18 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
     }
     
     if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions())) {
-      try {
-        //this xpath will give the value element for the role to use in the assignment
-        roleName = xpath.evaluate(
-            "/documentContent/applicationContent/data/version[@current = \"true\"]" +
-            "/field[@name = \"" + grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions() + "\"]/value", root);
+      //this xpath will give the value element for the role to use in the assignment
+      roleName = xpathValue(xpath, root, grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions());
 
-        //see if what was entered is allowed
-        if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getAllowedRolesForPermissions())) {
-          
-          List<String> allowedRolesForPermissions = GrouperClientUtils.splitTrimToList(grouperKimSaveMembershipProperties
-              .getAllowedRolesForPermissions(), ",");
-          if (!allowedRolesForPermissions.contains(roleName)) {
-            throw new RuntimeException("Role is not in list of allowed roles: " 
-                + roleName + ", allowed: " + grouperKimSaveMembershipProperties.getAllowedRolesForPermissions());
-          }
-        }
+      //see if what was entered is allowed
+      if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getAllowedRolesForPermissions())) {
         
-      } catch (XPathException xpe) {
-        //this means problem
-        throw new RuntimeException("Problem finding role in document: " + grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions());
+        List<String> allowedRolesForPermissions = GrouperClientUtils.splitTrimToList(grouperKimSaveMembershipProperties
+            .getAllowedRolesForPermissions(), ",");
+        if (!allowedRolesForPermissions.contains(roleName)) {
+          throw new RuntimeException("Role is not in list of allowed roles: " 
+              + roleName + ", allowed: " + grouperKimSaveMembershipProperties.getAllowedRolesForPermissions());
+        }
       }
       
     }
@@ -434,27 +459,20 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
     
     if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getEdocliteFieldOperationForPermissions())) {
       
-      try {
-        //this xpath will give the value element for the operation to use in the assignment
-        operation = xpath.evaluate(
-            "/documentContent/applicationContent/data/version[@current = \"true\"]" +
-            "/field[@name = \"" + grouperKimSaveMembershipProperties.getEdocliteFieldOperationForPermissions() + "\"]/value", root);
+      //this xpath will give the value element for the operation to use in the assignment
+      operation = xpathValue(xpath, root, grouperKimSaveMembershipProperties.getEdocliteFieldOperationForPermissions());
 
-        //see if what was entered is allowed
-        if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getAllowedOperationsForPermissions())) {
-          
-          List<String> allowedOperationsForPermissions = GrouperClientUtils.splitTrimToList(grouperKimSaveMembershipProperties
-              .getAllowedOperationsForPermissions(), ",");
-          if (!allowedOperationsForPermissions.contains(operation)) {
-            throw new RuntimeException("Operation is not in list of allowed operations: " 
-                + operation + ", allowed: " + grouperKimSaveMembershipProperties.getAllowedOperationsForPermissions());
-          }
-        }
+      //see if what was entered is allowed
+      if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getAllowedOperationsForPermissions())) {
         
-      } catch (XPathException xpe) {
-        //this means problem
-        throw new RuntimeException("Problem finding role in document: " + grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions());
+        List<String> allowedOperationsForPermissions = GrouperClientUtils.splitTrimToList(grouperKimSaveMembershipProperties
+            .getAllowedOperationsForPermissions(), ",");
+        if (!allowedOperationsForPermissions.contains(operation)) {
+          throw new RuntimeException("Operation is not in list of allowed operations: " 
+              + operation + ", allowed: " + grouperKimSaveMembershipProperties.getAllowedOperationsForPermissions());
+        }
       }
+      
       
     }
     return operation;
@@ -490,18 +508,9 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
       String permissionNamePrefix = grouperKimSaveMembershipProperties.getEnteredPermissionNamePrefix();
       
       for (int i=0;i<200;i++) {
-        String permissionName = null;
-        try {
-          //this xpath will give the value element for the operation to use in the assignment
-          permissionName = xpath.evaluate(
-              "/documentContent/applicationContent/data/version[@current = \"true\"]" +
-              "/field[@name = \"" + edocLiteFieldForPermissions + i + "\"]/value", root);
-        } catch (NullPointerException npe) {
 
-        } catch (XPathException xpe) {
-          //this probably means done
-          break;
-        }
+        //this xpath will give the value element for the operation to use in the assignment
+        String permissionName = xpathValue(xpath, root,edocLiteFieldForPermissions);
         
         if (GrouperClientUtils.isBlank(permissionName)) {
           continue;
@@ -540,9 +549,12 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
    * @param operation 
    * @param actions 
    * @param permissionNames 
+   * @param enabledDate 
+   * @param disabledDate 
    */
   private static void addMemberPermissions(boolean sendingEmail, StringBuilder report,
-      WsSubject wsSubject, String roleNameToAdd, String operation, Set<String> actions, Set<String> permissionNames) {
+      WsSubject wsSubject, String roleNameToAdd, String operation, Set<String> actions, 
+      Set<String> permissionNames, Date enabledDate, Date disabledDate) {
     String roleName = roleNameToAdd.contains(":") ? roleNameToAdd : null;
     String roleId = roleNameToAdd.contains(":") ? null : roleNameToAdd;
 
@@ -562,7 +574,8 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
       gcAssignPermissions.addPermissionDefNameName(permissionName);
     }
     gcAssignPermissions.assignPermissionType("role_subject");
-    //TODO start/end date on group (above), start/end date on permissions
+    
+    //TODO start/end date on group (above), start/end date on permissions, delegatable
 //    WsAddMemberResults wsAddMemberResults = gcAddMember.execute();
     
 //    // based on result, add report

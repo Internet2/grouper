@@ -2,7 +2,7 @@
  * @author mchyzer
  * $Id$
  */
-package edu.internet2.middleware.grouperKimConnector.identity;
+package edu.internet2.middleware.grouperKimConnector.postProcessor;
 
 import java.util.HashSet;
 import java.util.List;
@@ -392,7 +392,159 @@ public class GrouperKimSaveMembershipProperties {
    */
   private String edocliteFieldPrefix;
   
+  /** 
+   * if there is a disabled date, that is here.  Note, if doing permissions, the permissions will
+   * disable here too
+   */
+  private String edocliteFieldGroupDisabledDate;
   
+  /** 
+   * if there is a enabled date, that is here.  Note, if doing permissions, the permissions will
+   * enable here too
+   */
+  private String edocliteFieldGroupEnabledDate;
+  
+  /** 
+   * if there is a disabled date, that is here.  Note, this is just for the permissions, not for the
+   * role
+   */
+  private String edocliteFieldPermissionDisabledDate;
+  
+  /** 
+   * if there is a enabled date, that is here.  Note, this is just for permissions, and not for the 
+   * role
+   */
+  private String edocliteFieldPermissionEnabledDate;
+  
+  /**
+   * blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+   */
+  private String permissionsDelegatable;
+  
+  /**
+   * edoclite field for blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+   */
+  private String edocliteFieldPermissionsDelegatable;
+  
+  /**
+   * blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+   * @return delegatable
+   */
+  public String getPermissionsDelegatable() {
+    return permissionsDelegatable;
+  }
+
+
+  /**
+   * blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+   * @param permissionsDelegatable1
+   */
+  public void setPermissionsDelegatable(String permissionsDelegatable1) {
+    this.permissionsDelegatable = permissionsDelegatable1;
+  }
+
+
+  /**
+   * edoclite field for blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+   * @return field name
+   */
+  public String getEdocliteFieldPermissionsDelegatable() {
+    return edocliteFieldPermissionsDelegatable;
+  }
+
+
+  /**
+   * edoclite field for blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+   * @param edocliteFieldPermissionsDelegatable1
+   */
+  public void setEdocliteFieldPermissionsDelegatable(
+      String edocliteFieldPermissionsDelegatable1) {
+    this.edocliteFieldPermissionsDelegatable = edocliteFieldPermissionsDelegatable1;
+  }
+
+
+  /**
+   * if there is a disabled date, that is here.  Note, if doing permissions, the permissions will
+   * disable here too
+   * @return disabled date
+   */
+  public String getEdocliteFieldGroupDisabledDate() {
+    return edocliteFieldGroupDisabledDate;
+  }
+
+
+  /**
+   * if there is a disabled date, that is here.  Note, if doing permissions, the permissions will
+   * disable here too
+   * @param edocliteFieldGroupDisabledDate1
+   */
+  public void setEdocliteFieldGroupDisabledDate(String edocliteFieldGroupDisabledDate1) {
+    this.edocliteFieldGroupDisabledDate = edocliteFieldGroupDisabledDate1;
+  }
+
+
+  /**
+   * if there is a enabled date, that is here.  Note, if doing permissions, the permissions will
+   * enable here too
+   * @return enabled date
+   */
+  public String getEdocliteFieldGroupEnabledDate() {
+    return edocliteFieldGroupEnabledDate;
+  }
+
+
+  /**
+   * if there is a enabled date, that is here.  Note, if doing permissions, the permissions will
+   * enable here too
+   * @param edocliteFieldGroupEnabledDate1
+   */
+  public void setEdocliteFieldGroupEnabledDate(String edocliteFieldGroupEnabledDate1) {
+    this.edocliteFieldGroupEnabledDate = edocliteFieldGroupEnabledDate1;
+  }
+
+
+  /**
+   * if there is a disabled date, that is here.  Note, this is just for the permissions, not for the
+   * role
+   * @return disabled date
+   */
+  public String getEdocliteFieldPermissionDisabledDate() {
+    return edocliteFieldPermissionDisabledDate;
+  }
+
+
+  /**
+   * if there is a disabled date, that is here.  Note, this is just for the permissions, not for the
+   * role
+   * @param edocliteFieldMembershipDisabledDate1
+   */
+  public void setEdocliteFieldPermissionDisabledDate(
+      String edocliteFieldMembershipDisabledDate1) {
+    this.edocliteFieldPermissionDisabledDate = edocliteFieldMembershipDisabledDate1;
+  }
+
+
+  /**
+   * if there is a enabled date, that is here.  Note, this is just for permissions, and not for the 
+   * role
+   * @return enabled date
+   */
+  public String getEdocliteFieldPermissionEnabledDate() {
+    return edocliteFieldPermissionEnabledDate;
+  }
+
+
+  /**
+   * if there is a enabled date, that is here.  Note, this is just for permissions, and not for the 
+   * role
+   * @param edocliteFieldMembershipEnabledDate1
+   */
+  public void setEdocliteFieldPermissionEnabledDate(
+      String edocliteFieldMembershipEnabledDate1) {
+    this.edocliteFieldPermissionEnabledDate = edocliteFieldMembershipEnabledDate1;
+  }
+
+
   /**
    * if checkboxes or textfields or whatever, put the prefix of the edoclite field here.
    * so if the field prefix is "groups", then it will look for groups0, groups1, etc to groups200...
@@ -591,6 +743,12 @@ public class GrouperKimSaveMembershipProperties {
     //# groups (comma separated) id or name which the initiator will be unassigned from when the document is final
     //kuali.edoclite.saveMembership.sampleProvisioning.removeMembershipFromGroups = temp:anotherProvisionGroup
     //
+    //# delete date: yyyy/mm/dd or dd-Mon-yyyy
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldGroupDisabledDate = someFieldName
+    //
+    //# enable date: yyyy/mm/dd or dd-Mon-yyyy
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldGroupEnabledDate = someFieldName
+    //
     //###### PERMISSIONS ROLES
     //# role to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
     //kuali.edoclite.saveMembership.sampleProvisioning.roleForPermissions = some:role
@@ -639,6 +797,18 @@ public class GrouperKimSaveMembershipProperties {
     //#this will be prefixed to the entered permission name so the whole stem doesnt 
     //#have to be put on screen (also helps sandbox out the security)
     //kuali.edoclite.saveMembership.sampleProvisioning.enteredPermissionNamePrefix = school:some:prefix:
+    //
+    //# delete date: yyyy/mm/dd or dd-Mon-yyyy
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionDisabledDate = someFieldName
+    //
+    //# enable date: yyyy/mm/dd or dd-Mon-yyyy
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionEnabledDate = someFieldName
+    //
+    //# field name which has blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionsDelegatable = someFieldName
+    //
+    //# blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+    //kuali.edoclite.saveMembership.sampleProvisioning.permissionsDelegatable = FALSE|TRUE|GRANT
     //
     //##################################################
     
@@ -702,6 +872,18 @@ public class GrouperKimSaveMembershipProperties {
               String removeMembershipFromGroups = GrouperClientUtils.propertiesValue(
                   "kuali.edoclite.saveMembership." + configName + ".removeMembershipFromGroups", false);
               grouperKimSaveMembershipProperties.setRemoveMembershipFromGroups(removeMembershipFromGroups);
+            }
+            
+            {
+              String edocliteFieldGroupDisabledDate = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldGroupDisabledDate", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldGroupDisabledDate(edocliteFieldGroupDisabledDate);
+            }
+
+            {
+              String edocliteFieldGroupEnabledDate = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldGroupEnabledDate", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldGroupEnabledDate(edocliteFieldGroupEnabledDate);
             }
             
             {
@@ -792,6 +974,30 @@ public class GrouperKimSaveMembershipProperties {
               String enteredPermissionNamePrefix = GrouperClientUtils.propertiesValue(
                   "kuali.edoclite.saveMembership." + configName + ".enteredPermissionNamePrefix", false);
               grouperKimSaveMembershipProperties.setEnteredPermissionNamePrefix(enteredPermissionNamePrefix);
+            }
+            
+            {
+              String edocliteFieldPermissionDisabledDate = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldPermissionDisabledDate", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldPermissionDisabledDate(edocliteFieldPermissionDisabledDate);
+            }
+
+            {
+              String edocliteFieldPermissionEnabledDate = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldPermissionEnabledDate", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldPermissionEnabledDate(edocliteFieldPermissionEnabledDate);
+            }
+
+            {
+              String edocliteFieldPermissionsDelegatable = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".edocliteFieldPermissionsDelegatable", false);
+              grouperKimSaveMembershipProperties.setEdocliteFieldPermissionsDelegatable(edocliteFieldPermissionsDelegatable);
+            }
+
+            {
+              String permissionsDelegatable = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".permissionsDelegatable", false);
+              grouperKimSaveMembershipProperties.setPermissionsDelegatable(permissionsDelegatable);
             }
             
             break;
