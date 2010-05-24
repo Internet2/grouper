@@ -1342,6 +1342,8 @@ public class GrouperService {
      *            T|F, for if the extended subject information should be
      *            returned (anything more than just the id)
      * @param params optional: reserved for future use
+     * @param disabledTime date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
+     * @param enabledTime date this membership will be enabled (for future provisioning), yyyy/MM/dd HH:mm:ss.SSS
      * @return the results
      * @see GrouperVersion
      */
@@ -1351,7 +1353,8 @@ public class GrouperService {
         final String replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
         final String fieldName, final String txType, final String includeGroupDetail,
         final String includeSubjectDetail, final String[] subjectAttributeNames,
-        final WsParam[] params) {
+        final WsParam[] params, final String disabledTime, 
+        final String enabledTime) {
   
       WsAddMemberResults wsAddMemberResults = new WsAddMemberResults();
   
@@ -1375,11 +1378,15 @@ public class GrouperService {
   
         GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
             clientVersion, true);
-  
+        
+        Timestamp disabledTimestamp = GrouperServiceUtils.stringToTimestamp(disabledTime);
+        Timestamp enabledTimestamp = GrouperServiceUtils.stringToTimestamp(enabledTime);
+        
+        
         wsAddMemberResults = GrouperServiceLogic.addMember(grouperWsVersion, wsGroupLookup,
             subjectLookups, replaceAllExistingBoolean, actAsSubjectLookup, field,
             grouperTransactionType, includeGroupDetailBoolean, includeSubjectDetailBoolean,
-            subjectAttributeNames, params);
+            subjectAttributeNames, params, disabledTimestamp, enabledTimestamp);
       } catch (Exception e) {
         wsAddMemberResults.assignResultCodeException(null, null, e);
       }
@@ -1601,6 +1608,8 @@ public class GrouperService {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param disabledTime date this membership will be disabled: yyyy/MM/dd HH:mm:ss.SSS
+   * @param enabledTime date this membership will be enabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS
    * @return the result of one member add
    */
   public WsAddMemberLiteResult addMemberLite(final String clientVersion,
@@ -1608,7 +1617,8 @@ public class GrouperService {
       String subjectIdentifier, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String fieldName, String includeGroupDetail,
       String includeSubjectDetail, String subjectAttributeNames, String paramName0,
-      String paramValue0, String paramName1, String paramValue1) {
+      String paramValue0, String paramName1, String paramValue1, final String disabledTime, 
+      final String enabledTime) {
     
     LOG.debug("entering addMemberLite");
     
@@ -1628,11 +1638,15 @@ public class GrouperService {
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
+      Timestamp disabledTimestamp = GrouperServiceUtils.stringToTimestamp(disabledTime);
+      Timestamp enabledTimestamp = GrouperServiceUtils.stringToTimestamp(enabledTime);
+
       wsAddMemberLiteResult = GrouperServiceLogic.addMemberLite(grouperWsVersion, groupName,
           groupUuid, subjectId, subjectSourceId, subjectIdentifier, actAsSubjectId, 
           actAsSubjectSourceId, actAsSubjectIdentifier, field, includeGroupDetailBoolean, 
           includeSubjectDetailBoolean, subjectAttributeNames, paramName0, paramValue0, 
-          paramName1, paramValue1);
+          paramName1, paramValue1, disabledTimestamp, enabledTimestamp);
+
     } catch (Exception e) {
       wsAddMemberLiteResult.assignResultCodeException(null, null, e);
     }

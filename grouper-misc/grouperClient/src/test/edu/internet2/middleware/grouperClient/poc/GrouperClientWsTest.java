@@ -73,7 +73,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testHasMemberNotFound"));
+    TestRunner.run(new GrouperClientWsTest("testAddMember"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -310,6 +310,93 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("1", matcher.group(1));
       assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
+
+      // #####################################################
+      // run again, with enabled date
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0 --enabledTime=2010/02/03",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("0", matcher.group(1));
+      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("test.subject.0", matcher.group(3));
+      
+      Membership membership = group.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ0, false, true);
+      assertEquals(GrouperClientUtils.stringToDate("2010/02/03 00:00:00.000"), membership.getEnabledTime());
+      assertEquals(null, membership.getDisabledTime());
+
+      // #####################################################
+      // run again, with disabled date
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0 --disabledTime=2010/02/03",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("0", matcher.group(1));
+      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("test.subject.0", matcher.group(3));
+      
+      membership = group.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ0, false, true);
+      assertEquals(GrouperClientUtils.stringToDate("2010/02/03 00:00:00.000"), membership.getDisabledTime());
+      assertEquals(null, membership.getEnabledTime());
+
+      // #####################################################
+      // run again, remove enabled disabled
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("0", matcher.group(1));
+      assertEquals("SUCCESS", matcher.group(2));
+      assertEquals("test.subject.0", matcher.group(3));
+      
+      membership = group.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ0, false, true);
+      assertEquals(null, membership.getDisabledTime());
+      assertEquals(null, membership.getEnabledTime());
 
       // #####################################################
       // run again, with uuid

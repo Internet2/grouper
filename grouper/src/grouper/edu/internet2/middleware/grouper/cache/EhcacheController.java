@@ -41,7 +41,8 @@ public class EhcacheController implements CacheController {
   /**
    * 
    */
-  private static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+  public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
+  
   /**
    * singleton cache controller
    */
@@ -211,7 +212,7 @@ public class EhcacheController implements CacheController {
   }
 
   /** original tmp dir */
-  private static final String ORIGINAL_TMP_DIR = System.getProperty(JAVA_IO_TMPDIR);
+  public static final String ORIGINAL_TMP_DIR = System.getProperty(JAVA_IO_TMPDIR);
   
   /** 
    * Initialize privilege cache.
@@ -242,7 +243,11 @@ public class EhcacheController implements CacheController {
             }
           } finally {
             //put tmpdir back
-            System.setProperty(JAVA_IO_TMPDIR, ORIGINAL_TMP_DIR);
+            if (ORIGINAL_TMP_DIR == null) {
+              System.clearProperty(JAVA_IO_TMPDIR);
+            } else {
+              System.setProperty(JAVA_IO_TMPDIR, ORIGINAL_TMP_DIR);
+            }
           }
           
         }

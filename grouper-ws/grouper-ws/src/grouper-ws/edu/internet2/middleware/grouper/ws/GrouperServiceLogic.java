@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.ws;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -206,6 +208,8 @@ public class GrouperServiceLogic {
    *            returned (anything more than just the id)
    * @param subjectAttributeNames are the additional subject attributes (data) to return.
    * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param disabledTime date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
+   * @param enabledTime date this membership will be enabled (for future provisioning), yyyy/MM/dd HH:mm:ss.SSS
    * @return the results.  return the subject lookup only if there are problems retrieving the subject.
    * @see GrouperVersion
    */
@@ -213,9 +217,10 @@ public class GrouperServiceLogic {
   public static WsAddMemberResults addMember(final GrouperVersion clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final boolean replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
-      final Field fieldName, GrouperTransactionType txType,
+      Field fieldName, GrouperTransactionType txType,
       final boolean includeGroupDetail, final boolean includeSubjectDetail,
-      final String[] subjectAttributeNames, final WsParam[] params) {
+      final String[] subjectAttributeNames, final WsParam[] params, final Timestamp disabledTime, 
+      final Timestamp enabledTime  ) {
     final WsAddMemberResults wsAddMemberResults = new WsAddMemberResults();
 
     GrouperSession session = null;
@@ -235,7 +240,8 @@ public class GrouperServiceLogic {
           + ", includeSubjectDetail: " + includeSubjectDetail
           + ", subjectAttributeNames: "
           + GrouperUtil.toStringForLog(subjectAttributeNames, 50) + "\n, params: "
-          + GrouperUtil.toStringForLog(params, 100);
+          + GrouperUtil.toStringForLog(params, 100) + "\n, disabledDate: " + disabledTime
+          + ", enabledDate: " + enabledTime;
 
       final String THE_SUMMARY = theSummary;
       
@@ -244,6 +250,8 @@ public class GrouperServiceLogic {
 
       final GrouperSession SESSION = session;
 
+      final Field FIELD_CALCULATED = fieldName == null ? Group.getDefaultList() : fieldName;
+      
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
@@ -258,7 +266,7 @@ public class GrouperServiceLogic {
 
               int subjectLength = GrouperUtil.length(subjectLookups);
 
-              Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
+              final Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
 
               String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
                   .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -283,21 +291,20 @@ public class GrouperServiceLogic {
               if (replaceAllExisting) {
                 try {
                   // see who is there
-                  members = fieldName == null ? group.getImmediateMembers() : group
-                      .getImmediateMembers(fieldName);
+                  members = group.getImmediateMembers(FIELD_CALCULATED);
                 } catch (SchemaException se) {
                   throw new WsInvalidQueryException(
-                      "Problem with getting existing members: " + fieldName + ".  "
+                      "Problem with getting existing members: " + FIELD_CALCULATED + ".  "
                           + ExceptionUtils.getFullStackTrace(se));
                 }
               }
 
               for (WsSubjectLookup wsSubjectLookup : GrouperUtil.nonNull(subjectLookups, WsSubjectLookup.class)) {
-                WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
+                final WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
                 wsAddMemberResults.getResults()[resultIndex++] = wsAddMemberResult;
                 try {
 
-                  Subject subject = wsSubjectLookup.retrieveSubject();
+                  final Subject subject = wsSubjectLookup.retrieveSubject();
 
                   wsAddMemberResult.processSubject(wsSubjectLookup,
                       subjectAttributeNamesToRetrieve);
@@ -310,22 +317,44 @@ public class GrouperServiceLogic {
                   if (replaceAllExisting) {
                     newSubjects.add(new MultiKey(subject.getId(), subject.getSource().getId()));
                   }
-
-                  try {
-                    boolean didntAlreadyExist = false;
-                    if (fieldName == null) {
-                      // dont fail if already a direct member
-                      didntAlreadyExist = group.addMember(subject, false);
-                    } else {
-                      didntAlreadyExist = group.addMember(subject, fieldName, false);
-                    }
+                  HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
                     
-                    wsAddMemberResult.assignResultCode(GrouperWsVersionUtils.addMemberSuccessResultCode(didntAlreadyExist));
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
+                      try {
+                        boolean didntAlreadyExist = false;
 
-                  } catch (InsufficientPrivilegeException ipe) {
-                    wsAddMemberResult
-                        .assignResultCode(WsAddMemberResultCode.INSUFFICIENT_PRIVILEGES);
-                  }
+                        didntAlreadyExist = group.addMember(subject, FIELD_CALCULATED, false);
+
+                        final boolean dealWithDates = enabledTime != null || disabledTime != null;
+                        if (dealWithDates) {
+                          //get the membership
+                          Membership membership = group.getImmediateMembership(FIELD_CALCULATED, subject, true, true);
+
+                          boolean needsUpdate = false;
+                          if (!GrouperUtil.equals(disabledTime, membership.getDisabledTime())) {
+                            membership.setDisabledTime(disabledTime);
+                            needsUpdate = true;
+                          }
+                          if (!GrouperUtil.equals(enabledTime, membership.getEnabledTime())) {
+                            membership.setEnabledTime(enabledTime);
+                            needsUpdate = true;
+                          }
+                          if (needsUpdate) {
+                            membership.update();
+                          }
+                        }
+
+                        wsAddMemberResult.assignResultCode(GrouperWsVersionUtils.addMemberSuccessResultCode(didntAlreadyExist));
+
+                      } catch (InsufficientPrivilegeException ipe) {
+                        wsAddMemberResult
+                            .assignResultCode(WsAddMemberResultCode.INSUFFICIENT_PRIVILEGES);
+                      }
+                      return null;
+                    }
+                  });
+                  
                 } catch (Exception e) {
                   wsAddMemberResult.assignResultCodeException(e, wsSubjectLookup);
                 }
@@ -340,16 +369,12 @@ public class GrouperServiceLogic {
                     subject = member.getSubject();
 
                     if (!newSubjects.contains(new MultiKey(subject.getId(), subject.getSource().getId()))) {
-                      if (fieldName == null) {
-                        group.deleteMember(subject);
-                      } else {
-                        group.deleteMember(subject, fieldName);
-                      }
+                      group.deleteMember(subject, FIELD_CALCULATED);
                     }
                   } catch (Exception e) {
                     String theError = "Error deleting subject: " + subject
                         + " from group: " + group + ", field: "
-                        + GrouperServiceUtils.fieldName(fieldName) + ", " + e + ".  ";
+                        + GrouperServiceUtils.fieldName(FIELD_CALCULATED) + ", " + e + ".  ";
                     wsAddMemberResults.assignResultCodeException(
                         WsAddMemberResultsCode.PROBLEM_DELETING_MEMBERS, theError, e);
                   }
@@ -417,6 +442,8 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @param paramValue1
    *            reserved for future use
+   * @param disabledTime date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
+   * @param enabledTime date this membership will be enabled (for future provisioning), yyyy/MM/dd HH:mm:ss.SSS
    * @return the result of one member add
    */
   public static WsAddMemberLiteResult addMemberLite(
@@ -425,7 +452,8 @@ public class GrouperServiceLogic {
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
       Field fieldName, boolean includeGroupDetail, boolean includeSubjectDetail,
       String subjectAttributeNames, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
+      String paramName1, String paramValue1, final Timestamp disabledTime, 
+      final Timestamp enabledTime) {
 
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
@@ -443,7 +471,7 @@ public class GrouperServiceLogic {
 
     WsAddMemberResults wsAddMemberResults = addMember(clientVersion, wsGroupLookup,
         subjectLookups, false, actAsSubjectLookup, fieldName, null, includeGroupDetail,
-        includeSubjectDetail, subjectAttributeArray, params);
+        includeSubjectDetail, subjectAttributeArray, params, disabledTime, enabledTime);
 
     WsAddMemberLiteResult wsAddMemberLiteResult = new WsAddMemberLiteResult(
         wsAddMemberResults);

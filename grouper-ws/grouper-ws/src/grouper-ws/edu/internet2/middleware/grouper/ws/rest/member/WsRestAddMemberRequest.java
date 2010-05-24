@@ -50,7 +50,49 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   
   /** field */
   private WsParam[] params;
+
+  /**  date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS */
+  private String disabledTime;
   
+  /**  date this membership will be enabled, yyyy/MM/dd HH:mm:ss.SSS */
+  private String enabledTime;
+  
+  /**
+   * date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
+   * @return disabled time
+   */
+  public String getDisabledTime() {
+    return this.disabledTime;
+  }
+
+
+  /**
+   * date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
+   * @param disabledTime1
+   */
+  public void setDisabledTime(String disabledTime1) {
+    this.disabledTime = disabledTime1;
+  }
+
+
+  /**
+   * date this membership will be enabled, yyyy/MM/dd HH:mm:ss.SSS
+   * @return date
+   */
+  public String getEnabledTime() {
+    return this.enabledTime;
+  }
+
+
+  /**
+   * date this membership will be enabled, yyyy/MM/dd HH:mm:ss.SSS
+   * @param enabledTime1
+   */
+  public void setEnabledTime(String enabledTime1) {
+    this.enabledTime = enabledTime1;
+  }
+
+
   /**
    * @return the clientVersion
    */

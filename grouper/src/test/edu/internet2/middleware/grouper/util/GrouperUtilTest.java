@@ -31,11 +31,34 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testMatchSqlString"));
+    TestRunner.run(new GrouperUtilTest("testStringToDate2"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
  
+  /**
+   * yyyy/mm/dd
+   * yyyy-mm-dd
+   * dd-mon-yyyy
+   * yyyy/mm/dd hh:mm:ss
+   * dd-mon-yyyy hh:mm:ss
+   * yyyy/mm/dd hh:mm:ss.SSS
+   * dd-mon-yyyy hh:mm:ss.SSS
+   */
+  public void testStringToDate2() {
+    assertEquals(GrouperUtil.dateValue("2001/02/03 00:00:00.000"), GrouperUtil.stringToDate2("2001/02/03"));
+    assertEquals(GrouperUtil.dateValue("2001/02/03 00:00:00.000"), GrouperUtil.stringToDate2("2001-2-3"));
+    assertEquals(GrouperUtil.dateValue("2001/02/03 00:00:00.000"), GrouperUtil.stringToDate2("03-Feb-2001"));
+    assertEquals(GrouperUtil.dateValue("2001/02/03 00:00:00.000"), GrouperUtil.stringToDate2("3-FEB-2001"));
+
+    assertEquals(GrouperUtil.dateValue("2001/02/03 04:05:06.000"), GrouperUtil.stringToDate2("2001-2-3  4:05_06"));
+    assertEquals(GrouperUtil.dateValue("2001/02/03 04:05:06.000"), GrouperUtil.stringToDate2("3_feb, 2001 04 5 6"));
+
+    assertEquals(GrouperUtil.dateValue("2001/02/03 04:05:06.007"), GrouperUtil.stringToDate2("2001-2-3  4:05_06.7"));
+    assertEquals(GrouperUtil.dateValue("2001/02/03 04:05:06.007"), GrouperUtil.stringToDate2("3_feb, 2001 04 5 6.007"));
+  }
+  
+  
   /**
    * 
    */

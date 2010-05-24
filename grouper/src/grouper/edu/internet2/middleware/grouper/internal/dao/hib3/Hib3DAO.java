@@ -28,6 +28,7 @@ import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
@@ -157,21 +158,24 @@ public abstract class Hib3DAO {
       
       // And finally create our session factory
       //trying to avoid warning of using the same dir
-      String tempDirKey = "java.io.tmpdir";
-      String tmpdir = System.getProperty(tempDirKey);
       try {
-        String newTmpdir = StringUtils.trimToEmpty(tmpdir);
+        String newTmpdir = StringUtils.trimToEmpty(EhcacheController.ORIGINAL_TMP_DIR);
         if (!newTmpdir.endsWith("\\") && !newTmpdir.endsWith("/")) {
           newTmpdir += File.separator;
         }
         newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
-        System.setProperty(tempDirKey, newTmpdir);
+        System.setProperty(EhcacheController.JAVA_IO_TMPDIR, newTmpdir);
         
         //now it should be using a unique directory
         FACTORY = CFG.buildSessionFactory();
       } finally {
+        
         //put tmpdir back
-        System.setProperty(tempDirKey, tmpdir);
+        if (EhcacheController.ORIGINAL_TMP_DIR == null) {
+          System.clearProperty(EhcacheController.JAVA_IO_TMPDIR);
+        } else {
+          System.setProperty(EhcacheController.JAVA_IO_TMPDIR, EhcacheController.ORIGINAL_TMP_DIR);
+        }
       }
 
     } catch (Throwable t) {

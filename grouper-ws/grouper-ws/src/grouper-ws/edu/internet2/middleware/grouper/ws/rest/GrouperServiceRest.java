@@ -233,7 +233,8 @@ public class GrouperServiceRest {
             .getIncludeSubjectDetail(), wsRestAddMemberLiteRequest
             .getSubjectAttributeNames(), wsRestAddMemberLiteRequest.getParamName0(),
         wsRestAddMemberLiteRequest.getParamValue0(), wsRestAddMemberLiteRequest
-            .getParamName1(), wsRestAddMemberLiteRequest.getParamValue1());
+            .getParamName1(), wsRestAddMemberLiteRequest.getParamValue1(), 
+            wsRestAddMemberLiteRequest.getDisabledTime(), wsRestAddMemberLiteRequest.getEnabledTime());
 
     //return result
     return wsAddMemberLiteResult;
@@ -277,8 +278,8 @@ public class GrouperServiceRest {
             .getActAsSubjectLookup(), wsRestAddMembersRequest.getFieldName(),
         wsRestAddMembersRequest.getTxType(), wsRestAddMembersRequest
             .getIncludeGroupDetail(), wsRestAddMembersRequest.getIncludeSubjectDetail(),
-        wsRestAddMembersRequest.getSubjectAttributeNames(), wsRestAddMembersRequest
-            .getParams());
+        wsRestAddMembersRequest.getSubjectAttributeNames(), wsRestAddMembersRequest.getParams(),
+        wsRestAddMembersRequest.getDisabledTime(), wsRestAddMembersRequest.getEnabledTime());
 
     //return result
     return wsAddMemberResults;

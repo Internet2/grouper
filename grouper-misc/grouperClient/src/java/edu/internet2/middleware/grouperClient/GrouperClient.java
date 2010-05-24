@@ -542,6 +542,16 @@ public class GrouperClient {
       gcAddMember.assignGroupName(groupName);
       gcAddMember.assignGroupUuid(groupUuid);
       
+      {
+        Timestamp disabledTime = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "disabledTime");
+        gcAddMember.assignDisabledTime(disabledTime);
+      }
+
+      {
+        Timestamp enabledTime = GrouperClientUtils.argMapTimestamp(argMap, argMapNotUsed, "enabledTime");
+        gcAddMember.assignEnabledTime(enabledTime);
+      }
+      
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
       gcAddMember.assignActAsSubject(actAsSubject);

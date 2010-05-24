@@ -40,6 +40,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -52,6 +53,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -7189,7 +7192,7 @@ public class GrouperClientCommonUtils  {
     if (isBlank(argString)) {
       return null;
     }
-    Date date = stringToDate(argString);
+    Date date = stringToDate2(argString);
     return new Timestamp(date.getTime());
   }
   
@@ -8430,5 +8433,219 @@ public class GrouperClientCommonUtils  {
     }
   }
 
+  /**
+   * match regex pattern yyyy-mm-dd or yyyy/mm/dd
+   */
+  private static Pattern datePattern_yyyy_mm_dd = Pattern.compile("^(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})$");
+  
+  /**
+   * match regex pattern dd-mon-yyyy or dd/mon/yyyy
+   */
+  private static Pattern datePattern_dd_mon_yyyy = Pattern.compile("^(\\d{1,2})[^\\d]+([a-zA-Z]{3,15})[^\\d]+(\\d{4})$");
+  
+  /**
+   * match regex pattern yyyy-mm-dd hh:mm:ss or yyyy/mm/dd hh:mm:ss
+   */
+  private static Pattern datePattern_yyyy_mm_dd_hhmmss = Pattern.compile("^(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})$");
+  
+  /**
+   * match regex pattern dd-mon-yyyy hh:mm:ss or dd/mon/yyyy hh:mm:ss
+   */
+  private static Pattern datePattern_dd_mon_yyyy_hhmmss = Pattern.compile("^(\\d{1,2})[^\\d]+([a-zA-Z]{3,15})[^\\d]+(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})$");
+  
+  /**
+   * match regex pattern yyyy-mm-dd hh:mm:ss.SSS or yyyy/mm/dd hh:mm:ss.SSS
+   */
+  private static Pattern datePattern_yyyy_mm_dd_hhmmss_SSS = Pattern.compile("^(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,3})$");
+  
+  /**
+   * match regex pattern dd-mon-yyyy hh:mm:ss.SSS or dd/mon/yyyy hh:mm:ss.SSS
+   */
+  private static Pattern datePattern_dd_mon_yyyy_hhmmss_SSS = Pattern.compile("^(\\d{1,2})[^\\d]+([a-zA-Z]{3,15})[^\\d]+(\\d{4})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,2})[^\\d]+(\\d{1,3})$");
+  
+  /**
+   * take as input:
+   * yyyy/mm/dd
+   * yyyy-mm-dd
+   * dd-mon-yyyy
+   * yyyy/mm/dd hh:mm:ss
+   * dd-mon-yyyy hh:mm:ss
+   * yyyy/mm/dd hh:mm:ss.SSS
+   * dd-mon-yyyy hh:mm:ss.SSS
+   * @param input
+   * @return the date
+   */
+  public static Date stringToDate2(String input) {
+    
+    if (isBlank(input)) {
+      return null;
+    }
+    input = input.trim();
+    Matcher matcher = null;
+    
+    int month = 0;
+    int day = 0;
+    int year = 0;
+    int hour = 0;
+    int minute = 0;
+    int second = 0;
+    int milli = 0;
+    
+    boolean foundMatch = false;
+
+    //yyyy/mm/dd
+    if (!foundMatch) {
+      matcher = datePattern_yyyy_mm_dd.matcher(input);
+      if (matcher.matches()) {
+        year = intValue(matcher.group(1));
+        month =  intValue(matcher.group(2));
+        day = intValue(matcher.group(3));
+        foundMatch = true;
+      }
+    }
+    
+    //dd-mon-yyyy
+    if (!foundMatch) {
+      matcher = datePattern_dd_mon_yyyy.matcher(input);
+      if (matcher.matches()) {
+        day = intValue(matcher.group(1));
+        month =  monthInt(matcher.group(2));
+        year = intValue(matcher.group(3));
+        foundMatch = true;
+      }
+    }
+    
+    //yyyy/mm/dd hh:mm:ss
+    if (!foundMatch) {
+      matcher = datePattern_yyyy_mm_dd_hhmmss.matcher(input);
+      if (matcher.matches()) {
+        year = intValue(matcher.group(1));
+        month =  intValue(matcher.group(2));
+        day = intValue(matcher.group(3));
+        hour = intValue(matcher.group(4));
+        minute = intValue(matcher.group(5));
+        second = intValue(matcher.group(6));
+        foundMatch = true;
+      }      
+    }
+    
+    //dd-mon-yyyy hh:mm:ss
+    if (!foundMatch) {
+      matcher = datePattern_dd_mon_yyyy_hhmmss.matcher(input);
+      if (matcher.matches()) {
+        day = intValue(matcher.group(1));
+        month =  monthInt(matcher.group(2));
+        year = intValue(matcher.group(3));
+        hour = intValue(matcher.group(4));
+        minute = intValue(matcher.group(5));
+        second = intValue(matcher.group(6));
+        foundMatch = true;
+      }
+    }
+    
+    //yyyy/mm/dd hh:mm:ss.SSS
+    if (!foundMatch) {
+      matcher = datePattern_yyyy_mm_dd_hhmmss_SSS.matcher(input);
+      if (matcher.matches()) {
+        year = intValue(matcher.group(1));
+        month =  intValue(matcher.group(2));
+        day = intValue(matcher.group(3));
+        hour = intValue(matcher.group(4));
+        minute = intValue(matcher.group(5));
+        second = intValue(matcher.group(6));
+        milli = intValue(matcher.group(7));
+        foundMatch = true;
+      }      
+    }
+    
+    //dd-mon-yyyy hh:mm:ss.SSS
+    if (!foundMatch) {
+      matcher = datePattern_dd_mon_yyyy_hhmmss_SSS.matcher(input);
+      if (matcher.matches()) {
+        day = intValue(matcher.group(1));
+        month =  monthInt(matcher.group(2));
+        year = intValue(matcher.group(3));
+        hour = intValue(matcher.group(4));
+        minute = intValue(matcher.group(5));
+        second = intValue(matcher.group(6));
+        milli = intValue(matcher.group(7));
+        foundMatch = true;
+      }
+    }
+    
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.YEAR, year);
+    calendar.set(Calendar.MONTH, month-1);
+    calendar.set(Calendar.DAY_OF_MONTH, day);
+    calendar.set(Calendar.HOUR_OF_DAY, hour);
+    calendar.set(Calendar.MINUTE, minute);
+    calendar.set(Calendar.SECOND, second);
+    calendar.set(Calendar.MILLISECOND, milli);
+    return calendar.getTime();
+  }
+
+  /**
+   * convert a month string to an int (1 indexed).
+   * e.g. if input is feb or Feb or february or February return 2
+   * @param mon
+   * @return the month
+   */
+  public static int monthInt(String mon) {
+    
+    if (!isBlank(mon)) {
+      mon = mon.toLowerCase();
+      
+      if (equals(mon, "jan") || equals(mon, "january")) {
+        return 1;
+      }
+      
+      if (equals(mon, "feb") || equals(mon, "february")) {
+        return 2;
+      }
+      
+      if (equals(mon, "mar") || equals(mon, "march")) {
+        return 3;
+      }
+      
+      if (equals(mon, "apr") || equals(mon, "april")) {
+        return 4;
+      }
+      
+      if (equals(mon, "may")) {
+        return 5;
+      }
+      
+      if (equals(mon, "jun") || equals(mon, "june")) {
+        return 6;
+      }
+      
+      if (equals(mon, "jul") || equals(mon, "july")) {
+        return 7;
+      }
+      
+      if (equals(mon, "aug") || equals(mon, "august")) {
+        return 8;
+      }
+      
+      if (equals(mon, "sep") || equals(mon, "september")) {
+        return 9;
+      }
+      
+      if (equals(mon, "oct") || equals(mon, "october")) {
+        return 10;
+      }
+      
+      if (equals(mon, "nov") || equals(mon, "november")) {
+        return 11;
+      }
+      
+      if (equals(mon, "dec") || equals(mon, "december")) {
+        return 12;
+      }
+      
+    }
+    
+    throw new RuntimeException("Invalid month: " + mon);
+  }
 
 }

@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.api;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,6 +30,29 @@ public class GcAddMember {
   
   /** group uuid to add member to */
   private String groupUuid;
+  
+  /** date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS */
+  private Timestamp disabledTime;
+  
+  /**
+   * date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
+   * @param theDisabledTime
+   */
+  public void assignDisabledTime(Timestamp theDisabledTime) {
+    this.disabledTime = theDisabledTime;
+  }
+  
+  /** date this membership will be enabled (for future provisioning), yyyy/MM/dd HH:mm:ss.SSS */
+  private Timestamp enabledTime; 
+  
+  /**
+   * date this membership will be enabled (for future provisioning), yyyy/MM/dd HH:mm:ss.SSS
+   * @param theEnabledTime
+   */
+  public void assignEnabledTime(Timestamp theEnabledTime) {
+    this.enabledTime = theEnabledTime;
+  }
+  
   
   /**
    * set the group name
@@ -278,6 +302,9 @@ public class GcAddMember {
       if (this.params.size() > 0) {
         addMember.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
+      
+      addMember.setDisabledTime(GrouperClientUtils.dateToString(this.disabledTime));
+      addMember.setEnabledTime(GrouperClientUtils.dateToString(this.enabledTime));
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
