@@ -18,6 +18,9 @@ public enum AttributeAssignOperation {
   /** whether or not the attribute is already assigned, assign it again */
   add_attr,
   
+  /** take this set of attributes and replace what is there (filter by names of attributeDefs) */
+  replace_attrs,
+  
   /** remove all assignments of this attribute name, or just certain attributes if by id */
   remove_attr;
   

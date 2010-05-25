@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -38,6 +41,25 @@ public enum AttributeDefType {
     return GrouperUtil.enumValueOfIgnoreCase(AttributeDefType.class, 
         string, exceptionOnNull);
 
+  }
+  
+  /**
+   * return the set of attributeDefTypes, never null
+   * @param attributeDefTypeStrings
+   * @return the set of attribute def types
+   */
+  public static Set<AttributeDefType> toSet(String[] attributeDefTypeStrings) {
+    Set<AttributeDefType> result = new HashSet<AttributeDefType>();
+    if (GrouperUtil.length(attributeDefTypeStrings) == 0) {
+      return result;
+    }
+    for (String attributeDefTypeString : attributeDefTypeStrings) {
+      AttributeDefType attributeDefType = valueOfIgnoreCase(attributeDefTypeString, false);
+      if (attributeDefType != null) {
+        result.add(attributeDefType);
+      }
+    }
+    return result;
   }
   
 }

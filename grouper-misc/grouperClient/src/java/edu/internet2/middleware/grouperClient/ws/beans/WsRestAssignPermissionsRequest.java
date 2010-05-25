@@ -351,6 +351,18 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
   /** optional: reserved for future use */
   private  WsParam[] params;
 
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
+   */
+  private String[] actionsToReplace;
+
+  /**
+   * if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   */
+  private WsAttributeDefLookup[] attributeDefsToReplace;
+
   
   
   /**
@@ -367,6 +379,42 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    */
   public void setParams(WsParam[] params1) {
     this.params = params1;
+  }
+
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
+   * @return the actionsToReplace
+   */
+  public String[] getActionsToReplace() {
+    return this.actionsToReplace;
+  }
+
+  /**
+   * if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   * @return the attributeDefsToReplace
+   */
+  public WsAttributeDefLookup[] getAttributeDefsToReplace() {
+    return this.attributeDefsToReplace;
+  }
+
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
+   * @param actionsToReplace1 the actionsToReplace to set
+   */
+  public void setActionsToReplace(String[] actionsToReplace1) {
+    this.actionsToReplace = actionsToReplace1;
+  }
+
+  /**
+   * if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   * @param attributeDefsToReplace1 the attributeDefsToReplace to set
+   */
+  public void setAttributeDefsToReplace(WsAttributeDefLookup[] attributeDefsToReplace1) {
+    this.attributeDefsToReplace = attributeDefsToReplace1;
   }
 
   

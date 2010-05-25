@@ -6,7 +6,6 @@ package edu.internet2.middleware.grouper.ws;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,6 +33,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
@@ -5278,6 +5278,12 @@ public class GrouperServiceLogic {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
+   * @param attributeDefsToReplace if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   * @param actionsToReplace if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
+   * @param attributeDefTypesToReplace if replacing attributeDefNames, then these are the
+   * related attributeDefTypes, if blank, then just do all
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5294,7 +5300,8 @@ public class GrouperServiceLogic {
       WsMembershipLookup[] wsOwnerMembershipLookups, WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups, 
       WsAttributeDefLookup[] wsOwnerAttributeDefLookups, WsAttributeAssignLookup[] wsOwnerAttributeAssignLookups,
       String[] actions, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
-      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params) {  
+      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params,
+      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, String[] attributeDefTypesToReplace) {  
 
     WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
   
@@ -5321,7 +5328,10 @@ public class GrouperServiceLogic {
           + ", subjectAttributeNames: "
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n, wsOwnerSubjectLookups: "
-          + GrouperUtil.toStringForLog(wsOwnerSubjectLookups, 200);
+          + GrouperUtil.toStringForLog(wsOwnerSubjectLookups, 200) 
+          + "\n, attributeDefsToReplace: " + GrouperUtil.toStringForLog(attributeDefsToReplace, 200)
+          + "\n, actionsToReplace: " + GrouperUtil.toStringForLog(actionsToReplace, 200)
+          + "\n, attributeDefTypesToReplace: " + GrouperUtil.toStringForLog(attributeDefTypesToReplace, 200);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -5341,7 +5351,8 @@ public class GrouperServiceLogic {
           wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups,
           wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions,
           includeSubjectDetail, subjectAttributeNames, includeGroupDetail,
-          wsAssignAttributesResults, session, params, null, null);
+          wsAssignAttributesResults, session, params, null, null, 
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace);
 
         
     } catch (Exception e) {
@@ -5431,9 +5442,18 @@ public class GrouperServiceLogic {
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {  
   
+    String[] attributeDefTypesToReplace = null;
     WsAttributeDefNameLookup[] wsAttributeDefNameLookups = null;
+    WsAttributeDefLookup[] attributeDefsToReplace = null; 
+
     if (!StringUtils.isBlank(wsAttributeDefNameName) || !StringUtils.isBlank(wsAttributeDefNameId)) {
       wsAttributeDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(wsAttributeDefNameName,wsAttributeDefNameId )};
+      
+      attributeDefTypesToReplace = WsAssignAttributeLogic.retrieveAttributeDefTypesForReplace(
+          wsAttributeDefNameName, wsAttributeDefNameId, attributeAssignOperation);
+      
+      attributeDefsToReplace = WsAssignAttributeLogic.retrieveAttributeDefsForReplace(
+          wsAttributeDefNameName, wsAttributeDefNameId, attributeAssignOperation);
     }
     
     
@@ -5503,12 +5523,14 @@ public class GrouperServiceLogic {
     
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
 
+    String[] actionsToReplace = new String[]{GrouperUtil.defaultIfBlank(action, AttributeDef.ACTION_DEFAULT)};
+    
     WsAssignAttributesResults wsAssignAttributesResults = assignAttributes(clientVersion, attributeAssignType, 
         wsAttributeDefNameLookups, attributeAssignOperation, wsAttributeAssignValues, assignmentNotes, assignmentEnabledTime,
         assignmentDisabledTime, delegatable, attributeAssignValueOperation, attributeAssignLookups, wsOwnerGroupLookups, wsOwnerStemLookups, 
         wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, wsOwnerAttributeDefLookups, ownerAttributeAssignLookups, actions, 
         actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params );
+        params, attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace );
     
     WsAssignAttributesLiteResults wsAssignAttributesLiteResults = new WsAssignAttributesLiteResults(wsAssignAttributesResults);
     
@@ -5786,6 +5808,10 @@ public class GrouperServiceLogic {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
+   * @param attributeDefsToReplace if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   * @param actionsToReplace if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -5799,7 +5825,8 @@ public class GrouperServiceLogic {
       WsGroupLookup[] roleLookups, 
       WsMembershipAnyLookup[] subjectRoleLookups, 
       String[] actions, WsSubjectLookup actAsSubjectLookup, boolean includeSubjectDetail,
-      String[] subjectAttributeNames, boolean includeGroupDetail, WsParam[] params) {  
+      String[] subjectAttributeNames, boolean includeGroupDetail, WsParam[] params,
+      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace) {  
   
     WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
   
@@ -5819,7 +5846,9 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup 
           + ", subjectAttributeNames: "
           + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
+          + "\n, attributeDefsToReplace: " + GrouperUtil.toStringForLog(attributeDefsToReplace, 200)
+          + "\n, actionsToReplace: " + GrouperUtil.toStringForLog(actionsToReplace, 200);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -5836,11 +5865,15 @@ public class GrouperServiceLogic {
       
       AttributeAssignOperation attributeAssignOperation = permissionAssignOperation.convertToAttributeAssignOperation();
       
+      String[] attributeDefTypesToReplace = permissionAssignOperation == PermissionAssignOperation.replace_permissions 
+        ? new String[]{AttributeDefType.perm.name()} : null;
+      
       WsAssignAttributeLogic.assignAttributesHelper(attributeAssignType, permissionDefNameLookups, 
           attributeAssignOperation, null, assignmentNotes, assignmentEnabledTime, assignmentDisabledTime, 
           delegatable, null, wsAttributeAssignLookups, roleLookups, null, null, null, subjectRoleLookups, 
           null,null, actions, includeSubjectDetail, subjectAttributeNames, includeGroupDetail, 
-          wsAssignAttributesResults, session, params, TypeOfGroup.role, AttributeDefType.perm);
+          wsAssignAttributesResults, session, params, TypeOfGroup.role, AttributeDefType.perm,
+          attributeDefsToReplace, actionsToReplace, attributeDefTypesToReplace);
       
     } catch (Exception e) {
       wsAssignAttributesResults.assignResultCodeException(null, theSummary, e);
@@ -5903,11 +5936,21 @@ public class GrouperServiceLogic {
       String subjectAttributeNames, boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {  
 
+    WsAttributeDefLookup[] attributeDefsToReplace = null; 
+
     WsAttributeDefNameLookup[] permissionDefNameLookups = null;
     if (!StringUtils.isBlank(permissionDefNameName) || !StringUtils.isBlank(permissionDefNameId)) {
       permissionDefNameLookups = new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(permissionDefNameName,permissionDefNameId )};
+
+      if (permissionAssignOperation != null) {
+        AttributeAssignOperation attributeAssignOperation = permissionAssignOperation.convertToAttributeAssignOperation();
+        
+        attributeDefsToReplace = WsAssignAttributeLogic.retrieveAttributeDefsForReplace(
+            permissionDefNameName, permissionDefNameId, attributeAssignOperation);
+
+      }
+
     }
-    
     
     WsAttributeAssignLookup[] attributeAssignLookups = null;
     
@@ -5937,6 +5980,8 @@ public class GrouperServiceLogic {
       actions = new String[]{action};
     }
     
+    String[] actionsToReplace = new String[]{GrouperUtil.defaultIfBlank(action, AttributeDef.ACTION_DEFAULT)};
+
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
     
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
@@ -5946,7 +5991,7 @@ public class GrouperServiceLogic {
         assignmentDisabledTime, delegatable, attributeAssignLookups, roleLookups, subjectRoleLookups, 
         actions, 
         actAsSubjectLookup, includeSubjectDetail, subjectAttributeArray, includeGroupDetail, 
-        params );
+        params, attributeDefsToReplace, actionsToReplace );
     
     WsAssignPermissionsLiteResults wsAssignPermissionsLiteResults = new WsAssignPermissionsLiteResults(wsAssignPermissionsResults);
     

@@ -57,6 +57,9 @@ public class WsAssignAttributeResult {
   /** if the values were changed, T|F */
   private String valuesChanged;
 
+  /** if this assignment was deleted, T|F */
+  private String deleted;
+
   /**
    * if the values were changed, T|F
    * @return if the values were changed, T|F
@@ -87,6 +90,22 @@ public class WsAssignAttributeResult {
    */
   public void setChanged(String changed1) {
     this.changed = changed1;
+  }
+
+  /**
+   * if this assignment was deleted, T|F
+   * @return if this assignment was deleted, T|F
+   */
+  public String getDeleted() {
+    return this.deleted;
+  }
+
+  /**
+   * if this assignment was deleted, T|F
+   * @param deleted1
+   */
+  public void setDeleted(String deleted1) {
+    this.deleted = deleted1;
   }
   
   

@@ -14,7 +14,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang.StringUtils;
 import org.kuali.rice.kew.edl.EDocLitePostProcessor;
 import org.kuali.rice.kew.postprocessor.DocumentRouteStatusChange;
 import org.kuali.rice.kew.postprocessor.ProcessDocReport;
@@ -395,6 +394,10 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
     if (!GrouperClientUtils.isBlank(groupId)) {
       gcAddMember.assignGroupUuid(groupId);
     }
+    
+    gcAddMember.assignDisabledTime(GrouperClientUtils.toTimestamp(disabledDate));
+    gcAddMember.assignEnabledTime(GrouperClientUtils.toTimestamp(enabledDate));
+    
     WsAddMemberResults wsAddMemberResults = gcAddMember.execute();
 
     if (enabledDate != null || disabledDate != null) {
@@ -404,7 +407,15 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
     // based on result, add report
     if (sendingEmail) {
       report.append("Group addMember: ").append(wsAddMemberResults.getWsGroupAssigned().getName());
-      report.append(" - ").append(wsAddMemberResults.getResults()[0].getResultMetadata().getResultCode()).append("\n\n");
+      report.append(" - ").append(wsAddMemberResults.getResults()[0].getResultMetadata().getResultCode());
+      if (disabledDate != null) {
+        report.append(", disabledDate: ").append(disabledDate);
+      }
+      if (enabledDate != null) {
+        report.append(", enabledDate: ").append(disabledDate);
+      }
+      
+      report.append("\n\n");
     }
   }
 
@@ -439,7 +450,7 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
       }
       
     }
-    if (StringUtils.isBlank(roleName)) {
+    if (GrouperClientUtils.isBlank(roleName)) {
       //this means problem, cant assign permissions without a role
       throw new RuntimeException("Problem finding role in document: " + grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions());
     }

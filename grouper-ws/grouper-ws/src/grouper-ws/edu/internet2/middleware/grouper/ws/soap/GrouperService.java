@@ -3099,6 +3099,12 @@ public class GrouperService {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
+   * @param attributeDefsToReplace if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   * @param actionsToReplace if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
+   * @param attributeDefTypesToReplace if replacing attributeDefNames, then these are the
+   * related attributeDefTypes, if blank, then just do all
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -3115,7 +3121,8 @@ public class GrouperService {
       WsMembershipLookup[] wsOwnerMembershipLookups, WsMembershipAnyLookup[] wsOwnerMembershipAnyLookups, 
       WsAttributeDefLookup[] wsOwnerAttributeDefLookups, WsAttributeAssignLookup[] wsOwnerAttributeAssignLookups,
       String[] actions, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
-      String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params) {  
+      String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params,
+      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace, String[] attributeDefTypesToReplace) {  
   
     WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
   
@@ -3145,7 +3152,8 @@ public class GrouperService {
           assignmentDisabledTimestamp, attributeAssignDelegatableEnum, attributeAssignValueOperationEnum, wsAttributeAssignLookups, 
           wsOwnerGroupLookups, wsOwnerStemLookups, wsOwnerSubjectLookups, wsOwnerMembershipLookups, wsOwnerMembershipAnyLookups, 
           wsOwnerAttributeDefLookups, wsOwnerAttributeAssignLookups, actions, actAsSubjectLookup, includeSubjectDetailBoolean, 
-          subjectAttributeNames, includeGroupDetailBoolean, params);
+          subjectAttributeNames, includeGroupDetailBoolean, params, attributeDefsToReplace, 
+          actionsToReplace, attributeDefTypesToReplace);
   
     } catch (Exception e) {
       wsAssignAttributesResults.assignResultCodeException(null, null, e);
@@ -3485,6 +3493,10 @@ public class GrouperService {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
+   * @param attributeDefsToReplace if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   * @param actionsToReplace if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
    * @return the results
    */
   @SuppressWarnings("unchecked")
@@ -3498,7 +3510,8 @@ public class GrouperService {
       WsGroupLookup[] roleLookups, 
       WsMembershipAnyLookup[] subjectRoleLookups, 
       String[] actions, WsSubjectLookup actAsSubjectLookup, String includeSubjectDetail,
-      String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params) {  
+      String[] subjectAttributeNames, String includeGroupDetail, WsParam[] params,
+      WsAttributeDefLookup[] attributeDefsToReplace, String[] actionsToReplace) {  
   
     WsAssignPermissionsResults wsAssignPermissionsResults = new WsAssignPermissionsResults();
   
@@ -3525,7 +3538,7 @@ public class GrouperService {
           permissionDefNameLookups, permissionAssignOperationEnum, assignmentNotes, assignmentEnabledTimestamp, 
           assignmentDisabledTimestamp, attributeAssignDelegatableEnum, wsAttributeAssignLookups, 
           roleLookups, subjectRoleLookups, actions, actAsSubjectLookup, includeSubjectDetailBoolean, 
-          subjectAttributeNames, includeGroupDetailBoolean, params);
+          subjectAttributeNames, includeGroupDetailBoolean, params, attributeDefsToReplace, actionsToReplace);
   
     } catch (Exception e) {
       wsAssignPermissionsResults.assignResultCodeException(null, null, e);

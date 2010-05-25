@@ -1480,7 +1480,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     WsAssignAttributesResults wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), null, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, AttributeAssignOperation.assign_attr, null, 
         null, null, null, null, null, null, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
 
     assertEquals("You must pass in an attributeAssignType", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1496,7 +1496,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         AttributeAssignOperation.assign_attr, null, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Cant do defName and assign lookup", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1512,7 +1512,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Why is there more than one type of lookup?", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1528,7 +1528,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, null, null, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Need to pass in attributeAssignOperation", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1543,7 +1543,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.add_attr, null, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("attributeAssignOperation must be assign_attr", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1563,7 +1563,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.stem, null, AttributeAssignOperation.remove_attr, null, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("but this operation was passed attributeAssignType", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1582,7 +1582,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, null, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, new String[]{"assign"}, null, false, null, false, null);
+        null, null, null, new String[]{"assign"}, null, false, null, false, null, null, null, null);
     
     assertEquals("Cant pass in actions when using attribute assign id lookup", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1606,7 +1606,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Cant pass in values when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1626,7 +1626,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, 
         "a", null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Cant pass in assignmentNotes when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1645,7 +1645,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, 
         null, new Timestamp(0), null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Cant pass in assignmentEnabledTime when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1664,7 +1664,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, 
         null, null, new Timestamp(0), null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Cant pass in assignmentDisabledTime when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1684,7 +1684,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, AttributeAssignDelegatable.TRUE, null, 
         new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Cant pass in delegatable when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1704,7 +1704,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, null, AttributeAssignValueOperation.remove_value, 
         new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("Cant pass in attributeAssignValueOperation when deleting attributes", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1723,7 +1723,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok", WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1740,7 +1740,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.remove_attr, null, 
         null, null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
 
     assertEquals("delete an existing attribute is ok", WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1762,7 +1762,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
         "notes", null, null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok", WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
         wsAssignAttributesResults.getResultMetadata().getResultCode());
@@ -1786,7 +1786,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
         null, new Timestamp(123L), null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -1811,7 +1811,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
         null, null, new Timestamp(123L), null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -1836,7 +1836,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, null, 
         null, null, null, AttributeAssignDelegatable.TRUE, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -1866,7 +1866,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
         null, null, null, null, AttributeAssignValueOperation.assign_value, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -1899,7 +1899,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
         null, null, null, null, AttributeAssignValueOperation.remove_value, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -1932,7 +1932,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
         null, null, null, null, AttributeAssignValueOperation.remove_value, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -1965,7 +1965,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
         null, null, null, null, AttributeAssignValueOperation.add_value, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2006,7 +2006,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.group, null, AttributeAssignOperation.assign_attr, new WsAttributeAssignValue[]{wsAttributeAssignValue}, 
         null, null, null, null, AttributeAssignValueOperation.assign_value, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2044,7 +2044,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         new WsAttributeAssignValue[]{wsAttributeAssignValue, wsAttributeAssignValue2}, 
         null, null, null, null, AttributeAssignValueOperation.assign_value, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("replace an existing attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2094,7 +2094,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, null, AttributeAssignValueOperation.assign_value, null, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
         null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2144,7 +2144,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, null, AttributeAssignValueOperation.assign_value, null, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
         null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2193,7 +2193,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, null, AttributeAssignValueOperation.replace_values, null, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
         null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2241,7 +2241,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, null, null, null, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
         null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2270,7 +2270,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, null, null, null, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, 
         null, null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("remove an attribute is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2328,7 +2328,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, 
         new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, 
         null, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2378,7 +2378,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, 
         null, 
         new WsSubjectLookup[]{new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), SubjectTestHelper.SUBJ0.getSourceId(), null)}, null, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2433,7 +2433,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, 
         null, 
         null, new WsMembershipLookup[]{new WsMembershipLookup(membership.getUuid())}, 
-        null, null, null, null, null, false, null, false, null);
+        null, null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2493,7 +2493,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, 
         new WsMembershipAnyLookup[]{new WsMembershipAnyLookup(new WsGroupLookup(group1.getName(), null), 
             new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), SubjectTestHelper.SUBJ0.getSourceId(), null))}, 
-        null, null, null, null, false, null, false, null);
+        null, null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2544,7 +2544,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, 
         null, null, 
         null, new WsAttributeDefLookup[]{new WsAttributeDefLookup(attributeDefAssignTo.getName(), null)}, 
-        null, null, null, false, null, false, null);
+        null, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2602,7 +2602,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, 
         null, 
         null, null, 
-        null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, null, null, false, null, false, null);
+        null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, null, null, false, null, false, null, null, null, null);
     
     assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2648,7 +2648,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), null, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, 
         PermissionAssignOperation.assign_permission, null, 
         null, null, null, null, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
   
     assertEquals("You must pass in a permissionType", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignPermissionsResults.getResultMetadata().getResultCode());
@@ -2663,7 +2663,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), PermissionType.role, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, 
         PermissionAssignOperation.assign_permission, null, 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("Cant do defName and assign lookup", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignPermissionsResults.getResultMetadata().getResultCode());
@@ -2679,7 +2679,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), PermissionType.role, null, 
         PermissionAssignOperation.assign_permission, null, 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup("abc")}, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("Why is there more than one type of lookup?", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignPermissionsResults.getResultMetadata().getResultCode());
@@ -2694,7 +2694,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), PermissionType.role, new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(),null)}, 
         null, null, 
         null, null, null, null, new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("Need to pass in permissionAssignOperation", WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsAssignPermissionsResults.getResultMetadata().getResultCode());
@@ -2715,7 +2715,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, new String[]{"a"}, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
       assertEquals("If you are passing in assign lookup ids to query, you cant specify attribute def names", 
           WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
@@ -2737,7 +2737,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         new WsGroupLookup[]{new WsGroupLookup(group.getName(), null)}, null, new String[]{"a"}, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
       assertEquals("Why is there more than one type of lookup?", 
           WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
@@ -2758,7 +2758,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, new String[]{"a"}, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("Cant pass in actions when using attribute assign id lookup", 
         WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
@@ -2778,7 +2778,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.remove_permission, "notes", 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("Cant pass in assignmentNotes when deleting attributes", 
         WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
@@ -2798,7 +2798,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.remove_permission, null, 
         new Timestamp(0), null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("Cant pass in assignmentEnabledTime when deleting attributes", 
         WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
@@ -2818,7 +2818,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.remove_permission, null, 
         null, new Timestamp(0), null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("Cant pass in assignmentDisabledTime when deleting attributes", 
         WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
@@ -2839,7 +2839,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.remove_permission, null, 
         null, null, AttributeAssignDelegatable.TRUE, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("Cant pass in delegatable when deleting attributes", 
         WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
@@ -2859,7 +2859,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("assign an existing attribute is ok", 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2878,7 +2878,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.remove_permission, null, 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("delete an existing attribute is ok", 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2898,7 +2898,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, "notes", 
         null, null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("assign an existing attribute is ok", 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2925,7 +2925,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         new Timestamp(123L), null, null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("assign an existing attribute is ok", 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2951,7 +2951,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         null, new Timestamp(123L), null, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("assign an existing attribute is ok", 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -2976,7 +2976,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         null, null, AttributeAssignDelegatable.TRUE, new WsAttributeAssignLookup[]{new WsAttributeAssignLookup(attributeAssign.getId())}, 
         null, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("assign an existing attribute is ok", 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -3002,7 +3002,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         null, null, AttributeAssignDelegatable.TRUE, null, 
         new WsGroupLookup[]{new WsGroupLookup(role.getName(), null)}, null, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("assign an existing attribute is ok", 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
@@ -3028,7 +3028,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
         PermissionAssignOperation.assign_permission, null, 
         null, null, AttributeAssignDelegatable.TRUE, null, 
         null, new WsMembershipAnyLookup[]{wsMembershipAnyLookup}, null, null, 
-        false, null, false, null);
+        false, null, false, null, null, null);
     
     assertEquals("assign an existing attribute is ok", 
         WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 

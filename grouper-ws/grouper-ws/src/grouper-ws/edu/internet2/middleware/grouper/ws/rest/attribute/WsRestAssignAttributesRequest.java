@@ -32,8 +32,84 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
   /** notes on the assignment (optional) */
   private String assignmentNotes;
   
+  /**
+   * if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   */
+  private WsAttributeDefLookup[] attributeDefsToReplace;
+  
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
+   */
+  private String[] actionsToReplace;
+  
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related attributeDefTypes, if blank, then just do all
+   */
+  private String[] attributeDefTypesToReplace;
   
   
+  /**
+   * if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   * @return the attributeDefsToReplace
+   */
+  public WsAttributeDefLookup[] getAttributeDefsToReplace() {
+    return this.attributeDefsToReplace;
+  }
+
+  
+  /**
+   * if replacing attributeDefNames, then these 
+   * are the related attributeDefs, if blank, then just do all
+   * @param attributeDefsToReplace1 the attributeDefsToReplace to set
+   */
+  public void setAttributeDefsToReplace(WsAttributeDefLookup[] attributeDefsToReplace1) {
+    this.attributeDefsToReplace = attributeDefsToReplace1;
+  }
+
+  
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
+   * @return the actionsToReplace
+   */
+  public String[] getActionsToReplace() {
+    return this.actionsToReplace;
+  }
+
+  
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related actions, if blank, then just do all
+   * @param actionsToReplace1 the actionsToReplace to set
+   */
+  public void setActionsToReplace(String[] actionsToReplace1) {
+    this.actionsToReplace = actionsToReplace1;
+  }
+
+  
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related attributeDefTypes, if blank, then just do all
+   * @return the attributeDefTypesToReplace
+   */
+  public String[] getAttributeDefTypesToReplace() {
+    return this.attributeDefTypesToReplace;
+  }
+
+  
+  /**
+   * if replacing attributeDefNames, then these are the
+   * related attributeDefTypes, if blank, then just do all
+   * @param attributeDefTypesToReplace1 the attributeDefTypesToReplace to set
+   */
+  public void setAttributeDefTypesToReplace(String[] attributeDefTypesToReplace1) {
+    this.attributeDefTypesToReplace = attributeDefTypesToReplace1;
+  }
+
   /**
    * notes on the assignment (optional)
    * @return notes

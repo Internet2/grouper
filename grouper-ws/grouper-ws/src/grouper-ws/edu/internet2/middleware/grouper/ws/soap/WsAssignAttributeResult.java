@@ -15,6 +15,8 @@ public class WsAssignAttributeResult implements Comparable<WsAssignAttributeResu
   /** set of results of this attribute assign value */
   private WsAttributeAssignValueResult[] wsAttributeAssignValueResults;
 
+  
+  
   /**
    * set of results of this attribute assign value
    * @return the array of result object
@@ -56,6 +58,9 @@ public class WsAssignAttributeResult implements Comparable<WsAssignAttributeResu
 
   /** if the values were changed, T|F */
   private String valuesChanged;
+
+  /** if this assignment was deleted, T|F */
+  private String deleted;
 
   /**
    * if the values were changed, T|F
@@ -120,6 +125,22 @@ public class WsAssignAttributeResult implements Comparable<WsAssignAttributeResu
       return -1;
     }
     return this.wsAttributeAssigns[0].compareTo(o2.wsAttributeAssigns[0]);
+  }
+
+  /**
+   * if this assignment was deleted, T|F
+   * @return if this assignment was deleted, T|F
+   */
+  public String getDeleted() {
+    return this.deleted;
+  }
+
+  /**
+   * if this assignment was deleted, T|F
+   * @param deleted1
+   */
+  public void setDeleted(String deleted1) {
+    this.deleted = deleted1;
   }
   
   

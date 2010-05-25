@@ -431,7 +431,7 @@ public class GrouperKimSaveMembershipProperties {
    * @return delegatable
    */
   public String getPermissionsDelegatable() {
-    return permissionsDelegatable;
+    return this.permissionsDelegatable;
   }
 
 
@@ -449,7 +449,7 @@ public class GrouperKimSaveMembershipProperties {
    * @return field name
    */
   public String getEdocliteFieldPermissionsDelegatable() {
-    return edocliteFieldPermissionsDelegatable;
+    return this.edocliteFieldPermissionsDelegatable;
   }
 
 
@@ -469,7 +469,7 @@ public class GrouperKimSaveMembershipProperties {
    * @return disabled date
    */
   public String getEdocliteFieldGroupDisabledDate() {
-    return edocliteFieldGroupDisabledDate;
+    return this.edocliteFieldGroupDisabledDate;
   }
 
 
@@ -489,7 +489,7 @@ public class GrouperKimSaveMembershipProperties {
    * @return enabled date
    */
   public String getEdocliteFieldGroupEnabledDate() {
-    return edocliteFieldGroupEnabledDate;
+    return this.edocliteFieldGroupEnabledDate;
   }
 
 
@@ -509,7 +509,7 @@ public class GrouperKimSaveMembershipProperties {
    * @return disabled date
    */
   public String getEdocliteFieldPermissionDisabledDate() {
-    return edocliteFieldPermissionDisabledDate;
+    return this.edocliteFieldPermissionDisabledDate;
   }
 
 
@@ -530,7 +530,7 @@ public class GrouperKimSaveMembershipProperties {
    * @return enabled date
    */
   public String getEdocliteFieldPermissionEnabledDate() {
-    return edocliteFieldPermissionEnabledDate;
+    return this.edocliteFieldPermissionEnabledDate;
   }
 
 

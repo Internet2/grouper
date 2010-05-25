@@ -26,6 +26,19 @@ public enum PermissionAssignOperation {
     }
   },
   
+  /** replace permissions of this user/role with these new permissions */
+  replace_permissions {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.permissions.PermissionAssignOperation#convertToAttributeAssignOperation()
+     */
+    @Override
+    public AttributeAssignOperation convertToAttributeAssignOperation() {
+      throw new RuntimeException("Cant convert this to attribute assign operation");
+    }
+  },
+  
   /** remove all assignments of this attribute name, or just certain attributes if by id */
   remove_permission {
 

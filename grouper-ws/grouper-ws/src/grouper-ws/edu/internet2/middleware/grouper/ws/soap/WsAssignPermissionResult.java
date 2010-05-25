@@ -23,6 +23,7 @@ public class WsAssignPermissionResult  {
    */
   public WsAssignPermissionResult(WsAssignAttributeResult wsAssignAttributeResult) {
     this.changed = wsAssignAttributeResult.getChanged();
+    this.deleted = wsAssignAttributeResult.getDeleted();
     this.wsAttributeAssigns = wsAssignAttributeResult.getWsAttributeAssigns();
   }
   
@@ -47,6 +48,8 @@ public class WsAssignPermissionResult  {
 
   /** if this assignment was changed, T|F */
   private String changed;
+  /** if this assignment was deleted, T|F */
+  private String deleted;
 
   /**
    * if this assignment was changed, T|F
@@ -62,6 +65,22 @@ public class WsAssignPermissionResult  {
    */
   public void setChanged(String changed1) {
     this.changed = changed1;
+  }
+
+  /**
+   * if this assignment was deleted, T|F
+   * @return if this assignment was deleted, T|F
+   */
+  public String getDeleted() {
+    return this.deleted;
+  }
+
+  /**
+   * if this assignment was deleted, T|F
+   * @param deleted1
+   */
+  public void setDeleted(String deleted1) {
+    this.deleted = deleted1;
   }
   
   
