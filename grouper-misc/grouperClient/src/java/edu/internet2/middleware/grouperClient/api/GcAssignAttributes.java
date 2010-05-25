@@ -241,6 +241,21 @@ public class GcAssignAttributes {
   private Set<String> attributeDefNameUuids = new LinkedHashSet<String>();
   
   
+  /** attributeDef names to replace */
+  private Set<String> attributeDefNamesToReplace = new LinkedHashSet<String>();
+
+  /** attributeDef uuids to replace */
+  private Set<String> attributeDefUuidsToReplace = new LinkedHashSet<String>();
+
+  //  * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
+  //  * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
+  
+    
+    
+  
+    /** to replace only certain actions */
+    private Set<String> actionsToReplace = new LinkedHashSet<String>();
+  
   
   /**
    * add a membership any lookup
@@ -399,6 +414,25 @@ public class GcAssignAttributes {
         assignAttributes.setWsOwnerAttributeAssignLookups(GrouperClientUtils.toArray(this.ownerAttributeAssignLookups, WsAttributeAssignLookup.class));
       }
 
+      //############# REPLACE STUFF
+      if (GrouperClientUtils.length(this.actionsToReplace) > 0) {
+        assignAttributes.setActionsToReplace(GrouperClientUtils.toArray(this.actionsToReplace, String.class));
+      }
+      if (GrouperClientUtils.length(this.attributeDefTypesToReplace) > 0) {
+        assignAttributes.setAttributeDefTypesToReplace(GrouperClientUtils.toArray(this.attributeDefTypesToReplace, String.class));
+      }
+      List<WsAttributeDefLookup> attributeDefLookupsToReplace = new ArrayList<WsAttributeDefLookup>();
+      //add names and/or uuids
+      for (String attributeDefNameToReplace : this.attributeDefNamesToReplace) {
+        attributeDefLookupsToReplace.add(new WsAttributeDefLookup(attributeDefNameToReplace, null));
+      }
+      for (String attributeDefUuidToReplace : this.attributeDefUuidsToReplace) {
+        attributeDefLookupsToReplace.add(new WsAttributeDefLookup(null, attributeDefUuidToReplace));
+      }
+      if (GrouperClientUtils.length(attributeDefLookupsToReplace) > 0) {
+        assignAttributes.setAttributeDefsToReplace(GrouperClientUtils.toArray(attributeDefLookupsToReplace, WsAttributeDefLookup.class));
+      }
+      
       
       if (this.includeGroupDetail != null) {
         assignAttributes.setIncludeGroupDetail(this.includeGroupDetail ? "T" : "F");
@@ -602,5 +636,47 @@ public class GcAssignAttributes {
     this.ownerAttributeAssignLookups.add(wsAttributeAssignLookup);
     return this;
   }
+
+  /**
+   * set the attributeDef name to replace
+   * @param theAttributeDefName
+   * @return this for chaining
+   */
+  public GcAssignAttributes addAttributeDefNameToReplace(String theAttributeDefName) {
+    this.attributeDefNamesToReplace.add(theAttributeDefName);
+    return this;
+  }
+
+  /**
+   * set the attributeDef uuid to replace
+   * @param theAttributeDefUuid
+   * @return this for chaining
+   */
+  public GcAssignAttributes addAttributeDefUuidToReplace(String theAttributeDefUuid) {
+    this.attributeDefUuidsToReplace.add(theAttributeDefUuid);
+    return this;
+  }
+
+  /**
+   * actions to replace
+   * @param action
+   * @return this for chaining
+   */
+  public GcAssignAttributes addActionToReplace(String action) {
+    this.actionsToReplace.add(action);
+    return this;
+  }
+
+  /** attribute def types to replace */
+  private Set<String> attributeDefTypesToReplace = new LinkedHashSet<String>();
   
+  /**
+   * attribute def types to replace
+   * @param attributeDefTypeToReplace
+   * @return this for chaining
+   */
+  public GcAssignAttributes addAttributeDefTypeToReplace(String attributeDefTypeToReplace) {
+    this.attributeDefTypesToReplace.add(attributeDefTypeToReplace);
+    return this;
+  }
 }

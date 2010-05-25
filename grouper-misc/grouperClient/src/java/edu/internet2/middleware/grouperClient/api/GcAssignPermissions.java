@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
@@ -180,6 +181,21 @@ public class GcAssignPermissions {
 
   /** attributeDefName uuids to assign */
   private Set<String> permissionDefNameUuids = new LinkedHashSet<String>();
+
+  //  * @param wsAttributeDefLookups find assignments in these attribute defs (optional)
+  //  * @param wsAttributeDefNameLookups find assignments in these attribute def names (optional)
+  
+    
+    
+  
+    /** to replace only certain actions */
+    private Set<String> actionsToReplace = new LinkedHashSet<String>();
+
+  /** attributeDef names to replace */
+  private Set<String> attributeDefNamesToReplace = new LinkedHashSet<String>();
+
+  /** attributeDef uuids to replace */
+  private Set<String> attributeDefUuidsToReplace = new LinkedHashSet<String>();
   
   
   
@@ -282,6 +298,21 @@ public class GcAssignPermissions {
         assignPermissions.setSubjectRoleLookups(GrouperClientUtils.toArray(this.subjectRoleLookups, WsMembershipAnyLookup.class));
       }
       
+      //############# REPLACE STUFF
+      if (GrouperClientUtils.length(this.actionsToReplace) > 0) {
+        assignPermissions.setActionsToReplace(GrouperClientUtils.toArray(this.actionsToReplace, String.class));
+      }
+      List<WsAttributeDefLookup> attributeDefLookupsToReplace = new ArrayList<WsAttributeDefLookup>();
+      //add names and/or uuids
+      for (String attributeDefNameToReplace : this.attributeDefNamesToReplace) {
+        attributeDefLookupsToReplace.add(new WsAttributeDefLookup(attributeDefNameToReplace, null));
+      }
+      for (String attributeDefUuidToReplace : this.attributeDefUuidsToReplace) {
+        attributeDefLookupsToReplace.add(new WsAttributeDefLookup(null, attributeDefUuidToReplace));
+      }
+      if (GrouperClientUtils.length(attributeDefLookupsToReplace) > 0) {
+        assignPermissions.setAttributeDefsToReplace(GrouperClientUtils.toArray(attributeDefLookupsToReplace, WsAttributeDefLookup.class));
+      }
 
       
       if (this.includeGroupDetail != null) {
@@ -412,6 +443,36 @@ public class GcAssignPermissions {
    */
   public GcAssignPermissions assignDelegatable(String theDelegatable) {
     this.delegatable = theDelegatable;
+    return this;
+  }
+
+  /**
+   * actions to replace
+   * @param action
+   * @return this for chaining
+   */
+  public GcAssignPermissions addActionToReplace(String action) {
+    this.actionsToReplace.add(action);
+    return this;
+  }
+
+  /**
+   * set the attributeDef name to replace
+   * @param theAttributeDefName
+   * @return this for chaining
+   */
+  public GcAssignPermissions addAttributeDefNameToReplace(String theAttributeDefName) {
+    this.attributeDefNamesToReplace.add(theAttributeDefName);
+    return this;
+  }
+
+  /**
+   * set the attributeDef uuid to replace
+   * @param theAttributeDefUuid
+   * @return this for chaining
+   */
+  public GcAssignPermissions addAttributeDefUuidToReplace(String theAttributeDefUuid) {
+    this.attributeDefUuidsToReplace.add(theAttributeDefUuid);
     return this;
   }
   

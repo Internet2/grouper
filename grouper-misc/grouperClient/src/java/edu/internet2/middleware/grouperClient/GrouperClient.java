@@ -3529,7 +3529,45 @@ public class GrouperClient {
       }
     }
     
+    {
+      Set<String> actionsToReplace = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "actionsToReplace", false);
+      
+      if (GrouperClientUtils.length(actionsToReplace) > 0) {
+        for (String actionToReplace : actionsToReplace) {
+          gcAssignAttributes.addActionToReplace(actionToReplace);
+        }
+      }
+    }
     
+    {
+      Set<String> attributeDefTypesToReplace = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefTypesToReplace", false);
+      
+      if (GrouperClientUtils.length(attributeDefTypesToReplace) > 0) {
+        for (String attributeDefTypeToReplace : attributeDefTypesToReplace) {
+          gcAssignAttributes.addAttributeDefTypeToReplace(attributeDefTypeToReplace);
+        }
+      }
+    }
+    
+    {
+      Set<String> attributeDefNamesToReplace = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNamesToReplace", false);
+      
+      if (GrouperClientUtils.length(attributeDefNamesToReplace) > 0) {
+        for (String attributeDefNameToReplace : attributeDefNamesToReplace) {
+          gcAssignAttributes.addAttributeDefNameToReplace(attributeDefNameToReplace);
+        }
+      }
+    }
+    
+    {
+      Set<String> attributeDefUuidsToReplace = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefUuidsToReplace", false);
+      
+      if (GrouperClientUtils.length(attributeDefUuidsToReplace) > 0) {
+        for (String attributeDefUuidToReplace : attributeDefUuidsToReplace) {
+          gcAssignAttributes.addAttributeDefUuidToReplace(attributeDefUuidToReplace);
+        }
+      }
+    }
     
     {
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
@@ -4054,7 +4092,36 @@ public class GrouperClient {
       }
     }
     
+    {
+      Set<String> actionsToReplace = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "actionsToReplace", false);
+      
+      if (GrouperClientUtils.length(actionsToReplace) > 0) {
+        for (String actionToReplace : actionsToReplace) {
+          gcAssignPermissions.addActionToReplace(actionToReplace);
+        }
+      }
+    }
     
+    {
+      Set<String> attributeDefNamesToReplace = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNamesToReplace", false);
+      
+      if (GrouperClientUtils.length(attributeDefNamesToReplace) > 0) {
+        for (String attributeDefNameToReplace : attributeDefNamesToReplace) {
+          gcAssignPermissions.addAttributeDefNameToReplace(attributeDefNameToReplace);
+        }
+      }
+    }
+    
+    {
+      Set<String> attributeDefUuidsToReplace = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefUuidsToReplace", false);
+      
+      if (GrouperClientUtils.length(attributeDefUuidsToReplace) > 0) {
+        for (String attributeDefUuidToReplace : attributeDefUuidsToReplace) {
+          gcAssignPermissions.addAttributeDefUuidToReplace(attributeDefUuidToReplace);
+        }
+      }
+    }
+
     
     {
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);

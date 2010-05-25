@@ -44,7 +44,6 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
@@ -567,21 +566,13 @@ public class WsAssignAttributeLogic {
         
         //remove existings if replacing
         if (attributeAssignOperation == AttributeAssignOperation.replace_attrs) {
-          Set<String> attributeDefNameIdsToDelete = attributeAssignAttributeDefNameIds(existingAttributeAssignsBeforeReplace);
-          Set<String> actionsToDelete = attributeAssignActions(existingAttributeAssignsBeforeReplace);
           
-          attributeAssignOnOwnerHelper(AttributeAssignOperation.remove_attr, null, null,
-              null, null, null,
-              null, GrouperUtil.toArray(actionsToDelete, String.class), errorMessage, attributeDefNameIdsToDelete,
-              wsAssignAttributeResultList, attributeAssignable,
-              null);
+          deleteAttributesForReplace(errorMessage, wsAssignAttributeResultList,
+              attributeAssignable, existingAttributeAssignsBeforeReplace);
         }
         
       }
-      
-      
     }
-  
   
     Set<String> allGroupIds = new HashSet<String>(GrouperUtil.nonNull(ownerGroupIds));
     Set<String> extraMemberIds = new HashSet<String>();
@@ -613,6 +604,57 @@ public class WsAssignAttributeLogic {
     wsAssignAttributesResults.getResultMetadata().appendResultMessage(
         ", Found " + GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults())
         + " results.  ");
+  }
+
+  /**
+   * delete attributes for replace
+   * @param errorMessage
+   * @param wsAssignAttributeResultList
+   * @param attributeAssignable
+   * @param existingAttributeAssignsBeforeReplace
+   */
+  private static void deleteAttributesForReplace(StringBuilder errorMessage,
+      List<WsAssignAttributeResult> wsAssignAttributeResultList,
+      AttributeAssignable attributeAssignable,
+      Set<AttributeAssign> existingAttributeAssignsBeforeReplace) {
+    for (AttributeAssign attributeAssign : existingAttributeAssignsBeforeReplace) {
+      String action = null;
+      AttributeDefName attributeDefName = null;
+      try {
+        WsAssignAttributeResult wsAssignAttributeResult = new WsAssignAttributeResult();
+        wsAssignAttributeResult.setChanged("T");
+        wsAssignAttributeResult.setDeleted("T");
+        wsAssignAttributeResult.setValuesChanged("F");
+        AttributeAssign[] attributeAssigns = null;
+        AttributeAssignResult attributeAssignResult = null;
+        action = attributeAssign.getAttributeAssignAction().getName();
+        attributeDefName = attributeAssign.getAttributeDefName();
+        attributeAssignResult = attributeAssignable.getAttributeDelegate().removeAttribute(
+            action, attributeDefName);
+        attributeAssigns = GrouperUtil.toArray(attributeAssignResult.getAttributeAssigns(), AttributeAssign.class);
+        
+        //convert the attribute assigns to ws attribute assigns
+        int attributeAssignsLength = GrouperUtil.length(attributeAssigns);
+        WsAttributeAssign[] wsAttributeAssigns = attributeAssignsLength == 0 ? null : new WsAttributeAssign[attributeAssignsLength];
+        int i=0;
+        for (AttributeAssign currentAttributeAssign : GrouperUtil.nonNull(attributeAssigns, AttributeAssign.class)) {
+          wsAttributeAssigns[i] = new WsAttributeAssign(currentAttributeAssign);
+          i++;
+        }
+        wsAssignAttributeResult.setWsAttributeAssigns(wsAttributeAssigns);
+        //the result knows if it is changed or not
+        if (StringUtils.equals("F", wsAssignAttributeResult.getChanged())) {
+          wsAssignAttributeResult.setChanged(attributeAssignResult.isChanged() ? "T" : "F");
+        }
+        wsAssignAttributeResultList.add(wsAssignAttributeResult);
+      } catch (Exception e) {
+        //add to error and keep going
+        errorMessage.append(
+            "Problem with " + attributeDefName + ", action: " + action 
+            + ", owner: " + attributeAssignable + ", " + ExceptionUtils.getFullStackTrace(e) + ".  ");
+      }
+      
+    }
   }
 
   /**
@@ -680,7 +722,7 @@ public class WsAssignAttributeLogic {
             case remove_attr:
               attributeAssignResult = attributeAssignable.getAttributeDelegate().removeAttribute(action, attributeDefName);
               attributeAssigns = GrouperUtil.toArray(attributeAssignResult.getAttributeAssigns(), AttributeAssign.class);
-              wsAssignAttributeResult.setDeleted("F");
+              wsAssignAttributeResult.setDeleted("T");
               
               break;
               
@@ -736,44 +778,6 @@ public class WsAssignAttributeLogic {
     }
   }
 
-  /**
-   * if the attributeDefNameId and action already existed, then remove it
-   * @param existingAttributeAssignsBeforeReplace
-   * @param attributeDefNameId
-   * @param action
-   * @return the set of actions
-   */
-  private static Set<String> attributeAssignActions(Set<AttributeAssign> existingAttributeAssignsBeforeReplace) {
-    Set<String> actions = new HashSet<String>();
-    if (GrouperUtil.length(existingAttributeAssignsBeforeReplace) > 0) {
-      
-      for (AttributeAssign attributeAssign : existingAttributeAssignsBeforeReplace) {
-        actions.add(attributeAssign.getAttributeAssignAction().getName());
-      }
-    }
-    return actions;
-  }
-
-  /**
-   * if the attributeDefNameId and action already existed, then remove it
-   * @param existingAttributeAssignsBeforeReplace
-   * @param attributeDefNameId
-   * @param action
-   * @return the set of attributeDefNameIds
-   */
-  private static Set<String> attributeAssignAttributeDefNameIds(Set<AttributeAssign> existingAttributeAssignsBeforeReplace) {
-    Set<String> attributeDefNameIds = new HashSet<String>();
-    if (GrouperUtil.length(existingAttributeAssignsBeforeReplace) > 0) {
-      
-      for (AttributeAssign attributeAssign : existingAttributeAssignsBeforeReplace) {
-        attributeDefNameIds.add(attributeAssign.getAttributeDefNameId());
-      }
-
-    }
-    return attributeDefNameIds;
-  }
-
-  
   /**
    * get the assignments before replace, filter out things not applicable
    * @param actionsToReplace
@@ -906,7 +910,6 @@ public class WsAssignAttributeLogic {
   /**
    * logger 
    */
-  @SuppressWarnings("unused")
   public static final Log LOG = LogFactory.getLog(WsAssignAttributeLogic.class);
 
 }

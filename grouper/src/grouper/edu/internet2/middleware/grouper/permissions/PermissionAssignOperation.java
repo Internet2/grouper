@@ -35,7 +35,7 @@ public enum PermissionAssignOperation {
      */
     @Override
     public AttributeAssignOperation convertToAttributeAssignOperation() {
-      throw new RuntimeException("Cant convert this to attribute assign operation");
+      return AttributeAssignOperation.replace_attrs;
     }
   },
   

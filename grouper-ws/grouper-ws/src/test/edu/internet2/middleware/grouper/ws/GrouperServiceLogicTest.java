@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributeResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignAttributesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeAssign;
@@ -106,7 +107,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignPermissions"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributesStemReplace"));
   }
 
   /**
@@ -3044,6 +3045,297 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
     
 
+    
+  }
+
+  /**
+   * test assign attributes
+   */
+  public void testAssignAttributesStemReplace() {
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    
+    final AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    
+    attributeDef.setAssignToGroup(false);
+    attributeDef.setAssignToStem(true);
+    attributeDef.setValueType(AttributeDefValueType.timestamp);
+    attributeDef.store();
+    
+    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName2");
+    
+    final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+    
+    attributeDef2.setAssignToGroup(false);
+    attributeDef2.setAssignToStem(true);
+    attributeDef2.setValueType(AttributeDefValueType.timestamp);
+    attributeDef2.getAttributeDefActionDelegate().configureActionList("a,b");
+    attributeDef2.store();
+    
+  
+    Stem stem = new StemSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignStemNameToEdit("test:stemTestAttrAssign").assignName("test:stemTestAttrAssign").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+  
+  
+    
+    
+    
+    //lets assign to a stem
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    //###################### SIMPLE REPLACE
+    for (AttributeAssign attributeAssign : stem.getAttributeDelegate().retrieveAssignments()) {
+      attributeAssign.delete();
+    }
+        
+    WsAssignAttributesResults wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.stem, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
+        AttributeAssignOperation.replace_attrs, 
+        null, 
+        null, null, null, null, null, null, 
+        null, 
+        new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, 
+        null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+    
+    assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()));
+    WsAssignAttributeResult wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[0];
+    assertEquals("F", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+    
+    assertEquals(0, GrouperUtil.length(wsAssignAttributeResult.getWsAttributeAssignValueResults()));  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    AttributeAssign attributeAssign = stem.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(attributeDefName.getName(), attributeAssign.getAttributeDefName().getName());
+    
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments()));
+
+    //####################### REPLACE EXISTING
+        
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.stem, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
+        AttributeAssignOperation.replace_attrs, 
+        null, 
+        null, null, null, null, null, null, 
+        null, 
+        new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, 
+        null, null, 
+        null, null, null, null, null, false, null, false, null, null, null, null);
+    
+    assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+    assertEquals(1, GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()));
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[0];
+    
+    assertEquals("F", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("F", wsAssignAttributeResult.getChanged());
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    attributeAssign = stem.getAttributeDelegate().retrieveAssignments(attributeDefName).iterator().next();
+    assertEquals(attributeDefName.getName(), attributeAssign.getAttributeDefName().getName());
+    
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments()));
+    
+    //####################### REPLACE WITH ANOTHER
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.stem, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName2.getName(), null)}, 
+        AttributeAssignOperation.replace_attrs, 
+        null, 
+        null, null, null, null, null, null, 
+        null, 
+        new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, 
+        null, null, 
+        null, null, null, new String[]{"a"}, null, false, null, false, null, null, null, null);
+    
+    assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+    assertEquals(2, GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()));
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[0];
+    
+    assertEquals("test:testAttributeAssignDefName2", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("F", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[1];
+    
+    assertEquals("test:testAttributeAssignDefName", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("T", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    assertEquals(0, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName)));
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName2)));
+    attributeAssign = stem.getAttributeDelegate().retrieveAssignments(attributeDefName2).iterator().next();
+    assertEquals(attributeDefName2.getName(), attributeAssign.getAttributeDefName().getName());
+    
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments()));
+
+    
+    //####################### REPLACE WITH ATTRIBUTE DEFS
+    
+    stem.getAttributeDelegate().assignAttribute(attributeDefName);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.stem, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName2.getName(), null)}, 
+        AttributeAssignOperation.replace_attrs, 
+        null, 
+        null, null, null, null, null, null, 
+        null, 
+        new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, 
+        null, null, 
+        null, null, null, new String[]{"b"}, null, false, null, false, null, new WsAttributeDefLookup[]{new WsAttributeDefLookup(attributeDef2.getName(), null)}, null, null);
+    
+    assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+    assertEquals(2, GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()));
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[0];
+    
+    assertEquals("test:testAttributeAssignDefName2", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("T", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[1];
+    
+    assertEquals("test:testAttributeAssignDefName2", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("F", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName)));
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName2)));
+    attributeAssign = (AttributeAssign)GrouperUtil.get(stem.getAttributeDelegate().retrieveAssignments(attributeDefName), 0);
+    assertEquals(attributeDefName.getName(), attributeAssign.getAttributeDefName().getName());
+    attributeAssign = (AttributeAssign)GrouperUtil.get(stem.getAttributeDelegate().retrieveAssignments(attributeDefName2), 0);
+    assertEquals(attributeDefName2.getName(), attributeAssign.getAttributeDefName().getName());
+    assertEquals("b", attributeAssign.getAttributeAssignAction().getName());
+    
+    assertEquals(2, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments()));
+
+    //####################### REPLACE WITH ACTIONS
+    
+    stem.getAttributeDelegate().assignAttribute(attributeDefName);
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.stem, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName2.getName(), null)}, 
+        AttributeAssignOperation.replace_attrs, 
+        null, 
+        null, null, null, null, null, null, 
+        null, 
+        new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, 
+        null, null, 
+        null, null, null, new String[]{"a"}, null, false, null, false, null, null, new String[]{"a", "b"}, null);
+    
+    assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+    assertEquals(2, GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()));
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[0];
+    
+    assertEquals("test:testAttributeAssignDefName2", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("F", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[1];
+    
+    assertEquals("test:testAttributeAssignDefName2", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("T", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName)));
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName2)));
+    attributeAssign = (AttributeAssign)GrouperUtil.get(stem.getAttributeDelegate().retrieveAssignments(attributeDefName), 0);
+    assertEquals(attributeDefName.getName(), attributeAssign.getAttributeDefName().getName());
+    attributeAssign = (AttributeAssign)GrouperUtil.get(stem.getAttributeDelegate().retrieveAssignments(attributeDefName2), 0);
+    assertEquals(attributeDefName2.getName(), attributeAssign.getAttributeDefName().getName());
+    assertEquals("a", attributeAssign.getAttributeAssignAction().getName());
+    
+    assertEquals(2, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments()));
+
+    
+    //####################### REPLACE WITH TYPE
+    
+    stem.getAttributeDelegate().assignAttribute(attributeDefName);
+    
+    assertEquals(2, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments()));
+    
+    wsAssignAttributesResults = GrouperServiceLogic.assignAttributes(
+        GrouperVersion.valueOfIgnoreCase("v1_6_000"), AttributeAssignType.stem, 
+        new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName2.getName(), null)}, 
+        AttributeAssignOperation.replace_attrs, 
+        null, 
+        null, null, null, null, null, null, 
+        null, 
+        new WsStemLookup[]{new WsStemLookup(stem.getName(), null)}, 
+        null, null, 
+        null, null, null, new String[]{"b"}, null, false, null, false, null, null, null, new String[]{AttributeDefType.attr.name()});
+    
+    assertEquals("assign attribute add a value is ok: " + wsAssignAttributesResults.getResultMetadata().getResultMessage(), 
+        WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+        wsAssignAttributesResults.getResultMetadata().getResultCode());
+    assertEquals(3, GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults()));
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[0];
+    
+    assertEquals("test:testAttributeAssignDefName2", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("T", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+    
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[1];
+    
+    assertEquals("test:testAttributeAssignDefName2", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("F", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+
+    wsAssignAttributeResult = wsAssignAttributesResults.getWsAttributeAssignResults()[2];
+    
+    assertEquals("test:testAttributeAssignDefName", wsAssignAttributeResult.getWsAttributeAssigns()[0].getAttributeDefNameName());
+    assertEquals("T", wsAssignAttributeResult.getDeleted());
+    assertEquals("F", wsAssignAttributeResult.getValuesChanged());
+    assertEquals("T", wsAssignAttributeResult.getChanged());
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    assertEquals(0, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName)));
+    assertEquals(1, GrouperUtil.length(stem.getAttributeDelegate().retrieveAssignments(attributeDefName2)));
+    attributeAssign = (AttributeAssign)GrouperUtil.get(stem.getAttributeDelegate().retrieveAssignments(attributeDefName2), 0);
+    assertEquals(attributeDefName2.getName(), attributeAssign.getAttributeDefName().getName());
+    assertEquals("b", attributeAssign.getAttributeAssignAction().getName());
+    
     
   }
 
