@@ -1189,12 +1189,14 @@ public class ChangeLogTest extends GrouperTest {
     assertTrue("Should have two more records in the change log table: " + newChangeLogCount + ", " + newerChangeLogCount, 
         newChangeLogCount+2 == newerChangeLogCount);
     
-    List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity order by sequenceNumber")
-      .list(ChangeLogEntry.class);
-
     {
-      ChangeLogEntry deleteEntry = changeLogEntries.get(changeLogEntries.size() - 2);
+      List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subj")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
+        .setString("subj", rootMember.getSubjectId())
+        .list(ChangeLogEntry.class);
+
+      ChangeLogEntry deleteEntry = changeLogEntries.get(0);
     
       assertTrue("contextId should exist", StringUtils.isNotBlank(deleteEntry.getContextId()));
       
@@ -1210,7 +1212,13 @@ public class ChangeLogTest extends GrouperTest {
     }
     
     {
-      ChangeLogEntry addEntry = changeLogEntries.get(changeLogEntries.size() - 1);
+      List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subj")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
+        .setString("subj", newMember.getSubjectId())
+        .list(ChangeLogEntry.class);
+
+      ChangeLogEntry addEntry = changeLogEntries.get(0);
       assertTrue("contextId should exist", StringUtils.isNotBlank(addEntry.getContextId()));
       
       assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
@@ -1258,12 +1266,13 @@ public class ChangeLogTest extends GrouperTest {
   
     ChangeLogTempToEntity.convertRecords();
     
-    changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType order by sequenceNumber")
+    List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subj")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
+      .setString("subj", newMember1.getSubjectId())
       .list(ChangeLogEntry.class);
     
-    ChangeLogEntry changeLogEntry2 = changeLogEntries.get(changeLogEntries.size() - 1);
+    ChangeLogEntry changeLogEntry2 = changeLogEntries.get(0);
 
     assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
     
