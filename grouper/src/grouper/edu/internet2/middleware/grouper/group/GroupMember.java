@@ -30,6 +30,14 @@ public class GroupMember implements AttributeAssignable {
   }
 
   /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "GroupMember: " + group + ", member: " + member;
+  }
+
+  /**
    * 
    */
   public GroupMember() {

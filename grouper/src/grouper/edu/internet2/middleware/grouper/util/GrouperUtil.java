@@ -1452,8 +1452,6 @@ public class GrouperUtil {
    * @param json is the json string, not wrapped with a simple class name
    * @param theClass is the class that the object should be coverted into.
    * Note: only the top level object needs to be registered
-   * @param json
-   * @param theClass
    * @return the object
    */
   public static Object jsonConvertFrom (String json, Class<?> theClass) {
@@ -2093,6 +2091,22 @@ public class GrouperUtil {
     for (T object : objects) {
       result.add(object);
     }
+    return result;
+  }
+
+  /**
+   * return a set of string
+   * 
+   * @param <T> template type of the objects
+   * @param object
+   * @return the set
+   */
+  public static <T> Set<T> toSetObject(T object) {
+    if (object == null) {
+      return null;
+    }
+    Set<T> result = new LinkedHashSet<T>();
+    result.add(object);
     return result;
   }
 

@@ -102,10 +102,71 @@ public class GrouperKimSaveMembershipProperties {
    * have to be put on screen (also helps sandbox out the security)
    */
   private String enteredPermissionNamePrefix;
+
+  /** names of attribute defs which are affected by a permissions replace */
+  private String attributeDefNamesToReplace;
+
+  /** actions which are affected by a permissions replace */
+  private String actionsToReplace;
+  
+  /** 
+   * this will be prefixed to the entered role name so the whole stem doesnt 
+   * have to be put on screen (also helps sandbox out the security)
+   */
+  private String enteredRoleNamePrefix;
   
   
+  /**
+   * this will be prefixed to the entered role name so the whole stem doesnt 
+   * have to be put on screen (also helps sandbox out the security)
+   * @return the enteredRoleNamePrefix
+   */
+  public String getEnteredRoleNamePrefix() {
+    return this.enteredRoleNamePrefix;
+  }
+
   
+  /**
+   * this will be prefixed to the entered role name so the whole stem doesnt 
+   * have to be put on screen (also helps sandbox out the security)
+   * @param enteredRoleNamePrefix1 the enteredRoleNamePrefix to set
+   */
+  public void setEnteredRoleNamePrefix(String enteredRoleNamePrefix1) {
+    this.enteredRoleNamePrefix = enteredRoleNamePrefix1;
+  }
+
+  /**
+   * names of attribute defs which are affected by a permissions replace
+   * @return the attributeDefNamesToReplace
+   */
+  public String getAttributeDefNamesToReplace() {
+    return this.attributeDefNamesToReplace;
+  }
   
+  /**
+   * names of attribute defs which are affected by a permissions replace
+   * @param attributeDefNamesToReplace1 the attributeDefNamesToReplace to set
+   */
+  public void setAttributeDefNamesToReplace(String attributeDefNamesToReplace1) {
+    this.attributeDefNamesToReplace = attributeDefNamesToReplace1;
+  }
+  
+  /**
+   * actions which are affected by a permissions replace
+   * @return the actionsToReplace
+   */
+  public String getActionsToReplace() {
+    return this.actionsToReplace;
+  }
+  
+  /**
+   * actions which are affected by a permissions replace
+   * @param actionsToReplace1 the actionsToReplace to set
+   */
+  public void setActionsToReplace(String actionsToReplace1) {
+    this.actionsToReplace = actionsToReplace1;
+  }
+
   /**
    * role to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
    * @return the roleForPermissions
@@ -709,108 +770,124 @@ public class GrouperKimSaveMembershipProperties {
    */
   public static GrouperKimSaveMembershipProperties grouperKimSaveMembershipProperties(String docTypeName) {
     
-    //###############################
-    //# configure postprocessor actions on document types.  The string "sampleProvisioning" ties the configs
-    //# together, change that label for multiple
-    //
-    //###### MISC
-    //# email addresses (comma separated) that should get an admin email that this was done (or errors)
-    //kuali.edoclite.saveMembership.sampleProvisioning.emailAdmins = mchyzer@isc.upenn.edu
-    //
-    //# doctype name that this applies to
-    //kuali.edoclite.saveMembership.sampleProvisioning.docTypeName = sampleProvisioning.doctype
-    //
-    //###### GROUPS
-    //# regex of group allowed to assign to, extra layer of security, optional
-    //kuali.edoclite.saveMembership.sampleProvisioning.groupRegex = ^temp:[^:]+rovisionGroup$
-    //
-    //# list of allowed to assign to (comma separate), extra layer of security, optional, 
-    //#generally mutually exclusive with the groupRegex
-    //kuali.edoclite.saveMembership.sampleProvisioning.allowedGroups = a:b:c, d:e:f:G
-    //
-    //# edocliteFieldPrefix if checkboxes or textfields or whatever, put the prefix of the edoclite field here.
-    //#so if the field prefix is "groups", then it will look for groups0, groups1, etc to groups200...
-    //#the value of the field is the group to add to
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPrefix = provisionGroup
-    //
-    //#this will be prefixed to the entered group name so the whole stem doesnt 
-    //#have to be put on screen (also helps sandbox out the security)
-    //kuali.edoclite.saveMembership.sampleProvisioning.enteredGroupNamePrefix = school:some:prefix:
-    //
-    //# groups (comma separated) id or name which the initiator will be assigned to when the document is final
-    //kuali.edoclite.saveMembership.sampleProvisioning.addMembershipToGroups = temp:provisionGroup
-    //
-    //# groups (comma separated) id or name which the initiator will be unassigned from when the document is final
-    //kuali.edoclite.saveMembership.sampleProvisioning.removeMembershipFromGroups = temp:anotherProvisionGroup
-    //
-    //# delete date: yyyy/mm/dd or dd-Mon-yyyy
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldGroupDisabledDate = someFieldName
-    //
-    //# enable date: yyyy/mm/dd or dd-Mon-yyyy
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldGroupEnabledDate = someFieldName
-    //
-    //###### PERMISSIONS ROLES
-    //# role to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
-    //kuali.edoclite.saveMembership.sampleProvisioning.roleForPermissions = some:role
-    //
-    //# role to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with roleForPermissions)
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldRoleForPermissions = someEdocliteFieldName
-    //
-    //# allowed roles (e.g. from edoclite form) or empty if not validating
-    //kuali.edoclite.saveMembership.sampleProvisioning.allowedRolesForPermissions = some:role1, some:role2
-    //
-    //###### PERMISSIONS OPERATIONS
-    //# operation of assign|remove permissions (mutually exclusive with edocliteFieldOperationForPermissions)
-    //kuali.edoclite.saveMembership.sampleProvisioning.operationForPermissions = assign_permission, remove_permission
-    //
-    //# operation to assign|remove permissions (read from edoclite) or empty if not doing permissions (mutually exclusive with operationForPermissions)
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldOperationForPermissions = someEdocliteFieldName
-    //
-    //# allowed operations (e.g. from edoclite form) or empty if not validating
-    //kuali.edoclite.saveMembership.sampleProvisioning.allowedOperationsForPermissions = assign_permission, remove_permission
-    //
-    //###### ACTIONS
-    //# actions to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
-    //kuali.edoclite.saveMembership.sampleProvisioning.actionsForPermissions = read,write
-    //
-    //# actions to assign permissions to (read from edoclite) or empty if not doing permissions (mutually exclusive with actionsForPermissions)
-    //# this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPrefixActionsForPermissions = someEdocliteFieldName
-    //
-    //# allowed actions (e.g. from edoclite form) or empty if not validating
-    //kuali.edoclite.saveMembership.sampleProvisioning.allowedActionsForPermissions = read, write
-    //
-    //###### PERMISSIONS
-    //# permissions to assign or null if not doing permissions (mutually exclusive with edocliteFieldPrefixForPermissions)
-    //kuali.edoclite.saveMembership.sampleProvisioning.permissions = a:b, b:c
-    //
-    //# permissions to assign (read from edoclite) or empty if not doing permissions (mutually exclusive with permissions)
-    //# this is the prefix, appending 0,1,2 etc on the end.  so the fields would be someEdocliteFieldName0, someEdocliteFieldName1, etc
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPrefixForPermissions = someEdocliteFieldName
-    //
-    //# allowed permissions (e.g. from edoclite form) or empty if not validating
-    //kuali.edoclite.saveMembership.sampleProvisioning.allowedPermissions = read, write
-    //
-    //# regex of permissions allowed to assign, extra layer of security, optional
-    //kuali.edoclite.saveMembership.sampleProvisioning.permissionsRegex = ^temp:[^:]+rovisionGroup$
-    //
-    //#this will be prefixed to the entered permission name so the whole stem doesnt 
-    //#have to be put on screen (also helps sandbox out the security)
-    //kuali.edoclite.saveMembership.sampleProvisioning.enteredPermissionNamePrefix = school:some:prefix:
-    //
-    //# delete date: yyyy/mm/dd or dd-Mon-yyyy
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionDisabledDate = someFieldName
-    //
-    //# enable date: yyyy/mm/dd or dd-Mon-yyyy
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionEnabledDate = someFieldName
-    //
-    //# field name which has blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
-    //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionsDelegatable = someFieldName
-    //
-    //# blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
-    //kuali.edoclite.saveMembership.sampleProvisioning.permissionsDelegatable = FALSE|TRUE|GRANT
-    //
-    //##################################################
+  //###############################
+  //# configure postprocessor actions on document types.  The string "sampleProvisioning" ties the configs
+  //# together, change that label for multiple
+  //
+  //###### MISC
+  //# email addresses (comma separated) that should get an admin email that this was done (or errors)
+  //kuali.edoclite.saveMembership.sampleProvisioning.emailAdmins = mchyzer@isc.upenn.edu
+  //
+  //# doctype name that this applies to
+  //kuali.edoclite.saveMembership.sampleProvisioning.docTypeName = sampleProvisioning.doctype
+  //
+  //###### GROUPS
+  //# regex of group allowed to assign to, extra layer of security, optional
+  //kuali.edoclite.saveMembership.sampleProvisioning.groupRegex = ^temp:[^:]+rovisionGroup$
+  //
+  //# list of allowed to assign to (comma separate), extra layer of security, optional, 
+  //#generally mutually exclusive with the groupRegex
+  //kuali.edoclite.saveMembership.sampleProvisioning.allowedGroups = a:b:c, d:e:f:G
+  //
+  //# edocliteFieldPrefix if checkboxes or textfields or whatever, put the prefix of the edoclite field here.
+  //#so if the field prefix is "groups", then it will look for groups0, groups1, etc to groups200...
+  //#the value of the field is the group to add to
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPrefix = provisionGroup
+  //
+  //#this will be prefixed to the entered group name so the whole stem doesnt 
+  //#have to be put on screen (also helps sandbox out the security)
+  //kuali.edoclite.saveMembership.sampleProvisioning.enteredGroupNamePrefix = school:some:prefix:
+  //
+  //# groups (comma separated) id or name which the initiator will be assigned to when the document is final
+  //kuali.edoclite.saveMembership.sampleProvisioning.addMembershipToGroups = temp:provisionGroup
+  //
+  //# groups (comma separated) id or name which the initiator will be unassigned from when the document is final
+  //kuali.edoclite.saveMembership.sampleProvisioning.removeMembershipFromGroups = temp:anotherProvisionGroup
+  //
+  //# delete date: yyyy/mm/dd or dd-Mon-yyyy
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldGroupDisabledDate = someFieldName
+  //
+  //# enable date: yyyy/mm/dd or dd-Mon-yyyy
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldGroupEnabledDate = someFieldName
+  //
+  //###### PERMISSIONS ROLES
+  //# role to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
+  //kuali.edoclite.saveMembership.sampleProvisioning.roleForPermissions = some:role
+  //
+  //# role to assign permissions to (read from edoclite) or empty if not doing permissions 
+  //# (mutually exclusive with roleForPermissions)
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldRoleForPermissions = someEdocliteFieldName
+  //
+  //# this will be prefixed to the entered role name so the whole stem doesnt 
+  //# have to be put on screen (also helps sandbox out the security)
+  //kuali.edoclite.saveMembership.sampleProvisionPermissions.enteredRoleNamePrefix = a:b:
+  //
+  //# allowed roles (e.g. from edoclite form) or empty if not validating
+  //kuali.edoclite.saveMembership.sampleProvisioning.allowedRolesForPermissions = some:role1, some:role2
+  //
+  //###### PERMISSIONS OPERATIONS
+  //# operation of assign_permission|remove_permission|replace_permissions permissions 
+  //# (mutually exclusive with edocliteFieldOperationForPermissions)
+  //kuali.edoclite.saveMembership.sampleProvisioning.operationForPermissions = assign_permission
+  //
+  //# operation to assign|remove permissions (read from edoclite) or empty if not doing 
+  //# permissions (mutually exclusive with operationForPermissions)
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldOperationForPermissions = someEdocliteFieldName
+  //
+  //# allowed operations (e.g. from edoclite form) or empty if not validating
+  //kuali.edoclite.saveMembership.sampleProvisioning.allowedOperationsForPermissions = assign_permission, remove_permission
+  //
+  //###### ACTIONS
+  //# actions to assign permissions to or null if not doing permissions (mutually exclusive with edocliteFieldRoleForPermissions)
+  //kuali.edoclite.saveMembership.sampleProvisioning.actionsForPermissions = read,write
+  //
+  //# actions to assign permissions to (read from edoclite) or empty if not doing permissions 
+  //# (mutually exclusive with actionsForPermissions)
+  //# this is the prefix, appending 0,1,2 etc on the end.  so the fields would be 
+  //# someEdocliteFieldName0, someEdocliteFieldName1, etc
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPrefixActionsForPermissions = someEdocliteFieldName
+  //
+  //# allowed actions (e.g. from edoclite form) or empty if not validating
+  //kuali.edoclite.saveMembership.sampleProvisioning.allowedActionsForPermissions = read, write
+  //
+  //###### PERMISSIONS
+  //# permissions to assign or null if not doing permissions (mutually exclusive with edocliteFieldPrefixForPermissions)
+  //kuali.edoclite.saveMembership.sampleProvisioning.permissions = a:b, b:c
+  //
+  //# permissions to assign (read from edoclite) or empty if not doing permissions (mutually exclusive with permissions)
+  //# this is the prefix, appending 0,1,2 etc on the end.  so the fields would be 
+  //# someEdocliteFieldName0, someEdocliteFieldName1, etc
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPrefixForPermissions = someEdocliteFieldName
+  //
+  //# allowed permissions (e.g. from edoclite form) or empty if not validating
+  //kuali.edoclite.saveMembership.sampleProvisioning.allowedPermissions = a:b, b:c
+  //
+  //# regex of permissions allowed to assign, extra layer of security, optional
+  //kuali.edoclite.saveMembership.sampleProvisioning.permissionsRegex = ^temp:[^:]+rovisionGroup$
+  //
+  //#this will be prefixed to the entered permission name so the whole stem doesnt 
+  //#have to be put on screen (also helps sandbox out the security)
+  //kuali.edoclite.saveMembership.sampleProvisioning.enteredPermissionNamePrefix = school:some:prefix:
+  //
+  //# delete date: yyyy/mm/dd or dd-Mon-yyyy
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionDisabledDate = someFieldName
+  //
+  //# enable date: yyyy/mm/dd or dd-Mon-yyyy
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionEnabledDate = someFieldName
+  //
+  //# field name which has blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+  //kuali.edoclite.saveMembership.sampleProvisioning.edocliteFieldPermissionsDelegatable = someFieldName
+  //
+  //# blank or FALSE, TRUE, or GRANT for if the user can delegate the permissions to others
+  //kuali.edoclite.saveMembership.sampleProvisioning.permissionsDelegatable = FALSE|TRUE|GRANT
+  //
+  //###### REPLACE PERMISSIONS SETTINGS
+  //# if replacing permissions, then these are the names of attribute defs that are affected (or blank for all)
+  //kuali.edoclite.saveMembership.sampleProvisioning.attributeDefNamesToReplace = a:b, b:c
+  //
+  //# if replacing permissions, then these are the actions that are affected (or blank for all)
+  //kuali.edoclite.saveMembership.sampleProvisioning.actionsToReplace = read, write
+  //##################################################
     
     
     GrouperKimSaveMembershipProperties grouperKimSaveMembershipProperties = 
@@ -905,6 +982,12 @@ public class GrouperKimSaveMembershipProperties {
             }
 
             {
+              String enteredRoleNamePrefix = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".enteredRoleNamePrefix", false);
+              grouperKimSaveMembershipProperties.setEnteredRoleNamePrefix(enteredRoleNamePrefix);
+            }
+            
+            {
               String allowedRolesForPermissions = GrouperClientUtils.propertiesValue(
                   "kuali.edoclite.saveMembership." + configName + ".allowedRolesForPermissions", false);
               grouperKimSaveMembershipProperties.setAllowedRolesForPermissions(allowedRolesForPermissions);
@@ -998,6 +1081,18 @@ public class GrouperKimSaveMembershipProperties {
               String permissionsDelegatable = GrouperClientUtils.propertiesValue(
                   "kuali.edoclite.saveMembership." + configName + ".permissionsDelegatable", false);
               grouperKimSaveMembershipProperties.setPermissionsDelegatable(permissionsDelegatable);
+            }
+            
+            {
+              String attributeDefNamesToReplace = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".attributeDefNamesToReplace", false);
+              grouperKimSaveMembershipProperties.setAttributeDefNamesToReplace(attributeDefNamesToReplace);
+            }
+            
+            {
+              String actionsToReplace = GrouperClientUtils.propertiesValue(
+                  "kuali.edoclite.saveMembership." + configName + ".actionsToReplace", false);
+              grouperKimSaveMembershipProperties.setActionsToReplace(actionsToReplace);
             }
             
             break;

@@ -15,6 +15,27 @@ public class WsAttributeAssign {
   /** type of assignment from enum AttributeAssignActionType e.g. effective, immediate */
   private String attributeAssignActionType;
   
+  /** AttributeAssignDelegatable enum (generally only for permissions): TRUE, FALSE, GRANT */
+  private String attributeAssignDelegatable;
+  
+  /**
+   * AttributeAssignDelegatable enum (generally only for permissions): TRUE, FALSE, GRANT
+   * @return delegatable
+   */
+  public String getAttributeAssignDelegatable() {
+    return this.attributeAssignDelegatable;
+  }
+
+
+  /**
+   * AttributeAssignDelegatable enum (generally only for permissions): TRUE, FALSE, GRANT
+   * @param attributeAssignDelegatable1
+   */
+  public void setAttributeAssignDelegatable(String attributeAssignDelegatable1) {
+    this.attributeAssignDelegatable = attributeAssignDelegatable1;
+  }
+
+
   
   /**
    * type of assignment from enum AttributeAssignActionType e.g. effective, immediate

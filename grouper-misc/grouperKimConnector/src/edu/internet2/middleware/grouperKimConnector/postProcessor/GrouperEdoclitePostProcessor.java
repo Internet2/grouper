@@ -30,6 +30,9 @@ import edu.internet2.middleware.grouperClient.api.GcAssignPermissions;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignPermissionResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssign;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
@@ -261,18 +264,55 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
             if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getRoleForPermissions())
                 || !GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions())) {
               
+              
+              Timestamp enabledTimePermissions = null;
+              {
+                String edocliteEnabledPermissionsField = grouperKimSaveMembershipProperties.getEdocliteFieldPermissionEnabledDate();
+                String enabledPermissionsString = null;
+                
+                if (!GrouperClientUtils.isBlank(edocliteEnabledPermissionsField)) {
+                  enabledPermissionsString = xpathValue(xpath, root, edocliteEnabledPermissionsField);
+                }
+                if (!GrouperClientUtils.isBlank(enabledPermissionsString)) {
+                  enabledTimePermissions = GrouperClientUtils.toTimestamp(GrouperClientUtils.stringToDate2(enabledPermissionsString));
+                }
+                
+              }
+
+              Timestamp disabledTimePermissions = null;
+              {
+                String edocliteDisabledPermissionsField = grouperKimSaveMembershipProperties.getEdocliteFieldPermissionDisabledDate();
+                String disabledPermissionsString = null;
+                
+                if (!GrouperClientUtils.isBlank(edocliteDisabledPermissionsField)) {
+                  disabledPermissionsString = xpathValue(xpath, root, edocliteDisabledPermissionsField);
+                }
+                if (!GrouperClientUtils.isBlank(disabledPermissionsString)) {
+                  disabledTimePermissions = GrouperClientUtils.toTimestamp(GrouperClientUtils.stringToDate2(disabledPermissionsString));
+                }
+                
+              }
+              
               String roleName = processPermissionRoleName(grouperKimSaveMembershipProperties, root, xpath);
              
               String operation = processPermissionOperation(grouperKimSaveMembershipProperties, root, xpath);
               
+              String delegatable = processPermissionDelegatable(grouperKimSaveMembershipProperties, root, xpath);
+
               Set<String> actions = processPermissionActions(grouperKimSaveMembershipProperties, root, xpath);
               
               Set<String> permissionNames = processPermissionNames(grouperKimSaveMembershipProperties, root, xpath);
               
-              //provision role
+              //provision role, note this enabled disabled date is from the group one, not permissions
               addMemberToGroup(sendingEmail, report, wsSubject, roleName, enabledTime, disabledTime);
               
-              addMemberPermissions(sendingEmail, report, wsSubject, roleName, operation, actions, permissionNames, enabledTime, disabledTime);
+              String attributeDefNamesToReplace = grouperKimSaveMembershipProperties.getAttributeDefNamesToReplace();
+              String actionsToReplace = grouperKimSaveMembershipProperties.getActionsToReplace();
+              
+              
+              addMemberPermissions(sendingEmail, report, wsSubject, roleName, operation, actions, 
+                  permissionNames, enabledTimePermissions, disabledTimePermissions, delegatable, 
+                  attributeDefNamesToReplace, actionsToReplace);
               
               //end role/permissions provisioning
             }
@@ -430,18 +470,23 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
       Element root, XPath xpath) {
     String roleName = null;
     
+    String roleNamePrefix = GrouperClientUtils.trimToEmpty(
+        grouperKimSaveMembershipProperties.getEnteredRoleNamePrefix());
+    
     if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getRoleForPermissions())) {
-      roleName = grouperKimSaveMembershipProperties.getRoleForPermissions();
+      roleName = roleNamePrefix + grouperKimSaveMembershipProperties.getRoleForPermissions();
     }
     
     if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions())) {
       //this xpath will give the value element for the role to use in the assignment
-      roleName = xpathValue(xpath, root, grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions());
+      roleName = roleNamePrefix + xpathValue(xpath, root, 
+          grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions());
 
       //see if what was entered is allowed
       if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getAllowedRolesForPermissions())) {
         
-        List<String> allowedRolesForPermissions = GrouperClientUtils.splitTrimToList(grouperKimSaveMembershipProperties
+        List<String> allowedRolesForPermissions = GrouperClientUtils
+          .splitTrimToList(grouperKimSaveMembershipProperties
             .getAllowedRolesForPermissions(), ",");
         if (!allowedRolesForPermissions.contains(roleName)) {
           throw new RuntimeException("Role is not in list of allowed roles: " 
@@ -452,7 +497,8 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
     }
     if (GrouperClientUtils.isBlank(roleName)) {
       //this means problem, cant assign permissions without a role
-      throw new RuntimeException("Problem finding role in document: " + grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions());
+      throw new RuntimeException("Problem finding role in document: " 
+          + grouperKimSaveMembershipProperties.getEdocliteFieldRoleForPermissions());
     }
     return roleName;
   }
@@ -483,10 +529,28 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
               + operation + ", allowed: " + grouperKimSaveMembershipProperties.getAllowedOperationsForPermissions());
         }
       }
-      
-      
     }
     return operation;
+  }
+
+  /**
+   * @param grouperKimSaveMembershipProperties
+   * @param root
+   * @param xpath
+   * @return operation
+   */
+  private static String processPermissionDelegatable(
+      GrouperKimSaveMembershipProperties grouperKimSaveMembershipProperties,
+      Element root, XPath xpath) {
+    String delegatable = grouperKimSaveMembershipProperties.getPermissionsDelegatable();
+    
+    if (!GrouperClientUtils.isBlank(grouperKimSaveMembershipProperties.getEdocliteFieldPermissionsDelegatable())) {
+      
+      //this xpath will give the value element for the operation to use in the assignment
+      delegatable = xpathValue(xpath, root, grouperKimSaveMembershipProperties.getEdocliteFieldPermissionsDelegatable());
+
+    }
+    return delegatable;
   }
 
   /**
@@ -521,13 +585,18 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
       for (int i=0;i<200;i++) {
 
         //this xpath will give the value element for the operation to use in the assignment
-        String permissionName = xpathValue(xpath, root,edocLiteFieldForPermissions);
+        String permissionName = xpathValue(xpath, root,edocLiteFieldForPermissions + i);
         
         if (GrouperClientUtils.isBlank(permissionName)) {
           continue;
         }
         
         permissionName = GrouperClientUtils.trim(permissionName);
+        
+        //prepend prefix if applicable
+        if (!GrouperClientUtils.isBlank(permissionNamePrefix)) {
+          permissionName = permissionNamePrefix + permissionName;
+        }
         
         //see if not in the list, if there is a list
         if (GrouperClientUtils.length(allowedPermissions) > 0) {
@@ -539,11 +608,6 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
         //see if allowed by regex
         if (!GrouperClientUtils.isBlank(permissionRegex) && !permissionName.matches(permissionRegex)) {
           throw new RuntimeException("Not allowed to access permissionName: '" + permissionName + "', due to regex: '" + permissionRegex + "'");
-        }
-        
-        //prepend prefix if applicable
-        if (!GrouperClientUtils.isBlank(permissionNamePrefix)) {
-          permissionName = permissionNamePrefix + permissionName;
         }
         
         permissionNames.add(permissionName);
@@ -562,10 +626,15 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
    * @param permissionNames 
    * @param enabledDate 
    * @param disabledDate 
+   * @param delegatable TRUE | FALSE | GRANT
+   * @param attributeDefNamesToReplace 
+   * @param actionsToReplace 
    */
   private static void addMemberPermissions(boolean sendingEmail, StringBuilder report,
       WsSubject wsSubject, String roleNameToAdd, String operation, Set<String> actions, 
-      Set<String> permissionNames, Date enabledDate, Date disabledDate) {
+      Set<String> permissionNames, Date enabledDate, Date disabledDate, String delegatable,
+      String attributeDefNamesToReplace, String actionsToReplace) {
+
     String roleName = roleNameToAdd.contains(":") ? roleNameToAdd : null;
     String roleId = roleNameToAdd.contains(":") ? null : roleNameToAdd;
 
@@ -586,13 +655,64 @@ public class GrouperEdoclitePostProcessor extends EDocLitePostProcessor {
     }
     gcAssignPermissions.assignPermissionType("role_subject");
     
-    //TODO start/end date on group (above), start/end date on permissions, delegatable
-//    WsAddMemberResults wsAddMemberResults = gcAddMember.execute();
+    gcAssignPermissions.assignEnabledTime(GrouperClientUtils.toTimestamp(enabledDate));
+    gcAssignPermissions.assignDisabledTime(GrouperClientUtils.toTimestamp(disabledDate));
+
+    if (!GrouperClientUtils.isBlank(delegatable)) {
+      gcAssignPermissions.assignDelegatable(delegatable);
+    }
     
-//    // based on result, add report
-//    if (sendingEmail) {
-//      report.append("Group addMember: ").append(wsAddMemberResults.getWsGroupAssigned().getName());
-//      report.append(" - ").append(wsAddMemberResults.getResults()[0].getResultMetadata().getResultCode()).append("\n\n");
-//    }
+    if (!GrouperClientUtils.isBlank(attributeDefNamesToReplace)) {
+      List<String> attributeDefNamesToReplaceList = GrouperClientUtils.splitTrimToList(attributeDefNamesToReplace, ",");
+      for (String attributeDefNameToReplace : attributeDefNamesToReplaceList) {
+        gcAssignPermissions.addAttributeDefNameToReplace(attributeDefNameToReplace);
+      }
+    }
+    
+    if (!GrouperClientUtils.isBlank(actionsToReplace)) {
+      List<String> actionsToReplaceList = GrouperClientUtils.splitTrimToList(actionsToReplace, ",");
+      for (String actionToReplace : actionsToReplaceList) {
+        gcAssignPermissions.addActionToReplace(actionToReplace);
+      }
+    }
+    
+    WsAssignPermissionsResults wsAssignPermissionsResults = gcAssignPermissions.execute();
+    
+    // based on result, add report
+    if (sendingEmail) {
+      report.append("Operation: ").append(operation).append(", overall result: ")
+        .append(wsAssignPermissionsResults.getResultMetadata().getResultCode()).append("\n");
+      
+      for (WsAssignPermissionResult wsAssignPermissionResult : 
+          GrouperClientUtils.nonNull(wsAssignPermissionsResults.getWsAssignPermissionResults(), 
+              WsAssignPermissionResult.class)) {
+        
+        for (WsAttributeAssign wsAttributeAssign :
+          GrouperClientUtils.nonNull(wsAssignPermissionResult.getWsAttributeAssigns(), WsAttributeAssign.class)) {
+          
+          report.append("Permission: ").append(wsAttributeAssign.getAttributeDefNameName())
+            .append(", action: ").append(wsAttributeAssign.getAttributeAssignActionName())
+            .append(", changed: ").append(wsAssignPermissionResult.getChanged())
+            .append(", deleted: ").append(wsAssignPermissionResult.getDeleted());
+          
+          if (!GrouperClientUtils.isBlank(wsAttributeAssign.getEnabledTime())) {
+            report.append(", enabled: ").append(wsAttributeAssign.getEnabledTime());
+          }
+          
+          if (!GrouperClientUtils.isBlank(wsAttributeAssign.getDisabledTime())) {
+            report.append(", disabled: ").append(wsAttributeAssign.getDisabledTime());
+          }
+
+          if (!GrouperClientUtils.isBlank(wsAttributeAssign.getAttributeAssignDelegatable())) {
+            report.append(", delegatable: ").append(wsAttributeAssign.getAttributeAssignDelegatable());
+          }
+
+          report.append("\n");
+          
+        }
+        
+      }
+      report.append("\n\n");
+    }
   }
 }

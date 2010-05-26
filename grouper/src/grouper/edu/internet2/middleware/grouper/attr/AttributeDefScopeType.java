@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -32,6 +33,15 @@ public enum AttributeDefScopeType {
           return true;
         }
       }
+      
+      if (attributeAssignable instanceof GroupMember) {
+        GroupMember groupMember = (GroupMember)attributeAssignable;
+        if (groupMember.getMember() != null) {
+          return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), groupMember.getMember().getSubjectSourceId());
+        }
+        return false;
+      }
+      
       return false;
     }
   },
@@ -69,6 +79,14 @@ public enum AttributeDefScopeType {
         return StringUtils.equals(attributeDefScope.getScopeString(), ((Group)attributeAssignable).getParentUuid());
       }
       
+      if (attributeAssignable instanceof GroupMember) {
+        GroupMember groupMember = (GroupMember)attributeAssignable;
+        if (groupMember.getGroup() != null) {
+          return StringUtils.equals(attributeDefScope.getScopeString(), groupMember.getGroup().getParentUuid());
+        }
+        return false;
+      }
+      
       if (attributeAssignable instanceof Stem) {
         return StringUtils.equals(attributeDefScope.getScopeString(), ((Stem)attributeAssignable).getParentUuid());
       }
@@ -90,6 +108,14 @@ public enum AttributeDefScopeType {
         AttributeAssignable attributeAssignable, AttributeDef attributeDef) {
       if (attributeAssignable instanceof Group) {
         return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), ((Group) attributeAssignable).getName());
+      }
+      
+      if (attributeAssignable instanceof GroupMember) {
+        GroupMember groupMember = (GroupMember)attributeAssignable;
+        if (groupMember.getGroup() != null) {
+          return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), groupMember.getGroup().getName());
+        }
+        return false;
       }
       
       if (attributeAssignable instanceof Stem) {
@@ -118,6 +144,14 @@ public enum AttributeDefScopeType {
         return StringUtils.equals(attributeDefScope.getScopeString(), ((Group) attributeAssignable).getName());
       }
       
+      if (attributeAssignable instanceof GroupMember) {
+        GroupMember groupMember = (GroupMember)attributeAssignable;
+        if (groupMember.getGroup() != null) {
+          return StringUtils.equals(attributeDefScope.getScopeString(), groupMember.getGroup().getName());
+        }
+        return false;
+      }
+      
       if (attributeAssignable instanceof Stem) {
         return StringUtils.equals(attributeDefScope.getScopeString(), ((Stem) attributeAssignable).getName());
       }
@@ -138,6 +172,14 @@ public enum AttributeDefScopeType {
         AttributeAssignable attributeAssignable, AttributeDef attributeDef) {
       if (attributeAssignable instanceof Group) {
         return StringUtils.equals(attributeDefScope.getScopeString(), ((Group) attributeAssignable).getId());
+      }
+      
+      if (attributeAssignable instanceof GroupMember) {
+        GroupMember groupMember = (GroupMember)attributeAssignable;
+        if (groupMember.getGroup() != null) {
+          return StringUtils.equals(attributeDefScope.getScopeString(), groupMember.getGroup().getId());
+        }
+        return false;
       }
       
       if (attributeAssignable instanceof Stem) {

@@ -682,13 +682,19 @@ public class WsAssignAttributeLogic {
       List<WsAssignAttributeResult> wsAssignAttributeResultList,
       AttributeAssignable attributeAssignable,
       Set<AttributeAssign> existingAttributeAssignsBeforeReplace) {
-    for (String attributeDefNameId : attributeDefNameIds) {
+
+    if (GrouperUtil.length(attributeDefNameIds) == 0 
+        || ((GrouperUtil.length(attributeDefNameIds) == 1 && GrouperUtil.isBlank(attributeDefNameIds.iterator().next())))) {
+      throw new WsInvalidQueryException("You need to pass in an attributeDefName lookup.  ");
+    }
+
+    for (String attributeDefNameId : GrouperUtil.nonNull(attributeDefNameIds)) {
       if (StringUtils.isBlank(attributeDefNameId)) {
         continue;
       }
       AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByUuidOrName(attributeDefNameId, null, true); 
  
-      for (String action : actions) {
+      for (String action : GrouperUtil.nonNull(actions, String.class)) {
         if (StringUtils.isBlank(action)) {
           continue;
         }
