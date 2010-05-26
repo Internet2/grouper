@@ -386,7 +386,7 @@ public class ChangeLogTest extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity order by createdOnDb").list(ChangeLogEntry.class);
+      .createQuery("from ChangeLogEntryEntity order by sequenceNumber").list(ChangeLogEntry.class);
     ChangeLogEntry changeLogEntry2 = changeLogEntries.get(1);
   
     assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
@@ -416,7 +416,7 @@ public class ChangeLogTest extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity order by createdOnDb").list(ChangeLogEntry.class);
+      .createQuery("from ChangeLogEntryEntity order by sequenceNumber").list(ChangeLogEntry.class);
     ChangeLogEntry changeLogEntry3 = changeLogEntries.get(2);
   
     assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
@@ -1190,7 +1190,7 @@ public class ChangeLogTest extends GrouperTest {
         newChangeLogCount+2 == newerChangeLogCount);
     
     List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity order by createdOnDb")
+      .createQuery("from ChangeLogEntryEntity order by sequenceNumber")
       .list(ChangeLogEntry.class);
 
     {
@@ -1200,7 +1200,7 @@ public class ChangeLogTest extends GrouperTest {
       
       assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
           deleteEntry.getContextId()));
-      
+
       assertEquals(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId(), deleteEntry.getChangeLogTypeId());
       assertEquals("members", deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName));
       assertEquals(rootMember.getSubjectId(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
@@ -1259,7 +1259,7 @@ public class ChangeLogTest extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType order by createdOnDb")
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType order by sequenceNumber")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
