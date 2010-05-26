@@ -22,6 +22,11 @@
 			<field name="name"/>
 			<field value="person"/>
 		</source>
+		<source id="example">
+			<field name="id"/>
+			<field name="name"/>
+			<field value="person"/>
+		</source>
 	</format>
 	<format name="CSV (Open with Excel)" separator="," quote="true" extension=".csv" content-type="application/ms-excel">
 		<headers>
@@ -44,6 +49,11 @@
 			<field name="name"/>
 			<field value="person"/>
 		</source>
+		<source id="example">
+			<field name="id"/>
+			<field name="name"/>
+			<field value="person"/>
+		</source>
 	</format>
 	<format name="CSV (in browser)" separator="," quote="true" content-type="text/plain">
 		<headers>
@@ -62,6 +72,11 @@
 			<field value="person"/>
 		</source>
 		<source id="jdbc">
+			<field name="id"/>
+			<field name="name"/>
+			<field value="person"/>
+		</source>
+		<source id="example">
 			<field name="id"/>
 			<field name="name"/>
 			<field value="person"/>
