@@ -90,6 +90,10 @@ public class NavExceptionHelper implements Serializable {
 				exceptionText = GrouperUiFilter.retrieveSessionNavResourceBundle().getString(exceptionKey);
 			}catch(MissingResourceException e) {
 				LOG.error("Missing nav key: " + exceptionKey);
+				//https://bugs.internet2.edu/jira/browse/GRP-443 - use the API message for now
+				if(exceptionKey !=null && exceptionKey.indexOf(" ") > -1) {
+					exceptionText=exceptionKey;
+				}
 			}
 		}
 		return message + " " +exceptionText;
