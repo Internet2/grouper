@@ -5933,7 +5933,7 @@ public enum GrouperDdl implements DdlVersionable {
 
       if (!ddlVersionBean.isSqlServer()) {
         //do 5 string indexes, probably dont need them on the other string cols
-        for (int i=1;i<=5;i++) {
+        for (int i=1;i<=8;i++) {
           //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
           String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX audit_entry_string0" + i + "_idx " +
               "ON grouper_audit_entry (string0" + i + "(255));\n" : null;
