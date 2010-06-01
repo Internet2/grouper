@@ -6,8 +6,6 @@ package edu.internet2.middleware.grouper.esb.listener;
 
 import org.apache.commons.logging.Log;
 import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ChatManager;
-import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -22,6 +20,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xmpp.XmppConnectionBean;
 
 /**
  * 
@@ -33,6 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class EsbXmppListener implements Job {
 
+  /** */
   private static final Log LOG = GrouperUtil.getLog(EsbXmppListener.class);
 
   /**
@@ -45,24 +45,15 @@ public class EsbXmppListener implements Job {
     String username = jobDataMap.getString("username");
     String password = jobDataMap.getString("password");
     String sendername = jobDataMap.getString("sendername");
+    String resource = jobDataMap.getString("resource");
 
-    ConnectionConfiguration config = new ConnectionConfiguration(server, port);
+    XmppConnectionBean xmppConnectionBean = new XmppConnectionBean(server, port, username, resource, password);
+    
+    XMPPConnection xmppConnection = xmppConnectionBean.xmppConnection();
+    
+    LOG.info("XMPP listener connected to " + xmppConnectionBean.xmppServer() + " on port " + xmppConnectionBean.xmppPort());
 
-    XMPPConnection connection = new XMPPConnection(config);
-    // Connect to the server
-    try {
-      connection.connect();
-
-      // Log into the server
-      connection.login(username, password, "GrouperListener");
-    } catch (XMPPException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-    }
-    LOG.info("XMPP listener connected to " + server + " on port " + port);
-
-    ChatManager chatmanager = connection.getChatManager();
-    Chat newChat = chatmanager.createChat(sendername, null);
+    Chat newChat = xmppConnectionBean.chat(sendername, null);
     if (LOG.isDebugEnabled()) {
       try {
         newChat.sendMessage("Grouper listener online");
@@ -79,7 +70,7 @@ public class EsbXmppListener implements Job {
     // Next, create a packet listener
     PacketListener listener = new EsbXmppPacketListener();
     // Register the listener.
-    connection.addPacketListener(listener, filter);
+    xmppConnection.addPacketListener(listener, filter);
     if (LOG.isDebugEnabled()) {
       LOG.debug("Packet listener created and added to connection");
     }

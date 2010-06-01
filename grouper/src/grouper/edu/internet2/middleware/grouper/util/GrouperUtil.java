@@ -112,6 +112,20 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class GrouperUtil {
 
   /**
+   * see if a subject has an attribute
+   * @param subject
+   * @param attributeName
+   * @return true if the subject has an attribute
+   */
+  public static boolean subjectHasAttribute(Subject subject, String attributeName) {
+    if (subject == null) {
+      return false;
+    }
+    String attributeValue = subject.getAttributeValue(attributeName);
+    return !isBlank(attributeValue);
+  }
+  
+  /**
    * see if a sql like string matches a real string.
    * e.g. if the input is a:b:%, and the input is: a:b:test:that, then it returns true
    * @param sqlMatcher
@@ -1414,7 +1428,7 @@ public class GrouperUtil {
    * 
    * </pre>
    */
-  private static Pattern gsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}$", Pattern.DOTALL);
+  private static Pattern jsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}$", Pattern.DOTALL);
   
   /**
    * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
@@ -1427,7 +1441,7 @@ public class GrouperUtil {
     
     //gson does not put the type of the object in the json, but we need that.  so when we convert,
     //put the type in there.  So we need to extract the type out when unmarshaling
-    Matcher matcher = gsonPattern.matcher(json);
+    Matcher matcher = jsonPattern.matcher(json);
     
     if (!matcher.matches()) {
       throw new RuntimeException("Cant match this json, should start with simple class name: " + json);

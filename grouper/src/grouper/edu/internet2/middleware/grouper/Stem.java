@@ -2038,7 +2038,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             if ( !PrivilegeHelper.canStem( Stem.this, session.getSubject() ) ) {
               throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", "
                   + GrouperUtil.toStringSafe(Stem.this) + ", extn: " + extn + ", dExtn: " 
-                  + dExtn + ", uuid: " + uuid);
+                  + dExtn + ", uuid: " + uuid + ", subject: " + session.getSubject());
             } 
             GrouperValidator v = AddStemValidator.validate(Stem.this, extn, dExtn);
             if (v.isInvalid()) {

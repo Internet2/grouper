@@ -2,13 +2,9 @@
  * @author Rob Hebron
  */
 
-package edu.internet2.middleware.grouper.changeLog.esb.consumer;
+package edu.internet2.middleware.grouperClientExt.xmpp;
 
-import org.apache.commons.lang.StringUtils;
-
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * 
@@ -17,6 +13,7 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class EsbEvent {
+
 
   /**
    * type of event
@@ -38,49 +35,48 @@ public class EsbEvent {
     
     /** GROUP_FIELD_UPDATE event */
     GROUP_FIELD_UPDATE,
-
+  
     /** GROUP_TYPE_ADD event */
     GROUP_TYPE_ADD,
-
+  
     /** GROUP_TYPE_DELETE event */
     GROUP_TYPE_DELETE,
-
+  
     /** GROUP_TYPE_UPDATE event */
     GROUP_TYPE_UPDATE,
-
+  
     /** GROUP_UPDATE event */
     GROUP_UPDATE,
-
+  
     /** MEMBERSHIP_ADD event */
     MEMBERSHIP_ADD,
-
+  
     /** MEMBERSHIP_DELETE event */
     MEMBERSHIP_DELETE,
-
+  
     /** MEMBERSHIP_UPDATE event */
     MEMBERSHIP_UPDATE,
-
+  
     /** PRIVILEGE_ADD event */
     PRIVILEGE_ADD,
-
+  
     /** PRIVILEGE_DELETE event */
     PRIVILEGE_DELETE,
-
+  
     /** PRIVILEGE_UPDATE event */
     PRIVILEGE_UPDATE,
-
+  
     /** STEM_ADD event */
     STEM_ADD,
-
+  
     /** STEM_DELETE event */
     STEM_DELETE,
-
+  
     /** STEM_UPDATE event */
     STEM_UPDATE;
     
   }
-  
-  
+
   /**
    * get a subject attribute by name
    * @param attributeName
@@ -88,8 +84,8 @@ public class EsbEvent {
    */
   public String subjectAttribute(String attributeName) {
     
-    for (String[] row : GrouperUtil.nonNull(this.subjectAttributes, String[].class)) {
-      if (GrouperUtil.equals(attributeName, row[0])) {
+    for (String[] row : GrouperClientUtils.nonNull(this.subjectAttributes, String[].class)) {
+      if (GrouperClientUtils.equals(attributeName, row[0])) {
         return row[1];
       }
     }
@@ -102,7 +98,7 @@ public class EsbEvent {
    * @return true if the subject has attribute
    */
   public boolean subjectHasAttribute(String attributeName) {
-    return !GrouperUtil.isBlank(subjectAttribute(attributeName));
+    return !GrouperClientUtils.isBlank(subjectAttribute(attributeName));
   }
   
   /** sequence number of event for logging or whatnot */
@@ -189,12 +185,6 @@ public class EsbEvent {
   /** */
   private String[][] subjectAttributes;
   
-  /** the cached subject if there was one */
-  private Subject _subject;
-  
-  /** if we have looked for the subject */
-  private boolean _lookedForSubject = false;
-  
   /**
    * sequence number of event for logging or whatnot
    * @return sequence number
@@ -211,24 +201,6 @@ public class EsbEvent {
     this.sequenceNumber = sequenceNumber1;
   }
 
-  /**
-   * retrieve the subject for this record
-   * @return the subject or null if not found
-   */
-  public Subject retrieveSubject() {
-    if (!this._lookedForSubject) {
-      this._lookedForSubject = true;
-      if (!StringUtils.isBlank(this.getSubjectId())) {
-        if (!StringUtils.isBlank(this.sourceId)) {
-          this._subject = SubjectFinder.findByIdAndSource(this.getSubjectId(), this.getSourceId(), false);
-        } else {
-          this._subject = SubjectFinder.findById(this.getSubjectId(), false);
-        }
-      }
-    }
-    return this._subject;
-  }
-  
   /**
    * 
    * @return eventType

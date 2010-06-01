@@ -85,6 +85,33 @@ public class SubjectFinder {
   }
 
   /**
+   * find by id or identifier
+   * @param idOrIdentifier
+   * @param source 
+   * @param exceptionIfNull if SubjectNotFoundException or null
+   * @return the subject
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   */
+  public static Subject findByIdOrIdentifierAndSource(String idOrIdentifier, String source, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subject = null;
+    try {
+      subject = SubjectFinder.findByIdAndSource(idOrIdentifier, source, exceptionIfNull);
+    } catch (SubjectNotFoundException snfe) {
+      try {
+        subject = SubjectFinder.findByIdentifierAndSource(idOrIdentifier, source, exceptionIfNull);
+      } catch (SubjectNotUniqueException snfe2) {
+        if (exceptionIfNull) {
+          throw snfe2;
+        }
+        return null;
+      }
+    }
+    return subject;
+  }
+
+  /**
    * Search within all configured sources for subject with identified by <i>id</i>.
    * <pre class="eg">
    * try {
@@ -140,6 +167,34 @@ public class SubjectFinder {
       }
       return null;
     }
+  } 
+
+  /**
+   * Search within all configured sources for subject with identified by <i>id</i>.
+   * <pre class="eg">
+   * try {
+   *   Subject subj = SubjectFinder.findByIdAndSource(subjectID, source, true);
+   * }
+   * catch (SubjectNotFoundException eSNF)  {
+   *   // Subject not found
+   * }
+   * catch (SubjectNotUniqueException eSNU) {
+   *   // Subject not unique
+   * }
+   *  </pre>
+   * @param   id      Subject ID
+   * @param source is the source to check in
+   * @param exceptionIfNull 
+   * @return  A {@link Subject} object
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  public static Subject findByIdAndSource(String id, String source, boolean exceptionIfNull) 
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException {
+
+    return SourceManager.getInstance().getSource(source).getSubject(id, exceptionIfNull);
+    
   } 
 
   /**
@@ -715,6 +770,34 @@ public class SubjectFinder {
       
     }
     return subjectResults;
+  }
+
+  /**
+   * Get a subject by a well-known identifier, and source.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   Subject subj = SubjectFinder.findByIdentifierAndSource(id, source, true);
+   * }
+   * catch (SubjectNotFoundException e) {
+   *   // Subject not found
+   * }
+   *  </pre>
+   * @param   identifier      Well-known identifier.
+   * @param   source  {@link Source} adapter to search.
+   * @param exceptionIfNull 
+   * @return  A {@link Subject} object
+   * @throws  SourceUnavailableException
+   * @throws  SubjectNotFoundException
+   * @throws  SubjectNotUniqueException
+   */
+  public static Subject findByIdentifierAndSource(String identifier, String source, boolean exceptionIfNull) 
+    throws  SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException {
+    return SourceManager.getInstance().getSource(source).getSubjectByIdentifier(identifier, exceptionIfNull);
   }
 
 }

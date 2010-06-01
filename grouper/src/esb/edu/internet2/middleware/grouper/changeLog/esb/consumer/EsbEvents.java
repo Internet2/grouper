@@ -1,18 +1,35 @@
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
-import edu.internet2.middleware.grouper.esb.listener.EsbListenerEvent;
-
+/**
+ * container around esb event
+ * @author mchyzer
+ *
+ */
 public class EsbEvents {
+  
+  /** */
 	private EsbEvent[] esbEvent;
 
+	/**
+	 * 
+	 * @return event array
+	 */
 	public EsbEvent[] getEsbEvent() {
 		return esbEvent;
 	}
 
+	/**
+	 * 
+	 * @param esbEvent
+	 */
 	public void setEsbEvent(EsbEvent[] esbEvent) {
 		this.esbEvent = esbEvent;
 	}
-	
+
+	/**
+	 * 
+	 * @param esbEvent
+	 */
 	public void addEsbEvent(EsbEvent esbEvent) {
 		if(this.esbEvent ==null) {
 			this.esbEvent = new EsbEvent[] {esbEvent};

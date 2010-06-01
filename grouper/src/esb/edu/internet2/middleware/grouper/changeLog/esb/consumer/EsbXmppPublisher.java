@@ -5,30 +5,25 @@
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
 import org.apache.commons.logging.Log;
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ChatManager;
-import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xmpp.XmppConnectionBean;
 
 /**
  * 
  * Class to send Grouper events to XMPP server, formatted as JSON strings
  *
  */
-
 public class EsbXmppPublisher extends EsbListenerBase {
 
+  /** */
   private static final Log LOG = GrouperUtil.getLog(EsbXmppPublisher.class);
 
-  private XMPPConnection connection;
-
-  private Chat thisChat;
-
+  /**
+   * @see EsbListenerBase#dispatchEvent(String, String)
+   */
   @Override
   public boolean dispatchEvent(String eventJsonString, String consumerName) {
 
@@ -39,53 +34,33 @@ public class EsbXmppPublisher extends EsbListenerBase {
 
     String recipient = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
         + consumerName + ".publisher.recipient", "");
-    if (this.connection == null || !this.connection.isConnected()
-        || !this.connection.isAuthenticated()) {
-      this.connect(consumerName);
-    }
-    try {
-      if (this.thisChat == null) {
-        ChatManager chatmanager = connection.getChatManager();
-        thisChat = chatmanager.createChat(recipient, null);
-      }
-      thisChat.sendMessage(eventJsonString);
 
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("ESB XMMP client " + consumerName + " sent message");
-      }
-      return true;
-    } catch (XMPPException e) {
-      throw new RuntimeException(consumerName + " failed to send message", e);
-    }
-  }
-
-  public void connect(String consumerName) {
     String xmppServer = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
         + consumerName + ".publisher.server");
     int port = GrouperLoaderConfig.getPropertyInt("changeLog.consumer." + consumerName
-        + ".publisher.port", 5222);
+        + ".publisher.port", -1);
     String username = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
         + consumerName + ".publisher.username", "");
     String password = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
         + consumerName + ".publisher.password", "");
-    ConnectionConfiguration config = new ConnectionConfiguration(xmppServer, port);
-    config.setReconnectionAllowed(true);
-    this.connection = new XMPPConnection(config);
-    // Connect to the server
+    String resource = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
+        + consumerName + ".publisher.resource", "");
+    
+    XmppConnectionBean xmppConnectionBean = new XmppConnectionBean(xmppServer, port, username, resource, password);
+
+    xmppConnectionBean.sendMessage(recipient, eventJsonString);
+    
     if (LOG.isDebugEnabled()) {
-      LOG.debug("ESB XMMP client " + consumerName + " connecting");
+      LOG.debug("ESB XMMP client " + consumerName + " sent message");
     }
-    try {
-      connection.connect();
-      // Log into the server
-      connection.login(username, password, "GrouperEsbClient");
-    } catch (XMPPException e) {
-      throw new RuntimeException(consumerName + " failed to connect", e);
-    }
+    return true;
   }
 
+  /**
+   * 
+   */
+  @Override
   public void disconnect() {
-    if (this.connection != null && this.connection.isConnected())
-      this.connection.disconnect();
+    //do nothing, keep xmpp connections open a little longer
   }
 }

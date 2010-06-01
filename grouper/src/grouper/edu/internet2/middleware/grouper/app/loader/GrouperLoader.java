@@ -628,26 +628,26 @@ public class GrouperLoader {
     //cronString = cal.getTime().getSeconds() + " " + cal.getTime().getMinutes() + " " + cal.getTime().getHours() + " * * ?"; 
     //System.out.println(cronString);
     boolean runEsbHttpListener = GrouperLoaderConfig.getPropertyBoolean(
-        "esb.lisenters.http.enable", false);
+        "esb.listeners.http.enable", false);
     if (runEsbHttpListener) {
       LOG.info("Starting experimental HTTP(S) listener");
       try {
-        String port = GrouperLoaderConfig.getPropertyString("esb.lisenters.http.port",
+        String port = GrouperLoaderConfig.getPropertyString("esb.listeners.http.port",
             "8080");
         String bindAddress = GrouperLoaderConfig.getPropertyString(
-            "esb.lisenters.http.bindaddress", "127.0.0.1");
+            "esb.listeners.http.bindaddress", "127.0.0.1");
         String authConfigFile = GrouperLoaderConfig.getPropertyString(
-            "esb.lisenters.http.authConfigFile", "");
+            "esb.listeners.http.authConfigFile", "");
         String sslKeystore = GrouperLoaderConfig.getPropertyString(
-            "esb.lisenters.http.ssl.keystore", "");
+            "esb.listeners.http.ssl.keystore", "");
         String sslKeyPassword = GrouperLoaderConfig.getPropertyString(
-            "esb.lisenters.http.ssl.keyPassword", "");
+            "esb.listeners.http.ssl.keyPassword", "");
         String sslTrustStore = GrouperLoaderConfig.getPropertyString(
-            "esb.lisenters.http.ssl.trustStore", "");
+            "esb.listeners.http.ssl.trustStore", "");
         String sslTrustPassword = GrouperLoaderConfig.getPropertyString(
-            "esb.lisenters.http.ssl.trustPassword", "");
+            "esb.listeners.http.ssl.trustPassword", "");
         String sslPassword = GrouperLoaderConfig.getPropertyString(
-            "esb.lisenters.http.ssl.password", "");
+            "esb.listeners.http.ssl.password", "");
         //at this point we have all the attributes and we know the required ones are there, and logged when 
         //forbidden ones are there
         Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
@@ -703,7 +703,7 @@ public class GrouperLoader {
     }
 
     boolean runEsbHXmppListener = GrouperLoaderConfig.getPropertyBoolean(
-        "esb.lisenters.xmpp.enable", false);
+        "esb.listeners.xmpp.enable", false);
     if (runEsbHXmppListener) {
       LOG.info("Starting experimental XMPP listener");
       try {
@@ -727,6 +727,8 @@ public class GrouperLoader {
         }
         String sendername = GrouperLoaderConfig.getPropertyString(
             "esb.listeners.xmpp.sendername", "");
+        String resource = GrouperLoaderConfig.getPropertyString(
+            "esb.listeners.xmpp.resource", "GrouperListener");
         if (server.equals("")) {
           LOG.warn("XMPP sendername must be configured in grouper-loader.properties");
         }
@@ -750,6 +752,7 @@ public class GrouperLoader {
           jobDetail.getJobDataMap().put("username", username);
           jobDetail.getJobDataMap().put("password", password);
           jobDetail.getJobDataMap().put("sendername", sendername);
+          jobDetail.getJobDataMap().put("resource", resource);
 
           scheduler.scheduleJob(jobDetail, simpleTrigger);
         }

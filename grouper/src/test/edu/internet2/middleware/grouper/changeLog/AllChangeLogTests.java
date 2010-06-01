@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.changeLog;
 
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.AllEsbConsumerTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -18,6 +19,7 @@ public class AllChangeLogTests {
    */
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.changeLog");
+    suite.addTest(AllEsbConsumerTests.suite());
     //$JUnit-BEGIN$
     suite.addTestSuite(ChangeLogTypeTest.class);
     suite.addTestSuite(ChangeLogIdTest.class);

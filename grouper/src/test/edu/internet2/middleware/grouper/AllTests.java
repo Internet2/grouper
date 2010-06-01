@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AllValidatorTests;
 import edu.internet2.middleware.grouper.xml.AllXmlTests;
+import edu.internet2.middleware.grouper.xmpp.AllXmppTests;
 
 /**
  * Run default tests.
@@ -207,6 +208,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllValidatorTests.suite());
     suite.addTest(AllXmlTests.suite());
+    suite.addTest(AllXmppTests.suite());
 
     if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
       Class theClass = GrouperUtil.forName("edu.internet2.middleware.ldappc.AllLdappcJunitTests");

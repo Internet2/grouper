@@ -1834,6 +1834,7 @@ public class TestStem extends GrouperTest {
     GrouperSession.startRootSession();
     
     Stem stemOriginal = new StemSave(GrouperSession.staticGrouperSession()).assignStemNameToEdit("stemInsert").assignName("stemInsert").save();
+    stemOriginal = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
     Stem stemCopy = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
     Stem stemCopy2 = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemOriginal.getUuid(), true, null);
     stemCopy.delete();

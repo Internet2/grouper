@@ -20,12 +20,12 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperClientXmppFileHandler implements GrouperClientXmppHandler {
 
   /**
-   * @see edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppHandler#handleAll(edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppJob, java.lang.String, java.lang.String, java.util.List, java.util.List)
+   * @see edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppHandler#handleAll(GrouperClientXmppJob, String, String, List)
    */
   @Override
   public void handleAll(GrouperClientXmppJob grouperClientXmppJob, String groupName,
-      String groupExtension, List<String> subjectAttributeNames,
-      List<XmppSubject> newSubjectList) {
+      String groupExtension,
+      List<GrouperClientXmppSubject> newSubjectList) {
     handleList(grouperClientXmppJob, newSubjectList);
   }
 
@@ -34,7 +34,7 @@ public class GrouperClientXmppFileHandler implements GrouperClientXmppHandler {
    * @param grouperClientXmppJob
    * @param subjects
    */
-  private void handleList(GrouperClientXmppJob grouperClientXmppJob, List<XmppSubject> subjects) {
+  private void handleList(GrouperClientXmppJob grouperClientXmppJob, List<GrouperClientXmppSubject> subjects) {
     String pre = "";
     if (!GrouperClientUtils.isBlank(grouperClientXmppJob.getFilePrefix())) {
       pre = GrouperClientUtils.readFileIntoString(new File(grouperClientXmppJob.getFilePrefix()));
@@ -45,10 +45,11 @@ public class GrouperClientXmppFileHandler implements GrouperClientXmppHandler {
     }
     StringBuilder result = new StringBuilder(pre);
     List<String> resultList = new ArrayList<String>();
-    for (XmppSubject xmppSubject : GrouperClientUtils.nonNull(subjects)) {
+    for (GrouperClientXmppSubject xmppSubject : GrouperClientUtils.nonNull(subjects)) {
       String outputTemplate = grouperClientXmppJob.getIteratorEl();
       outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+      substituteMap.put("grouperClientUtils", new GrouperClientUtils());
       substituteMap.put("subject", xmppSubject);
       String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
       resultList.add(output);
@@ -64,13 +65,13 @@ public class GrouperClientXmppFileHandler implements GrouperClientXmppHandler {
   }
 
   /**
-   * @see edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppHandler#handleIncremental(edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppJob, java.lang.String, java.lang.String, java.util.List, java.util.List, java.util.List, edu.internet2.middleware.grouperClientExt.xmpp.XmppSubject, java.lang.String)
+   * @see edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppHandler#handleIncremental(GrouperClientXmppJob, String, String, List, List, GrouperClientXmppSubject, String)
    */
   @Override
   public void handleIncremental(GrouperClientXmppJob grouperClientXmppJob, String groupName,
-      String groupExtension, List<String> subjectAttributeNames,
-      List<XmppSubject> newSubjectList, List<XmppSubject> previousSubjectList,
-      XmppSubject changeSubject, String action) {
+      String groupExtension, 
+      List<GrouperClientXmppSubject> newSubjectList, List<GrouperClientXmppSubject> previousSubjectList,
+      GrouperClientXmppSubject changeSubject, String action) {
     handleList(grouperClientXmppJob, newSubjectList);
   }
 }

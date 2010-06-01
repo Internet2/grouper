@@ -34,33 +34,6 @@ public class GrouperClientXmppJob {
   }
 
   /**
-   * see if a subject matches this job
-   * @param xmppSubject
-   * @return true if matches
-   */
-  public boolean matches(XmppSubject xmppSubject) {
-    Set<String> theRequireSources = this.getRequireSources();
-    Set<String> theRequireAttributes = this.getRequireAttributes();
-    
-    //filter if require sources
-    if (GrouperClientUtils.length(theRequireSources) > 0) {
-      if (!theRequireSources.contains(xmppSubject.getSourceId())) {
-        return false;
-      }
-    }
-    
-    //filter if require attributes
-    if (GrouperClientUtils.length(theRequireAttributes) > 0) {
-      for (String requireAttribute : theRequireAttributes) {
-        if (GrouperClientUtils.isBlank(xmppSubject.getAttribute().get(requireAttribute))) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-  
-  /**
    * name of job
    * @param jobName1 the jobName to set
    */
@@ -136,24 +109,16 @@ public class GrouperClientXmppJob {
             }
           }
           {
-            String requireSourcesString = (String)properties.get("grouperClient.xmpp.job." + jobName + ".requireSources");
-            if (!GrouperClientUtils.isBlank(requireSourcesString)) {
-              Set<String> requireSourcesSet = new HashSet<String>(GrouperClientUtils.splitTrimToList(requireSourcesString, ","));
-              xmppJob.setRequireSources(requireSourcesSet);
-            }
-          }
-          {
-            String requireAttributesString = (String)properties.get("grouperClient.xmpp.job." + jobName + ".requireAttributes");
-            if (!GrouperClientUtils.isBlank(requireAttributesString)) {
-              Set<String> requireAttributesSet = new HashSet<String>(GrouperClientUtils.splitTrimToList(requireAttributesString, ","));
-              xmppJob.setRequireAttributes(requireAttributesSet);
-            }
-          }
-          {
             String subjectAttributeNamesString = (String)properties.get("grouperClient.xmpp.job." + jobName + ".subjectAttributeNames");
             if (!GrouperClientUtils.isBlank(subjectAttributeNamesString)) {
               List<String> subjectAttributeNamesList = GrouperClientUtils.splitTrimToList(subjectAttributeNamesString, ",");
               xmppJob.setSubjectAttributeNames(subjectAttributeNamesList);
+            }
+          }
+          {
+            String elfilterString = (String)properties.get("grouperClient.xmpp.job." + jobName + ".elfilter");
+            if (!GrouperClientUtils.isBlank(elfilterString)) {
+              xmppJob.setElfilter(elfilterString);
             }
           }
           {
@@ -232,6 +197,22 @@ public class GrouperClientXmppJob {
    */
   private Set<String> groupNames = null;
 
+  /**
+   * group names which trigger notifications
+   * @return group names which trigger notifications
+   */
+  public Set<String> getGroupNames() {
+    return groupNames;
+  }
+
+  /**
+   * group names which trigger notifications
+   * @param groupNames
+   */
+  public void setGroupNames(Set<String> groupNames) {
+    this.groupNames = groupNames;
+  }
+
   /** name of job */
   private String jobName = null;
   
@@ -262,19 +243,28 @@ public class GrouperClientXmppJob {
    * note: $newline$ is also ok for new lines.  */
   private String iteratorEl;
   
+  /** elfilter that decides if the event is worth processsing */
+  private String elfilter;
+  
+  /**
+   * elfilter that decides if the event is worth processsing
+   * @return elfilter
+   */
+  public String getElfilter() {
+    return elfilter;
+  }
+
+  /**
+   * elfilter that decides if the event is worth processsing
+   * @param elfilter1
+   */
+  public void setElfilter(String elfilter1) {
+    this.elfilter = elfilter1;
+  }
+
   /** suffix to put at the end of file (after users) */
   private String fileSuffix;
 
-  /**
-   * if any attributes here, then make sure subjects are in these sources
-   */
-  private Set<String> requireAttributes = null;
-
-  /**
-   * if any sources here, then make sure subjects are in these sources
-   */
-  private Set<String> requireSources = null;
-  
   /**
    * class that handles events on this job
    * @return the handlerClass
@@ -400,64 +390,5 @@ public class GrouperClientXmppJob {
    */
   public void setFileSuffix(String fileSuffix1) {
     this.fileSuffix = fileSuffix1;
-  }
-
-
-
-  /**
-   * group names which trigger notifications
-   * @return the groupNames
-   */
-  public Set<String> getGroupNames() {
-    return this.groupNames;
-  }
-
-  
-  /**
-   * group names which trigger notifications
-   * @param groupNames1 the groupNames to set
-   */
-  public void setGroupNames(Set<String> groupNames1) {
-    this.groupNames = groupNames1;
-  }
-
-
-
-  /**
-   * if any attributes here, then make sure subjects are in these sources
-   * @return the requireAttributes
-   */
-  public Set<String> getRequireAttributes() {
-    return this.requireAttributes;
-  }
-
-
-
-  /**
-   * if any sources here, then make sure subjects are in these sources
-   * @return the requireSources
-   */
-  public Set<String> getRequireSources() {
-    return this.requireSources;
-  }
-
-
-
-  /**
-   * if any attributes here, then make sure subjects are in these sources
-   * @param requireAttributes1 the requireAttributes to set
-   */
-  public void setRequireAttributes(Set<String> requireAttributes1) {
-    this.requireAttributes = requireAttributes1;
-  }
-
-
-
-  /**
-   * if any sources here, then make sure subjects are in these sources
-   * @param requireSources1 the requireSources to set
-   */
-  public void setRequireSources(Set<String> requireSources1) {
-    this.requireSources = requireSources1;
   }
 }

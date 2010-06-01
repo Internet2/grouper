@@ -1582,6 +1582,252 @@
                              }
                              
 
+                        /**
+                        * field for AttributeDefsToReplace
+                        * This was an Array!
+                        */
+
+                        
+                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[] localAttributeDefsToReplace ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localAttributeDefsToReplaceTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[]
+                           */
+                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[] getAttributeDefsToReplace(){
+                               return localAttributeDefsToReplace;
+                           }
+
+                           
+                        
+
+
+                               
+                              /**
+                               * validate the array for AttributeDefsToReplace
+                               */
+                              protected void validateAttributeDefsToReplace(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[] param){
+                             
+                              }
+
+
+                             /**
+                              * Auto generated setter method
+                              * @param param AttributeDefsToReplace
+                              */
+                              public void setAttributeDefsToReplace(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[] param){
+                              
+                                   validateAttributeDefsToReplace(param);
+
+                               
+                                          if (param != null){
+                                             //update the setting tracker
+                                             localAttributeDefsToReplaceTracker = true;
+                                          } else {
+                                             localAttributeDefsToReplaceTracker = true;
+                                                 
+                                          }
+                                      
+                                      this.localAttributeDefsToReplace=param;
+                              }
+
+                               
+                             
+                             /**
+                             * Auto generated add method for the array for convenience
+                             * @param param edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup
+                             */
+                             public void addAttributeDefsToReplace(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup param){
+                                   if (localAttributeDefsToReplace == null){
+                                   localAttributeDefsToReplace = new edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[]{};
+                                   }
+
+                            
+                                 //update the setting tracker
+                                localAttributeDefsToReplaceTracker = true;
+                            
+
+                               java.util.List list =
+                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localAttributeDefsToReplace);
+                               list.add(param);
+                               this.localAttributeDefsToReplace =
+                             (edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[])list.toArray(
+                            new edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[list.size()]);
+
+                             }
+                             
+
+                        /**
+                        * field for ActionsToReplace
+                        * This was an Array!
+                        */
+
+                        
+                                    protected java.lang.String[] localActionsToReplace ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localActionsToReplaceTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String[]
+                           */
+                           public  java.lang.String[] getActionsToReplace(){
+                               return localActionsToReplace;
+                           }
+
+                           
+                        
+
+
+                               
+                              /**
+                               * validate the array for ActionsToReplace
+                               */
+                              protected void validateActionsToReplace(java.lang.String[] param){
+                             
+                              }
+
+
+                             /**
+                              * Auto generated setter method
+                              * @param param ActionsToReplace
+                              */
+                              public void setActionsToReplace(java.lang.String[] param){
+                              
+                                   validateActionsToReplace(param);
+
+                               
+                                          if (param != null){
+                                             //update the setting tracker
+                                             localActionsToReplaceTracker = true;
+                                          } else {
+                                             localActionsToReplaceTracker = true;
+                                                 
+                                          }
+                                      
+                                      this.localActionsToReplace=param;
+                              }
+
+                               
+                             
+                             /**
+                             * Auto generated add method for the array for convenience
+                             * @param param java.lang.String
+                             */
+                             public void addActionsToReplace(java.lang.String param){
+                                   if (localActionsToReplace == null){
+                                   localActionsToReplace = new java.lang.String[]{};
+                                   }
+
+                            
+                                 //update the setting tracker
+                                localActionsToReplaceTracker = true;
+                            
+
+                               java.util.List list =
+                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localActionsToReplace);
+                               list.add(param);
+                               this.localActionsToReplace =
+                             (java.lang.String[])list.toArray(
+                            new java.lang.String[list.size()]);
+
+                             }
+                             
+
+                        /**
+                        * field for AttributeDefTypesToReplace
+                        * This was an Array!
+                        */
+
+                        
+                                    protected java.lang.String[] localAttributeDefTypesToReplace ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localAttributeDefTypesToReplaceTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String[]
+                           */
+                           public  java.lang.String[] getAttributeDefTypesToReplace(){
+                               return localAttributeDefTypesToReplace;
+                           }
+
+                           
+                        
+
+
+                               
+                              /**
+                               * validate the array for AttributeDefTypesToReplace
+                               */
+                              protected void validateAttributeDefTypesToReplace(java.lang.String[] param){
+                             
+                              }
+
+
+                             /**
+                              * Auto generated setter method
+                              * @param param AttributeDefTypesToReplace
+                              */
+                              public void setAttributeDefTypesToReplace(java.lang.String[] param){
+                              
+                                   validateAttributeDefTypesToReplace(param);
+
+                               
+                                          if (param != null){
+                                             //update the setting tracker
+                                             localAttributeDefTypesToReplaceTracker = true;
+                                          } else {
+                                             localAttributeDefTypesToReplaceTracker = true;
+                                                 
+                                          }
+                                      
+                                      this.localAttributeDefTypesToReplace=param;
+                              }
+
+                               
+                             
+                             /**
+                             * Auto generated add method for the array for convenience
+                             * @param param java.lang.String
+                             */
+                             public void addAttributeDefTypesToReplace(java.lang.String param){
+                                   if (localAttributeDefTypesToReplace == null){
+                                   localAttributeDefTypesToReplace = new java.lang.String[]{};
+                                   }
+
+                            
+                                 //update the setting tracker
+                                localAttributeDefTypesToReplaceTracker = true;
+                            
+
+                               java.util.List list =
+                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localAttributeDefTypesToReplace);
+                               list.add(param);
+                               this.localAttributeDefTypesToReplace =
+                             (java.lang.String[])list.toArray(
+                            new java.lang.String[list.size()]);
+
+                             }
+                             
+
      /**
      * isReaderMTOMAware
      * @return true if the reader supports MTOM
@@ -2903,7 +3149,241 @@
                                                xmlWriter.writeEndElement();
                                         
                                     }
-                                 }
+                                 } if (localAttributeDefsToReplaceTracker){
+                                       if (localAttributeDefsToReplace!=null){
+                                            for (int i = 0;i < localAttributeDefsToReplace.length;i++){
+                                                if (localAttributeDefsToReplace[i] != null){
+                                                 localAttributeDefsToReplace[i].serialize(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","attributeDefsToReplace"),
+                                                           factory,xmlWriter);
+                                                } else {
+                                                   
+                                                            // write null attribute
+                                                            java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                                            if (! namespace2.equals("")) {
+                                                                java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                                                if (prefix2 == null) {
+                                                                    prefix2 = generatePrefix(namespace2);
+
+                                                                    xmlWriter.writeStartElement(prefix2,"attributeDefsToReplace", namespace2);
+                                                                    xmlWriter.writeNamespace(prefix2, namespace2);
+                                                                    xmlWriter.setPrefix(prefix2, namespace2);
+
+                                                                } else {
+                                                                    xmlWriter.writeStartElement(namespace2,"attributeDefsToReplace");
+                                                                }
+
+                                                            } else {
+                                                                xmlWriter.writeStartElement("attributeDefsToReplace");
+                                                            }
+
+                                                           // write the nil attribute
+                                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                           xmlWriter.writeEndElement();
+                                                    
+                                                }
+
+                                            }
+                                     } else {
+                                        
+                                                // write null attribute
+                                                java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                                if (! namespace2.equals("")) {
+                                                    java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                                    if (prefix2 == null) {
+                                                        prefix2 = generatePrefix(namespace2);
+
+                                                        xmlWriter.writeStartElement(prefix2,"attributeDefsToReplace", namespace2);
+                                                        xmlWriter.writeNamespace(prefix2, namespace2);
+                                                        xmlWriter.setPrefix(prefix2, namespace2);
+
+                                                    } else {
+                                                        xmlWriter.writeStartElement(namespace2,"attributeDefsToReplace");
+                                                    }
+
+                                                } else {
+                                                    xmlWriter.writeStartElement("attributeDefsToReplace");
+                                                }
+
+                                               // write the nil attribute
+                                               writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                               xmlWriter.writeEndElement();
+                                        
+                                    }
+                                 } if (localActionsToReplaceTracker){
+                             if (localActionsToReplace!=null) {
+                                   namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                   boolean emptyNamespace = namespace == null || namespace.length() == 0;
+                                   prefix =  emptyNamespace ? null : xmlWriter.getPrefix(namespace);
+                                   for (int i = 0;i < localActionsToReplace.length;i++){
+                                        
+                                            if (localActionsToReplace[i] != null){
+                                        
+                                                if (!emptyNamespace) {
+                                                    if (prefix == null) {
+                                                        java.lang.String prefix2 = generatePrefix(namespace);
+
+                                                        xmlWriter.writeStartElement(prefix2,"actionsToReplace", namespace);
+                                                        xmlWriter.writeNamespace(prefix2, namespace);
+                                                        xmlWriter.setPrefix(prefix2, namespace);
+
+                                                    } else {
+                                                        xmlWriter.writeStartElement(namespace,"actionsToReplace");
+                                                    }
+
+                                                } else {
+                                                    xmlWriter.writeStartElement("actionsToReplace");
+                                                }
+
+                                            
+                                                        xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localActionsToReplace[i]));
+                                                    
+                                                xmlWriter.writeEndElement();
+                                              
+                                                } else {
+                                                   
+                                                           // write null attribute
+                                                            namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                                            if (! namespace.equals("")) {
+                                                                prefix = xmlWriter.getPrefix(namespace);
+
+                                                                if (prefix == null) {
+                                                                    prefix = generatePrefix(namespace);
+
+                                                                    xmlWriter.writeStartElement(prefix,"actionsToReplace", namespace);
+                                                                    xmlWriter.writeNamespace(prefix, namespace);
+                                                                    xmlWriter.setPrefix(prefix, namespace);
+
+                                                                } else {
+                                                                    xmlWriter.writeStartElement(namespace,"actionsToReplace");
+                                                                }
+
+                                                            } else {
+                                                                xmlWriter.writeStartElement("actionsToReplace");
+                                                            }
+                                                            writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                            xmlWriter.writeEndElement();
+                                                       
+                                                }
+
+                                   }
+                             } else {
+                                 
+                                         // write the null attribute
+                                        // write null attribute
+                                            java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                            if (! namespace2.equals("")) {
+                                                java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                                if (prefix2 == null) {
+                                                    prefix2 = generatePrefix(namespace2);
+
+                                                    xmlWriter.writeStartElement(prefix2,"actionsToReplace", namespace2);
+                                                    xmlWriter.writeNamespace(prefix2, namespace2);
+                                                    xmlWriter.setPrefix(prefix2, namespace2);
+
+                                                } else {
+                                                    xmlWriter.writeStartElement(namespace2,"actionsToReplace");
+                                                }
+
+                                            } else {
+                                                xmlWriter.writeStartElement("actionsToReplace");
+                                            }
+
+                                           // write the nil attribute
+                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                           xmlWriter.writeEndElement();
+                                    
+                             }
+
+                        } if (localAttributeDefTypesToReplaceTracker){
+                             if (localAttributeDefTypesToReplace!=null) {
+                                   namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                   boolean emptyNamespace = namespace == null || namespace.length() == 0;
+                                   prefix =  emptyNamespace ? null : xmlWriter.getPrefix(namespace);
+                                   for (int i = 0;i < localAttributeDefTypesToReplace.length;i++){
+                                        
+                                            if (localAttributeDefTypesToReplace[i] != null){
+                                        
+                                                if (!emptyNamespace) {
+                                                    if (prefix == null) {
+                                                        java.lang.String prefix2 = generatePrefix(namespace);
+
+                                                        xmlWriter.writeStartElement(prefix2,"attributeDefTypesToReplace", namespace);
+                                                        xmlWriter.writeNamespace(prefix2, namespace);
+                                                        xmlWriter.setPrefix(prefix2, namespace);
+
+                                                    } else {
+                                                        xmlWriter.writeStartElement(namespace,"attributeDefTypesToReplace");
+                                                    }
+
+                                                } else {
+                                                    xmlWriter.writeStartElement("attributeDefTypesToReplace");
+                                                }
+
+                                            
+                                                        xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAttributeDefTypesToReplace[i]));
+                                                    
+                                                xmlWriter.writeEndElement();
+                                              
+                                                } else {
+                                                   
+                                                           // write null attribute
+                                                            namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                                            if (! namespace.equals("")) {
+                                                                prefix = xmlWriter.getPrefix(namespace);
+
+                                                                if (prefix == null) {
+                                                                    prefix = generatePrefix(namespace);
+
+                                                                    xmlWriter.writeStartElement(prefix,"attributeDefTypesToReplace", namespace);
+                                                                    xmlWriter.writeNamespace(prefix, namespace);
+                                                                    xmlWriter.setPrefix(prefix, namespace);
+
+                                                                } else {
+                                                                    xmlWriter.writeStartElement(namespace,"attributeDefTypesToReplace");
+                                                                }
+
+                                                            } else {
+                                                                xmlWriter.writeStartElement("attributeDefTypesToReplace");
+                                                            }
+                                                            writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                            xmlWriter.writeEndElement();
+                                                       
+                                                }
+
+                                   }
+                             } else {
+                                 
+                                         // write the null attribute
+                                        // write null attribute
+                                            java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                            if (! namespace2.equals("")) {
+                                                java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                                                if (prefix2 == null) {
+                                                    prefix2 = generatePrefix(namespace2);
+
+                                                    xmlWriter.writeStartElement(prefix2,"attributeDefTypesToReplace", namespace2);
+                                                    xmlWriter.writeNamespace(prefix2, namespace2);
+                                                    xmlWriter.setPrefix(prefix2, namespace2);
+
+                                                } else {
+                                                    xmlWriter.writeStartElement(namespace2,"attributeDefTypesToReplace");
+                                                }
+
+                                            } else {
+                                                xmlWriter.writeStartElement("attributeDefTypesToReplace");
+                                            }
+
+                                           // write the nil attribute
+                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                           xmlWriter.writeEndElement();
+                                    
+                             }
+
+                        }
                     xmlWriter.writeEndElement();
                
 
@@ -3461,6 +3941,85 @@
                                     
                              }
 
+                        } if (localAttributeDefsToReplaceTracker){
+                             if (localAttributeDefsToReplace!=null) {
+                                 for (int i = 0;i < localAttributeDefsToReplace.length;i++){
+
+                                    if (localAttributeDefsToReplace[i] != null){
+                                         elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                          "attributeDefsToReplace"));
+                                         elementList.add(localAttributeDefsToReplace[i]);
+                                    } else {
+                                        
+                                                elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                          "attributeDefsToReplace"));
+                                                elementList.add(null);
+                                            
+                                    }
+
+                                 }
+                             } else {
+                                 
+                                        elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                          "attributeDefsToReplace"));
+                                        elementList.add(localAttributeDefsToReplace);
+                                    
+                             }
+
+                        } if (localActionsToReplaceTracker){
+                            if (localActionsToReplace!=null){
+                                  for (int i = 0;i < localActionsToReplace.length;i++){
+                                      
+                                         if (localActionsToReplace[i] != null){
+                                          elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                              "actionsToReplace"));
+                                          elementList.add(
+                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localActionsToReplace[i]));
+                                          } else {
+                                             
+                                                    elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                              "actionsToReplace"));
+                                                    elementList.add(null);
+                                                
+                                          }
+                                      
+
+                                  }
+                            } else {
+                              
+                                    elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                              "actionsToReplace"));
+                                    elementList.add(null);
+                                
+                            }
+
+                        } if (localAttributeDefTypesToReplaceTracker){
+                            if (localAttributeDefTypesToReplace!=null){
+                                  for (int i = 0;i < localAttributeDefTypesToReplace.length;i++){
+                                      
+                                         if (localAttributeDefTypesToReplace[i] != null){
+                                          elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                              "attributeDefTypesToReplace"));
+                                          elementList.add(
+                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAttributeDefTypesToReplace[i]));
+                                          } else {
+                                             
+                                                    elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                              "attributeDefTypesToReplace"));
+                                                    elementList.add(null);
+                                                
+                                          }
+                                      
+
+                                  }
+                            } else {
+                              
+                                    elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                              "attributeDefTypesToReplace"));
+                                    elementList.add(null);
+                                
+                            }
+
                         }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
@@ -3562,6 +4121,12 @@
                         java.util.ArrayList list22 = new java.util.ArrayList();
                     
                         java.util.ArrayList list24 = new java.util.ArrayList();
+                    
+                        java.util.ArrayList list25 = new java.util.ArrayList();
+                    
+                        java.util.ArrayList list26 = new java.util.ArrayList();
+                    
+                        java.util.ArrayList list27 = new java.util.ArrayList();
                     
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
@@ -4607,6 +5172,182 @@
                                                                 edu.internet2.middleware.grouper.ws.soap.xsd.WsParam.class,
                                                                 list24));
                                                             
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","attributeDefsToReplace").equals(reader.getName())){
+                                
+                                    
+                                    
+                                    // Process the array and step past its final element's end.
+                                    
+                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                                              list25.add(null);
+                                                              reader.next();
+                                                          } else {
+                                                        list25.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup.Factory.parse(reader));
+                                                                }
+                                                        //loop until we find a start element that is not part of this array
+                                                        boolean loopDone25 = false;
+                                                        while(!loopDone25){
+                                                            // We should be at the end element, but make sure
+                                                            while (!reader.isEndElement())
+                                                                reader.next();
+                                                            // Step out of this element
+                                                            reader.next();
+                                                            // Step to next element event.
+                                                            while (!reader.isStartElement() && !reader.isEndElement())
+                                                                reader.next();
+                                                            if (reader.isEndElement()){
+                                                                //two continuous end elements means we are exiting the xml structure
+                                                                loopDone25 = true;
+                                                            } else {
+                                                                if (new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","attributeDefsToReplace").equals(reader.getName())){
+                                                                    
+                                                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                                                          list25.add(null);
+                                                                          reader.next();
+                                                                      } else {
+                                                                    list25.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup.Factory.parse(reader));
+                                                                        }
+                                                                }else{
+                                                                    loopDone25 = true;
+                                                                }
+                                                            }
+                                                        }
+                                                        // call the converter utility  to convert and set the array
+                                                        
+                                                        object.setAttributeDefsToReplace((edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup[])
+                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
+                                                                edu.internet2.middleware.grouper.ws.soap.xsd.WsAttributeDefLookup.class,
+                                                                list25));
+                                                            
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","actionsToReplace").equals(reader.getName())){
+                                
+                                    
+                                    
+                                    // Process the array and step past its final element's end.
+                                    
+                                              nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                              if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                                  list26.add(null);
+                                                       
+                                                  reader.next();
+                                              } else {
+                                            list26.add(reader.getElementText());
+                                            }
+                                            //loop until we find a start element that is not part of this array
+                                            boolean loopDone26 = false;
+                                            while(!loopDone26){
+                                                // Ensure we are at the EndElement
+                                                while (!reader.isEndElement()){
+                                                    reader.next();
+                                                }
+                                                // Step out of this element
+                                                reader.next();
+                                                // Step to next element event.
+                                                while (!reader.isStartElement() && !reader.isEndElement())
+                                                    reader.next();
+                                                if (reader.isEndElement()){
+                                                    //two continuous end elements means we are exiting the xml structure
+                                                    loopDone26 = true;
+                                                } else {
+                                                    if (new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","actionsToReplace").equals(reader.getName())){
+                                                         
+                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                                              list26.add(null);
+                                                                   
+                                                              reader.next();
+                                                          } else {
+                                                        list26.add(reader.getElementText());
+                                                        }
+                                                    }else{
+                                                        loopDone26 = true;
+                                                    }
+                                                }
+                                            }
+                                            // call the converter utility  to convert and set the array
+                                            
+                                                    object.setActionsToReplace((java.lang.String[])
+                                                        list26.toArray(new java.lang.String[list26.size()]));
+                                                
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","attributeDefTypesToReplace").equals(reader.getName())){
+                                
+                                    
+                                    
+                                    // Process the array and step past its final element's end.
+                                    
+                                              nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                              if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                                  list27.add(null);
+                                                       
+                                                  reader.next();
+                                              } else {
+                                            list27.add(reader.getElementText());
+                                            }
+                                            //loop until we find a start element that is not part of this array
+                                            boolean loopDone27 = false;
+                                            while(!loopDone27){
+                                                // Ensure we are at the EndElement
+                                                while (!reader.isEndElement()){
+                                                    reader.next();
+                                                }
+                                                // Step out of this element
+                                                reader.next();
+                                                // Step to next element event.
+                                                while (!reader.isStartElement() && !reader.isEndElement())
+                                                    reader.next();
+                                                if (reader.isEndElement()){
+                                                    //two continuous end elements means we are exiting the xml structure
+                                                    loopDone27 = true;
+                                                } else {
+                                                    if (new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","attributeDefTypesToReplace").equals(reader.getName())){
+                                                         
+                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
+                                                              list27.add(null);
+                                                                   
+                                                              reader.next();
+                                                          } else {
+                                                        list27.add(reader.getElementText());
+                                                        }
+                                                    }else{
+                                                        loopDone27 = true;
+                                                    }
+                                                }
+                                            }
+                                            // call the converter utility  to convert and set the array
+                                            
+                                                    object.setAttributeDefTypesToReplace((java.lang.String[])
+                                                        list27.toArray(new java.lang.String[list27.size()]));
+                                                
                               }  // End of if for expected property start element
                                 
                                     else {

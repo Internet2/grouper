@@ -34,15 +34,17 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
-import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
-import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
-import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.XppDriver;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.Expression;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.ExpressionFactory;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlContext;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlHelper;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.util.JsonUtils;
 import edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppJob.XmppJobEventAction;
 
 
 /**
- *
+ * run an xmpp job to manage memberships in groups
  */
 public class GrouperClientXmppMain {
 
@@ -50,6 +52,115 @@ public class GrouperClientXmppMain {
    * logger
    */
   private static Log log = GrouperClientUtils.retrieveLog(GrouperClientXmppMain.class);
+
+  /**
+   * see if the esb event matches an EL filter.  Note the available objects are
+   * event for the EsbEvent, and grouperUtil for the GrouperUtil class which has
+   * a lot of utility methods
+   * @param filterString
+   * @param esbEvent
+   * @return true if matches, false if doesnt
+   */
+  @SuppressWarnings("unchecked")
+  public static boolean matchesFilter(EsbEvent esbEvent, String filterString) {
+    try {
+      Expression e = ExpressionFactory.createExpression(filterString);
+      JexlContext jc = JexlHelper.createContext();
+  
+      jc.getVars().put("event", esbEvent);
+      jc.getVars().put("grouperClientUtils", new GrouperClientUtils());
+      return (Boolean) e.evaluate(jc);
+    } catch (Exception e) {
+      throw new RuntimeException("Problem seeing if matches filter for sequence: " 
+          + (esbEvent == null ? null : esbEvent.getSequenceNumber()) + ", '" + filterString + "'", e);
+    }
+  }
+
+  /** keep a reference here so we dont have to keep logging in */
+  private static XMPPConnection xmppConnection = null;
+
+  /**
+   * get an xmpp connection
+   * @return xmpp connection
+   */
+  private static synchronized XMPPConnection xmppConnection() {
+    if (xmppConnection == null || !xmppConnection.isAuthenticated() || !xmppConnection.isConnected()) {
+      try {
+        if (xmppConnection != null) {
+          try {
+            xmppConnection.disconnect();
+          } catch (Exception e) {
+            //this is ok
+          }
+        }
+        ConnectionConfiguration config = new ConnectionConfiguration(xmppServer(), xmppPort());
+  
+        config.setDebuggerEnabled(false);
+        config.setReconnectionAllowed(true);
+        
+        config.setSASLAuthenticationEnabled(true);
+        SASLAuthentication.supportSASLMechanism("PLAIN");
+        config.setSecurityMode(ConnectionConfiguration.SecurityMode.enabled);
+        xmppConnection = new XMPPConnection(config);
+        xmppConnection.connect();
+  
+        xmppConnection.login(xmppUser(), xmppPass(), xmppResource());
+      } catch (XMPPException xe) {
+        throw new RuntimeException(xe);
+      }
+    }
+    return xmppConnection;
+  }
+
+  /**
+   * xmpp pass (decrypted if file)
+   * @return the pass
+   */
+  private static String xmppPass() {
+    
+    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
+        "encrypt.disableExternalFileLookup", false, true);
+    
+    //lets lookup if file
+    String pass = GrouperClientUtils.propertiesValue("grouperClient.xmpp.pass", true);
+    String passFromFile = GrouperClientUtils.readFromFileIfFile(pass, disableExternalFileLookup);
+    
+    return passFromFile;
+  }
+
+  /**
+   * port to connect to, or 1522 as default 
+   * @return port
+   */
+  private static int xmppPort() {
+    return GrouperClientUtils.propertiesValueInt("grouperClient.xmpp.server.port", 1522, false);
+  }
+
+  /**
+   * xmpp resource
+   * @return the resource
+   */
+  private static String xmppResource() {
+    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.resource", false);
+  }
+
+  /**
+   * xpp server to connect to
+   * @return xmpp server
+   */
+  private static String xmppServer() {
+    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.server.host", true);
+  }
+
+  /**
+   * xmpp user
+   * @return the user
+   */
+  private static String xmppUser() {
+    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.user", true);
+  }
+
+
 
   /**
    * connect to xmpp
@@ -67,21 +178,39 @@ public class GrouperClientXmppMain {
             log.debug(message == null ? null : message.toXML());
           }
           String body = message.getBody();
-          XmppMembershipChange xmppMembershipChange = (XmppMembershipChange)xstream().fromXML(body);
-          
-          //lets set the attribute map for the subject
-          XmppSubject xmppSubject = xmppMembershipChange.getXmppSubject();
-          xmppSubject.assignAttributeMap(xmppMembershipChange.getSubjectAttributeNames());
-          //loop through jobs and see what matches
-          boolean matches = false;
-          for (GrouperClientXmppJob grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
-            if (grouperClientXmppJob.getGroupNames().contains(xmppMembershipChange.getGroupName())) {
-              matches = true;
-              if (!grouperClientXmppJob.matches(xmppSubject)) {
-                if (log.isDebugEnabled()) {
-                  log.debug("skipping due to attribute or source: " + xmppMembershipChange.getGroupName() 
-                      + " for job: " + grouperClientXmppJob.getJobName() + ", subject: " + xmppSubject.getId());
+          EsbEvents esbEvents = (EsbEvents)JsonUtils.jsonConvertFrom(body, EsbEvents.class);
+          for (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.class)) {
+            //loop through jobs and see what matches
+            for (GrouperClientXmppJob grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {
+              String elfilter = grouperClientXmppJob.getElfilter();
+              Boolean matches = null;
+              if (!GrouperClientUtils.isBlank(elfilter)) {
+                if (!matchesFilter(esbEvent, elfilter)) {
+
+                  matches = false;
+                  
+                  if (log.isDebugEnabled()) {
+                    log.debug("skipping event to not match filter, sequence: " + (esbEvent == null ? null : esbEvent.getSequenceNumber()) + ", '" + elfilter + "', " + grouperClientXmppJob.getJobName());
+                  }
+                } else {
+                  matches = true;
                 }
+
+              }
+              
+              if (GrouperClientUtils.nonNull(grouperClientXmppJob.getGroupNames()).size() > 0) {
+                if (grouperClientXmppJob.getGroupNames().contains(esbEvent.getGroupName())) {
+                  if (matches == null) {
+                    matches = true;
+                  }
+                } else {
+                  if (log.isDebugEnabled()) {
+                    log.debug("skipping event to not match group name list, sequence: " + (esbEvent == null ? null : esbEvent.getSequenceNumber()) + ", " + grouperClientXmppJob.getJobName());
+                  }
+                  matches = false;
+                }
+              }
+              if (!matches) {
                 continue;
               }
               
@@ -89,38 +218,35 @@ public class GrouperClientXmppMain {
               if (XmppJobEventAction.reload_group == grouperClientXmppJob.getEventAction()) {
                 
                 if (log.isDebugEnabled()) {
-                  log.debug("performing a full reload on group: " + xmppMembershipChange.getGroupName() 
-                      + " for job: " + grouperClientXmppJob.getJobName() + ", subject: " + xmppSubject.getId());
+                  log.debug("performing a full reload on group: " + esbEvent.getGroupName()
+                      + " for job: " + grouperClientXmppJob.getJobName() + ", subject: " + esbEvent.getSubjectId());
                 }
-                fullRefreshGroup(grouperClientXmppJob, xmppMembershipChange.getGroupName());
+                fullRefreshGroup(grouperClientXmppJob, esbEvent.getGroupName());
               
               } else if (XmppJobEventAction.incremental == grouperClientXmppJob.getEventAction()) {
                 
                 if (log.isDebugEnabled()) {
-                  log.debug("performing an incremental reload on group: " + xmppMembershipChange.getGroupName() 
-                      + " for job: " + grouperClientXmppJob.getJobName() + ", subject: " + xmppSubject.getId());
+                  log.debug("performing an incremental reload on group: " + esbEvent.getGroupName()
+                      + " for job: " + grouperClientXmppJob.getJobName() + ", subject: " + esbEvent.getSubjectId());
                 }
-                incrementalRefreshGroup(grouperClientXmppJob, xmppMembershipChange.getGroupName(), 
-                    xmppSubject, xmppMembershipChange.getAction());
+                
+                GrouperClientXmppSubject grouperClientXmppSubject = new GrouperClientXmppSubject(esbEvent);
+                
+                incrementalRefreshGroup(grouperClientXmppJob, esbEvent.getGroupName(), 
+                    grouperClientXmppSubject, esbEvent.getEventType());
                 
               } else {
                 throw new RuntimeException("Not expecting event action: " + grouperClientXmppJob.getEventAction());
               }
               
-              
             }
-          }
-          
-          if (!matches) {
-            if (log.isDebugEnabled()) {
-              log.debug("couldnt find match for event: " + xmppMembershipChange.getGroupName() 
-                  + ", subject: " + xmppSubject.getId() + ", action: " + xmppMembershipChange.getAction());
-            }
-          }
-        } catch (RuntimeException re) {
+            
+          }           
+            
+        } catch (Throwable re) {
           String messageXml = message == null ? null : message.toXML();
           log.error("Problem with message: " + messageXml, re);
-          throw re;
+          throw new RuntimeException(re);
         }
         
       }
@@ -145,6 +271,36 @@ public class GrouperClientXmppMain {
     });
   }
   
+//  /**
+//   * 
+//   * @return xstream
+//   */
+//  private static XStream xstream() {
+//    if (xStream == null) {
+//      xStream = new XStream(new XppDriver());
+//      
+//      //do javabean properties, not fields
+//      xStream.registerConverter(new JavaBeanConverter(xStream.getMapper()) {
+//  
+//        /**
+//         * @see com.thoughtworks.xstream.converters.javabean.JavaBeanConverter#canConvert(java.lang.Class)
+//         */
+//        @SuppressWarnings("unchecked")
+//        @Override
+//        public boolean canConvert(Class type) {
+//          //see if one of our beans
+//          return type.getName().startsWith("edu.internet2");
+//        }
+//        
+//      }); 
+//      
+//      xStream.alias("XmppMembershipChange", XmppMembershipChange.class);
+//      xStream.alias("XmppSubject", XmppSubject.class);
+//  
+//    }
+//    return xStream;
+//  }
+
   /** allowed from jabber ids */
   private static Set<String> allowFromJabberIds = new HashSet<String>();
   
@@ -166,7 +322,7 @@ public class GrouperClientXmppMain {
   }
 
   /** mape of group name to list of subjects in group */
-  private static Map<String, List<XmppSubject>> groupMemberships = new HashMap<String, List<XmppSubject>>();
+  private static Map<String, List<GrouperClientXmppSubject>> groupMemberships = new HashMap<String, List<GrouperClientXmppSubject>>();
   
   /**
    * 
@@ -176,6 +332,7 @@ public class GrouperClientXmppMain {
   @SuppressWarnings("unchecked")
   public static void fullRefreshGroup(GrouperClientXmppJob grouperClientXmppJob, String groupName) {
     GcGetMembers gcGetMembers = new GcGetMembers();
+    
     List<String> subjectAttributeNames = grouperClientXmppJob.getSubjectAttributeNames();
     
 
@@ -184,18 +341,14 @@ public class GrouperClientXmppMain {
         gcGetMembers.addSubjectAttributeName(subjectAttributeName);
       }
     }
+
     WsGetMembersResults wsGetMembersResults = gcGetMembers.addGroupName(groupName).execute();
     WsGetMembersResult wsGetMembersResult = wsGetMembersResults.getResults()[0];
 
-    List<XmppSubject> xmppSubjects = new ArrayList<XmppSubject>();
+    List<GrouperClientXmppSubject> xmppSubjects = new ArrayList<GrouperClientXmppSubject>();
 
     for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsGetMembersResult.getWsSubjects(), WsSubject.class)) {
-      XmppSubject xmppSubject = new XmppSubject(wsSubject, wsGetMembersResults.getSubjectAttributeNames());
-      
-      //filter if require sources
-      if (!grouperClientXmppJob.matches(xmppSubject)) {
-        continue;
-      }
+      GrouperClientXmppSubject xmppSubject = new GrouperClientXmppSubject(wsSubject, wsGetMembersResults.getSubjectAttributeNames());
       
       xmppSubjects.add(xmppSubject);
     }
@@ -207,7 +360,7 @@ public class GrouperClientXmppMain {
     Class<GrouperClientXmppHandler> handlerClass = GrouperClientUtils.forName(grouperClientXmppJob.getHandlerClass());
     GrouperClientXmppHandler grouperClientXmppHandler = GrouperClientUtils.newInstance(handlerClass);
     groupMemberships.put(groupName, xmppSubjects);
-    grouperClientXmppHandler.handleAll(grouperClientXmppJob, groupName, GrouperClientUtils.extensionFromName(groupName), subjectAttributeNames, xmppSubjects);
+    grouperClientXmppHandler.handleAll(grouperClientXmppJob, groupName, GrouperClientUtils.extensionFromName(groupName), xmppSubjects);
     
   }
   
@@ -233,8 +386,8 @@ public class GrouperClientXmppMain {
     String outputTemplate = GrouperClientUtils.propertiesValue("grouperClient.xmpp.job.myJobName.fileHandler.iteratorEl", true);
     outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
     Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
-    XmppSubject xmppSubject = new XmppSubject();
-    xmppSubject.getAttribute().put("pennname", "mchyzer");
+    GrouperClientXmppSubject xmppSubject = new GrouperClientXmppSubject();
+    xmppSubject.getAttribute().put("loginid", "mchyzer");
     substituteMap.put("subject", xmppSubject);
     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
     System.out.println(output);
@@ -334,171 +487,59 @@ public class GrouperClientXmppMain {
     return schedulerFactory;
   }
 
-  /** keep a reference here so we dont have to keep logging in */
-  private static XMPPConnection xmppConnection = null;
-  /** xstream object */
-  private static XStream xStream = null;
-
-  /**
-   * get an xmpp connection
-   * @return xmpp connection
-   */
-  private static synchronized XMPPConnection xmppConnection() {
-    if (xmppConnection == null || !xmppConnection.isAuthenticated() || !xmppConnection.isConnected()) {
-      try {
-        if (xmppConnection != null) {
-          try {
-            xmppConnection.disconnect();
-          } catch (Exception e) {
-            //this is ok
-          }
-        }
-        ConnectionConfiguration config = new ConnectionConfiguration(xmppServer(), xmppPort());
-  
-        config.setDebuggerEnabled(false);
-        config.setReconnectionAllowed(true);
-        
-        config.setSASLAuthenticationEnabled(true);
-        SASLAuthentication.supportSASLMechanism("PLAIN");
-        config.setSecurityMode(ConnectionConfiguration.SecurityMode.enabled);
-        xmppConnection = new XMPPConnection(config);
-        xmppConnection.connect();
-  
-        xmppConnection.login(xmppUser(), xmppPass(), xmppResource());
-      } catch (XMPPException xe) {
-        throw new RuntimeException(xe);
-      }
-    }
-    return xmppConnection;
-  }
-
-  /**
-   * xmpp pass (decrypted if file)
-   * @return the pass
-   */
-  private static String xmppPass() {
-    
-    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-        "encrypt.disableExternalFileLookup", false, true);
-    
-    //lets lookup if file
-    String pass = GrouperClientUtils.propertiesValue("grouperClient.xmpp.pass", true);
-    String passFromFile = GrouperClientUtils.readFromFileIfFile(pass, disableExternalFileLookup);
-    
-    return passFromFile;
-  }
-
-  /**
-   * port to connect to, or 1522 as default 
-   * @return port
-   */
-  private static int xmppPort() {
-    return GrouperClientUtils.propertiesValueInt("grouperClient.xmpp.server.port", 1522, false);
-  }
-
-  /**
-   * xmpp resource
-   * @return the resource
-   */
-  private static String xmppResource() {
-    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.resource", false);
-  }
-
-  /**
-   * xpp server to connect to
-   * @return xmpp server
-   */
-  private static String xmppServer() {
-    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.server.host", true);
-  }
-
-  /**
-   * xmpp user
-   * @return the user
-   */
-  private static String xmppUser() {
-    return GrouperClientUtils.propertiesValue("grouperClient.xmpp.user", true);
-  }
-
-  /**
-   * 
-   * @return xstream
-   */
-  private static XStream xstream() {
-    if (xStream == null) {
-      xStream = new XStream(new XppDriver());
-      
-      //do javabean properties, not fields
-      xStream.registerConverter(new JavaBeanConverter(xStream.getMapper()) {
-  
-        /**
-         * @see com.thoughtworks.xstream.converters.javabean.JavaBeanConverter#canConvert(java.lang.Class)
-         */
-        @SuppressWarnings("unchecked")
-        @Override
-        public boolean canConvert(Class type) {
-          //see if one of our beans
-          return type.getName().startsWith("edu.internet2");
-        }
-        
-      }); 
-      
-      xStream.alias("XmppMembershipChange", XmppMembershipChange.class);
-      xStream.alias("XmppSubject", XmppSubject.class);
-  
-    }
-    return xStream;
-  }
 
   /**
    * 
    * @param grouperClientXmppJob 
    * @param groupName
-   * @param xmppSubject 
+   * @param grouperClientXmppSubject 
+   * @param subjectId 
+   * @param sourceId 
+   * @param eventType 
    * @param action ADD_MEMBER or REMOVE_MEMBER
    */
   @SuppressWarnings("unchecked")
   private static void incrementalRefreshGroup(GrouperClientXmppJob grouperClientXmppJob, 
-      String groupName, XmppSubject xmppSubject, String action) {
+      String groupName, GrouperClientXmppSubject grouperClientXmppSubject, String eventType) {
     
-    List<XmppSubject> oldList = groupMemberships.get(groupName);
+    List<GrouperClientXmppSubject> oldList = groupMemberships.get(groupName);
     if (oldList == null) {
       throw new NullPointerException("Why is old list null????");
     }
     
-    List<XmppSubject> newList = new ArrayList<XmppSubject>(oldList);
+    List<GrouperClientXmppSubject> newList = new ArrayList<GrouperClientXmppSubject>(oldList);
     
-    if (GrouperClientUtils.equals(action, "ADD_MEMBER")) {
-      if (!newList.contains(xmppSubject)) {
-        newList.add(xmppSubject);
+    if (GrouperClientUtils.equals(eventType, "MEMBERSHIP_ADD")) {
+      if (!newList.contains(grouperClientXmppSubject)) {
+        newList.add(grouperClientXmppSubject);
       } else {
         if (log.isDebugEnabled()) {
-          log.debug("Group " + groupName + " already contains subject: " + xmppSubject.getId());
+          log.debug("Group " + groupName + " already contains subject: " + grouperClientXmppSubject.getSubjectId());
         }
       }
-    } else if (GrouperClientUtils.equals(action, "DELETE_MEMBER")) {
-      if (newList.contains(xmppSubject)) {
+    } else if (GrouperClientUtils.equals(eventType, "MEMBERSHIP_DELETE")) {
+      if (newList.contains(grouperClientXmppSubject)) {
         int i=0;
         while (true) {
-          if (!newList.remove(xmppSubject)) {
+          if (!newList.remove(grouperClientXmppSubject)) {
             break;
           }
           if (i++ > 100) {
-            throw new RuntimeException("Time to live exceeded for group " + groupName + ", subject " + xmppSubject.getId());
+            throw new RuntimeException("Time to live exceeded for group " + groupName + ", subject " + grouperClientXmppSubject.getSubjectId());
           }
         }
       } else {
         if (log.isDebugEnabled()) {
-          log.debug("Group " + groupName + " already doesnt contain subject: " + xmppSubject.getId());
+          log.debug("Group " + groupName + " already doesnt contain subject: " + grouperClientXmppSubject.getSubjectId());
         }
         
       }
     } else {
-      throw new RuntimeException("Not expecting action: '" + action + "'");
+      throw new RuntimeException("Not expecting action: '" + eventType + "'");
     }
   
     if (log.isDebugEnabled()) {
-      log.debug("Refreshing all for " + groupName + " was " + GrouperClientUtils.length(oldList) 
+      log.debug("Refreshing incremental for " + groupName + " was " + GrouperClientUtils.length(oldList) 
           + " and is now " + GrouperClientUtils.length(newList) + " subjects");
     }
     Class<GrouperClientXmppHandler> handlerClass = GrouperClientUtils.forName(grouperClientXmppJob.getHandlerClass());
@@ -506,9 +547,10 @@ public class GrouperClientXmppMain {
     groupMemberships.put(groupName, newList);
     grouperClientXmppHandler.handleIncremental(grouperClientXmppJob, 
         groupName, GrouperClientUtils.extensionFromName(groupName), 
-        grouperClientXmppJob.getSubjectAttributeNames(), newList, oldList, xmppSubject, action);
+         newList, oldList, grouperClientXmppSubject, eventType);
     
   }
 
-  
+
+
 }

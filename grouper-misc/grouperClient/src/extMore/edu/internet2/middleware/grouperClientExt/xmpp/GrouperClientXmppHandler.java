@@ -24,8 +24,8 @@ public interface GrouperClientXmppHandler {
    * @param action
    */
   public void handleIncremental(GrouperClientXmppJob grouperClientXmppJob, String groupName, String groupExtension, 
-      List<String> subjectAttributeNames, List<XmppSubject> newSubjectList, 
-      List<XmppSubject> previousSubjectList, XmppSubject changeSubject, String action);
+      List<GrouperClientXmppSubject> newSubjectList, 
+      List<GrouperClientXmppSubject> previousSubjectList, GrouperClientXmppSubject changeSubject, String action);
 
   
   /**
@@ -37,6 +37,6 @@ public interface GrouperClientXmppHandler {
    * @param newSubjectList
    */
   public void handleAll(GrouperClientXmppJob grouperClientXmppJob, String groupName, String groupExtension, 
-      List<String> subjectAttributeNames, List<XmppSubject> newSubjectList);
+      List<GrouperClientXmppSubject> newSubjectList);
 
 }

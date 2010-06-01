@@ -22,6 +22,8 @@
                         <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="disabledTime" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="enabledTime" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -117,6 +119,8 @@
                         <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element minOccurs="0" name="disabledTime" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="enabledTime" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -226,6 +230,7 @@
             <xs:complexType name="WsAssignAttributeResult">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="changed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="deleted" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="valuesChanged" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssignValueResults" nillable="true" type="ns:WsAttributeAssignValueResult"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssigns" nillable="true" type="ns:WsAttributeAssign"/>
@@ -357,6 +362,9 @@
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefsToReplace" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="actionsToReplace" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefTypesToReplace" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -566,6 +574,7 @@
             <xs:complexType name="WsAssignPermissionResult">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="changed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="deleted" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeAssigns" nillable="true" type="ns:WsAttributeAssign"/>
                 </xs:sequence>
             </xs:complexType>
@@ -589,6 +598,8 @@
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeDefsToReplace" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="actionsToReplace" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

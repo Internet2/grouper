@@ -100,6 +100,9 @@
       <fileset dir="${main.sourceExtDir}">
         <include name="**/*.java"/>      <!-- source -->
       </fileset>
+      <fileset dir="${main.sourceExtMoreDir}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
       <fileset dir="${main.confDir}">
         <include name="*.example.properties"/>      <!-- sample config -->
         <include name="grouper.client.usage*.txt"/>      <!-- sample config -->
