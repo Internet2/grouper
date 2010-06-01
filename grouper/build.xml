@@ -110,11 +110,14 @@
     </delete>
     <!-- clean extensions -->
     <antcall target="ext.clean"/>
+    <!-- delete ldappcng dir -->
+    <delete dir="${ldappcng.dir}" />
   </target>
   <!-- target: clean -->
 
   <target name="ldappcng" description="after 'mvn package -DskipTests' in ldappcng, run this target to copy the conf and libs to grouper for gsh">
-    <mkdir dir="${ldappcng.dir}" />
+    <!-- unzip ldappcng distribution -->
+    <mkdir dir="${ldappcng.dir}" />      
     <if>
       <available file="${ldappcng.basedir}/target/ldappcng-${version}-bin.zip" />
       <then>
@@ -128,24 +131,44 @@
         </then>
       </elseif>
       <else>
-        <echo message="Could not find ldappcng binary package, try 'mvn package -DskipTests' in ${ldappcng.basedir}" />
+        <fail message="Could not find ldappcng binary package, try 'mvn package -DskipTests' in ${ldappcng.basedir}" />
       </else>
     </if>
-
-    <copy todir="lib/custom">
-      <fileset dir="${ldappcng.dir}/ldappcng-${version}/lib">
-        <include name="*.jar" />
-        <exclude name="grouper*.jar" />
-        <exclude name="subject*.jar" />
-        <exclude name="morphString*.jar" />
-      </fileset>
-    </copy>
-    <copy todir="confCustom">
-      <fileset dir="${ldappcng.dir}/ldappcng-${version}/conf" />
-    </copy>
-
+    
+    <!-- copy jars -->    
+    <foreach target="ldappcng.copyJar" param="file">
+      <path>
+        <fileset dir="${ldappcng.dir}/ldappcng-${version}/lib">
+          <include name="**/*.jar"/>
+          <exclude name="grouper*.jar" />
+          <exclude name="subject*.jar" />
+          <exclude name="morphString*.jar" />
+        </fileset>
+      </path>
+    </foreach>
   </target>
   
+  <target name="ldappcng.copyJar" description="copy jar to lib/custom if it does not exist already" >
+    <!-- basename is "file-version.jar" -->
+    <basename file="${file}" property="basename"/>
+    <!-- set property to name of jar without -version string -->
+    <propertyregex property="jar-without-version"
+                  input="${basename}"
+                  regexp="(.*?)-\d+.*?\.jar"
+                  select="\1"
+                  casesensitive="false" />
+    <!-- property is set if jar already exists in lib -->
+    <pathconvert property="found" setonempty="false">
+      <fileset dir="lib" includes="**/${jar-without-version}.jar"/>
+    </pathconvert>
+    <!-- copy jar-with-version if property is not set -->    
+    <if><not><isset property="found" /></not>
+      <then>
+        <copy file="${file}" toDir="lib/custom" />
+       </then>
+    </if>
+  </target>
+
   <!-- target: compile -->
   <target name="compile" 
           description="Compile .java files, copy Hibernate mapping files"
