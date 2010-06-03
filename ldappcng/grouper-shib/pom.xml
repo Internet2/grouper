@@ -73,6 +73,7 @@
 
     <properties>
         <grouper.dir>../grouper_trunk</grouper.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
