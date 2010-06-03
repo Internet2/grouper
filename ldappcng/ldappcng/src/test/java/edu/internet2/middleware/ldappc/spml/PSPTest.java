@@ -14,6 +14,8 @@
 
 package edu.internet2.middleware.ldappc.spml;
 
+import junit.textui.TestRunner;
+
 import org.openspml.v2.msg.spml.AddRequest;
 import org.openspml.v2.msg.spml.AddResponse;
 import org.openspml.v2.msg.spml.ExecutionMode;
@@ -37,6 +39,7 @@ public class PSPTest extends BasePSPProvisioningTest {
   public static final String DATA_PATH = CONFIG_PATH + "/data/";
 
   public static void main(String[] args) {
+    TestRunner.run(PSPTest.class);
     // TestRunner.run(new PSPTest("testSearchRequestNoQuery"));
   }
 

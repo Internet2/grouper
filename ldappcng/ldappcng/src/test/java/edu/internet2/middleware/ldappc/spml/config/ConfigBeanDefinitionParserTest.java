@@ -31,10 +31,15 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import edu.internet2.middleware.ldappc.BaseProvisioningTest;
+
 public class ConfigBeanDefinitionParserTest extends XMLTestCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(ConfigBeanDefinitionParserTest.class);
 
+  /** Base resource location. */
+  public static final String TEST_PATH = BaseProvisioningTest.TEST_PATH + "/spml/config/";
+  
   private BasicParserPool xmlParser;
 
   public void setUp() {
@@ -53,16 +58,16 @@ public class ConfigBeanDefinitionParserTest extends XMLTestCase {
 
   public void testConfig() {
 
-    String before = "ConfigBeanParserTest.before.xml";
-    String after = "ConfigBeanParserTest.after.xml";
+    String before = TEST_PATH + "ConfigBeanParserTest.before.xml";
+    String after = TEST_PATH + "ConfigBeanParserTest.after.xml";
 
     testRewrite(before, after);
   }
 
   public void testConfigMacro() {
 
-    String before = "ConfigBeanParserTest.macro.before.xml";
-    String after = "ConfigBeanParserTest.macro.after.xml";
+    String before = TEST_PATH + "ConfigBeanParserTest.macro.before.xml";
+    String after = TEST_PATH +  "ConfigBeanParserTest.macro.after.xml";
 
     testRewrite(before, after);
   }
@@ -100,6 +105,7 @@ public class ConfigBeanDefinitionParserTest extends XMLTestCase {
       assertXMLEqual(afterXML, rewriteXML);
 
     } catch (Exception e) {
+      e.printStackTrace();
       fail("An error occurred : " + e.getMessage());
     }
   }

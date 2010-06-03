@@ -11,13 +11,16 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package edu.internet2.middleware.ldappc.spml;
+package edu.internet2.middleware.ldappc.spml.notad;
 
 import junit.framework.AssertionFailedError;
+import junit.textui.TestRunner;
 
 import org.openspml.v2.msg.spml.ReturnData;
 
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.ldappc.spml.BasePSPProvisioningTest;
+import edu.internet2.middleware.ldappc.spml.PSPLdapTest;
 import edu.internet2.middleware.ldappc.spml.request.BulkCalcRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkCalcResponse;
 import edu.internet2.middleware.ldappc.spml.request.BulkDiffRequest;
@@ -38,7 +41,8 @@ public class PSPLdapNotADTest extends BasePSPProvisioningTest {
   public static final String DATA_PATH = CONFIG_PATH + "/data/";
 
   public static void main(String[] args) {
-    // TestRunner.run(new PSPLdapNotADTest("testBulkDiffBushyAddMultipleSubjects"));
+    // TestRunner.run(PSPLdapNotADTest.class);
+    TestRunner.run(new PSPLdapNotADTest("testBulkSyncBushyAddSubgroupPhasing"));
   }
 
   public PSPLdapNotADTest(String name) {
@@ -185,6 +189,7 @@ public class PSPLdapNotADTest extends BasePSPProvisioningTest {
   }
 
   // target ldap directory must not support referential integrity of dns
+  // TODO implement
   public void testBulkSyncBushyAddSubgroupPhasing() throws Exception {
 
     loadLdif(PSPLdapTest.DATA_PATH + "PSPTest.before.ldif");
@@ -200,12 +205,11 @@ public class PSPLdapNotADTest extends BasePSPProvisioningTest {
     // Response response = psp.execute(request);
     // System.out.println(psp.toXML(response));
 
-    BulkSyncRequest request = new BulkSyncRequest();
-    request.setRequestID(REQUESTID_TEST);
-    request.setReturnData(ReturnData.DATA);
-    BulkSyncResponse response = psp.execute(request);
-
-    System.out.println(psp.toXML(response));
+    // BulkSyncRequest request = new BulkSyncRequest();
+    // request.setRequestID(REQUESTID_TEST);
+    // request.setReturnData(ReturnData.DATA);
+    // BulkSyncResponse response = psp.execute(request);
+    // System.out.println(psp.toXML(response));
 
     // verifySpml(response, DATA_PATH +
     // "PSPLdapNotADTest.testBulkSyncBushyAddSubgroupPhasing.response.xml");

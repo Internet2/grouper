@@ -15,7 +15,6 @@
 
 package edu.internet2.middleware.ldappc.configuration;
 
-import edu.internet2.middleware.grouper.xml.userAudit.XmlUserAuditExportTest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

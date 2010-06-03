@@ -235,9 +235,9 @@ public class PSPCLITest extends BaseProvisioningTest {
 
     PSPCLI pspCLI = new PSPCLI(options);
 
-    Timer timer = pspCLI.getTimer();
-
     pspCLI.schedule();
+    
+    Timer timer = pspCLI.getTimer();
 
     // sleep for 6s, should process 3 intervals
     Thread.sleep(6 * 1000);

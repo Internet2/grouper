@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package edu.internet2.middleware.ldappc.spml;
+package edu.internet2.middleware.ldappc.spml.ad;
 
 import org.openspml.v2.msg.spml.StatusCode;
 
@@ -20,6 +20,8 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.ldappc.LdappcTestHelper;
+import edu.internet2.middleware.ldappc.spml.BasePSPProvisioningTest;
+import edu.internet2.middleware.ldappc.spml.PSPLdapTest;
 import edu.internet2.middleware.ldappc.spml.request.BulkSyncRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkSyncResponse;
 import edu.internet2.middleware.ldappc.spml.request.CalcRequest;
