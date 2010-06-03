@@ -1641,7 +1641,11 @@ public class XmlImporter {
       e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION),
       id
     );
+    NodeList descriptionNodeList = e.getElementsByTagName(GrouperConfig.ATTRIBUTE_DESCRIPTION);
     String                  desc  = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
+    if (descriptionNodeList.getLength() == 1) {
+      desc = descriptionNodeList.item(0).getTextContent();
+    }
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
     if (v.isValid()) {
       child.setDescription(desc);

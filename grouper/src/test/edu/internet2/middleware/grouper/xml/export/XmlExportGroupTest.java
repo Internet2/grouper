@@ -51,8 +51,8 @@ public class XmlExportGroupTest extends GrouperTest {
    */
   public static void main(String[] args) {
 
-    TestRunner.run(XmlExportGroupTest.class);
-    //TestRunner.run(new XmlExportGroupTest("testConvertToString"));
+    //TestRunner.run(XmlExportGroupTest.class);
+    TestRunner.run(new XmlExportGroupTest("testConvertToGroup"));
 
   }
   
@@ -129,7 +129,7 @@ public class XmlExportGroupTest extends GrouperTest {
     assertEquals("displayName", group.getDisplayName());
     assertEquals("extension", group.getExtension());
     assertEquals(new Long(3L), group.getHibernateVersionNumber());
-    assertEquals(new Long(4L), group.getLastMembershipChangeDb());
+    assertEquals(null, group.getLastMembershipChangeDb());
     assertEquals("modifierId", group.getModifierUuid());
     assertEquals(6L, group.getModifyTimeLong());
     assertEquals("name", group.getName());
