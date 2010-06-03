@@ -15,19 +15,19 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
-public class StemDataConnectorTests extends BaseDataConnectorTest {
+public class StemDataConnectorTest extends BaseDataConnectorTest {
 
-  private static final Logger LOG = GrouperUtil.getLogger(StemDataConnectorTests.class);
+  private static final Logger LOG = GrouperUtil.getLogger(StemDataConnectorTest.class);
 
-  public static final String RESOLVER_CONFIG = TEST_PATH + "StemDataConnectorTests-resolver.xml";
+  public static final String RESOLVER_CONFIG = TEST_PATH + "StemDataConnectorTest-resolver.xml";
 
-  public StemDataConnectorTests(String name) {
+  public StemDataConnectorTest(String name) {
     super(name);
   }
 
   public static void main(String[] args) {
-    TestRunner.run(StemDataConnectorTests.class);
-    // TestRunner.run(new StemDataConnectorTests("testAttributeDef"));
+    TestRunner.run(StemDataConnectorTest.class);
+    // TestRunner.run(new StemDataConnectorTest("testAttributeDef"));
   }
   
   private void runResolveTest(String groupDataConnectorName, Stem stem, AttributeMap correctMap) {

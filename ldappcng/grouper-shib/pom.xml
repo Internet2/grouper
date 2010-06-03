@@ -18,9 +18,6 @@
             <name>Internet2</name>
             <layout>default</layout>
             <url>http://shibboleth.internet2.edu/downloads/maven2</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
     </repositories>
 
@@ -34,18 +31,16 @@
         <dependency>
             <groupId>edu.internet2.middleware</groupId>
             <artifactId>shibboleth-common</artifactId>
-            <!-- Waiting for 1.2.0. -->
-            <version>1.1.4</version>
+            <version>1.2.0-ldappc</version>
             <exclusions>
                 <!-- Exclude logback in lieu of sl4j-log4j12 binding. -->
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
-                <!-- Won't be necessary for 1.2.0 -->
                 <exclusion>
-                    <groupId>edu.vt.middleware</groupId>
-                    <artifactId>vt-ldap</artifactId>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -76,6 +71,10 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <grouper.dir>../grouper_trunk</grouper.dir>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -96,12 +95,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <includes>
-                        <include>**/AllShibbolethTests.java</include>
-                    </includes>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>../grouper_trunk/confForTest</additionalClasspathElement>
-                        <additionalClasspathElement>../grouper_trunk/conf</additionalClasspathElement>
+                        <additionalClasspathElement>${grouper.dir}/confForTest</additionalClasspathElement>
+                        <additionalClasspathElement>${grouper.dir}/conf</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
             </plugin>

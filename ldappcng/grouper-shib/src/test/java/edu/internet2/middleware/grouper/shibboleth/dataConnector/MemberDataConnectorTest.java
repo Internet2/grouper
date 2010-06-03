@@ -19,19 +19,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.subject.Subject;
 
-public class MemberDataConnectorTests extends BaseDataConnectorTest {
+public class MemberDataConnectorTest extends BaseDataConnectorTest {
 
-  private static final Logger LOG = GrouperUtil.getLogger(MemberDataConnectorTests.class);
+  private static final Logger LOG = GrouperUtil.getLogger(MemberDataConnectorTest.class);
 
-  public static final String RESOLVER_CONFIG = TEST_PATH + "MemberDataConnectorTests-resolver.xml";
+  public static final String RESOLVER_CONFIG = TEST_PATH + "MemberDataConnectorTest-resolver.xml";
 
-  public MemberDataConnectorTests(String name) {
+  public MemberDataConnectorTest(String name) {
     super(name);
   }
 
   public static void main(String[] args) {
-    TestRunner.run(MemberDataConnectorTests.class);
-    // TestRunner.run(new MemberDataConnectorTests("testAttributeDef"));
+    TestRunner.run(MemberDataConnectorTest.class);
+    // TestRunner.run(new MemberDataConnectorTest("testAttributeDef"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Subject subject, AttributeMap correctMap) {
@@ -51,7 +51,7 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
 
   public void testUnknownSource() {
     try {
-      BaseDataConnectorTest.createSpringContext(TEST_PATH + "MemberDataConnectorTests-unknownSource.xml");
+      BaseDataConnectorTest.createSpringContext(TEST_PATH + "MemberDataConnectorTest-unknownSource.xml");
       fail("Should throw a BeanCreationException");
     } catch (BeanCreationException e) {
       // OK
@@ -62,7 +62,7 @@ public class MemberDataConnectorTests extends BaseDataConnectorTest {
   
   public void testUnknownSourceIdentifier() {
     try {
-      BaseDataConnectorTest.createSpringContext(TEST_PATH + "MemberDataConnectorTests-unknownSourceIdentifier.xml");
+      BaseDataConnectorTest.createSpringContext(TEST_PATH + "MemberDataConnectorTest-unknownSourceIdentifier.xml");
       fail("Should throw a BeanCreationException");
     } catch (BeanCreationException e) {
       // OK
