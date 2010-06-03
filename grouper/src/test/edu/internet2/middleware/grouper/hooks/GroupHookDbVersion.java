@@ -56,8 +56,6 @@ public class GroupHookDbVersion extends GroupHooks {
       return false;
     }
 
-    //System.out.println(group.dbVersion().getExtension());
-    
     final String currentExtension = group.getExtension();
     
     int dbDifferentFieldsSize = group.dbVersionDifferentFields().size();

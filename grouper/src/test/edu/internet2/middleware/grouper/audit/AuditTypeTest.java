@@ -60,7 +60,6 @@ public class AuditTypeTest extends GrouperTest {
 //            Query query =  session.createQuery("from AuditType2 where labelString01 = 's1'");
 //
 //            AuditType auditType2 = (AuditType)query.uniqueResult();
-//            System.out.println(auditType2);
 //            return null;
 //          }
 //    });

@@ -117,7 +117,7 @@
 
   <target name="ldappcng" description="after 'mvn package -DskipTests' in ldappcng, run this target to copy the conf and libs to grouper for gsh">
     <!-- unzip ldappcng distribution -->
-    <mkdir dir="${ldappcng.dir}" />      
+    <mkdir dir="${ldappcng.dir}" />
     <if>
       <available file="${ldappcng.basedir}/target/ldappcng-${version}-bin.zip" />
       <then>
@@ -134,20 +134,20 @@
         <fail message="Could not find ldappcng binary package, try 'mvn package -DskipTests' in ${ldappcng.basedir}" />
       </else>
     </if>
-    
+
     <!-- copy jars -->    
     <foreach target="ldappcng.copyJar" param="file">
       <path>
-        <fileset dir="${ldappcng.dir}/ldappcng-${version}/lib">
+      <fileset dir="${ldappcng.dir}/ldappcng-${version}/lib">
           <include name="**/*.jar"/>
-          <exclude name="grouper*.jar" />
-          <exclude name="subject*.jar" />
-          <exclude name="morphString*.jar" />
-        </fileset>
+        <exclude name="grouper*.jar" />
+        <exclude name="subject*.jar" />
+        <exclude name="morphString*.jar" />
+      </fileset>
       </path>
     </foreach>
   </target>
-  
+
   <target name="ldappcng.copyJar" description="copy jar to lib/custom if it does not exist already" >
     <!-- basename is "file-version.jar" -->
     <basename file="${file}" property="basename"/>
@@ -168,7 +168,7 @@
        </then>
     </if>
   </target>
-
+  
   <!-- target: compile -->
   <target name="compile" 
           description="Compile .java files, copy Hibernate mapping files"
@@ -688,7 +688,6 @@
       <fileset dir="${ext.dir.lib}">
         <include name="**/*.jar"/>
       </fileset>
-      <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>

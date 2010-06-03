@@ -8,7 +8,6 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  *
@@ -16,11 +15,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GroupQuery {
 
   /** */
+  @SuppressWarnings("unused")
   private static final String KLASS = GroupQuery.class.getName();
 
   /**
    * @param args
    */
+  @SuppressWarnings("unused")
   public static void main(String[] args) {
     List<Group> groups = HibernateSession.byHqlStatic().createQuery(
         "select g from Group as g, Attribute as a, Field as field " +
@@ -28,7 +29,7 @@ public class GroupQuery {
         "and field.uuid = a.fieldId and field.name = :field and lower(a.value) like :value"
       ).setString("field", "name")
       .setString( "value", "%Group%".toLowerCase() ).list(Group.class);
-    System.out.println(GrouperUtil.toStringForLog(groups));
+//    System.out.println(GrouperUtil.toStringForLog(groups));
   }
 
 }

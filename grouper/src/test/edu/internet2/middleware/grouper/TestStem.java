@@ -1562,8 +1562,6 @@ public class TestStem extends GrouperTest {
     HibernateSession.bySqlStatic().executeSql(
         "update grouper_stems set extension = 'abc' where id = ?", HibUtils.listObject(edu.getUuid()));
 
-    //System.out.println("updated stem");
-    
     //NOTE: make sure this is set in grouper.hibernate.properties: hibernate.cache.use_query_cache = true  
     //NOTE: make sure the ehcache.xml is like the example in regards to Stem caching
     

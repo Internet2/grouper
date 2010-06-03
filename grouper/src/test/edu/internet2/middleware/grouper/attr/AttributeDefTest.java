@@ -144,23 +144,12 @@ public class AttributeDefTest extends GrouperTest {
     ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
     ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
 
-//    this.group.addMember(SubjectTestHelper.SUBJ3);
-//    this.group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
-//    this.grouperSession.stop();
-//    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
-//    System.out.println(this.group.hasAdmin(SubjectTestHelper.SUBJ1));
-//    System.out.println(this.group.hasRead(SubjectTestHelper.SUBJ0));
-//    System.out.println(this.group.hasAdmin(SubjectTestHelper.SUBJ0));
-//    System.out.println(PrivilegeHelper.isWheelOrRoot(SubjectTestHelper.SUBJ0));
-//    System.out.println(this.group.getMembers());
     
     AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
     this.group.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.ADMIN);
 
     this.grouperSession.stop();
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
-    
-    System.out.println(this.group.hasAdmin(SubjectTestHelper.SUBJ1));
     
     try {
       attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, true);

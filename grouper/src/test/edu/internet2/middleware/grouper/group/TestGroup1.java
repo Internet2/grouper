@@ -1067,8 +1067,8 @@ public class TestGroup1 extends GrouperTest {
     }
     
     //print timer report
+    @SuppressWarnings("unused")
     Monitor monitor = MonitorFactory.getMonitor(monitorLabel, "ms.");
-    System.out.println("Stats:\n" + monitor);
     
   }
 
@@ -1179,10 +1179,8 @@ public class TestGroup1 extends GrouperTest {
     Group group1 = GroupFinder.findByName(grouperSession, "i2:a:a", true);
     Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b", true);
     Group group3 = GroupFinder.findByName(grouperSession, "i2:a:c", true);
-    //System.out.println(group1);
     
     Subject subject = SubjectFinder.findById("a", true);
-    //System.out.println(GrouperUtil.subjectToString(subject));
     
     group1.grantPriv(subject, AccessPrivilege.ADMIN);
     group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
@@ -1217,13 +1215,11 @@ public class TestGroup1 extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Group group1 = GroupFinder.findByName(grouperSession, "i2:a:a", true);
     Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b", true);
-    //System.out.println(group1);
     
     Stem stem = StemFinder.findByName(grouperSession, "i2", true);
     
     
     Subject subject = SubjectFinder.findById("a", true);
-    //System.out.println(GrouperUtil.subjectToString(subject));
     
     group1.grantPriv(subject, AccessPrivilege.ADMIN);
     group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
@@ -1770,7 +1766,6 @@ public class TestGroup1 extends GrouperTest {
   
           });
   
-      //System.out.println(anythingString + ", " + someInt[0]);
     }
 
 }

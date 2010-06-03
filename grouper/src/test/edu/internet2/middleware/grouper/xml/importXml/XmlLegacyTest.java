@@ -294,8 +294,6 @@ public class XmlLegacyTest extends GrouperTest {
       XmlImportMain xmlImportMain = new XmlImportMain();
       xmlImportMain.setRecordReport(true);
       
-      System.out.println(xml);
-      
       xmlImportMain.processXml(xml);
       s.stop();
   
@@ -426,7 +424,6 @@ public class XmlLegacyTest extends GrouperTest {
       xmlExportMain.writeAllTables(w, "a string");
       
       String xml = w.toString();
-      System.out.println(xml);
       
       s.stop();
   
@@ -1174,7 +1171,7 @@ public class XmlLegacyTest extends GrouperTest {
       xmlExportMain.writeAllTables(w, "a string");
       
       String xml = w.toString();
-      System.out.println(xml);
+
       s.stop();
 
       // Reset And Verify

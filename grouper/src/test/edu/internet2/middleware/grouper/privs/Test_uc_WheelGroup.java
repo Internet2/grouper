@@ -140,11 +140,9 @@ public class Test_uc_WheelGroup extends GrouperTest {
     String wheelUuid = wheel.getUuid();
     Group wheelGroup = GroupFinder.findByUuid(grouperSession,wheelUuid, true);
     
-    //System.out.println("##############  Before adding member  ##############");
     try {
       wheelGroup.addMember( this.subjA );
     } finally {
-      //System.out.println("##############  After adding member  ##############");
     }
     
     // start session and turn on wheel

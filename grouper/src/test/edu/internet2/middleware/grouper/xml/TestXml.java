@@ -2066,7 +2066,7 @@ public class TestXml extends GrouperTest {
       XmlExporter exporter = new XmlExporter(s, new Properties());
       exporter.export(w);
       String xml = w.toString();
-      System.out.println(xml);
+
       s.stop();
 
       // Reset And Verify
