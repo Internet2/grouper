@@ -452,8 +452,9 @@ public class LdapTargetProvider extends BaseSpmlTargetProvider {
       lookupResponse.setPso(getPSO(entry, lookupRequest.getReturnData()));
 
     } catch (NameNotFoundException e) {
-      fail(lookupResponse, ErrorCode.NO_SUCH_IDENTIFIER, e);
+      fail(lookupResponse, ErrorCode.NO_SUCH_IDENTIFIER);
       LOG.error(PSPUtil.toString(lookupResponse));
+      LOG.debug(PSPUtil.toString(lookupResponse), e);
       if (this.isLogSpml()) LOG.info("\n{}", this.toXML(lookupResponse));
       return lookupResponse;
     } catch (LdapPoolException e) {
