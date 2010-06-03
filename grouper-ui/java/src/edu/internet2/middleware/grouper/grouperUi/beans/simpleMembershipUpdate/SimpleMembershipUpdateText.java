@@ -533,7 +533,7 @@ public class SimpleMembershipUpdateText {
    * @return the label
    */
   public String getDownloadSubjectIdsLabel() {
-    return text("simpleMembershipUpdate.");
+    return text("simpleMembershipUpdate.downloadSubjectIdsLabel");
   }
 
   /**
