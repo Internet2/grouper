@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
@@ -50,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupDataConnector extends BaseGrouperDataConnector {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(GroupDataConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GroupDataConnector.class);
 
   /** {@inheritDoc} */
   public Map<String, BaseAttribute> resolve(final ShibbolethResolutionContext resolutionContext)

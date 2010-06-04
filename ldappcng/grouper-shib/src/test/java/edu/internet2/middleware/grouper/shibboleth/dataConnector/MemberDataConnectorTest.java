@@ -6,6 +6,7 @@ import junit.textui.TestRunner;
 
 import org.opensaml.util.resource.ResourceException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.GenericApplicationContext;
 
@@ -21,7 +22,7 @@ import edu.internet2.middleware.subject.Subject;
 
 public class MemberDataConnectorTest extends BaseDataConnectorTest {
 
-  private static final Logger LOG = GrouperUtil.getLogger(MemberDataConnectorTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MemberDataConnectorTest.class);
 
   public static final String RESOLVER_CONFIG = TEST_PATH + "MemberDataConnectorTest-resolver.xml";
 

@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -43,7 +44,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.da
 public class StemDataConnector extends BaseGrouperDataConnector {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(StemDataConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StemDataConnector.class);
 
   private Stem rootStem;
 

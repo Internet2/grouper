@@ -5,6 +5,7 @@ import java.util.Map;
 import junit.textui.TestRunner;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.GenericApplicationContext;
 
 import edu.internet2.middleware.grouper.Stem;
@@ -17,7 +18,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
 public class StemDataConnectorTest extends BaseDataConnectorTest {
 
-  private static final Logger LOG = GrouperUtil.getLogger(StemDataConnectorTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StemDataConnectorTest.class);
 
   public static final String RESOLVER_CONFIG = TEST_PATH + "StemDataConnectorTest-resolver.xml";
 
