@@ -21,12 +21,11 @@ import org.openspml.v2.util.Spml2Exception;
 import org.openspml.v2.util.xml.ObjectFactory;
 import org.openspml.v2.util.xml.UnknownSpml2TypeException;
 import org.slf4j.Logger;
-
-import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.slf4j.LoggerFactory;
 
 public class LdappcMarshallableCreator implements ObjectFactory.MarshallableCreator {
 
-  private static final Logger LOG = GrouperUtil.getLogger(LdappcMarshallableCreator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdappcMarshallableCreator.class);
 
   public static final String URI = "http://grouper.internet2.edu/ldappc";
 

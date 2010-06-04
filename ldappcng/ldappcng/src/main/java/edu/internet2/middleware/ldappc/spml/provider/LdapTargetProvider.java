@@ -63,6 +63,7 @@ import org.openspml.v2.profiles.dsml.DSMLProfileException;
 import org.openspml.v2.profiles.dsml.DSMLValue;
 import org.openspml.v2.util.Spml2Exception;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -90,7 +91,7 @@ import edu.vt.middleware.ldap.pool.LdapPoolException;
 
 public class LdapTargetProvider extends BaseSpmlTargetProvider {
 
-  private static final Logger LOG = GrouperUtil.getLogger(LdapTargetProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapTargetProvider.class);
 
   private String ldapPoolId;
 

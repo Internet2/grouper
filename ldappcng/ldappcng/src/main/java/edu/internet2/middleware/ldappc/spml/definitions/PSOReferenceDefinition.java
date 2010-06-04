@@ -28,9 +28,9 @@ import org.openspml.v2.msg.spml.SchemaEntityRef;
 import org.openspml.v2.msg.spml.StatusCode;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.shibboleth.util.OnNotFound;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSPContext;
 import edu.internet2.middleware.ldappc.spml.request.CalcRequest;
@@ -40,7 +40,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
 public class PSOReferenceDefinition {
 
-  private static final Logger LOG = GrouperUtil.getLogger(PSOReferenceDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSOReferenceDefinition.class);
 
   private String ref;
 

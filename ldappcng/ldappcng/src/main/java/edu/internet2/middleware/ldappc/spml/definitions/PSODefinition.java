@@ -29,15 +29,15 @@ import org.openspml.v2.msg.spmlref.Reference;
 import org.openspml.v2.profiles.dsml.DSMLAttr;
 import org.openspml.v2.util.Spml2Exception;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSPContext;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 public class PSODefinition {
 
-  private static final Logger LOG = GrouperUtil.getLogger(PSODefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSODefinition.class);
 
   private String id;
 

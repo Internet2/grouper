@@ -26,14 +26,14 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.openspml.v2.msg.spmlref.Reference;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSPContext;
 
 public class PSOReferencesDefinition {
 
-  private static final Logger LOG = GrouperUtil.getLogger(PSOReferencesDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSOReferencesDefinition.class);
 
   private String name;
 

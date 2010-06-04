@@ -27,8 +27,8 @@ import javax.naming.directory.ModificationItem;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
@@ -40,8 +40,7 @@ import edu.internet2.middleware.ldappc.util.LdapUtil;
  */
 public class StringMembershipSynchronizer {
 
-  private static final Logger LOG = GrouperUtil
-      .getLogger(StringMembershipSynchronizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StringMembershipSynchronizer.class);
 
   private Ldappc ldappc;
 

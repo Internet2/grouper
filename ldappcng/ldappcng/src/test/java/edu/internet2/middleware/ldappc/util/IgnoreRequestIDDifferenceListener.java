@@ -17,13 +17,12 @@ package edu.internet2.middleware.ldappc.util;
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
-
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class IgnoreRequestIDDifferenceListener implements DifferenceListener {
 
-  private static final Logger LOG = GrouperUtil.getLogger(IgnoreRequestIDDifferenceListener.class);
+  private static final Logger LOG = LoggerFactory.getLogger(IgnoreRequestIDDifferenceListener.class);
 
   public static final String NODE_NAME = "requestID";
 

@@ -21,6 +21,7 @@ import javax.xml.namespace.QName;
 
 import org.opensaml.xml.util.XMLHelper;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -28,14 +29,13 @@ import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.definitions.PSODefinition;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 
 public class PSODefinitionBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-  private static final Logger LOG = GrouperUtil.getLogger(PSODefinitionBeanDefinitionParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSODefinitionBeanDefinitionParser.class);
 
   public static final QName TYPE_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "object");
 

@@ -17,17 +17,17 @@ package edu.internet2.middleware.ldappc.spml.config;
 import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.spml.provider.LdapTargetProvider;
 import edu.internet2.middleware.shibboleth.common.config.service.AbstractServiceBeanDefinitionParser;
 
 public class LdapTargetProviderBeanDefinitionParser extends AbstractServiceBeanDefinitionParser {
 
-  private static final Logger LOG = GrouperUtil.getLogger(LdapTargetProviderBeanDefinitionParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdapTargetProviderBeanDefinitionParser.class);
 
   public static final QName TYPE_NAME = new QName(LdappcNamespaceHandler.NAMESPACE, "LdapPoolProvider");
 

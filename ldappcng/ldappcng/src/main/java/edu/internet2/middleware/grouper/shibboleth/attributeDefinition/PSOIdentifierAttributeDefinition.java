@@ -19,8 +19,8 @@ import java.util.Collection;
 
 import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.BasicAttribute;
@@ -38,7 +38,7 @@ public class PSOIdentifierAttributeDefinition extends BaseAttributeDefinition {
   // TODO containerID ? targetID ?
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(PSOIdentifierAttributeDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSOIdentifierAttributeDefinition.class);
 
   /** {@inheritDoc} */
   protected BaseAttribute<PSOIdentifier> doResolve(ShibbolethResolutionContext resolutionContext)

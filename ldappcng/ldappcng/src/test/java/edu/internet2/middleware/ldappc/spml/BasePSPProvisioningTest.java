@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.openspml.v2.msg.Marshallable;
 import org.openspml.v2.util.Spml2Exception;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -47,7 +48,7 @@ import edu.vt.middleware.ldap.pool.LdapPool;
 public abstract class BasePSPProvisioningTest extends BaseProvisioningTest {
 
   /** logger */
-  protected static final Logger LOG = GrouperUtil.getLogger(BasePSPProvisioningTest.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(BasePSPProvisioningTest.class);
 
   /** Test SPML request ID. */
   public static final String REQUESTID_TEST = "REQUESTID_TEST";

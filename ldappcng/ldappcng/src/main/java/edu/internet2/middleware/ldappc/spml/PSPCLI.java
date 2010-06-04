@@ -28,6 +28,7 @@ import org.opensaml.util.resource.ResourceException;
 import org.openspml.v2.msg.spml.Request;
 import org.openspml.v2.msg.spml.Response;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.spml.request.BulkProvisioningRequest;
@@ -38,7 +39,7 @@ import edu.internet2.middleware.ldappc.spml.request.BulkProvisioningRequest;
 public class PSPCLI extends TimerTask {
 
   /** Logger. */
-  private static final Logger LOG = GrouperUtil.getLogger(PSPCLI.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSPCLI.class);
 
   /** The provisioning service provider. */
   private PSP psp;

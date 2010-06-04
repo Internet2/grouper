@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import org.apache.directory.shared.ldap.util.LdapURL;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -35,7 +36,7 @@ import edu.vt.middleware.ldap.Ldap;
 public abstract class BaseProvisioningTest extends GrouperTest {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(BaseProvisioningTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BaseProvisioningTest.class);
 
   /** Resource location for test configuration. */
   public String confDir;

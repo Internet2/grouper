@@ -53,6 +53,7 @@ import org.opensaml.util.resource.FilesystemResource;
 import org.opensaml.util.resource.Resource;
 import org.opensaml.util.resource.ResourceException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.GenericApplicationContext;
 
@@ -103,7 +104,7 @@ public final class Ldappc extends TimerTask {
   /**
    * Logger.
    */
-  private static final Logger LOG = GrouperUtil.getLogger(Ldappc.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Ldappc.class);
 
   /**
    * The command line options.

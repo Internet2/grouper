@@ -25,6 +25,7 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
@@ -38,7 +39,7 @@ import edu.vt.middleware.ldap.LdapConfig;
 public class EmbeddedApacheDS {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(EmbeddedApacheDS.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EmbeddedApacheDS.class);
 
   /** the eduMember schema ldif */
   public static final String EDUMEMBER_SCHEMA = "/test/edu/internet2/middleware/ldappc/eduMember.ldif";

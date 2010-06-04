@@ -66,6 +66,7 @@ import org.openspml.v2.msg.XMLMarshaller;
 import org.openspml.v2.msg.XMLUnmarshaller;
 import org.openspml.v2.util.xml.UnknownSpml2TypeException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
@@ -78,7 +79,7 @@ import edu.vt.middleware.ldap.ldif.Ldif;
 
 public class LdappcTestHelper {
 
-  private static final Logger LOG = GrouperUtil.getLogger(LdappcTestHelper.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LdappcTestHelper.class);
 
   /**
    * Rewrite the given string containing macros of the form ${key} with the properties
