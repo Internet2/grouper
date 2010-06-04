@@ -88,8 +88,6 @@ import org.apache.log4j.FileAppender;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -488,18 +486,6 @@ public class GrouperUtil {
   }
   
   /**
-   * Get an SLF4J logger, and auto-create log dirs if necessary.
-   * SLF4J may provide easier coding via {} instead of " + "
-   * and better performance.
-   * @param theClass
-   * @return the logger
-   */
-  public static Logger getLogger(Class<?> theClass) {
-    logDirsCreateIfNotDone();
-    return LoggerFactory.getLogger(theClass);
-  }
-  
-  /**
    * see if created log dirs
    */
   private static boolean logDirsCreated = false;
@@ -508,7 +494,7 @@ public class GrouperUtil {
   /**
    * auto-create log dirs if not done yet
    */
-  private static void logDirsCreateIfNotDone() {
+  public static void logDirsCreateIfNotDone() {
     if (logDirsCreated) {
       return;
     }

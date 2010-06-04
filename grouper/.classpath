@@ -58,8 +58,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-jexl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/smack.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-codec.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-api.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-util.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api.jar"/>
