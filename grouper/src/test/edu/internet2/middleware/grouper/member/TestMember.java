@@ -16,7 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.member;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -33,11 +35,13 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -79,7 +83,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new TestMember("testGetMembershipsComplex2"));
   }
   
   /** logger */
@@ -423,6 +427,69 @@ public class TestMember extends GrouperTest {
       }
     }
     return count;
+  }
+
+  /**
+   * <pre>
+   * edu(f)
+   * edu:comp1
+   * edu:compLeft
+   * edu:compRight
+   * edu:eduSub(f)
+   * edu:eduSub:i2sub
+   * edu:i2
+   * edu:uofc
+   * edu2(f)
+   * 
+   * 
+   * </pre>
+   */
+  public void testGetMembershipsComplex2() {
+    GrouperSession  grouperSession     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(grouperSession);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    
+    List<Group> groups = new ArrayList<Group>();
+    List<String> groupIds = new ArrayList<String>();
+
+    List<Member> members = new ArrayList<Member>();
+    List<String> memberIds = new ArrayList<String>();
+    
+    for (int i=0;i<150;i++) {
+      String id = "testId" + i;
+      Subject subject = SubjectFinder.findById(id, false);
+      if (subject == null) {
+        subject = RegistrySubject.add( grouperSession, id, "person", "name_" + id );
+        subject = SubjectFinder.findById(id, true);
+      }
+      Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+      members.add(member);
+      memberIds.add(member.getUuid());
+    }
+
+    List<Membership> memberships = new ArrayList<Membership>();
+    List<String> membershipIds = new ArrayList<String>();
+    
+    for (int i=0;i<150;i++) {
+      Group group = edu.addChildGroup("i" + i, "i" + i);
+      groups.add(group);
+      groupIds.add(group.getId());
+      String id = "testId" + i;
+      Subject subject = SubjectFinder.findById(id, true);
+      group.addMember(subject);
+      Membership membership = group.getImmediateMembership(Group.getDefaultList(), subject, true, true);
+      memberships.add(membership);
+      membershipIds.add(membership.getUuid());
+    }
+    
+    //Set<Group> groups = member.getImmediateGroups();
+    Set<Object[]> results = GrouperDAOFactory.getFactory().getMembership()
+      .findAllByGroupOwnerOptions(null, 
+        memberIds, null, null, null, null, null, null, null, true);
+    
+    assertEquals(150, results.size());
+    assertEquals(1, membershipArrayHasGroup(results, groups.get(0)));
+    
   }
   
   /**

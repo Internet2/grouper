@@ -378,10 +378,10 @@ TODO update for 1.5
     throws  GrouperDAOException;
 
   /**
-   * find membershpis by group owner and other options.  Note you cant pass in more than 100 groupIds, or memberIds.  
-   * @param groupIds to limit memberships to (cant have more than 100 bind variables)
-   * @param memberIds to limit memberships to (cant have more than 100 bind variables)
-   * @param membershipIds to limit memberships to (cant have more than 100 bind variables)
+   * find membershpis by group owner and other options.  
+   * @param groupIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
    * @param membershipType Immediate, NonImmediate, etc
    * @param field if finding one field, list here, otherwise all list fields will be returned
    * @param sources if limiting memberships of members in certain sources, list here
