@@ -32,6 +32,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 
 
 /**
@@ -122,8 +125,12 @@ public class PopulateEditGroupAttributesAction extends GrouperCapableAction {
   		request.setAttribute("group",GrouperHelper.group2Map(grouperSession,group));
   		request.setAttribute("browseParent",GrouperHelper.group2Map(grouperSession,group));
 		session.setAttribute("subtitle","groups.action.edit-attr");
-		Map allowedFields = GrouperHelper.getFieldsForGroup(grouperSession,group,"write");
-		request.setAttribute("allowedFields",allowedFields);
+		UIGroupPrivilegeResolver resolver = 
+			UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
+			    GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
+					                                    group, grouperSession.getSubject());
+		request.setAttribute("groupPrivResolver", resolver.asMap());
+		
     return mapping.findForward(FORWARD_EditGroupAttributes);
 
     
