@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -361,27 +362,40 @@ public class LdappcTestHelper {
       throws NamingException {
     Iterator<EntryAttribute> iterator = entry.iterator();
     while (iterator.hasNext()) {
-      Set<String> toAdd = new HashSet<String>();
-      Set<String> toRemove = new HashSet<String>();
       EntryAttribute entryAttribute = iterator.next();
-      if (dnAttributeNames.contains(entryAttribute.getId())) {
-        Iterator<Value<?>> valueIterator = entryAttribute.getAll();
-        while (valueIterator.hasNext()) {
-          Value<?> value = valueIterator.next();
-          String oldValue = value.getString();
-          String newValue = new LdapDN(value.get().toString()).toNormName();
-          if (!oldValue.equals(newValue)) {
-            toRemove.add(value.getString());
-            toAdd.add(new LdapDN(value.get().toString()).toNormName());
-          }
+      normalizeDNValues(entryAttribute, dnAttributeNames);
+    }
+  }
+  
+  /**
+   * Normalize values as DNs for the given attribute if the attribute's name matches the collection of names. Probably
+   * this method should use the ApacheDS Normalization.
+   * 
+   * @param entryAttribute
+   * @param dnAttributeNames
+   * @throws InvalidNameException
+   */
+  public static void normalizeDNValues(EntryAttribute entryAttribute, Collection<String> dnAttributeNames)
+      throws InvalidNameException {
+    Set<String> toAdd = new HashSet<String>();
+    Set<String> toRemove = new HashSet<String>();
+    if (dnAttributeNames.contains(entryAttribute.getId())) {
+      Iterator<Value<?>> valueIterator = entryAttribute.getAll();
+      while (valueIterator.hasNext()) {
+        Value<?> value = valueIterator.next();
+        String oldValue = value.getString();
+        String newValue = new LdapDN(value.get().toString()).toNormName();
+        if (!oldValue.equals(newValue)) {
+          toRemove.add(value.getString());
+          toAdd.add(new LdapDN(value.get().toString()).toNormName());
         }
       }
-      if (!toAdd.isEmpty()) {
-        entryAttribute.add(toAdd.toArray(new String[] {}));
-      }
-      if (!toRemove.isEmpty()) {
-        entryAttribute.remove(toRemove.toArray(new String[] {}));
-      }
+    }
+    if (!toAdd.isEmpty()) {
+      entryAttribute.add(toAdd.toArray(new String[] {}));
+    }
+    if (!toRemove.isEmpty()) {
+      entryAttribute.remove(toRemove.toArray(new String[] {}));
     }
   }
 
@@ -392,11 +406,15 @@ public class LdappcTestHelper {
    * @param dnAttributeNames
    * @throws NamingException
    */
-  public static void normalizeDNValues(Collection<LdifEntry> ldifEntries,
-      Collection<String> dnAttributeNames) throws NamingException {
+  public static void normalizeDNValues(Collection<LdifEntry> ldifEntries, Collection<String> dnAttributeNames)
+      throws NamingException {
     for (LdifEntry ldifEntry : ldifEntries) {
       if (ldifEntry.isEntry()) {
         normalizeDNValues(ldifEntry.getEntry(), dnAttributeNames);
+      } else if (ldifEntry.isChangeModify()) {
+        for (Modification modification : ldifEntry.getModificationItems()) {
+          normalizeDNValues(modification.getAttribute(), dnAttributeNames);
+        }
       }
     }
   }
