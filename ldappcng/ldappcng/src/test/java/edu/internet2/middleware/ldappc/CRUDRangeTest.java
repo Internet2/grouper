@@ -70,7 +70,7 @@ public class CRUDRangeTest extends BaseLdappcTestCase {
       groupC.addMember(SubjectFinder.findById("test.subject." + i, true));
     }
 
-    File ldif = dryRun(GroupDNStructure.bushy, true);
+    File ldif = dryRun(GroupDNStructure.bushy);
 
     verifyLdif("CRUDRangeTest.testADGroup3000DryRun.ldif", ldif);
 
