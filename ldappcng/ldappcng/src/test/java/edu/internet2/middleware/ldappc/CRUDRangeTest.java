@@ -1,6 +1,7 @@
 package edu.internet2.middleware.ldappc;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -49,11 +50,13 @@ public class CRUDRangeTest extends BaseLdappcTestCase {
       return;
     }
 
+    loadLdif("CRUDTest.before.ldif");
+    
     int subjects = 3002;
 
     String personLdif = LdappcTestHelper.readFile(getFile("CRUDTest.person.ldif"));
-
-    for (int i = 0; i < subjects; i++) {
+    
+    for (int i = 2; i < subjects; i++) {
       String loadLdif = personLdif.replace("${i}", Integer.toString(i));
       LdappcTestHelper.loadLdif(loadLdif, propertiesFile, ldappc.getContext());
     }
@@ -77,6 +80,16 @@ public class CRUDRangeTest extends BaseLdappcTestCase {
 
     provision(GroupDNStructure.bushy, true);
 
-    verifyLdif("CRUDRangeTest.testADGroup3000.after.ldif");
+    StringBuffer afterLdif = new StringBuffer();
+    afterLdif.append(LdappcTestHelper.readFile(getFile("CRUDRangeTest.testADGroup3000.after.ldif")));
+    for (int i = 2; i < subjects; i++) {
+      afterLdif.append(personLdif.replace("${i}", Integer.toString(i)));
+    }
+    
+    ArrayList<String> normalizeDnAttributes = new ArrayList<String>();
+    normalizeDnAttributes.add(ldappc.getConfig().getGroupMembersDnListAttribute());
+    
+    LdappcTestHelper.verifyLdif(afterLdif.toString(), propertiesFile, normalizeDnAttributes,
+        base, ldappc.getContext(), useActiveDirectory());
   }
 }
