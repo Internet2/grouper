@@ -129,6 +129,9 @@ public abstract class BaseLdappcTestCase extends GrouperTest {
     root = StemHelper.findRootStem(grouperSession);
     edu = StemHelper.addChildStem(root, "edu", "education");
   }
+  
+  /** Print test LDAP URL once. */
+  private static boolean displayed;
 
   public void setUpLdapContext() throws Exception {
 
@@ -156,15 +159,25 @@ public abstract class BaseLdappcTestCase extends GrouperTest {
 
       ldap = embeddedApacheDS.getNewLdap();
     } else {
-      String providerUrl = GrouperUtil.propertiesValue(properties,
-          "edu.vt.middleware.ldap.ldapUrl");
-      String user = GrouperUtil.propertiesValue(properties,
-          "edu.vt.middleware.ldap.serviceUser");
+      String providerUrl = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.ldapUrl");
+      String user = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.serviceUser");
 
       base = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.base");
 
-      GrouperUtil.promptUserAboutChanges("test ldap and destroy everything under '"
-          + base + "'", true, "ldap", providerUrl, user);
+      // maven doesn't read from stdin when forkMode is not never
+      // GrouperUtil.promptUserAboutChanges("test ldap and destroy everything under '"
+      // + base + "'", true, "ldap", providerUrl, user);
+
+      if (!displayed) {
+        System.out.println();
+        System.out.println("Testing the following LDAP server - will delete everything !");
+        System.out.println("ldap : " + providerUrl);
+        System.out.println("user : " + user);
+        System.out.println("base : " + base);        
+        System.out.println();
+        Thread.sleep(1000);
+        displayed = true;
+      }
 
       ldap = new Ldap();
       ldap.loadFromProperties(new FileInputStream(propertiesFile));
