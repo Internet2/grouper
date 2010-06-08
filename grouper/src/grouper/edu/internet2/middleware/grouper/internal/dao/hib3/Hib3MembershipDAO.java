@@ -33,6 +33,7 @@ import org.hibernate.Session;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -2058,6 +2059,57 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         .setString("theContextId", membership.getContextId())
         .setString("theImmediateMembershipId", membership.getImmediateMembershipId())
         .executeUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findSourceIdsByGroupOwnerOptions(java.lang.String, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, java.lang.Boolean)
+   */
+  public Set<String> findSourceIdsByGroupOwnerOptions(String groupId,
+      MembershipType membershipType, Field field, Boolean enabled) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    Group group = GroupFinder.findByUuid(grouperSession, groupId, true);
+    
+    if (field == null) {
+      field = Group.getDefaultList();
+    }
+
+    //needs to be a members field
+    if (!StringUtils.equals("list",field.getTypeString())) {
+      throw new RuntimeException("This method only works with list fields: " + field);
+    }
+
+    PrivilegeHelper.dispatch( grouperSession, group, grouperSession.getSubject(), field.getReadPriv() );
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder("select distinct m.subjectSourceIdDb from Member m, MembershipEntry ms ");
+    
+    sql.append(" where ms.memberUuid = m.uuid and ms.ownerGroupId = :ownerGroupId ");
+    
+    if (enabled != null && enabled) {
+      sql.append(" and ms.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and ms.enabledDb = 'F' ");
+    }
+    //immediate or effective, etc
+    if (membershipType != null) {
+      sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
+    }
+    sql.append(" and ms.fieldId = :fieldId ");
+    byHqlStatic.setString("fieldId", field.getUuid());
+    byHqlStatic.setString("ownerGroupId", groupId);
+    
+    byHqlStatic
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindSourceIdsByGroupOwnerOptions");
+
+    Set<String> results = byHqlStatic.createQuery(sql.toString()).listSet(String.class);
+
+    return results;
+    
   }
 
 }

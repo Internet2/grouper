@@ -397,6 +397,18 @@ TODO update for 1.5
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled);
 
   /**
+   * find membershpis by group owner and other options.  
+   * @param groupId to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise members list is returned
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @return a set of sourceIds
+   */
+  public Set<String> findSourceIdsByGroupOwnerOptions(String groupId,
+      MembershipType membershipType,
+      Field field, Boolean enabled);
+
+  /**
    * @param memberUUID 
    * @param f 
    * @param enabledOnly 

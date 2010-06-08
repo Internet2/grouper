@@ -38,10 +38,8 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -61,10 +59,8 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -83,7 +79,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember("testGetMembershipsComplex2"));
+    TestRunner.run(new TestMember("testGetMembershipsSources"));
   }
   
   /** logger */
@@ -491,6 +487,70 @@ public class TestMember extends GrouperTest {
     assertEquals(1, membershipArrayHasGroup(results, groups.get(0)));
     
   }
+  
+  /**
+   * <pre>
+   * edu(f)
+   * edu:comp1
+   * edu:compLeft
+   * edu:compRight
+   * edu:eduSub(f)
+   * edu:eduSub:i2sub
+   * edu:i2
+   * edu:uofc
+   * edu2(f)
+   * 
+   * 
+   * </pre>
+   */
+  public void testGetMembershipsSources() {
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    
+    Group           uofc  = edu.addChildGroup("uofc", "uofc");
+    GroupHelper.addMember(uofc, subj, "members");
+
+    //Set<Group> groups = member.getImmediateGroups();
+    Set<String> results = GrouperDAOFactory.getFactory().getMembership().findSourceIdsByGroupOwnerOptions(uofc.getId(), 
+        MembershipType.IMMEDIATE, null, null);
+    
+    assertEquals(1, results.size());
+    assertEquals("jdbc", results.iterator().next());
+    
+    results = GrouperDAOFactory.getFactory().getMembership().findSourceIdsByGroupOwnerOptions(uofc.getId(), 
+        MembershipType.EFFECTIVE, null, null);
+    
+    assertEquals(0, results.size());
+    
+    results = GrouperDAOFactory.getFactory().getMembership().findSourceIdsByGroupOwnerOptions(uofc.getId(), 
+        MembershipType.EFFECTIVE, Group.getDefaultList(), null);
+    
+    assertEquals(0, results.size());
+    
+    results = GrouperDAOFactory.getFactory().getMembership().findSourceIdsByGroupOwnerOptions(uofc.getId(), 
+        MembershipType.IMMEDIATE, null, false);
+    
+    assertEquals(0, results.size());
+    
+    results = GrouperDAOFactory.getFactory().getMembership().findSourceIdsByGroupOwnerOptions(uofc.getId(), 
+        MembershipType.IMMEDIATE, null, true);
+    
+    assertEquals(1, results.size());
+    assertEquals("jdbc", results.iterator().next());
+
+    GroupHelper.addMember(uofc, SubjectFinder.findRootSubject(), "members");
+    
+    results = GrouperDAOFactory.getFactory().getMembership().findSourceIdsByGroupOwnerOptions(uofc.getId(), 
+        MembershipType.IMMEDIATE, null, true);
+    
+    assertEquals(2, results.size());
+    assertTrue(results.contains("jdbc"));
+    assertTrue(results.contains(SubjectFinder.findRootSubject().getSourceId()));
+    
+  }
+  
   
   /**
    * <pre>
