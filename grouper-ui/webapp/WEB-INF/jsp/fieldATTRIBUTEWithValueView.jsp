@@ -13,7 +13,12 @@
          valueTooltipKey="groupFields.${fieldList[viewObject.name].displayName}" />
 	</td>
 	<td class="formTableRight">
-		<c:out value="${group[viewObject.name]}"/>
+	<c:choose>
+	<c:when test="${groupPrivResolver.canReadField[viewObject.name]}">${group[viewObject.name]}</c:when>
+			<c:otherwise>
+			<grouper:message key="group.view-attribute.insufficient-privileges"/>
+			</c:otherwise>
+		</c:choose>
 	</td>
 </tr>
    

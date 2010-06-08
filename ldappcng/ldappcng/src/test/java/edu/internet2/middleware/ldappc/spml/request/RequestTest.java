@@ -18,8 +18,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.textui.TestRunner;
-
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.opensaml.util.resource.ResourceException;
 import org.openspml.v2.msg.Marshallable;
@@ -50,7 +48,7 @@ import edu.internet2.middleware.ldappc.spml.BasePSPProvisioningTest;
 import edu.internet2.middleware.ldappc.spml.PSP;
 import edu.internet2.middleware.ldappc.spml.PSPOptions;
 
-public class RequestTests extends XMLTestCase {
+public class RequestTest extends XMLTestCase {
 
   // private static final Logger LOG = LoggerFactory.getLogger(RequestTests.class);
 
@@ -79,12 +77,12 @@ public class RequestTests extends XMLTestCase {
 
   private PSP psp;
 
-  public RequestTests(String name) {
+  public RequestTest(String name) {
     super(name);
   }
 
   public static void main(String[] args) {
-    // TestRunner.run(new RequestTests("testCalculateRequest"));
+    // TestRunner.run(new RequestTest("testCalculateRequest"));
   }
 
   public void setUp() {

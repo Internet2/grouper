@@ -23,9 +23,6 @@
             <name>Internet2</name>
             <layout>default</layout>
             <url>http://shibboleth.internet2.edu/downloads/maven2</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
         <repository>
             <id>vt-middleware.googlecode.com.repo</id>
@@ -36,9 +33,31 @@
     <dependencies>
         <!-- Compile Dependencies -->
         <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.11</version>
+        </dependency> 
+        <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <!--  xerces 2.0.2 from dbcp -->
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
@@ -48,23 +67,21 @@
         <dependency>
             <groupId>edu.vt.middleware</groupId>
             <artifactId>vt-ldap</artifactId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.3</version>
         </dependency>
         <dependency>
             <groupId>edu.internet2.middleware</groupId>
             <artifactId>shibboleth-common</artifactId>
-            <!-- Waiting for 1.2.0. -->
-            <version>1.1.4</version>
+            <version>1.2.0-ldappc</version>
             <exclusions>
                 <!-- Exclude logback in lieu of sl4j-log4j12 binding. -->
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
-                <!-- Won't be necessary for 1.2.0 -->
                 <exclusion>
-                    <groupId>edu.vt.middleware</groupId>
-                    <artifactId>vt-ldap</artifactId>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -114,6 +131,11 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <grouper.dir>../grouper_trunk</grouper.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <build>
         <testResources>
             <testResource>
@@ -138,8 +160,8 @@
                 <configuration>
                     <argLine>-Xmx512m</argLine>
                     <additionalClasspathElements>
-                        <additionalClasspathElement>../grouper_trunk/confForTest</additionalClasspathElement>
-                        <additionalClasspathElement>../grouper_trunk/conf</additionalClasspathElement>
+                        <additionalClasspathElement>${grouper.dir}/confForTest</additionalClasspathElement>
+                        <additionalClasspathElement>${grouper.dir}/conf</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
@@ -219,7 +241,7 @@
                         <version>2.5</version>
                         <configuration>
                             <includes>
-                                <include>**/AllLdappcSpmlTests.java</include>
+                                <include>**/ldappc/spml/**/*Test.java</include>
                             </includes>
                         </configuration>
                     </plugin>
@@ -292,7 +314,7 @@
             </build>
         </profile>
         <profile>
-            <id>OpenLDAP</id>            
+            <id>OpenLDAP</id>
             <properties>
                 <testUseEmbeddedLdap>false</testUseEmbeddedLdap>
                 <testUseActiveDirectory>false</testUseActiveDirectory>

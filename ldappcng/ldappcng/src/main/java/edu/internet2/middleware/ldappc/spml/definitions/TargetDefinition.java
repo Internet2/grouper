@@ -37,13 +37,13 @@ import org.openspml.v2.profiles.spmldsml.DSMLSchema;
 import org.openspml.v2.profiles.spmldsml.ObjectClassDefinition;
 import org.openspml.v2.util.Spml2Exception;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.spml.provider.SpmlTargetProvider;
 
 public class TargetDefinition {
 
-  private static final Logger LOG = GrouperUtil.getLogger(TargetDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TargetDefinition.class);
 
   private String id;
 

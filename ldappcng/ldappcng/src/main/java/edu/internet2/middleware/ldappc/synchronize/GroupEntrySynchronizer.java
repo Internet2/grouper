@@ -40,13 +40,13 @@ import javax.naming.ldap.Rdn;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.LdappcOptions.ProvisioningMode;
@@ -68,7 +68,7 @@ import edu.vt.middleware.ldap.SearchFilter;
  */
 public class GroupEntrySynchronizer {
 
-  private static final Logger LOG = GrouperUtil.getLogger(GroupEntrySynchronizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GroupEntrySynchronizer.class);
 
   private Ldappc ldappc;
 

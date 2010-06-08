@@ -160,9 +160,6 @@ public class XmlExportMainTest extends GrouperTest {
     
     String xml = stringWriter.toString();
     
-    //TODO comment this out
-    System.out.println(xml);
-    
     assertTrue(xml, xml.contains("<members>"));
     assertTrue(xml, xml.contains("<XmlExportMember>"));
     

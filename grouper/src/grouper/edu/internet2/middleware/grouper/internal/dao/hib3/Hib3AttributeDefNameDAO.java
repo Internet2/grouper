@@ -238,7 +238,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       }
     }
     
-    String searchFieldLower = searchField.toLowerCase();
+    String searchFieldLower = StringUtils.defaultString(searchField).toLowerCase();
 
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     

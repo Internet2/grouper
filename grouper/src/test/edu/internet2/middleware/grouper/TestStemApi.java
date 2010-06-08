@@ -1773,7 +1773,7 @@ public class TestStemApi extends GrouperTest {
 
     nrs = GrouperSession.start(c);
     try {
-      //System.out.println("start: test_copy_insufficient_privilege_listGroupAsMember");
+
       StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
       stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
           .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
@@ -1782,7 +1782,7 @@ public class TestStemApi extends GrouperTest {
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
     }
-    //System.out.println("end: test_copy_insufficient_privilege_listGroupAsMember");
+
     nrs.stop();
     
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());

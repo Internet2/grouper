@@ -52,8 +52,8 @@ public class XmlExportRoleSetTest extends GrouperTest {
    */
   public static void main(String[] args) {
 
-    TestRunner.run(XmlExportRoleSetTest.class);
-    //TestRunner.run(new XmlExportRoleSetTest("testConvertToString"));
+    //TestRunner.run(XmlExportRoleSetTest.class);
+    TestRunner.run(new XmlExportRoleSetTest("testConvertToRoleSet"));
 
   }
   
@@ -117,7 +117,8 @@ public class XmlExportRoleSetTest extends GrouperTest {
     assertEquals("ifHasRoleId", roleSet.getIfHasRoleId());
     assertEquals(new Long(7), roleSet.getLastUpdatedDb());
     assertEquals("id", roleSet.getId());
-    assertEquals("parentRoleSetId", roleSet.getParentRoleSetId());
+    //the parent isnt exported, only references of depth 1
+    assertNull(roleSet.getParentRoleSetId());
     assertEquals("thenHasRoleSetId", roleSet.getThenHasRoleId());
     assertEquals(RoleHierarchyType.effective, roleSet.getType());
     

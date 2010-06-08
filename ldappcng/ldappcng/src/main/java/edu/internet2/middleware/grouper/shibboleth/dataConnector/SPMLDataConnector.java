@@ -34,8 +34,8 @@ import org.openspml.v2.msg.spmlsearch.SearchResponse;
 import org.openspml.v2.profiles.dsml.DSMLAttr;
 import org.openspml.v2.profiles.dsml.DSMLValue;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.spml.PSP;
 import edu.internet2.middleware.ldappc.spml.provider.SpmlProvider;
 import edu.internet2.middleware.ldappc.spml.request.LdapFilterQueryClause;
@@ -53,7 +53,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.da
 
 public class SPMLDataConnector extends BaseDataConnector {
 
-  private static final Logger LOG = GrouperUtil.getLogger(SPMLDataConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SPMLDataConnector.class);
 
   public static final String PRINCIPAL = "${principal}";
 

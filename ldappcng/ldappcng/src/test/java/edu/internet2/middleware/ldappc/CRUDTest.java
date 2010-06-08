@@ -2,6 +2,7 @@ package edu.internet2.middleware.ldappc;
 
 import java.io.File;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -17,6 +18,7 @@ public class CRUDTest extends BaseLdappcTestCase {
   private Group groupB;
 
   public static void main(String[] args) {
+    TestRunner.run(CRUDTest.class);
     // TestRunner.run(new CRUDTest("testCalculateBushy"));
   }
 

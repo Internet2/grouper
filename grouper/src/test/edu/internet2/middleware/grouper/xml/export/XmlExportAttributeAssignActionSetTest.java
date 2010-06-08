@@ -52,8 +52,8 @@ public class XmlExportAttributeAssignActionSetTest extends GrouperTest {
    */
   public static void main(String[] args) {
 
-    TestRunner.run(XmlExportAttributeAssignActionSetTest.class);
-    //TestRunner.run(new XmlExportAttributeAssignActionSetTest("testConvertToString"));
+    //TestRunner.run(XmlExportAttributeAssignActionSetTest.class);
+    TestRunner.run(new XmlExportAttributeAssignActionSetTest("testConvertToAttributeAssignActionSet"));
 
   }
   
@@ -117,7 +117,7 @@ public class XmlExportAttributeAssignActionSetTest extends GrouperTest {
     assertEquals("ifHasAttributeAssignActionId", attributeAssignActionSet.getIfHasAttrAssignActionId());
     assertEquals(new Long(7), attributeAssignActionSet.getLastUpdatedDb());
     assertEquals("id", attributeAssignActionSet.getId());
-    assertEquals("parentAttributeAssignActionSetId", attributeAssignActionSet.getParentAttrAssignActionSetId());
+    assertEquals(null, attributeAssignActionSet.getParentAttrAssignActionSetId());
     assertEquals("thenHasAttributeAssignActionSetId", attributeAssignActionSet.getThenHasAttrAssignActionId());
     assertEquals(AttributeAssignActionType.effective, attributeAssignActionSet.getType());
     

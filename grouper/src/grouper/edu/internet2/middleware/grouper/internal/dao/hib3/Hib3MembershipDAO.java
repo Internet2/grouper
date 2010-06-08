@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.hibernate.Session;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -486,146 +488,168 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, Set, java.lang.String, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, java.lang.Boolean)
    */
-  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
-      Collection<String> membershipIds, MembershipType membershipType,
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> totalGroupIds, Collection<String> totalMemberIds,
+      Collection<String> totalMembershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled) {
     
-    int groupIdsSize = GrouperUtil.length(groupIds);
-    int memberIdsSize = GrouperUtil.length(memberIds);
-    int membershipIdsSize = GrouperUtil.length(membershipIds);
-    
-    if (groupIdsSize == 0 && memberIdsSize == 0 && membershipIdsSize == 0) {
-      throw new RuntimeException("Must pass in group(s), member(s), and/or membership(s)");
-    }
     if ((stem == null) != (stemScope == null)) {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
 
-    //too many bind vars
-    if (groupIdsSize + memberIdsSize + membershipIdsSize > 100) {
-      throw new RuntimeException("Too many groupIds " + groupIdsSize + " or memberIds " 
-          + memberIdsSize + " or membershipIds " + membershipIdsSize);
-    }
-    
-    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-
-    String selectPrefix = "select ms, g, m ";
-    String countPrefix = "select count(*) ";
-    
-    StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");
-    
-    //we need to make sure it is a list type field
-    if (field == null) {
-      sql.append(", Field f ");
-    }
-    
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     Subject grouperSessionSubject = grouperSession.getSubject();
-    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
-        grouperSessionSubject, byHqlStatic, 
-        sql, "ms.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
 
-    if (!changedQuery) {
-      sql.append(" where ");
-    } else {
-      sql.append(" and ");
-    }
+    Set<Object[]> totalResults = new HashSet<Object[]>();
     
-    sql.append(" ms.ownerGroupId = g.uuid "
-        + " and ms.memberUuid = m.uuid ");
-    if (enabled != null && enabled) {
-      sql.append(" and ms.enabledDb = 'T' ");
-    }
-    if (enabled != null && !enabled) {
-      sql.append(" and ms.enabledDb = 'F' ");
-    }
-    if (sources != null && sources.size() > 0) {
-      sql.append(" and m.subjectSourceIdDb in ").append(GrouperUtil.convertSourcesToSqlInString(sources));
-    }
-    boolean hasScope = StringUtils.isNotBlank(scope);
-    if (hasScope) {
-      sql.append(" and g.nameDb like :scope ");
-      byHqlStatic.setString("scope", scope + "%");
-    }
-    if (stem != null) {
-      switch (stemScope) {
-        case ONE:
-          
-          sql.append(" and g.parentUuid = :stemId ");
-          byHqlStatic.setString("stemId", stem.getUuid());
-          break;
-        case SUB:
-          
-          sql.append(" and g.nameDb like :stemSub ");
-          byHqlStatic.setString("stemSub", stem.getName() + ":%");
-          
-          break;
-        default:
-          throw new RuntimeException("Not expecting scope: " + stemScope);
-      }
-    }
-    //immediate or effective, etc
-    if (membershipType != null) {
-      sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
-    }
-    if (field != null) {
-      //needs to be a members field
-      if (!StringUtils.equals("list",field.getTypeString())) {
-        throw new RuntimeException("This method only works with members fields: " + field);
-      }
-      sql.append(" and ms.fieldId = :fieldId ");
-      byHqlStatic.setString("fieldId", field.getUuid());
-    } else {
-      //add on the column
-      sql.append(" and ms.fieldId = f.uuid and f.typeString = 'list' ");
-    }
-    if (groupIdsSize > 0) {
-      sql.append(" and ms.ownerGroupId in (");
-      sql.append(HibUtils.convertToInClause(groupIds, byHqlStatic));
-      sql.append(") ");
-    }
-    if (memberIdsSize > 0) {
-      sql.append(" and ms.memberUuid in (");
-      sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
-      sql.append(") ");
-    }
-    if (membershipIdsSize > 0) {
-      sql.append(" and ms.uuid in (");
-      sql.append(HibUtils.convertToInClause(membershipIds, byHqlStatic));
-      sql.append(") ");
-    }
-    
-    byHqlStatic
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAllByGroupOwnerOptions");
+    int groupBatches = GrouperUtil.batchNumberOfBatches(totalGroupIds, 100);
 
-    int maxMemberships = GrouperConfig.getPropertyInt("ws.getMemberships.maxResultSize", 30000);
-    
-    //if -1, lets not check
-    if (maxMemberships >= 0) {
-
-      long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+    for (int groupIndex = 0; groupIndex < groupBatches; groupIndex++) {
       
-      //see if too many
-      if (size > maxMemberships) {
-        throw new RuntimeException("Too many results: " + size);
-      }
+      List<String> groupIds = GrouperUtil.batchList(totalGroupIds, 100, groupIndex);
       
+      int memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
+
+      for (int memberIndex = 0; memberIndex < memberBatches; memberIndex++) {
+        
+        List<String> memberIds = GrouperUtil.batchList(totalMemberIds, 100, memberIndex);
+        int membershipBatches = GrouperUtil.batchNumberOfBatches(totalMembershipIds, 100);
+        
+        for (int membershipIndex = 0; membershipIndex < membershipBatches; membershipIndex++) {
+          
+          List<String> membershipIds = GrouperUtil.batchList(totalMembershipIds, 100, membershipIndex);
+          
+          int groupIdsSize = GrouperUtil.length(groupIds);
+          int memberIdsSize = GrouperUtil.length(memberIds);
+          int membershipIdsSize = GrouperUtil.length(membershipIds);
+          
+          if (groupIdsSize == 0 && memberIdsSize == 0 && membershipIdsSize == 0) {
+            throw new RuntimeException("Must pass in group(s), member(s), and/or membership(s)");
+          }
+
+          ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+          String selectPrefix = "select ms, g, m ";
+          String countPrefix = "select count(*) ";
+          
+          StringBuilder sql = new StringBuilder(" from Member m, MembershipEntry ms, Group g ");
+          
+          //we need to make sure it is a list type field
+          if (field == null) {
+            sql.append(", Field f ");
+          }
+          
+          boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+              grouperSessionSubject, byHqlStatic, 
+              sql, "ms.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
+
+          if (!changedQuery) {
+            sql.append(" where ");
+          } else {
+            sql.append(" and ");
+          }
+          
+          sql.append(" ms.ownerGroupId = g.uuid "
+              + " and ms.memberUuid = m.uuid ");
+          if (enabled != null && enabled) {
+            sql.append(" and ms.enabledDb = 'T' ");
+          }
+          if (enabled != null && !enabled) {
+            sql.append(" and ms.enabledDb = 'F' ");
+          }
+          if (sources != null && sources.size() > 0) {
+            sql.append(" and m.subjectSourceIdDb in ").append(GrouperUtil.convertSourcesToSqlInString(sources));
+          }
+          boolean hasScope = StringUtils.isNotBlank(scope);
+          if (hasScope) {
+            sql.append(" and g.nameDb like :scope ");
+            byHqlStatic.setString("scope", scope + "%");
+          }
+          if (stem != null) {
+            switch (stemScope) {
+              case ONE:
+                
+                sql.append(" and g.parentUuid = :stemId ");
+                byHqlStatic.setString("stemId", stem.getUuid());
+                break;
+              case SUB:
+                
+                sql.append(" and g.nameDb like :stemSub ");
+                byHqlStatic.setString("stemSub", stem.getName() + ":%");
+                
+                break;
+              default:
+                throw new RuntimeException("Not expecting scope: " + stemScope);
+            }
+          }
+          //immediate or effective, etc
+          if (membershipType != null) {
+            sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
+          }
+          if (field != null) {
+            //needs to be a members field
+            if (!StringUtils.equals("list",field.getTypeString())) {
+              throw new RuntimeException("This method only works with members fields: " + field);
+            }
+            sql.append(" and ms.fieldId = :fieldId ");
+            byHqlStatic.setString("fieldId", field.getUuid());
+          } else {
+            //add on the column
+            sql.append(" and ms.fieldId = f.uuid and f.typeString = 'list' ");
+          }
+          if (groupIdsSize > 0) {
+            sql.append(" and ms.ownerGroupId in (");
+            sql.append(HibUtils.convertToInClause(groupIds, byHqlStatic));
+            sql.append(") ");
+          }
+          if (memberIdsSize > 0) {
+            sql.append(" and ms.memberUuid in (");
+            sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
+            sql.append(") ");
+          }
+          if (membershipIdsSize > 0) {
+            sql.append(" and ms.uuid in (");
+            sql.append(HibUtils.convertToInClause(membershipIds, byHqlStatic));
+            sql.append(") ");
+          }
+          
+          byHqlStatic
+            .setCacheable(false)
+            .setCacheRegion(KLASS + ".FindAllByGroupOwnerOptions");
+
+          int maxMemberships = GrouperConfig.getPropertyInt("ws.getMemberships.maxResultSize", 30000);
+          
+          //if -1, lets not check
+          if (maxMemberships >= 0) {
+
+            long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+            
+            //see if too many
+            if (size > maxMemberships) {
+              throw new RuntimeException("Too many results: " + size);
+            }
+            
+          }
+          
+          
+          Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
+
+          totalResults.addAll(results);
+          
+        }
+      }
     }
     
     
-    Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
-
     //nothing to filter
-    if (GrouperUtil.length(results) == 0) {
-      return results;
+    if (GrouperUtil.length(totalResults) == 0) {
+      return totalResults;
     }
     
     //if the hql didnt filter, we need to do that here
     Set<Membership> memberships = new LinkedHashSet<Membership>();
-    for (Object[] objects : results) {
+    for (Object[] objects : totalResults) {
       memberships.add((Membership)objects[0]);
     }
     int origMembershipsSize = memberships.size();
@@ -633,7 +657,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (origMembershipsSize != filteredMemberships.size()) {
       
       //we have work to do
-      Iterator<Object[]> iterator = results.iterator();
+      Iterator<Object[]> iterator = totalResults.iterator();
       while (iterator.hasNext()) {
         Object[] row = iterator.next();
         Membership currentMembership = (Membership)row[0];
@@ -646,7 +670,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     
     //we should be down to the cesure list
-    return results;
+    return totalResults;
     
   }
   
@@ -2035,6 +2059,57 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         .setString("theContextId", membership.getContextId())
         .setString("theImmediateMembershipId", membership.getImmediateMembershipId())
         .executeUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findSourceIdsByGroupOwnerOptions(java.lang.String, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.Field, java.lang.Boolean)
+   */
+  public Set<String> findSourceIdsByGroupOwnerOptions(String groupId,
+      MembershipType membershipType, Field field, Boolean enabled) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    Group group = GroupFinder.findByUuid(grouperSession, groupId, true);
+    
+    if (field == null) {
+      field = Group.getDefaultList();
+    }
+
+    //needs to be a members field
+    if (!StringUtils.equals("list",field.getTypeString())) {
+      throw new RuntimeException("This method only works with list fields: " + field);
+    }
+
+    PrivilegeHelper.dispatch( grouperSession, group, grouperSession.getSubject(), field.getReadPriv() );
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder("select distinct m.subjectSourceIdDb from Member m, MembershipEntry ms ");
+    
+    sql.append(" where ms.memberUuid = m.uuid and ms.ownerGroupId = :ownerGroupId ");
+    
+    if (enabled != null && enabled) {
+      sql.append(" and ms.enabledDb = 'T' ");
+    }
+    if (enabled != null && !enabled) {
+      sql.append(" and ms.enabledDb = 'F' ");
+    }
+    //immediate or effective, etc
+    if (membershipType != null) {
+      sql.append(" and ms.type ").append(membershipType.queryClause()).append(" ");
+    }
+    sql.append(" and ms.fieldId = :fieldId ");
+    byHqlStatic.setString("fieldId", field.getUuid());
+    byHqlStatic.setString("ownerGroupId", groupId);
+    
+    byHqlStatic
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindSourceIdsByGroupOwnerOptions");
+
+    Set<String> results = byHqlStatic.createQuery(sql.toString()).listSet(String.class);
+
+    return results;
+    
   }
 
 }

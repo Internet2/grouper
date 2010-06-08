@@ -56,6 +56,7 @@ import org.openspml.v2.profiles.dsml.DSMLUnmarshaller;
 import org.openspml.v2.util.Spml2Exception;
 import org.openspml.v2.util.xml.ObjectFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -98,7 +99,7 @@ import edu.internet2.middleware.shibboleth.common.service.ServiceException;
 public class PSP extends BaseSpmlProvider {
 
   /** Logger. */
-  private static final Logger LOG = GrouperUtil.getLogger(PSP.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSP.class);
 
   /** Configuration xml element name. */
   public static final String DEFAULT_BEAN_NAME = "ldappc";

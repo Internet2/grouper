@@ -31,11 +31,11 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
@@ -47,7 +47,7 @@ import edu.vt.middleware.ldap.SearchFilter;
  */
 public class SubjectCache {
 
-  private static final Logger LOG = GrouperUtil.getLogger(SubjectCache.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SubjectCache.class);
 
   /**
    * Hash table default estimate.

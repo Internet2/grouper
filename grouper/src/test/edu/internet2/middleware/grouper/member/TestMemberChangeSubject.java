@@ -208,7 +208,6 @@ public class TestMemberChangeSubject extends GrouperTest {
     
     @SuppressWarnings("unused")
     String report = member0.changeSubjectReport(SubjectTestHelper.SUBJ0, true);
-    //System.out.println(report);
     int sameSubjects = Member.changeSubjectSameSubject;
 
     member0.changeSubject(SubjectTestHelper.SUBJ0);
@@ -253,7 +252,6 @@ public class TestMemberChangeSubject extends GrouperTest {
     this.rootGrouperSession = GrouperSession.startRootSession();
     @SuppressWarnings("unused")
     String report = member0.changeSubjectReport(SubjectTestHelper.SUBJ2, true);
-    //System.out.println(report);
     int subjectsDidntExist = Member.changeSubjectDidntExist;
     member0.changeSubject(SubjectTestHelper.SUBJ2);
     
@@ -337,7 +335,6 @@ public class TestMemberChangeSubject extends GrouperTest {
     
     @SuppressWarnings("unused")
     String report = member0.changeSubjectReport(SubjectTestHelper.SUBJ1, true);
-    //System.out.println(report);
 
     int subjectsExist = Member.changeSubjectExist;
     int subjectAddCount = Member.changeSubjectMembershipAddCount;
@@ -427,7 +424,6 @@ public class TestMemberChangeSubject extends GrouperTest {
 
     @SuppressWarnings("unused")
     String report = member0.changeSubjectReport(SubjectTestHelper.SUBJ1, true);
-    //System.out.println(report);
   
     int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");

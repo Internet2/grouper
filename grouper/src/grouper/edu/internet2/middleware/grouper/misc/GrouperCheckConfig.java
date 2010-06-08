@@ -1142,8 +1142,6 @@ public class GrouperCheckConfig {
     checkJar("odmg.jar", 42111, "org.odmg.ClassNotPersistenceCapableException", "0.1.0");
     checkJar("p6spy.jar", 389539, "com.p6spy.engine.common.FastExternalUtils", "1.1");
     checkJar("quartz.jar", 792769, "org.quartz.Calendar", "1.6.0");
-    checkJar("slf4j-api.jar", 17383, "org.slf4j.helpers.BasicMarker", "1.5.2");
-    checkJar("slf4j-log4j12.jar", 9501, "org.slf4j.impl.Log4jLoggerAdapter", "1.5.2");
     checkJar("smack.jar", 1381464, "com.jcraft.jzlib.Deflate", "3.1.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
     checkJar("subject.jar", 118736, "edu.internet2.middleware.subject.InvalidQueryException", "1.6.0");

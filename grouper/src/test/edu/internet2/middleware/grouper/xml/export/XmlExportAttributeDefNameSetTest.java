@@ -51,8 +51,8 @@ public class XmlExportAttributeDefNameSetTest extends GrouperTest {
    */
   public static void main(String[] args) {
 
-    TestRunner.run(XmlExportAttributeDefNameSetTest.class);
-    //TestRunner.run(new XmlExportAttributeDefNameSetTest("testConvertToString"));
+    //TestRunner.run(XmlExportAttributeDefNameSetTest.class);
+    TestRunner.run(new XmlExportAttributeDefNameSetTest("testConvertToAttributeDefNameSet"));
 
   }
   
@@ -126,7 +126,8 @@ public class XmlExportAttributeDefNameSetTest extends GrouperTest {
     assertEquals("ifHasAttributeDefNameId", attributeDefNameSet.getIfHasAttributeDefNameId());
     assertEquals(new Long(7), attributeDefNameSet.getLastUpdatedDb());
     assertEquals("id", attributeDefNameSet.getId());
-    assertEquals("parentAttributeDefNameSetId", attributeDefNameSet.getParentAttrDefNameSetId());
+    //doesnt export parent, only references of depth 1
+    assertEquals(null, attributeDefNameSet.getParentAttrDefNameSetId());
     assertEquals("thenHasAttributeDefNameSetId", attributeDefNameSet.getThenHasAttributeDefNameId());
     assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSet.getType());
     

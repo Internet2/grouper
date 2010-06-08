@@ -16,19 +16,19 @@ package edu.internet2.middleware.grouper.shibboleth.util;
 import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** source identifier bean definition parser */
 public class SourceIdentifierBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(SourceIdentifierBeanDefinitionParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SourceIdentifierBeanDefinitionParser.class);
 
   /** schema type name. */
   public static final QName TYPE_NAME = new QName(GrouperNamespaceHandler.NAMESPACE, "Source");

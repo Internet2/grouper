@@ -2,7 +2,7 @@
 <assembly>
     <id>bin</id>
     <formats>
-        <!--  <format>tar.gz</format> -->
+        <format>tar.gz</format>
         <format>zip</format>
     </formats>
 
@@ -46,12 +46,15 @@
             <outputDirectory>/conf</outputDirectory>
         </fileSet>
 
-        <!--
-            Documentation <fileSet> <directory>doc/</directory> <outputDirectory>/doc</outputDirectory> </fileSet>
-            <fileSet> <directory>target/site/apidocs</directory> <outputDirectory>/doc/api</outputDirectory> </fileSet>
-        -->
+        <!-- Documentation -->
+        <fileSet>
+            <directory>doc/</directory>
+            <outputDirectory>/doc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>target/site/apidocs</directory>
+            <outputDirectory>/doc/api</outputDirectory>
+        </fileSet>
     </fileSets>
-    
-
     
 </assembly>

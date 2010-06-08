@@ -17,8 +17,6 @@ package edu.internet2.middleware.ldappc.synchronize;
 
 import javax.naming.InvalidNameException;
 
-import org.apache.directory.shared.ldap.name.LdapDN;
-
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 
@@ -56,11 +54,13 @@ public class DnAttributeModifier extends AttributeModifier {
 
   /**
    * {@inheritDoc}
+   * 
+   * The dn returned is lowercase.
    */
   protected String makeComparisonString(String value) {
 
     try {
-      return LdapUtil.canonicalizeDn(value);
+      return LdapUtil.canonicalizeDn(value).toLowerCase();
     } catch (InvalidNameException e) {
       throw new LdappcException(e);
     }

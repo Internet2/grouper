@@ -17,9 +17,9 @@ package edu.internet2.middleware.grouper.shibboleth.attribute;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.AttributeAuthority;
 import edu.internet2.middleware.shibboleth.common.attribute.AttributeRequestException;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
@@ -35,7 +35,7 @@ import edu.internet2.middleware.shibboleth.common.service.ServiceException;
  */
 public class SimpleAttributeAuthority extends BaseService implements AttributeAuthority<SAMLProfileRequestContext> {
 
-  private static final Logger LOG = GrouperUtil.getLogger(SimpleAttributeAuthority.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SimpleAttributeAuthority.class);
 
   /** the resolver */
   private ShibbolethAttributeResolver attributeResolver;

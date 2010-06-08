@@ -94,7 +94,6 @@ public class PermissionEntryTest extends GrouperTest {
     Member member = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ5, true); 
     Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member.getUuid());
     for (PermissionEntry permissionEntry : permissionEntries) {
-      //System.out.println(permissionEntry);
       assertNotNull(permissionEntry);
     }
   }
@@ -102,6 +101,7 @@ public class PermissionEntryTest extends GrouperTest {
   /**
    * 
    */
+  @SuppressWarnings("unused") 
   public void testAddLookup() {
     Role role = this.top.addChildRole("test", "test");
     ((Group)role).addMember(SubjectTestHelper.SUBJ5);
@@ -117,7 +117,6 @@ public class PermissionEntryTest extends GrouperTest {
     Member member = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ5, true); 
     Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member.getUuid());
     for (PermissionEntry permissionEntry : permissionEntries) {
-      System.out.println(permissionEntry);
     }
 
     AttributeDefName attributeDefNameEff = this.top.addChildAttributeDefName(attributeDef, "testNameEff", "test name effective");
@@ -125,7 +124,6 @@ public class PermissionEntryTest extends GrouperTest {
     
     permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member.getUuid());
     for (PermissionEntry permissionEntry : permissionEntries) {
-      System.out.println(permissionEntry);
     }
     
     
@@ -253,22 +251,19 @@ public class PermissionEntryTest extends GrouperTest {
         GrouperUtil.toSet(attributeDef.getId()), null, null, null, null, null);
     List<PermissionEntry> permissionEntriesList = new ArrayList<PermissionEntry>(permissionEntriesSet);
     Collections.sort(permissionEntriesList);
-    for (PermissionEntry permissionEntry : permissionEntriesList) {
-      System.out.println(permissionEntry);
-    }
-    System.out.println("\n\n");
-    for (PermissionEntry permissionEntry : permissionEntriesList) {
-      System.out.println("    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, \"" 
-          + permissionEntry.getRoleName() + "\", \"" + permissionEntry.getAttributeDefNameName() + "\", \"" 
-          + permissionEntry.getAction() + "\", \"" + permissionEntry.getSubjectSourceId() + "\", \""
-          + permissionEntry.getSubjectId() + "\");");
-      System.out.println("    assertPermission(permissionEntry, \"" 
-          + permissionEntry.getPermissionTypeDb() + "\", " + permissionEntry.isImmediateMembership() + ", " 
-          + permissionEntry.isImmediatePermission() + ", " + permissionEntry.getMembershipDepth() + ", " 
-          + permissionEntry.getRoleSetDepth() + ", " + permissionEntry.getAttributeAssignActionSetDepth()
-          + ", " + permissionEntry.getAttributeDefNameSetDepth() + ");\n");
-      
-    }
+//    System.out.println("\n\n");
+//    for (PermissionEntry permissionEntry : permissionEntriesList) {
+//      System.out.println("    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, \"" 
+//          + permissionEntry.getRoleName() + "\", \"" + permissionEntry.getAttributeDefNameName() + "\", \"" 
+//          + permissionEntry.getAction() + "\", \"" + permissionEntry.getSubjectSourceId() + "\", \""
+//          + permissionEntry.getSubjectId() + "\");");
+//      System.out.println("    assertPermission(permissionEntry, \"" 
+//          + permissionEntry.getPermissionTypeDb() + "\", " + permissionEntry.isImmediateMembership() + ", " 
+//          + permissionEntry.isImmediatePermission() + ", " + permissionEntry.getMembershipDepth() + ", " 
+//          + permissionEntry.getRoleSetDepth() + ", " + permissionEntry.getAttributeAssignActionSetDepth()
+//          + ", " + permissionEntry.getAttributeDefNameSetDepth() + ");\n");
+//      
+//    }
     
     assertEquals(29, GrouperUtil.length(permissionEntriesList));
     

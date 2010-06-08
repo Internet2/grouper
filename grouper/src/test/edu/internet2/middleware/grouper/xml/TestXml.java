@@ -55,8 +55,8 @@ import edu.internet2.middleware.subject.Subject;
 public class TestXml extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
-    TestRunner.run(new TestXml("testUpdateOkDoNotAddMissingGroups"));
+    //TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
+    TestRunner.run(new TestXml("testFullExportFullImportFullGroupInternational"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestXml.class);
@@ -2066,7 +2066,7 @@ public class TestXml extends GrouperTest {
       XmlExporter exporter = new XmlExporter(s, new Properties());
       exporter.export(w);
       String xml = w.toString();
-      System.out.println(xml);
+
       s.stop();
 
       // Reset And Verify

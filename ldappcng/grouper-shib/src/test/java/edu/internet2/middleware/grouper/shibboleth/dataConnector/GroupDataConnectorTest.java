@@ -19,17 +19,17 @@ import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
-public class GroupDataConnectorTests extends BaseDataConnectorTest {
+public class GroupDataConnectorTest extends BaseDataConnectorTest {
 
-  public static final String RESOLVER_CONFIG = TEST_PATH + "GroupDataConnectorTests-resolver.xml";
+  public static final String RESOLVER_CONFIG = TEST_PATH + "GroupDataConnectorTest-resolver.xml";
 
-  public GroupDataConnectorTests(String name) {
+  public GroupDataConnectorTest(String name) {
     super(name);
   }
 
   public static void main(String[] args) {
-    TestRunner.run(GroupDataConnectorTests.class);
-    // TestRunner.run(new GroupDataConnectorTests("testAttributeDef"));
+    TestRunner.run(GroupDataConnectorTest.class);
+    // TestRunner.run(new GroupDataConnectorTest("testAttributeDef"));
   }
 
   private void runResolveTest(String groupDataConnectorName, Group group, AttributeMap correctMap) {
@@ -45,7 +45,7 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
 
   public void testFieldSyntax1() {
     try {
-      BaseDataConnectorTest.createSpringContext(TEST_PATH + "GroupDataConnectorTests-resolver-invalid-1.xml");
+      BaseDataConnectorTest.createSpringContext(TEST_PATH + "GroupDataConnectorTest-resolver-invalid-1.xml");
       fail("Should throw a BeanCreationException");
     } catch (BeanCreationException e) {
       // OK
@@ -56,7 +56,7 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
 
   public void testFieldSyntax2() {
     try {
-      BaseDataConnectorTest.createSpringContext(TEST_PATH + "GroupDataConnectorTests-resolver-invalid-2.xml");
+      BaseDataConnectorTest.createSpringContext(TEST_PATH + "GroupDataConnectorTest-resolver-invalid-2.xml");
       fail("Should throw a BeanCreationException");
     } catch (BeanCreationException e) {
       // OK
@@ -67,7 +67,7 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
 
   public void testFieldSyntax3() {
     try {
-      BaseDataConnectorTest.createSpringContext(TEST_PATH + "GroupDataConnectorTests-resolver-invalid-3.xml");
+      BaseDataConnectorTest.createSpringContext(TEST_PATH + "GroupDataConnectorTest-resolver-invalid-3.xml");
       fail("Should throw a BeanCreationException");
     } catch (BeanCreationException e) {
       // OK
@@ -393,7 +393,7 @@ public class GroupDataConnectorTests extends BaseDataConnectorTest {
   public void testCustomSubjectId() {
     try {
       GenericApplicationContext gContext = BaseDataConnectorTest.createSpringContext(TEST_PATH
-          + "GroupDataConnectorTests-resolver-subjectId.xml");
+          + "GroupDataConnectorTest-resolver-subjectId.xml");
       GroupDataConnector gdc = (GroupDataConnector) gContext.getBean("customSubjectId");
       Map<String, BaseAttribute> map = gdc.resolve(getShibContext("notfound"));
       assertTrue(map.isEmpty());

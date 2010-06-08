@@ -22,9 +22,9 @@ import java.util.Set;
 
 import org.openspml.v2.msg.spml.SchemaEntityRef;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.shibboleth.dataConnector.SourceDataConnector;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSP;
 import edu.internet2.middleware.ldappc.spml.definitions.PSODefinition;
@@ -42,7 +42,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.da
 public class BulkProvisioningRequestHandler {
 
   /** Logger. */
-  private static final Logger LOG = GrouperUtil.getLogger(BulkProvisioningRequestHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BulkProvisioningRequestHandler.class);
 
   private PSP psp;
 

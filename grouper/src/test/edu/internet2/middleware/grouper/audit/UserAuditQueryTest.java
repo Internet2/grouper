@@ -40,37 +40,31 @@ public class UserAuditQueryTest extends TestCase {
   public void testQueries() {
     
     String result = new UserAuditQuery().executeReport();
-    System.out.println(result);
-    System.out.println("\n\n\n(extended)\n\n");
     result = new UserAuditQuery().executeReportExtended();
-    System.out.println(result);
-    
-    System.out.println("\n\n\n(query for test subject)\n\n");
     GrouperSession grouperSession = GrouperSession.startRootSession(false);
     Subject subject = SubjectFinder.findByIdOrIdentifier(SubjectTestHelper.SUBJ0_ID, true);
     Member member = MemberFinder.findBySubject(grouperSession,subject, true);
     
     result = new UserAuditQuery().loggedInMember(member).executeReport();
-    System.out.println(result);
     
   }
 
   /**
    * 
    */
+  @SuppressWarnings("unused")
   public void testMembershipQuery() {
     String result = new UserAuditQuery().addAuditTypeCategory("membership").executeReport();
-    System.out.println(result);
 
   }
   
   /**
    * 
    */
+  @SuppressWarnings("unused")
   public void testMembershipMemberQuery() {
     String result = new UserAuditQuery().addAuditTypeCategory("membership")
       .addAuditTypeFieldValue("memberId", "123").executeReport();
-    System.out.println(result);
 
   }
 
@@ -78,10 +72,10 @@ public class UserAuditQueryTest extends TestCase {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   public void testStemQuery() {
     String result = new UserAuditQuery().addAuditTypeCategory("stem")
       .addAuditTypeFieldValue("stemId", "123").executeReport();
-    System.out.println(result);
 
   }
 

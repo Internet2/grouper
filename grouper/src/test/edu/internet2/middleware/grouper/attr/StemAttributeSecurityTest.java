@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -30,7 +31,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new StemAttributeSecurityTest("testGrouperSystem"));
+    TestRunner.run(new StemAttributeSecurityTest("testSecuritySubj5"));
   }
 
   /** grouper sesion */
@@ -442,15 +443,10 @@ public class StemAttributeSecurityTest extends GrouperTest {
     this.grouperSession.stop();
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ5 );
   
-    //subj5 can update group and admin attribute (def1)
-    try {
-      this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1);
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
+    //subj5 can stem the stem and admin attribute (def1)
+    this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1);
   
-    //subj5 can update group and admin attribute (def1)
+    //subj5 can stem the stem and admin attribute (def1)
     try {
       this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -994,12 +990,8 @@ public class StemAttributeSecurityTest extends GrouperTest {
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ5 );
 
     //assign these
-    try {
-      assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
+    assertTrue(this.stem.getAttributeDelegate().assignAttribute(attributeDefName1_1).isChanged());
+
     try {
       this.stem.getAttributeDelegate().assignAttribute(attributeDefName2_1);
       fail("Not allowed");
@@ -1013,17 +1005,17 @@ public class StemAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
+    assertTrue(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_1));
     assertFalse(this.stem.getAttributeDelegate().hasAttribute(attributeDefName1_2));
     
-    assertEquals(0, this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
+    assertEquals(1, this.stem.getAttributeDelegate().retrieveAttributes(attributeDef1).size());
     try {
       this.stem.getAttributeDelegate().retrieveAttributes(attributeDef2);
       fail("Not allowed");
     } catch (InsufficientPrivilegeException ipe) {
       //good
     }
-    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
+    assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDef1).size());
     try {
       this.stem.getAttributeDelegate().retrieveAssignments(attributeDef2);
       fail("Not allowed");
@@ -1031,7 +1023,7 @@ public class StemAttributeSecurityTest extends GrouperTest {
       //good
     }
 
-    assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
+    assertEquals(1, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_1).size());
     assertEquals(0, this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName1_2).size());
     try {
       this.stem.getAttributeDelegate().retrieveAssignments(attributeDefName2_1);
@@ -1046,18 +1038,14 @@ public class StemAttributeSecurityTest extends GrouperTest {
       //good
     }
     
-    try {
-      this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1);
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
-    try {
-      this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2);
-      fail("Not allowed");
-    } catch (InsufficientPrivilegeException ipe) {
-      //good
-    }
+    AttributeAssignResult attributeAssignResult = this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_1);
+
+    assertTrue(attributeAssignResult.isChanged());
+    
+    attributeAssignResult = this.stem.getAttributeDelegate().removeAttribute(attributeDefName1_2);
+
+    assertFalse(attributeAssignResult.isChanged());
+
     try {
       this.stem.getAttributeDelegate().removeAttribute(attributeDefName2_1);
       fail("Not allowed");

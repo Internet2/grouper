@@ -19,6 +19,7 @@ public class MssqlExample {
   /**
    * @param args
    */
+  @SuppressWarnings("unused")
   public static void main(String[] args) throws Exception {
     Driver driver = (Driver)Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver").newInstance();
     Connection connection = DriverManager.getConnection("jdbc:sqlserver://localhost:3280", "grouper", "*******");
@@ -26,7 +27,7 @@ public class MssqlExample {
     ResultSet resultSet = statement.executeQuery("select * from test_table");
     while (resultSet.next()) {
         String col = resultSet.getString("test1");
-        System.out.println(col);
+//        System.out.println(col);
     }
     statement.close();
     connection.close();

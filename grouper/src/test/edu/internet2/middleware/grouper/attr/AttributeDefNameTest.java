@@ -192,24 +192,24 @@ public class AttributeDefNameTest extends GrouperTest {
     assertEquals(0, GrouperUtil.length(attributeDefNames));
 
     
-    attributeDefNames = AttributeDefNameFinder.findAll("TESTA", null, null);
+    attributeDefNames = AttributeDefNameFinder.findAll("TESTA%", null, null);
     
     assertEquals(2, GrouperUtil.length(attributeDefNames));
     assertTrue(attributeDefNames.contains(attributeDefName));
     assertTrue(attributeDefNames.contains(attributeDefName2));
     
-    attributeDefNames = AttributeDefNameFinder.findAll("testa", GrouperUtil.toSet(attributeDefName.getAttributeDefId(), attributeDefName2.getAttributeDefId()), null);
+    attributeDefNames = AttributeDefNameFinder.findAll("testa%", GrouperUtil.toSet(attributeDefName.getAttributeDefId(), attributeDefName2.getAttributeDefId()), null);
     
     assertEquals(2, GrouperUtil.length(attributeDefNames));
     assertTrue(attributeDefNames.contains(attributeDefName));
     assertTrue(attributeDefNames.contains(attributeDefName2));
     
-    attributeDefNames = AttributeDefNameFinder.findAll("name1", null, null);
+    attributeDefNames = AttributeDefNameFinder.findAll("%name1", null, null);
     
     assertEquals(1, GrouperUtil.length(attributeDefNames));
     assertTrue(attributeDefNames.contains(attributeDefName));
     
-    attributeDefNames = AttributeDefNameFinder.findAll("name2", GrouperUtil.toSet(attributeDefName.getAttributeDefId(), attributeDefName2.getAttributeDefId()), null);
+    attributeDefNames = AttributeDefNameFinder.findAll("%name2", GrouperUtil.toSet(attributeDefName.getAttributeDefId(), attributeDefName2.getAttributeDefId()), null);
     
     assertEquals(1, GrouperUtil.length(attributeDefNames));
     assertTrue(attributeDefNames.contains(attributeDefName2));

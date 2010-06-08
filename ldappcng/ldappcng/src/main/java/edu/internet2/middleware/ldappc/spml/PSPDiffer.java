@@ -38,8 +38,8 @@ import org.openspml.v2.profiles.dsml.DSMLProfileException;
 import org.openspml.v2.profiles.dsml.DSMLValue;
 import org.openspml.v2.util.Spml2Exception;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.definitions.PSOAttributeDefinition;
 import edu.internet2.middleware.ldappc.spml.definitions.PSODefinition;
@@ -67,7 +67,7 @@ import edu.internet2.middleware.ldappc.util.PSPUtil;
 public class PSPDiffer {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(PSPDiffer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSPDiffer.class);
 
   /** The Provisioning Service Provider */
   private PSP psp;

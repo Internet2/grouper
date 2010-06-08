@@ -26,6 +26,7 @@ import javax.naming.NamingException;
 
 import org.opensaml.util.resource.ResourceException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -41,7 +42,7 @@ import edu.vt.middleware.ldap.Ldap;
 public abstract class BaseLdappcTestCase extends GrouperTest {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(CRUDTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CRUDTest.class);
 
   /** resource location for test data */
   public static final String TEST_PATH = "/test/edu/internet2/middleware/ldappc/";

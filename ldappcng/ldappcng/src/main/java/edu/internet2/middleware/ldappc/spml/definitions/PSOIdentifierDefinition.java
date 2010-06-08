@@ -22,8 +22,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.openspml.v2.msg.spml.PSOIdentifier;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.spml.PSPContext;
 import edu.internet2.middleware.ldappc.util.PSPUtil;
@@ -31,7 +31,7 @@ import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
 public class PSOIdentifierDefinition {
 
-  private static final Logger LOG = GrouperUtil.getLogger(PSOIdentifierDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PSOIdentifierDefinition.class);
 
   private String baseId;
 

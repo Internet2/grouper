@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -56,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
 public class MemberDataConnector extends BaseGrouperDataConnector {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(MemberDataConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MemberDataConnector.class);
 
   /** the name of the attribute representing a subject's id */
   public static final String ID_ATTRIBUTE_NAME = "id";

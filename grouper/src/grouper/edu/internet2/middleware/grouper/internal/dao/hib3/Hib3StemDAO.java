@@ -1288,7 +1288,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     //run an update statement since the business methods affect these properties
     HibernateSession.byHqlStatic().createQuery("update Stem " +
     		"set hibernateVersionNumber = :theHibernateVersionNumber, " +
-        "contextId = :theContextId, " +
     		"creatorUuid = :theCreatorUuid, " +
     		"createTimeLong = :theCreateTimeLong, " +
     		"modifierUuid = :theModifierUuid, " +

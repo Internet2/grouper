@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -41,7 +42,6 @@ import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.Privilege
 import edu.internet2.middleware.grouper.shibboleth.filter.ConditionalGroupQueryFilter;
 import edu.internet2.middleware.grouper.shibboleth.filter.GroupQueryFilter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 public abstract class BaseGrouperDataConnector extends BaseDataConnector implements SourceDataConnector {
 
   /** logger */
-  private static final Logger LOG = GrouperUtil.getLogger(BaseGrouperDataConnector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BaseGrouperDataConnector.class);
 
   /** the name of the attribute whose value is the name of the parent stem */
   public static final String PARENT_STEM_NAME_ATTR = "parentStemName";

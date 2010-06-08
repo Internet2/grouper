@@ -43,6 +43,7 @@ import org.apache.commons.digester.Digester;
 import org.opensaml.util.resource.PropertyReplacementResourceFilter;
 import org.opensaml.util.resource.ResourceException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -59,7 +60,7 @@ import edu.internet2.middleware.ldappc.util.LdapSearchFilter.OnNotFound;
  */
 public class ConfigManager implements LdappcConfig {
 
-  private static final Logger LOG = GrouperUtil.getLogger(ConfigManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
   /**
    * Default configuration file resource name.
