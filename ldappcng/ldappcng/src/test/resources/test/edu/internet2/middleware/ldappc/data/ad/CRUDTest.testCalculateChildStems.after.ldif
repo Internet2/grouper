@@ -2,6 +2,10 @@ dn: ou=edu,ou=testgroups,${base}
 objectclass: organizationalUnit
 ou: edu
 
+dn: ou=courses,ou=edu,ou=testgroups,${base}
+objectClass: organizationalUnit
+ou: courses
+
 dn: ou=fall,ou=courses,ou=edu,ou=testgroups,${base}
 objectClass: organizationalUnit
 ou: fall
