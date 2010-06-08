@@ -3,6 +3,19 @@ changetype: add
 ou: edu
 objectclass: organizationalUnit
 
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
+changetype: add
+cn: groupA
+samaccountname: edu_groupA
+objectclass: group
+
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
+changetype: add
+cn: groupB
+description: descriptionB
+samaccountname: edu_groupB
+objectclass: group
+
 dn: cn=groupC,ou=edu,ou=testgroups,${base}
 changetype: add
 cn: groupC
@@ -14,6 +27,21 @@ dn: ou=edu,ou=testgroups,${base}
 changetype: add
 ou: edu
 objectclass: organizationalUnit
+
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
+changetype: add
+member: CN=test.subject.0,ou=testpeople,${base}
+cn: groupA
+samaccountname: edu_groupA
+objectclass: group
+
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
+changetype: add
+member: CN=test.subject.1,ou=testpeople,${base}
+cn: groupB
+description: descriptionB
+samaccountname: edu_groupB
+objectclass: group
 
 dn: cn=groupC,ou=edu,ou=testgroups,${base}
 changetype: add

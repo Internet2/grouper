@@ -1,6 +1,24 @@
+dn: ou=testgroups,${base}
+objectclass: top
+objectclass: organizationalUnit
+ou: testgroups
+
 dn: ou=edu,ou=testgroups,${base}
 ou: edu
 objectclass: organizationalUnit
+
+dn: cn=groupA,ou=edu,ou=testgroups,${base}
+objectclass: group
+cn: groupA
+samaccountname: edu_groupA
+member: CN=test.subject.0,ou=testpeople,${base}
+
+dn: cn=groupB,ou=edu,ou=testgroups,${base}
+objectclass: group
+cn: groupB
+description: descriptionB
+samaccountname: edu_groupB
+member: CN=test.subject.1,ou=testpeople,${base}
 
 dn: cn=groupC,ou=edu,ou=testgroups,${base}
 cn: groupC
@@ -3009,3 +3027,24 @@ member: CN=test.subject.2998,ou=testpeople,${base}
 member: CN=test.subject.2999,ou=testpeople,${base}
 member: CN=test.subject.3000,ou=testpeople,${base}
 member: CN=test.subject.3001,ou=testpeople,${base}
+
+dn: ou=testpeople,${base}
+objectclass: top
+objectclass: organizationalUnit
+description: people
+ou: testpeople
+
+dn: cn=test.subject.0,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.0
+sn: subject.0
+
+dn: cn=test.subject.1,ou=testpeople,${base}
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: test.subject.1
+sn: subject.1
+
