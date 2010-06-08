@@ -14,6 +14,8 @@
 
 package edu.internet2.middleware.ldappc.util;
 
+import java.util.regex.Pattern;
+
 import org.custommonkey.xmlunit.Difference;
 import org.custommonkey.xmlunit.DifferenceListener;
 import org.slf4j.Logger;
@@ -24,15 +26,26 @@ public class IgnoreRequestIDDifferenceListener implements DifferenceListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(IgnoreRequestIDDifferenceListener.class);
 
-  public static final String NODE_NAME = "requestID";
+  private static final Pattern errorPatternAD = Pattern
+      .compile("LDAP: error code 32 - 00000525: NameErr: DSID-.*?, problem 2001 \\(NO_OBJECT\\), data 0, best match of:");
 
   public int differenceFound(Difference difference) {
 
     if (difference.getTestNodeDetail().getNode() != null && difference.getControlNodeDetail().getNode() != null) {
-      if (difference.getTestNodeDetail().getNode().getNodeName().equals(NODE_NAME)
-          && difference.getControlNodeDetail().getNode().getNodeName().equals(NODE_NAME)) {
+
+      if (difference.getTestNodeDetail().getNode().getNodeName().equals("requestID")
+          && difference.getControlNodeDetail().getNode().getNodeName().equals("requestID")) {
         LOG.debug("ignoring difference {}", difference);
         return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
+      }
+
+      if (difference.getTestNodeDetail().getNode().getNodeName().equals("#text")
+          && difference.getControlNodeDetail().getNode().getNodeName().equals("#text")) {
+        if (errorPatternAD.matcher(difference.getTestNodeDetail().getValue()).find()
+            && errorPatternAD.matcher(difference.getControlNodeDetail().getValue()).find()) {
+          LOG.debug("ignoring difference {}", difference);
+          return DifferenceListener.RETURN_IGNORE_DIFFERENCE_NODES_IDENTICAL;
+        }
       }
     }
     return DifferenceListener.RETURN_ACCEPT_DIFFERENCE;
