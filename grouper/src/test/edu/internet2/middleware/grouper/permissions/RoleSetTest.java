@@ -14996,26 +14996,6 @@ public class RoleSetTest extends GrouperTest {
       roleSet = exampleRoleSetDb();
       exampleRole = exampleRetrieveRoleSetDb();
 
-      roleSet.setParentRoleSetId("abc");
-      
-      assertTrue(roleSet.xmlDifferentBusinessProperties(exampleRole));
-      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
-
-      roleSet.setParentRoleSetId(exampleRole.getParentRoleSetId());
-      roleSet.xmlSaveBusinessProperties(exampleRetrieveRoleSetDb());
-      roleSet.xmlSaveUpdateProperties();
-      
-      roleSet = exampleRetrieveRoleSetDb();
-      
-      assertFalse(roleSet.xmlDifferentBusinessProperties(exampleRole));
-      assertFalse(roleSet.xmlDifferentUpdateProperties(exampleRole));
-    
-    }
-    
-    {
-      roleSet = exampleRoleSetDb();
-      exampleRole = exampleRetrieveRoleSetDb();
-
       roleSet.setThenHasRoleId("abc");
       
       assertTrue(roleSet.xmlDifferentBusinessProperties(exampleRole));

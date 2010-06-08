@@ -61,6 +61,7 @@ public class AttributeDefPrivilegeDelegate {
    * @return  Boolean true if subject has ATTR_ADMIN.
    */
   public boolean hasAttrAdmin(Subject subj) {
+    PrivilegeHelper.dispatch(GrouperSession.staticGrouperSession(), this.attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
     return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN);
   } 
@@ -79,6 +80,7 @@ public class AttributeDefPrivilegeDelegate {
    * @return  Boolean true if subject has ATTR_OPTIN.
    */
   public boolean hasAttrOptin(Subject subj) {
+    PrivilegeHelper.dispatch(GrouperSession.staticGrouperSession(), this.attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
     return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_OPTIN);
   } 
@@ -97,6 +99,7 @@ public class AttributeDefPrivilegeDelegate {
    * @return  Boolean true if subject has ATTR_OPTOUT.
    */
   public boolean hasAttrOptout(Subject subj) {
+    PrivilegeHelper.dispatch(GrouperSession.staticGrouperSession(), this.attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
     return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_OPTOUT);
   } 
@@ -115,6 +118,9 @@ public class AttributeDefPrivilegeDelegate {
    * @return  Boolean true if subject has ATTR_READ.
    */
   public boolean hasAttrRead(Subject subj) {
+    
+    PrivilegeHelper.dispatch(GrouperSession.staticGrouperSession(), this.attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    
     AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
     return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_READ);
   } 
@@ -133,6 +139,7 @@ public class AttributeDefPrivilegeDelegate {
    * @return  Boolean true if subject has ATTR_UPDATE.
    */
   public boolean hasAttrUpdate(Subject subj) {
+    PrivilegeHelper.dispatch(GrouperSession.staticGrouperSession(), this.attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
     return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_UPDATE);
   } 
@@ -151,6 +158,7 @@ public class AttributeDefPrivilegeDelegate {
    * @return  Boolean true if subject has ATTR_VIEW.
    */
   public boolean hasAttrView(Subject subj) {
+    PrivilegeHelper.dispatch(GrouperSession.staticGrouperSession(), this.attributeDef, GrouperSession.staticGrouperSession().getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     AttributeDefResolver attributeDefResolver = GrouperSession.staticGrouperSession().getAttributeDefResolver();
     return attributeDefResolver.hasPrivilege(this.attributeDef, subj, AttributeDefPrivilege.ATTR_VIEW);
   }
@@ -324,6 +332,7 @@ public class AttributeDefPrivilegeDelegate {
    */
   public boolean canAttrRead(Subject subj) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     return PrivilegeHelper.canAttrRead(grouperSession, this.attributeDef, subj);
   } 
 
@@ -343,6 +352,7 @@ public class AttributeDefPrivilegeDelegate {
    */
   public boolean canAttrView(Subject subj) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     return PrivilegeHelper.canAttrView(grouperSession, this.attributeDef, subj);
   } 
 
@@ -362,6 +372,7 @@ public class AttributeDefPrivilegeDelegate {
    */
   public boolean canAttrUpdate(Subject subj) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     return PrivilegeHelper.canAttrUpdate(grouperSession, this.attributeDef, subj);
   } 
   
@@ -381,6 +392,9 @@ public class AttributeDefPrivilegeDelegate {
    */
   public boolean canAttrAdmin(Subject subj) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+
     return PrivilegeHelper.canAttrAdmin(grouperSession, this.attributeDef, subj);
   } 
 
@@ -399,7 +413,11 @@ public class AttributeDefPrivilegeDelegate {
    * @return  Boolean true if subject has ATTR_OPTIN.
    */
   public boolean canAttrOptin(Subject subj) {
+
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+
+    PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
+    
     return PrivilegeHelper.canAttrOptin(grouperSession, this.attributeDef, subj);
   } 
 
@@ -419,6 +437,7 @@ public class AttributeDefPrivilegeDelegate {
    */
   public boolean canAttrOptout(Subject subj) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    PrivilegeHelper.dispatch(grouperSession, this.attributeDef, grouperSession.getSubject(), AttributeDefPrivilege.ATTR_ADMIN);
     return PrivilegeHelper.canAttrOptout(grouperSession, this.attributeDef, subj);
   } 
 

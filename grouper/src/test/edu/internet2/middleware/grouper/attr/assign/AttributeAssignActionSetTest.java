@@ -33,7 +33,7 @@ public class AttributeAssignActionSetTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new AttributeAssignActionSetTest("testHibernate"));
-    TestRunner.run(new AttributeAssignActionSetTest("testXmlInsert"));
+    TestRunner.run(new AttributeAssignActionSetTest("testXmlDifferentUpdateProperties"));
     //TestRunner.run(AttributeAssignActionSetTest.class);
   }
 
@@ -14807,26 +14807,6 @@ public class AttributeAssignActionSetTest extends GrouperTest {
       assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
 
       attributeAssignActionSet.setIfHasAttrAssignActionId(exampleAttributeAssignAction.getIfHasAttrAssignActionId());
-      attributeAssignActionSet.xmlSaveBusinessProperties(exampleRetrieveAttributeAssignActionSetDb());
-      attributeAssignActionSet.xmlSaveUpdateProperties();
-      
-      attributeAssignActionSet = exampleRetrieveAttributeAssignActionSetDb();
-      
-      assertFalse(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
-      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
-    
-    }
-    
-    {
-      attributeAssignActionSet = exampleAttributeAssignActionSetDb();
-      exampleAttributeAssignAction = exampleRetrieveAttributeAssignActionSetDb();
-
-      attributeAssignActionSet.setParentAttrAssignActionSetId("abc");
-      
-      assertTrue(attributeAssignActionSet.xmlDifferentBusinessProperties(exampleAttributeAssignAction));
-      assertFalse(attributeAssignActionSet.xmlDifferentUpdateProperties(exampleAttributeAssignAction));
-
-      attributeAssignActionSet.setParentAttrAssignActionSetId(exampleAttributeAssignAction.getParentAttrAssignActionSetId());
       attributeAssignActionSet.xmlSaveBusinessProperties(exampleRetrieveAttributeAssignActionSetDb());
       attributeAssignActionSet.xmlSaveUpdateProperties();
       

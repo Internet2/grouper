@@ -69,7 +69,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderAttributeDefActions"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderAttributeDef"));
   }
 
   /**
@@ -834,8 +834,9 @@ public class GrouperLoaderTest extends GrouperTest {
       attributeDefNameSetMultiKeyNames.add(new MultiKey(ifHasAttributeDefName.getName(), thenHasAttributeDefName.getName()));
     }
     
-    assertEquals(3, attributeDefNameSets.size());
+    assertEquals(4, attributeDefNameSets.size());
     assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:a", "a:b:b")));
+    assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:a", "a:c:c")));
     assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:e:e")));
     assertTrue(attributeDefNameSetMultiKeyNames.contains(new MultiKey("a:b:b", "a:b:d:d")));
     
@@ -843,7 +844,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
     assertEquals(2, hib3GrouperLoaderLog.getInsertCount().intValue());
     assertEquals(1, hib3GrouperLoaderLog.getUpdateCount().intValue());
-    assertEquals(1, hib3GrouperLoaderLog.getDeleteCount().intValue());
+    assertEquals(0, hib3GrouperLoaderLog.getDeleteCount().intValue());
 
 
     //#########################################
@@ -891,7 +892,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals(9, hib3GrouperLoaderLog.getTotalCount().intValue());
     assertEquals(0, hib3GrouperLoaderLog.getInsertCount().intValue());
     assertEquals(0, hib3GrouperLoaderLog.getUpdateCount().intValue());
-    assertEquals(1, hib3GrouperLoaderLog.getDeleteCount().intValue());
+    assertEquals(2, hib3GrouperLoaderLog.getDeleteCount().intValue());
 
     //##########################
     // try different like string to run query

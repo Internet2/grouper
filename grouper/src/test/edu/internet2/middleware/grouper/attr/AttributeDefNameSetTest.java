@@ -87,17 +87,9 @@ public class AttributeDefNameSetTest extends GrouperTest {
     attributeDefNameSet.setType(AttributeDefAssignmentType.immediate);
     attributeDefNameSet.saveOrUpdate();
 
-    try {
-      attributeDefName2.delete();
-      fail("How can you delete this if in role inheritance?");
-    } catch (Exception e) {
-      //thats good
-    }
-    
-    attributeDefNameSet.delete();
-    
-    attributeDefName.delete();
     attributeDefName2.delete();
+
+    attributeDefName.delete();
 
   }
 
@@ -14864,26 +14856,6 @@ public class AttributeDefNameSetTest extends GrouperTest {
       assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
 
       attributeDefNameSet.setIfHasAttributeDefNameId(exampleAttributeDefNameSet.getIfHasAttributeDefNameId());
-      attributeDefNameSet.xmlSaveBusinessProperties(exampleRetrieveAttributeDefNameSetDb());
-      attributeDefNameSet.xmlSaveUpdateProperties();
-      
-      attributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
-      
-      assertFalse(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
-      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
-    
-    }
-    
-    {
-      attributeDefNameSet = exampleAttributeDefNameSetDb();
-      exampleAttributeDefNameSet = exampleRetrieveAttributeDefNameSetDb();
-
-      attributeDefNameSet.setParentAttrDefNameSetId("abc");
-      
-      assertTrue(attributeDefNameSet.xmlDifferentBusinessProperties(exampleAttributeDefNameSet));
-      assertFalse(attributeDefNameSet.xmlDifferentUpdateProperties(exampleAttributeDefNameSet));
-
-      attributeDefNameSet.setParentAttrDefNameSetId(exampleAttributeDefNameSet.getParentAttrDefNameSetId());
       attributeDefNameSet.xmlSaveBusinessProperties(exampleRetrieveAttributeDefNameSetDb());
       attributeDefNameSet.xmlSaveUpdateProperties();
       
