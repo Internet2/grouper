@@ -688,13 +688,15 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(
       String ownerGroupId, Field f, String type, Set<Source> sources, QueryOptions queryOptions, boolean enabledOnly) 
     throws  GrouperDAOException {
-    MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
-    StringBuilder sql = new StringBuilder("select m "
-        + "from Member m, MembershipEntry ms where "
-        + "ms.ownerGroupId = :owner "
-        + "and ms.fieldId = :fieldId "
-        + "and ms.type  " + membershipType.queryClause()
-        + " and ms.memberUuid = m.uuid  ");
+	  StringBuilder sql = new StringBuilder("select distinct m "
+		        + "from Member m, MembershipEntry ms where "
+		        + "ms.ownerGroupId = :owner "
+		        + "and ms.fieldId = :fieldId ");
+		    if(type != null) {
+		    	MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
+		        sql.append("and ms.type  " + membershipType.queryClause());
+		    }
+		    sql.append(" and ms.memberUuid = m.uuid  ");
     if (enabledOnly) {
       sql.append(" and ms.enabledDb = 'T'");
     }
