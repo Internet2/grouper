@@ -69,14 +69,22 @@ public class GrouperTest extends TestCase {
   private static final String NS  = "stem";
 
 
-  // CONSTRUCTORS //
-
+  /**
+   * make sure enough memory to run tests
+   */
+  public static void assertEnoughMemory() {
+    if (Runtime.getRuntime().maxMemory() < 400000000) {
+      throw new RuntimeException("Not enough memory, you should have at least 500 megs, e.g. -XX:MaxPermSize=300m -Xms80m -Xmx640m, but this much was detected: " + Runtime.getRuntime().maxMemory());
+    }
+  }
+  
   /**
    * @since   1.2.0
    */
   public GrouperTest() {
     super();
     testing = true;
+    assertEnoughMemory();
     //let the database release...
     GrouperStartup.startup();
   } // public GrouperTest()
@@ -87,6 +95,7 @@ public class GrouperTest extends TestCase {
   public GrouperTest(String name) {
     super(name);
     testing = true;
+    assertEnoughMemory();
     //let the database release...
     GrouperStartup.startup();
   } // public GrouperTest()
