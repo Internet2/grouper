@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -120,7 +121,7 @@ public class ExportMembersAction extends GrouperCapableAction {
 		
 		request.setAttribute("form",groupForm);
 		
-		List members = (List)request.getAttribute("exportMembers");
+		Collection members = (Collection)request.getAttribute("exportMembers");
 		MembershipExporter exporter = (MembershipExporter)session.getAttribute("MembershipExporter");
 		String format=groupForm.getString("exportFormat");
 		session.setAttribute("exportFormat",format);
