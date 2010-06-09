@@ -361,9 +361,9 @@ public class HibernateSession {
     // committed or rolledback,
     // then rollback.
     //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
-    if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
-      if (hibernateSession.immediateTransaction.isActive()) {
-        hibernateSession.immediateTransaction.rollback();
+    if (hibernateSession != null && hibernateSession.activeHibernateSession().immediateTransaction != null && !hibernateSession.isReadonly()) {
+      if (hibernateSession.activeHibernateSession().immediateTransaction.isActive()) {
+        hibernateSession.activeHibernateSession().immediateTransaction.rollback();
       }
     }
     String errorString = "Problem in HibernateSession: " + hibernateSession;
