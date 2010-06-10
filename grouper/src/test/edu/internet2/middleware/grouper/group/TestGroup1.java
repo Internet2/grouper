@@ -21,6 +21,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -80,6 +81,14 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class TestGroup1 extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGroup1("testStaticSaveGroupTransactions"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestGroup1.class);
 
   public TestGroup1(String name) {

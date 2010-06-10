@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.hibernate;
 
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -67,6 +68,7 @@ public class HibernateSession {
    *           if something conflicts (e.g. read/write if exists, and exists is
    *           readonly
    */
+  @SuppressWarnings("deprecation")
   private HibernateSession(HibernateSession parentHibernateSession,
       GrouperTransactionType grouperTransactionType) throws GrouperDAOException {
 
@@ -123,6 +125,17 @@ public class HibernateSession {
         this.immediateTransaction = this.immediateSession.beginTransaction();
       }
     }
+    
+    if (this.activeHibernateSession().isTransactionActive() 
+        && !this.activeHibernateSession().isReadonly()) {
+      try {
+        this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
+      } catch (SQLException sqle) {
+        throw new RuntimeException("Problem setting save point for transaction type: " 
+            + grouperTransactionType, sqle);
+      }
+    }
+    
     addStaticHibernateSession(this);
   }
 
@@ -141,6 +154,11 @@ public class HibernateSession {
    */
   private Transaction immediateTransaction = null;
 
+  /**
+   * if read/write, postgres needs to rollback to save point if nested transaction
+   */
+  private Savepoint savepoint = null;
+  
   /**
    * the transaction type this was setup as. note, if the type is new, then it
    * might change from what it was declared as...
@@ -356,14 +374,26 @@ public class HibernateSession {
    * @param e 
    * @throws GrouperDAOException 
    */
+  @SuppressWarnings("deprecation")
   public static void _internal_hibernateSessionCatch(HibernateSession hibernateSession, Throwable e) throws GrouperDAOException {
+
+    //if there was a save point, rollback (since postgres doesnt like a failed query not rolled back)
+    if (hibernateSession.savepoint != null) {
+      try {
+        hibernateSession.activeHibernateSession().getSession().connection().rollback(hibernateSession.savepoint);
+      } catch (SQLException sqle) {
+        throw new RuntimeException("Problem rolling back savepoint", sqle);
+      }
+    }
+    
+    
     // maybe we didnt rollback. if new session, and exception, and not
     // committed or rolledback,
     // then rollback.
     //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
-    if (hibernateSession != null && hibernateSession.activeHibernateSession().immediateTransaction != null && !hibernateSession.isReadonly()) {
-      if (hibernateSession.activeHibernateSession().immediateTransaction.isActive()) {
-        hibernateSession.activeHibernateSession().immediateTransaction.rollback();
+    if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
+      if (hibernateSession.immediateTransaction.isActive()) {
+        hibernateSession.immediateTransaction.rollback();
       }
     }
     String errorString = "Problem in HibernateSession: " + hibernateSession;
