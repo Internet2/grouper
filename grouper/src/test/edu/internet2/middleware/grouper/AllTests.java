@@ -146,6 +146,8 @@ public class AllTests extends GrouperTest {
    */
   public static Test suite() {
 
+    GrouperTest.assertEnoughMemory();
+    
     GrouperTest.testing = true;
 
     //set this and leave it...

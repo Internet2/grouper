@@ -84,7 +84,7 @@ public class GrouperTest extends TestCase {
   public GrouperTest() {
     super();
     testing = true;
-    assertEnoughMemory();
+
     //let the database release...
     GrouperStartup.startup();
   } // public GrouperTest()
@@ -95,7 +95,7 @@ public class GrouperTest extends TestCase {
   public GrouperTest(String name) {
     super(name);
     testing = true;
-    assertEnoughMemory();
+
     //let the database release...
     GrouperStartup.startup();
   } // public GrouperTest()
