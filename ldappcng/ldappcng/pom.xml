@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.internet2.middleware.ldappc</groupId>
     <artifactId>ldappcng</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
 
     <name>LDAP Provisioning Connector - New/Next Generation</name>
@@ -13,11 +13,6 @@
     </description>
 
     <repositories>
-        <repository>
-            <id>local</id>
-            <name>local repository</name>
-            <url>file://${basedir}/repository</url>
-        </repository>
         <repository>
             <id>shibboleth.internet2.edu</id>
             <name>Internet2</name>
@@ -28,7 +23,26 @@
             <id>vt-middleware.googlecode.com.repo</id>
             <url>http://vt-middleware.googlecode.com/svn/maven2</url>
         </repository>
+        <repository>
+            <id>grouper.internet2.edu</id>
+            <name>Internet2</name>
+            <layout>default</layout>
+            <!-- temporary -->
+            <url>https://umdrive.memphis.edu/tzeller/maven2</url>
+        </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>release-repo</id>
+            <url>${dist.release.url}</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <grouper.dir>../grouper_trunk</grouper.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <!-- Compile Dependencies -->
@@ -131,11 +145,6 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <grouper.dir>../grouper_trunk</grouper.dir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <build>
         <testResources>
             <testResource>
@@ -208,6 +217,61 @@
     </reporting>
 
     <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                    </plugin>                   
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>release-javadoc</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadoc</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>ldappc</id>
             <activation>
@@ -386,24 +450,13 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>PostgreSQL</id>
-            <dependencies>
-                <dependency>
-                    <groupId>postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                    <version>8.4-701.jdbc4</version>
-                </dependency>
-            </dependencies>
-        </profile>
+        </profile> 
     </profiles>
 
 
     <!-- Project Metadata -->
     <url>http://grouper.internet2.edu</url>
 
-    <inceptionYear>2006</inceptionYear>
     <licenses>
         <license>
             <name>Apache 2</name>
@@ -433,6 +486,16 @@
                 <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
             </otherArchives>
         </mailingList>
+        <mailingList>
+            <name>Grouper Development</name>
+            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
+            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
+            <post>grouper-dev@internet2.edu</post>
+            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
+            <otherArchives>
+                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
+            </otherArchives>
+        </mailingList>
     </mailingLists>
 
     <scm>
@@ -441,5 +504,19 @@
         <tag>HEAD</tag>
         <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
     </scm>
+
+    <developers>
+        <developer>
+            <id>tzeller</id>
+            <name>Tom Zeller</name>
+            <organization>University of Memphis</organization>
+            <organizationUrl>http://www.memphis.edu</organizationUrl>
+            <email>tzeller@memphis.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+    </developers>
 
 </project>
