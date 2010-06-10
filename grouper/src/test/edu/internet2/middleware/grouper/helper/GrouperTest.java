@@ -592,6 +592,8 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
     ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
     
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
+    ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
     
     GrouperCheckConfig.checkGroups();
   } 

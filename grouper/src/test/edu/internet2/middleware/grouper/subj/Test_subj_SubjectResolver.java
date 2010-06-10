@@ -326,7 +326,7 @@ public class Test_subj_SubjectResolver extends GrouperTest {
   }
   
   public void test_getSources_Type_personType() {
-    assertEquals( 1, this.resolver.getSources("person").size() );
+    assertTrue( 1 <= this.resolver.getSources("person").size() );
   }
 
 /*
