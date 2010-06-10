@@ -4,20 +4,32 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.internet2.middleware.grouper</groupId>
     <artifactId>grouper</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
 
     <name>Grouper</name>
-    <description>
-        Groups Management Toolkit
-    </description>
+    <description>Internet2 Groups Management Toolkit</description>
 
     <repositories>
-        <!--
-            <repository> <id>maven2-repository.dev.java.net</id> <name>Java.net Repository for Maven</name>
-            <url>http://download.java.net/maven/2/</url> <layout>default</layout> </repository>
-        -->
+        <repository>
+            <id>grouper.internet2.edu</id>
+            <name>Internet2</name>
+            <layout>default</layout>
+            <!-- temporary -->
+            <url>https://umdrive.memphis.edu/tzeller/maven2</url>
+        </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>release-repo</id>
+            <url>${dist.release.url}</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -268,6 +280,27 @@
             <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- database drivers, using profiles proved too cumbersome for tests - this is not ideal -->
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>1.8.0.10</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>8.4-701.jdbc4</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.12</version>
+            <scope>runtime</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -398,44 +431,185 @@
 
     <profiles>
         <profile>
-            <id>HSQLDB</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <hibernate.dialect>org.hibernate.dialect.HSQLDialect</hibernate.dialect>
-                <hibernate.connection.driver_class>org.hsqldb.jdbcDriver</hibernate.connection.driver_class>
-                <hibernate.connection.url>jdbc:hsqldb:hsql://localhost/grouper</hibernate.connection.url>
-                <hibernate.connection.username>sa</hibernate.connection.username>
-                <hibernate.connection.password></hibernate.connection.password>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>hsqldb</groupId>
-                    <artifactId>hsqldb</artifactId>
-                    <version>1.8.0.10</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>PostgreSQL</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
-                <hibernate.connection.driver_class>org.postgresql.Driver</hibernate.connection.driver_class>
-                <hibernate.connection.url>jdbc:postgresql://localhost:5432/grouper</hibernate.connection.url>
-                <hibernate.connection.username>postgres</hibernate.connection.username>
-                <hibernate.connection.password></hibernate.connection.password>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                    <version>8.4-701.jdbc4</version>
-                </dependency>
-            </dependencies>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>release-javadoc</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadoc</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
+
+    <!-- Project Metadata -->
+    <url>http://grouper.internet2.edu</url>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Internet2</name>
+        <url>http://www.internet2.edu/</url>
+    </organization>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://bugs.internet2.edu/</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Grouper Users</name>
+            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
+            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
+            <post>grouper-users@internet2.edu</post>
+            <archive>https://mail.internet2.edu/wws/arc/grouper-users</archive>
+            <otherArchives>
+                <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
+            </otherArchives>
+        </mailingList>
+        <mailingList>
+            <name>Grouper Development</name>
+            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
+            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
+            <post>grouper-dev@internet2.edu</post>
+            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
+            <otherArchives>
+                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+
+    <scm>
+        <connection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi/</connection>
+        <developerConnection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi</developerConnection>
+        <tag>HEAD</tag>
+        <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>tbarton</id>
+            <name>Tom Barton</name>
+            <organization>The University of Chicago</organization>
+            <organizationUrl>http://www.uchicago.edu/</organizationUrl>
+            <email>tbarton@uchicago.edu</email>
+            <roles>
+                <role>manager</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+        <developer>
+            <id>gbrown</id>
+            <name>Gary Brown</name>
+            <organization>University of Bristol</organization>
+            <organizationUrl>http://www.bristol.ac.uk</organizationUrl>
+            <email>Gary.Brown@bristol.ac.uk</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+        <developer>
+            <id>rhebron</id>
+            <name>Rob Hebron</name>
+            <organization>Cardiff University</organization>
+            <organizationUrl>http://www.cardiff.ac.uk</organizationUrl>
+            <email>HebronR@cardiff.ac.uk</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+        <developer>
+            <id>mchyzer</id>
+            <name>Chris Hyzer</name>
+            <organization>University of Pennsylvania</organization>
+            <organizationUrl>http://www.upenn.edu</organizationUrl>
+            <email>mchyzer@isc.upenn.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>shilen</id>
+            <name>Shilen Patel</name>
+            <organization>Duke University</organization>
+            <organizationUrl>http://www.duke.edu</organizationUrl>
+            <email>shilen@duke.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>tzeller</id>
+            <name>Tom Zeller</name>
+            <organization>University of Memphis</organization>
+            <organizationUrl>http://www.memphis.edu</organizationUrl>
+            <email>tzeller@memphis.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+    </developers>
 </project>
