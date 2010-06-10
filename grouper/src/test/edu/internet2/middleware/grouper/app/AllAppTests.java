@@ -22,7 +22,9 @@ public class AllAppTests {
     //$JUnit-BEGIN$
 
     //$JUnit-END$
-    suite.addTest(AllGshTests.suite());
+    if (GrouperConfig.getPropertyBoolean("junit.test.gsh", false)) {
+      suite.addTest(AllGshTests.suite());
+    }
     
     if (GrouperConfig.getPropertyBoolean("junit.test.loader", true)) {
 

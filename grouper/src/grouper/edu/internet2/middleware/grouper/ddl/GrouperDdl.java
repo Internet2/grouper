@@ -3205,9 +3205,9 @@ public enum GrouperDdl implements DdlVersionable {
              "list_name: list name of this membership e.g. viewers", 
              "list_type: type of this membership, e.g. list or access",
              "group_id: id of this group"),
-             "SELECT gm.subject_id subject_id, gm.subject_source subject_source, " +
-             "       gg.name group_name, gf.name list_name, gf.type list_type, " +
-             "       gg.id group_id " +
+             "SELECT gm.subject_id as subject_id, gm.subject_source as subject_source, " +
+             "       gg.name as group_name, gf.name as list_name, gf.type as list_type, " +
+             "       gg.id as group_id " +
              "  FROM grouper_flat_memberships gfm, " +
              "       grouper_groups gg, " +
              "       grouper_fields gf, " +

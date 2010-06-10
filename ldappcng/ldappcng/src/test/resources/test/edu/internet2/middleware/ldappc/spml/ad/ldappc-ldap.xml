@@ -52,7 +52,8 @@
     -->
 
     <property name="searchResultHandlers">
-      <list>
+      <list>      
+        <bean id="qdnSRH" class="edu.internet2.middleware.ldappc.util.QuotedDnResultHandler" />
         <bean id="fqdnSRH" class="edu.vt.middleware.ldap.handler.FqdnSearchResultHandler" />
         <bean id="rangeSRH" class="edu.internet2.middleware.ldappc.util.RangeSearchResultHandler" />
       </list>

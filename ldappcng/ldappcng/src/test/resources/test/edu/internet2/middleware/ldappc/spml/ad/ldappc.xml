@@ -24,7 +24,7 @@
       <attribute name="objectClass" ref="group-objectclass" />
       <attribute name="cn" />
       <attribute name="description" />
-      <references name="member" emptyValue="">
+      <references name="member">
         <reference ref="members-jdbc" toObject="member" />
         <reference ref="members-g:gsa" toObject="group" />
       </references>

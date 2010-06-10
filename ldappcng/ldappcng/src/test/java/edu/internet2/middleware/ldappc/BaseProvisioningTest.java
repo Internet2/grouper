@@ -72,6 +72,9 @@ public abstract class BaseProvisioningTest extends GrouperTest {
     super(name);
     this.confDir = confDir;
   }
+  
+  /** Print test LDAP URL once. */
+  private static boolean displayed;
 
   public void setUp() {
     super.setUp();
@@ -99,12 +102,27 @@ public abstract class BaseProvisioningTest extends GrouperTest {
         e.printStackTrace();
         fail("Unable to startup embedded ApacheDS server : " + e.getMessage());
       }
+    } else {
+      // TODO prompting fails under maven
+      String user = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.serviceUser");
+      // GrouperUtil.promptUserAboutChanges("test ldap and destroy everything under '"
+      // + base + "'", true, "ldap", ldapUrl, user);
+
+      if (!displayed) {
+        System.out.println();
+        System.out.println("Testing the following LDAP server - will delete everything !");
+        System.out.println("ldap : " + ldapUrl);
+        System.out.println("user : " + user);
+        System.out.println("base : " + base);
+        System.out.println();
+        try {
+          Thread.sleep(5000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+        displayed = true;
+      }
     }
-    
-    // TODO prompting fails under maven
-    // String user = GrouperUtil.propertiesValue(properties, "edu.vt.middleware.ldap.serviceUser");        
-    // GrouperUtil.promptUserAboutChanges("test ldap and destroy everything under '"
-       //     + base + "'", true, "ldap", ldapUrl, user);
   }
 
   public void tearDown() {

@@ -199,7 +199,7 @@ public abstract class BasePSPProvisioningTest extends BaseProvisioningTest {
     }
 
     // TODO make configurable, probably an env variable
-    String PARENT = "/Users/tzeller/workspace/grouper_trunk/src/resources";
+    String PARENT = "/Users/tzeller/workspaces/grouper/ldappcng_trunk/src/test/resources";
 
     String newFilePath = PARENT + File.separator + correctXMLFileName;
     try {
@@ -209,7 +209,7 @@ public abstract class BasePSPProvisioningTest extends BaseProvisioningTest {
       props.load(new FileInputStream(propertiesFile));
 
       xml = xml.replace(props.getProperty("base"), "${base}");
-      xml = xml.replace(props.getProperty("groupObjectClass"), "${groupObjectClass}");
+      xml = xml.replace("<dsml:value>" + props.getProperty("groupObjectClass") + "</dsml:value>", "<dsml:value>${groupObjectClass}</dsml:value>");
       xml = xml.replaceAll("requestID='2.*'", "requestID='REQUEST_ID'");
 
       LOG.debug("writing new corrext XML file '{}'", newFilePath);

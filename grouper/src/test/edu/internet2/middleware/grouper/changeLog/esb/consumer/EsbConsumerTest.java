@@ -58,7 +58,13 @@ public class EsbConsumerTest extends GrouperTest {
     assertFalse(EsbConsumer.matchesFilter(esbEvent, "event.eventType == 'MEMBERSHIP_DELETE' && event.membershipType == 'flattened' && event.sourceId == 'pennperson' && event.groupName =~ '^a\\:c\\:.*$' "));
 
     Subject subject = SubjectFinder.findById(SubjectTestHelper.SUBJ0_ID, true);
-    assertTrue(StringUtils.isNotBlank(subject.getAttributeValue("loginid")));
+
+    // See https://bugs.internet2.edu/jira/browse/GRP-450
+    String loginid = subject.getAttributeValue("loginid");
+    if (StringUtils.isBlank(loginid)) {
+      loginid = subject.getAttributeValue("LOGINID");
+    }
+    assertTrue(StringUtils.isNotBlank(loginid));
     
     esbEvent.setSubjectId(subject.getId());
     esbEvent.setSourceId(subject.getSourceId());

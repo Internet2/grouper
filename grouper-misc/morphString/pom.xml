@@ -4,8 +4,29 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.internet2.middleware.grouper</groupId>
     <artifactId>morphString</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
+
+    <repositories>
+        <repository>
+            <id>grouper.internet2.edu</id>
+            <name>Internet2</name>
+            <layout>default</layout>
+            <!-- temporary -->
+            <url>https://umdrive.memphis.edu/tzeller/maven2</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>release-repo</id>
+            <url>${dist.release.url}</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -71,5 +92,134 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>release-javadoc</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadoc</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <!-- Project Metadata -->
+    <url>http://grouper.internet2.edu/</url>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Internet2</name>
+        <url>http://www.internet2.edu/</url>
+    </organization>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://bugs.internet2.edu/</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Grouper Users</name>
+            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
+            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
+            <post>grouper-users@internet2.edu</post>
+            <archive>https://mail.internet2.edu/wws/arc/grouper-users</archive>
+            <otherArchives>
+                <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
+            </otherArchives>
+        </mailingList>
+        <mailingList>
+            <name>Grouper Development</name>
+            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
+            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
+            <post>grouper-dev@internet2.edu</post>
+            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
+            <otherArchives>
+                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+
+    <scm>
+        <connection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi/</connection>
+        <developerConnection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi</developerConnection>
+        <tag>HEAD</tag>
+        <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>mchyzer</id>
+            <name>Chris Hyzer</name>
+            <organization>University of Pennsylvania</organization>
+            <organizationUrl>http://www.upenn.edu</organizationUrl>
+            <email>mchyzer@isc.upenn.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
 
 </project>

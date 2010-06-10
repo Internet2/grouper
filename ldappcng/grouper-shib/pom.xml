@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.internet2.middleware.grouper</groupId>
     <artifactId>grouper-shib</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
 
     <name>Grouper Plugin for Shibboleth</name>
@@ -14,12 +14,26 @@
 
     <repositories>
         <repository>
-            <id>shibboleth.internet2.edu</id>
+            <id>grouper.internet2.edu</id>
             <name>Internet2</name>
             <layout>default</layout>
-            <url>http://shibboleth.internet2.edu/downloads/maven2</url>
+            <!-- temporary -->
+            <url>https://umdrive.memphis.edu/tzeller/maven2</url>
         </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>release-repo</id>
+            <url>${dist.release.url}</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <!-- location of grouper api distribution -->
+        <grouper.dir>../grouper_trunk</grouper.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <!-- Compile dependencies -->
@@ -86,11 +100,6 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <grouper.dir>../grouper_trunk</grouper.dir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -111,6 +120,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
+                    <argLine>-Xmx512m</argLine>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${grouper.dir}/confForTest</additionalClasspathElement>
                         <additionalClasspathElement>${grouper.dir}/conf</additionalClasspathElement>
@@ -172,10 +182,67 @@
         </plugins>
     </reporting>
 
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>release-javadoc</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadoc</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <!-- Project Metadata -->
     <url>http://grouper.internet2.edu</url>
 
-    <inceptionYear>2006</inceptionYear>
     <licenses>
         <license>
             <name>Apache 2</name>
@@ -205,6 +272,16 @@
                 <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
             </otherArchives>
         </mailingList>
+        <mailingList>
+            <name>Grouper Development</name>
+            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
+            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
+            <post>grouper-dev@internet2.edu</post>
+            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
+            <otherArchives>
+                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
+            </otherArchives>
+        </mailingList>
     </mailingLists>
 
     <scm>
@@ -213,5 +290,19 @@
         <tag>HEAD</tag>
         <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
     </scm>
+
+    <developers>
+        <developer>
+            <id>tzeller</id>
+            <name>Tom Zeller</name>
+            <organization>University of Memphis</organization>
+            <organizationUrl>http://www.memphis.edu</organizationUrl>
+            <email>tzeller@memphis.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+    </developers>
 
 </project>

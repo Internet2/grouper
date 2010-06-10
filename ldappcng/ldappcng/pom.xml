@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.internet2.middleware.ldappc</groupId>
     <artifactId>ldappcng</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
 
     <name>LDAP Provisioning Connector - New/Next Generation</name>
@@ -13,11 +13,6 @@
     </description>
 
     <repositories>
-        <repository>
-            <id>local</id>
-            <name>local repository</name>
-            <url>file://${basedir}/repository</url>
-        </repository>
         <repository>
             <id>shibboleth.internet2.edu</id>
             <name>Internet2</name>
@@ -28,7 +23,26 @@
             <id>vt-middleware.googlecode.com.repo</id>
             <url>http://vt-middleware.googlecode.com/svn/maven2</url>
         </repository>
+        <repository>
+            <id>grouper.internet2.edu</id>
+            <name>Internet2</name>
+            <layout>default</layout>
+            <!-- temporary -->
+            <url>https://umdrive.memphis.edu/tzeller/maven2</url>
+        </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>release-repo</id>
+            <url>${dist.release.url}</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <grouper.dir>../grouper_trunk</grouper.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <!-- Compile Dependencies -->
@@ -46,7 +60,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.5.11</version>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper</artifactId>
@@ -131,11 +145,6 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <grouper.dir>../grouper_trunk</grouper.dir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <build>
         <testResources>
             <testResource>
@@ -158,7 +167,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <argLine>-Xmx512m</argLine>
+                    <argLine>-Xmx1024m</argLine>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${grouper.dir}/confForTest</additionalClasspathElement>
                         <additionalClasspathElement>${grouper.dir}/conf</additionalClasspathElement>
@@ -209,6 +218,61 @@
 
     <profiles>
         <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                    </plugin>                   
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>release-javadoc</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadoc</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>ldappc</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
@@ -221,7 +285,10 @@
                         <version>2.5</version>
                         <configuration>
                             <includes>
-                                <include>**/AllLdappcJunitTests.java</include>
+                                <include>**/ldappc/*Test.java</include>
+                                <include>**/ldappc/configuration/*Test.java</include>
+                                <include>**/ldappc/synchronize/*Test.java</include>
+                                <include>**/ldappc/util/*Test.java</include>
                             </includes>
                         </configuration>
                     </plugin>
@@ -265,6 +332,9 @@
                 <edu.vt.middleware.ldap.serviceCredential>secret</edu.vt.middleware.ldap.serviceCredential>
                 <edu.vt.middleware.ldap.ssl>false</edu.vt.middleware.ldap.ssl>
                 <edu.vt.middleware.ldap.tls>false</edu.vt.middleware.ldap.tls>
+                <!-- for ldappc -->
+                <edu.vt.middleware.ldap.pagedResultsSize>0</edu.vt.middleware.ldap.pagedResultsSize>
+                <edu.vt.middleware.ldap.searchResultHandlers>edu.internet2.middleware.ldappc.util.QuotedDnResultHandler,edu.vt.middleware.ldap.handler.FqdnSearchResultHandler</edu.vt.middleware.ldap.searchResultHandlers>
             </properties>
             <build>
                 <plugins>
@@ -275,6 +345,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/ad/*</exclude>
+                                <exclude>**/CRUDRangeTest.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -288,15 +359,16 @@
                 <testUseActiveDirectory>true</testUseActiveDirectory>
                 <base>dc=testgrouper,dc=edu</base>
                 <groupObjectClass>group</groupObjectClass>
-                <edu.vt.middleware.ldap.ldapUrl>ldaps://127.0.0.1:6362</edu.vt.middleware.ldap.ldapUrl>
                 <edu.vt.middleware.ldap.base>dc=testgrouper,dc=edu</edu.vt.middleware.ldap.base>
                 <edu.vt.middleware.ldap.authtype>simple</edu.vt.middleware.ldap.authtype>
+                <!-- <edu.vt.middleware.ldap.ldapUrl>ldap://127.0.0.1:389</edu.vt.middleware.ldap.ldapUrl> -->
                 <!-- <edu.vt.middleware.ldap.serviceUser>uid=admin,ou=system</edu.vt.middleware.ldap.serviceUser> -->
                 <!-- <edu.vt.middleware.ldap.serviceCredential>password</edu.vt.middleware.ldap.serviceCredential> -->
                 <edu.vt.middleware.ldap.ssl>true</edu.vt.middleware.ldap.ssl>
                 <edu.vt.middleware.ldap.tls>false</edu.vt.middleware.ldap.tls>
+                <!-- for ldappc -->
                 <edu.vt.middleware.ldap.pagedResultsSize>100</edu.vt.middleware.ldap.pagedResultsSize>
-                <edu.internet2.middleware.ldappc.useRangeSearchResultHandler>true</edu.internet2.middleware.ldappc.useRangeSearchResultHandler>
+                <edu.vt.middleware.ldap.searchResultHandlers>edu.internet2.middleware.ldappc.util.QuotedDnResultHandler,edu.vt.middleware.ldap.handler.FqdnSearchResultHandler,edu.internet2.middleware.ldappc.util.RangeSearchResultHandler</edu.vt.middleware.ldap.searchResultHandlers>
             </properties>
             <build>
                 <plugins>
@@ -320,13 +392,16 @@
                 <testUseActiveDirectory>false</testUseActiveDirectory>
                 <base>dc=testgrouper,dc=edu</base>
                 <groupObjectClass>groupOfNames</groupObjectClass>
-                <edu.vt.middleware.ldap.ldapUrl>ldap://127.0.0.1:10389</edu.vt.middleware.ldap.ldapUrl>
                 <edu.vt.middleware.ldap.base>dc=testgrouper,dc=edu</edu.vt.middleware.ldap.base>
                 <edu.vt.middleware.ldap.authtype>simple</edu.vt.middleware.ldap.authtype>
+                <!-- <edu.vt.middleware.ldap.ldapUrl>ldap://127.0.0.1:389</edu.vt.middleware.ldap.ldapUrl> -->
                 <!-- <edu.vt.middleware.ldap.serviceUser>uid=admin,ou=system</edu.vt.middleware.ldap.serviceUser> -->
                 <!-- <edu.vt.middleware.ldap.serviceCredential></edu.vt.middleware.ldap.serviceCredential> -->
                 <edu.vt.middleware.ldap.ssl>false</edu.vt.middleware.ldap.ssl>
                 <edu.vt.middleware.ldap.tls>false</edu.vt.middleware.ldap.tls>
+                <!-- for ldappc -->
+                <edu.vt.middleware.ldap.pagedResultsSize>0</edu.vt.middleware.ldap.pagedResultsSize>
+                <edu.vt.middleware.ldap.searchResultHandlers>edu.internet2.middleware.ldappc.util.QuotedDnResultHandler,edu.vt.middleware.ldap.handler.FqdnSearchResultHandler</edu.vt.middleware.ldap.searchResultHandlers>
             </properties>
             <build>
                 <plugins>
@@ -336,6 +411,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/ad/*</exclude>
+                                <exclude>**/CRUDRangeTest.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -349,13 +425,16 @@
                 <testUseActiveDirectory>false</testUseActiveDirectory>
                 <base>dc=testgrouper,dc=edu</base>
                 <groupObjectClass>groupOfNames</groupObjectClass>
-                <edu.vt.middleware.ldap.ldapUrl>ldap://127.0.0.1:6365</edu.vt.middleware.ldap.ldapUrl>
                 <edu.vt.middleware.ldap.base>dc=testgrouper,dc=edu</edu.vt.middleware.ldap.base>
                 <edu.vt.middleware.ldap.authtype>simple</edu.vt.middleware.ldap.authtype>
+                <!-- <edu.vt.middleware.ldap.ldapUrl>ldap://127.0.0.1:389</edu.vt.middleware.ldap.ldapUrl> -->
                 <!-- <edu.vt.middleware.ldap.serviceUser>uid=admin,ou=system</edu.vt.middleware.ldap.serviceUser> -->
                 <!-- <edu.vt.middleware.ldap.serviceCredential></edu.vt.middleware.ldap.serviceCredential> -->
                 <edu.vt.middleware.ldap.ssl>true</edu.vt.middleware.ldap.ssl>
                 <edu.vt.middleware.ldap.tls>false</edu.vt.middleware.ldap.tls>
+                <!-- for ldappc -->
+                <edu.vt.middleware.ldap.pagedResultsSize>0</edu.vt.middleware.ldap.pagedResultsSize>
+                <edu.vt.middleware.ldap.searchResultHandlers>edu.internet2.middleware.ldappc.util.QuotedDnResultHandler,edu.vt.middleware.ldap.handler.FqdnSearchResultHandler</edu.vt.middleware.ldap.searchResultHandlers>
             </properties>
             <build>
                 <plugins>
@@ -365,19 +444,19 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/ad/*</exclude>
+                                <exclude>**/CRUDRangeTest.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
-        </profile>
+        </profile> 
     </profiles>
 
 
     <!-- Project Metadata -->
     <url>http://grouper.internet2.edu</url>
 
-    <inceptionYear>2006</inceptionYear>
     <licenses>
         <license>
             <name>Apache 2</name>
@@ -407,6 +486,16 @@
                 <otherArchive>http://groups.google.com/group/grouper-users</otherArchive>
             </otherArchives>
         </mailingList>
+        <mailingList>
+            <name>Grouper Development</name>
+            <subscribe>http://www.internet2.edu/grouper/lists.html</subscribe>
+            <unsubscribe>http://www.internet2.edu/grouper/lists.html</unsubscribe>
+            <post>grouper-dev@internet2.edu</post>
+            <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
+            <otherArchives>
+                <otherArchive>http://groups.google.com/group/grouper-dev</otherArchive>
+            </otherArchives>
+        </mailingList>
     </mailingLists>
 
     <scm>
@@ -415,5 +504,19 @@
         <tag>HEAD</tag>
         <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
     </scm>
+
+    <developers>
+        <developer>
+            <id>tzeller</id>
+            <name>Tom Zeller</name>
+            <organization>University of Memphis</organization>
+            <organizationUrl>http://www.memphis.edu</organizationUrl>
+            <email>tzeller@memphis.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+    </developers>
 
 </project>

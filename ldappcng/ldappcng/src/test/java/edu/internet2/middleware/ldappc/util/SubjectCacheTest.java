@@ -48,6 +48,10 @@ public class SubjectCacheTest extends BaseLdappcTestCase {
 
   public void testSimple() throws Exception {
 
+    if (useActiveDirectory()) {
+      return;
+    }
+
     ((ConfigManager) ldappc.getConfig()).getSourceSubjectLdapFilter("jdbc")
         .setMultipleResults(true);
 

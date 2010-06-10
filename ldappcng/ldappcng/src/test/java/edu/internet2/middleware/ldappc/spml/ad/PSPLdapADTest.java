@@ -13,23 +13,15 @@
  */
 package edu.internet2.middleware.ldappc.spml.ad;
 
+import junit.textui.TestRunner;
+
+import org.openspml.v2.msg.spml.ReturnData;
 import org.openspml.v2.msg.spml.StatusCode;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.helper.StemHelper;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
-import edu.internet2.middleware.ldappc.LdappcTestHelper;
 import edu.internet2.middleware.ldappc.spml.BasePSPProvisioningTest;
 import edu.internet2.middleware.ldappc.spml.PSPLdapTest;
 import edu.internet2.middleware.ldappc.spml.request.BulkSyncRequest;
 import edu.internet2.middleware.ldappc.spml.request.BulkSyncResponse;
-import edu.internet2.middleware.ldappc.spml.request.CalcRequest;
-import edu.internet2.middleware.ldappc.spml.request.CalcResponse;
-import edu.internet2.middleware.ldappc.spml.request.DiffRequest;
-import edu.internet2.middleware.ldappc.spml.request.DiffResponse;
-import edu.internet2.middleware.ldappc.spml.request.SyncRequest;
-import edu.internet2.middleware.ldappc.spml.request.SyncResponse;
 
 public class PSPLdapADTest extends BasePSPProvisioningTest {
 
@@ -42,49 +34,8 @@ public class PSPLdapADTest extends BasePSPProvisioningTest {
   }
 
   public static void main(String[] args) {
-    // TestRunner.run(new PSPLdapADTest("testGroup3000"));
-  }
-
-  public void testGroup3000() throws Exception {
-
-    this.makeGroupDNStructureFlat();
-
-    loadLdif(PSPLdapTest.DATA_PATH + "PSPTest.before.ldif");
-    String personLdif = LdappcTestHelper.readFile(LdappcTestHelper.getFile(DATA_PATH + "PSPTest.person.ldif"));
-
-    int subjects = 3002;
-    for (int i = 2; i < subjects; i++) {
-      String loadLdif = personLdif.replace("${i}", Integer.toString(i));
-      LdappcTestHelper.loadLdif(loadLdif, propertiesFile, ldap);
-    }
-
-    RegistryReset._addSubjects(10, subjects);
-
-    Group groupC = StemHelper.addChildGroup(this.edu, "groupC", "Group C");
-    groupC.setDescription("descriptionC");
-    groupC.store();
-    for (int i = 0; i < subjects; i++) {
-      groupC.addMember(SubjectFinder.findById("test.subject." + i, true));
-    }
-
-    CalcRequest calcRequest = new CalcRequest();
-    calcRequest.setRequestID(REQUESTID_TEST);
-    calcRequest.setId(groupC.getName());
-    CalcResponse calcResponse = psp.execute(calcRequest);
-    verifySpml(calcResponse, DATA_PATH + "PSPLdapADTest.testGroup3000.calcResponse.xml");
-
-    DiffRequest diffRequest = new DiffRequest();
-    diffRequest.setRequestID(REQUESTID_TEST);
-    diffRequest.setId(groupC.getName());
-    DiffResponse diffResponse = psp.execute(diffRequest);
-    verifySpml(diffResponse, DATA_PATH + "PSPLdapADTest.testGroup3000.diffResponse.xml");
-
-    SyncRequest syncRequest = new SyncRequest();
-    syncRequest.setRequestID(REQUESTID_TEST);
-    syncRequest.setId(groupC.getName());
-    SyncResponse syncResponse = psp.execute(syncRequest);
-    verifySpml(syncResponse, DATA_PATH + "PSPLdapADTest.testGroup3000.syncResponse.xml");
-    verifyLdif(DATA_PATH + "PSPLdapADTest.testGroup3000.after.ldif", "ou=testgroups," + base);
+    TestRunner.run(PSPLdapADTest.class);
+    // TestRunner.run(new PSPLdapADTest("testBulkSyncBushyAddSubgroupPhasingTwoStep"));
   }
 
   public void testBulkSyncBushyAddSubgroupPhasing() throws Exception {
@@ -100,8 +51,6 @@ public class PSPLdapADTest extends BasePSPProvisioningTest {
     assertEquals(StatusCode.FAILURE, response.getStatus());
 
     verifySpml(response, DATA_PATH + "PSPLdapADTest.testBulkSyncBushyAddSubgroupPhasing.response.xml");
-    // verifyLdif(DATA_PATH +
-    // "PSPLdapNotADTest.testBulkSyncBushyAddSubgroupPhasing.after.ldif");
   }
 
   public void testBulkSyncBushyAddSubgroupPhasingTwoStep() throws Exception {
@@ -110,16 +59,22 @@ public class PSPLdapADTest extends BasePSPProvisioningTest {
 
     groupA.addMember(groupB.toSubject());
 
-    BulkSyncRequest request = new BulkSyncRequest();
-    request.setRequestID(REQUESTID_TEST);
-    BulkSyncResponse response = psp.execute(request);
+    BulkSyncRequest dataRequest = new BulkSyncRequest();
+    dataRequest.setRequestID(REQUESTID_TEST);
+    dataRequest.setReturnData(ReturnData.DATA);
+    BulkSyncResponse dataResponse = psp.execute(dataRequest);
 
-    // assertEquals(StatusCode.FAILURE, response.getStatus());
+    verifySpml(dataResponse, DATA_PATH + "PSPLdapADTest.testBulkSyncBushyAddSubgroupPhasingTwoStep.data.response.xml");
 
-    // verifySpml(response, DATA_PATH +
-    // "PSPLdapNotADTest.testBulkSyncBushyAddSubgroupPhasing.response.xml");
-    // verifyLdif(DATA_PATH +
-    // "PSPLdapNotADTest.testBulkSyncBushyAddSubgroupPhasing.after.ldif");
+    BulkSyncRequest everythingRequest = new BulkSyncRequest();
+    everythingRequest.setRequestID(REQUESTID_TEST);
+    everythingRequest.setReturnData(ReturnData.EVERYTHING);
+    BulkSyncResponse everythingResponse = psp.execute(everythingRequest);
+
+    verifySpml(everythingResponse, DATA_PATH
+        + "PSPLdapADTest.testBulkSyncBushyAddSubgroupPhasingTwoStep.everything.response.xml");
+
+    verifyLdif(DATA_PATH + "PSPLdapADTest.testBulkSyncBushyAddSubgroupPhasing.after.ldif");
   }
 
 }
