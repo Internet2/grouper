@@ -270,6 +270,10 @@ private static boolean handleSpecialCase(String[] args) {
   {
     try {
       GrouperSession s = (GrouperSession) GrouperShell.get(i, GSH_SESSION);
+      if (s != null && s.getSubjectDb() == null) {
+        s = null;
+        GrouperShell.set(i, GSH_SESSION, s);
+      }
       if (s == null) {
         s = GrouperSession.staticGrouperSession(false);
         
