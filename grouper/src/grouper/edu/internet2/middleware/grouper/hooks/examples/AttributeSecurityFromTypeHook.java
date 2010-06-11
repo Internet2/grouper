@@ -62,11 +62,6 @@ public class AttributeSecurityFromTypeHook extends AttributeHooks {
    * @param summaryForLog summary for log message
    */
   public static void manageSecurity(HooksAttributeBean postInsertBean, String summaryForLog) {
-    boolean useGrouperRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
-    
-    if (!useGrouperRequireGroups) {
-      return;
-    }
     
     Attribute attribute = postInsertBean.getAttribute();
 
