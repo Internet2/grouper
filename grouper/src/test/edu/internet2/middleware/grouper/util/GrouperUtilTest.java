@@ -599,10 +599,17 @@ public class GrouperUtilTest extends TestCase {
     
     nameDb = GrouperUtil.substituteExpressionLanguage("${group.nameDb} ${group.nameDb}", substituteMap);
     assertEquals("someName someName", nameDb);
-
-    nameDb = GrouperUtil.substituteExpressionLanguage("${java.lang.System.currentTimeMillis()}", substituteMap);
+    
+    try {
+      nameDb = GrouperUtil.substituteExpressionLanguage("${java.lang.System.currentTimeMillis()}", substituteMap);
+      fail("Shouldnt get here");
+    } catch (Exception e) {
+      //good
+    }
+    
+    nameDb = GrouperUtil.substituteExpressionLanguage("${java.lang.System.currentTimeMillis()}", substituteMap, true);
     assertTrue(Long.parseLong(nameDb) > 0);
-    nameDb = GrouperUtil.substituteExpressionLanguage("${edu.internet2.middleware.grouper.util.GrouperUtilTest.transformGroup(group)}", substituteMap);
+    nameDb = GrouperUtil.substituteExpressionLanguage("${edu.internet2.middleware.grouper.util.GrouperUtilTest.transformGroup(group)}", substituteMap, true);
     assertEquals("hey: someName", nameDb);
 
     nameDb = GrouperUtil.substituteExpressionLanguage("${if (true) { 'hello'; } } ${group.nameDb}", substituteMap);

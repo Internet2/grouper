@@ -8540,11 +8540,25 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap) {
+    //by default dont allow static classes
+    return substituteExpressionLanguage(stringToParse, variableMap, false);
+
+  }
+  
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap, boolean allowStaticClasses) {
     if (GrouperUtil.isBlank(stringToParse)) {
       return stringToParse;
     }
     try {
-      JexlContext jc = new GrouperMapContext();
+      JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
         
       int index = 0;
       
