@@ -8,7 +8,6 @@ import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.AttributeHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;

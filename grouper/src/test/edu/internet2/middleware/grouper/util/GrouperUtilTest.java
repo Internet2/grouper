@@ -31,7 +31,7 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testStringToDate2"));
+    TestRunner.run(new GrouperUtilTest("testSubstituteExpressionLanguage"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -576,6 +576,41 @@ public class GrouperUtilTest extends TestCase {
     listBatch = GrouperUtil.batchList(list, 2, 2);
     assertEquals(1, listBatch.size());
     assertEquals(4, (int)listBatch.get(0));
+  }
+ 
+  /**
+   * 
+   * @param group
+   * @return string
+   */
+  public static String transformGroup(Group group) {
+    return "hey: " + group.getNameDb();
+  }
+  
+  /**
+   * 
+   */
+  public void testSubstituteExpressionLanguage() {
+    Group group = new Group();
+    group.setNameDb("someName");
+    Map<String, Object> substituteMap = new HashMap<String, Object>();
+    substituteMap.put("group", group);
+    String nameDb = null;
+    
+    nameDb = GrouperUtil.substituteExpressionLanguage("${group.nameDb} ${group.nameDb}", substituteMap);
+    assertEquals("someName someName", nameDb);
+
+    nameDb = GrouperUtil.substituteExpressionLanguage("${java.lang.System.currentTimeMillis()}", substituteMap);
+    assertTrue(Long.parseLong(nameDb) > 0);
+    nameDb = GrouperUtil.substituteExpressionLanguage("${edu.internet2.middleware.grouper.util.GrouperUtilTest.transformGroup(group)}", substituteMap);
+    assertEquals("hey: someName", nameDb);
+
+    nameDb = GrouperUtil.substituteExpressionLanguage("${if (true) { 'hello'; } } ${group.nameDb}", substituteMap);
+    assertEquals("hello someName", nameDb);
+    nameDb = GrouperUtil.substituteExpressionLanguage("${if (true) { if (true){ 'hello'; }}} ${group.nameDb}", substituteMap);
+    assertEquals("hello someName", nameDb);
+    nameDb = GrouperUtil.substituteExpressionLanguage("${if (true) { if (true){ 'hello'; }}} ${if (true) { if (true){ 'hello'; }}} ${group.nameDb}", substituteMap);
+    assertEquals("hello hello someName", nameDb);
   }
   
 }
