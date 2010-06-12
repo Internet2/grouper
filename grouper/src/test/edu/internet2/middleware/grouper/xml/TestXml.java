@@ -409,8 +409,8 @@ public class TestXml extends GrouperTest {
       // Populate Registry And Verify
       R     r   = R.populateRegistry(1, 1, 0);
       GrouperSession grouperSession = GrouperSession.startRootSession();
-      Group gA = new GroupSave(grouperSession).assignGroupNameToEdit("tÈst:‡Group").assignName("tÈst:‡Group")
-        .assignDisplayName("tÈst:‡Group").assignDescription("tÈst:‡Group").assignCreateParentStemsIfNotExist(true).save();
+      Group gA = new GroupSave(grouperSession).assignGroupNameToEdit("t√©st:√†Group").assignName("t√©st:√†Group")
+        .assignDisplayName("t√©st:√†Group").assignDescription("t√©st:√†Group").assignCreateParentStemsIfNotExist(true).save();
       
       // For Later Validation
       boolean has_a   = gA.hasAdmin( SubjectFinder.findAllSubject() );
@@ -440,7 +440,7 @@ public class TestXml extends GrouperTest {
       // Reset And Verify
       RegistryReset.reset();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      assertDoNotFindGroupByName( s, "tÈst:‡Group" );
+      assertDoNotFindGroupByName( s, "t√©st:√†Group" );
       s.stop();
   
       // Import 
@@ -451,7 +451,7 @@ public class TestXml extends GrouperTest {
   
       // Verify
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
-      gA  = assertFindGroupByName( s, "tÈst:‡Group" );
+      gA  = assertFindGroupByName( s, "t√©st:√†Group" );
       assertGroupHasAdmin( gA, SubjectFinder.findAllSubject(), has_a );
       assertGroupHasOptin( gA, SubjectFinder.findAllSubject(), has_oi );
       assertGroupHasOptout( gA, SubjectFinder.findAllSubject(), has_oo );
