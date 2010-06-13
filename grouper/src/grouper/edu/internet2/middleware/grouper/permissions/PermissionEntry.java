@@ -818,6 +818,10 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
     if (compare != 0) {
       return compare;
     }
+    compare = GrouperUtil.compare(this.permissionType, o2.permissionType);
+    if (compare != 0) {
+      return compare;
+    }
     compare = GrouperUtil.compare(this.subjectSourceId, o2.subjectSourceId);
     if (compare != 0) {
       return compare;
