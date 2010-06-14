@@ -29,14 +29,17 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
@@ -568,6 +571,33 @@ public class TestSubjectFinder extends GrouperTest {
       T.e(e);
     }
   } // public void testFinderGrouperSystemSubjectWithGoodType()
+
+  /**
+   * 
+   */
+  public void testFindAll() {
+    Set<Source> sources = GrouperUtil.toSet(SourceManager.getInstance().getSource("jdbc"));
+    Set<Subject> subjects = SubjectFinder.findAll("whatever", sources);
+    assertEquals(0, GrouperUtil.length(subjects));
+    
+    sources = GrouperUtil.convertSources("jdbc,g:isa");
+    
+    subjects = SubjectFinder.findAll(SubjectTestHelper.SUBJ0_ID);
+    
+    if (GrouperDdlUtils.isPostgres()) {
+      assertEquals("Note, with postgres, you need to adjust your sources.xml for it to " +
+      		"work with postgres, uncomment the postgres part of the jdbc source, search sql " +
+      		"part, and comment out the current part", 1, GrouperUtil.length(subjects));
+    } else {
+      assertEquals(1, GrouperUtil.length(subjects));
+    }
+    
+    assertEquals(SubjectTestHelper.SUBJ0_ID, subjects.iterator().next().getId());
+    
+    
+    
+  }
+  
 
 }
 
