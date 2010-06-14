@@ -972,7 +972,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         sw.start();
         if ( Group.this.hasType(type ) ) {
           if (exceptionIfAlreadyHasType) {
-            throw new GroupModifyException(E.GROUP_HAS_TYPE);
+            throw new GroupModifyException(E.GROUP_HAS_TYPE + ", " + type);
           }
           return false;
         }
@@ -985,8 +985,13 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         }
         Set types = Group.this.getTypesDb();
         types.add( type );
-  
-        GroupTypeTuple groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().addType( Group.this, type);
+        GroupTypeTuple groupTypeTuple = null;
+        try {
+          groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().addType( Group.this, type);
+        } catch (RuntimeException re) {
+          types.remove(type);
+          throw re;
+        }
 
         if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
           AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "id", 

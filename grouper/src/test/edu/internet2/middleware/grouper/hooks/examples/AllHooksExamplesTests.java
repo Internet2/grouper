@@ -21,6 +21,7 @@ public class AllHooksExamplesTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.hooks.examples");
     //$JUnit-BEGIN$
+    suite.addTestSuite(AttributeSecurityFromTypeHookTest.class);
     suite.addTestSuite(GroupAttributeNameValidationHookTest.class);
     //$JUnit-END$
     return suite;

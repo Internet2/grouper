@@ -8445,6 +8445,93 @@ public class GrouperUtil {
       }
       return sw.getBuffer().toString();
   }
+  
+  /** true or false for if we know if this is a class or not */
+  private static Map<String, Boolean> jexlKnowsIfClass = new HashMap<String, Boolean>();
+  
+  /** class object for this string */
+  private static Map<String, Class<?>> jexlClass = new HashMap<String, Class<?>>();
+  
+  /** pattern to see if class or not */
+  private static Pattern jexlClassPattern = Pattern.compile("^[a-zA-Z0-9_.]*\\.[A-Z][a-zA-Z0-9_]*$");
+
+  /**
+   * 
+   */
+  private static class GrouperMapContext extends MapContext {
+
+    /**
+     * retrieve class if class
+     * @param name
+     * @return class
+     */
+    private static Object retrieveClass(String name) {
+      if (isBlank(name)) {
+        return null;
+      }
+      
+      //see if fully qualified class
+      
+      Boolean knowsIfClass = jexlKnowsIfClass.get(name);
+      
+      //see if knows answer
+      if (knowsIfClass != null) {
+        //return class or null
+        return jexlClass.get(name);
+      }
+      
+      //see if valid class
+      if (jexlClassPattern.matcher(name).matches()) {
+        
+        jexlKnowsIfClass.put(name, true);
+        //try to load
+        try {
+          Class<?> theClass = Class.forName(name);
+          jexlClass.put(name, theClass);
+          return theClass;
+        } catch (Exception e) {
+          LOG.info("Cant load what looks like class: " + name, e);
+          //this is ok I guess, dont rethrow, not sure it is a class
+        }
+      }
+      return null;
+      
+    }
+    
+    /**
+     * @see org.apache.commons.jexl2.MapContext#get(java.lang.String)
+     */
+    @Override
+    public Object get(String name) {
+      
+      //see if registered      
+      Object object = super.get(name);
+      
+      if (object != null) {
+        return object;
+      }
+      return retrieveClass(name);
+    }
+
+    /**
+     * @see org.apache.commons.jexl2.MapContext#has(java.lang.String)
+     */
+    @Override
+    public boolean has(String name) {
+      boolean superHas = super.has(name);
+      if (superHas) {
+        return true;
+      }
+      
+      return retrieveClass(name) != null;
+      
+    }
+    
+    
+    
+    
+  }
+  
   /**
    * substitute an EL for objects
    * @param stringToParse
@@ -8453,12 +8540,26 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap) {
+    //by default dont allow static classes
+    return substituteExpressionLanguage(stringToParse, variableMap, false);
+
+  }
+  
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param allowStaticClasses if true allow static classes not registered with context
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap, boolean allowStaticClasses) {
     if (GrouperUtil.isBlank(stringToParse)) {
       return stringToParse;
     }
     try {
-      JexlContext jc = new MapContext();
-  
+      JexlContext jc = allowStaticClasses ? new GrouperMapContext() : new MapContext();
+        
       int index = 0;
       
       for (String key: variableMap.keySet()) {
@@ -8481,6 +8582,30 @@ public class GrouperUtil {
         //here is the script inside the curlies
         String script = matcher.group(1);
         
+        index = matcher.end();
+
+        if (script.contains("{")) {
+          //we need to match up some curlies here...
+          int scriptStart = matcher.start(1);
+          int openCurlyCount = 0;
+          for (int i=scriptStart; i<stringToParse.length();i++) {
+            char curChar = stringToParse.charAt(i);
+            if (curChar == '{') {
+              openCurlyCount++;
+            }
+            if (curChar == '}') {
+              openCurlyCount--;
+              //negative 1 since we need to get to the close of the parent one...
+              if (openCurlyCount <= -1) {
+                script = stringToParse.substring(scriptStart, i);
+                index = i+1;
+                break;
+              }
+            }
+          }
+        }
+        
+        
         Expression e = new JexlEngine().createExpression(script);
   
         //this is the result of the evaluation
@@ -8493,7 +8618,6 @@ public class GrouperUtil {
         
         result.append(o);
         
-        index = matcher.end();
       }
       
       result.append(stringToParse.substring(index, stringToParse.length()));

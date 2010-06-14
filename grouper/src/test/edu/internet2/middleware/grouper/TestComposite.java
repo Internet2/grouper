@@ -1834,7 +1834,7 @@ public class TestComposite extends GrouperTest {
       .assignGroupNameToEdit("test:right").assignName("test:right").assignCreateParentStemsIfNotExist(true)
       .assignDescription("description").save();
     Composite composite = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(null, owner.getId(),
-        left.getId(), right.getId(), CompositeType.COMPLEMENT.name(), false);
+        left.getId(), right.getId(), CompositeType.COMPLEMENT.getName(), false);
     if (composite == null) {
       composite = owner.addCompositeMember(CompositeType.COMPLEMENT, left, right);
     }
@@ -1857,7 +1857,7 @@ public class TestComposite extends GrouperTest {
     .assignGroupNameToEdit("test:right").assignName("test:right").assignCreateParentStemsIfNotExist(true)
     .assignDescription("description").save();
   Composite composite = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(null, owner.getId(),
-      left.getId(), right.getId(), CompositeType.COMPLEMENT.name(), true);
+      left.getId(), right.getId(), CompositeType.COMPLEMENT.getName(), true);
   return composite;
   }
 
@@ -1895,7 +1895,7 @@ public class TestComposite extends GrouperTest {
 
     //refresh from DB
     compositeCopy = GrouperDAOFactory.getFactory().getComposite().findByUuidOrName(
-        null, owner.getId(), left.getId(), right.getId(), CompositeType.COMPLEMENT.name(), true);
+        null, owner.getId(), left.getId(), right.getId(), CompositeType.COMPLEMENT.getName(), true);
     
     assertFalse(compositeCopy == compositeOriginal);
     assertFalse(compositeCopy.xmlDifferentBusinessProperties(compositeOriginal));

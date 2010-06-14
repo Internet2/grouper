@@ -8,6 +8,7 @@ import java.sql.Savepoint;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -126,7 +127,14 @@ public class HibernateSession {
       }
     }
     
-    if (this.activeHibernateSession().isTransactionActive() 
+    String useSavepointsString = GrouperConfig.getProperty("jdbc.useSavePoints");
+    boolean useSavepoints;
+    if (StringUtils.isBlank(useSavepointsString)) {
+      useSavepoints = !GrouperDdlUtils.isHsql();
+    } else {
+      useSavepoints = GrouperUtil.booleanValue(useSavepointsString);
+    }
+    if (useSavepoints && this.activeHibernateSession().isTransactionActive() 
         && !this.activeHibernateSession().isReadonly()) {
       try {
         this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();

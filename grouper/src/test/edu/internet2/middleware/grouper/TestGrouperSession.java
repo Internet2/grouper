@@ -75,6 +75,7 @@ public class TestGrouperSession extends GrouperTest {
 
   public void tearDown() {
     super.tearDown();
+    this.s.stop();
   }
 
 
