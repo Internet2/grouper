@@ -55,7 +55,7 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    */
   public static boolean collectionContains(Collection<PermissionEntry> permissionEntries, String roleName, 
       String attributeDefNameName, String action, String subjectSourceId, String subjectId) {
-    return collectionFindFirst(permissionEntries, roleName, attributeDefNameName, action, subjectSourceId, subjectId) != null;
+    return collectionFindFirst(permissionEntries, roleName, attributeDefNameName, action, subjectSourceId, subjectId, null, false) != null;
   }
     
   /**
@@ -66,16 +66,36 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
    * @param action
    * @param subjectSourceId
    * @param subjectId
+   * @param permissionType e.g. role or role_subject
    * @return true if the item is in the list
    */
   public static PermissionEntry collectionFindFirst(Collection<PermissionEntry> permissionEntries, String roleName, 
-      String attributeDefNameName, String action, String subjectSourceId, String subjectId) {
+      String attributeDefNameName, String action, String subjectSourceId, String subjectId, String permissionType) {
+    return collectionFindFirst(permissionEntries, roleName, attributeDefNameName, action, subjectSourceId, subjectId, permissionType, true);
+  }
+  
+  /**
+   * find the first permission entry in the list of entries
+   * @param permissionEntries
+   * @param roleName
+   * @param attributeDefNameName
+   * @param action
+   * @param subjectSourceId
+   * @param subjectId
+   * @param permissionType e.g. role or role_subject
+   * @param considerPermissionType 
+   * @return true if the item is in the list
+   */
+  public static PermissionEntry collectionFindFirst(Collection<PermissionEntry> permissionEntries, String roleName, 
+      String attributeDefNameName, String action, String subjectSourceId, String subjectId, String permissionType, boolean considerPermissionType) {
     for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
       if (StringUtils.equals(roleName, permissionEntry.roleName)
           && StringUtils.equals(attributeDefNameName, permissionEntry.attributeDefNameName)
           && StringUtils.equals(action, permissionEntry.action)
           && StringUtils.equals(subjectSourceId, permissionEntry.subjectSourceId)
-          && StringUtils.equals(subjectId, permissionEntry.subjectId)) {
+          && StringUtils.equals(subjectId, permissionEntry.subjectId)
+          && (considerPermissionType ? StringUtils.equals(permissionType, permissionEntry.getPermissionTypeDb()) : true)
+           ) {
         return permissionEntry;
       }
     }
