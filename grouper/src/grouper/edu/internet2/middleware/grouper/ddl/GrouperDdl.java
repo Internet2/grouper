@@ -5779,19 +5779,19 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, ID_SIZE, true, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int01", 
-          Types.BIGINT, null, false, false); 
+          Types.VARCHAR, "50", false, false); 
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int02", 
-          Types.BIGINT, null, false, false); 
+          Types.VARCHAR, "50", false, false); 
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int03", 
-          Types.BIGINT, null, false, false); 
+          Types.VARCHAR, "50", false, false); 
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int04", 
-          Types.BIGINT, null, false, false); 
+          Types.VARCHAR, "50", false, false); 
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int05", 
-          Types.BIGINT, null, false, false); 
+          Types.VARCHAR, "50", false, false); 
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string01", 
           Types.VARCHAR, "50", false, false); 
@@ -5860,19 +5860,19 @@ public enum GrouperDdl implements DdlVersionable {
           "id", Types.VARCHAR, ID_SIZE, true, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int01", Types.INTEGER, null, false, false); 
+          "int01", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int02", Types.INTEGER, null, false, false); 
+          "int02", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int03", Types.INTEGER, null, false, false); 
+          "int03", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int04", Types.INTEGER, null, false, false); 
+          "int04", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int05", Types.INTEGER, null, false, false); 
+          "int05", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "last_updated", Types.BIGINT, "20", false, false); 
