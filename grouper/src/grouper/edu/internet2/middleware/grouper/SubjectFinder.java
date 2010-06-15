@@ -57,7 +57,6 @@ public class SubjectFinder {
   /** */
   static                Source          gsa;
 
-
   /**
    * find by id or identifier
    * @param idOrIdentifier
@@ -69,18 +68,20 @@ public class SubjectFinder {
   public static Subject findByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
     Subject subject = null;
-    try {
-      subject = SubjectFinder.findById(idOrIdentifier, exceptionIfNull);
-    } catch (SubjectNotFoundException snfe) {
-      try {
-        subject = SubjectFinder.findByIdentifier(idOrIdentifier, exceptionIfNull);
-      } catch (SubjectNotUniqueException snfe2) {
-        if (exceptionIfNull) {
-          throw snfe2;
-        }
-        return null;
-      }
+    
+    //try by id first
+    subject = SubjectFinder.findById(idOrIdentifier, false);
+
+    //try by identifier if not by id
+    if (subject == null) {
+      subject = SubjectFinder.findByIdentifier(idOrIdentifier, false);
     }
+    
+    //if null at this point, and exception, then throw it
+    if (subject == null && exceptionIfNull) {
+      throw new SubjectNotFoundException("Cant find subject by id or identifier: '" + idOrIdentifier + "'"); 
+    }
+
     return subject;
   }
 
