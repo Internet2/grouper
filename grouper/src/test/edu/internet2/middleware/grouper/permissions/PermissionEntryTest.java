@@ -265,11 +265,11 @@ public class PermissionEntryTest extends GrouperTest {
 //      
 //    }
     
-    assertEquals(29, GrouperUtil.length(permissionEntriesList));
+    assertEquals(35, GrouperUtil.length(permissionEntriesList));
     
     PermissionEntry permissionEntry = null;
     
-    //NOTE, THIS WAS GENERATED
+    //NOTE, THIS WAS GENERATED FROM ABOVE
 
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.3", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 1, 1);
@@ -292,6 +292,12 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.9", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 1, 0, 0);
 
+    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.8", "role_subject");
+    assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 1, 1);
+
+    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.9", "role_subject");
+    assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
+
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.8", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 0, 1);
 
@@ -313,6 +319,12 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.7", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 1);
 
+    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.6", "role_subject");
+    assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 1, 0);
+
+    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.7", "role_subject");
+    assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 0, 1);
+
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "g:isa", "GrouperAll", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 0, 1);
 
@@ -325,6 +337,9 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.7", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 0, 1);
 
+    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.6", "role_subject");
+    assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
+
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "g:isa", "GrouperAll", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 0);
 
@@ -336,6 +351,9 @@ public class PermissionEntryTest extends GrouperTest {
 
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.7", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 0);
+
+    permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.7", "role_subject");
+    assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
 
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "g:isa", "GrouperAll", "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
@@ -358,6 +376,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntry = PermissionEntry.collectionFindFirst(permissionEntriesList, "top:roleParent2", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.4", "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
 
+
     //NOTE THAT WAS GENERATED
     
     //test subject 0 can READ and read
@@ -367,7 +386,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntriesSet = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
         GrouperUtil.toSet(attributeDef.getId()), null, null, null, null, null);
 
-    assertEquals(29, GrouperUtil.length(permissionEntriesSet));
+    assertEquals(35, GrouperUtil.length(permissionEntriesSet));
 
     //test subject 1 can READ not read
     GrouperSession.stopQuietly(this.grouperSession);
@@ -403,7 +422,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntriesSet = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
         GrouperUtil.toSet(attributeDef.getId()), null, null, null, null, null);
 
-    assertEquals(29, GrouperUtil.length(permissionEntriesSet));
+    assertEquals(35, GrouperUtil.length(permissionEntriesSet));
 
     //test subject 5 can update and read
     GrouperSession.stopQuietly(this.grouperSession);
@@ -421,7 +440,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntriesSet = GrouperDAOFactory.getFactory().getPermissionEntry().findPermissions(
         GrouperUtil.toSet(attributeDef.getId()), null, null, null, null, null);
 
-    assertEquals(29, GrouperUtil.length(permissionEntriesSet));
+    assertEquals(35, GrouperUtil.length(permissionEntriesSet));
 
     //test subject 7 can view and update
     GrouperSession.stopQuietly(this.grouperSession);
