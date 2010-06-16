@@ -18,17 +18,19 @@
             <name>Internet2</name>
             <layout>default</layout>
             <url>http://shibboleth.internet2.edu/downloads/maven2</url>
-        </repository>
-        <repository>
-            <id>vt-middleware.googlecode.com.repo</id>
-            <url>http://vt-middleware.googlecode.com/svn/maven2</url>
-        </repository>
+        </repository>        
         <repository>
             <id>grouper.internet2.edu</id>
             <name>Internet2</name>
             <layout>default</layout>
-            <!-- temporary -->
-            <url>https://umdrive.memphis.edu/tzeller/maven2</url>
+            <url>http://www.internet2.edu/grouper/downloads/maven2</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>vt-middleware.googlecode.com.repo</id>
+            <url>http://vt-middleware.googlecode.com/svn/maven2</url>
         </repository>
     </repositories>
 
