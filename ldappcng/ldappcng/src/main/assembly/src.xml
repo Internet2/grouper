@@ -5,19 +5,25 @@
         <format>tar.gz</format>
         <format>zip</format>
     </formats>
-    
+
     <dependencySets>
         <dependencySet>
             <outputDirectory>/lib</outputDirectory>
             <excludes>
-                <exclude>edu.internet2.middleware:shibboleth:*</exclude>
+                <exclude>edu.internet2.middleware.grouper:grouper</exclude>
+                <exclude>edu.internet2.middleware.grouper:morphString</exclude>
+                <exclude>edu.internet2.middleware.subject:subject</exclude>
+                <exclude>org.apache.xerces:*</exclude>
+                <exclude>org.apache.xalan:*</exclude>
+                <exclude>org.apache.ant:*</exclude>
+                <exclude>ant-contrib:*</exclude>
             </excludes>
             <includes>
-                <include>*:jar:*</include>
+                <include>*:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
-    
+
     <fileSets>
         <fileSet>
             <useDefaultExcludes>true</useDefaultExcludes>
@@ -25,6 +31,15 @@
                 <exclude>**/target/**</exclude>
                 <exclude>**/bin/**</exclude>
             </excludes>
+        </fileSet>
+
+        <!-- Copy conf directory -->
+        <fileSet>
+            <directory>conf</directory>
+            <outputDirectory>/conf</outputDirectory>
+            <includes>
+                <include>*.example.*</include>
+            </includes>
         </fileSet>
 
         <!-- Documentation -->

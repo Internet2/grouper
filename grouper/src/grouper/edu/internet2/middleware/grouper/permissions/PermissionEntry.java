@@ -654,7 +654,9 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append(this.action, other.action)
       .append(this.attributeDefNameId, other.attributeDefNameId)
       .append(this.enabled, other.enabled)
-      .append(this.attributeAssignDelegatable, other.attributeAssignDelegatable).isEquals();
+      .append(this.attributeAssignDelegatable, other.attributeAssignDelegatable)
+      .append(this.permissionType, other.permissionType)
+      .isEquals();
 
   }
 
@@ -669,7 +671,9 @@ public class PermissionEntry extends GrouperAPI implements Comparable<Permission
       .append(this.action)
       .append(this.attributeDefNameId)
       .append(this.enabled)
-      .append(this.attributeAssignDelegatable).toHashCode();
+      .append(this.attributeAssignDelegatable)
+      .append(this.permissionType)
+      .toHashCode();
   }
 
   /**

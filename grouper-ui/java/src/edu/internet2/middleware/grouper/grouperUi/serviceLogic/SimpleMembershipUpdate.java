@@ -133,7 +133,9 @@ public class SimpleMembershipUpdate {
     //setup a hideShow
     GuiHideShow.init("simpleMembershipUpdateMemberFilter", false, 
         "", "", true);
-    GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, null, null, true);
+    GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
+        GrouperUiUtils.message("simpleMembershipUpdate.hideGroupDetailsButton", false),
+        GrouperUiUtils.message("simpleMembershipUpdate.showGroupDetailsButton", false), true);
     
     
     GuiPaging.init("simpleMemberUpdateMembers");

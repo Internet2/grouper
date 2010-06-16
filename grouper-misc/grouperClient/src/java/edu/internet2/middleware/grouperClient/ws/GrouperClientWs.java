@@ -143,6 +143,15 @@ public class GrouperClientWs {
     Header successHeader = this.method.getResponseHeader("X-Grouper-success");
     String successString = successHeader == null ? null : successHeader.getValue();
     if (GrouperClientUtils.isBlank(successString)) {
+      if (LOG.isDebugEnabled()) {
+        String theResponse = null;
+        try {
+          theResponse = GrouperClientUtils.responseBodyAsString(this.method);
+        } catch (Exception e) {
+          //ignore
+        }
+        LOG.debug("Response: " + theResponse);
+      }
       throw new RuntimeException("Web service did not even respond! " + webServiceUrl(urlSuffix));
     }
     this.success = "T".equals(successString);

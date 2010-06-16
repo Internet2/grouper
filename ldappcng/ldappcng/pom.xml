@@ -18,17 +18,19 @@
             <name>Internet2</name>
             <layout>default</layout>
             <url>http://shibboleth.internet2.edu/downloads/maven2</url>
-        </repository>
-        <repository>
-            <id>vt-middleware.googlecode.com.repo</id>
-            <url>http://vt-middleware.googlecode.com/svn/maven2</url>
-        </repository>
+        </repository>        
         <repository>
             <id>grouper.internet2.edu</id>
             <name>Internet2</name>
             <layout>default</layout>
-            <!-- temporary -->
-            <url>https://umdrive.memphis.edu/tzeller/maven2</url>
+            <url>http://www.internet2.edu/grouper/downloads/maven2</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>vt-middleware.googlecode.com.repo</id>
+            <url>http://vt-middleware.googlecode.com/svn/maven2</url>
         </repository>
     </repositories>
 
@@ -189,6 +191,35 @@
                         <phase>package</phase>
                         <goals>
                             <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifestEntries>
+                            <Main-Class>edu.internet2.middleware.ldappc.spml.PSPCLI</Main-Class>
+                        </manifestEntries>
+                        <manifestSections>
+                            <manifestSection>
+                                <name>edu/internet2/middleware/ldappc/</name>
+                                <manifestEntries>
+                                    <Implementation-Title>${pom.artifactId}</Implementation-Title>
+                                    <Implementation-Version>${pom.version}</Implementation-Version>
+                                    <Implementation-Vendor>grouper.internet2.edu</Implementation-Vendor>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
                         </goals>
                     </execution>
                 </executions>

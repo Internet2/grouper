@@ -23,7 +23,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-lang.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-logging.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-math.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/DdlUtils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/dom4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ehcache.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate.jar"/>
@@ -62,5 +61,6 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/commons-httpclient.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/ddlUtils.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

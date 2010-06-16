@@ -5614,7 +5614,7 @@ public enum GrouperDdl implements DdlVersionable {
         Types.VARCHAR, "40", false, false);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "hibernate_version_number", 
-        Types.INTEGER, null, false, false);
+        Types.BIGINT, null, false, false);
     
     // field_id doesn't need to be in the unique index, but i'm adding it so that we can
     // set parent_id to null before removing self groupSets without getting a constraint
@@ -5773,7 +5773,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "hibernate_version_number", 
-          Types.INTEGER, null, false, false); 
+          Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "id", 
           Types.VARCHAR, ID_SIZE, true, true); 
@@ -5854,25 +5854,25 @@ public enum GrouperDdl implements DdlVersionable {
           "grouper_version", Types.VARCHAR, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "hibernate_version_number", Types.INTEGER, null, false, false); 
+          "hibernate_version_number", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "id", Types.VARCHAR, ID_SIZE, true, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int01", Types.INTEGER, null, false, false); 
+          "int01", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int02", Types.INTEGER, null, false, false); 
+          "int02", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int03", Types.INTEGER, null, false, false); 
+          "int03", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int04", Types.INTEGER, null, false, false); 
+          "int04", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "int05", Types.INTEGER, null, false, false); 
+          "int05", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "last_updated", Types.BIGINT, "20", false, false); 
@@ -5911,7 +5911,7 @@ public enum GrouperDdl implements DdlVersionable {
           "user_ip_address", Types.VARCHAR, "50", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "duration_microseconds", Types.INTEGER, null, false, false); 
+          "duration_microseconds", Types.BIGINT, "15", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "query_count", Types.INTEGER, null, false, false); 
@@ -5932,7 +5932,7 @@ public enum GrouperDdl implements DdlVersionable {
           "audit_entry_logged_in_idx", false, "logged_in_member_id");
 
       if (!ddlVersionBean.isSqlServer()) {
-        //do 5 string indexes, probably dont need them on the other string cols
+        //do 8 string indexes, probably dont need them on the other string cols
         for (int i=1;i<=8;i++) {
           //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
           String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX audit_entry_string0" + i + "_idx " +
@@ -5970,7 +5970,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "hibernate_version_number", 
-          Types.INTEGER, null, false, false); 
+          Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "id", 
           Types.VARCHAR, ID_SIZE, true, true); 
@@ -6038,7 +6038,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, ID_SIZE, true, true); 
   
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, 
-          "hibernate_version_number", Types.INTEGER, null, false, false); 
+          "hibernate_version_number", Types.BIGINT, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogConsumerTable.getName(), 
           "change_log_consumer_name_idx", true, "name");
@@ -6210,7 +6210,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.INTEGER, null, false, false);
+          Types.BIGINT, null, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
           "flat_mship_uniq_idx", true, FlatMembership.COLUMN_OWNER_ID, FlatMembership.COLUMN_MEMBER_ID,
@@ -6252,7 +6252,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatGroupsTable, FlatGroup.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.INTEGER, null, false, false);
+          Types.BIGINT, null, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatGroupsTable.getName(), 
           "flat_group_group_idx", true, FlatGroup.COLUMN_GROUP_ID);
@@ -6275,7 +6275,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatStemsTable, FlatStem.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.INTEGER, null, false, false);
+          Types.BIGINT, null, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatStemsTable.getName(), 
           "flat_stem_stem_idx", true, FlatStem.COLUMN_STEM_ID);
@@ -6298,7 +6298,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "40", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatAttributeDefTable, FlatAttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, 
-          Types.INTEGER, null, false, false);
+          Types.BIGINT, null, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatAttributeDefTable.getName(), 
           "flat_attrdef_attrdef_idx", true, FlatAttributeDef.COLUMN_ATTRIBUTE_DEF_ID);

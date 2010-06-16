@@ -10,31 +10,29 @@
     <target id="ldap" provider="ldap-provider" />
 
     <object id="stem">
-      <identifier ref="stem-dn" baseId="ou=testgroups,${base}">
+      <identifier ref="stem-dn" baseId="${groupsOU}">
         <identifyingAttribute name="objectclass" value="organizationalUnit" />
       </identifier>
       <attribute name="objectClass" ref="stem-objectclass" />
       <attribute name="ou" ref="stem-ou" />
-      <!-- TODO tests fail because of ordering
       <attribute name="description" ref="stem-description" />
-      -->
     </object>
 
     <object id="group" authoritative="true">
-      <identifier ref="group-dn" baseId="ou=testgroups,${base}">
+      <identifier ref="group-dn" baseId="${groupsOU}">
         <identifyingAttribute name="objectClass" value="${groupObjectClass}" />
       </identifier>
       <attribute name="objectClass" ref="group-objectclass" />
       <attribute name="cn" />
       <attribute name="description" />
-      <references name="member" >
+      <references name="member">
         <reference ref="members-jdbc" toObject="member" />
         <reference ref="members-g:gsa" toObject="group" />
       </references>
     </object>
 
     <object id="member">
-      <identifier ref="member-dn" baseId="ou=testpeople,${base}">
+      <identifier ref="member-dn" baseId="${peopleOU}">
         <identifyingAttribute name="objectclass" value="person" />
       </identifier>
     </object>

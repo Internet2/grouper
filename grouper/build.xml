@@ -110,64 +110,8 @@
     </delete>
     <!-- clean extensions -->
     <antcall target="ext.clean"/>
-    <!-- delete ldappcng dir -->
-    <delete dir="${ldappcng.dir}" />
   </target>
   <!-- target: clean -->
-
-  <target name="ldappcng" description="after 'mvn package -DskipTests' in ldappcng, run this target to copy the conf and libs to grouper for gsh">
-    <!-- unzip ldappcng distribution -->
-    <mkdir dir="${ldappcng.dir}" />
-    <if>
-      <available file="${ldappcng.basedir}/target/ldappcng-${version}-bin.zip" />
-      <then>
-        <unzip src="${ldappcng.basedir}/target/ldappcng-${version}-bin.zip" dest="${ldappcng.dir}" />
-      </then>
-      <elseif>
-        <available file="${ldappcng.basedir}/target/ldappcng-${version}-SNAPSHOT-bin.zip" />
-        <then>
-          <unzip src="${ldappcng.basedir}/target/ldappcng-${version}-SNAPSHOT-bin.zip" dest="${ldappcng.dir}" />
-          <move file="${ldappcng.dir}/ldappcng-${version}-SNAPSHOT" tofile="${ldappcng.dir}/ldappcng-${version}" />
-        </then>
-      </elseif>
-      <else>
-        <fail message="Could not find ldappcng binary package, try 'mvn package -DskipTests' in ${ldappcng.basedir}" />
-      </else>
-    </if>
-
-    <!-- copy jars -->    
-    <foreach target="ldappcng.copyJar" param="file">
-      <path>
-      <fileset dir="${ldappcng.dir}/ldappcng-${version}/lib">
-          <include name="**/*.jar"/>
-        <exclude name="grouper*.jar" />
-        <exclude name="subject*.jar" />
-        <exclude name="morphString*.jar" />
-      </fileset>
-      </path>
-    </foreach>
-  </target>
-
-  <target name="ldappcng.copyJar" description="copy jar to lib/custom if it does not exist already" >
-    <!-- basename is "file-version.jar" -->
-    <basename file="${file}" property="basename"/>
-    <!-- set property to name of jar without -version string -->
-    <propertyregex property="jar-without-version"
-                  input="${basename}"
-                  regexp="(.*?)-\d+.*?\.jar"
-                  select="\1"
-                  casesensitive="false" />
-    <!-- property is set if jar already exists in lib -->
-    <pathconvert property="found" setonempty="false">
-      <fileset dir="lib" includes="**/${jar-without-version}.jar"/>
-    </pathconvert>
-    <!-- copy jar-with-version if property is not set -->    
-    <if><not><isset property="found" /></not>
-      <then>
-        <copy file="${file}" toDir="lib/custom" />
-       </then>
-    </if>
-  </target>
   
   <!-- target: compile -->
   <target name="compile" 
@@ -959,6 +903,72 @@
   </target>
   <target name="db-init">
   	<fail>The db-init target has been superseded by gsh. Invoke gsh(.sh) -registry</fail>
+  </target>
+  
+  <target name="ldappcng.depends" description="To share properties with ldappc and ldappc.copyJar targets">
+    <property name="ldappcng.dir" value="${dist.dir}/ldappcng" />
+    <property name="grouper.ldappcng.dir" value="${dist.dir}/ldappcng/grouper.ldappcng-${version}" />
+  </target>
+  
+  <target name="ldappcng" depends="ldappcng.depends" description="after 'mvn package -DskipTests' in ldappcng, build binary ldappc distribution">
+    <!-- unzip ldappcng distribution -->
+    <if>
+      <available file="${ldappcng.basedir}/target/ldappcng-${version}-bin.zip" />
+      <then>
+        <unzip src="${ldappcng.basedir}/target/ldappcng-${version}-bin.zip" dest="${ldappcng.dir}" />
+      </then>
+      <elseif>
+        <available file="${ldappcng.basedir}/target/ldappcng-${version}-SNAPSHOT-bin.zip" />
+        <then>
+          <unzip src="${ldappcng.basedir}/target/ldappcng-${version}-SNAPSHOT-bin.zip" dest="${ldappcng.dir}" />
+          <move file="${ldappcng.dir}/ldappcng-${version}-SNAPSHOT" tofile="${ldappcng.dir}/ldappcng-${version}" />
+        </then>
+      </elseif>
+      <else>
+        <fail message="Could not find ldappcng binary package, try 'mvn package -DskipTests' in ${ldappcng.basedir}" />
+      </else>
+    </if>
+
+    <!-- copy non-duplicate jars -->
+    <foreach target="ldappcng.copyJar" param="file">
+      <path>
+        <fileset dir="${ldappcng.dir}/ldappcng-${version}/lib">
+          <include name="**/*.jar" />
+        </fileset>
+      </path>
+    </foreach>
+
+    <!-- copy example config files -->
+    <copy todir="${grouper.ldappcng.dir}/conf">
+      <fileset dir="${ldappcng.dir}/ldappcng-${version}/conf">
+        <include name="**/*.example.*" />
+      </fileset>
+    </copy>
+
+    <!-- make pacakge -->
+    <tar destfile="${ldappcng.dir}/grouper.ldappcng-${version}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset dir="${grouper.ldappcng.dir}" prefix="grouper.ldappcng-${version}" preserveLeadingSlashes="false" />
+    </tar>
+  </target>
+
+  <target name="ldappcng.copyJar" depends="ldappcng.depends" description="copy jar to lib/custom if it does not exist already">
+    <!-- basename is "file-version.jar" -->
+    <basename file="${file}" property="basename" />
+    <!-- set property to name of jar without -version string -->
+    <propertyregex property="jar-without-version" input="${basename}" regexp="(.*?)-\d+.*?\.jar" select="\1" casesensitive="false" />
+    <!-- property is set if jar already exists in lib -->
+    <pathconvert property="found" setonempty="false">
+      <fileset dir="lib" includes="**/${jar-without-version}.jar" />
+    </pathconvert>
+    <!-- copy jar-with-version if property is not set -->
+    <if>
+      <not>
+        <isset property="found" />
+      </not>
+      <then>
+        <copy file="${file}" toDir="${grouper.ldappcng.dir}/lib/custom" verbose="true" />
+      </then>
+    </if>
   </target>
 
 </project>
