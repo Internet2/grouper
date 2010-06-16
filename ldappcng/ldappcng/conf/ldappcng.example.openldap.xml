@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ldappc xmlns="http://grouper.internet2.edu/ldappc"
+        xmlns:ldappc="http://grouper.internet2.edu/ldappc"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://grouper.internet2.edu/ldappc classpath:/schema/ldappc.xsd">
+
+  <targets id="LDAP">
+
+    <target id="ldap" provider="ldap-provider" />
+
+    <object id="stem">
+      <identifier ref="stem-dn" baseId="${groupsOU}">
+        <identifyingAttribute name="objectclass" value="organizationalUnit" />
+      </identifier>
+      <attribute name="objectClass" ref="stem-objectclass" />
+      <attribute name="ou" ref="stem-ou" />
+      <attribute name="description" ref="stem-description" />
+    </object>
+
+    <object id="group" authoritative="true">
+      <identifier ref="group-dn" baseId="${groupsOU}">
+        <identifyingAttribute name="objectClass" value="${groupObjectClass}" />
+      </identifier>
+      <attribute name="objectClass" ref="group-objectclass-eduMember" />
+      <attribute name="cn" />
+      <attribute name="description" />
+      <attribute name="hasMember" ref="hasMember" />
+      <attribute name="isMemberOf" ref="groupIsMemberOf" />
+      <references name="member" emptyValue="" >
+        <reference ref="members-jdbc" toObject="member" />
+        <reference ref="members-g:gsa" toObject="group" />
+      </references>
+    </object>
+
+    <object id="member">
+      <identifier ref="member-dn" baseId="${peopleOU}">
+        <identifyingAttribute name="objectclass" value="person" />
+      </identifier>
+      <attribute name="objectClass" ref="member-objectclass" retainAll="true" />
+      <attribute name="isMemberOf" ref="memberIsMemberOf" />
+    </object>
+
+  </targets>
+
+</ldappc>
+ 
+
+
