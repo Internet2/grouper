@@ -66,6 +66,10 @@
   <resolver:AttributeDefinition id="stem-ou" xsi:type="ad:Simple" sourceAttributeID="extension">
     <resolver:Dependency ref="StemDataConnector" />
   </resolver:AttributeDefinition>
+  
+  <resolver:AttributeDefinition id="stem-description" xsi:type="ad:Simple" sourceAttributeID="description">
+    <resolver:Dependency ref="StemDataConnector" />
+  </resolver:AttributeDefinition>
 
   <resolver:AttributeDefinition id="group-dn" xsi:type="ldappc:LdapDnPSOIdentifier"
     structure="bushy" sourceAttributeID="extension" rdnAttributeName="cn" base="ou=testgroups,${base}">
@@ -73,10 +77,6 @@
   </resolver:AttributeDefinition>
 
   <resolver:AttributeDefinition id="group-objectclass" xsi:type="ad:Simple">
-    <resolver:Dependency ref="StaticDataConnector" />
-  </resolver:AttributeDefinition>
-  
-  <resolver:AttributeDefinition id="group-objectclass-ad" xsi:type="ad:Simple">
     <resolver:Dependency ref="StaticDataConnector" />
   </resolver:AttributeDefinition>
   

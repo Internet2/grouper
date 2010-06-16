@@ -15,6 +15,9 @@
       </identifier>
       <attribute name="objectClass" ref="stem-objectclass" />
       <attribute name="ou" ref="stem-ou" />
+      <!-- TODO tests fail because of ordering
+      <attribute name="description" ref="stem-description" />
+      -->
     </object>
 
     <object id="group" authoritative="true">
