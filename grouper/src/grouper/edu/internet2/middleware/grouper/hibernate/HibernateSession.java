@@ -386,7 +386,7 @@ public class HibernateSession {
   public static void _internal_hibernateSessionCatch(HibernateSession hibernateSession, Throwable e) throws GrouperDAOException {
 
     //if there was a save point, rollback (since postgres doesnt like a failed query not rolled back)
-    if (hibernateSession.savepoint != null) {
+    if (hibernateSession != null && hibernateSession.savepoint != null) {
       try {
         hibernateSession.activeHibernateSession().getSession().connection().rollback(hibernateSession.savepoint);
       } catch (SQLException sqle) {

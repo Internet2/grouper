@@ -113,6 +113,11 @@ public class RestClientSettings {
         if (StringUtils.isBlank(actAsGroupName)) {
           throw new RuntimeException("Set a " + GrouperWsConfig.WS_ACT_AS_GROUP + " in grouper-ws.properties");
         }
+        
+        if (StringUtils.contains(actAsGroupName, ",") || StringUtils.contains(actAsGroupName, "::")) {
+          throw new RuntimeException(GrouperWsConfig.WS_ACT_AS_GROUP + " in grouper-ws.properties cannot contain comma or two colons for tests");
+        }
+        
         Group actAsGroup = Group.saveGroup(grouperSession, actAsGroupName, null, actAsGroupName, null, null, null, true);
         actAsGroup.addMember(userSubject, false);
         

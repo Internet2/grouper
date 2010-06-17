@@ -107,7 +107,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAssignAttributesStemReplace"));
+    TestRunner.run(new GrouperServiceLogicTest("testAssignPermissions"));
   }
 
   /**
@@ -3023,6 +3023,10 @@ public class GrouperServiceLogicTest extends GrouperTest {
     WsMembershipAnyLookup wsMembershipAnyLookup = new WsMembershipAnyLookup(
         new WsGroupLookup(role.getName(), null), new WsSubjectLookup(SubjectTestHelper.SUBJ4_ID, null, null));
 
+    //member must be in role to assign a permission
+    role.addMember(SubjectTestHelper.SUBJ4, false);
+    attributeDef.setAssignToEffMembership(true); 
+    attributeDef.store();
     wsAssignPermissionsResults = GrouperServiceLogic.assignPermissions(
         GrouperVersion.valueOfIgnoreCase("v1_6_000"), PermissionType.role_subject, 
         new WsAttributeDefNameLookup[]{new WsAttributeDefNameLookup(attributeDefName.getName(), null)}, 
@@ -3038,8 +3042,10 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     
+    Member member4 = MemberFinder.findBySubject(GrouperServiceUtils.testSession, SubjectTestHelper.SUBJ4, false);
+    
     Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
-      .findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(role.getId(), SubjectTestHelper.SUBJ4_ID)), null, null, false);
+      .findAnyMembershipAttributeAssignments(null, null, null, GrouperUtil.toSet(new MultiKey(role.getId(), member4.getUuid())), null, null, false);
     assertEquals(1, attributeAssigns.size());
     assertNotNull(attributeAssigns.iterator().next().getId());
 
