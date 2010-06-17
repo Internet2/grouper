@@ -2070,6 +2070,58 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * find or create column with various properties
+   * @param table 
+   * @param columnName 
+   * @param typeCode from java.sql.Types
+   * @param size string, can be a simple int, or comma separated, see ddlutils docs
+   * @param primaryKey this should only be true for new tables
+   * @param required this should probably only be true for new tables (since ddlutils will copy to temp table)
+   * @return the column
+   */
+  public static Column ddlutilsFixSizeColumn(Table table, String columnName, 
+      int typeCode, String size, boolean primaryKey, boolean required) {
+    return ddlutilsFixSizeColumn(table, columnName, typeCode, size, primaryKey, required, null);
+  }
+  
+  /**
+   * find or create column with various properties
+   * @param table 
+   * @param columnName 
+   * @param typeCode from java.sql.Types
+   * @param size string, can be a simple int, or comma separated, see ddlutils docs
+   * @param primaryKey this should only be true for new tables
+   * @param required this should probably only be true for new tables (since ddlutils will copy to temp table)
+   * @param defaultValue is null for none, or something for default value
+   * @return the column
+   */
+  public static Column ddlutilsFixSizeColumn(Table table, String columnName, 
+      int typeCode, String size, boolean primaryKey, boolean required, String defaultValue) {
+
+    Column column = table.findColumn(columnName);
+    
+    if (column == null) {
+      column = new Column();
+      column.setName(columnName);
+      //just add to end of columns
+      table.addColumn(column);
+      column.setRequired(required);
+    }
+    
+    column.setTypeCode(typeCode);
+    if (!StringUtils.equals(size, column.getSize())) {
+      column.setSize(size);
+    }
+    if (defaultValue != null) {
+      column.setDefaultValue(defaultValue);
+    }
+
+    column.setPrimaryKey(primaryKey);
+
+    return column;
+  }
+  
+  /**
    * find and drop a column if it is there.   If table not there, thats ok
    * also drop all related indexes
    * @param database

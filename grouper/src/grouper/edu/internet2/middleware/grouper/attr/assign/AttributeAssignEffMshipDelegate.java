@@ -64,7 +64,7 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
       this.isMember = this.group.hasMember(this.member.getSubject());
     }
     if (!this.isMember) {
-      throw new RuntimeException("Cant create a delegate if member " + GrouperUtil.subjectToString(this.member.getSubject()) 
+      throw new RuntimeException("Cant assign effective membership attribute if member " + GrouperUtil.subjectToString(this.member.getSubject()) 
           + " is not a member of group: " + this.group);
     }
 

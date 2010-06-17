@@ -60,7 +60,7 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-util.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/servlet-api.jar"/>
-	<classpathentry kind="lib" path="lib/grouper/commons-httpclient.jar"/>
-	<classpathentry kind="lib" path="lib/grouper/ddlUtils.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-httpclient.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ddlUtils.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

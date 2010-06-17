@@ -3932,7 +3932,7 @@ public class GrouperServiceLogic {
           actAsSubjectSourceId, actAsSubjectIdentifier);
 
 
-      WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
+      WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName1, paramValue1);
 
       Privilege[] privileges = new Privilege[]{privilegeName};
       
@@ -4823,19 +4823,19 @@ public class GrouperServiceLogic {
                   
                 }
                 
-                //see if any inner failures cause the whole tx to fail, and/or change the outer status
-                if (!wsAssignGrouperPrivilegesResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
-                  grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
-                }
-
               }
+              //assign results
+              wsAssignGrouperPrivilegesResults.setResults(GrouperUtil.toArray(wsAssignGrouperPrivilegesResultList, WsAssignGrouperPrivilegesResult.class));
+              
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsAssignGrouperPrivilegesResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+
               return null;
             }
       });
             
-      //assign results
-      wsAssignGrouperPrivilegesResults.setResults(GrouperUtil.toArray(wsAssignGrouperPrivilegesResultList, WsAssignGrouperPrivilegesResult.class));
-      
     } catch (InsufficientPrivilegeException ipe) {
       wsAssignGrouperPrivilegesResults
           .assignResultCode(WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode.INSUFFICIENT_PRIVILEGES);

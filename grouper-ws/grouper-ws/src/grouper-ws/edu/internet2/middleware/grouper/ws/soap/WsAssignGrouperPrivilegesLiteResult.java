@@ -57,6 +57,9 @@ public class WsAssignGrouperPrivilegesLiteResult implements WsResponseBean, Resu
       this.getResultMetadata().assignResultCode(
           wsAssignGrouperPrivilegesResult.resultCode().convertToLiteCode());
       this.setWsSubject(wsAssignGrouperPrivilegesResult.getWsSubject());
+      this.setAllowed(wsAssignGrouperPrivilegesResult.getAllowed());
+      this.setPrivilegeName(wsAssignGrouperPrivilegesResult.getPrivilegeName());
+      this.setPrivilegeType(wsAssignGrouperPrivilegesResult.getPrivilegeType());
     }
   }
 
