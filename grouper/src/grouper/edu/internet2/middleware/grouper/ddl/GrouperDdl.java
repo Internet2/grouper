@@ -562,6 +562,35 @@ public enum GrouperDdl implements DdlVersionable {
           
         }          
       }
+      
+      //fix column lengths
+      {
+        Table grouperAuditEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+            AuditEntry.TABLE_GROUPER_AUDIT_ENTRY);
+        
+        GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
+            "hibernate_version_number", Types.BIGINT, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
+            "int01", Types.BIGINT, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
+            "int02", Types.BIGINT, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
+            "int03", Types.BIGINT, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
+            "int04", Types.BIGINT, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
+            "int05", Types.BIGINT, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFixSizeColumn(grouperAuditEntryTable, 
+            "duration_microseconds", Types.BIGINT, "15", false, false); 
+        
+
+      }
     }
   },
   
