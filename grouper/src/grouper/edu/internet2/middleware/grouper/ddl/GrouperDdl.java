@@ -6644,6 +6644,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
           AttributeAssignValue.COLUMN_VALUE_INTEGER, Types.BIGINT, "20", false, false);
 
+      //why is this line here???  it should be taken care of in the method below... oh well
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
           AttributeAssignValue.COLUMN_VALUE_FLOATING, Types.FLOAT, "20,5", false, false);
 
