@@ -549,6 +549,8 @@ public enum GrouperDdl implements DdlVersionable {
             ddlVersionBean.appendAdditionalScriptUnique("alter table `grouper_attribute_assign` change `enabled_time` `enabled_time` bigint(20) NULL;\n");
           } else if (ddlVersionBean.isOracle()) {
             ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE GROUPER_ATTRIBUTE_ASSIGN MODIFY(ENABLED_TIME NUMBER);\n");
+          } else if (ddlVersionBean.isPostgres()) {
+            ddlVersionBean.appendAdditionalScriptUnique("alter table grouper_attribute_assign alter column enabled_time type bigint USING CAST (enabled_time as BIGINT);\n");
           } else {
             //do the default
             column.setTypeCode(Types.BIGINT);
