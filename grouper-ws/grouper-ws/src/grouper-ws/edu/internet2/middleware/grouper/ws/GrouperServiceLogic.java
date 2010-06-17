@@ -3932,7 +3932,7 @@ public class GrouperServiceLogic {
           actAsSubjectSourceId, actAsSubjectIdentifier);
 
 
-      WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
+      WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName1, paramValue1);
 
       Privilege[] privileges = new Privilege[]{privilegeName};
       
