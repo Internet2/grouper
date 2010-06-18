@@ -228,7 +228,7 @@ public class XmlExportMainTest extends GrouperTest {
     xml = stringWriter.toString();
     
     //TODO comment this out
-    System.out.println(xml);
+    //System.out.println(xml);
     
     assertTrue(xml, xml.contains("<!--"));
     assertTrue(xml, xml.contains("<members>"));
