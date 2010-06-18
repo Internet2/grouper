@@ -73,7 +73,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAddMember"));
+    TestRunner.run(new GrouperClientWsTest("testGetAttributeAssignsGroup"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -196,6 +196,15 @@ public class GrouperClientWsTest extends GrouperTest {
             "webService.hasMember.output",
             "Index ${index}: success: ${wsHasMemberResult.resultMetadata.success}: code: ${wsHasMemberResult.resultMetadata.resultCode}: ${wsHasMemberResult.wsSubject.id}: ${hasMember}$newline$");
 
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup4", false);
+    
+    if (group != null) {
+      group.delete();
+    }
+    
     GrouperClient.exitOnError = false;
   }
 
@@ -12595,7 +12604,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-      	.compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
+          .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
