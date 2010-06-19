@@ -73,7 +73,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetAttributeAssignsGroup"));
+    TestRunner.run(new GrouperClientWsTest("testAssignAttributesGroup"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -10727,7 +10727,8 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), valuesChanged\\: (T|F)$");
+        .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), " +
+        		"values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -10743,6 +10744,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
       assertEquals(outputLine, "T", matcher.group(9));
       assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -10918,6 +10920,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
       assertEquals(outputLine, "F", matcher.group(9));
       assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -11460,7 +11463,8 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "T", matcher.group(7));
       assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
       assertEquals(outputLine, "F", matcher.group(9));
-      assertEquals(outputLine, "T", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "T", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -11554,6 +11558,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
       assertEquals(outputLine, "F", matcher.group(9));
       assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -11643,6 +11648,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
       assertEquals(outputLine, "F", matcher.group(9));
       assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -11732,6 +11738,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
       assertEquals(outputLine, "F", matcher.group(9));
       assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -11821,6 +11828,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, attributeAssign.getId(), matcher.group(8));
       assertEquals(outputLine, "F", matcher.group(9));
       assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -11914,7 +11922,8 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "T", matcher.group(7));
       assertEquals(outputLine, attributeAssignId, matcher.group(8));
       assertEquals(outputLine, "T", matcher.group(9));
-      assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "T", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -12089,7 +12098,8 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "T", matcher.group(7));
       assertEquals(outputLine, attributeAssignId, matcher.group(8));
       assertEquals(outputLine, "T", matcher.group(9));
-      assertEquals(outputLine, "F", matcher.group(10));
+      assertEquals(outputLine, "T", matcher.group(10));
+      assertEquals(outputLine, "F", matcher.group(11));
       
       assertTrue(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
@@ -12196,7 +12206,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), valuesChanged\\: (T|F)$");
+        .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -12402,7 +12412,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), valuesChanged\\: (T|F)$");
+        .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -12813,7 +12823,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), valuesChanged\\: (T|F)$");
+        .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -12948,7 +12958,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), valuesChanged\\: (T|F)$");
+        .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -13080,7 +13090,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), valuesChanged\\: (T|F)$");
+        .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -14484,7 +14494,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-          .compile("^Index\\: (\\d+)\\: permissionType\\: (.+), owner\\: (.+), permissionDefNameName\\: (.+), action\\: (.+), enabled\\: (T|F), attributeAssignId\\: (.+), changed\\: (T|F)$");
+          .compile("^Index\\: (\\d+)\\: permissionType\\: (.+), owner\\: (.+), permissionDefNameName\\: (.+), action\\: (.+), enabled\\: (T|F), attributeAssignId\\: (.+), changed\\: (T|F), deleted\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -15689,7 +15699,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
-        .compile("^Index\\: (\\d+)\\: permissionType\\: (.+), owner\\: (.+), permissionDefNameName\\: (.+), action\\: (.+), enabled\\: (T|F), attributeAssignId\\: (.+), changed\\: (T|F)$");
+        .compile("^Index\\: (\\d+)\\: permissionType\\: (.+), owner\\: (.+), permissionDefNameName\\: (.+), action\\: (.+), enabled\\: (T|F), attributeAssignId\\: (.+), changed\\: (T|F), deleted\\: (T|F)$");
       String outputLine = outputLines[0];
   
       Matcher matcher = pattern.matcher(outputLines[0]);
