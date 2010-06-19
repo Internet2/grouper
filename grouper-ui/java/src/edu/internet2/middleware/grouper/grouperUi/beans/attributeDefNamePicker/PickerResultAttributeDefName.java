@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -115,6 +116,7 @@ public class PickerResultAttributeDefName implements Serializable, Comparable<Pi
       Map<String, Object> variableMap = new HashMap<String, Object>();
       variableMap.put("attributeDefName", this.attributeDefName);
       variableMap.put("pickerResultAttributeDefName", this);
+      variableMap.put("grouperUiUtils", new GrouperUiUtils());
       this.screenLabel = GrouperUtil.substituteExpressionLanguage(attributeDefNameEl, variableMap);
     }
     

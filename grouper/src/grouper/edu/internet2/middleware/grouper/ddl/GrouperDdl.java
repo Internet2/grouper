@@ -550,7 +550,7 @@ public enum GrouperDdl implements DdlVersionable {
           } else if (ddlVersionBean.isOracle()) {
             ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE GROUPER_ATTRIBUTE_ASSIGN MODIFY(ENABLED_TIME NUMBER);\n");
           } else if (ddlVersionBean.isPostgres()) {
-            ddlVersionBean.appendAdditionalScriptUnique("alter table grouper_attribute_assign alter column enabled_time type bigint;\n");
+            ddlVersionBean.appendAdditionalScriptUnique("alter table grouper_attribute_assign alter column enabled_time type bigint USING CAST (enabled_time as BIGINT);\n");
           } else {
             //do the default
             column.setTypeCode(Types.BIGINT);
@@ -591,6 +591,26 @@ public enum GrouperDdl implements DdlVersionable {
         
 
       }
+      
+      if (!ddlVersionBean.isSqlServer()) {
+        
+        Table grouperAuditEntryTable = GrouperDdlUtils.ddlutilsFindTable(database,
+            AuditEntry.TABLE_GROUPER_AUDIT_ENTRY);
+
+        //do 8 string indexes, probably dont need them on the other string cols
+        for (int i=6;i<=8;i++) {
+          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX audit_entry_string0" + i + "_idx " +
+              "ON grouper_audit_entry (string0" + i + "(255));\n" : null;
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperAuditEntryTable.getName(), 
+              "audit_entry_string0" + i + "_idx", scriptOverride, false, "string0" + i);
+          
+        }
+      }
+      
+      addGrouperLoaderJobNameIndex(database, ddlVersionBean);
+      
     }
   },
   
@@ -1216,12 +1236,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_priority", 
           Types.INTEGER, null, false, false);
 
-      //see if the grouper_ext_loader_log table is there
-      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_loader_job_name_idx " +
-          "ON grouper_loader_log (job_name(255), status, ended_time);\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, "grouper_loader_log",
-          "grouper_loader_job_name_idx", scriptOverride, false, "job_name", "status", "ended_time");
+      addGrouperLoaderJobNameIndex(database, ddlVersionBean);
 
       addContextIdColsLoader(database);
     }
@@ -5363,6 +5378,20 @@ public enum GrouperDdl implements DdlVersionable {
         "grouper_stems", "grouper_types"};
   }
   
+  /**
+   * @param database
+   * @param ddlVersionBean
+   */
+  private static void addGrouperLoaderJobNameIndex(Database database,
+      DdlVersionBean ddlVersionBean) {
+    //see if the grouper_ext_loader_log table is there
+    String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX grouper_loader_job_name_idx " +
+        "ON grouper_loader_log (job_name(255), status, ended_time);\n" : null;
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, "grouper_loader_log",
+        "grouper_loader_job_name_idx", scriptOverride, false, "job_name", "status", "ended_time");
+  }
+
   /**
    * @param database
    */

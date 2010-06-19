@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.exception.AttributeDefAddException;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -1755,6 +1756,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               } 
               GrouperValidator v = AddGroupValidator.validate(Stem.this, extn, dExtn);
               if (v.isInvalid()) {
+                if (v.getErrorMessage().startsWith(AddGroupValidator.GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX)) {
+                  throw new GroupAddAlreadyExistsException(v.getErrorMessage() + errorMessageSuffix);
+                }
                 throw new GroupAddException( v.getErrorMessage() + errorMessageSuffix );
               }
         
