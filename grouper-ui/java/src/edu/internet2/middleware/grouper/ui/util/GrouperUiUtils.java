@@ -1208,6 +1208,7 @@ public class GrouperUiUtils {
     //run the screen EL
     Map<String, Object> variableMap = new HashMap<String, Object>();
     variableMap.put("subject", subject);
+    variableMap.put("grouperUiUtils", new GrouperUiUtils());
     return GrouperUtil.substituteExpressionLanguage(screenEl, variableMap);
   }
 
