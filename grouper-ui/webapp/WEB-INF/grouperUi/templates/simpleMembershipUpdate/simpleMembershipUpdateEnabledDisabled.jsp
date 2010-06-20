@@ -71,7 +71,7 @@
           <tr>
             <td colspan="2" align="right"  class="buttonRow">
 
-              <button class="simplemodal-close blueButton"><grouper:message value="${simpleMembershipUpdateContainer.enabledDisableCancelButton}" /></button> 
+              <button class="simplemodal-close blueButton"><grouper:message value="${simpleMembershipUpdateContainer.text.enabledDisableCancelButton}" /></button> 
               &nbsp;
               <%-- add member button --%>
               <input class="blueButton" type="submit" 

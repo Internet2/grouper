@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -529,7 +530,8 @@ public class SimpleMembershipUpdate {
       
       subject = GrouperUiUtils.findSubject(comboValue);
       subjectLabel = GrouperUiUtils.convertSubjectToLabel(subject);
-      if (group.hasImmediateMember(subject)) {
+      Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), group, subject, Group.getDefaultList(), false);
+      if (membership != null) {
         
         //lets clear out the combobox:
         guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("simpleMembershipUpdateAddMember", null));
