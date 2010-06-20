@@ -183,7 +183,7 @@ public class SubjectImpl implements Subject {
       return null;
     }
     Set<String> values = this.attributes.get(name1);
-    if (values != null) {
+    if (values != null && values.size() > 0) {
       //return the first, no matter how many there are
       return values.iterator().next();
     }
