@@ -406,6 +406,7 @@
     <action path="/home" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.HomeAction"
             unknown="false" validate="false">
+			<!-- Please note that from v1.6.1 onwards this setting will be overridden by default.browse.path in media.properties - if set -->
                   <forward name="home" path="/populateMyGroups.do"
                redirect="false"/>
     </action>

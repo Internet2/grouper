@@ -17,11 +17,15 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.MissingResourceException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 /**
  * Top level Strut's action which forward to the home page defined in the 
@@ -44,6 +48,14 @@ public class HomeAction extends org.apache.struts.action.Action {
   public ActionForward execute(ActionMapping mapping, ActionForm form,
       HttpServletRequest request, HttpServletResponse response)
       throws Exception {
+	  try {
+	  String defaultUrl=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("default.browse.path");
+		if(defaultUrl !=null && defaultUrl.startsWith("/")) {
+			return new ActionForward(defaultUrl,true);
+		}
+	  }catch(MissingResourceException e) {
+		//default.browse.path not set so use Struts config  
+	  }
   	
     return mapping.findForward(FORWARD_home);
   }
