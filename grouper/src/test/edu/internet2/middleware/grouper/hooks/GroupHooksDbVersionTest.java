@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.hooks;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
@@ -101,6 +102,13 @@ public class GroupHooksDbVersionTest extends GrouperTest {
     group = GroupFinder.findByName(this.grouperSession, "edu:myGroup", true);
     
     group.setExtension("anotherExt");
+    group.store();
+    
+    GroupType groupType = GroupType.createType(this.grouperSession, "test1");
+    
+    group.addType(groupType, false);
+    
+    group.setExtension("anotherExt2");
     group.store();
     
   }

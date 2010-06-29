@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -56,6 +57,8 @@ public class GroupHookDbVersion extends GroupHooks {
       return false;
     }
 
+    //System.out.println(group.dbVersion().getExtension());
+    
     final String currentExtension = group.getExtension();
     
     int dbDifferentFieldsSize = group.dbVersionDifferentFields().size();
@@ -131,6 +134,14 @@ public class GroupHookDbVersion extends GroupHooks {
     LOGGER.debug("groupPreUpdate call isExtensionUpdate");
     if (isExtensionUpdate(group)) {
       LOGGER.debug("isExtensionUpdate");
+    }
+    StringBuilder typeString = new StringBuilder();
+    typeString.append("type for group: " + group.getName() + ": ");
+    if (LOGGER.isDebugEnabled()) {
+      for (GroupType groupType : group.getTypes()) {
+        typeString.append(groupType.getName() + ", ");
+      }
+      LOGGER.debug(typeString);
     }
   }
 
