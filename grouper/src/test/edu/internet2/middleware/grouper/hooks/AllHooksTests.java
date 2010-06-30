@@ -40,6 +40,7 @@ public class AllHooksTests {
     suite.addTestSuite(CompositeHooksTest.class);
     suite.addTestSuite(MemberHooksTest.class);
     suite.addTestSuite(LifecycleHooksTest.class);
+    suite.addTestSuite(ESCOGroupHooksTest.class);
     suite.addTestSuite(GroupHooksDbVersionTest.class);
     suite.addTestSuite(GroupHooksAddTypeTest.class);
     suite.addTestSuite(AttributeHooksTest.class);
