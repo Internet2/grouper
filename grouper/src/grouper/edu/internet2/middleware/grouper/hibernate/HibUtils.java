@@ -210,7 +210,7 @@ public class HibUtils {
       //forget about it
     }
   }
-  
+
   /**
    * <pre>
    * evict a list of objects from hibernate.  do this always for two reasons:
@@ -227,6 +227,26 @@ public class HibUtils {
    */
   public static void evict(HibernateSession hibernateSession,
       Object object, boolean onlyEvictIfNotNew) {
+    evict(hibernateSession, object, onlyEvictIfNotNew, true);
+  }
+  
+  /**
+   * <pre>
+   * evict a list of objects from hibernate.  do this always for two reasons:
+   * 1. If you edit an object that is in the hibernate session, and commit, it will
+   * commit those changes magically.  Only objects called session.save(obj) or 
+   * update etc should be committed
+   * 2. If you select an object, then try to store it back (but have a different
+   * reference, e.g. if the DTO went through it, then you will get an exception:
+   * "a different object with the same identifier value was already associated with the session"
+   * </pre>
+   * @param hibernateSession grouper hibernateSession, can be null if not known
+   * @param object to evict that was just retrieved, can be list or array
+   * @param onlyEvictIfNotNew true to only evict if this is a nested tx
+   * @param evictBeforeFlush if evict before flush (dont do this if iterating through list)
+   */
+  public static void evict(HibernateSession hibernateSession,
+      Object object, boolean onlyEvictIfNotNew, boolean evictBeforeFlush) {
     if (object instanceof Collection) {
       HibUtils.evict(hibernateSession, (Collection)object, onlyEvictIfNotNew);
       return;
@@ -239,6 +259,9 @@ public class HibUtils {
     
     //if array, loop through
     if (object != null && object.getClass().isArray()) {
+      if (evictBeforeFlush) {
+        hibernateSession.getSession().flush();
+      }
       for (int i=0;i<Array.getLength(object);i++) {
         HibUtils.evict(hibernateSession, Array.get(object, i), onlyEvictIfNotNew);
       }
@@ -247,7 +270,9 @@ public class HibUtils {
     
     //not sure it could ever be null...
     if (object != null) {
-      hibernateSession.getSession().flush();
+      if (evictBeforeFlush) {
+        hibernateSession.getSession().flush();
+      }
       hibernateSession.getSession().evict(object);
     }
   }
@@ -271,8 +296,9 @@ public class HibUtils {
     if (list == null) {
       return;
     }
+    hibernateSession.getSession().flush();
     for (Object object : list) {
-      evict(hibernateSession, object, onlyEvictIfNotNew);
+      evict(hibernateSession, object, onlyEvictIfNotNew, false);
     }
   }
 
