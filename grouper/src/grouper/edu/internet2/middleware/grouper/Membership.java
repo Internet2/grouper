@@ -1950,23 +1950,28 @@ public class Membership extends GrouperAPI implements
     // if the owner is a group and the field is the default list, then we need to check for composite membership updates
     // and then update last_membership_change
     if (this.getField().equals(Group.getDefaultList())) {
-      Set<String> membersList = new LinkedHashSet<String>();
-      
-      if (member.getSubjectTypeId().equals("group")) {
-        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
-        Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
-            memberGroup.getUuid(), Group.getDefaultList(), null, true).iterator();
-        while (memberIter.hasNext()) {
-          Member currMember = memberIter.next();
-          if (!currMember.getSubjectTypeId().equals("group")) {
-            membersList.add(currMember.getUuid());
-          }          
+      Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(this.getOwnerGroupId());
+      Set<String> groupIds = new LinkedHashSet<String>();
+
+      if (composites.size() > 0) {
+        Set<String> membersList = new LinkedHashSet<String>();
+        if (member.getSubjectTypeId().equals("group")) {
+          Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
+          Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
+              memberGroup.getUuid(), Group.getDefaultList(), null, true).iterator();
+          while (memberIter.hasNext()) {
+            Member currMember = memberIter.next();
+            if (!currMember.getSubjectTypeId().equals("group")) {
+              membersList.add(currMember.getUuid());
+            }          
+          }
+        } else {
+          membersList.add(member.getUuid());
         }
-      } else {
-        membersList.add(member.getUuid());
-      }
       
-      Set<String> groupIds = fixComposites(this.getOwnerGroupId(), membersList);
+        groupIds = fixComposites(composites, this.getOwnerGroupId(), membersList);
+      }
+
       groupIds.add(this.getOwnerGroupId());
 
       // update last_membership_change
@@ -2021,24 +2026,29 @@ public class Membership extends GrouperAPI implements
     // if the owner is a group and the field is the default list, then we need to check for composite membership updates
     // and then update last_membership_change
     if (this.getField().equals(Group.getDefaultList())) {
-      Set<String> membersList = new LinkedHashSet<String>();
-      
-      if (this.getMember().getSubjectTypeId().equals("group")) {
-        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMember().getSubjectId(), true, null);
+      Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(this.getOwnerGroupId());
+      Set<String> groupIds = new LinkedHashSet<String>();
 
-        Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
-            memberGroup.getUuid(), Group.getDefaultList(), null, true).iterator();
-        while (memberIter.hasNext()) {
-          Member currMember = memberIter.next();
-          if (!currMember.getSubjectTypeId().equals("group")) {
-            membersList.add(currMember.getUuid());
+      if (composites.size() > 0) {
+        Set<String> membersList = new LinkedHashSet<String>();
+        if (this.getMember().getSubjectTypeId().equals("group")) {
+          Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMember().getSubjectId(), true, null);
+
+          Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
+              memberGroup.getUuid(), Group.getDefaultList(), null, true).iterator();
+          while (memberIter.hasNext()) {
+            Member currMember = memberIter.next();
+            if (!currMember.getSubjectTypeId().equals("group")) {
+              membersList.add(currMember.getUuid());
+            }
           }
+        } else {
+          membersList.add(this.getMember().getUuid());
         }
-      } else {
-        membersList.add(this.getMember().getUuid());
-      }
       
-      Set<String> groupIds = fixComposites(this.getOwnerGroupId(), membersList);
+        groupIds = fixComposites(composites, this.getOwnerGroupId(), membersList);
+      }
+
       groupIds.add(this.getOwnerGroupId());
 
       // update last_membership_change
@@ -2085,15 +2095,15 @@ public class Membership extends GrouperAPI implements
   
   
   /**
+   * @param composites
    * @param ownerGroupId
    * @param membersList
    * @return set of group ids with modified composite memberships
    */
-  protected static Set<String> fixComposites(String ownerGroupId, Set<String> membersList) {
+  protected static Set<String> fixComposites(Set<Composite> composites, String ownerGroupId, Set<String> membersList) {
 
     Set<String> groupIds = new LinkedHashSet<String>();
     
-    Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(ownerGroupId);
     Iterator<Composite> compositesIter = composites.iterator();
     while (compositesIter.hasNext()) {
       Set<String> modifiedMembersList = new LinkedHashSet<String>();
@@ -2137,7 +2147,8 @@ public class Membership extends GrouperAPI implements
       }
       
       if (modifiedMembersList.size() > 0) {
-        groupIds.addAll(fixComposites(owner.getUuid(), modifiedMembersList));
+        Set<Composite> newComposites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(owner.getUuid());
+        groupIds.addAll(fixComposites(newComposites, owner.getUuid(), modifiedMembersList));
       }
     }
 

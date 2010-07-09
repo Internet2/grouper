@@ -468,7 +468,12 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     super.onPostDelete(hibernateSession);
 
     // fix composites
-    Set<String> groupIds = Membership.fixComposites(this.getFactorOwnerUuid(), membersDeletedOnPreDelete);
+    Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(this.getFactorOwnerUuid());
+    Set<String> groupIds = new LinkedHashSet<String>();
+
+    if (composites.size() > 0) {
+      groupIds = Membership.fixComposites(composites, this.getFactorOwnerUuid(), membersDeletedOnPreDelete);
+    }
     
     // update last_membership_change
     if (membersDeletedOnPreDelete.size() > 0) {
@@ -511,7 +516,12 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     GrouperDAOFactory.getFactory().getMembership().save(this.createNewCompositeMembershipObjects(membersList));
     
     // fix composites
-    Set<String> groupIds = Membership.fixComposites(this.getFactorOwnerUuid(), membersList);
+    Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(this.getFactorOwnerUuid());
+    Set<String> groupIds = new LinkedHashSet<String>();
+
+    if (composites.size() > 0) {
+      groupIds = Membership.fixComposites(composites, this.getFactorOwnerUuid(), membersList);
+    }
     
     // update last_membership_change
     if (membersList.size() > 0) {
