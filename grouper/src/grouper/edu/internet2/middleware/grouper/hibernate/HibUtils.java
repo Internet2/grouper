@@ -263,7 +263,7 @@ public class HibUtils {
         hibernateSession.getSession().flush();
       }
       for (int i=0;i<Array.getLength(object);i++) {
-        HibUtils.evict(hibernateSession, Array.get(object, i), onlyEvictIfNotNew);
+        HibUtils.evict(hibernateSession, Array.get(object, i), onlyEvictIfNotNew, false);
       }
       return;
     }
