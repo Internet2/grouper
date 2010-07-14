@@ -1478,7 +1478,7 @@ public enum GrouperLoaderType {
         if (row != null) {
           boolean andGroupsDoesntHaveSubject = false;
           if (andGroups.size() > 0) {
-            Subject subject = row.getSubject();
+            Subject subject = row.getSubject(groupName);
             if (subject == null) {
               if (LOG.isDebugEnabled()) {
                 LOG.debug(groupName + " found unresolvable subject: " + row.getSubjectError() + ", " + count + " of " + numberOfRows + " subjects");
@@ -1527,7 +1527,7 @@ public enum GrouperLoaderType {
       for (int i=0;i<numberOfRows;i++) {
         
         Row row = grouperLoaderResultset.retrieveRow(i);
-        Subject subject = row.getSubject();
+        Subject subject = row.getSubject(groupName);
         if (subject != null) {
           //make sure it is not in the restricted list
           boolean andGroupsDoesntHaveSubject = false;
