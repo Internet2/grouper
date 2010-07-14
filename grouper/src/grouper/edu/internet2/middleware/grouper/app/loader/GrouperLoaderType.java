@@ -1006,15 +1006,16 @@ public enum GrouperLoaderType {
             subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
           } catch (Exception e) {
             //ignore I guess
-            LOG.debug("error looking for subject: " + subjectIdOrIdentifier, e);
+            LOG.error("error looking for subject: " + subjectIdOrIdentifier, e);
           }
           if (subject == null && StringUtils.contains(subjectIdOrIdentifier, ':')) {
             //if there is a colon, that is a group, it doesnt exist, so create it
+            //note, not sure why insert_or_update and not just insert, but we were getting errors that the group existed, not sure why
             GrouperSession grouperSession = GrouperSession.staticGrouperSession();
             Group group = new GroupSave(grouperSession).assignName(subjectIdOrIdentifier)
               .assignCreateParentStemsIfNotExist(true)  
               .assignGroupNameToEdit(subjectIdOrIdentifier)
-              .assignSaveMode(SaveMode.INSERT).saveUnchecked();
+              .assignSaveMode(SaveMode.INSERT_OR_UPDATE).saveUnchecked();
             subject = group.toSubject();
           }
         }
