@@ -494,9 +494,8 @@ public class ChangeLogTempToEntity {
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
       changeLogEntryBatch.add(changeLogEntry);
       
-      // this is not really batching...
       if (flatMembershipBatch.size() % batchSize == 0) {
-        GrouperDAOFactory.getFactory().getFlatMembership().delete(flatMembershipBatch);            
+        GrouperDAOFactory.getFactory().getFlatMembership().deleteBatch(flatMembershipBatch);            
         flatMembershipBatch.clear();
       }
       
@@ -508,7 +507,7 @@ public class ChangeLogTempToEntity {
     
     // make sure all changes get made
     if (flatMembershipBatch.size() > 0) {
-      GrouperDAOFactory.getFactory().getFlatMembership().delete(flatMembershipBatch);
+      GrouperDAOFactory.getFactory().getFlatMembership().deleteBatch(flatMembershipBatch);
       flatMembershipBatch.clear();
     }
     
@@ -788,9 +787,8 @@ public class ChangeLogTempToEntity {
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
       changeLogEntryBatch.add(changeLogEntry);
       
-      // this is not really batching...
       if (flatMembershipBatch.size() % batchSize == 0) {
-        GrouperDAOFactory.getFactory().getFlatMembership().delete(flatMembershipBatch);            
+        GrouperDAOFactory.getFactory().getFlatMembership().deleteBatch(flatMembershipBatch);            
         flatMembershipBatch.clear();
       }
       
@@ -802,7 +800,7 @@ public class ChangeLogTempToEntity {
     
     // make sure all changes get made
     if (flatMembershipBatch.size() > 0) {
-      GrouperDAOFactory.getFactory().getFlatMembership().delete(flatMembershipBatch);
+      GrouperDAOFactory.getFactory().getFlatMembership().deleteBatch(flatMembershipBatch);
       flatMembershipBatch.clear();
     }
     

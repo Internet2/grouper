@@ -10,6 +10,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.flat.FlatMembership;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -62,6 +64,26 @@ public class Hib3FlatMembershipDAO extends Hib3DAO implements FlatMembershipDAO 
     while (iter.hasNext()) {
       delete(iter.next());
     }
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO#deleteBatch(java.util.Set)
+   */
+  public void deleteBatch(Set<FlatMembership> flatMemberships) {
+    Set<String> ids = new LinkedHashSet<String>();
+    Iterator<FlatMembership> iter = flatMemberships.iterator();
+    while (iter.hasNext()) {
+      FlatMembership mship = iter.next();
+      ids.add(mship.getId());
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder("delete from FlatMembership where id in (");
+    sql.append(HibUtils.convertToInClause(ids, byHqlStatic));
+    sql.append(")");
+    
+    byHqlStatic.createQuery(sql.toString()).executeUpdate();
   }
   
   /**
