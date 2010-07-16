@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.changeLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.flat.FlatAttributeDef;
 import edu.internet2.middleware.grouper.flat.FlatGroup;
 import edu.internet2.middleware.grouper.flat.FlatMembership;
@@ -339,6 +341,10 @@ public class ChangeLogTempToEntity {
       contextId = null;
     }
     
+    Set<FlatMembership> flatMembershipBatch = new LinkedHashSet<FlatMembership>();
+    Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
+    int batchSize = getBatchSize();
+    
     // now iterate through the set and add the flat memberships
     Iterator<Member> membersToAddIter = membersToAdd.iterator();
     while (membersToAddIter.hasNext()) {
@@ -361,7 +367,7 @@ public class ChangeLogTempToEntity {
       flatMship.setOwnerAttrDefId(ownerAttrDefId);
       flatMship.setOwnerGroupId(ownerGroupId);
       flatMship.setOwnerStemId(ownerStemId);
-      flatMship.saveOrUpdate();
+      flatMembershipBatch.add(flatMship);
       
       // now add the change log entry
       ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
@@ -377,7 +383,28 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), ownerName);
       changeLogEntry.setContextId(contextId);
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
-      changeLogEntry.save();
+      changeLogEntryBatch.add(changeLogEntry);
+
+      if (flatMembershipBatch.size() % batchSize == 0) {
+        GrouperDAOFactory.getFactory().getFlatMembership().saveBatch(flatMembershipBatch);            
+        flatMembershipBatch.clear();
+      }
+      
+      if (changeLogEntryBatch.size() % batchSize == 0) {
+        GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);            
+        changeLogEntryBatch.clear();
+      }
+    }
+    
+    // make sure all changes get made
+    if (flatMembershipBatch.size() > 0) {
+      GrouperDAOFactory.getFactory().getFlatMembership().saveBatch(flatMembershipBatch);
+      flatMembershipBatch.clear();
+    }
+    
+    if (changeLogEntryBatch.size() > 0) {
+      GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+      changeLogEntryBatch.clear();
     }
   }
   
@@ -439,13 +466,17 @@ public class ChangeLogTempToEntity {
       contextId = null;
     }
     
+    Set<FlatMembership> flatMembershipBatch = new LinkedHashSet<FlatMembership>();
+    Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
+    int batchSize = getBatchSize();
+    
     // now iterate through the set and remove the flat memberships
     Iterator<FlatMembership> flatMembershipsToRemoveIter = flatMembershipsToRemove.iterator();
     while (flatMembershipsToRemoveIter.hasNext()) {
       FlatMembership flatMembership = flatMembershipsToRemoveIter.next();
       
       // now remove the flat membership
-      flatMembership.delete();
+      flatMembershipBatch.add(flatMembership);
       
       // now add the change log entry
       ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
@@ -461,7 +492,29 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), ownerName);
       changeLogEntry.setContextId(contextId);
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
-      changeLogEntry.save();
+      changeLogEntryBatch.add(changeLogEntry);
+      
+      // this is not really batching...
+      if (flatMembershipBatch.size() % batchSize == 0) {
+        GrouperDAOFactory.getFactory().getFlatMembership().delete(flatMembershipBatch);            
+        flatMembershipBatch.clear();
+      }
+      
+      if (changeLogEntryBatch.size() % batchSize == 0) {
+        GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);            
+        changeLogEntryBatch.clear();
+      }
+    }
+    
+    // make sure all changes get made
+    if (flatMembershipBatch.size() > 0) {
+      GrouperDAOFactory.getFactory().getFlatMembership().delete(flatMembershipBatch);
+      flatMembershipBatch.clear();
+    }
+    
+    if (changeLogEntryBatch.size() > 0) {
+      GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+      changeLogEntryBatch.clear();
     }
   }
   
@@ -485,6 +538,10 @@ public class ChangeLogTempToEntity {
       contextId = null;
     }
     
+    Set<FlatMembership> flatMembershipBatch = new LinkedHashSet<FlatMembership>();
+    Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
+    int batchSize = getBatchSize();
+    
     // now iterate through the set and add the flat memberships
     Iterator<Member> membersToAddIter = membersToAdd.iterator();
     while (membersToAddIter.hasNext()) {
@@ -505,8 +562,8 @@ public class ChangeLogTempToEntity {
       flatMship.setFieldId(fieldId);
       flatMship.setMemberId(memberToAdd.getUuid());
       flatMship.setOwnerGroupId(groupId);
-      flatMship.saveOrUpdate();
-      
+      flatMembershipBatch.add(flatMship);
+
       // now add the change log entry
       ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
           ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), fieldName, 
@@ -519,7 +576,28 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), groupName);
       changeLogEntry.setContextId(contextId);
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
-      changeLogEntry.save();
+      changeLogEntryBatch.add(changeLogEntry);
+
+      if (flatMembershipBatch.size() % batchSize == 0) {
+        GrouperDAOFactory.getFactory().getFlatMembership().saveBatch(flatMembershipBatch);            
+        flatMembershipBatch.clear();
+      }
+      
+      if (changeLogEntryBatch.size() % batchSize == 0) {
+        GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);            
+        changeLogEntryBatch.clear();
+      }
+    }
+    
+    // make sure all changes get made
+    if (flatMembershipBatch.size() > 0) {
+      GrouperDAOFactory.getFactory().getFlatMembership().saveBatch(flatMembershipBatch);
+      flatMembershipBatch.clear();
+    }
+    
+    if (changeLogEntryBatch.size() > 0) {
+      GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+      changeLogEntryBatch.clear();
     }
   }
   
@@ -684,13 +762,17 @@ public class ChangeLogTempToEntity {
       contextId = null;
     }
     
+    Set<FlatMembership> flatMembershipBatch = new LinkedHashSet<FlatMembership>();
+    Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
+    int batchSize = getBatchSize();
+    
     // now iterate through the set and remove the flat memberships
     Iterator<FlatMembership> flatMembershipsToRemoveIter = flatMembershipsToRemove.iterator();
     while (flatMembershipsToRemoveIter.hasNext()) {
       FlatMembership flatMembership = flatMembershipsToRemoveIter.next();
       
       // now remove the flat membership
-      flatMembership.delete();
+      flatMembershipBatch.add(flatMembership);
       
       // now add the change log entry
       ChangeLogEntry changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
@@ -704,7 +786,38 @@ public class ChangeLogTempToEntity {
           ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), groupName);
       changeLogEntry.setContextId(contextId);
       changeLogEntry.setCreatedOn(originalChangeLogEntry.getCreatedOn());
-      changeLogEntry.save();
+      changeLogEntryBatch.add(changeLogEntry);
+      
+      // this is not really batching...
+      if (flatMembershipBatch.size() % batchSize == 0) {
+        GrouperDAOFactory.getFactory().getFlatMembership().delete(flatMembershipBatch);            
+        flatMembershipBatch.clear();
+      }
+      
+      if (changeLogEntryBatch.size() % batchSize == 0) {
+        GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);            
+        changeLogEntryBatch.clear();
+      }
     }
+    
+    // make sure all changes get made
+    if (flatMembershipBatch.size() > 0) {
+      GrouperDAOFactory.getFactory().getFlatMembership().delete(flatMembershipBatch);
+      flatMembershipBatch.clear();
+    }
+    
+    if (changeLogEntryBatch.size() > 0) {
+      GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntryBatch, false);
+      changeLogEntryBatch.clear();
+    }
+  }
+  
+  private static int getBatchSize() {
+    int size = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 20);
+    if (size <= 0) {
+      size = 1;
+    }
+
+    return size;
   }
 }
