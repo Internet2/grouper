@@ -362,9 +362,6 @@ public class ByHqlStatic implements HqlQuery {
       return result;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in list: (" + returnType + "), " + this, e);
-      throw e;
     } catch (RuntimeException e) {
       LOG.error("Exception in list: (" + returnType + "), " + this, e);
       throw e;
@@ -442,9 +439,6 @@ public class ByHqlStatic implements HqlQuery {
       });
       
     } catch (GrouperStaleObjectStateException e) {
-      throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in executeUpdate: " + this, e);
       throw e;
     } catch (RuntimeException e) {
       LOG.error("Exception in executeUpdate: " + this, e);

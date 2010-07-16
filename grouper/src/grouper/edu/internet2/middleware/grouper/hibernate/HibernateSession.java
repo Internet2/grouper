@@ -404,6 +404,10 @@ public class HibernateSession {
         hibernateSession.immediateTransaction.rollback();
       }
     }
+
+    //postgres logs in nextException, so see if there is one there
+    GrouperUtil.logErrorNextException(LOG, e, 100);
+    
     String errorString = "Problem in HibernateSession: " + hibernateSession;
     // rethrow
     if (e instanceof GrouperDAOException) {

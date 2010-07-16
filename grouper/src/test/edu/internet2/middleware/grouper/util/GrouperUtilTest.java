@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.util;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -13,11 +14,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 
 /**
@@ -31,11 +35,27 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testSubstituteExpressionLanguage"));
+    TestRunner.run(new GrouperUtilTest("testLogNextException"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperUtilTest.class);
+
+
+  /**
+   * test log next exception
+   */
+  public void testLogNextException() {
+    GrouperUtil.logErrorNextException(LOG, new Throwable("whatever", new Throwable()), 100);
+    GrouperUtil.logErrorNextException(LOG, new Throwable("whatever"), 100);
+    SQLException sqlException = new SQLException("whatever", new Throwable());
+    SQLException nextException = new SQLException("THE NEXT EXCEPTION");
+    sqlException.setNextException(nextException);
+    GrouperUtil.logErrorNextException(LOG, new Throwable("whatever", sqlException), 100);
+  }
+  
   /**
    * yyyy/mm/dd
    * yyyy-mm-dd
