@@ -210,7 +210,7 @@ public class GrouperClientXmppMain {
                   matches = false;
                 }
               }
-              if (!matches) {
+              if (matches != null && !matches) {
                 continue;
               }
               
