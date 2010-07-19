@@ -493,20 +493,26 @@ public class GrouperClientXmppMain {
    * @param grouperClientXmppJob 
    * @param groupName
    * @param grouperClientXmppSubject 
-   * @param subjectId 
-   * @param sourceId 
    * @param eventType 
-   * @param action ADD_MEMBER or REMOVE_MEMBER
    */
   @SuppressWarnings("unchecked")
   private static void incrementalRefreshGroup(GrouperClientXmppJob grouperClientXmppJob, 
       String groupName, GrouperClientXmppSubject grouperClientXmppSubject, String eventType) {
     
     List<GrouperClientXmppSubject> oldList = groupMemberships.get(groupName);
+
+    if (oldList == null) {
+      //we need to get all
+      //throw new NullPointerException("Why is old list null????");
+      fullRefreshGroup(grouperClientXmppJob, groupName);
+      
+      oldList = groupMemberships.get(groupName);
+    }
+
     if (oldList == null) {
       throw new NullPointerException("Why is old list null????");
     }
-    
+
     List<GrouperClientXmppSubject> newList = new ArrayList<GrouperClientXmppSubject>(oldList);
     
     if (GrouperClientUtils.equals(eventType, "MEMBERSHIP_ADD")) {
@@ -517,6 +523,7 @@ public class GrouperClientXmppMain {
           log.debug("Group " + groupName + " already contains subject: " + grouperClientXmppSubject.getSubjectId());
         }
       }
+      
     } else if (GrouperClientUtils.equals(eventType, "MEMBERSHIP_DELETE")) {
       if (newList.contains(grouperClientXmppSubject)) {
         int i=0;
@@ -550,7 +557,5 @@ public class GrouperClientXmppMain {
          newList, oldList, grouperClientXmppSubject, eventType);
     
   }
-
-
 
 }
