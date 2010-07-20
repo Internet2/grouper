@@ -2,14 +2,19 @@
 <!-- start simpleMembershipUpdateMain.jsp: main page on simpleMembershipUpdate screen -->
 <div id="simpleMain">
 <%--Group membership update lite --%>
-<grouper:title label="${simpleMembershipUpdateContainer.text.updateTitle}"  infodotValue="${simpleMembershipUpdateContainer.text.updateTitleInfodot}" />
+<grouper:title label="${simpleMembershipUpdateContainer.text.updateTitle}"  
+  infodotValue="${simpleMembershipUpdateContainer.text.updateTitleInfodot}" />
 <%-- grey box --%>
 <div class="section">
 <%-- Group --%>
 <grouper:subtitle label="${simpleMembershipUpdateContainer.text.groupSubtitle}" />
 
 <div class="sectionBody" style="min-width: 500px">
-<table border="0" cellpadding="0" cellspacing="0">
+<table border="0" cellpadding="0" cellspacing="0" class=" ${simpleMembershipUpdateContainer.showBreadcrumbRowByDefault ? '' : 'shows_simpleMembershipUpdateGroupDetails'}"
+<c:if test="${!simpleMembershipUpdateContainer.showBreadcrumbRowByDefault}">
+style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
+</c:if>
+>
   <tr valign="top">
     <td>
     <%-- Breadcrumbs of the folder hierarchy, and change location button --%>
@@ -26,52 +31,74 @@
 </tr>
 </table>
 <%-- shows the group information --%>
-<table class="formTable" cellspacing="2" style="margin-bottom: 0;">
+<table class="formTable " cellspacing="2" style="margin-bottom: 0;">
   <tbody>
-    <tr class="formTableRow">
+    <tr class="formTableRow ${simpleMembershipUpdateContainer.showNameRowByDefault ? '' : 'shows_simpleMembershipUpdateGroupDetails'}"
+    <c:if test="${!simpleMembershipUpdateContainer.showNameRowByDefault}">
+      style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
+    </c:if>
+    >
       <td class="formTableLeft"><grouper:message value="${simpleMembershipUpdateContainer.text.groupDisplayExtension}"
         valueTooltip="${simpleMembershipUpdateContainer.text.groupDisplayExtensionTooltip}" /></td>
 
       <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.displayExtension)}</td>
     </tr>
-    <tr class="formTableRow">
+    <tr class="formTableRow  ${simpleMembershipUpdateContainer.showPathRowByDefault ? '' : 'shows_simpleMembershipUpdateGroupDetails'}"
+        <c:if test="${!simpleMembershipUpdateContainer.showPathRowByDefault}">
+          style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
+        </c:if>
+    >
       <td class="formTableLeft"><grouper:message value="${simpleMembershipUpdateContainer.text.groupDisplayName}"
         valueTooltip="${simpleMembershipUpdateContainer.text.groupDisplayNameTooltip}" /></td>
       <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.displayName)}</td>
     </tr>
 
-    <tr class="formTableRow">
+    <tr class="formTableRow ${simpleMembershipUpdateContainer.showDescriptionRowByDefault ? '' : 'shows_simpleMembershipUpdateGroupDetails'}"
+        <c:if test="${!simpleMembershipUpdateContainer.showDescriptionRowByDefault}">
+          style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
+        </c:if>
+    >
 
       <td class="formTableLeft"><grouper:message value="${simpleMembershipUpdateContainer.text.groupDescription}"
         valueTooltip="${simpleMembershipUpdateContainer.text.groupDescription}" /></td>
       <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.description)}</td>
     </tr>
-  </tbody>
-</table>
-<%-- shows the group details, hidden by default --%>
-<table class="formTable shows_simpleMembershipUpdateGroupDetails" cellspacing="2" 
-    style="margin: 0; ${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}">
-  <tbody>
-    <tr class="formTableRow ">
+    <tr class="formTableRow ${simpleMembershipUpdateContainer.showIdRowByDefault ? '' : 'shows_simpleMembershipUpdateGroupDetails'}"
+        <c:if test="${!simpleMembershipUpdateContainer.showIdRowByDefault}">
+          style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
+        </c:if>
+    >
       <td class="formTableLeft"><grouper:message value="${simpleMembershipUpdateContainer.text.groupExtension}"
         valueTooltip="${simpleMembershipUpdateContainer.text.groupExtensionTooltip}" /></td>
 
       <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.extension)}</td>
 
     </tr>
-    <tr class="formTableRow ">
+    <tr class="formTableRow ${simpleMembershipUpdateContainer.showIdPathRowByDefault ? '' : 'shows_simpleMembershipUpdateGroupDetails'}"
+        <c:if test="${!simpleMembershipUpdateContainer.showIdPathRowByDefault}">
+          style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
+        </c:if>
+    >
       <td class="formTableLeft"><grouper:message value="${simpleMembershipUpdateContainer.text.groupName}"
         valueTooltip="${simpleMembershipUpdateContainer.text.groupNameTooltip}" /></td>
       <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.name)}</td>
     </tr>
-    <tr class="formTableRow ">
+    <tr class="formTableRow ${simpleMembershipUpdateContainer.showAlternateIdPathRowByDefault ? '' : 'shows_simpleMembershipUpdateGroupDetails'}"
+        <c:if test="${!simpleMembershipUpdateContainer.showAlternateIdPathRowByDefault}">
+          style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
+        </c:if>
+    >
       <td class="formTableLeft"><grouper:message value="${simpleMembershipUpdateContainer.text.groupAlternateName}"
         valueTooltip="${simpleMembershipUpdateContainer.text.groupAlternateNameTooltip}" /></td>
 
       <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.alternateNameDb)}</td>
 
     </tr>
-    <tr class="formTableRow ">
+    <tr class="formTableRow ${simpleMembershipUpdateContainer.showUuidRowByDefault ? '' : 'shows_simpleMembershipUpdateGroupDetails'}"
+        <c:if test="${!simpleMembershipUpdateContainer.showUuidRowByDefault}">
+          style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
+        </c:if>
+    >
       <td class="formTableLeft"><grouper:message value="${simpleMembershipUpdateContainer.text.groupId}"
         valueTooltip="${simpleMembershipUpdateContainer.text.groupIdTooltip}" /></td>
 
