@@ -3943,15 +3943,14 @@ public enum GrouperDdl implements DdlVersionable {
             "CHILD_GROUP_MEMBERSHIP_COUNT: number of memberships in groups immediately in this stem", 
             "GROUP_MEMBERSHIP_COUNT: number of memberships in groups in this stem or in stems in this stem etc", 
             "STEM_ID: uuid unique id of this stem"), 
-            "select gs.NAME as stem_name, gs.DISPLAY_NAME as stem_displayname, "
-            + "(select count(*) from grouper_groups gg where gg.PARENT_STEM = gs.ID) as group_immediate_count, "
-            + "(select count(*) from grouper_stems gs2 where gs.id = gs2.PARENT_STEM ) as stem_immediate_count, "
-            + "(select count(*) from grouper_attributes ga, grouper_fields gf where ga.FIELD_ID = gf.ID and gf.NAME = 'name' " +
-            		"and ga.value like " + GrouperDdlUtils.sqlConcatenation("gs.NAME", "'%'") +  ") as group_count, "
-            + "(select count(*) from grouper_stems gs2 where gs2.name like " + GrouperDdlUtils.sqlConcatenation("gs.NAME", "'%'") +  ") as stem_count, "
-            + "(select count(distinct gm.member_id) from grouper_memberships gm where gm.OWNER_stem_ID = gs.id) as this_stem_membership_count,  "
-            + "(select count(distinct gm.member_id) from grouper_memberships gm, grouper_groups gg where gg.parent_stem = gs.id and gm.OWNER_stem_ID = gg.id) as child_group_membership_count,  "
-            + "(select count(distinct gm.member_id) from grouper_memberships gm, grouper_attributes ga, grouper_fields gf where gm.owner_group_id = ga.group_id and ga.FIELD_ID = gf.ID and gf.NAME = 'name' and ga.value like " + GrouperDdlUtils.sqlConcatenation("gs.NAME", "'%'") +  ") as group_membership_count, "
+            "select gs.name as stem_name, gs.display_name as stem_displayname, "
+            + "(select count(*) from grouper_groups gg where gg.parent_stem = gs.ID) as group_immediate_count, "
+            + "(select count(*) from grouper_stems gs2 where gs.id = gs2.parent_stem ) as stem_immediate_count, "
+            + "(select count(*) from grouper_groups gg where gg.name like " + GrouperDdlUtils.sqlConcatenation("gs.name", "'%'") +  ") as group_count, "
+            + "(select count(*) from grouper_stems gs2 where gs2.name like " + GrouperDdlUtils.sqlConcatenation("gs.name", "'%'") +  ") as stem_count, "
+            + "(select count(distinct gm.member_id) from grouper_flat_memberships gm where gm.owner_stem_id = gs.id) as this_stem_membership_count,  "
+            + "(select count(distinct gm.member_id) from grouper_flat_memberships gm, grouper_groups gg where gg.parent_stem = gs.id and gm.owner_stem_id = gg.id) as child_group_membership_count,  "
+            + "(select count(distinct gm.member_id) from grouper_flat_memberships gm, grouper_groups gg where gm.owner_group_id = gg.id and gg.name like " + GrouperDdlUtils.sqlConcatenation("gs.name", "'%'") +  ") as group_membership_count, "
             + "gs.ID as stem_id "
             + "from grouper_stems gs ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_types_v", 
