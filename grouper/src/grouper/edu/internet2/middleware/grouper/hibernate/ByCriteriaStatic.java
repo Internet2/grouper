@@ -227,7 +227,13 @@ public class ByCriteriaStatic {
     } catch (GrouperStaleObjectStateException e) {
       throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in uniqueResult: (" + returnType + "), " + this, e);
+      
+      String errorString = "Exception in uniqueResult: (" + returnType + "), " + this;
+
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
     
