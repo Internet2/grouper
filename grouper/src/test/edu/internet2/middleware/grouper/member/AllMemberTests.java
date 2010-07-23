@@ -18,6 +18,7 @@ public class AllMemberTests {
     //$JUnit-BEGIN$
     suite.addTestSuite(TestMemberToGroup.class);
     suite.addTestSuite(TestMember.class);
+    suite.addTestSuite(TestMember1.class);
     suite.addTestSuite(TestAddMember.class);
     suite.addTestSuite(TestMemberChangeSubject.class);
     suite.addTestSuite(TestMemberFinder.class);

@@ -60,7 +60,12 @@ public class GrouperSessionTest extends GrouperTest {
     GroupFinder.findByName(grouperSession, "edu:aGroup", false);
     GrouperSession rootSession = grouperSession.internal_getRootSession();
     GroupFinder.findByName(rootSession, "edu:aGroup", false);
+    
+    //##########################################
+    //NOT SURE WHY THIS FAILS SOMETIMES, JUST RUN BY ITSELF AND IT SHOULD PASS!!!!
     assertTrue(CacheManager.ALL_CACHE_MANAGERS.size() + ", " + cacheSize, CacheManager.ALL_CACHE_MANAGERS.size() > cacheSize);
+    //##########################################
+    
     grouperSession.stop();
     assertEquals(CacheManager.ALL_CACHE_MANAGERS.size(), cacheSize);
     
