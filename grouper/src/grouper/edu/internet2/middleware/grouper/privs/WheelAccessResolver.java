@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -250,6 +251,19 @@ public class WheelAccessResolver extends AccessResolverDecorator {
     //CachingAccessResolver
     return decoratedResolver.postHqlFilterGroups(groups, subject, privInSet);
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterStemsWithGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStemsWithGroups(Set<Stem> stems, Subject subject,
+      Set<Privilege> inPrivSet) {
+    //Wheel can see all groups
+    if (this.isAndUseWheel(subject)) {
+      return stems;
+    }
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.postHqlFilterStemsWithGroups(stems, subject, inPrivSet);
   }
 
   /**

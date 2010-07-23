@@ -21,7 +21,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
@@ -61,6 +61,19 @@ public interface AccessResolver {
    * @since   1.2.1
    */
   Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
+    throws  IllegalArgumentException;
+
+  /**
+   * Get all stems which have groups where <i>subject</i> has <i>privilege</i>.
+   * <p/>
+   * @param subject 
+   * @param privilege 
+   * @return the set
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @see     AccessAdapter#getGroupsWhereSubjectHasPriv(edu.internet2.middleware.grouper.GrouperSession, Subject, Privilege)
+   * @since   1.2.1
+   */
+  Set<Stem> getStemsWhereGroupThatSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException;
 
   /**
@@ -186,6 +199,17 @@ public interface AccessResolver {
   public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject, 
       Set<Privilege> privInSet);
 
+  /**
+   * after HQL is run, filter stems that have groups with privs.  If you are filtering
+   * HQL, then dont filter here.
+   * @param stems
+   * @param subject
+   * @param inPrivSet
+   * @return  the set of filtered stems
+   */
+  public Set<Stem> postHqlFilterStemsWithGroups(
+      Set<Stem> stems, Subject subject, Set<Privilege> inPrivSet);
+  
   /**
    * for a group query, check to make sure the subject can see the records (if filtering HQL, you can do 
    * the postHqlFilterGroups instead if you like)

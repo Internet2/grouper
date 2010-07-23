@@ -21,6 +21,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
@@ -219,9 +220,29 @@ public class MockAccessResolver implements AccessResolver {
 
 
   /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterStemsWithGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStemsWithGroups(Set<Stem> stems, Subject subject,
+      Set<Privilege> inPrivSet) {
+    throw E;
+  }
+
+
+
+  /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
    */
   public void revokeAllPrivilegesForSubject(Subject subject) {
+    throw E;
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getStemsWhereGroupThatSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public Set<Stem> getStemsWhereGroupThatSubjectHasPrivilege(Subject subject,
+      Privilege privilege) throws IllegalArgumentException {
     throw E;
   }
 

@@ -1363,5 +1363,52 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     return stems;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#getAllStemsWithGroupsSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Stem> getAllStemsWithGroupsSecure(GrouperSession grouperSession,
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      throws GrouperDAOException {
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theStem.displayNameDb");
+    }
+
+    StringBuilder sql = new StringBuilder("select distinct theStem from Stem theStem, Group theGroup ");
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+        sql, "theGroup.uuid", inPrivSet);
+
+    if (changedQuery) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
+    }
+    
+    sql.append(" theGroup.parentUuid = theStem.uuid ");
+    
+    try {
+
+      Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllStemsWithGroupsSecure")
+        .options(queryOptions)
+        .listSet(Stem.class);
+            
+      //if the hql didnt filter, this will
+      Set<Stem> filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterStemsWithGroups(stems, subject, inPrivSet);
+
+      return filteredGroups;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException("Problem: uuids dont match up", gnfe);
+    }
+  }
+
 } 
 

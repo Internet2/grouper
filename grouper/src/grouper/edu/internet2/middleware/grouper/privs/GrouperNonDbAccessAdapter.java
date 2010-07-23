@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -138,12 +139,13 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
       groups.addAll( 
         GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj, true), f ) 
       );
+      //this is done in the dao
       // The ALL subject
-      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
-        groups.addAll( 
-          GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.internal_findAllMember(), f ) 
-        );
-      }
+//      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
+//        groups.addAll( 
+//          GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.internal_findAllMember(), f ) 
+//        );
+//      }
     }
     catch (GroupNotFoundException eGNF) {
       String msg = E.GAA_GNF + eGNF.getMessage();
@@ -151,6 +153,23 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
     }
     return groups;
   }  
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#getStemsWhereGroupThatSubjectHasPrivilege(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public Set<Stem> getStemsWhereGroupThatSubjectHasPrivilege(
+      GrouperSession grouperSession, Subject subject, Privilege privilege) {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(grouperSession);
+    Field field = privilege.getField();
+
+    Set<Stem> stems =
+        GrouperPrivilegeAdapter.internal_getStemsWithGroupsWhereSubjectHasPriv( grouperSession, 
+            MemberFinder.findBySubject(grouperSession, subject, true), field ); 
+
+    return stems;
+  }
+
 
   /**
    * Get all privileges held by this subject on this group.

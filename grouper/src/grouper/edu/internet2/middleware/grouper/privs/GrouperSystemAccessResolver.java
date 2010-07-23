@@ -20,6 +20,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
@@ -109,6 +110,17 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
       return groups;
     }
     return super.getDecoratedResolver().postHqlFilterGroups(groups, subject, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterStemsWithGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStemsWithGroups(Set<Stem> stems, Subject subject,
+      Set<Privilege> inPrivSet) {
+    if (SubjectHelper.eq(this.root, subject)) {
+      return stems;
+    }
+    return super.getDecoratedResolver().postHqlFilterStemsWithGroups(stems, subject, inPrivSet);
   }
 
   /**

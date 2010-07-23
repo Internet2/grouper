@@ -87,8 +87,10 @@ public class ManageRepositoryBrowser extends AbstractRepositoryBrowser{
 		List groups = new ArrayList();
 		GrouperSession s = getGrouperSession();
 		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
-		groups.addAll(member.hasAdmin());
-		groups.addAll(member.hasUpdate());
+		
+		groups.addAll(member.hasAdminInStem());
+		groups.addAll(member.hasUpdateInStem());
+	  
 		groups.addAll(member.hasStem());
 		groups.addAll(member.hasCreate());
 		

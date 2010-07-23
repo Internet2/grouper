@@ -50,8 +50,9 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
       throws IllegalArgumentException {
     Set<Stem> stems = super.getDecoratedResolver().getStemsWhereSubjectHasPrivilege(
         subject, privilege);
-    stems.addAll(super.getDecoratedResolver().getStemsWhereSubjectHasPrivilege(this.all,
-        privilege));
+    //this happens further down in GrouperNonDbNamingAdapter
+    //    stems.addAll(super.getDecoratedResolver().getStemsWhereSubjectHasPrivilege(this.all,
+    //        privilege));
     return stems;
   }
 

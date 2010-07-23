@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.subj.LazySubject;
@@ -223,18 +224,12 @@ public class GrouperPrivilegeAdapter {
   
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
-          Set<Group>         groups  = new LinkedHashSet<Group>();
-          Membership  ms;
-          // Perform query as ROOT to prevent privilege constraints getting in the way
-          Iterator<Membership>    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), m, f ).iterator();
-          while (it.hasNext()) {
-            ms = it.next();
-            try {
-              groups.add( ms.getGroup() );
-            } catch (GroupNotFoundException gnfe) {
-              throw new GrouperSessionException(gnfe);
-            }
-          }
+          
+          Privilege privilege = AccessPrivilege.listToPriv(f.getName());
+          
+          Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure(
+              grouperSession, m.getSubject(), GrouperUtil.toSet(privilege), null);
+          
           return groups;
         }
         
@@ -245,6 +240,25 @@ public class GrouperPrivilegeAdapter {
       }
       throw gse;
     }
+  } // public static Set internal_getGroupsWhereSubjectHasPriv(s, m, f)
+
+  /**
+   * @param grouperSession 
+   * @param member 
+   * @param field 
+   * @since   1.2.0
+   * @return the set
+   * @throws GroupNotFoundException
+   */
+  public static Set<Stem> internal_getStemsWithGroupsWhereSubjectHasPriv(
+      GrouperSession grouperSession, final Member member, final Field field) {
+
+    Privilege privilege = AccessPrivilege.listToPriv(field.getName());
+    
+    Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().getAllStemsWithGroupsSecure(
+        grouperSession, member.getSubject(), GrouperUtil.toSet(privilege), null);
+    
+    return stems;
   } // public static Set internal_getGroupsWhereSubjectHasPriv(s, m, f)
 
   /**
@@ -263,19 +277,12 @@ public class GrouperPrivilegeAdapter {
 
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
-          Set<Stem>         stems  = new LinkedHashSet<Stem>();
-          Membership  ms;
-          // Perform query as ROOT to prevent privilege constraints getting in the way
-          Iterator<Membership>    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), 
-              m, f ).iterator();
-          while (it.hasNext()) {
-            ms = it.next();
-            try {
-              stems.add( ms.getStem() );
-            } catch (StemNotFoundException snfe) {
-              throw new GrouperSessionException(snfe);
-            }
-          }
+          
+          Privilege privilege = NamingPrivilege.listToPriv(f.getName());
+          
+          Set<Stem>         stems  = GrouperDAOFactory.getFactory().getStem().getAllStemsSecure(
+              grouperSession, m.getSubject(), GrouperUtil.toSet(privilege), null);
+
           return stems;
         }
         
@@ -304,14 +311,11 @@ public class GrouperPrivilegeAdapter {
   
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
-          Set<AttributeDef>         attributeDefs  = new LinkedHashSet<AttributeDef>();
-          Membership  ms;
-          // Perform query as ROOT to prevent privilege constraints getting in the way
-          Iterator<Membership>    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), m, f ).iterator();
-          while (it.hasNext()) {
-            ms = it.next();
-            attributeDefs.add( ms.getAttributeDef() );
-          }
+          
+          Privilege privilege = AttributeDefPrivilege.listToPriv(f.getName());
+          
+          Set<AttributeDef>         attributeDefs  = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSecure(
+              grouperSession, m.getSubject(), GrouperUtil.toSet(privilege), null);
           return attributeDefs;
         }
         

@@ -83,7 +83,7 @@ public class JoinRepositoryBrowser extends AbstractRepositoryBrowser{
 		Set groups = null;
 		GrouperSession s = getGrouperSession();
 		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
-		groups = member.hasOptin();
+		groups = member.hasOptinInStem();
 				
 		validStems= getStems(groups);
 		return validStems;

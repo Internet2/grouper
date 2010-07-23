@@ -3,6 +3,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -10,14 +12,18 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Data Access Object for attribute def
@@ -251,6 +257,67 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         return null;
       }
     });
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#getAllAttributeDefsSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<AttributeDef> getAllAttributeDefsSecure(GrouperSession grouperSession,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions) {
+    return getAllAttributeDefsSecure(null, grouperSession, subject, privileges, queryOptions);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#getAllAttributeDefsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<AttributeDef> getAllAttributeDefsSecure(String scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
+      QueryOptions queryOptions) {
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theAttributeDef.nameDb");
+    }
+
+    StringBuilder sql = new StringBuilder("select distinct theAttributeDef from AttributeDef theAttributeDef ");
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder whereClause = new StringBuilder();
+    
+    //see if there is a scope
+    if (!StringUtils.isBlank(scope)) {
+      whereClause.append(" theStem.nameDb like :scope ");
+      byHqlStatic.setString("scope", scope + "%");
+    }
+    
+
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+        sql, whereClause, "theAttributeDef.id", privileges);
+
+    if (whereClause.length() > 0) {
+      if (!changedQuery) {
+        sql.append(" where ");
+      } else {
+        sql.append(" and ");
+      }
+      sql.append(whereClause);
+    }    
+    
+    Set<AttributeDef> attributeDefs = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".GetAllAttributeDefsSecure")
+      .options(queryOptions)
+      .listSet(AttributeDef.class);
+    
+    //if the hql didnt filter, this will
+    Set<AttributeDef> filteredAttributeDefs = grouperSession.getAttributeDefResolver()
+      .postHqlFilterAttrDefs(attributeDefs, subject, privileges);
+
+    return filteredAttributeDefs;
+
   }
 
 } 

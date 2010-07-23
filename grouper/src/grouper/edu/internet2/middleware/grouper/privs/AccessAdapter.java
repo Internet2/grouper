@@ -22,6 +22,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -84,6 +85,16 @@ public interface AccessAdapter {
   ) 
     throws  SchemaException;
 
+  /**
+   * get stems where a group exists where the subject has privilege
+   * @param grouperSession
+   * @param subject
+   * @param privilege
+   * @return the stems
+   */
+  Set<Stem> getStemsWhereGroupThatSubjectHasPrivilege(
+      GrouperSession grouperSession, Subject subject, Privilege privilege);
+  
   /**
    * Get all privileges held by this subject on this group.
    * <pre class="eg">
@@ -239,6 +250,17 @@ public interface AccessAdapter {
    */
   public Set<Group> postHqlFilterGroups(GrouperSession grouperSession, 
       Set<Group> groups, Subject subject, Set<Privilege> privInSet);
+  
+  /**
+   * after HQL is run, filter stems with groups.  If you are filtering in HQL, then dont filter here
+   * @param grouperSession
+   * @param stems
+   * @param subject
+   * @param inPrivSet
+   * @return the stems
+   */
+  public Set<Stem> postHqlFilterStemsWithGroups(GrouperSession grouperSession, 
+      Set<Stem> stems, Subject subject, Set<Privilege> inPrivSet);
   
   /**
    * for a group query, check to make sure the subject can see the records (if filtering HQL, you can do 

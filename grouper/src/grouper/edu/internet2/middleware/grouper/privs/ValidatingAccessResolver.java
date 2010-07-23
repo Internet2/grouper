@@ -19,6 +19,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -53,6 +54,17 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
       throws IllegalArgumentException {
     this.param.notNullSubject(subject).notNullPrivilege(privilege);
     return super.getDecoratedResolver().getGroupsWhereSubjectHasPrivilege(subject,
+        privilege);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolverDecorator#getStemsWhereGroupThatSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  @Override
+  public Set<Stem> getStemsWhereGroupThatSubjectHasPrivilege(Subject subject,
+      Privilege privilege) throws IllegalArgumentException {
+    this.param.notNullSubject(subject).notNullPrivilege(privilege);
+    return super.getDecoratedResolver().getStemsWhereGroupThatSubjectHasPrivilege(subject,
         privilege);
   }
 
@@ -119,6 +131,15 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
       Set<Privilege> privInSet) {
     this.param.notNullSubject(subject);
     return super.getDecoratedResolver().postHqlFilterGroups(groups, subject, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterStemsWithGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStemsWithGroups(Set<Stem> stems, Subject subject,
+      Set<Privilege> inPrivSet) {
+    this.param.notNullSubject(subject);
+    return super.getDecoratedResolver().postHqlFilterStemsWithGroups(stems, subject, inPrivSet);
   }
 
   /**
