@@ -3834,7 +3834,7 @@ public enum GrouperDdl implements DdlVersionable {
             "MEMBER_COUNT: number of unique members in the group/field"),
         "select gg.name as group_name, gg.display_name as group_displayName, "
         + "gf.type as field_type, gf.name as field_name, count(distinct gms.member_id) as member_count "
-        + "from grouper_memberships gms, grouper_groups gg, grouper_fields gf "
+        + "from grouper_memberships_all_v gms, grouper_groups gg, grouper_fields gf "
         + "where gms.FIELD_ID = gf.ID "
         + "and gg.id = gms.OWNER_group_ID "
         + "group by gg.name, gg.display_name, gf.type, gf.name ");
@@ -3865,12 +3865,12 @@ public enum GrouperDdl implements DdlVersionable {
         + "gg.name as group_name, "
         + "gg.display_name as group_displayname, "
         + "gg.type_of_group, "
-        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_group_ID = gg.id and gms.MSHIP_TYPE = 'immediate') as immediate_membership_count, "
-        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_group_ID = gg.id) as membership_count, "
+        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships_all_v gms where gms.OWNER_group_ID = gg.id and gms.MSHIP_TYPE = 'immediate') as immediate_membership_count, "
+        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships_all_v gms where gms.OWNER_group_ID = gg.id) as membership_count, "
         + "(select count(*) from grouper_attributes ga where ga.GROUP_ID = gg.id) as attribute_count, "
         + "(select count(*) from grouper_groups_types ggt where ggt.GROUP_UUID = gg.id) as groups_types_count, "
         + "(select count(*) from grouper_composites gc where gc.LEFT_FACTOR = gg.id or gc.RIGHT_FACTOR = gg.id) as isa_composite_factor_count, "
-        + "(select count(distinct gms.OWNER_group_ID) from grouper_memberships gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
+        + "(select count(distinct gms.OWNER_group_ID) from grouper_memberships_all_v gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
         + "gg.ID as group_id "
         + "from grouper_groups gg ");
 
@@ -3897,12 +3897,12 @@ public enum GrouperDdl implements DdlVersionable {
         "select  "
         + "gg.name as role_name, "
         + "gg.display_name as role_displayname, "
-        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_group_ID = gg.id and gms.MSHIP_TYPE = 'immediate') as immediate_membership_count, "
-        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_group_ID = gg.id) as membership_count, "
+        + "(select count(distinct gms.member_id) from grouper_memberships_all_v gms where gms.OWNER_group_ID = gg.id and gms.mship_type = 'immediate') as immediate_membership_count, "
+        + "(select count(distinct gms.member_id) from grouper_memberships_all_v gms where gms.OWNER_group_ID = gg.id) as membership_count, "
         + "(select count(*) from grouper_attributes ga where ga.GROUP_ID = gg.id) as attribute_count, "
         + "(select count(*) from grouper_groups_types ggt where ggt.GROUP_UUID = gg.id) as roles_types_count, "
         + "(select count(*) from grouper_composites gc where gc.LEFT_FACTOR = gg.id or gc.RIGHT_FACTOR = gg.id) as isa_composite_factor_count, "
-        + "(select count(distinct gms.OWNER_group_ID) from grouper_memberships gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
+        + "(select count(distinct gms.OWNER_group_ID) from grouper_flat_memberships gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
         + "gg.ID as role_id "
         + "from grouper_groups gg  where gg.type_of_group = 'role' ");
 
