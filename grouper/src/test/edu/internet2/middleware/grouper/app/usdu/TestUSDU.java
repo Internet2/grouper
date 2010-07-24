@@ -68,7 +68,7 @@ public class TestUSDU extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestUSDU.class);
-    TestRunner.run(new TestUSDU("testNamingPrivilege"));
+    TestRunner.run(new TestUSDU("testMemberships"));
   }
 
   private void deleteSubject(Subject subject) throws InterruptedException {
@@ -137,7 +137,8 @@ public class TestUSDU extends GrouperTest {
       assertFalse(gE.hasMember(subjA));
       assertFalse(gF.hasMember(subjA));
 
-      assertTrue(USDU.getUnresolvableMembers(r.getSession(), null).size() == 1);
+      //if not a member, then not unresolvable
+      assertEquals(0, USDU.getUnresolvableMembers(r.getSession(), null).size());
 
     } catch (Exception e) {
       T.e(e);

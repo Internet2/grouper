@@ -62,6 +62,16 @@ public interface MemberDAO extends GrouperDAO {
     throws  GrouperDAOException;
   
   /**
+   * find all members that are used somewhere (e.g. memberships or attributes)
+   * @param source 
+   * @return the members
+   * @throws GrouperDAOException 
+   * @since   1.6.1
+   */
+  Set<Member> findAllUsed(Source source) 
+    throws  GrouperDAOException;
+  
+  /**
    * @since   1.2.0
    * @deprecated use overload
    */
