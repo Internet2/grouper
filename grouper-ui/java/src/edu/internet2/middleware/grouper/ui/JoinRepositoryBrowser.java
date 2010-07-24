@@ -20,16 +20,16 @@ package edu.internet2.middleware.grouper.ui;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -55,7 +55,13 @@ public class JoinRepositoryBrowser extends AbstractRepositoryBrowser{
 	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#isValidChild(java.util.Map)
 	 */
 	protected boolean isValidChild(Map child) throws Exception{
-		GrouperSession s = getGrouperSession();
+
+	   //see if group, if so, then ok, this was filtered by the query
+    if (ObjectUtils.equals(child.get("isGroup"), Boolean.TRUE)) {
+      return true;
+    }
+
+    GrouperSession s = getGrouperSession();
 		Map validStems = getValidStems();
 		String name = (String) child.get("name");
 		if(validStems.containsKey(name)) return true;
