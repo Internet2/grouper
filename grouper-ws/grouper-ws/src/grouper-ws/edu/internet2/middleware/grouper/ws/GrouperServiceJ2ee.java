@@ -23,6 +23,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.NDC;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.WSUsernameTokenPrincipal;
@@ -201,6 +202,21 @@ public class GrouperServiceJ2ee implements Filter {
           .getPropertyString(GrouperWsConfig.WS_LOGGED_IN_SUBJECT_DEFAULT_SOURCE));
     }
 
+    //puts it in the log4j ndc context so userid is logged
+    if (NDC.getDepth() == 0) {
+      StringBuilder ndcBuilder = new StringBuilder("< ");
+      if (!StringUtils.isBlank(sourceId)) {
+        ndcBuilder.append(sourceId).append(" - ");
+      }
+      ndcBuilder.append(userIdLoggedIn).append(" - ");
+      HttpServletRequest request = retrieveHttpServletRequest();
+      if (request != null) {
+        ndcBuilder.append(request.getRemoteAddr());
+      }
+      ndcBuilder.append(" >");
+      NDC.push(ndcBuilder.toString());
+    }
+    
     Subject caller = null;
     try {
       //see if across all sources
@@ -597,6 +613,8 @@ public class GrouperServiceJ2ee implements Filter {
     //empty strings work, but nulls make things off a bit
     request = new WsHttpServletRequest((HttpServletRequest) request);
 
+    NDC.clear();
+    
     //servlet will set this...
     threadLocalServlet.remove();
     threadLocalRequest.set((HttpServletRequest) request);
@@ -626,6 +644,7 @@ public class GrouperServiceJ2ee implements Filter {
       threadLocalServlet.remove();
       
       HooksContext.clearThreadLocal();
+      NDC.remove();
     }
 
   }

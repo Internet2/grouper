@@ -130,7 +130,6 @@ public class ErrorFilter implements Filter {
 		}
 		try {
 		chain.doFilter(req, res);
-			org.apache.log4j.NDC.remove();
 		}catch(Throwable t) {
 			Throwable cause=null;
 			if(t instanceof UnrecoverableErrorException) {
@@ -160,6 +159,12 @@ public class ErrorFilter implements Filter {
 				LOG.error("Failed to include error page:\n" + NavExceptionHelper.toLog(tt));
 				response.sendError(500);
 			}
+		} finally {
+		  try {
+		    org.apache.log4j.NDC.remove();
+		  } catch (Exception e) {
+		    LOG.debug("error", e);
+		  }
 		}
 	}
 
