@@ -196,7 +196,7 @@ public enum WsStemQueryFilterType {
           .convertToScope();
 
       //fail if the stem is not found, that is probably bad
-      return new StemsInStemFilter(wsStemQueryFilter.getParentStemName(), scope, true);
+      return new StemsInStemFilter(wsStemQueryFilter.getParentStemName(), scope, false);
     }
 
   },

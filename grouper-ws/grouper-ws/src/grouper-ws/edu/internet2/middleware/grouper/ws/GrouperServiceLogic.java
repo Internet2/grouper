@@ -767,6 +767,7 @@ public class GrouperServiceLogic {
       wsFindGroupsResults.assignGroupResult(groups, includeGroupDetail);
   
       wsFindGroupsResults.assignResultCode(WsFindGroupsResultsCode.SUCCESS);
+      
       wsFindGroupsResults.getResultMetadata().appendResultMessage(
           "Success for: " + theSummary);
   
