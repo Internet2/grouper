@@ -198,8 +198,11 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   private Subject _resolveSubject(String qry,boolean fuzzy, boolean exceptionIfNotFound) 
     throws  SubjectNotFoundException
   {
-    if(qry.equals(GrouperConfig.ALL) || (fuzzy && (
-    		qry.equalsIgnoreCase(allName) || qry.equalsIgnoreCase(GrouperConfig.ALL)
+    String queryLower = qry.toLowerCase();
+    
+    if(qry.equals(GrouperConfig.ALL) || (fuzzy && qry.length() > 4 &&  (
+        allName.toLowerCase().contains(queryLower) || GrouperConfig.ALL.toLowerCase().contains(queryLower)
+        || "everyentity".contains(queryLower)
     	)	
     	))
     		 {
@@ -208,8 +211,9 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
       }
       return this.all;
     }
-    else if (qry.equals(GrouperConfig.ROOT)|| (fuzzy && (
-    		qry.equalsIgnoreCase(rootName) || qry.equalsIgnoreCase(GrouperConfig.ROOT)
+    else if (qry.equals(GrouperConfig.ROOT)|| (fuzzy && qry.length() > 4 && (
+        rootName.toLowerCase().contains(queryLower) || GrouperConfig.ROOT.toLowerCase().contains(queryLower)
+        || "groupersysadmin".contains(queryLower)
     		)
 	))	 {
       if (this.root == null) {
