@@ -11,7 +11,13 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
@@ -22,7 +28,78 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
  */
 public class XmlExportMain {
 
+  /** stem patterns to export (and all objects inside) */
+  private Set<String> stems = new TreeSet<String>();
   
+  /** object names to export */
+  private Set<String> objectNames = new TreeSet<String>();
+  
+  /**
+   * add a stem pattern e.g. this:stem, that stem and all substems and objects will be exported
+   * @param stem
+   * @return this for chaining
+   */
+  public XmlExportMain addStem(String stem) {
+    this.stems.add(stem);
+    return this;
+  }
+
+  /**
+   * add an object name to export e.g. this:stem or this:stem:group
+   * @param objectName
+   * @return this for chaining
+   */
+  public XmlExportMain addObjectName(String objectName) {
+    this.objectNames.add(objectName);
+    return this;
+  }
+
+  /**
+   * get the object names filtering on
+   * @return object names
+   */
+  public Set<String> getObjectNames() {
+    return this.objectNames;
+  }
+  
+  /**
+   * stem patterns to filter on, e.g. a:b or a:%
+   * @return stem patterns to filter on
+   */
+  public Set<String> getStems() {
+    return this.stems;
+  }
+  
+  /**
+   * stem patterns to filter on, e.g. a:b or a:%.  This will return a:b:% or a:%:%
+   * @return stem patterns to filter on
+   */
+  public Set<String> getStemNamePatterns() {
+    Set<String> result = new HashSet<String>();
+    for (String stem : this.stems) {
+      result.add(stem + ":%");
+    }
+    return result;
+  }
+  
+  /** if audits should be included */
+  private boolean includeAudits = true;
+
+  /**
+   * include audits, default to true
+   * @param theIncludeAudits
+   */
+  public void setIncludeAudits(boolean theIncludeAudits) {
+    this.includeAudits = theIncludeAudits;
+  }
+  
+  /**
+   * if audits should be included
+   * @return if audits should be included
+   */
+  public boolean isIncludeAudits() {
+    return this.includeAudits;
+  }
   
   /** if comments should be included for foreign keys, note, this slows down the export */
   private boolean includeComments;
@@ -145,7 +222,7 @@ public class XmlExportMain {
     final SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm");
     try {
 
-      final long totalRecordCount = XmlImportMain.dbCount();
+      final long totalRecordCount = XmlImportMain.dbCount(this);
       final long startTime = System.currentTimeMillis();
       
       XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported");
@@ -188,8 +265,19 @@ public class XmlExportMain {
       //note, cant use stax since you cant mix stax and non stax since it wont close elements
       writer.write("<?xml version=\"1.0\" ?>\n<grouperExport");
       GrouperUtil.xmlAttribute(writer, "version", GrouperVersion.GROUPER_VERSION);
-      GrouperUtil.xmlAttribute(writer, "folderRoot", ":");
-      GrouperUtil.xmlAttribute(writer, "members", "all");
+      
+      if (!this.filterStemsOrObjects()) {
+        GrouperUtil.xmlAttribute(writer, "folderRoot", ":");
+        GrouperUtil.xmlAttribute(writer, "members", "all");
+      } else {
+        if (GrouperUtil.length(this.getStemNamePatterns()) > 0) {
+          GrouperUtil.xmlAttribute(writer, "folders", StringUtils.join(this.getStemNamePatterns().iterator(), ", "));
+        }
+        if (GrouperUtil.length(this.getObjectNames()) > 0) {
+          GrouperUtil.xmlAttribute(writer, "objects", StringUtils.join(this.getObjectNames().iterator(), ", "));
+        }
+        GrouperUtil.xmlAttribute(writer, "members", "allWithoutUnecessaryGroups");
+      }
       writer.write(">\n");
 
       XmlExportMember.exportMembers(writer, this);
@@ -227,11 +315,13 @@ public class XmlExportMain {
       XmlExportAttributeDefNameSet.exportAttributeDefNameSets(writer, this);
 
       XmlExportAttributeDefScope.exportAttributeDefScopes(writer, this);
-
-      XmlExportAuditType.exportAuditTypes(writer, this);
-
-      XmlExportAuditEntry.exportAuditEntries(writer, this);
-
+      
+      if (this.isIncludeAudits()) {
+        XmlExportAuditType.exportAuditTypes(writer, this);
+  
+        XmlExportAuditEntry.exportAuditEntries(writer, this);
+      }
+      
       writer.write("</grouperExport>\n");
       writer.flush();
     } catch (IOException ioe) {
@@ -247,6 +337,62 @@ public class XmlExportMain {
     }
     XmlImportMain.logInfoAndPrintToScreen("DONE: " + format.format(new Date()) + ": exported "
         + GrouperUtil.formatNumberWithCommas(XmlExportMain.this.currentRecordIndex) + " records to: " + fileName);
+
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public boolean filterStemsOrObjects() {
+    return GrouperUtil.length(this.stems) > 0 || GrouperUtil.length(this.objectNames) > 0;
+  }
+  
+  /**
+   * 
+   * @param queryBuilder
+   * @param aliasName
+   * @param fieldName
+   * @param forStemsOnly true to export stems, false to do other objects
+   */
+  public void appendHqlStemLikeOrObjectEquals(StringBuilder queryBuilder, String aliasName, String fieldName, boolean forStemsOnly) {
+    String[] stemNamePatternArray = GrouperUtil.toArray(this.getStemNamePatterns(), String.class);
+    String[] stemNameArray = GrouperUtil.toArray(this.getStems(), String.class);
+    
+    for (int i=0;i<GrouperUtil.length(stemNamePatternArray);i++) {
+      
+      if (i != 0) {
+        queryBuilder.append(" or ");
+      }
+      
+      queryBuilder.append(" ").append(aliasName).append(".")
+        .append(fieldName).append(" like '")
+        .append(HibUtils.escapeSqlString(stemNamePatternArray[i])).append("' ");
+
+      if (forStemsOnly) {
+
+        queryBuilder.append(" or ").append(aliasName).append(".")
+          .append(fieldName).append(" = '")
+          .append(HibUtils.escapeSqlString(stemNameArray[i])).append("' ");
+        
+      }
+      
+    }
+
+    String[] objectNameArray = GrouperUtil.toArray(this.getObjectNames(), String.class);
+    
+    for (int i=0;i<GrouperUtil.length(objectNameArray);i++) {
+      
+      //we need an or if not on first one or if there were stem names beforehand
+      if (i != 0 || GrouperUtil.length(stemNamePatternArray) > 0) {
+        queryBuilder.append(" or ");
+      }
+      
+      queryBuilder.append(" ").append(aliasName).append(".")
+        .append(fieldName).append(" = '")
+        .append(HibUtils.escapeSqlString(objectNameArray[i])).append("' ");
+      
+    }
 
   }
   

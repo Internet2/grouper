@@ -632,7 +632,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Composite addCompositeMember(CompositeType type, Group left, Group right)
     throws  InsufficientPrivilegeException,
             MemberAddException {
-    return internal_addCompositeMember(GrouperSession.staticGrouperSession(), type, left, right, uuid);
+    return internal_addCompositeMember(GrouperSession.staticGrouperSession(), type, left, right, null);
   } 
 
   /**

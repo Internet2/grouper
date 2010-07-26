@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.xml.export.XmlExportField;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroup;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroupType;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroupTypeTuple;
+import edu.internet2.middleware.grouper.xml.export.XmlExportMain;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMember;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMembership;
 import edu.internet2.middleware.grouper.xml.export.XmlExportRoleSet;
@@ -361,7 +362,7 @@ public class XmlImportMain {
               
               logInfoAndPrintToScreen("XML file contains " + GrouperUtil.formatNumberWithCommas(XmlImportMain.this.totalImportFileCount) + " records");
               
-              XmlImportMain.this.originalDbCount = XmlImportMain.dbCount();
+              XmlImportMain.this.originalDbCount = XmlImportMain.dbCount(new XmlExportMain());
               
             } catch (DocumentException de) {
               throw new RuntimeException("Problem reading file: " + filePath, de);
@@ -391,16 +392,17 @@ public class XmlImportMain {
 
   /**
    * get a db count of exportable rows
+   * @param xmlExportMain 
    * @return db count
    */
-  public static int dbCount() {
+  public static int dbCount(XmlExportMain xmlExportMain) {
     int total = 0;
-    total += XmlExportMember.dbCount();
-    total += XmlExportStem.dbCount();
-    total += XmlExportGroup.dbCount();
-    total += XmlExportGroupType.dbCount();
+    total += XmlExportMember.dbCount(xmlExportMain);
+    total += XmlExportStem.dbCount(xmlExportMain);
+    total += XmlExportGroup.dbCount(xmlExportMain);
+    total += XmlExportGroupType.dbCount(xmlExportMain);
     total += XmlExportField.dbCount();
-    total += XmlExportGroupTypeTuple.dbCount();
+    total += XmlExportGroupTypeTuple.dbCount(xmlExportMain);
     total += XmlExportComposite.dbCount();
     total += XmlExportAttribute.dbCount();
     total += XmlExportAttributeDef.dbCount();
@@ -533,7 +535,7 @@ public class XmlImportMain {
                 
                 logInfoAndPrintToScreen("Ending import: processed " + XmlImportMain.this.currentRecordIndex + " records");
   
-                long finalDbCount = XmlImportMain.dbCount();
+                long finalDbCount = XmlImportMain.dbCount(new XmlExportMain());
                 
                 logInfoAndPrintToScreen("Ending import: database contains " + finalDbCount + " records");
                 logInfoAndPrintToScreen("Ending import: " + XmlImportMain.this.insertCount + " inserts, " 

@@ -309,13 +309,35 @@ public class XmlExportGroupType {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from GroupType").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theGroupType) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from GroupType as theGroupType order by theGroupType.name ");
+    } else {
+      queryBuilder.append(
+          " from GroupType as theGroupType where exists ( select theGroupTypeTuple from GroupTypeTuple as theGroupTypeTuple, Group as theGroup " +
+          " where theGroupTypeTuple.groupUuid = theGroup.uuid and theGroupTypeTuple.typeUuid = theGroupType.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " order by theGroupType.name ");
+    }
+    return queryBuilder.toString();
+  }
+
 
   /**
    * 
@@ -333,7 +355,7 @@ public class XmlExportGroupType {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theGroupType from GroupType as theGroupType order by theGroupType.name");
+            "select distinct theGroupType " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

@@ -250,13 +250,35 @@ public class XmlExportGroupTypeTuple {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from GroupTypeTuple").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theGroupTypeTuple) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from GroupTypeTuple as theGroupTypeTuple order by theGroupTypeTuple.groupUuid, theGroupTypeTuple.typeUuid ");
+    } else {
+      queryBuilder.append(
+          " from GroupTypeTuple as theGroupTypeTuple where exists ( select theGroup from Group as theGroup " +
+          " where theGroupTypeTuple.groupUuid = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " order by theGroupTypeTuple.groupUuid, theGroupTypeTuple.typeUuid ");
+    }
+    return queryBuilder.toString();
+  }
+
 
   /**
    * 
@@ -274,8 +296,7 @@ public class XmlExportGroupTypeTuple {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theGroupTypeTuple from GroupTypeTuple as theGroupTypeTuple " +
-            "order by theGroupTypeTuple.groupUuid, theGroupTypeTuple.typeUuid");
+            "select distinct theGroupTypeTuple " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

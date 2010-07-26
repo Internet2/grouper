@@ -433,9 +433,29 @@ public class XmlExportStem {
    * get db count
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from Stem").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theStem) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
+  }
+  
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from Stem as theStem order by theStem.nameDb");
+    } else {
+      queryBuilder.append(
+          " from Stem as theStem where ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem", "nameDb", true);
+      queryBuilder.append(" ) ) " +
+          " order by theStem.nameDb");
+    }
+    return queryBuilder.toString();
   }
   
 
@@ -455,7 +475,7 @@ public class XmlExportStem {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theStem from Stem as theStem order by theStem.nameDb");
+            "select distinct theStem " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

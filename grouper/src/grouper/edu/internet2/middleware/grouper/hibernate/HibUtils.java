@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -666,6 +667,20 @@ public class HibUtils {
     result.append(" ) ");
     return result.toString();
 
+    
+  }
+
+  /**
+   * escape the quotes from sql string
+   * @param input
+   * @return the escaped string
+   */
+  public static String escapeSqlString(String input) {
+    if (input == null) {
+      return input;
+    }
+    
+    return StringUtils.replace(input, "'", "''");
     
   }
   
