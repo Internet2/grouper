@@ -35,7 +35,7 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testLogNextException"));
+    TestRunner.run(new GrouperUtilTest("testIndent"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -548,6 +548,11 @@ public class GrouperUtilTest extends TestCase {
     String indented = GrouperUtil.indent("<a><b whatever=\"whatever\"><c>hey</c><d><e>there</e><f /><g / ><h></h></d></b></a>", true);
     String expected = "<a>\n  <b whatever=\"whatever\">\n    <c>hey</c>\n    <d>\n      <e>there</e>\n      <f />\n      <g / >\n      <h></h>\n    </d>\n  </b>\n</a>";
     assertEquals("\n\nExpected:\n" + expected + "\n\nresult:\n" + indented + "\n\n", expected, indented);
+
+    indented = GrouperUtil.indent("<a><!-- comment --><!-- another comment --><b whatever=\"whatever\"><!-- hey --><c>hey</c><d><e>there</e><f /><g / ><h></h></d></b></a>", true);
+    expected = "<a>\n  <!-- comment -->\n  <!-- another comment -->\n  <b whatever=\"whatever\">\n    <!-- hey -->\n    <c>hey</c>\n    <d>\n      <e>there</e>\n      <f />\n      <g / >\n      <h></h>\n    </d>\n  </b>\n</a>";
+    assertEquals("\n\nExpected:\n" + expected + "\n\nresult:\n" + indented + "\n\n", expected, indented);
+
   }
   
   /**

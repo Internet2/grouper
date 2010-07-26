@@ -289,13 +289,36 @@ public class XmlExportAttributeAssignAction {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeAssignAction").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssignAction) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from AttributeAssignAction as theAttributeAssignAction " +
+      		" order by theAttributeAssignAction.attributeDefId, theAttributeAssignAction.nameDb ");
+    } else {
+      queryBuilder.append(
+          " from AttributeAssignAction as theAttributeAssignAction where exists ( " +
+          " select theAttributeDef from AttributeDef as theAttributeDef " +
+          " where theAttributeAssignAction.attributeDefId = theAttributeDef.id and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " order by theAttributeAssignAction.attributeDefId, theAttributeAssignAction.nameDb ");
+    }
+    return queryBuilder.toString();
+  }
 
 
   /**
@@ -314,7 +337,7 @@ public class XmlExportAttributeAssignAction {
   
         //select all role sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select theAttributeAssignAction from AttributeAssignAction as theAttributeAssignAction order by theAttributeAssignAction.attributeDefId, theAttributeAssignAction.nameDb");
+            "select distinct theAttributeAssignAction " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

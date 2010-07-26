@@ -332,13 +332,39 @@ public class XmlExportRoleSet {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from RoleSet as theRoleSet where theRoleSet.typeDb = 'immediate'").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theRoleSet) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from RoleSet as theRoleSet where theRoleSet.typeDb = 'immediate' order by theRoleSet.id ");
+    } else {
+      queryBuilder.append(
+          " from RoleSet as theRoleSet where theRoleSet.typeDb = 'immediate' " +
+          " and exists ( select theGroup from Group as theGroup " +
+          " where theRoleSet.ifHasRoleId = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " and exists ( select theGroup from Group as theGroup " +
+          " where theRoleSet.thenHasRoleId = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " order by theRoleSet.id ");
+    }
+    return queryBuilder.toString();
+  }
 
   /**
    * 
@@ -356,7 +382,7 @@ public class XmlExportRoleSet {
   
         //select all role sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select theRoleSet from RoleSet as theRoleSet where theRoleSet.typeDb = 'immediate' order by theRoleSet.id");
+            "select distinct theRoleSet " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

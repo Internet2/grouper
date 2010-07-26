@@ -709,13 +709,34 @@ public class XmlExportAttributeDef {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeDef").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeDef) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from AttributeDef as theAttributeDef order by theAttributeDef.nameDb ");
+    } else {
+      queryBuilder.append(
+          " from AttributeDef as theAttributeDef where ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+      queryBuilder.append(" " +
+          " order by theAttributeDef.nameDb ");
+    }
+    return queryBuilder.toString();
+  }
+        
   /**
    * 
    * @param writer
@@ -732,7 +753,7 @@ public class XmlExportAttributeDef {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theAttributeDef from AttributeDef as theAttributeDef order by theAttributeDef.nameDb");
+            "select distinct theAttributeDef " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

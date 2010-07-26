@@ -329,13 +329,43 @@ public class XmlExportComposite {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from Composite").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theComposite) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from Composite as theComposite order by theComposite.factorOwnerUuid, theComposite.leftFactorUuid, theComposite.rightFactorUuid, theComposite.typeDb ");
+    } else {
+      queryBuilder.append(
+          " from Composite as theComposite where exists ( select theGroup from Group as theGroup "
+          + " where theComposite.factorOwnerUuid = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) "
+          + " and exists ( select theGroup from Group as theGroup "
+          + " where theComposite.leftFactorUuid = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) "
+          + " and exists ( select theGroup from Group as theGroup "
+          + " where theComposite.rightFactorUuid = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) ");
+      queryBuilder.append(" order by theComposite.factorOwnerUuid, theComposite.leftFactorUuid, " +
+          "theComposite.rightFactorUuid, theComposite.typeDb ");
+    }
+    return queryBuilder.toString();
+  }
 
   /**
    * 
@@ -353,7 +383,7 @@ public class XmlExportComposite {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theComposite from Composite as theComposite order by theComposite.factorOwnerUuid, theComposite.leftFactorUuid, theComposite.rightFactorUuid, theComposite.typeDb");
+            "select distinct theComposite " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

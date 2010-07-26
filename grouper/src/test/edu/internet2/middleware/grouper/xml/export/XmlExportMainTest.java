@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -320,28 +321,67 @@ public class XmlExportMainTest extends GrouperTest {
     Group groupE = new GroupSave(grouperSession).assignGroupNameToEdit("yesExportAlso:e").assignName("yesExportAlso:e")
       .assignCreateParentStemsIfNotExist(true).save();
 
+    Group groupF = new GroupSave(grouperSession).assignGroupNameToEdit("yesExport:f").assignName("yesExport:f")
+      .assignCreateParentStemsIfNotExist(true).save();
+
+    Group groupG = new GroupSave(grouperSession).assignGroupNameToEdit("yesExport:g").assignName("yesExport:g")
+      .assignCreateParentStemsIfNotExist(true).save();
     
+    Group groupH = new GroupSave(grouperSession).assignGroupNameToEdit("yesExport:h").assignName("yesExport:h")
+      .assignCreateParentStemsIfNotExist(true).save();
+  
     groupA.addCompositeMember(CompositeType.INTERSECTION, groupB, groupC);
+    groupF.addCompositeMember(CompositeType.INTERSECTION, groupG, groupH);
     
     GroupType groupType = GroupType.createType(grouperSession, "test");
     
     groupType.addAttribute(grouperSession, "attr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
     
     groupB.addType(groupType);
+    groupG.addType(groupType);
     
-    groupB.setAttribute("attr", "value");
+    groupB.setAttribute("attr", "valueB");
+    groupG.setAttribute("attr", "valueG");
     groupB.store();
+    groupG.store();
+    
+    groupE.addMember(SubjectTestHelper.SUBJ8);
+    groupB.addMember(SubjectTestHelper.SUBJ9);
+    
     Stem stem = StemFinder.findByName(grouperSession, "notExport", true);
+    Stem stemYes = StemFinder.findByName(grouperSession, "yesExport", true);
+
     AttributeDef studentsAttrDef = stem.addChildAttributeDef("students", AttributeDefType.attr);
     Role userSharerRole = stem.addChildRole("userSharer", "userSharer");
     Role userReceiverRole = stem.addChildRole("userReceiver", "userReceiver");
     userSharerRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(userReceiverRole);
+    
+    Role userSharerRoleYes = stemYes.addChildRole("userSharerYes", "userSharerYes");
+    Role userReceiverRoleYes = stemYes.addChildRole("userReceiverYes", "userReceiverYes");
+    userSharerRoleYes.getRoleInheritanceDelegate().addRoleToInheritFromThis(userReceiverRoleYes);
+
+    
     AttributeAssignAction action = studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction");
     AttributeAssignAction action2 = studentsAttrDef.getAttributeDefActionDelegate().addAction("someAction2");
     action.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(action2);
-  
+
+    AttributeDef studentsAttrDefYes = stemYes.addChildAttributeDef("studentsYes", AttributeDefType.attr);
+    AttributeDefName studentsAttrNameYes = stemYes.addChildAttributeDefName(studentsAttrDefYes, "studentsNameYes", "studentsNameYes");
+
+    AttributeAssignAction notAction = studentsAttrDef.getAttributeDefActionDelegate().addAction("notAction");
+    AttributeAssignAction yesAction = studentsAttrDefYes.getAttributeDefActionDelegate().addAction("yesAction");
+    AttributeAssignAction notAction2 = studentsAttrDef.getAttributeDefActionDelegate().addAction("notAction2");
+    AttributeAssignAction yesAction2 = studentsAttrDefYes.getAttributeDefActionDelegate().addAction("yesAction2");
+    
+    notAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(notAction2);
+    yesAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(yesAction2);
+    
+    
     studentsAttrDef.setAssignToGroup(true);
     studentsAttrDef.store();
+  
+    studentsAttrDefYes.setAssignToGroup(true);
+    studentsAttrDefYes.store();
   
     AttributeDef studentsAttrDef2 = stem.addChildAttributeDef("students2", AttributeDefType.attr);
     studentsAttrDef2.setAssignToGroupAssn(true);
@@ -393,7 +433,7 @@ public class XmlExportMainTest extends GrouperTest {
     //TRY WITH ONE STEM
     stringWriter = new StringWriter();
     xmlExportMain = new XmlExportMain();
-    
+    xmlExportMain.setIncludeComments(true);
     xmlExportMain.setIncludeAudits(false);
     xmlExportMain.addStem("yesExport");
     xmlExportMain.addStem("whatever");
@@ -416,6 +456,34 @@ public class XmlExportMainTest extends GrouperTest {
     assertTrue(xml.contains("<uuid>" + groupD.getParentStem().getUuid() + "</uuid>"));
     assertFalse(groupA.getId(), xml.contains("<uuid>" + groupA.getId() + "</uuid>"));
     assertTrue(xml.contains("<uuid>" + groupD.getId() + "</uuid>"));
+
+    assertFalse(xml.contains("<leftFactor>" + groupB.getUuid() + "</leftFactor>"));
+    assertTrue(xml.contains("<leftFactor>" + groupG.getUuid() + "</leftFactor>"));
+    
+    assertFalse(xml.contains("<value>valueB</value>"));
+    assertTrue(xml.contains("<value>valueG</value>"));
+    
+    assertFalse(xml.contains("<name>" + studentsAttrDef.getName() + "</name>"));
+    assertTrue(xml.contains("<name>" + studentsAttrDefYes.getName() + "</name>"));
+
+    assertFalse(xml.contains("<name>" + studentsAttrName.getName() + "</name>"));
+    assertTrue(xml.contains("<name>" + studentsAttrNameYes.getName() + "</name>"));
+    
+    assertFalse(xml.contains("<ifHasRoleId>" + userSharerRole.getId() + "</ifHasRoleId>"));
+    assertTrue(xml.contains("<ifHasRoleId>" + userSharerRoleYes.getId() + "</ifHasRoleId>"));
+    
+    assertFalse(xml.contains("<name>notAction</name>"));
+    assertTrue(xml.contains("<name>yesAction</name>"));
+    
+    assertFalse(xml.contains("<ifHasAttributeAssignActionId>" + notAction.getId() + "</ifHasAttributeAssignActionId>"));
+    assertTrue(xml.contains("<ifHasAttributeAssignActionId>" + yesAction.getId() + "</ifHasAttributeAssignActionId>"));
+    
+    
+    
+    assertFalse(groupB.getUuid(), xml.contains("<ownerGroupId>" + groupB.getUuid() + "</ownerGroupId>"));
+    assertTrue(groupE.getUuid(), xml.contains("<ownerGroupId>" + groupE.getUuid() + "</ownerGroupId>"));
+
+
     assertTrue(xml.contains("yesExport"));
     assertFalse(xml.contains("notExport"));
     

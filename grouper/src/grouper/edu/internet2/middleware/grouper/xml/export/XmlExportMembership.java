@@ -449,13 +449,40 @@ public class XmlExportMembership {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from ImmediateMembershipEntry as theMembership where theMembership.type = 'immediate'").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery(
+        "select count(theMembership) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from ImmediateMembershipEntry as theMembership " +
+      		"where theMembership.type = 'immediate' order by theMembership.memberUuid, " +
+      		"theMembership.ownerId, theMembership.fieldId, theMembership.immediateMembershipId ");
+    } else {
+      queryBuilder.append(
+          " from ImmediateMembershipEntry as theMembership " +
+          " where theMembership.type = 'immediate' and exists ( select theGroup from Group as theGroup " +
+          " where theMembership.ownerGroupId = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " order by theMembership.memberUuid, theMembership.ownerId, " +
+          "theMembership.fieldId, theMembership.immediateMembershipId ");
+    }
+    return queryBuilder.toString();
+  }
+
 
   /**
    * 
@@ -473,7 +500,7 @@ public class XmlExportMembership {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theMembership from ImmediateMembershipEntry as theMembership where theMembership.type = 'immediate' order by theMembership.memberUuid, theMembership.ownerId, theMembership.fieldId, theMembership.immediateMembershipId");
+            "select distinct theMembership " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {
