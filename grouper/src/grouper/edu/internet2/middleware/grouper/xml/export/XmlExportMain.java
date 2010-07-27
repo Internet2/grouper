@@ -229,7 +229,7 @@ public class XmlExportMain {
       final long totalRecordCount = XmlImportMain.dbCount(this);
       final long startTime = System.currentTimeMillis();
       
-      XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported");
+      XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported (not exact, might be less)");
       
       thread = new Thread(new Runnable() {
         

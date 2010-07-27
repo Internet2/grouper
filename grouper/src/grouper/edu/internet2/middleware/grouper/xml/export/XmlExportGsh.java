@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.xml.export;
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -38,7 +39,23 @@ public class XmlExportGsh {
   /**
    * 
    */
-  private static final String INCLUDE_COMMENTS_ARG = "includeComments";
+  public static final String INCLUDE_COMMENTS_ARG = "includeComments";
+  
+  /**
+   * 
+   */
+  public static final String STEMS_ARG = "stems";
+  
+  /**
+   * 
+   */
+  public static final String OBJECT_NAMES_ARG = "objectNames";
+  
+  /**
+   * 
+   */
+  private static final String EXCLUDE_AUDITS_ARG = "excludeAudits";
+  
   
   /**
    * 
@@ -95,6 +112,30 @@ public class XmlExportGsh {
         xmlExportMain.setIncludeComments(true);
       }
       
+      if (Boolean.TRUE.equals(argsMap.get(EXCLUDE_AUDITS_ARG))) {
+        xmlExportMain.setIncludeAudits(false);
+      }
+      
+      {
+        String stemsString = (String)argsMap.get(STEMS_ARG);
+        if (!StringUtils.isBlank(stemsString)) {
+          Set<String> stems = GrouperUtil.splitTrimToSet(stemsString, ",");
+          for (String stem : stems) {
+            xmlExportMain.addStem(stem);
+          }
+        }
+      }
+      
+      {
+        String objectNamesString = (String)argsMap.get(OBJECT_NAMES_ARG);
+        if (!StringUtils.isBlank(objectNamesString)) {
+          Set<String> objectNames = GrouperUtil.splitTrimToSet(objectNamesString, ",");
+          for (String objectName : objectNames) {
+            xmlExportMain.addObjectName(objectName);
+          }
+        }
+      }
+      
       String fileName = (String)argsMap.get(XmlExportUtils.FILE_NAME_ARG);
       
       if (StringUtils.isBlank(fileName)) {
@@ -125,10 +166,13 @@ public class XmlExportGsh {
             + "args:  "             + GrouperConfig.NL
             + "      [-noprompt] filename"           + GrouperConfig.NL
             + "e.g.  gsh -xmlexport f:/temp/prod.xml"                 + GrouperConfig.NL
+            + "e.g.  gsh -xmlexport -stems a:b:c,d:e:f f:/temp/prod.xml"                 + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
             + "  -includeComments,  Put comments about foreign keys in XML"+ GrouperConfig.NL
-            + "  -noprompt,         Do not prompt user to confirm the database that"+ GrouperConfig.NL
-            + "                     will be updated"                                + GrouperConfig.NL
+            + "  -stems,            Only include objects in these comma separated stems or object names"+ GrouperConfig.NL
+            + "  -objectNames,      Only include objects in these comma separated object names or stems"+ GrouperConfig.NL
+            + "  -excludeAudits,    Put comments about foreign keys in XML"+ GrouperConfig.NL
+            + "  -noprompt,         Do not prompt user to confirm the export"+ GrouperConfig.NL
             + "  filename,          The file to import"                             + GrouperConfig.NL
             ;
   }
