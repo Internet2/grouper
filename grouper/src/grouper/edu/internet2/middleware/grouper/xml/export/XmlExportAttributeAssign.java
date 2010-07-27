@@ -7,7 +7,10 @@ package edu.internet2.middleware.grouper.xml.export;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -586,16 +589,68 @@ public class XmlExportAttributeAssign {
   }
 
 
-
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeAssign").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssign) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from AttributeAssign as theAttributeAssign order by theAttributeAssign.ownerAttributeAssignId, theAttributeAssign.id ");
+    } else {
+      queryBuilder.append(
+        " from AttributeAssign as theAttributeAssign, AttributeDefName theAttributeDefName, AttributeDef theAttributeDef where " +
+        " theAttributeAssign.attributeDefNameId = theAttributeDefName.id and theAttributeDefName.attributeDefId = theAttributeDef.id " +
+        " and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefName", "nameDb", false);
+      queryBuilder.append(" ) and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+      queryBuilder.append(" ) " +
+        " and ( theAttributeAssign.ownerAttributeAssignId is not null or " +
+        " ( " +
+        " exists ( select theGroup from Group as theGroup " +
+        " where theAttributeAssign.ownerGroupId = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) ) ");
+      queryBuilder.append(" or ( " +
+        " exists ( select theStem from Stem as theStem " +
+        " where theAttributeAssign.ownerStemId = theStem.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem", "nameDb", true);
+      queryBuilder.append(" ) ) ) ");
+      queryBuilder.append(" or ( " +
+          " exists ( select theAttributeDefAssn from AttributeDef as theAttributeDefAssn " +
+          " where theAttributeAssign.ownerAttributeDefId = theAttributeDefAssn.id and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefAssn", "nameDb", true);
+      queryBuilder.append(" ) ) ) ");
+      queryBuilder.append(" or ( " +
+          " exists ( select theMembership from ImmediateMembershipEntry as theMembership " +
+          " where theAttributeAssign.ownerMembershipId = theMembership.immediateMembershipId and ( ");
+      queryBuilder.append(" exists ( select theGroup2 from Group as theGroup2 where theGroup2.uuid = theMembership.ownerGroupId and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup2", "nameDb", true);
+      queryBuilder.append(" ) ) ");
+      queryBuilder.append(" or exists ( select theStem2 from Stem as theStem2 where theStem2.uuid = theMembership.ownerStemId and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem2", "nameDb", true);
+      queryBuilder.append(" ) ) ");
+      queryBuilder.append(" or exists ( select theAttributeDef2 from AttributeDef as theAttributeDef2 where theAttributeDef2.id = theMembership.ownerAttrDefId and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef2", "nameDb", true);
+      queryBuilder.append(" ) ) ");
+      queryBuilder.append(" ) ) ) ");
+      queryBuilder.append(" ) order by theAttributeAssign.ownerAttributeAssignId, theAttributeAssign.id ");
+    }
+    return queryBuilder.toString();
+  }
 
   /**
    * @param xmlExportMain
@@ -603,7 +658,8 @@ public class XmlExportAttributeAssign {
    */
   public static void exportAttributeAssigns(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
@@ -613,9 +669,12 @@ public class XmlExportAttributeAssign {
         //select all members in order
         //order by attributeAssignId so the ones not about assigns are first.
         Query query = session.createQuery(
-            "select theAttributeAssign from AttributeAssign as theAttributeAssign order by theAttributeAssign.ownerAttributeAssignId, theAttributeAssign.id");
+            "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        
+        Set<AttributeAssign> attributeAssignsOfAssigns = new LinkedHashSet<AttributeAssign>();
+        
         try {
           writer.write("  <attributeAssigns>\n");
   
@@ -627,34 +686,31 @@ public class XmlExportAttributeAssign {
               Object object = results.get(0);
               final AttributeAssign attributeAssign = (AttributeAssign)object;
               
-              //comments to dereference the foreign keys
-              if (xmlExportMain.isIncludeComments()) {
-                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-                  
-                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                      throws GrouperDAOException {
-                    try {
-                      writer.write("\n    <!--  ");
-                      
-                      XmlExportUtils.toStringAttributeAssign(null, writer, attributeAssign, false);
-
-                      writer.write(" -->\n");
-                      return null;
-                    } catch (IOException ioe) {
-                      throw new RuntimeException(ioe);
-                    }
-                  }
-                });
-              }
+              //do the attribute assigns of assigns later on
+              if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
+                attributeAssignsOfAssigns.add(attributeAssign);
+              } else {
               
-              XmlExportAttributeAssign xmlExportAttributeAssign = attributeAssign.xmlToExportAttributeAssign(grouperVersion);
-              writer.write("    ");
-              xmlExportAttributeAssign.toXml(grouperVersion, writer);
-              writer.write("\n");
-              xmlExportMain.incrementRecordCount();
+                xmlExportMain.getAttributeAssignIds().add(attributeAssign.getId());
+
+                exportAttributeAssign(writer, xmlExportMain, grouperVersion,
+                    attributeAssign);
+              }
             }
           } finally {
             HibUtils.closeQuietly(results);
+          }
+
+          for (AttributeAssign attributeAssignOfAssign: attributeAssignsOfAssigns) {
+            
+            //if the foreign key isnt there, then dont export
+            if (xmlExportMain.getAttributeAssignIds().contains(attributeAssignOfAssign.getOwnerAttributeAssignId())) {
+
+              xmlExportMain.getAttributeAssignIds().add(attributeAssignOfAssign.getId());
+
+              exportAttributeAssign(writer, xmlExportMain, grouperVersion,
+                  attributeAssignOfAssign);
+            }
           }
           
           if (xmlExportMain.isIncludeComments()) {
@@ -668,7 +724,45 @@ public class XmlExportAttributeAssign {
         }
         return null;
       }
+
     });
+  }
+
+  /**
+   * @param writer
+   * @param xmlExportMain
+   * @param grouperVersion
+   * @param attributeAssign
+   * @throws IOException
+   */
+  private static void exportAttributeAssign(final Writer writer,
+      final XmlExportMain xmlExportMain, GrouperVersion grouperVersion,
+      final AttributeAssign attributeAssign) throws IOException {
+    //comments to dereference the foreign keys
+    if (xmlExportMain.isIncludeComments()) {
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          try {
+            writer.write("\n    <!--  ");
+            
+            XmlExportUtils.toStringAttributeAssign(null, writer, attributeAssign, false);
+
+            writer.write(" -->\n");
+            return null;
+          } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+          }
+        }
+      });
+    }
+    
+    XmlExportAttributeAssign xmlExportAttributeAssign = attributeAssign.xmlToExportAttributeAssign(grouperVersion);
+    writer.write("    ");
+    xmlExportAttributeAssign.toXml(grouperVersion, writer);
+    writer.write("\n");
+    xmlExportMain.incrementRecordCount();
   }
 
   /**

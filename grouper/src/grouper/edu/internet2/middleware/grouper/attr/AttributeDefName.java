@@ -653,7 +653,7 @@ public class AttributeDefName extends GrouperAPI
     if (!StringUtils.equals(this.attributeDefId, other.attributeDefId)) {
       return true;
     }
-    if (!StringUtils.equals(this.description, other.description)) {
+    if (!StringUtils.equals(StringUtils.trimToNull(this.description), StringUtils.trimToNull(other.description))) {
       return true;
     }
     if (!StringUtils.equals(this.displayExtension, other.displayExtension)) {

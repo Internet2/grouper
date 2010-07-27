@@ -11,6 +11,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -346,8 +349,13 @@ public class XmlExportMainTest extends GrouperTest {
     groupG.store();
     
     groupE.addMember(SubjectTestHelper.SUBJ8);
-    groupB.addMember(SubjectTestHelper.SUBJ9);
     
+    Membership membershipYes = groupE.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ8, true, true);
+    
+    groupB.addMember(SubjectTestHelper.SUBJ9);
+
+    Membership membershipNo = groupB.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ9, true, true);
+
     Stem stem = StemFinder.findByName(grouperSession, "notExport", true);
     Stem stemYes = StemFinder.findByName(grouperSession, "yesExport", true);
 
@@ -367,6 +375,7 @@ public class XmlExportMainTest extends GrouperTest {
 
     AttributeDef studentsAttrDefYes = stemYes.addChildAttributeDef("studentsYes", AttributeDefType.attr);
     AttributeDefName studentsAttrNameYes = stemYes.addChildAttributeDefName(studentsAttrDefYes, "studentsNameYes", "studentsNameYes");
+    AttributeDefName studentsAttrNameYes2 = stemYes.addChildAttributeDefName(studentsAttrDefYes, "studentsNameYes2", "studentsNameYes2");
 
     AttributeAssignAction notAction = studentsAttrDef.getAttributeDefActionDelegate().addAction("notAction");
     AttributeAssignAction yesAction = studentsAttrDefYes.getAttributeDefActionDelegate().addAction("yesAction");
@@ -378,29 +387,66 @@ public class XmlExportMainTest extends GrouperTest {
     
     
     studentsAttrDef.setAssignToGroup(true);
+    studentsAttrDef.setAssignToStem(true);
+    studentsAttrDef.setAssignToImmMembership(true);
+    studentsAttrDef.setAssignToAttributeDef(true);
     studentsAttrDef.store();
   
     studentsAttrDefYes.setAssignToGroup(true);
+    studentsAttrDefYes.setAssignToStem(true);
+    studentsAttrDefYes.setAssignToMember(true);
+    studentsAttrDefYes.setAssignToImmMembership(true);
+    studentsAttrDefYes.setAssignToAttributeDef(true);
     studentsAttrDefYes.store();
   
     AttributeDef studentsAttrDef2 = stem.addChildAttributeDef("students2", AttributeDefType.attr);
     studentsAttrDef2.setAssignToGroupAssn(true);
     studentsAttrDef2.store();
   
+    AttributeDef studentsAttrDefYes2 = stemYes.addChildAttributeDef("studentsYes2", AttributeDefType.attr);
+    studentsAttrDefYes2.setAssignToGroupAssn(true);
+    studentsAttrDefYes2.store();
+  
     
     AttributeDefName studentsAttrName = stem.addChildAttributeDefName(studentsAttrDef, "studentsName", "studentsName");
     AttributeDefName studentsAttrName2 = stem.addChildAttributeDefName(studentsAttrDef2, "studentsName2", "studentsName2");
   
     studentsAttrName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(studentsAttrName2);
+    studentsAttrNameYes.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(studentsAttrNameYes2);
     
     AttributeAssignResult attributeAssignResult = groupB.getAttributeDelegate().assignAttribute(studentsAttrName);
-    attributeAssignResult.getAttributeAssign().getAttributeDelegate().assignAttribute(studentsAttrName2);
+    AttributeAssignResult attributeAssignResultAssn = attributeAssignResult.getAttributeAssign().getAttributeDelegate().assignAttribute(studentsAttrName2);
   
+    AttributeAssignResult attributeAssignResultYes = groupD.getAttributeDelegate().assignAttribute(studentsAttrNameYes);
+    AttributeAssignResult attributeAssignResultAssnYes = attributeAssignResultYes.getAttributeAssign().getAttributeDelegate().assignAttribute(studentsAttrNameYes2);
+
+    AttributeAssignResult attributeAssignResultStem = stem.getAttributeDelegate().assignAttribute(studentsAttrName);
+    AttributeAssignResult attributeAssignResultStemYes = stemYes.getAttributeDelegate().assignAttribute(studentsAttrNameYes);
+
+    AttributeAssignResult attributeAssignResultAttrDef = studentsAttrDef.getAttributeDelegate().assignAttribute(studentsAttrName);
+    AttributeAssignResult attributeAssignResultAttrDefYes = studentsAttrDefYes.getAttributeDelegate().assignAttribute(studentsAttrNameYes);
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    AttributeAssignResult attributeAssignResultMemberYes = member.getAttributeDelegate().assignAttribute(studentsAttrNameYes);
+
+    
+    attributeAssignResultYes.getAttributeAssign().getAttributeDelegate().assignAttribute(studentsAttrNameYes2);
+
+    AttributeAssignResult attributeAssignResultMship = membershipNo.getAttributeDelegate().assignAttribute(studentsAttrName);
+    AttributeAssignResult attributeAssignResultMshipYes = membershipYes.getAttributeDelegate().assignAttribute(studentsAttrNameYes);
+    
+    
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid());
     attributeAssignValue.setAttributeAssignId(attributeAssignResult.getAttributeAssign().getId());
     attributeAssignValue.setValueString("string");
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValue);
+    
+    AttributeAssignValue attributeAssignValueYes = new AttributeAssignValue();
+    attributeAssignValueYes.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid());
+    attributeAssignValueYes.setAttributeAssignId(attributeAssignResultYes.getAttributeAssign().getId());
+    attributeAssignValueYes.setValueString("stringYes");
+    HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValueYes);
     
     AttributeDefScope attributeDefScope = new AttributeDefScope();
     attributeDefScope.setId(GrouperUuid.getUuid());
@@ -408,6 +454,13 @@ public class XmlExportMainTest extends GrouperTest {
     attributeDefScope.setAttributeDefId(studentsAttrDef.getId());
     attributeDefScope.setScopeString("whatever");
     attributeDefScope.saveOrUpdate();
+    
+    AttributeDefScope attributeDefScopeYes = new AttributeDefScope();
+    attributeDefScopeYes.setId(GrouperUuid.getUuid());
+    attributeDefScopeYes.setAttributeDefScopeType(AttributeDefScopeType.attributeDefNameIdAssigned);
+    attributeDefScopeYes.setAttributeDefId(studentsAttrDefYes.getId());
+    attributeDefScopeYes.setScopeString("whateverYes");
+    attributeDefScopeYes.saveOrUpdate();
     
     HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_type where audit_category = 'exportCategoryTest'");
     
@@ -444,7 +497,7 @@ public class XmlExportMainTest extends GrouperTest {
     
     xml = stringWriter.toString();
     
-    System.out.println(GrouperUtil.indent(xml, true));
+    //System.out.println(GrouperUtil.indent(xml, true));
     
     assertTrue(xml.contains("folders=\"yesExport:%, whatever:%\"")); 
     assertTrue(xml.contains("objects=\"yesExportAlso:e\""));
@@ -478,146 +531,167 @@ public class XmlExportMainTest extends GrouperTest {
     assertFalse(xml.contains("<ifHasAttributeAssignActionId>" + notAction.getId() + "</ifHasAttributeAssignActionId>"));
     assertTrue(xml.contains("<ifHasAttributeAssignActionId>" + yesAction.getId() + "</ifHasAttributeAssignActionId>"));
     
+    assertFalse(xml.contains("<uuid>" + attributeAssignResult.getAttributeAssign().getId() + "</uuid>"));
+    assertTrue(xml.contains("<uuid>" + attributeAssignResultYes.getAttributeAssign().getId() + "</uuid>"));
     
+    assertFalse(xml.contains("<uuid>" + attributeAssignResultStem.getAttributeAssign().getId() + "</uuid>"));
+    assertTrue(xml.contains("<uuid>" + attributeAssignResultStemYes.getAttributeAssign().getId() + "</uuid>"));
+    
+    assertFalse(xml.contains("<uuid>" + attributeAssignResultMemberYes.getAttributeAssign().getId() + "</uuid>"));
+    
+    assertFalse(xml.contains("<uuid>" + attributeAssignResultMship.getAttributeAssign().getId() + "</uuid>"));
+    assertTrue(xml.contains("<uuid>" + attributeAssignResultMshipYes.getAttributeAssign().getId() + "</uuid>"));
     
     assertFalse(groupB.getUuid(), xml.contains("<ownerGroupId>" + groupB.getUuid() + "</ownerGroupId>"));
     assertTrue(groupE.getUuid(), xml.contains("<ownerGroupId>" + groupE.getUuid() + "</ownerGroupId>"));
+    
+    assertFalse(xml.contains("<uuid>" + attributeAssignResultAttrDef.getAttributeAssign().getId() + "</uuid>"));
+    assertTrue(xml.contains("<uuid>" + attributeAssignResultAttrDefYes.getAttributeAssign().getId() + "</uuid>"));
 
+    assertFalse(xml.contains("<uuid>" + attributeAssignResultAssn.getAttributeAssign().getId() + "</uuid>"));
+    assertTrue(xml.contains("<uuid>" + attributeAssignResultAssnYes.getAttributeAssign().getId() + "</uuid>"));
 
+    assertFalse(xml.contains("<uuid>" + attributeAssignValue.getId() + "</uuid>"));
+    assertTrue(xml.contains("<uuid>" + attributeAssignValueYes.getId() + "</uuid>"));
+
+    assertFalse(xml.contains("<ifHasAttributeDefNameId>" + studentsAttrName.getId() + "</ifHasAttributeDefNameId>"));
+    assertTrue(xml.contains("<ifHasAttributeDefNameId>" + studentsAttrNameYes.getId() + "</ifHasAttributeDefNameId>"));
+
+    assertFalse(xml.contains("<scopeString>whatever</scopeString>"));
+    assertTrue(xml.contains("<scopeString>whateverYes</scopeString>"));
+
+    
+    
     assertTrue(xml.contains("yesExport"));
     assertFalse(xml.contains("notExport"));
     
-//    assertTrue(xml, xml.contains("<members>"));
-//    assertTrue(xml, xml.contains("<XmlExportMember>"));
-//    
-//    assertTrue(xml, xml.contains("<stems>"));
-//    assertTrue(xml, xml.contains("<XmlExportStem>"));
-//  
-//    assertTrue(xml, xml.contains("<groups>"));
-//    assertTrue(xml, xml.contains("<XmlExportGroup>"));
-//      
-//    assertTrue(xml, xml.contains("<groupTypes>"));
-//    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
-//      
-//    assertTrue(xml, xml.contains("<fields>"));
-//    assertTrue(xml, xml.contains("<XmlExportField>"));
-//  
-//    assertTrue(xml, xml.contains("<groupTypeTuples>"));
-//    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
-//  
-//    assertTrue(xml, xml.contains("<composites>"));
-//    assertTrue(xml, xml.contains("<XmlExportComposite>"));
-//  
-//    assertTrue(xml, xml.contains("<attributes>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeDefs>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));
-//  
-//    assertTrue(xml, xml.contains("<memberships>"));
-//    assertTrue(xml, xml.contains("<XmlExportMembership>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeDefNames>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeDefName>"));
-//  
-//    assertTrue(xml, xml.contains("<roleSets>"));
-//    assertTrue(xml, xml.contains("<XmlExportRoleSet>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeAssignActions>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeAssignAction>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeAssignActionSets>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeAssignActionSet>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeAssigns>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeAssign>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeAssignValues>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeAssignValue>"));
-//        
-//    assertTrue(xml, xml.contains("<attributeDefNameSets>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeDefNameSet>"));
-//        
-//    assertTrue(xml, xml.contains("<attributeDefScopes>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
-//        
-//    assertTrue(xml, xml.contains("<auditTypes>"));
-//    assertTrue(xml, xml.contains("<XmlExportAuditType>"));
-//  
-//    assertTrue(xml, xml.contains("<auditEntries>"));
-//    assertTrue(xml, xml.contains("<XmlExportAuditEntry>"));
-//  
-//    stringWriter = new StringWriter();
-//    
-//    xmlExportMain.setIncludeComments(true);
-//    xmlExportMain.writeAllTables(stringWriter, "a string");
-//  
-//    xml = stringWriter.toString();
-//    
-//    //TODO comment this out
-//    //System.out.println(xml);
-//    
-//    assertTrue(xml, xml.contains("<!--"));
-//    assertTrue(xml, xml.contains("<members>"));
-//    assertTrue(xml, xml.contains("<XmlExportMember>"));
-//    
-//    assertTrue(xml, xml.contains("<stems>"));
-//    assertTrue(xml, xml.contains("<XmlExportStem>"));
-//  
-//    assertTrue(xml, xml.contains("<groups>"));
-//    assertTrue(xml, xml.contains("<XmlExportGroup>"));
-//      
-//    assertTrue(xml, xml.contains("<groupTypes>"));
-//    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
-//      
-//    assertTrue(xml, xml.contains("<fields>"));
-//    assertTrue(xml, xml.contains("<XmlExportField>"));
-//  
-//    assertTrue(xml, xml.contains("<groupTypeTuples>"));
-//    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
-//  
-//    assertTrue(xml, xml.contains("<composites>"));
-//    assertTrue(xml, xml.contains("<XmlExportComposite>"));
-//  
-//    assertTrue(xml, xml.contains("<attributes>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeDefs>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));
-//  
-//    assertTrue(xml, xml.contains("<memberships>"));
-//    assertTrue(xml, xml.contains("<XmlExportMembership>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeDefNames>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeDefName>"));
-//  
-//    assertTrue(xml, xml.contains("<roleSets>"));
-//    assertTrue(xml, xml.contains("<XmlExportRoleSet>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeAssignActions>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeAssignAction>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeAssignActionSets>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeAssignActionSet>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeAssigns>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeAssign>"));
-//  
-//    assertTrue(xml, xml.contains("<attributeAssignValues>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeAssignValue>"));
-//        
-//    assertTrue(xml, xml.contains("<attributeDefNameSets>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeDefNameSet>"));
-//        
-//    assertTrue(xml, xml.contains("<attributeDefScopes>"));
-//    assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
-//        
-//    
-//    //lets try to import this
-//    try {
-//      new XmlImportMain().processXml(xml); 
-//    } catch (Exception e) {
-//      throw new RuntimeException(e);
-//    }
+    assertTrue(xml, xml.contains("<members>"));
+    assertTrue(xml, xml.contains("<XmlExportMember>"));
+    
+    assertTrue(xml, xml.contains("<stems>"));
+    assertTrue(xml, xml.contains("<XmlExportStem>"));
+  
+    assertTrue(xml, xml.contains("<groups>"));
+    assertTrue(xml, xml.contains("<XmlExportGroup>"));
+      
+    assertTrue(xml, xml.contains("<groupTypes>"));
+    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
+      
+    assertTrue(xml, xml.contains("<fields>"));
+    assertTrue(xml, xml.contains("<XmlExportField>"));
+  
+    assertTrue(xml, xml.contains("<groupTypeTuples>"));
+    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+  
+    assertTrue(xml, xml.contains("<composites>"));
+    assertTrue(xml, xml.contains("<XmlExportComposite>"));
+  
+    assertTrue(xml, xml.contains("<attributes>"));
+    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
+  
+    assertTrue(xml, xml.contains("<attributeDefs>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));
+  
+    assertTrue(xml, xml.contains("<memberships>"));
+    assertTrue(xml, xml.contains("<XmlExportMembership>"));
+  
+    assertTrue(xml, xml.contains("<attributeDefNames>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefName>"));
+  
+    assertTrue(xml, xml.contains("<roleSets>"));
+    assertTrue(xml, xml.contains("<XmlExportRoleSet>"));
+  
+    assertTrue(xml, xml.contains("<attributeAssignActions>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignAction>"));
+  
+    assertTrue(xml, xml.contains("<attributeAssignActionSets>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignActionSet>"));
+  
+    assertTrue(xml, xml.contains("<attributeAssigns>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssign>"));
+  
+    assertTrue(xml, xml.contains("<attributeAssignValues>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignValue>"));
+        
+    assertTrue(xml, xml.contains("<attributeDefNameSets>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefNameSet>"));
+        
+    assertTrue(xml, xml.contains("<attributeDefScopes>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
+        
+    assertFalse(xml, xml.contains("<auditTypes>"));
+    assertFalse(xml, xml.contains("<XmlExportAuditType>"));
+  
+    assertFalse(xml, xml.contains("<auditEntries>"));
+    assertFalse(xml, xml.contains("<XmlExportAuditEntry>"));
+  
+    stringWriter = new StringWriter();
+    
+    xmlExportMain.setIncludeComments(true);
+    xmlExportMain.writeAllTables(stringWriter, "a string");
+  
+    xml = stringWriter.toString();
+    
+    //TODO comment this out
+    //System.out.println(xml);
+    
+    assertTrue(xml, xml.contains("<!--"));
+    assertTrue(xml, xml.contains("<members>"));
+    assertTrue(xml, xml.contains("<XmlExportMember>"));
+    
+    assertTrue(xml, xml.contains("<stems>"));
+    assertTrue(xml, xml.contains("<XmlExportStem>"));
+  
+    assertTrue(xml, xml.contains("<groups>"));
+    assertTrue(xml, xml.contains("<XmlExportGroup>"));
+      
+    assertTrue(xml, xml.contains("<groupTypes>"));
+    assertTrue(xml, xml.contains("<XmlExportGroupType>"));
+      
+    assertTrue(xml, xml.contains("<fields>"));
+    assertTrue(xml, xml.contains("<XmlExportField>"));
+  
+    assertTrue(xml, xml.contains("<groupTypeTuples>"));
+    assertTrue(xml, xml.contains("<XmlExportGroupTypeTuple>"));
+  
+    assertTrue(xml, xml.contains("<composites>"));
+    assertTrue(xml, xml.contains("<XmlExportComposite>"));
+  
+    assertTrue(xml, xml.contains("<attributes>"));
+    assertTrue(xml, xml.contains("<XmlExportAttribute>"));
+  
+    assertTrue(xml, xml.contains("<attributeDefs>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDef>"));
+  
+    assertTrue(xml, xml.contains("<memberships>"));
+    assertTrue(xml, xml.contains("<XmlExportMembership>"));
+  
+    assertTrue(xml, xml.contains("<attributeDefNames>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefName>"));
+  
+    assertTrue(xml, xml.contains("<roleSets>"));
+    assertTrue(xml, xml.contains("<XmlExportRoleSet>"));
+  
+    assertTrue(xml, xml.contains("<attributeAssignActions>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignAction>"));
+  
+    assertTrue(xml, xml.contains("<attributeAssignActionSets>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignActionSet>"));
+  
+    assertTrue(xml, xml.contains("<attributeAssigns>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssign>"));
+  
+    assertTrue(xml, xml.contains("<attributeAssignValues>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeAssignValue>"));
+        
+    assertTrue(xml, xml.contains("<attributeDefNameSets>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefNameSet>"));
+        
+    assertTrue(xml, xml.contains("<attributeDefScopes>"));
+    assertTrue(xml, xml.contains("<XmlExportAttributeDefScope>"));
+        
+    
+    //lets try to import this
+    new XmlImportMain().processXml(xml); 
   }
 }

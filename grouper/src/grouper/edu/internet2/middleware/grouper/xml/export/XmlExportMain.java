@@ -34,6 +34,9 @@ public class XmlExportMain {
   /** object names to export */
   private Set<String> objectNames = new TreeSet<String>();
   
+  /** attribute assign ids */
+  private Set<String> attributeAssignIds;
+  
   /**
    * add a stem pattern e.g. this:stem, that stem and all substems and objects will be exported
    * @param stem
@@ -215,6 +218,7 @@ public class XmlExportMain {
    */
   public void writeAllTables(Writer writer, String fileName) {
     
+    this.attributeAssignIds = new HashSet<String>();
     this.done = false;
     this.currentRecordIndex = 0;
     Thread thread = null;
@@ -340,9 +344,17 @@ public class XmlExportMain {
 
   }
 
+  
+  /**
+   * @return the attributeAssignIds
+   */
+  public Set<String> getAttributeAssignIds() {
+    return this.attributeAssignIds;
+  }
+
   /**
    * 
-   * @return
+   * @return filter
    */
   public boolean filterStemsOrObjects() {
     return GrouperUtil.length(this.stems) > 0 || GrouperUtil.length(this.objectNames) > 0;

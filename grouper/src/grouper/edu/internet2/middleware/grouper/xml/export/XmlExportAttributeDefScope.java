@@ -21,7 +21,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -329,16 +328,39 @@ public class XmlExportAttributeDefScope {
     );
   
   }
-
+  
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeDefScope").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeDefScope) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from AttributeDefScope as theAttributeDefScope order by theAttributeDefScope.attributeDefId, theAttributeDefScope.id ");
+    } else {
+      queryBuilder.append(
+          " from AttributeDefScope as theAttributeDefScope where exists ( select theAttributeDef from AttributeDef as theAttributeDef " +
+          " where theAttributeDefScope.attributeDefId = theAttributeDef.id and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " order by theAttributeDefScope.attributeDefId, theAttributeDefScope.id ");
+    }
+    return queryBuilder.toString();
+  }
+
+        
   /**
    * 
    * @param writer
@@ -355,7 +377,7 @@ public class XmlExportAttributeDefScope {
   
         //select all action sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select theAttributeDefScope from AttributeDefScope as theAttributeDefScope order by theAttributeDefScope.attributeDefId, theAttributeDefScope.id");
+            "select theAttributeDefScope " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

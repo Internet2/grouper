@@ -80,7 +80,7 @@ public class XmlImportMain {
   
   /** if doing a readonly report of registry */
   private boolean recordReport;
-  
+
   /**
    * @param args
    */
@@ -411,10 +411,10 @@ public class XmlImportMain {
     total += XmlExportRoleSet.dbCount(xmlExportMain);
     total += XmlExportAttributeAssignAction.dbCount(xmlExportMain);
     total += XmlExportAttributeAssignActionSet.dbCount(xmlExportMain);
-    total += XmlExportAttributeAssign.dbCount();
+    total += XmlExportAttributeAssign.dbCount(xmlExportMain);
     total += XmlExportAttributeAssignValue.dbCount();
-    total += XmlExportAttributeDefNameSet.dbCount();
-    total += XmlExportAttributeDefScope.dbCount();
+    total += XmlExportAttributeDefNameSet.dbCount(xmlExportMain);
+    total += XmlExportAttributeDefScope.dbCount(xmlExportMain);
     total += XmlExportAuditType.dbCount();
     total += XmlExportAuditEntry.dbCount();
     return total;

@@ -351,31 +351,9 @@ public class XmlExportAttributeAssignAction {
               Object object = results.get(0);
               final AttributeAssignAction attributeAssignAction = (AttributeAssignAction)object;
               
-              //comments to dereference the foreign keys
-              if (xmlExportMain.isIncludeComments()) {
-                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-                  
-                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                      throws GrouperDAOException {
-                    try {
-                      writer.write("\n    <!-- ");
-                      
-                      XmlExportUtils.toStringAttributeDef(null, writer, attributeAssignAction.getAttributeDefId(), false);
-
-                      writer.write(" -->\n");
-                      return null;
-                    } catch (IOException ioe) {
-                      throw new RuntimeException(ioe);
-                    }
-                  }
-                });
-              }
-              
-              XmlExportAttributeAssignAction xmlExportRoleSet = attributeAssignAction.xmlToExportAttributeAssignAction(grouperVersion);
-              writer.write("    ");
-              xmlExportRoleSet.toXml(grouperVersion, writer);
-              writer.write("\n");
-              xmlExportMain.incrementRecordCount();
+              //if we are writing all, then just write
+              writeAttributeAssignRecord(writer, xmlExportMain, grouperVersion,
+                  attributeAssignAction);
             }
           } finally {
             HibUtils.closeQuietly(results);
@@ -392,7 +370,45 @@ public class XmlExportAttributeAssignAction {
         }
         return null;
       }
+
     });
+  }
+
+  /**
+   * @param writer
+   * @param xmlExportMain
+   * @param grouperVersion
+   * @param attributeAssignAction
+   * @throws IOException
+   */
+  private static void writeAttributeAssignRecord(final Writer writer,
+      final XmlExportMain xmlExportMain, GrouperVersion grouperVersion,
+      final AttributeAssignAction attributeAssignAction) throws IOException {
+    //comments to dereference the foreign keys
+    if (xmlExportMain.isIncludeComments()) {
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          try {
+            writer.write("\n    <!-- ");
+            
+            XmlExportUtils.toStringAttributeDef(null, writer, attributeAssignAction.getAttributeDefId(), false);
+
+            writer.write(" -->\n");
+            return null;
+          } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+          }
+        }
+      });
+    }
+    
+    XmlExportAttributeAssignAction xmlExportAttributeAssign = attributeAssignAction.xmlToExportAttributeAssignAction(grouperVersion);
+    writer.write("    ");
+    xmlExportAttributeAssign.toXml(grouperVersion, writer);
+    writer.write("\n");
+    xmlExportMain.incrementRecordCount();
   }
 
   /**

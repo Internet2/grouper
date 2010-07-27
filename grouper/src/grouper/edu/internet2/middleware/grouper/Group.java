@@ -6120,7 +6120,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     if (!StringUtils.equals(this.alternateNameDb, other.alternateNameDb)) {
       return true;
     }
-    if (!StringUtils.equals(this.description, other.description)) {
+    if (!StringUtils.equals(StringUtils.trimToNull(this.description), StringUtils.trimToNull(other.description))) {
       return true;
     }
     if (!StringUtils.equals(this.displayExtension, other.displayExtension)) {
