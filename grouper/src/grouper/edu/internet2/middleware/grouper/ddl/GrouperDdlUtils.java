@@ -1346,15 +1346,19 @@ public class GrouperDdlUtils {
    */
   public static void ddlutilsDropViewIfExists(DdlVersionBean ddlVersionBean, String viewName) {
     boolean exists = assertTablesThere(false, false, viewName);
-    if (exists) {
-      ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + ";\n");
-    } else {
+    if (!exists) {
+      viewName = viewName.toUpperCase();
       //MCH 20090131 mysql can be case sensitive, and we moved to lower case view names,
       //so see if the upper case one if there...
       //at some point (grouper 1.6 or 1.7?) we can remove this
-      exists = assertTablesThere(false, false, viewName.toUpperCase());
-      if (exists) {
-        ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName.toUpperCase() + ";\n");
+      exists = assertTablesThere(false, false, viewName);
+    }
+    if (exists) {
+      if (ddlVersionBean.isPostgres()) {
+        //GRP-459: postgres wont drop a view if other views depend on it
+        ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + " cascade;\n");
+      } else {
+        ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + ";\n");
       }
     }
     LOG.debug("View " + viewName + " exists? " + exists + ", will " + (exists ? "" : "not ") + "be dropped");
