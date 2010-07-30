@@ -22,7 +22,7 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
   /** */
   private static final String INVALID_PROPERTIES_REGEX = "[^a-zA-Z0-9._-]";
 
-  /** sourceId */
+  /** job name */
   private String jobName;
 
   /** grouper loader type */
