@@ -266,161 +266,171 @@ public class SubjectPicker {
    */
   public void search(HttpServletRequest request, HttpServletResponse response) {
     
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    SubjectPickerContainer subjectPickerContainer = SubjectPickerContainer.retrieveFromRequest();
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
-    String searchField = request.getParameter("searchField");
-    
-    if (StringUtils.isBlank(searchField)) {
-      
-      String error = subjectPickerContainer.textMessage("noSearchTerm");
-      guiResponseJs.addAction(GuiScreenAction.newAlert(error));
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsDiv", ""));
-      return;
-    }
-    
-    Set<Subject> subjects = null;
-    
-    
-    //convert the source ids to strings
-    String searchInSourceIdsString = subjectPickerContainer.configValue("searchInSourceIds");
-    
-    boolean restrictingSourcesBoolean = !StringUtils.isBlank(searchInSourceIdsString);
-    boolean tooManyResults = false;
-    
-    Set<Source> sourcesToSearchInSourceSet = null;
+    GrouperSession grouperSession = null;
+
     try {
+      grouperSession = GrouperSession.start(loggedInSubject);
       
-      //if clamping down on sources in config
-      if (restrictingSourcesBoolean) {
-        sourcesToSearchInSourceSet = GrouperUtil.convertSources(searchInSourceIdsString);
-        subjects = SubjectFinder.findAll(searchField, sourcesToSearchInSourceSet);
-      } else {
-        sourcesToSearchInSourceSet = new HashSet<Source>(SourceManager.getInstance().getSources());
-        subjects = SubjectFinder.findAll(searchField);
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      SubjectPickerContainer subjectPickerContainer = SubjectPickerContainer.retrieveFromRequest();
+  
+      String searchField = request.getParameter("searchField");
+      
+      if (StringUtils.isBlank(searchField)) {
+        
+        String error = subjectPickerContainer.textMessage("noSearchTerm");
+        guiResponseJs.addAction(GuiScreenAction.newAlert(error));
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsDiv", ""));
+        return;
       }
       
-    } catch (SubjectTooManyResults stmr) {
-      tooManyResults = true;
-    }
-
-    //add in the ids and identifiers if not there already
-    if (subjects == null) {
-      subjects = new LinkedHashSet<Subject>();
-    }
-
-    //see if any match subjectIdentifier, this is the set of all subject identifier matches
-    Set<Subject> idOrIdentifierSubjects = new HashSet<Subject>();
-    for (Source source : sourcesToSearchInSourceSet) {
-      Subject subject = source.getSubjectByIdOrIdentifier(searchField, false);
-      if (subject != null) {
-        idOrIdentifierSubjects.add(subject);
+      Set<Subject> subjects = null;
+      
+      
+      //convert the source ids to strings
+      String searchInSourceIdsString = subjectPickerContainer.configValue("searchInSourceIds");
+      
+      boolean restrictingSourcesBoolean = !StringUtils.isBlank(searchInSourceIdsString);
+      boolean tooManyResults = false;
+      
+      Set<Source> sourcesToSearchInSourceSet = null;
+      try {
+        
+        //if clamping down on sources in config
+        if (restrictingSourcesBoolean) {
+          sourcesToSearchInSourceSet = GrouperUtil.convertSources(searchInSourceIdsString);
+          subjects = SubjectFinder.findAll(searchField, sourcesToSearchInSourceSet);
+        } else {
+          sourcesToSearchInSourceSet = new HashSet<Source>(SourceManager.getInstance().getSources());
+          subjects = SubjectFinder.findAll(searchField);
+        }
+        
+      } catch (SubjectTooManyResults stmr) {
+        tooManyResults = true;
       }
-    }
-    
-    //lets add the ids or identifiers to the front
-    if (idOrIdentifierSubjects.size() > 0) {
-      Set<Subject> newSet = new LinkedHashSet<Subject>();
-      newSet.addAll(idOrIdentifierSubjects);
-      for (Subject subject : GrouperUtil.nonNull(subjects)) {
-        if (!SubjectHelper.inList(idOrIdentifierSubjects, subject)) {
-          newSet.add(subject);
+  
+      //add in the ids and identifiers if not there already
+      if (subjects == null) {
+        subjects = new LinkedHashSet<Subject>();
+      }
+  
+      //see if any match subjectIdentifier, this is the set of all subject identifier matches
+      Set<Subject> idOrIdentifierSubjects = new HashSet<Subject>();
+      for (Source source : sourcesToSearchInSourceSet) {
+        Subject subject = source.getSubjectByIdOrIdentifier(searchField, false);
+        if (subject != null) {
+          idOrIdentifierSubjects.add(subject);
         }
       }
-      subjects = newSet;
-    }
-        
-    int maxResults = subjectPickerContainer.configValueInt("maxSubjectsResultsBeforeGroupSearch");
-    
-    if (maxResults < GrouperUtil.length(subjects)) {
-      tooManyResults = true;
-      subjects = GrouperUtil.setShorten(subjects, maxResults);
-    }
-    
-    //if filtering by group, do that here
-    subjects = filterByGroupHelper(subjects);
-    
-    if (GrouperUtil.length(subjects) == 0) {
       
-      String error = subjectPickerContainer.textMessage("noResultsFound");
-      guiResponseJs.addAction(GuiScreenAction.newAlert(error));
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsDiv", ""));
-      return;
-    }
-
-    
-    maxResults = subjectPickerContainer.configValueInt("maxSubjectsResults");
-    
-    if (maxResults < GrouperUtil.length(subjects)) {
-      
-      tooManyResults = true;
-      subjects = GrouperUtil.setShorten(subjects, maxResults);
-    }
-
-    if (tooManyResults) {
-      String error = subjectPickerContainer.textMessage("tooManyResults");
-      guiResponseJs.addAction(GuiScreenAction.newAlert(error));
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsDiv", ""));
-      //dont return, show what we got
-    }
-    
-    List<PickerResultSubject> pickerResultSubjectList = new ArrayList<PickerResultSubject>();
-    for (Subject subject : subjects) {
-      PickerResultSubject pickerResultSubject = new PickerResultSubject(subject);
-      pickerResultSubjectList.add(pickerResultSubject);
-      //keep track of id or identifier match for sorting
-      if (idOrIdentifierSubjects.size() > 0 && SubjectHelper.inList(idOrIdentifierSubjects, subject)) {
-        pickerResultSubject.setMatchesSubjectIdOrIdentifier(true);
+      //lets add the ids or identifiers to the front
+      if (idOrIdentifierSubjects.size() > 0) {
+        Set<Subject> newSet = new LinkedHashSet<Subject>();
+        newSet.addAll(idOrIdentifierSubjects);
+        for (Subject subject : GrouperUtil.nonNull(subjects)) {
+          if (!SubjectHelper.inList(idOrIdentifierSubjects, subject)) {
+            newSet.add(subject);
+          }
+        }
+        subjects = newSet;
       }
-    }
-
-    //sort these first
-    Collections.sort(pickerResultSubjectList);
-    
-    PickerResultSubject[] pickerResultSubjects = GrouperUtil.toArray(pickerResultSubjectList, PickerResultSubject.class);
-    
-    StringBuilder jsonSubjects = new StringBuilder("<script>\n");
-    
-    boolean sendSubjectJsonToCallback = subjectPickerContainer.configValueBoolean("sendSubjectJsonToCallback");
-
-    for (int i=0;i<pickerResultSubjects.length;i++) {
-
-      pickerResultSubjects[i].setIndex(i);
+          
+      int maxResults = subjectPickerContainer.configValueInt("maxSubjectsResultsBeforeGroupSearch");
       
-      PickerResultJavascriptSubject subjectForJavascript = convertSubjectToPickerSubjectForJavascript(
-          pickerResultSubjects[i].getSubject(), pickerResultSubjects[i]);
+      if (maxResults < GrouperUtil.length(subjects)) {
+        tooManyResults = true;
+        subjects = GrouperUtil.setShorten(subjects, maxResults);
+      }
       
-      //this could be used for EL
-      pickerResultSubjects[i].setPickerResultJavascriptSubject(subjectForJavascript);
+      //if filtering by group, do that here
+      subjects = filterByGroupHelper(subjects);
       
+      if (GrouperUtil.length(subjects) == 0) {
+        
+        String error = subjectPickerContainer.textMessage("noResultsFound");
+        guiResponseJs.addAction(GuiScreenAction.newAlert(error));
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsDiv", ""));
+        return;
+      }
+  
+      
+      maxResults = subjectPickerContainer.configValueInt("maxSubjectsResults");
+      
+      if (maxResults < GrouperUtil.length(subjects)) {
+        
+        tooManyResults = true;
+        subjects = GrouperUtil.setShorten(subjects, maxResults);
+      }
+  
+      if (tooManyResults) {
+        String error = subjectPickerContainer.textMessage("tooManyResults");
+        guiResponseJs.addAction(GuiScreenAction.newAlert(error));
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#searchResultsDiv", ""));
+        //dont return, show what we got
+      }
+      
+      List<PickerResultSubject> pickerResultSubjectList = new ArrayList<PickerResultSubject>();
+      for (Subject subject : subjects) {
+        PickerResultSubject pickerResultSubject = new PickerResultSubject(subject);
+        pickerResultSubjectList.add(pickerResultSubject);
+        //keep track of id or identifier match for sorting
+        if (idOrIdentifierSubjects.size() > 0 && SubjectHelper.inList(idOrIdentifierSubjects, subject)) {
+          pickerResultSubject.setMatchesSubjectIdOrIdentifier(true);
+        }
+      }
+  
+      //sort these first
+      Collections.sort(pickerResultSubjectList);
+      
+      PickerResultSubject[] pickerResultSubjects = GrouperUtil.toArray(pickerResultSubjectList, PickerResultSubject.class);
+      
+      StringBuilder jsonSubjects = new StringBuilder("<script>\n");
+      
+      boolean sendSubjectJsonToCallback = subjectPickerContainer.configValueBoolean("sendSubjectJsonToCallback");
+  
+      for (int i=0;i<pickerResultSubjects.length;i++) {
+  
+        pickerResultSubjects[i].setIndex(i);
+        
+        PickerResultJavascriptSubject subjectForJavascript = convertSubjectToPickerSubjectForJavascript(
+            pickerResultSubjects[i].getSubject(), pickerResultSubjects[i]);
+        
+        //this could be used for EL
+        pickerResultSubjects[i].setPickerResultJavascriptSubject(subjectForJavascript);
+        
+        //if we are configured to send the objects back
+        if (sendSubjectJsonToCallback) {
+          
+          JSONObject jsonObject = net.sf.json.JSONObject.fromObject( subjectForJavascript );  
+          String json = jsonObject.toString();
+          jsonSubjects.append("  var subject_" + i + " = " + json + ";\n");
+          
+          pickerResultSubjects[i].setSubjectObjectName("subject_" + i);
+        } else {
+          pickerResultSubjects[i].setSubjectObjectName("null");
+        }
+        
+        i++;
+      }
+  
+      jsonSubjects.append("</script>\n");
+  
       //if we are configured to send the objects back
       if (sendSubjectJsonToCallback) {
-        
-        JSONObject jsonObject = net.sf.json.JSONObject.fromObject( subjectForJavascript );  
-        String json = jsonObject.toString();
-        jsonSubjects.append("  var subject_" + i + " = " + json + ";\n");
-        
-        pickerResultSubjects[i].setSubjectObjectName("subject_" + i);
+        subjectPickerContainer.setSubjectsScript(jsonSubjects.toString());
       } else {
-        pickerResultSubjects[i].setSubjectObjectName("null");
+        subjectPickerContainer.setSubjectsScript(null);
       }
       
-      i++;
+      subjectPickerContainer.setPickerResultSubjects(pickerResultSubjects);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultsDiv", 
+        "/WEB-INF/grouperUi/templates/subjectPicker/subjectPickerResults.jsp"));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
     }
-
-    jsonSubjects.append("</script>\n");
-
-    //if we are configured to send the objects back
-    if (sendSubjectJsonToCallback) {
-      subjectPickerContainer.setSubjectsScript(jsonSubjects.toString());
-    } else {
-      subjectPickerContainer.setSubjectsScript(null);
-    }
-    
-    subjectPickerContainer.setPickerResultSubjects(pickerResultSubjects);
-    
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultsDiv", 
-      "/WEB-INF/grouperUi/templates/subjectPicker/subjectPickerResults.jsp"));
   }
 
   /**
