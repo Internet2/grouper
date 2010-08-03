@@ -767,6 +767,7 @@ public class GrouperServiceLogic {
       wsFindGroupsResults.assignGroupResult(groups, includeGroupDetail);
   
       wsFindGroupsResults.assignResultCode(WsFindGroupsResultsCode.SUCCESS);
+      
       wsFindGroupsResults.getResultMetadata().appendResultMessage(
           "Success for: " + theSummary);
   
@@ -1119,8 +1120,9 @@ public class GrouperServiceLogic {
             }
 
             //if supposed to have stem but cant find, then dont get any groups
+            QueryOptions queryOptions = null;
+            Scope stemDotScope = null;
             if (wsStemLookup == null || stem != null ) {
-              QueryOptions queryOptions = null;
               
               if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
                 queryOptions = new QueryOptions();
@@ -1138,13 +1140,12 @@ public class GrouperServiceLogic {
                 }
               }
               
-              Scope stemDotScope = null;
               if (stemScope != null) {
                 stemDotScope = stemScope.convertToScope();
               }
               
-              groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
             }
+            groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
           }
           wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
         } catch (Exception e) {

@@ -542,6 +542,37 @@ public class GrouperUtil {
   }
   
   /**
+   * find a next exception in the stack and log it
+   * @param log logger
+   * @param throwable exception to look for next exceptions in
+   * @param timeToLive so we dont loop forever
+   */
+  public static void logErrorNextException(Log log, Throwable throwable, int timeToLive) {
+    if (throwable == null) {
+      return;
+    }
+    if (timeToLive < 0) {
+      throw new RuntimeException("TimeToLive less than 0", throwable);
+    }
+    //this is only applicable to sql exceptions
+    if (throwable instanceof SQLException) {
+      SQLException sqlException = (SQLException)throwable;
+      SQLException nextException = sqlException.getNextException();
+      if (nextException != null) {
+        log.error("Next exception", nextException);
+        //maybe there are nested next exceptions....
+        logErrorNextException(log, nextException, timeToLive-1);
+      }
+    }
+    //recurse to find the next exception
+    Throwable cause = throwable.getCause();
+    if (cause != null) {
+      logErrorNextException(log, cause, timeToLive-1);
+    }
+    
+  }
+  
+  /**
    * see if options have a specific option by int bits
    * @param options
    * @param option

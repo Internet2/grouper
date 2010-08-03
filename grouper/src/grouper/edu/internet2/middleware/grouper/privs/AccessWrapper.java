@@ -21,6 +21,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -85,6 +86,14 @@ public class AccessWrapper implements AccessResolver {
     catch (SchemaException eSchema) {
       throw new GrouperException("unexpected condition", eSchema); 
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getStemsWhereGroupThatSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public Set<Stem> getStemsWhereGroupThatSubjectHasPrivilege(Subject subject,
+      Privilege privilege) throws IllegalArgumentException {
+    return this.access.getStemsWhereGroupThatSubjectHasPrivilege(this.s, subject, privilege);
   }
 
   /**
@@ -210,6 +219,14 @@ public class AccessWrapper implements AccessResolver {
    */
   public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject, Set<Privilege> privInSet) {
     return this.access.postHqlFilterGroups(this.s, groups, subject, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterStemsWithGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStemsWithGroups(Set<Stem> stems, Subject subject,
+      Set<Privilege> inPrivSet) {
+    return this.access.postHqlFilterStemsWithGroups(this.s, stems, subject, inPrivSet);
   }
 
   /**

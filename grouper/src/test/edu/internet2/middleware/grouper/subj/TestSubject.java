@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.subj;
 import java.util.Set;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -42,13 +43,69 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestSubject extends GrouperTest {
 
-  // Private Static Class Constants
+  /** Private Static Class Constants */
   private static final Log LOG = GrouperUtil.getLog(TestSubject.class);
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestSubject("testFindAllInternal"));
+  }
+  
   public TestSubject(String name) {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testFindAllInternal() {
+    
+    //grouper sys admin
+    Subject grouperSystem = SubjectFinder.findById("GrouperSystem", true);
+    Subject everyEntity = SubjectFinder.findById("GrouperAll", true);
+    
+    Set<Subject> subjects = SubjectFinder.findAll("groupers");
+    
+    assertEquals(1, subjects.size());
+    
+    assertTrue(SubjectHelper.inList(subjects, grouperSystem));
+    
+    subjects = SubjectFinder.findAll("rsyste");
+    
+    assertEquals(1, subjects.size());
+    
+    assertTrue(SubjectHelper.inList(subjects, grouperSystem));
+    
+    subjects = SubjectFinder.findAll("rsysa");
+    
+    assertEquals(1, subjects.size());
+    
+    assertTrue(SubjectHelper.inList(subjects, grouperSystem));    
+    
+    subjects = SubjectFinder.findAll("groupera");
+    
+    assertEquals(1, subjects.size());
+    
+    assertTrue(SubjectHelper.inList(subjects, everyEntity));  
+    
+    subjects = SubjectFinder.findAll("erall");
+    
+    assertEquals(1, subjects.size());
+    
+    assertTrue(SubjectHelper.inList(subjects, everyEntity));  
+    
+    subjects = SubjectFinder.findAll("eryen");
+    
+    assertEquals(1, subjects.size());
+    
+    assertTrue(SubjectHelper.inList(subjects, everyEntity));  
+    
+  
+  }
+  
   public void testGetSources() {
     LOG.info("testGetSources");
     Set sources = SubjectFinder.getSources();

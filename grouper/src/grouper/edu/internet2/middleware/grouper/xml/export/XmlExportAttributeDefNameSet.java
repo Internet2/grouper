@@ -333,14 +333,55 @@ public class XmlExportAttributeDefNameSet {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeDefNameSet as theAttributeDefNameSet where theAttributeDefNameSet.typeDb = 'immediate'").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeDefNameSet) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from AttributeDefNameSet as theAttributeDefNameSet " +
+      		" where theAttributeDefNameSet.typeDb = 'immediate' order by theAttributeDefNameSet.id ");
+    } else {
+      queryBuilder.append(
+          " from AttributeDefNameSet as theAttributeDefNameSet where " +
+          " theAttributeDefNameSet.typeDb = 'immediate' " +
+          " and exists ( select theAttributeDefName from AttributeDefName as theAttributeDefName, AttributeDef as theAttributeDef  " +
+          " where theAttributeDefName.attributeDefId = theAttributeDef.id " +
+          " and theAttributeDefNameSet.ifHasAttributeDefNameId = theAttributeDefName.id " +
+          " and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+      queryBuilder.append(" ) " +
+          " and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefName", "nameDb", false);
+      queryBuilder.append(" ) ");
+      queryBuilder.append(" ) ");
+      queryBuilder.append(" and exists ( select theAttributeDefName from AttributeDefName as theAttributeDefName, AttributeDef as theAttributeDef  " +
+        " where theAttributeDefName.attributeDefId = theAttributeDef.id " +
+        " and theAttributeDefNameSet.thenHasAttributeDefNameId = theAttributeDefName.id " +
+        " and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+      queryBuilder.append(" ) " +
+          " and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefName", "nameDb", false);
+      queryBuilder.append(" ) ");
+      queryBuilder.append(" ) ");
+      queryBuilder.append(" order by theAttributeDefNameSet.id ");
+    }
+    return queryBuilder.toString();
+  }
 
+        
   /**
    * 
    * @param writer
@@ -357,7 +398,7 @@ public class XmlExportAttributeDefNameSet {
   
         //select all action sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select theAttributeDefNameSet from AttributeDefNameSet as theAttributeDefNameSet where theAttributeDefNameSet.typeDb = 'immediate' order by theAttributeDefNameSet.id");
+            "select theAttributeDefNameSet " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

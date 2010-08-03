@@ -69,6 +69,24 @@ public class MemberFinder {
   } // public static Set findAll(GrouperSession s)
   
   /**
+   * Find all members by source used somewhere, e.g. with memberships or attributes etc.
+   * <pre class="eg">
+   * Set members = MemberFinder.findAllUsed(s, source);
+   * </pre>
+   * @param   grouperSession       Find all members within this session context.
+   * @param   source  Find all members with this source.
+   * @return  {@link Set} of {@link Member} objects.
+   * @throws  GrouperException
+   */
+  public static Set<Member> findAllUsed(GrouperSession grouperSession, Source source)
+    throws  GrouperException {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(grouperSession);
+    Set<Member> members = GrouperDAOFactory.getFactory().getMember().findAllUsed(source);
+    return members;
+  }
+  
+  /**
    * Find all members by source.
    * <pre class="eg">
    * Set members = MemberFinder.findAll(s, source);

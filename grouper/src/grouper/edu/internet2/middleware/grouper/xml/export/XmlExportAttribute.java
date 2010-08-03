@@ -271,13 +271,35 @@ public class XmlExportAttribute {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from Attribute").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttribute) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from Attribute as theAttribute order by theAttribute.groupUuid, theAttribute.fieldId ");
+    } else {
+      queryBuilder.append(
+          " from Attribute as theAttribute where exists ( select theGroup from Group as theGroup " +
+          " where theAttribute.groupUuid = theGroup.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " order by theAttribute.groupUuid, theAttribute.fieldId ");
+    }
+    return queryBuilder.toString();
+  }
+
   /**
    * 
    * @param writer
@@ -294,7 +316,7 @@ public class XmlExportAttribute {
   
         //select all members in order
         Query query = session.createQuery(
-            "select theAttribute from Attribute as theAttribute order by theAttribute.groupUuid, theAttribute.fieldId");
+            "select distinct theAttribute " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

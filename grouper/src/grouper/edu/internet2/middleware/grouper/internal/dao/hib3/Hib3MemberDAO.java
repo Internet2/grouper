@@ -576,5 +576,30 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         .executeUpdate();
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findAllUsed(edu.internet2.middleware.subject.Source)
+   */
+  public Set<Member> findAllUsed(Source source) throws GrouperDAOException {
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    
+    StringBuilder query = new StringBuilder("select distinct theMember from Member as theMember where ");
+    if (source != null) {
+      query.append(" theMember.subjectSourceIdDb=:sourceId and ( " );
+      byHqlStatic.setString("sourceId", source.getId());
+    }
+
+    //memberships or attributes
+    query.append(" exists (select 1 from ImmediateMembershipEntry as theMembership where theMembership.memberUuid = theMember.uuid) " +
+    		" or exists (select 1 from AttributeAssign as theAttributeAssign where theAttributeAssign.ownerMemberId = theMember.uuid) ");
+    
+    //even out parens
+    if (source != null) {
+      query.append(" ) ");
+    }
+    		
+    byHqlStatic.createQuery(query.toString());
+    return byHqlStatic.listSet(Member.class);  
+  }
+
 } 
 

@@ -186,6 +186,11 @@ public class XmlIndenter {
     Pattern tagPattern = Pattern.compile("^<[\\s/]*([a-zA-Z_\\-0-9:\\.]+).*$", Pattern.DOTALL);
     Matcher matcher = tagPattern.matcher(tag);
     if (!matcher.matches()) {
+      Pattern commentPattern = Pattern.compile("^<!--.*-->$");
+      matcher = commentPattern.matcher(tag);
+      if (matcher.matches()) {
+        return "XML_COMMENT";
+      }
       throw new RuntimeException("Cant match tag: '" + tag + "'");
     }
     //assume this matches...
@@ -284,7 +289,8 @@ public class XmlIndenter {
       if (Character.isWhitespace(curChar)) {
         continue;
       }
-      if (curChar == '/') {
+      //could be a comment
+      if (curChar == '/' || curChar == '!') {
         return true;
       }
       return false;
@@ -305,6 +311,9 @@ public class XmlIndenter {
    */
   static boolean textTag(String xml, int endTagIndex, String tagName, 
       String nextTagName, boolean isNextCloseTag) {
+    if (GrouperUtil.equals("XML_COMMENT", tagName)) {
+      return false;
+    }
     if (GrouperUtil.equals(tagName, nextTagName) && isNextCloseTag) {
       return true;
     }

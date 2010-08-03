@@ -333,13 +333,49 @@ public class XmlExportAttributeAssignActionSet {
 
   /**
    * get db count
+   * @param xmlExportMain 
    * @return db count
    */
-  public static long dbCount() {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(*) from AttributeAssignActionSet as theAttributeAssignActionSet where theAttributeAssignActionSet.typeDb = 'immediate'").uniqueResult(Long.class);
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssignActionSet) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
     return result;
   }
   
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+    //select all members in order
+    StringBuilder queryBuilder = new StringBuilder();
+    if (!xmlExportMain.filterStemsOrObjects()) {
+      queryBuilder.append(" from AttributeAssignActionSet as theAttributeAssignActionSet " +
+      		" where theAttributeAssignActionSet.typeDb = 'immediate' " +
+      		" order by theAttributeAssignActionSet.id ");
+    } else {
+      queryBuilder.append(
+          " from AttributeAssignActionSet as theAttributeAssignActionSet " +
+          " where theAttributeAssignActionSet.typeDb = 'immediate' " +
+          " and exists " +
+          " ( select theAttributeDef from AttributeDef as theAttributeDef, " +
+          " AttributeAssignAction theAttributeAssignAction " +
+          " where theAttributeAssignAction.id = theAttributeAssignActionSet.ifHasAttrAssignActionId " +
+          " and theAttributeAssignAction.attributeDefId = theAttributeDef.id and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " and exists " +
+          " ( select theAttributeDef from AttributeDef as theAttributeDef, " +
+          " AttributeAssignAction theAttributeAssignAction " +
+          " where theAttributeAssignAction.id = theAttributeAssignActionSet.thenHasAttrAssignActionId " +
+          " and theAttributeAssignAction.attributeDefId = theAttributeDef.id and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+      queryBuilder.append(" ) ) " +
+          " order by theAttributeAssignActionSet.id ");
+    }
+    return queryBuilder.toString();
+  }
+
 
   /**
    * 
@@ -357,7 +393,7 @@ public class XmlExportAttributeAssignActionSet {
   
         //select all action sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select theAttributeAssignActionSet from AttributeAssignActionSet as theAttributeAssignActionSet where theAttributeAssignActionSet.typeDb = 'immediate' order by theAttributeAssignActionSet.id");
+            "select distinct theAttributeAssignActionSet " + exportFromOnQuery(xmlExportMain));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

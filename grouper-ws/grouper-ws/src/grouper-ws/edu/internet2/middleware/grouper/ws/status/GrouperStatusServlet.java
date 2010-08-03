@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -111,6 +112,10 @@ public class GrouperStatusServlet extends HttpServlet {
       List<DiagnosticTask> tasksToExecute = new ArrayList<DiagnosticTask>();
 
       String diagnosticTypeString = request.getParameter("diagnosticType");
+      
+      if (StringUtils.isBlank(diagnosticTypeString)) {
+        throw new RuntimeException("You need to pass in the diagnosticType parameter.  e.g. status?diagnosticType=trivial|db|sources|all");
+      }
       
       DiagnosticType diagnosticType = DiagnosticType.valueOfIgnoreCase(diagnosticTypeString, true);
 

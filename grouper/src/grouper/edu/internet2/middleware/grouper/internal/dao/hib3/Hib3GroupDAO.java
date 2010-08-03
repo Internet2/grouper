@@ -1503,11 +1503,22 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
-   * 
    * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)
    */
+  public Set<Group> getAllGroupsMembershipSecure(String scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
+      QueryOptions queryOptions, boolean enabledOnly)
+      throws GrouperDAOException {
+    return getAllGroupsMembershipSecure(scope, grouperSession, subject, inPrivSet, queryOptions, enabledOnly, null, null);
+  }
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope)
+   */
   public Set<Group> getAllGroupsMembershipSecure(final String scope, GrouperSession grouperSession, 
-      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly)
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly, Stem stem, Scope stemScope)
     throws  GrouperDAOException {
   
     boolean hasScope = StringUtils.isNotBlank(scope);
@@ -1545,6 +1556,24 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       sql.append(" and listMembership.enabledDb = 'T'");
     }
     
+    if (stem != null) {
+      switch (stemScope) {
+        case ONE:
+          
+          sql.append(" and theGroup.parentUuid = :stemId and ");
+          byHqlStatic.setString("stemId", stem.getUuid());
+          break;
+        case SUB:
+          
+          sql.append(" and theGroup.nameDb like :stemSub and ");
+          byHqlStatic.setString("stemSub", stem.getName() + ":%");
+          
+          break;
+        default:
+          throw new RuntimeException("Not expecting scope: " + stemScope);
+      }
+    }
+
     Member member = MemberFinder.internal_findBySubject(subject, null, false);
     
     if (member == null) {

@@ -226,11 +226,14 @@ public class ByCriteriaStatic {
       return result;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in uniqueResult: (" + returnType + "), " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in uniqueResult: " + this, e);
+      
+      String errorString = "Exception in uniqueResult: (" + returnType + "), " + this;
+
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
     

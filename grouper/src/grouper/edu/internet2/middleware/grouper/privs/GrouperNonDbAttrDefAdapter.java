@@ -118,13 +118,14 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     attributeDefs.addAll( GrouperPrivilegeAdapter.internal_getAttributeDefsWhereSubjectHasPriv(s, MemberFinder
         .findBySubject(s, subj, true), f)
         );
+    //this is done in dao
     // The ALL subject
-    if (!(SubjectHelper.eq(subj, SubjectFinder.findAllSubject()))) {
-      attributeDefs.addAll(
-          GrouperPrivilegeAdapter.internal_getAttributeDefsWhereSubjectHasPriv(s, MemberFinder
-          .internal_findAllMember(), f)
-          );
-    }
+//    if (!(SubjectHelper.eq(subj, SubjectFinder.findAllSubject()))) {
+//      attributeDefs.addAll(
+//          GrouperPrivilegeAdapter.internal_getAttributeDefsWhereSubjectHasPriv(s, MemberFinder
+//          .internal_findAllMember(), f)
+//          );
+//    }
     return attributeDefs;
   }
 

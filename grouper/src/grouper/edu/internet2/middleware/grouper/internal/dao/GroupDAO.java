@@ -494,6 +494,24 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException;
   
   /**
+   * 
+   * @param scope
+   * @param stemScope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @param enabledOnly 
+   * @param stem 
+   * @return the groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsMembershipSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly, Stem stem, Scope stemScope)
+    throws  GrouperDAOException;
+  
+  /**
    * @param field
    * @param scope
    * @param grouperSession

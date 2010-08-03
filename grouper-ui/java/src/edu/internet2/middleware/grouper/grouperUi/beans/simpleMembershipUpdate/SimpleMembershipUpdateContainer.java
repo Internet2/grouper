@@ -373,7 +373,7 @@ public class SimpleMembershipUpdateContainer implements Serializable {
   private boolean configValueBooleanHelper(
       String key, Boolean defaultValue) {
     
-    String valueString = configValue(key);
+    String valueString = configValue(key, false);
     
     if (StringUtils.equalsIgnoreCase(valueString, "true") || StringUtils.equalsIgnoreCase(valueString, "t")) {
       return true;
@@ -463,5 +463,71 @@ public class SimpleMembershipUpdateContainer implements Serializable {
     }
     return value;
   }
+  
+  /**
+   * return true if should show breadcrumb row on default
+   * @return true if should show breadcrumb row on default
+   */
+  public boolean isShowBreadcrumbRowByDefault() {
+    return configValueBoolean("simpleMembershipUpdate.showBreadcrumbRowByDefault", true);
+  }
+  
+  /**
+   * return true if should show name row on default
+   * @return true if should show name row on default
+   */
+  public boolean isShowNameRowByDefault() {
+    return configValueBoolean("simpleMembershipUpdate.showNameRowByDefault", true);
+  }
+  
+  /**
+   * return true if should show path row on default
+   * @return true if should show path row on default
+   */
+  public boolean isShowPathRowByDefault() {
+    return configValueBoolean("simpleMembershipUpdate.showPathRowByDefault", true);
+  }
+  
+  /**
+   * return true if should show description row on default
+   * @return true if should show description row on default
+   */
+  public boolean isShowDescriptionRowByDefault() {
+    return configValueBoolean("simpleMembershipUpdate.showDescriptionRowByDefault", true);
+  }
+  
+  /**
+   * return true if should show id row on default
+   * @return true if should show id row on default
+   */
+  public boolean isShowIdRowByDefault() {
+    return configValueBoolean("simpleMembershipUpdate.showIdRowByDefault", false);
+  }
+  
+  /**
+   * return true if should show id path row on default
+   * @return true if should show id path row on default
+   */
+  public boolean isShowIdPathRowByDefault() {
+    return configValueBoolean("simpleMembershipUpdate.showIdPathRowByDefault", false);
+  }
+  
+  /**
+   * return true if should show alternate id path row on default
+   * @return true if should show alternate id path row on default
+   */
+  public boolean isShowAlternateIdPathRowByDefault() {
+    return configValueBoolean("simpleMembershipUpdate.showAlternateIdPathRowByDefault", false);
+  }
+  
+  /**
+   * return true if should show uuid row on default
+   * @return true if should show uuid row on default
+   */
+  public boolean isShowUuidRowByDefault() {
+    return configValueBoolean("simpleMembershipUpdate.showUuidRowByDefault", false);
+  }
+  
+  
   
 }

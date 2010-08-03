@@ -186,7 +186,7 @@ public enum WsQueryFilterType {
       Scope scope = wsQueryFilter.retrieveStemScope(StemScope.ONE_LEVEL).convertToScope();
 
       //fail if the stem is not found, that is probably bad
-      return new GroupsInStemFilter(wsQueryFilter.getStemName(), scope, true);
+      return new GroupsInStemFilter(wsQueryFilter.getStemName(), scope, false);
     }
 
   },

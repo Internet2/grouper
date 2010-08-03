@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.USDU;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -303,10 +304,10 @@ public class GrouperReport {
 
       if (loaderErrorCount > 0) {
         List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
-          "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status = 'ERROR'")
+          "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status != 'SUCCESS'")
             .setTimestamp("lastUpdated", yesterday).list(Hib3GrouperLoaderLog.class);
         result.append("\n----------------\n");
-        result.append("LOADER JOBS WITH ERROR\n");
+        result.append("LOADER JOBS WITH NON-SUCCESS\n");
         result.append("----------------\n");
         for (Hib3GrouperLoaderLog loaderLog : loaderLogs) {
           result.append("\njob:               ").append(loaderLog.getJobName())
@@ -326,11 +327,13 @@ public class GrouperReport {
 
       if (loaderLogCount > 0) {
         List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
-          "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status != 'ERROR'")
-            .setTimestamp("lastUpdated", yesterday).list(Hib3GrouperLoaderLog.class);
+          "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated " +
+          " and status != 'ERROR' and jobName != 'CHANGE_LOG_changeLogTempToChangeLog'")
+            .setTimestamp("lastUpdated", yesterday).options(new QueryOptions().paging(50, 1, false))
+            .list(Hib3GrouperLoaderLog.class);
         if (loaderLogs.size() > 0) {
           result.append("\n----------------\n");
-          result.append("LOADER JOBS NON-ERROR\n");
+          result.append("LOADER JOBS SUCCESS (max 50 of them)\n");
           result.append("----------------\n");
           for (Hib3GrouperLoaderLog loaderLog : loaderLogs) {
             result.append("\njob:               ").append(loaderLog.getJobName())

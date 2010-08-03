@@ -292,24 +292,24 @@ public class BySqlStatic {
       return;
     }
   
-      if (paramLength != typeLength) {
+    if (paramLength != typeLength) {
       throw new RuntimeException("The params length must equal the types length and params " +
       "and types must either both or neither be null");
-      }
+    }
   
   
     List paramList = GrouperUtil.toList(params);
     List typeList = GrouperUtil.toList(types);
   
   
-      //loop through, set the params
-      Type currentType = null;
-      for (int i = 0; i < paramLength; i++) {
-        //not sure why the session implementer is null, if this ever fails for a type, 
-        //might want to not use hibernate and brute force it
-        currentType = (Type) typeList.get(i);
-        currentType.nullSafeSet(statement, paramList.get(i), i + 1, null);
-      }
+    //loop through, set the params
+    Type currentType = null;
+    for (int i = 0; i < paramLength; i++) {
+      //not sure why the session implementer is null, if this ever fails for a type, 
+      //might want to not use hibernate and brute force it
+      currentType = (Type) typeList.get(i);
+      currentType.nullSafeSet(statement, paramList.get(i), i + 1, null);
+    }
   
   }
   

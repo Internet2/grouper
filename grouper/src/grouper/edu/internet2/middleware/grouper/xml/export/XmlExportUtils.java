@@ -99,7 +99,15 @@ public class XmlExportUtils {
       arg = args[pos];
       if (arg.startsWith("-")) {
         String argName = arg.substring(1);
-        argsMap.put(argName, Boolean.TRUE);
+        if (StringUtils.equals(XmlExportGsh.STEMS_ARG, argName)) {
+          argsMap.put(argName, args[pos+1]);
+          pos++;
+        } else if (StringUtils.equals(XmlExportGsh.OBJECT_NAMES_ARG, argName)) {
+          argsMap.put(argName, args[pos+1]);
+          pos++;
+        } else {
+          argsMap.put(argName, Boolean.TRUE);
+        }
         pos++;
         continue;
       }

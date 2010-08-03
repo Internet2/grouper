@@ -52,8 +52,9 @@ public class GrouperAllAttrDefResolver extends AttributeDefResolverDecorator {
       throws IllegalArgumentException {
     Set<AttributeDef> attributeDefs = super.getDecoratedResolver().getAttributeDefsWhereSubjectHasPrivilege(
         subject, privilege);
-    attributeDefs.addAll(super.getDecoratedResolver().getAttributeDefsWhereSubjectHasPrivilege(
-        this.all, privilege));
+    //this happens further down in GrouperNonDbAttrDefAdapter
+    //    attributeDefs.addAll(super.getDecoratedResolver().getAttributeDefsWhereSubjectHasPrivilege(
+    //        this.all, privilege));
     return attributeDefs;
   }
 

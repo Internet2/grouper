@@ -263,9 +263,10 @@ public class GrouperLoaderResultset {
     }
     
     /**
+     * @param jobName for logging
      * @return the subject
      */
-    public Subject getSubject() {
+    public Subject getSubject(String jobName) {
       if (this.subject != null || this.subjectError != null) {
         return this.subject;
       }
@@ -295,7 +296,7 @@ public class GrouperLoaderResultset {
         }
       } catch (Exception e) {
         this.subjectError = "Problem with subjectId: " 
-            + subjectId + ", subjectSourceId: " + subjectSourceId;
+            + subjectId + ", subjectSourceId: " + subjectSourceId + ", in jobName: " + jobName;
         LOG.error(this.subjectError, e); 
         if (e instanceof SubjectNotFoundException
             || e instanceof SubjectNotUniqueException

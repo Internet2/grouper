@@ -6,8 +6,11 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * attribute def data access methods
@@ -83,4 +86,26 @@ public interface AttributeDefDAO extends GrouperDAO {
    */
   public void saveUpdateProperties(AttributeDef attributeDef);
 
+  /**
+   * get all attribute defs secure
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @return attribute defs
+   */
+  public Set<AttributeDef> getAllAttributeDefsSecure(GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions);
+  
+  /**
+   * get all attribute defs secure
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @return set of attribute defs
+   */
+  public Set<AttributeDef> getAllAttributeDefsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions);
 }

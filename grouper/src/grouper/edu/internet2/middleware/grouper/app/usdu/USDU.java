@@ -473,7 +473,7 @@ public class USDU {
 
     Set<Member> members = new LinkedHashSet<Member>();
 
-    for (Object m : MemberFinder.findAll(s, source)) {
+    for (Object m : MemberFinder.findAllUsed(s, source)) {
       Member member = (Member) m;
       if (!isMemberResolvable(s, member)) {
         members.add(member);

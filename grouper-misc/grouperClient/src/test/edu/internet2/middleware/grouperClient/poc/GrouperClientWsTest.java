@@ -75,7 +75,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAssignAttributesGroup"));
+    TestRunner.run(new GrouperClientWsTest("testFindGroups"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -4484,6 +4484,31 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(output, "aStem:aGroup", matcher.group(2));
       assertEquals(output, "aStem:aGroup", matcher.group(3));
 
+      // #####################################################
+      // filter by stem which doesnt exist, should be success
+      
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+        .main(GrouperClientUtils
+            .splitTrim(
+                "--operation=findGroupsWs --queryFilterType=FIND_BY_STEM_NAME --stemName=a:b:doesntExist",
+                " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+    
+      System.setOut(systemOut);
+    
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+      assertEquals(output, 0, GrouperUtil.length(outputLines));
+
+      System.out.flush();
+
+      System.setOut(systemOut);
+
+      
       // #####################################################
       // run with invalid args
       baos = new ByteArrayOutputStream();

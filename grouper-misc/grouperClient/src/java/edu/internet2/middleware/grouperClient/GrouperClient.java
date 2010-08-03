@@ -1060,7 +1060,7 @@ public class GrouperClient {
 
       for (String stemName : stemNames) {
         WsStemLookup wsStemLookup = new WsStemLookup(stemName, null);
-        gcStemDelete.addGroupLookup(wsStemLookup);
+        gcStemDelete.addStemLookup(wsStemLookup);
       }
       
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);

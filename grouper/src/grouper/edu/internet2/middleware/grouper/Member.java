@@ -1494,18 +1494,151 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @throws  GrouperException
    */
   public Set<Group> hasAdmin() 
-    throws  GrouperException
-{
-    Set privs = new LinkedHashSet();
+    throws  GrouperException {
+    Set<Group> groups = new LinkedHashSet();
     try {
-      privs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+      groups = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
                 this.getSubject(), AccessPrivilege.ADMIN
               );
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
-    return privs;
+    return groups;
+  } 
+
+  /**
+   * Get stems where this member has the ADMIN privilege of a group inside.
+   * <pre class="eg">
+   * Set<Stem> adminInStem = m.hasAdminInStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasAdminInStem() 
+      throws  GrouperException {
+    Set<Stem> stems = new LinkedHashSet();
+    try {
+      stems = GrouperSession.staticGrouperSession().getAccessResolver().getStemsWhereGroupThatSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.ADMIN
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  } 
+
+  /**
+   * Get stems where this member has the OPTOUT privilege of a group inside.
+   * <pre class="eg">
+   * Set<Stem> optoutInStem = m.hasOptoutInStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasOptoutInStem() 
+      throws  GrouperException {
+    Set<Stem> stems = new LinkedHashSet();
+    try {
+      stems = GrouperSession.staticGrouperSession().getAccessResolver().getStemsWhereGroupThatSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.OPTOUT
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  } 
+
+  /**
+   * Get stems where this member has the OPTIN privilege of a group inside.
+   * <pre class="eg">
+   * Set<Stem> optinInStem = m.hasOptinInStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasOptinInStem() 
+      throws  GrouperException {
+    Set<Stem> stems = new LinkedHashSet();
+    try {
+      stems = GrouperSession.staticGrouperSession().getAccessResolver().getStemsWhereGroupThatSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.OPTIN
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  } 
+
+
+  /**
+   * Get stems where this member has the VIEW privilege of a group inside.
+   * <pre class="eg">
+   * Set<Stem> viewInStem = m.hasViewInStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasViewInStem() 
+      throws  GrouperException {
+    Set<Stem> stems = new LinkedHashSet();
+    try {
+      stems = GrouperSession.staticGrouperSession().getAccessResolver().getStemsWhereGroupThatSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.VIEW
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  } 
+
+
+  /**
+   * Get stems where this member has the READ privilege of a group inside.
+   * <pre class="eg">
+   * Set<Stem> readInStem = m.hasReadInStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasReadInStem() 
+      throws  GrouperException {
+    Set<Stem> stems = new LinkedHashSet();
+    try {
+      stems = GrouperSession.staticGrouperSession().getAccessResolver().getStemsWhereGroupThatSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.READ
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  } 
+
+  /**
+   * Get stems where this member has the UPDATE privilege of a group inside.
+   * <pre class="eg">
+   * Set<Stem> updateInStem = m.hasUpdateInStem();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasUpdateInStem() 
+      throws  GrouperException {
+    Set<Stem> stems = new LinkedHashSet();
+    try {
+      stems = GrouperSession.staticGrouperSession().getAccessResolver().getStemsWhereGroupThatSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.UPDATE
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
   } 
 
   /**

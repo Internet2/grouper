@@ -59,11 +59,11 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      String errorString = "Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
       throw e;
     }
   }
@@ -112,11 +112,11 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(object) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(object) + ", " + this, e);
+      String errorString = "Exception in delete: " + GrouperUtil.classNameCollection(object) + ", " + this;
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
       throw e;
     }
     
@@ -145,11 +145,13 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      String errorString = "Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
   }
@@ -207,11 +209,14 @@ public class ByObject extends HibernateDelegate {
       throw e;
     } catch (MembershipAlreadyExistsException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
+      
+      String errorString = "Exception in save: " + GrouperUtil.className(object) + ", " + this;
+      
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
     
@@ -262,11 +267,14 @@ public class ByObject extends HibernateDelegate {
       throw e;
     } catch (MembershipAlreadyExistsException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+
+      String errorString = "Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+      
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
     
@@ -295,11 +303,14 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      
+      String errorString = "Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+      
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
   }
@@ -364,11 +375,14 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
+      
+      String errorString = "Exception in save: " + GrouperUtil.className(object) + ", " + this;
+
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
     
@@ -401,13 +415,15 @@ public class ByObject extends HibernateDelegate {
 
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in load: " + theClass + ", " 
-          + id + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in load: " + theClass + ", " 
-          + id + ", " + this, e);
+      
+      String errorString = "Exception in load: " + theClass + ", " 
+          + id + ", " + this;
+
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
   }
@@ -435,11 +451,14 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      
+      String errorString = "Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this;
+      
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
   }
@@ -481,11 +500,14 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in update: " + GrouperUtil.className(object) + ", " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in update: " + GrouperUtil.className(object) + ", " + this, e);
+      
+      String errorString = "Exception in update: " + GrouperUtil.className(object) + ", " + this;
+      
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
     

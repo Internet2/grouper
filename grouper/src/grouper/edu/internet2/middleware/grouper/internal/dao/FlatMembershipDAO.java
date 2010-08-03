@@ -47,6 +47,12 @@ public interface FlatMembershipDAO extends GrouperDAO {
   public void delete(Set<FlatMembership> flatMemberships);
   
   /**
+   * delete a batch of flat memberships
+   * @param flatMemberships
+   */
+  public void deleteBatch(Set<FlatMembership> flatMemberships);
+  
+  /**
    * @param flatMembershipId
    * @return flat membership
    */

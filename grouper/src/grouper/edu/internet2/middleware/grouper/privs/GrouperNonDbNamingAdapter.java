@@ -109,12 +109,13 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
       stems.addAll( 
         GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj, true), f ) 
       );
+      //this is done in dao
       // The ALL subject
-      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
-        stems.addAll( 
-          GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.internal_findAllMember(), f ) 
-        );
-      }
+//      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
+//        stems.addAll( 
+//          GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.internal_findAllMember(), f ) 
+//        );
+//      }
     }
     catch (StemNotFoundException eSNF) {
       String msg = E.GNA_SNF + eSNF.getMessage();

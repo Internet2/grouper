@@ -398,6 +398,20 @@ public interface StemDAO extends GrouperDAO {
    * @param stem
    */
   public void saveUpdateProperties(Stem stem);
-  
+
+  /**
+   * get stems with groups that have privileges
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return stems
+   * @throws GrouperDAOException
+   */
+  Set<Stem> getAllStemsWithGroupsSecure(GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
 } 
 

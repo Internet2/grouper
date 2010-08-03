@@ -3,8 +3,10 @@ package edu.internet2.middleware.grouper.ws.status;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -22,6 +24,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Source;
@@ -156,41 +159,55 @@ public enum DiagnosticType {
       
       {
         String attrRootStem = GrouperConfig.getProperty("grouper.attribute.rootStem");
-        if (StringUtils.isBlank(attrRootStem)) {
-          return;
-        }
-        
-        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
-            GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoader", false);
-        
-        //see if attributeDef
-        if (attributeDefName == null) {
-          return;
-        }
-        
-        //lets get the attributeDefs which have this type
-        Set<AttributeDef> attributeDefs = sourceCache.get(GrouperLoaderType.ATTR_SQL_SIMPLE);
-        
-        if (attributeDefs == null) {
-
-          attributeDefs = GrouperDAOFactory.getFactory().getAttributeAssign()
-            .findAttributeDefsByAttributeDefNameId(attributeDefName.getId());
-
-          sourceCache.put(GrouperLoaderType.ATTR_SQL_SIMPLE, attributeDefs);
+        if (!StringUtils.isBlank(attrRootStem)) {
+          AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+              GrouperCheckConfig.attributeLoaderStemName() + ":attributeLoader", false);
           
-        }
-
-        for (AttributeDef attributeDef : attributeDefs) {
-          
-           //lets get all attribute values
-           String grouperLoaderType = attributeDef.getAttributeValueDelegate().retrieveValueString(GrouperCheckConfig.attributeLoaderStemName() + ":" + GrouperLoader.ATTRIBUTE_LOADER_TYPE);
+          //see if attributeDef
+          if (attributeDefName != null) {
             
-           GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+            //lets get the attributeDefs which have this type
+            Set<AttributeDef> attributeDefs = sourceCache.get(GrouperLoaderType.ATTR_SQL_SIMPLE);
+            
+            if (attributeDefs == null) {
     
-           String jobName = grouperLoaderTypeEnum.name() + "__" + attributeDef.getName() + "__" + attributeDef.getUuid();
-
-           //diagnosticsTasks.add(new DiagnosticLoaderJobTest("ATTR_SQL_SIMPLE__penn:community:employee:orgPermissions:orgs__092bd6259d814b5db665f2f0f4ca7dc6", GrouperLoaderType.ATTR_SQL_SIMPLE));
-           diagnosticsTasks.add(new DiagnosticLoaderJobTest(jobName, grouperLoaderTypeEnum));
+              attributeDefs = GrouperDAOFactory.getFactory().getAttributeAssign()
+                .findAttributeDefsByAttributeDefNameId(attributeDefName.getId());
+    
+              sourceCache.put(GrouperLoaderType.ATTR_SQL_SIMPLE, attributeDefs);
+              
+            }
+    
+            for (AttributeDef attributeDef : attributeDefs) {
+              
+               //lets get all attribute values
+               String grouperLoaderType = attributeDef.getAttributeValueDelegate().retrieveValueString(GrouperCheckConfig.attributeLoaderStemName() + ":" + GrouperLoader.ATTRIBUTE_LOADER_TYPE);
+                
+               GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+        
+               String jobName = grouperLoaderTypeEnum.name() + "__" + attributeDef.getName() + "__" + attributeDef.getUuid();
+    
+               //diagnosticsTasks.add(new DiagnosticLoaderJobTest("ATTR_SQL_SIMPLE__penn:community:employee:orgPermissions:orgs__092bd6259d814b5db665f2f0f4ca7dc6", GrouperLoaderType.ATTR_SQL_SIMPLE));
+               diagnosticsTasks.add(new DiagnosticLoaderJobTest(jobName, grouperLoaderTypeEnum));
+            }
+          }
+        }
+      }
+      
+      {
+        //do min size groups
+        Pattern groupNamePattern = Pattern.compile("^ws\\.diagnostic\\.checkGroupSize\\.(.+)\\.groupName$");
+        
+        Properties properties = GrouperWsConfig.getProperties();
+        for (String key : (Set<String>)(Object)properties.keySet()) {
+          Matcher groupNameMatcher = groupNamePattern.matcher(key);
+          if (groupNameMatcher.matches()) {
+            String configName = groupNameMatcher.group(1);
+            int minSize = Integer.parseInt(GrouperWsConfig.getPropertyString(
+                "ws.diagnostic.checkGroupSize." + configName + ".minSize"));
+            String groupName = properties.getProperty(key);
+            diagnosticsTasks.add(new DiagnosticMinGroupSize(groupName, minSize));
+          }
         }
       }
       

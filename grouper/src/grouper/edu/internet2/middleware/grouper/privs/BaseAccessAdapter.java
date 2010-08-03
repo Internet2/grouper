@@ -10,7 +10,10 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -42,6 +45,28 @@ public abstract class BaseAccessAdapter implements AccessAdapter {
       }
     }
     return groups;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#postHqlFilterStemsWithGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStemsWithGroups(GrouperSession grouperSession,
+      Set<Stem> stems, Subject subject, Set<Privilege> inPrivSet) {
+    //no privs no filter
+    if (GrouperUtil.length(inPrivSet) == 0 || GrouperUtil.length(stems) == 0) {
+      return stems;
+    }
+
+    Set<Stem>  result  = new LinkedHashSet();
+    for ( Stem childStem : stems ) {
+      Set<Group> theGroups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsMembershipSecure(
+          null, grouperSession.internal_getRootSession(), subject, inPrivSet, 
+          null, false, childStem, Scope.ONE);
+      if ( GrouperUtil.length(theGroups) > 0 ) {
+        result.add(childStem);
+      }
+    }
+    return result;
   }
 
   /**

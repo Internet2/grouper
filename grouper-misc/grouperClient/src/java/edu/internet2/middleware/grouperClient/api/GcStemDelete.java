@@ -29,8 +29,19 @@ public class GcStemDelete {
    * add group lookup
    * @param wsStemLookup
    * @return this for chaining
+   * @deprecated use addStemLookup instead
    */
+  @Deprecated
   public GcStemDelete addGroupLookup(WsStemLookup wsStemLookup) {
+    return this.addStemLookup(wsStemLookup);
+  }
+  
+  /**
+   * add group lookup
+   * @param wsStemLookup
+   * @return this for chaining
+   */
+  public GcStemDelete addStemLookup(WsStemLookup wsStemLookup) {
     this.stemLookups.add(wsStemLookup);
     return this;
   }

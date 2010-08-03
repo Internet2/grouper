@@ -1501,7 +1501,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     if (this.attributeDefType != other.attributeDefType) {
       return true;
     }
-    if (!StringUtils.equals(this.description, other.description)) {
+    if (!StringUtils.equals(StringUtils.trimToNull(this.description), StringUtils.trimToNull(other.description))) {
       return true;
     }
     if (!StringUtils.equals(this.extension, other.extension)) {

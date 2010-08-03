@@ -362,11 +362,14 @@ public class ByHqlStatic implements HqlQuery {
       return result;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in list: (" + returnType + "), " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in list: (" + returnType + "), " + this, e);
+      
+      String errorString = "Exception in list: (" + returnType + "), " + this;
+
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
     
@@ -443,11 +446,14 @@ public class ByHqlStatic implements HqlQuery {
       
     } catch (GrouperStaleObjectStateException e) {
       throw e;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in executeUpdate: " + this, e);
-      throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in executeUpdate: " + this, e);
+      
+      String errorString = "Exception in executeUpdate: " + this;
+      
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString, e);
+      }
+
       throw e;
     }
     

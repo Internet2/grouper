@@ -89,5 +89,17 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
     //assume the HQL filtered everything
     return inputGroups;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#postHqlFilterStemsWithGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Set<Stem> postHqlFilterStemsWithGroups(GrouperSession grouperSession,
+      Set<Stem> stems, Subject subject, Set<Privilege> inPrivSet) {
+    return stems;
+  }
+  
+  
+  
 } // public class GrouperAccessAdapter 
 
