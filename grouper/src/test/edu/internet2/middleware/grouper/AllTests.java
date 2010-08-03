@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.membership.AllMembershipTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.permissions.AllPermissionsTests;
 import edu.internet2.middleware.grouper.privs.AllPrivsTests;
+import edu.internet2.middleware.grouper.rules.AllRulesTests;
 import edu.internet2.middleware.grouper.stress.AllStressTests;
 import edu.internet2.middleware.grouper.subj.AllSubjectTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
@@ -201,6 +202,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllMiscTests.suite());
     suite.addTest(AllPermissionsTests.suite());
     suite.addTest(AllPrivsTests.suite());
+    suite.addTest(AllRulesTests.suite());
 
     if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
       Class theClass = GrouperUtil.forName("edu.internet2.middleware.grouper.shibboleth.AllShibbolethTests");
