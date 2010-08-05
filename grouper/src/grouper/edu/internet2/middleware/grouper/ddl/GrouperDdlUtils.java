@@ -1354,7 +1354,7 @@ public class GrouperDdlUtils {
       exists = assertTablesThere(false, false, viewName);
     }
     if (exists) {
-      if (ddlVersionBean.isPostgres()) {
+      if (ddlVersionBean.isPostgres() || ddlVersionBean.isHsql()) {
         //GRP-459: postgres wont drop a view if other views depend on it
         ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + " cascade;\n");
       } else {
