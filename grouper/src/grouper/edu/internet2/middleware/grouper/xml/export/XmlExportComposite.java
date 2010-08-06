@@ -333,20 +333,22 @@ public class XmlExportComposite {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theComposite) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theComposite) " 
+        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
-      queryBuilder.append(" from Composite as theComposite order by theComposite.factorOwnerUuid, theComposite.leftFactorUuid, theComposite.rightFactorUuid, theComposite.typeDb ");
+      queryBuilder.append(" from Composite as theComposite ");
     } else {
       queryBuilder.append(
           " from Composite as theComposite where exists ( select theGroup from Group as theGroup "
@@ -361,8 +363,11 @@ public class XmlExportComposite {
           + " where theComposite.rightFactorUuid = theGroup.uuid and ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
       queryBuilder.append(" ) ) ");
+    }
+    if  (includeOrderBy) {
       queryBuilder.append(" order by theComposite.factorOwnerUuid, theComposite.leftFactorUuid, " +
-          "theComposite.rightFactorUuid, theComposite.typeDb ");
+        "theComposite.rightFactorUuid, theComposite.typeDb ");
+      
     }
     return queryBuilder.toString();
   }
@@ -383,7 +388,7 @@ public class XmlExportComposite {
   
         //select all members in order
         Query query = session.createQuery(
-            "select distinct theComposite " + exportFromOnQuery(xmlExportMain));
+            "select distinct theComposite " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

@@ -454,30 +454,32 @@ public class XmlExportMembership {
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
     long result = HibernateSession.byHqlStatic().createQuery(
-        "select count(theMembership) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+        "select count(theMembership) " + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
       queryBuilder.append(" from ImmediateMembershipEntry as theMembership " +
-      		"where theMembership.type = 'immediate' order by theMembership.memberUuid, " +
-      		"theMembership.ownerId, theMembership.fieldId, theMembership.immediateMembershipId ");
+      		"where theMembership.type = 'immediate' ");
     } else {
       queryBuilder.append(
           " from ImmediateMembershipEntry as theMembership " +
           " where theMembership.type = 'immediate' and exists ( select theGroup from Group as theGroup " +
           " where theMembership.ownerGroupId = theGroup.uuid and ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
-      queryBuilder.append(" ) ) " +
-          " order by theMembership.memberUuid, theMembership.ownerId, " +
+      queryBuilder.append(" ) ) ");
+    }
+    if (includeOrderBy) {
+      queryBuilder.append(" order by theMembership.memberUuid, theMembership.ownerId, " +
           "theMembership.fieldId, theMembership.immediateMembershipId ");
     }
     return queryBuilder.toString();
@@ -500,7 +502,7 @@ public class XmlExportMembership {
   
         //select all members in order
         Query query = session.createQuery(
-            "select distinct theMembership " + exportFromOnQuery(xmlExportMain));
+            "select distinct theMembership " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {
