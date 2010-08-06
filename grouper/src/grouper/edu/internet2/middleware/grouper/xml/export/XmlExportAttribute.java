@@ -275,27 +275,31 @@ public class XmlExportAttribute {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttribute) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttribute) " 
+        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
-      queryBuilder.append(" from Attribute as theAttribute order by theAttribute.groupUuid, theAttribute.fieldId ");
+      queryBuilder.append(" from Attribute as theAttribute ");
     } else {
       queryBuilder.append(
           " from Attribute as theAttribute where exists ( select theGroup from Group as theGroup " +
           " where theAttribute.groupUuid = theGroup.uuid and ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
-      queryBuilder.append(" ) ) " +
-          " order by theAttribute.groupUuid, theAttribute.fieldId ");
+      queryBuilder.append(" ) ) ");
+    }
+    if (includeOrderBy) {
+      queryBuilder.append(" order by theAttribute.groupUuid, theAttribute.fieldId ");
     }
     return queryBuilder.toString();
   }
@@ -316,7 +320,7 @@ public class XmlExportAttribute {
   
         //select all members in order
         Query query = session.createQuery(
-            "select distinct theAttribute " + exportFromOnQuery(xmlExportMain));
+            "select distinct theAttribute " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

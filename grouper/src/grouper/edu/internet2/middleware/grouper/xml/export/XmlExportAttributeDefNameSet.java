@@ -337,21 +337,23 @@ public class XmlExportAttributeDefNameSet {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeDefNameSet) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeDefNameSet) " 
+        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
       queryBuilder.append(" from AttributeDefNameSet as theAttributeDefNameSet " +
-      		" where theAttributeDefNameSet.typeDb = 'immediate' order by theAttributeDefNameSet.id ");
+      		" where theAttributeDefNameSet.typeDb = 'immediate' ");
     } else {
       queryBuilder.append(
           " from AttributeDefNameSet as theAttributeDefNameSet where " +
@@ -376,6 +378,8 @@ public class XmlExportAttributeDefNameSet {
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefName", "nameDb", false);
       queryBuilder.append(" ) ");
       queryBuilder.append(" ) ");
+    }
+    if (includeOrderBy) {
       queryBuilder.append(" order by theAttributeDefNameSet.id ");
     }
     return queryBuilder.toString();
@@ -398,7 +402,7 @@ public class XmlExportAttributeDefNameSet {
   
         //select all action sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select theAttributeDefNameSet " + exportFromOnQuery(xmlExportMain));
+            "select theAttributeDefNameSet " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

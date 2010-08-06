@@ -336,20 +336,21 @@ public class XmlExportRoleSet {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theRoleSet) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theRoleSet) " + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
-      queryBuilder.append(" from RoleSet as theRoleSet where theRoleSet.typeDb = 'immediate' order by theRoleSet.id ");
+      queryBuilder.append(" from RoleSet as theRoleSet where theRoleSet.typeDb = 'immediate' ");
     } else {
       queryBuilder.append(
           " from RoleSet as theRoleSet where theRoleSet.typeDb = 'immediate' " +
@@ -360,8 +361,10 @@ public class XmlExportRoleSet {
           " and exists ( select theGroup from Group as theGroup " +
           " where theRoleSet.thenHasRoleId = theGroup.uuid and ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
-      queryBuilder.append(" ) ) " +
-          " order by theRoleSet.id ");
+      queryBuilder.append(" ) ) ");
+    }
+    if (includeOrderBy) {
+      queryBuilder.append(" order by theRoleSet.id ");
     }
     return queryBuilder.toString();
   }
@@ -382,7 +385,7 @@ public class XmlExportRoleSet {
   
         //select all role sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select distinct theRoleSet " + exportFromOnQuery(xmlExportMain));
+            "select distinct theRoleSet " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {
