@@ -453,24 +453,29 @@ public class XmlExportGroup {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theGroup) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theGroup) " 
+        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
-      queryBuilder.append(" from Group as theGroup order by theGroup.nameDb");
+      queryBuilder.append(" from Group as theGroup ");
     } else {
       queryBuilder.append(
           " from Group as theGroup where ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+      
+    }
+    if (includeOrderBy) {
       queryBuilder.append(" order by theGroup.nameDb");
     }
     return queryBuilder.toString();
@@ -493,7 +498,7 @@ public class XmlExportGroup {
   
         //select all groups in order
         Query query = session.createQuery(
-            "select distinct theGroup " + exportFromOnQuery(xmlExportMain));
+            "select distinct theGroup " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

@@ -337,22 +337,23 @@ public class XmlExportAttributeAssignActionSet {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssignActionSet) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssignActionSet) " 
+        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
       queryBuilder.append(" from AttributeAssignActionSet as theAttributeAssignActionSet " +
-      		" where theAttributeAssignActionSet.typeDb = 'immediate' " +
-      		" order by theAttributeAssignActionSet.id ");
+      		" where theAttributeAssignActionSet.typeDb = 'immediate' ");
     } else {
       queryBuilder.append(
           " from AttributeAssignActionSet as theAttributeAssignActionSet " +
@@ -370,8 +371,10 @@ public class XmlExportAttributeAssignActionSet {
           " where theAttributeAssignAction.id = theAttributeAssignActionSet.thenHasAttrAssignActionId " +
           " and theAttributeAssignAction.attributeDefId = theAttributeDef.id and ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
-      queryBuilder.append(" ) ) " +
-          " order by theAttributeAssignActionSet.id ");
+      queryBuilder.append(" ) ) ");
+    }
+    if (includeOrderBy) {
+      queryBuilder.append(" order by theAttributeAssignActionSet.id");
     }
     return queryBuilder.toString();
   }
@@ -393,7 +396,7 @@ public class XmlExportAttributeAssignActionSet {
   
         //select all action sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select distinct theAttributeAssignActionSet " + exportFromOnQuery(xmlExportMain));
+            "select distinct theAttributeAssignActionSet " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

@@ -293,29 +293,31 @@ public class XmlExportAttributeAssignAction {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssignAction) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssignAction) " + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
-      queryBuilder.append(" from AttributeAssignAction as theAttributeAssignAction " +
-      		" order by theAttributeAssignAction.attributeDefId, theAttributeAssignAction.nameDb ");
+      queryBuilder.append(" from AttributeAssignAction as theAttributeAssignAction ");
     } else {
       queryBuilder.append(
           " from AttributeAssignAction as theAttributeAssignAction where exists ( " +
           " select theAttributeDef from AttributeDef as theAttributeDef " +
           " where theAttributeAssignAction.attributeDefId = theAttributeDef.id and ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
-      queryBuilder.append(" ) ) " +
-          " order by theAttributeAssignAction.attributeDefId, theAttributeAssignAction.nameDb ");
+      queryBuilder.append(" ) ) ");
+    }
+    if (includeOrderBy) {
+      queryBuilder.append(" order by theAttributeAssignAction.attributeDefId, theAttributeAssignAction.nameDb ");
     }
     return queryBuilder.toString();
   }
@@ -337,7 +339,7 @@ public class XmlExportAttributeAssignAction {
   
         //select all role sets (immediate is depth = 1)
         Query query = session.createQuery(
-            "select distinct theAttributeAssignAction " + exportFromOnQuery(xmlExportMain));
+            "select distinct theAttributeAssignAction " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

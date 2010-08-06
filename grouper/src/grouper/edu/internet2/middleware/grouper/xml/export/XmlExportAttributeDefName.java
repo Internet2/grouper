@@ -394,20 +394,21 @@ public class XmlExportAttributeDefName {
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
     long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeDefName) " 
-        + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
-      queryBuilder.append(" from AttributeDefName as theAttributeDefName order by theAttributeDefName.nameDb ");
+      queryBuilder.append(" from AttributeDefName as theAttributeDefName ");
     } else {
       queryBuilder.append(
           " from AttributeDefName as theAttributeDefName where ( ");
@@ -415,8 +416,10 @@ public class XmlExportAttributeDefName {
       queryBuilder.append(" ) and exists ( select theAttributeDef from AttributeDef as theAttributeDef " +
           " where theAttributeDef.id = theAttributeDefName.attributeDefId and ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
-      queryBuilder.append(" ) ) " +
-          " order by theAttributeDefName.nameDb ");
+      queryBuilder.append(" ) ) ");
+    }
+    if (includeOrderBy) {
+      queryBuilder.append(" order by theAttributeDefName.nameDb ");
     }
     return queryBuilder.toString();
   }
@@ -437,7 +440,7 @@ public class XmlExportAttributeDefName {
   
         //select all members in order
         Query query = session.createQuery(
-            "select distinct theAttributeDefName " + exportFromOnQuery(xmlExportMain));
+            "select distinct theAttributeDefName " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {

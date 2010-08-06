@@ -595,20 +595,22 @@ public class XmlExportAttributeAssign {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssign) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssign) " 
+        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
-      queryBuilder.append(" from AttributeAssign as theAttributeAssign order by theAttributeAssign.ownerAttributeAssignId, theAttributeAssign.id ");
+      queryBuilder.append(" from AttributeAssign as theAttributeAssign ");
     } else {
       queryBuilder.append(
         " from AttributeAssign as theAttributeAssign, AttributeDefName theAttributeDefName, AttributeDef theAttributeDef where " +
@@ -647,7 +649,10 @@ public class XmlExportAttributeAssign {
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef2", "nameDb", true);
       queryBuilder.append(" ) ) ");
       queryBuilder.append(" ) ) ) ");
-      queryBuilder.append(" ) order by theAttributeAssign.ownerAttributeAssignId, theAttributeAssign.id ");
+      queryBuilder.append(" ) ");
+    }
+    if (includeOrderBy) {
+      queryBuilder.append(" order by theAttributeAssign.ownerAttributeAssignId, theAttributeAssign.id");
     }
     return queryBuilder.toString();
   }
@@ -669,7 +674,7 @@ public class XmlExportAttributeAssign {
         //select all members in order
         //order by attributeAssignId so the ones not about assigns are first.
         Query query = session.createQuery(
-            "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain));
+            "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         

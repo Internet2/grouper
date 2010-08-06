@@ -94,20 +94,22 @@ public class XmlExportMember {
    * @return db count
    */
   public static long dbCount(XmlExportMain xmlExportMain) {
-    long result = HibernateSession.byHqlStatic().createQuery("select count(theMember) " + exportFromOnQuery(xmlExportMain)).uniqueResult(Long.class);
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theMember) " 
+        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
   
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
+   * @param includeOrderBy 
    * @return the export query
    */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain) {
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
-      queryBuilder.append(" from Member as theMember order by theMember.subjectSourceIdDb, theMember.subjectIdDb");
+      queryBuilder.append(" from Member as theMember ");
     } else {
       queryBuilder.append(
           " from Member as theMember where theMember.subjectSourceIdDb <> 'g:gsa'" +
@@ -116,8 +118,12 @@ public class XmlExportMember {
       
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
       
-      queryBuilder.append(" ) ) ) " +
-          " order by theMember.subjectSourceIdDb, theMember.subjectIdDb ");
+      queryBuilder.append(" ) ) ) ");
+    }
+    if (includeOrderBy) {
+      if (includeOrderBy) {
+        queryBuilder.append(" order by theMember.subjectSourceIdDb, theMember.subjectIdDb ");
+      }
     }
     return queryBuilder.toString();
   }
@@ -137,7 +143,7 @@ public class XmlExportMember {
         Session session = hibernateHandlerBean.getHibernateSession().getSession();
 
         
-        Query query = session.createQuery("select distinct theMember " + exportFromOnQuery(xmlExportMain));
+        Query query = session.createQuery("select distinct theMember " + exportFromOnQuery(xmlExportMain, true));
 
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         try {
