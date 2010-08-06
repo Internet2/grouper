@@ -10,15 +10,17 @@ then
   exit 1
 fi  
 
+OBJ=morphString
+
 cd /tmp
-if [ ! -d /home/mchyzer/tmp/grouper ]; then
-  /bin/mkdir /home/mchyzer/tmp/grouper
-  /bin/chmod g+w /home/mchyzer/tmp/grouper
+if [ ! -d /home/mchyzer/tmp/$OBJ ]; then
+  /bin/mkdir /home/mchyzer/tmp/$OBJ
+  /bin/chmod g+w /home/mchyzer/tmp/$OBJ
 fi
 
-cd /home/mchyzer/tmp/grouper
+cd /home/mchyzer/tmp/$OBJ
 
-export buildDir=/home/mchyzer/tmp/grouper/build_$USER
+export buildDir=/home/mchyzer/tmp/$OBJ/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -30,19 +32,9 @@ fi
 
 cd $buildDir
 
-#export CVSROOT=/home/cvs/i2mi
+/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-misc/morphString/
 
-#/usr/bin/cvs export -r $1 grouper
-
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
-
-cd $buildDir/grouper
-
-$ANT_HOME/bin/ant distPackage
-
-$ANT_HOME/bin/ant distBinary
-
-mv $buildDir/grouper/dist/binary/*.tar.gz $buildDir/
+cd $buildDir/$OBJ
 
 $M2_HOME/bin/mvn install -DskipTests
 

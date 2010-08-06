@@ -10,11 +10,15 @@ then
   exit 1
 fi
 
+/home/mchyzer/bin/buildMorphStringMvn.sh $1
+/home/mchyzer/bin/buildSubjectMvn.sh $1
 /home/mchyzer/bin/buildGrouper.sh $1
 /home/mchyzer/bin/buildGrouperWs.sh $1
 /home/mchyzer/bin/buildGrouperUi.sh $1
 /home/mchyzer/bin/buildGrouperQs.sh $1
 /home/mchyzer/bin/buildGrouperClient.sh $1
+/home/mchyzer/bin/buildGrouperShibMvn.sh $1
+/home/mchyzer/bin/buildLdappcng.sh $1
 
 if [ ! -d /home/mchyzer/tmp/grouperAll ]; then
   /bin/mkdir /home/mchyzer/tmp/grouperAll
@@ -40,10 +44,24 @@ mv -v /home/mchyzer/tmp/grouperClient/build_$USER/grouper*.tar.gz $buildDir
 mv -v /home/mchyzer/tmp/grouper-qs/build_$USER/grouper*.tar.gz $buildDir
 mv -v /home/mchyzer/tmp/grouperUi/build_$USER/grouper*.tar.gz $buildDir
 mv -v /home/mchyzer/tmp/grouperWs/build_$USER/grouper*.tar.gz $buildDir
+mv -v /home/mchyzer/tmp/ldappcng/build_$USER/ldappcng/target/ldappc*.tar.gz $buildDir
 
+#rename
+cd $buildDir
+
+BINOLD=`ls ldappcng-*-bin.tar.gz`
+BINNEW=`echo $BINOLD | perl -ne 'chomp; s/-([\d.]+)-bin/\.binary-$1/; print $_;'`
+mv $BINOLD $BINNEW
+
+SRCOLD=`ls ldappcng-*-src.tar.gz`
+SRCNEW=`echo $SRCOLD | perl -ne 'chomp; s/-([\d.]+)-src/\.source-$1/; print $_;'`
+mv $SRCOLD $SRCNEW
+
+cd /home/mchyzer/tmp/grouperAll
 
 #allow someone from group to delete later on
 /bin/chmod -R g+w $buildDir
 
 echo
 echo "Overall done! All packages have been moved to: $buildDir"
+echo
