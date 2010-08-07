@@ -46,6 +46,7 @@ import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
 import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -100,6 +101,8 @@ public class GrouperMessageTag extends MessageTag {
    */
   public GrouperMessageTag() {
     this.init();
+
+    
   }
 
   /**
@@ -252,7 +255,7 @@ public class GrouperMessageTag extends MessageTag {
       } else {
         // localization context taken from 'bundle' attribute
         locCtxt = this.bundleAttrValue;
-        if (locCtxt.getLocale() != null) {
+        if (locCtxt != null && locCtxt.getLocale() != null) {
           GrouperUtil.callMethod(SetLocaleSupport.class,
               "setResponseLocale", new Class[] { PageContext.class,
                   Locale.class }, new Object[] {
@@ -301,39 +304,42 @@ public class GrouperMessageTag extends MessageTag {
       MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)((HttpServletRequest)this
           .pageContext.getRequest()).getSession().getAttribute("navNullMap");
       
-      String targettedTooltipRefValue = (String)mapBundleWrapper.get(targettedTooltipRefKey);
-  
-      String targettedTooltipValue = StringUtils.isNotBlank(this.tooltipRef) ?
-          (String)mapBundleWrapper.get(this.tooltipRef) :(String)mapBundleWrapper.get(targettedTooltipKey);
+      String targettedTooltipValue = null;
       
-      if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
-        LOG.warn("Duplicate tooltip target and ref in nav.properties: " + targettedTooltipKey 
-            + ", " + targettedTooltipRefKey);
-      }
-      if ((StringUtils.isNotBlank(targettedTooltipRefValue) 
-          || StringUtils.isNotBlank((String)mapBundleWrapper.get(targettedTooltipKey)))
-          && StringUtils.isNotBlank(this.tooltipRef)) {
-        LOG.warn("targettedTooltip and tooltipRef set at once! '" + targettedTooltipKey 
-            + "', '" + targettedTooltipRefKey + "', '" + this.tooltipRef + "'");
-      }
-      
-      //first priority is value
-      targettedTooltipValue = StringUtils.isBlank(this.valueTooltip) ? targettedTooltipValue : this.valueTooltip;
-      
-      if (StringUtils.isBlank(targettedTooltipValue)) {
-      
-        //first priority is a targetted ref, next priority is a target.  not sure why both would be there
-        targettedTooltipValue = StringUtils.isBlank(targettedTooltipRefValue) ? 
-            targettedTooltipValue : (String)mapBundleWrapper.get(targettedTooltipRefValue);
-      
-        //if there is a ref, but it doesnt exist, that is a problem
-        if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isBlank(targettedTooltipValue)) {
-          LOG.error("Missing tooltip targetted ref in nav.properties: " + targettedTooltipRefValue);
-        }
+      if (mapBundleWrapper != null) {
+        String targettedTooltipRefValue = (String)mapBundleWrapper.get(targettedTooltipRefKey);
     
-
-      }
+        targettedTooltipValue = StringUtils.isNotBlank(this.tooltipRef) ?
+            (String)mapBundleWrapper.get(this.tooltipRef) :(String)mapBundleWrapper.get(targettedTooltipKey);
+        
+        if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
+          LOG.warn("Duplicate tooltip target and ref in nav.properties: " + targettedTooltipKey 
+              + ", " + targettedTooltipRefKey);
+        }
+        if ((StringUtils.isNotBlank(targettedTooltipRefValue) 
+            || StringUtils.isNotBlank((String)mapBundleWrapper.get(targettedTooltipKey)))
+            && StringUtils.isNotBlank(this.tooltipRef)) {
+          LOG.warn("targettedTooltip and tooltipRef set at once! '" + targettedTooltipKey 
+              + "', '" + targettedTooltipRefKey + "', '" + this.tooltipRef + "'");
+        }
+        
+        //first priority is value
+        targettedTooltipValue = StringUtils.isBlank(this.valueTooltip) ? targettedTooltipValue : this.valueTooltip;
+        
+        if (StringUtils.isBlank(targettedTooltipValue)) {
+        
+          //first priority is a targetted ref, next priority is a target.  not sure why both would be there
+          targettedTooltipValue = StringUtils.isBlank(targettedTooltipRefValue) ? 
+              targettedTooltipValue : (String)mapBundleWrapper.get(targettedTooltipRefValue);
+        
+          //if there is a ref, but it doesnt exist, that is a problem
+          if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isBlank(targettedTooltipValue)) {
+            LOG.error("Missing tooltip targetted ref in nav.properties: " + targettedTooltipRefValue);
+          }
       
+  
+        }
+      }
       boolean isIgnoreTooltipStyle = GrouperUtil.booleanValue(this.ignoreTooltipStyle, false);
       boolean hasTooltip = StringUtils.isNotBlank(targettedTooltipValue);
       
@@ -410,7 +416,7 @@ public class GrouperMessageTag extends MessageTag {
     if (this.tooltipKeys == null || this.useNewTermContext()) {
       
       //add the tooltips:
-      ResourceBundle resourceBundle = GrouperUiUtils.getNavResourcesStatic(this.pageContext.getSession());
+      ResourceBundle resourceBundle = GrouperUiUtils.getNavResourcesStatic(GrouperUiFilter.retrieveHttpServletRequest().getSession());
       
       //add properties to map
       Map<String, String> propertiesConfigurationMap = convertPropertiesToMap(null, resourceBundle, true);
@@ -632,6 +638,12 @@ public class GrouperMessageTag extends MessageTag {
    */
   @Override
   public int doStartTag() throws JspException {
+    
+    boolean needsThreadLocalInit = GrouperUiFilter.retrieveHttpServletRequest() == null;
+    if (needsThreadLocalInit) {
+      GrouperUiFilter.initRequest(this.pageContext.getRequest(), this.pageContext.getResponse());
+    }
+
     //set default bundle to "${nav}"
     String bundle = (String)GrouperUtil.fieldValue(this, "bundle_");
     if (StringUtils.isBlank(bundle)) {

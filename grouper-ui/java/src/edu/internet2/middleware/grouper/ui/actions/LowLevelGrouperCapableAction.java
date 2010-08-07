@@ -106,27 +106,39 @@ public abstract class LowLevelGrouperCapableAction
 	 */
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 		      HttpServletRequest request, HttpServletResponse response) throws Exception{
-			HttpSession session = request.getSession();
-			GrouperSession grouperSession = (GrouperSession) session.getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
-						
-			DynaActionForm dummyForm = (DynaActionForm)form;
-			if(form!=null)request.setAttribute("grouperForm",form);
-			//tell grouper session if we are in admin mode or user mode
-	    Boolean originalConsiderIfWheelMember = grouperSession == null ? null : grouperSession.isConsiderIfWheelMember();
-			
-	    //are we acting as self or wheel?
-	    if (grouperSession != null) {
-  	    grouperSession.setConsiderIfWheelMember(
-  	        Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember")));
-	    }	    
+	  
+	   boolean needsThreadLocalInit = GrouperUiFilter.retrieveHttpServletRequest() == null;
+	    if (needsThreadLocalInit) {
+        request = GrouperUiFilter.initRequest(request, response);
+	    }
 	    try {
-			ActionForward forward =  grouperExecute(mapping,form,request,response,session,grouperSession);
-			
-			return forward;
+	  
+  			HttpSession session = request.getSession();
+  			GrouperSession grouperSession = (GrouperSession) session.getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
+  						
+  			DynaActionForm dummyForm = (DynaActionForm)form;
+  			if(form!=null)request.setAttribute("grouperForm",form);
+  			//tell grouper session if we are in admin mode or user mode
+  	    Boolean originalConsiderIfWheelMember = grouperSession == null ? null : grouperSession.isConsiderIfWheelMember();
+  			
+  	    //are we acting as self or wheel?
+  	    if (grouperSession != null) {
+    	    grouperSession.setConsiderIfWheelMember(
+    	        Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember")));
+  	    }	    
+  	    try {
+  			ActionForward forward =  grouperExecute(mapping,form,request,response,session,grouperSession);
+  			
+  			return forward;
+  	    } finally {
+  	      if (grouperSession != null && originalConsiderIfWheelMember != null) {
+  	        grouperSession.setConsiderIfWheelMember(originalConsiderIfWheelMember);
+  	}
+  	    }
 	    } finally {
-	      if (grouperSession != null && originalConsiderIfWheelMember != null) {
-	        grouperSession.setConsiderIfWheelMember(originalConsiderIfWheelMember);
-	}
+	      if (needsThreadLocalInit) {
+	        GrouperUiFilter.finallyRequest();
+	      }
 	    }
 	}
 	/**
