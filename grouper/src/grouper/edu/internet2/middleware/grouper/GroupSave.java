@@ -188,16 +188,11 @@ public class GroupSave {
    * transaction too
    * </pre>
    * @return the group
+   * @deprecated use save() instead
    */
+  @Deprecated
   public Group saveUnchecked() {
-    try {
-      return this.save();
-    } catch (Exception e) {
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException)e;
-      }
-      throw new RuntimeException(e.getMessage(), e);
-    }
+    return this.save();
   }
 
   

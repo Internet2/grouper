@@ -596,6 +596,7 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
     
     GrouperCheckConfig.checkGroups();
+    GrouperCheckConfig.checkAttributes();
   } 
 
   // @since   1.2.0

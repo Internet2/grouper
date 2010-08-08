@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
@@ -414,7 +415,7 @@ public class GrouperCheckConfig {
       
       checkAttributes();
       
-      //delegate to subject API to check configs
+      //delegate to subject APIconfigs
       SubjectCheckConfig.checkConfig();
     } finally {
       inCheckConfig = false;
@@ -1450,23 +1451,11 @@ public class GrouperCheckConfig {
    * root stem where attributes live
    * @return attribute built in stem name
    */
-  private static String attributeRootStemName() {
+  public static String attributeRootStemName() {
     String rootStemName = GrouperConfig.getProperty("grouper.attribute.rootStem");
     if (StringUtils.isBlank(rootStemName)) {
       throw new RuntimeException("If autoconfiguring attributes, you need to configure a root stem");
     }
-    return rootStemName;
-  }
-  
-  /**
-   * return the stem name where the rule attributes go, without colon on end
-   * @return stem name
-   */
-  public static String attributeRuleStemName() {
-    String rootStemName = attributeRootStemName();
-    
-    //namespace this separate from other builtins
-    rootStemName += ":rules";
     return rootStemName;
   }
   
@@ -1485,7 +1474,7 @@ public class GrouperCheckConfig {
       inCheckConfig = true;
     }
 
-    String rulesRootStemName = attributeRuleStemName();
+    String rulesRootStemName = RuleUtils.attributeRuleStemName();
     
     String loaderRootStemName = attributeLoaderStemName();
     
@@ -1518,15 +1507,40 @@ public class GrouperCheckConfig {
         String ruleTypeDefName = rulesRootStemName + ":rulesTypeDef";
         AttributeDef ruleType = AttributeDefFinder.findByName(ruleTypeDefName, false);
         if (ruleType == null) {
-          ruleType = rulesStem.addChildAttributeDef("rulesTypeDef", AttributeDefType.attr);
+          ruleType = rulesStem.addChildAttributeDef("rulesTypeDef", AttributeDefType.type);
           ruleType.setAssignToGroup(true);
           ruleType.setAssignToStem(true);
-          ruleType.setValueType(AttributeDefValueType.string);
           ruleType.store();
         }
         
         //add a name
-        checkAttribute(rulesStem, ruleType, "rule", "is a rule", wasInCheckConfig);
+        AttributeDefName rule = checkAttribute(rulesStem, ruleType, "rule", "is a rule", wasInCheckConfig);
+        
+        //lets add some rule attributes
+        String ruleAttrDefName = rulesRootStemName + ":rulesAttrDef";
+        AttributeDef ruleAttrType = AttributeDefFinder.findByName(ruleAttrDefName, false);
+        if (ruleAttrType == null) {
+          ruleAttrType = rulesStem.addChildAttributeDef("rulesAttrDef", AttributeDefType.attr);
+          ruleAttrType.setAssignToGroupAssn(true);
+          ruleAttrType.setAssignToStemAssn(true);
+          ruleAttrType.setValueType(AttributeDefValueType.string);
+          ruleAttrType.store();
+        }
+
+        //the attributes can only be assigned to the type def
+        // try an attribute def dependent on an attribute def name
+        ruleAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(rule.getName());
+
+        //add some names
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_ID, "subject id to act as, mutually exclusive with identifier", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_IDENTIFIER, "subject identifier to act as, mutually exclusive with id", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_SOURCE_ID, "subject source id to act as", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_TYPE, "when the check should be to see if rule should fire, enum: RuleCheckType", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_OWNER_ID, "when the check should be to see if rule should fire, this is owner of type, mutually exclusive with name", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_OWNER_NAME, "when the check should be to see if rule should fire, this is owner of type, mutually exclusice with id", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_EL, "expression language to run to see if the rule should run, or blank if should run always", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_EL, "expression language to run when the rule fires", wasInCheckConfig);
+        
       }      
       
       AttributeDefName attributeLoaderTypeName = null;

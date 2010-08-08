@@ -51,7 +51,7 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
-   * 
+   * adds scope if not already there
    * @param attributeDefScopeType 
    * @param scopeString 
    * @param scopeString2 
@@ -67,6 +67,7 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
+   * adds scope if not already there
    * make sure this attributeDef is assigned directly in this stem
    * @param stem
    * @return the attribute def scope
@@ -76,6 +77,7 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
+   * adds scope if not already there
    * make sure this attributeDef is assigned directly in this stem
    * @param stem
    * @return the attribute def scope
@@ -86,6 +88,7 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
+   * adds scope if not already there
    * make sure this attributeDef is assigned directly in this stem
    * @param attributeDefName
    * @return the attribute def scope
@@ -95,7 +98,8 @@ public class AttributeDefScopeDelegate {
   }
 
   /**
-   * make sure this attributeDef is assigned directly in this stem
+   * adds scope if not already there
+   * make sure this attributeDef is assigned to something that as another assignment
    * @param attributeDefName
    * @param action 
    * @return the attribute def scope
@@ -114,7 +118,8 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
-   * make sure this attributeDef is assigned directly in this stem
+   * adds scope if not already there
+   * make sure this attributeDef is assigned to something of a given name
    * @param name
    * @return the attribute def scope
    */
@@ -124,7 +129,8 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
-   * make sure this attributeDef is assigned directly in this stem
+   * adds scope if not already there
+   * make sure this attributeDef is assigned to this group
    * @param group
    * @return the attribute def scope
    */
@@ -135,7 +141,8 @@ public class AttributeDefScopeDelegate {
   
   
   /**
-   * make sure this attributeDef is assigned directly in this stem
+   * adds scope if not already there
+   * make sure this attributeDef is assigned to this stem
    * @param stem
    * @return the attribute def scope
    */
@@ -145,7 +152,8 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
-   * make sure this attributeDef is assigned directly in this stem
+   * adds scope if not already there
+   * make sure this attributeDef is to this attribute def
    * @param attributeDef
    * @return the attribute def scope
    */
@@ -155,6 +163,7 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
+   * adds scope if not already there
    * make sure this attributeDef is assigned directly in this stem
    * @param membership
    * @return the attribute def scope
@@ -170,7 +179,8 @@ public class AttributeDefScopeDelegate {
   }
   
   /**
-   * make sure this attributeDef is assigned directly in this stem
+   * adds scope if not already there
+   * make sure this attributeDef is assigned to members in this source
    * @param source
    * @return the attribute def scope
    */

@@ -161,16 +161,11 @@ public class StemSave {
    * rolls back outer transactions too
    * </pre>
    * @return the stem saved
+   * @deprecated
    */
+  @Deprecated
   public Stem saveUnchecked() {
-    try {
-      return this.save();
-    } catch (Exception e) {
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException)e;
-      }
-      throw new RuntimeException(e.getMessage(), e);
-    }
+    return this.save();
   }
 
   

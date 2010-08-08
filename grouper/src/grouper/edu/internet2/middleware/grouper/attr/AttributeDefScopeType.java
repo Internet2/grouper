@@ -95,6 +95,10 @@ public enum AttributeDefScopeType {
         return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeDef)attributeAssignable).getStemId());
       }
       
+      if (attributeAssignable instanceof AttributeAssign) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeAssign)attributeAssignable).getAttributeDefName().getStemId());
+      }
+
       return false;
       
     }
@@ -130,6 +134,10 @@ public enum AttributeDefScopeType {
         return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), ((Member) attributeAssignable).getSubjectId());
       }
       
+      if (attributeAssignable instanceof AttributeAssign) {
+        return GrouperUtil.matchSqlString(attributeDefScope.getScopeString(), ((AttributeAssign) attributeAssignable).getAttributeDefName().getName());
+      }
+
       return false;
     }
   },
@@ -158,6 +166,10 @@ public enum AttributeDefScopeType {
       
       if (attributeAssignable instanceof AttributeDef) {
         return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeDef) attributeAssignable).getName());
+      }
+      
+      if (attributeAssignable instanceof AttributeAssign) {
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeAssign) attributeAssignable).getAttributeDefName().getName());
       }
       
       return false;
@@ -199,7 +211,7 @@ public enum AttributeDefScopeType {
       }
 
       if (attributeAssignable instanceof AttributeAssign) {
-        return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeAssign) attributeAssignable).getId());
+        return StringUtils.equals(attributeDefScope.getScopeString(), ((AttributeAssign) attributeAssignable).getAttributeDefNameId());
       }
       
       return false;

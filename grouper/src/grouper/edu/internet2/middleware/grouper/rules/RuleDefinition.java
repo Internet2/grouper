@@ -3,13 +3,11 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
-import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
@@ -26,7 +24,7 @@ public class RuleDefinition {
    */
   public static Set<AttributeAssign> allRules() {
     
-    String ruleAttributeName = GrouperCheckConfig.attributeRuleStemName() + ":rule";
+    String ruleAttributeName = RuleUtils.attributeRuleStemName() + ":rule";
     
     AttributeDefName ruleName = AttributeDefNameFinder.findByName(ruleAttributeName, true);
     

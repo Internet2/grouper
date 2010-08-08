@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.rules;
 
-import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -12,6 +11,9 @@ public enum RuleCheckType {
 
   /** if there is a membership remove flattened */
   flattenedMembershipRemove,
+  
+  /** if there is a membership remove flattened */
+  membershipRemove,
   
   /** if a group is created */
   groupCreate,

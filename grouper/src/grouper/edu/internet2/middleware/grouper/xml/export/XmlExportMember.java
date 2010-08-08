@@ -119,11 +119,11 @@ public class XmlExportMember {
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
       
       queryBuilder.append(" ) ) ) ");
+      
     }
     if (includeOrderBy) {
-      if (includeOrderBy) {
-        queryBuilder.append(" order by theMember.subjectSourceIdDb, theMember.subjectIdDb ");
-      }
+      queryBuilder.append(" order by theMember.subjectSourceIdDb, theMember.subjectIdDb ");
+
     }
     return queryBuilder.toString();
   }

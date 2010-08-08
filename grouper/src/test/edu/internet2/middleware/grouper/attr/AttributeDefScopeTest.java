@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -32,7 +33,7 @@ public class AttributeDefScopeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefScopeTest("testTypeScope"));
+    TestRunner.run(new AttributeDefScopeTest("testTypeScopeAttrAssign"));
   }
   
   /**
@@ -169,6 +170,52 @@ public class AttributeDefScopeTest extends GrouperTest {
 
     //this is ok
     group2.getAttributeDelegate().assignAttribute(attributeDefAttrName);
+        
+  }
+  
+  /**
+   * 
+   */
+  public void testTypeScopeAttrAssign() {
+    
+    AttributeDefName attributeDefTypeName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "someType");
+    AttributeDef attributeDefType = attributeDefTypeName.getAttributeDef();
+    
+    attributeDefType.setAssignToGroup(true);
+    
+    attributeDefType.setAttributeDefType(AttributeDefType.type);
+    attributeDefType.store();
+    
+    AttributeDefName attributeDefTypeName2 = new AttributeDefNameSave(this.grouperSession, attributeDefType).assignName("test:someType2").save();
+
+    Group group = new GroupSave(this.grouperSession).assignName("test2:whatever").assignCreateParentStemsIfNotExist(true).save();
+    
+    Group group2 = new GroupSave(this.grouperSession).assignName("test3:whatever").assignCreateParentStemsIfNotExist(true).save();
+    
+    //this is in scope
+    AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(attributeDefTypeName).getAttributeAssign();
+    AttributeAssign attributeAssign2 = group2.getAttributeDelegate().assignAttribute(attributeDefTypeName2).getAttributeAssign();
+
+    //create an attribute of attribute
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "someAttr");
+    AttributeDef attributeDef = attributeDefName.getAttributeDef();
+    attributeDef.setAssignToGroupAssn(true);
+    attributeDef.store();
+    
+    
+    //#######################
+    // try an attribute def dependent on an attribute def name
+    attributeDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(attributeDefTypeName.getName());
+    
+    try {
+      attributeAssign2.getAttributeDelegate().assignAttribute(attributeDefName);
+      fail("Should not happen");
+    } catch (Exception e) {
+      //good
+    }
+
+    //this is ok
+    attributeAssign.getAttributeDelegate().assignAttribute(attributeDefName);
         
   }
   
