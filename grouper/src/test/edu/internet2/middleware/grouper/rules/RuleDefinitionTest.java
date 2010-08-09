@@ -46,7 +46,7 @@ public class RuleDefinitionTest extends GrouperTest {
     ruleDefinition.setActAs(ruleSubjectActAs);
     
     RuleCheck ruleCheck = new RuleCheck();
-    ruleCheck.setGroup("a group");
+    ruleCheck.setOwnerId("a group");
     ruleCheck.setType("flattenedMembershipRemove");
     
     ruleDefinition.setCheck(ruleCheck);

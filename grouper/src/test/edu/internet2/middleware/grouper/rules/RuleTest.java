@@ -53,12 +53,20 @@ public class RuleTest extends GrouperTest {
     AttributeAssign attributeAssign = groupA
       .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.RULE_ACT_AS_SUBJECT_SOURCE_ID, "g:isa");
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.RULE_ACT_AS_SUBJECT_ID, "GrouperSystem");
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.RULE_CHECK_OWNER_NAME, "stem:b");
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.RULE_CHECK_TYPE, 
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.RULE_ACT_AS_SUBJECT_SOURCE_ID, "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.RULE_ACT_AS_SUBJECT_ID, "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.RULE_CHECK_OWNER_NAME, "stem:b");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.RULE_CHECK_TYPE, 
         RuleCheckType.membershipRemove.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.RULE_THEN_EL, 
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.RULE_IF_CONDITION_ENUM, 
+        RuleConditionEnum.thisGroupHasImmediateMember.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.RULE_THEN_EL, 
         "${ruleUtils.removeMember(thisGroupId, memberId}");
     
     groupB.addMember(SubjectTestHelper.SUBJ0);

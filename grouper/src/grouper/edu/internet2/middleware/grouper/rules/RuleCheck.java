@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.rules;
 
+
 /**
  * e.g.
  * check:
@@ -12,15 +13,51 @@ package edu.internet2.middleware.grouper.rules;
  */
 public class RuleCheck {
 
-  
+  /**
+   * 
+   */
+  public RuleCheck() {
+    super();
+  }
+
+  /**
+   * 
+   * @param type
+   * @param ownerId
+   * @param ownerName
+   */
+  public RuleCheck(String type, String ownerId, String ownerName) {
+    super();
+    this.type = type;
+    this.ownerId = ownerId;
+    this.ownerName = ownerName;
+  }
+
   /** type of check */
   private String type;
   
-  /** group which fires the rule */
-  private String group;
+  /** group/stem/etc which fires the rule */
+  private String ownerId;
   
-  /** stem ancestor to check */
-  private String stemAncestor;
+  /** group/stem/etc which fires the rule */
+  private String ownerName;
+  
+  
+  /**
+   * group/stem/etc which fires the rule
+   * @return group/stem/etc which fires the rule
+   */
+  public String getOwnerName() {
+    return this.ownerName;
+  }
+
+  /**
+   * group/stem/etc which fires the rule
+   * @param ownerName1
+   */
+  public void setOwnerName(String ownerName1) {
+    this.ownerName = ownerName1;
+  }
 
   /**
    * type of rule check
@@ -35,7 +72,7 @@ public class RuleCheck {
    * @param type1
    */
   public void setType(String type1) {
-    RuleCheckType.valueOfIgnoreCase(type1, false);
+    //RuleCheckType.valueOfIgnoreCase(type1, false);
     this.type = type1;
   }
 
@@ -51,32 +88,16 @@ public class RuleCheck {
    * group which fires the rule
    * @return the group
    */
-  public String getGroup() {
-    return this.group;
+  public String getOwnerId() {
+    return this.ownerId;
   }
 
   /**
    * group which fires the rule
    * @param group1
    */
-  public void setGroup(String group1) {
-    this.group = group1;
-  }
-
-  /**
-   * stem ancestor that fires the rule
-   * @return the stem ancestor
-   */
-  public String getStemAncestor() {
-    return this.stemAncestor;
-  }
-
-  /**
-   * stem ancestor that fires the rule
-   * @param stemAncestor1
-   */
-  public void setStemAncestor(String stemAncestor1) {
-    this.stemAncestor = stemAncestor1;
+  public void setOwnerId(String group1) {
+    this.ownerId = group1;
   }
   
 }

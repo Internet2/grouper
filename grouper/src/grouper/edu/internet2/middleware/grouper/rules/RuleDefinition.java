@@ -3,12 +3,10 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
-import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
 /**
@@ -17,30 +15,6 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  *
  */
 public class RuleDefinition {
-
-  /**
-   * get all rules from the DB in the form of attribute assignments
-   * @return the assigns of all rules
-   */
-  public static Set<AttributeAssign> allRules() {
-    
-    String ruleAttributeName = RuleUtils.attributeRuleStemName() + ":rule";
-    
-    AttributeDefName ruleName = AttributeDefNameFinder.findByName(ruleAttributeName, true);
-    
-    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByAttributeDefNameId(ruleName.getId());
-    
-    return attributeAssigns;
-    
-  }
-  
-  //actAs: user (blank means me, though bad idea)
-  //check:
-  //  - type: flattenedMembershipChange
-  //  - groups: X,Z
-  //if: member is not a member of Group checkedGroup (immediate or flattened)
-  //then: remove member from group A
 
   /** who this rule acts as */
   private RuleSubjectActAs actAs;

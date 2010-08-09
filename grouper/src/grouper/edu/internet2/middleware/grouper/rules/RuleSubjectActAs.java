@@ -7,6 +7,26 @@ package edu.internet2.middleware.grouper.rules;
  */
 public class RuleSubjectActAs {
 
+  /**
+   * 
+   * @param subjectId
+   * @param sourceId
+   * @param subjectIdentifier
+   */
+  public RuleSubjectActAs(String subjectId, String sourceId, String subjectIdentifier) {
+    super();
+    this.subjectId = subjectId;
+    this.sourceId = sourceId;
+    this.subjectIdentifier = subjectIdentifier;
+  }
+
+  /**
+   * 
+   */
+  public RuleSubjectActAs() {
+
+  }
+  
   /** subject id to act as */
   private String subjectId;
   

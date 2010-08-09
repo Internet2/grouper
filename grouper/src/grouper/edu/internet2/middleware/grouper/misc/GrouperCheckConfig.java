@@ -1532,14 +1532,24 @@ public class GrouperCheckConfig {
         ruleAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(rule.getName());
 
         //add some names
-        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_ID, "subject id to act as, mutually exclusive with identifier", wasInCheckConfig);
-        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_IDENTIFIER, "subject identifier to act as, mutually exclusive with id", wasInCheckConfig);
-        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_SOURCE_ID, "subject source id to act as", wasInCheckConfig);
-        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_TYPE, "when the check should be to see if rule should fire, enum: RuleCheckType", wasInCheckConfig);
-        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_OWNER_ID, "when the check should be to see if rule should fire, this is owner of type, mutually exclusive with name", wasInCheckConfig);
-        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_OWNER_NAME, "when the check should be to see if rule should fire, this is owner of type, mutually exclusice with id", wasInCheckConfig);
-        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_EL, "expression language to run to see if the rule should run, or blank if should run always", wasInCheckConfig);
-        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_EL, "expression language to run when the rule fires", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_ID, 
+            "subject id to act as, mutually exclusive with identifier", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_IDENTIFIER, 
+            "subject identifier to act as, mutually exclusive with id", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_ACT_AS_SUBJECT_SOURCE_ID, 
+            "subject source id to act as", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_TYPE, 
+            "when the check should be to see if rule should fire, enum: RuleCheckType", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_OWNER_ID, 
+            "when the check should be to see if rule should fire, this is owner of type, mutually exclusive with name", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_OWNER_NAME, 
+            "when the check should be to see if rule should fire, this is owner of type, mutually exclusice with id", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_EL, 
+            "expression language to run to see if the rule should run, or blank if should run always", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_ENUM, 
+            "RuleConditionEnum that sees if rule should fire, or blank if should run always", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_EL, 
+            "expression language to run when the rule fires", wasInCheckConfig);
         
       }      
       

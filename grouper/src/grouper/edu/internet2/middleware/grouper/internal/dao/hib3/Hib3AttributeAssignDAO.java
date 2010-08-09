@@ -3,6 +3,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -42,7 +45,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   /**
    * 
    */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3AttributeAssignDAO.class.getName();
 
   /**
@@ -1955,6 +1957,80 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   }
 
   /**
+   * find attribute assigns by ids, as root (no security).  order by attribute type def name, so they are in order
+   * @param attributeTypeDefNameId attribute def name of the type on the owner
+   * @return attributes grouped by the type assignment
+   */
+  public Map<AttributeAssign, Set<AttributeAssignValueContainer>> findByAttributeTypeDefNameId(String attributeTypeDefNameId) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    //SELECT * 
+    //FROM grouper_attribute_assign gaa_attr, grouper_attribute_assign gaa_type,
+    //grouper_attribute_def_name gadn, grouper_attribute_assign_value gaav
+    //WHERE gaa_attr.owner_attribute_assign_id = gaa_type.id
+    //AND gaa_attr.attribute_def_name_id = gadn.id
+    //AND gaav.attribute_assign_id = gaa_attr.id
+    
+    //lets do all this in one query
+    StringBuilder sql = new StringBuilder("select distinct aa_type, aa_attr, adn, aav " +
+    		" from AttributeAssign aa_type, AttributeAssign aa_attr, AttributeDefName adn, AttributeAssignValue aav " +
+    		" where aa_attr.attributeDefNameId = adn.id " +
+    		"   and aa_attr.ownerAttributeAssignId = aa_type.id " +
+    		"   and aav.attributeAssignId = aa_attr.id " +
+    		"   and aa_type.attributeDefNameId = :attributeTypeDefNameId " +
+    		"   and aa_attr.enabledDb = 'T' " +
+    		"   and aa_type.enabledDb = 'T' order by aa_type.id ");
+    
+    byHqlStatic
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByAttributeTypeDefNameId");
+
+    Set<Object[]> resultsObjectArrays = byHqlStatic.createQuery(sql.toString()).listSet(Object[].class);
+    
+    Map<AttributeAssign, Set<AttributeAssignValueContainer>> result = new LinkedHashMap<AttributeAssign, Set<AttributeAssignValueContainer>>();
+
+    String currentAttributeTypeAssignId = null;
+
+    Set<AttributeAssignValueContainer> currentContainers = null;
+    
+    for (Object[] resultsObjectArray : resultsObjectArrays) {
+      AttributeAssignValueContainer attributeAssignValueContainer = new AttributeAssignValueContainer();
+      attributeAssignValueContainer.setAttributeTypeAssign((AttributeAssign)resultsObjectArray[0]);
+      attributeAssignValueContainer.setAttributeValueAssign((AttributeAssign)resultsObjectArray[1]);
+      attributeAssignValueContainer.setAttributeDefName((AttributeDefName)resultsObjectArray[2]);
+      attributeAssignValueContainer.setAttributeAssignValue((AttributeAssignValue)resultsObjectArray[3]);
+      
+      //first one
+      if (currentContainers == null) {
+        currentContainers = new HashSet<AttributeAssignValueContainer>();
+        result.put(attributeAssignValueContainer.getAttributeTypeAssign(), currentContainers);
+      }
+      
+      //first one
+      if (currentAttributeTypeAssignId == null) {
+        currentAttributeTypeAssignId = attributeAssignValueContainer.getAttributeTypeAssign().getId();
+      }
+      
+      //if on same batch
+      if (StringUtils.equals(currentAttributeTypeAssignId, attributeAssignValueContainer.getAttributeTypeAssign().getId())) {
+        //same batch, continue
+        currentContainers.add(attributeAssignValueContainer);
+        continue;
+      }
+      
+      //if not on same batch
+      currentAttributeTypeAssignId = attributeAssignValueContainer.getAttributeTypeAssign().getId();
+      currentContainers.clear();
+      currentContainers.add(attributeAssignValueContainer);
+      result.put(attributeAssignValueContainer.getAttributeTypeAssign(), currentContainers);
+
+    }
+    
+    return result;
+  }
+  
+  /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findStemAttributeDefNames(Collection, Collection, Collection, Collection, Collection, Boolean)
    */
@@ -2314,7 +2390,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     return results;
       
   }
-
   
 } 
 

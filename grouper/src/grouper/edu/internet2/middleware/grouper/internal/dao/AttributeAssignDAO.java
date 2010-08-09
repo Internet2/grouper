@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
@@ -13,6 +14,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 
 /**
  * attribute assign data access methods
@@ -82,6 +84,14 @@ public interface AttributeAssignDAO extends GrouperDAO {
    */
   public Set<AttributeDefName> findAttributeDefNamesByMemberIdAndAttributeDefId(String memberId, String attributeDefId);
 
+  
+  /**
+   * find attribute assigns by ids, as root (no security).  order by attribute type def name, so they are in order
+   * @param attributeTypeDefNameId attribute def name of the type on the owner
+   * @return attributes grouped by the type assignment
+   */
+  public Map<AttributeAssign, Set<AttributeAssignValueContainer>> findByAttributeTypeDefNameId(String attributeTypeDefNameId);
+  
   /**
    * @param stemId
    * @param attributeDefNameId
