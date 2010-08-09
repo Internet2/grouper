@@ -54,46 +54,60 @@ public class PopulateErrorAction extends org.apache.struts.action.Action {
 	static final private String FORWARD_AuthError = "authError";
 
 
-
-	//------------------------------------------------------------ Action
-	// Methods
-
+	/**
+	 * 
+	 * @see org.apache.struts.action.Action#execute(org.apache.struts.action.ActionMapping, org.apache.struts.action.ActionForm, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		
-		String msg=null;
-		request.setAttribute("title","error.title");
-		String code=request.getParameter("code");
-		if(org.apache.log4j.NDC.getDepth()==0) ErrorFilter.initNDC(request);
-		if(code!=null && !"".equals(code)) {
-			LOG.error("Caught '" + code + "' for " + request.getAttribute("javax.servlet.error.request_uri"));
-			try {
-				msg=GrouperUiFilter.retrieveSessionNavResourceBundle().getString("error." + code);
-			}catch(MissingResourceException mre) {
-				msg=code;
-			}
-		}else{
-			HttpSession session = request.getSession();
-			Exception e = (Exception) session.getAttribute("templateException");
-			if(e!=null) {
-				request.setAttribute("exception",e);
-				session.removeAttribute("templateException");
-			}else{
-				e = (Exception) request.getAttribute("javax.servlet.error.exception");
-				request.setAttribute("exception",e);
-			}
-			LOG.error("Caught unhandled Exception: ",e);
-			NavExceptionHelper neh=LowLevelGrouperCapableAction.getExceptionHelper(session);
-			msg = neh.getMessage(new UnrecoverableErrorException(e));
-		}
-		request.setAttribute("seriousError",msg);
-		String user = SessionInitialiser.getAuthUser(request.getSession());
-		if(user==null){
-			return mapping.findForward(FORWARD_Error);
-		}
-		return mapping.findForward(FORWARD_AuthError);
-
+	  boolean needsThreadLocalInit = GrouperUiFilter.retrieveHttpServletRequest() == null;
+	  if (needsThreadLocalInit) {
+      //try catch since we dont want looping errors
+      try {
+        request = GrouperUiFilter.initRequest(request, response);
+      } catch (Exception e) {
+        LOG.error("Problem initting", e);
+      }
+	  }
+	  try {
+  		String msg=null;
+  		request.setAttribute("title","error.title");
+  		String code=request.getParameter("code");
+  		if(org.apache.log4j.NDC.getDepth()==0) ErrorFilter.initNDC(request);
+  		if(code!=null && !"".equals(code)) {
+  			LOG.error("Caught '" + code + "' for " + request.getAttribute("javax.servlet.error.request_uri"));
+  			try {
+  				msg=GrouperUiFilter.retrieveSessionNavResourceBundle().getString("error." + code);
+  			} catch(Exception mre) {
+  				msg=code;
+  			}
+  		}else{
+  			HttpSession session = request.getSession();
+  			Exception e = (Exception) session.getAttribute("templateException");
+  			if(e!=null) {
+  				request.setAttribute("exception",e);
+  				session.removeAttribute("templateException");
+  			}else{
+  				e = (Exception) request.getAttribute("javax.servlet.error.exception");
+  				request.setAttribute("exception",e);
+  			}
+  			LOG.error("Caught unhandled Exception: ",e);
+  			NavExceptionHelper neh=LowLevelGrouperCapableAction.getExceptionHelper(session);
+  			msg = neh.getMessage(new UnrecoverableErrorException(e));
+  		}
+  		request.setAttribute("seriousError",msg);
+  		String user = SessionInitialiser.getAuthUser(request.getSession());
+  		if(user==null){
+  			return mapping.findForward(FORWARD_Error);
+  		}
+  		return mapping.findForward(FORWARD_AuthError);
+	  } finally {
+	    if (needsThreadLocalInit) {
+	      GrouperUiFilter.finallyRequest();
+	    }
+	  }
 		
 	}
 

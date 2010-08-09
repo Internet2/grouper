@@ -22,7 +22,7 @@
   			}catch(Exception e) {
   				//Just swallow
   			}
-  			if(subjectString.length() > maxLength) {
+  			if(subjectString != null && subjectString.length() > maxLength) {
   				subjectString = StringUtils.abbreviate(subjectString,maxLength);
   				pageContext.setAttribute("subjectString",subjectString);
   			}
