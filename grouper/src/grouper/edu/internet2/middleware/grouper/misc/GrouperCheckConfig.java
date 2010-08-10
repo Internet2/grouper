@@ -1544,12 +1544,16 @@ public class GrouperCheckConfig {
             "when the check should be to see if rule should fire, this is owner of type, mutually exclusive with name", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_OWNER_NAME, 
             "when the check should be to see if rule should fire, this is owner of type, mutually exclusice with id", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_CHECK_STEM_SCOPE, 
+            "when the check is a stem type, this is Stem.Scope ALL or SUB", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_EL, 
             "expression language to run to see if the rule should run, or blank if should run always", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_ENUM, 
             "RuleConditionEnum that sees if rule should fire, or blank if should run always", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_EL, 
             "expression language to run when the rule fires", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_ENUM, 
+            "RuleThenEnum to run when the rule fires", wasInCheckConfig);
         
       }      
       

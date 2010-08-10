@@ -119,6 +119,9 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
@@ -877,6 +880,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 throw new RuntimeException(exception);
               }
               if (doesntExist) {
+                
                 EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
                 if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                   
@@ -1740,10 +1744,17 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
             sw.stop();
             if (notAlreadyDeleted) {
-              EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
+              EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), 
+                  Group.this.getName(), subj, f, sw);
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                                
+                           
+                //if we are in the default list, then fire a rule
+                if (StringUtils.equals(f.getUuid(), Group.getDefaultList().getUuid())) {
+                  RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subj);
+                  RuleEngine.fireRule(RuleCheckType.membershipRemove, rulesMembershipBean);
+                }
+                
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE, "id", 
                     membership == null ? null : membership.getUuid(), "fieldId", f.getUuid(),
                         "fieldName", f.getName(), "memberId",  membership.getMemberUuid(),

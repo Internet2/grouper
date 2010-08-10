@@ -173,6 +173,19 @@ TODO update for 1.5
   
   /**
    * @param ownerUUID 
+   * @param f 
+   * @param memberIds 
+   * @param type 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
+   */
+  Set<Membership> findAllByGroupOwnerAndFieldAndMemberIdsAndType(String ownerUUID, Field f, 
+      Collection<String> memberIds, String type, boolean enabledOnly) 
+    throws  GrouperDAOException;
+  
+  /**
+   * @param ownerUUID 
    * @param members 
    * @param enabledOnly 
    * @return set

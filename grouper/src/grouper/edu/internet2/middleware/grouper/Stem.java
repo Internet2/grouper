@@ -78,6 +78,7 @@ import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -237,7 +238,22 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     ONE, 
     
     /** all decendents */
-    SUB 
+    SUB;
+    
+    /**
+     * do a case-insensitive matching
+     * 
+     * @param string
+     * @param exceptionOnNull will not allow null or blank entries
+     * @return the enum or null or exception if not found
+     */
+    public static Scope valueOfIgnoreCase(String string, boolean exceptionOnNull) {
+      return GrouperUtil.enumValueOfIgnoreCase(Scope.class, 
+          string, exceptionOnNull);
+
+    }
+
+    
   }; // TODO 20070802 is this the right location?
 
   /**
@@ -1906,6 +1922,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               sw.stop();
               
               return attributeDefName;
+            } catch (HookVeto hv) {
+              throw hv;
             } catch (AttributeDefNameAddException adnae) {
               throw adnae;
             } catch (Exception e) {

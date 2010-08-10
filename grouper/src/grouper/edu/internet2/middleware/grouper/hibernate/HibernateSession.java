@@ -662,11 +662,13 @@ public class HibernateSession {
       case COMMIT_IF_NEW_TRANSACTION:
         if (this.isNewHibernateSession()) {
           this.activeHibernateSession().immediateTransaction.commit();
+          this.activeHibernateSession().savepoint = null;
           return true;
         }
         break;
       case COMMIT_NOW:
         this.activeHibernateSession().immediateTransaction.commit();
+        this.activeHibernateSession().savepoint = null;
         return true;
     }
     return false;

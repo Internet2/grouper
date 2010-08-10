@@ -752,31 +752,39 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /** batch size for memberships (setable for testing) */
   static int batchSize = 50;
 
-
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndMembersAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection, java.lang.String, boolean)
    */
   public Set<Membership> findAllByGroupOwnerAndFieldAndMembersAndType(String ownerGroupId,
       Field f, Collection<Member> members, String type, boolean enabledOnly) throws GrouperDAOException {
     
-    if (members == null) {
+    List<String> memberIds = GrouperUtil.propertyList(members, Member.PROPERTY_UUID, String.class);
+    
+    return findAllByGroupOwnerAndFieldAndMemberIdsAndType(ownerGroupId, f, memberIds, type, enabledOnly);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndMemberIdsAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection, java.lang.String, boolean)
+   */
+  public Set<Membership> findAllByGroupOwnerAndFieldAndMemberIdsAndType(String ownerGroupId,
+      Field f, Collection<String> memberIds, String type, boolean enabledOnly) throws GrouperDAOException {
+    
+    if (memberIds == null) {
       return null;
     }
-    if (members.size() == 0) {
+    if (memberIds.size() == 0) {
       return new LinkedHashSet<Membership>();
     }
 
     //lets page through these
-    int pages = GrouperUtil.batchNumberOfBatches(members, batchSize);
+    int pages = GrouperUtil.batchNumberOfBatches(memberIds, batchSize);
     
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     
     MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
     
     for (int i=0; i<pages; i++) {
-      List<Member> memberList = GrouperUtil.batchList(members, batchSize, i);
-      
-      List<String> uuids = GrouperUtil.propertyList(memberList, Member.PROPERTY_UUID, String.class);
+      List<String> currentMemberIdList = GrouperUtil.batchList(memberIds, batchSize, i);
       
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select ms"
@@ -789,7 +797,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           .setString( "fieldId", f.getUuid() );
 
       //add all the uuids
-      byHqlStatic.setCollectionInClause(query, uuids);
+      byHqlStatic.setCollectionInClause(query, currentMemberIdList);
       query.append(")");
       
       if (enabledOnly) {

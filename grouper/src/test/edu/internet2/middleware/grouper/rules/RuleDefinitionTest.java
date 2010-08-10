@@ -46,13 +46,13 @@ public class RuleDefinitionTest extends GrouperTest {
     ruleDefinition.setActAs(ruleSubjectActAs);
     
     RuleCheck ruleCheck = new RuleCheck();
-    ruleCheck.setOwnerId("a group");
-    ruleCheck.setType("flattenedMembershipRemove");
+    ruleCheck.setCheckOwnerId("a group");
+    ruleCheck.setCheckType("flattenedMembershipRemove");
     
     ruleDefinition.setCheck(ruleCheck);
     
-    ruleDefinition.setIfCondition("if condition");
-    ruleDefinition.setThen("then part");
+    ruleDefinition.setIfCondition(new RuleIfCondition("if condition", null));
+    ruleDefinition.setThen(new RuleThen("then part", null));
     
     String json = GrouperUtil.jsonConvertTo(ruleDefinition);
     json = GrouperUtil.indent(json, true);

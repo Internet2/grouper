@@ -86,6 +86,27 @@ public class RuleUtils {
   /**
    * 
    */
+  public static final String RULE_THEN_ENUM = "ruleThenEnum";
+
+  /**
+   * rule then enum name
+   */
+  private static String ruleThenEnumName = null;
+
+  /**
+   * full rule then enum name
+   * @return name
+   */
+  public static String ruleThenEnumName() {
+    if (ruleThenEnumName == null) {
+      ruleThenEnumName = RuleUtils.attributeRuleStemName() + ":" + RULE_THEN_ENUM;
+    }
+    return ruleThenEnumName;
+  }
+  
+  /**
+   * 
+   */
   public static final String RULE_IF_CONDITION_ENUM = "ruleIfConditionEnum";
   
   /**
@@ -144,6 +165,27 @@ public class RuleUtils {
       ruleCheckOwnerNameName = RuleUtils.attributeRuleStemName() + ":" + RULE_CHECK_OWNER_NAME;
     }
     return ruleCheckOwnerNameName;
+  }
+  
+  /**
+   * 
+   */
+  public static final String RULE_CHECK_STEM_SCOPE = "ruleCheckStemScope";
+
+  /**
+   * rule ruleCheckStemScope
+   */
+  private static String ruleCheckStemScopeName = null;
+
+  /**
+   * full ruleCheckStemScope
+   * @return name
+   */
+  public static String ruleCheckStemScopeName() {
+    if (ruleCheckStemScopeName == null) {
+      ruleCheckStemScopeName = RuleUtils.attributeRuleStemName() + ":" + RULE_CHECK_STEM_SCOPE;
+    }
+    return ruleCheckStemScopeName;
   }
   
   /**

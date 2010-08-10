@@ -16,6 +16,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -32,6 +33,11 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.AttributeDefNameHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeDefNameBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -809,7 +815,101 @@ public class AttributeDefName extends GrouperAPI
           }
         });
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
   
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_POST_COMMIT_DELETE, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_POST_DELETE, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_POST_DELETE, false, true);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+  
+    super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_POST_INSERT, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_POST_INSERT, true, false);
+  
+    //do these second so the right object version is set, and dbVersion is ok
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_POST_COMMIT_INSERT, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    
+    super.onPostUpdate(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_POST_COMMIT_UPDATE, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_POST_UPDATE, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_POST_UPDATE, true, false);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_DELETE, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_DELETE, false, false);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_INSERT, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_INSERT, false, false);
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_UPDATE, HooksAttributeDefNameBean.class, 
+        this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_UPDATE, false, false);
+  
+  }
+
 
   
 }

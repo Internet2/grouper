@@ -32,20 +32,21 @@ public class AllHooksTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.hooks");
     //$JUnit-BEGIN$
-    suite.addTestSuite(GroupHooksAddTypePostCommitTest.class);
-    suite.addTestSuite(MembershipHooksTest.class);
-    suite.addTestSuite(FieldHooksTest.class);
-    suite.addTestSuite(GroupHooksTest.class);
-    suite.addTestSuite(GroupTypeTupleHooksTest.class);
-    suite.addTestSuite(CompositeHooksTest.class);
-    suite.addTestSuite(MemberHooksTest.class);
-    suite.addTestSuite(LifecycleHooksTest.class);
     suite.addTestSuite(ESCOGroupHooksTest.class);
-    suite.addTestSuite(GroupHooksDbVersionTest.class);
+    suite.addTestSuite(GroupTypeTupleHooksTest.class);
+    suite.addTestSuite(GroupHooksTest.class);
+    suite.addTestSuite(GroupHooksAddTypePostCommitTest.class);
     suite.addTestSuite(GroupHooksAddTypeTest.class);
-    suite.addTestSuite(AttributeHooksTest.class);
-    suite.addTestSuite(GroupTypeHooksTest.class);
+    suite.addTestSuite(MembershipHooksTest.class);
+    suite.addTestSuite(CompositeHooksTest.class);
     suite.addTestSuite(StemHooksTest.class);
+    suite.addTestSuite(AttributeHooksTest.class);
+    suite.addTestSuite(FieldHooksTest.class);
+    suite.addTestSuite(MemberHooksTest.class);
+    suite.addTestSuite(GroupHooksDbVersionTest.class);
+    suite.addTestSuite(GroupTypeHooksTest.class);
+    suite.addTestSuite(LifecycleHooksTest.class);
+    suite.addTestSuite(AttributeDefNameHooksTest.class);
     //$JUnit-END$
     suite.addTest(AllHooksExamplesTests.suite());
     return suite;
