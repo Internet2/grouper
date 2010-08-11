@@ -39,6 +39,11 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.AttributeAssignHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeAssignBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -132,8 +137,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /** constant for field name for: attributeAssignType */
   public static final String FIELD_ATTRIBUTE_ASSIGN_TYPE = "attributeAssignType";
 
-  /** constant for field name for: attributeNameId */
-  public static final String FIELD_ATTRIBUTE_NAME_ID = "attributeNameId";
+  /** constant for field name for: attributeDefNameId */
+  public static final String FIELD_ATTRIBUTE_DEF_NAME_ID = "attributeDefNameId";
 
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
@@ -177,26 +182,28 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   /** constant for field name for: ownerStemId */
   public static final String FIELD_OWNER_STEM_ID = "ownerStemId";
 
+  /** constant for field name for: valueDelegate */
+  public static final String FIELD_VALUE_DELEGATE = "valueDelegate";
+
   /**
    * fields which are included in db version
    */
-  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, 
-      FIELD_CREATED_ON_DB, 
-      FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_ID, 
-      FIELD_LAST_UPDATED_DB, FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, 
-      FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID);
+      FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
+      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, FIELD_ENABLED, 
+      FIELD_ENABLED_TIME_DB, FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NOTES, 
+      FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, 
+      FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_NAME_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, 
-      FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_HIBERNATE_VERSION_NUMBER, 
-      FIELD_ID, FIELD_LAST_UPDATED_DB, FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, 
-      FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, 
-      FIELD_OWNER_STEM_ID);
+      FIELD_ATTRIBUTE_ASSIGN_ACTION_ID, FIELD_ATTRIBUTE_ASSIGN_DELEGATABLE, FIELD_ATTRIBUTE_ASSIGN_TYPE, FIELD_ATTRIBUTE_DEF_NAME_ID, 
+      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DISABLED_TIME_DB, FIELD_ENABLED, 
+      FIELD_ENABLED_TIME_DB, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_LAST_UPDATED_DB, 
+      FIELD_NOTES, FIELD_OWNER_ATTRIBUTE_ASSIGN_ID, FIELD_OWNER_ATTRIBUTE_DEF_ID, FIELD_OWNER_GROUP_ID, 
+      FIELD_OWNER_MEMBER_ID, FIELD_OWNER_MEMBERSHIP_ID, FIELD_OWNER_STEM_ID, FIELD_VALUE_DELEGATE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -1126,25 +1133,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     this.disabledTimeDb = disabledTimeDb1 == null ? null : disabledTimeDb1.getTime();
   }
 
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreSave(HibernateSession hibernateSession) {
-    super.onPreSave(hibernateSession);
-    long now = System.currentTimeMillis();
-    this.setCreatedOnDb(now);
-    this.setLastUpdatedDb(now);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreUpdate(HibernateSession hibernateSession) {
-    super.onPreUpdate(hibernateSession);
-    this.setLastUpdatedDb(System.currentTimeMillis());
-  }
   
   /**
    * @see java.lang.Object#toString()
@@ -1546,6 +1534,105 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     }
     
     return attributeDefs;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+  
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_COMMIT_DELETE, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_DELETE, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_POST_DELETE, false, true);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+  
+    super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_INSERT, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_POST_INSERT, true, false);
+  
+    //do these second so the right object version is set, and dbVersion is ok
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_COMMIT_INSERT, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    
+    super.onPostUpdate(hibernateSession);
+    
+    this.setLastUpdatedDb(System.currentTimeMillis());
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_COMMIT_UPDATE, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_UPDATE, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_POST_UPDATE, true, false);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_DELETE, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_DELETE, false, false);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    long now = System.currentTimeMillis();
+    this.setCreatedOnDb(now);
+    this.setLastUpdatedDb(now);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_INSERT, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_INSERT, false, false);
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
+        AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_UPDATE, HooksAttributeAssignBean.class, 
+        this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_UPDATE, false, false);
+  
   }
 
 

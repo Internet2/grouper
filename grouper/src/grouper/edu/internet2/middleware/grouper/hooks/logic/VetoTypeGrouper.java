@@ -28,6 +28,25 @@ public enum VetoTypeGrouper implements VetoType {
   
   /** veto of attribute */
   ATTRIBUTE_POST_DELETE,
+
+  
+  /** veto of attribute assign */
+  ATTRIBUTE_ASSIGN_PRE_INSERT,
+  
+  /** veto of attribute assign */
+  ATTRIBUTE_ASSIGN_POST_INSERT,
+  
+  /** veto of attribute assign */
+  ATTRIBUTE_ASSIGN_PRE_UPDATE,
+  
+  /** veto of attribute assign */
+  ATTRIBUTE_ASSIGN_POST_UPDATE,
+  
+  /** veto of attribute assign */
+  ATTRIBUTE_ASSIGN_PRE_DELETE,
+  
+  /** veto of attribute assign */
+  ATTRIBUTE_ASSIGN_POST_DELETE,
   
   
   /** veto of attribute */

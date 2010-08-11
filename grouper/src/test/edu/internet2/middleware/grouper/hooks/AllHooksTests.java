@@ -41,6 +41,7 @@ public class AllHooksTests {
     suite.addTestSuite(CompositeHooksTest.class);
     suite.addTestSuite(StemHooksTest.class);
     suite.addTestSuite(AttributeHooksTest.class);
+    suite.addTestSuite(AttributeAssignHooksTest.class);
     suite.addTestSuite(FieldHooksTest.class);
     suite.addTestSuite(MemberHooksTest.class);
     suite.addTestSuite(GroupHooksDbVersionTest.class);
