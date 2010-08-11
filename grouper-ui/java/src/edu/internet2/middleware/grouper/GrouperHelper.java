@@ -2250,7 +2250,7 @@ public class GrouperHelper {
 
 	public static Map getCompositeMap(GrouperSession grouperSession,Composite comp,Subject subj)
 		throws GroupNotFoundException,MemberNotFoundException,SchemaException,SubjectNotFoundException{
-		Map compMap = new ObjectAsMap(comp,"Composite");
+		Map compMap = ObjectAsMap.getInstance("Composite", comp);
 		compMap.put("leftGroup",new GroupAsMap(comp.getLeftGroup(),grouperSession));
 		Map membershipMap=null;
 		if(subj !=null) {
