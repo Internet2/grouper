@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ContextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
@@ -64,6 +65,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
@@ -510,15 +512,20 @@ public class GrouperUiFilter implements Filter {
   }
 
   /**
-   * 
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   * init request part 1
+   * @param servletRequest
+   * @param response
+   * @return the request wrapper
    */
-  public void doFilter(ServletRequest arg0, ServletResponse response,
-      FilterChain filterChain) throws IOException, ServletException {
-
-    GrouperRequestWrapper httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) arg0);
+  public static GrouperRequestWrapper initRequest(ServletRequest servletRequest, ServletResponse response) {
+    
+    boolean alreadyInInit = threadLocalInInit.get() != null && threadLocalInInit.get();
+    
+    threadLocalInInit.set(true);
+    
     try {
-      
+      GrouperRequestWrapper httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) servletRequest);
+  
       //servlet will set this...
       threadLocalServlet.remove();
       threadLocalRequest.set(httpServletRequest);
@@ -526,23 +533,21 @@ public class GrouperUiFilter implements Filter {
       threadLocalRequestStartMillis.set(System.currentTimeMillis());
       
       httpServletRequest.init();
-      
+  
       String uri = httpServletRequest.getRequestURI();
       
       if (uri.matches("^/[^/]+/grouperUi/app/[^/]+$")) {
         RequestContainer.retrieveFromRequest().setAjaxRequest(true);
       }
+  
+      HooksContext.clearThreadLocal();
       
       GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
   
       HttpSession session = httpServletRequest.getSession();
       
-      String remoteUser = remoteUser(httpServletRequest);
+      final String remoteUser = remoteUser(httpServletRequest);
     
-      HooksContext.clearThreadLocal();
-      
-      GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
-  
       Subject subject = null;
   
       GrouperSession grouperSession = SessionInitialiser.getGrouperSession(session);
@@ -552,13 +557,30 @@ public class GrouperUiFilter implements Filter {
       }
       
       if (subject == null && !StringUtils.isBlank(remoteUser)) {
+        GrouperSession rootSession = null;
         try {
-          subject = SubjectFinder.findByIdOrIdentifier(remoteUser, true);
+          
+          rootSession = GrouperSession.startRootSession(false);
+          subject = (Subject)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+            
+            /**
+             * we need a grouper session since subject searching also looks at groups
+             * @param callbackGrouperSession
+             */
+            @Override
+            public Object callback(GrouperSession callbackGrouperSession) throws GrouperSessionException {
+              
+              return SubjectFinder.findByIdOrIdentifier(remoteUser, true);
+            }
+          });
         } catch (Exception e) {
           //this is not really ok, but cant do much about it
           String error = "Cant find login subject: " + remoteUser;
           LOG.error(error, e);
           throw new RuntimeException(error);
+        } finally {
+          GrouperSession.stopQuietly(rootSession);
+  
         }
       }
       
@@ -583,7 +605,49 @@ public class GrouperUiFilter implements Filter {
         
         grouperContext.setLoggedInMemberId(member.getUuid());
       }
+  
+  
+      return httpServletRequest;
+    } catch (RuntimeException re) {
+      //log always since might get preempted
+      LOG.error("error in init", re);
+      if (alreadyInInit) {
+        //dont rethrow to reduce looping
+        return null;
+      }
+      throw re;
+    } finally {
+      threadLocalInInit.remove();
+    }
+  }
+  
+  /**
+   * put this in a request finally block
+   */
+  public static void finallyRequest() {
+    threadLocalRequest.remove();
+    threadLocalResponse.remove();
+    threadLocalRequestStartMillis.remove();
+    threadLocalServlet.remove();
+    
+    HooksContext.clearThreadLocal();
+    GrouperContext.deleteDefaultContext();
 
+  }
+
+  /**
+   * 
+   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   */
+  public void doFilter(ServletRequest servletRequest, ServletResponse response,
+      FilterChain filterChain) throws IOException, ServletException {
+
+    GrouperRequestWrapper httpServletRequest = null;
+    
+    try {
+      
+      httpServletRequest = initRequest(servletRequest, response);
+  
 
       filterChain.doFilter(httpServletRequest, response);
       
@@ -614,13 +678,8 @@ public class GrouperUiFilter implements Filter {
       }      
     } finally {
       sendErrorEmailIfNeeded();
-      threadLocalRequest.remove();
-      threadLocalResponse.remove();
-      threadLocalRequestStartMillis.remove();
-      threadLocalServlet.remove();
-      
-      HooksContext.clearThreadLocal();
-      GrouperContext.deleteDefaultContext();
+     
+      finallyRequest();
     }
 
   }
@@ -629,6 +688,11 @@ public class GrouperUiFilter implements Filter {
    * thread local for servlet
    */
   private static ThreadLocal<HttpServlet> threadLocalServlet = new ThreadLocal<HttpServlet>();
+
+  /**
+   * thread local for servlet
+   */
+  private static ThreadLocal<Boolean> threadLocalInInit = new ThreadLocal<Boolean>();
 
   /**
    * thread local for request
