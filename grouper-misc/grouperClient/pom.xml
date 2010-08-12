@@ -71,6 +71,21 @@
     <build>
         <sourceDirectory>src/java</sourceDirectory>
         <!--  <testSourceDirectory>src/test</testSourceDirectory> -->
+        <resources>
+            <resource>
+                <directory>conf</directory>
+                <includes>
+                    <include>*example*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>misc/META-INF</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>LICENSE.txt</include>
+                </includes>
+            </resource>        
+        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -123,6 +138,23 @@
                         </manifestSections>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
