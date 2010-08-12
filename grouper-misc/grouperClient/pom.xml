@@ -26,31 +26,37 @@
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper</artifactId>
             <version>${project.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>1.5.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>1.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>1.6.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
             <version>1.0-RC2</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>xom</groupId>
             <artifactId>xom</artifactId>
             <version>1.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
@@ -58,12 +64,28 @@
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
     <build>
         <sourceDirectory>src/java</sourceDirectory>
         <!--  <testSourceDirectory>src/test</testSourceDirectory> -->
+        <resources>
+            <resource>
+                <directory>conf</directory>
+                <includes>
+                    <include>*example*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>misc/META-INF</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>LICENSE.txt</include>
+                </includes>
+            </resource>        
+        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -116,6 +138,23 @@
                         </manifestSections>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
