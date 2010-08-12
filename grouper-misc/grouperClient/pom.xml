@@ -26,31 +26,37 @@
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper</artifactId>
             <version>${project.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>1.5.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>1.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>1.6.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
             <version>1.0-RC2</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>xom</groupId>
             <artifactId>xom</artifactId>
             <version>1.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
@@ -58,6 +64,7 @@
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
