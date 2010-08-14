@@ -97,7 +97,7 @@ groupDeleteWs web service usage:
 
 stemDeleteWs web service usage:
   java -jar grouperClient.jar --operation=stemDeleteWs --stemNames=a:b,a:c [--txType=GcTransactionType] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
-  e.g.: java -jar grouperClient.jar --operation=stemDeleteWs --groupNames=aStem:aStem0,aStem:aStem1
+  e.g.: java -jar grouperClient.jar --operation=stemDeleteWs --stemNames=aStem:aStem0,aStem:aStem1
   output line: Index 0: success: T: code: SUCCESS: aStem:aStem0
 
 getGrouperPrivilegesLiteWs web service usage
