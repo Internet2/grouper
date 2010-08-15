@@ -19,6 +19,11 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeAssignValueBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -470,28 +475,6 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public void setAttributeAssignId(String attributeAssignId1) {
     this.attributeAssignId = attributeAssignId1;
   }
-
-  
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreSave(HibernateSession hibernateSession) {
-    super.onPreSave(hibernateSession);
-    long now = System.currentTimeMillis();
-    this.setCreatedOnDb(now);
-    this.setLastUpdatedDb(now);
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreUpdate(HibernateSession hibernateSession) {
-    super.onPreUpdate(hibernateSession);
-    this.setLastUpdatedDb(System.currentTimeMillis());
-  }
-
   
   /**
    * string value
@@ -851,5 +834,107 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     }
     throw new RuntimeException("Why are we here? " + this);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+  
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_COMMIT_DELETE, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_DELETE, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_POST_DELETE, false, true);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+  
+    super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_INSERT, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_POST_INSERT, true, false);
+  
+    //do these second so the right object version is set, and dbVersion is ok
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_COMMIT_INSERT, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    
+    super.onPostUpdate(hibernateSession);
+    
+    this.setLastUpdatedDb(System.currentTimeMillis());
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_COMMIT_UPDATE, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_UPDATE, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_POST_UPDATE, true, false);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_DELETE, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_PRE_DELETE, false, false);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    long now = System.currentTimeMillis();
+    this.setCreatedOnDb(now);
+    this.setLastUpdatedDb(now);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_INSERT, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_PRE_INSERT, false, false);
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    this.setLastUpdatedDb(System.currentTimeMillis());
+
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
+        AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_UPDATE, HooksAttributeAssignValueBean.class, 
+        this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_PRE_UPDATE, false, false);
+  
+  }
+
   
 }

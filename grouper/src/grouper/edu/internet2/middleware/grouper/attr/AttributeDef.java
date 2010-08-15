@@ -36,6 +36,11 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.AttributeDefHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeDefBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -352,89 +357,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     return this.creatorId;
   }
 
-  
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreSave(HibernateSession hibernateSession) {
-    super.onPreSave(hibernateSession);
-    this.creatorId = GrouperSession.staticGrouperSession(true).getMemberUuid();
-    
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD, 
-        ChangeLogLabels.ATTRIBUTE_DEF_ADD.id.name(), this.getUuid(), 
-        ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name(), this.getName(), 
-        ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name(), this.getStemId(),
-        ChangeLogLabels.ATTRIBUTE_DEF_ADD.description.name(), this.getDescription()).save();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreDelete(HibernateSession hibernateSession) {
-    super.onPreDelete(hibernateSession);
-
-    //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_DELETE, 
-        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id.name(), this.getUuid(), 
-        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name.name(), this.getName(), 
-        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId.name(), this.getStemId(),
-        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description.name(), this.getDescription()).save();
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreUpdate(HibernateSession hibernateSession) {
-    super.onPreUpdate(hibernateSession);
-    
-    //change log into temp table
-    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE, 
-        this, this.dbVersion(),
-        GrouperUtil.toList(
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name(),this.getUuid(), 
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(), this.getName(),
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name(), this.getStemId(),
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(), this.getDescription()),
-        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_STEM_ID),
-        GrouperUtil.toList(
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(),
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(),
-            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name()));   
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostSave(HibernateSession hibernateSession) {
-    super.onPostSave(hibernateSession);
-    
-    this.dbVersionReset();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostDelete(HibernateSession hibernateSession) {
-    super.onPostDelete(hibernateSession);
-
-    this.dbVersionClear();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPostUpdate(HibernateSession hibernateSession) {
-    super.onPostUpdate(hibernateSession);
-    
-    this.dbVersionReset();
-  }
   
   /**
    * @param creatorId1 the creatorId to set
@@ -1732,5 +1654,135 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
     return attributeAssignTypes;
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+  
+    this.dbVersionClear();
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_POST_COMMIT_DELETE, HooksAttributeDefBean.class, 
+        this, AttributeDef.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_POST_DELETE, HooksAttributeDefBean.class, 
+        this, AttributeDef.class, VetoTypeGrouper.ATTRIBUTE_DEF_POST_DELETE, false, true);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+  
+    super.onPostSave(hibernateSession);
+    
+    this.dbVersionClear();
+
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_POST_INSERT, HooksAttributeDefBean.class, 
+        this, AttributeDef.class, VetoTypeGrouper.ATTRIBUTE_DEF_POST_INSERT, true, false);
+  
+    //do these second so the right object version is set, and dbVersion is ok
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_POST_COMMIT_INSERT, HooksAttributeDefBean.class, 
+        this, AttributeDef.class);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    
+    super.onPostUpdate(hibernateSession);
+    
+    this.dbVersionClear();
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_POST_COMMIT_UPDATE, HooksAttributeDefBean.class, 
+        this, AttributeDef.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_POST_UPDATE, HooksAttributeDefBean.class, 
+        this, AttributeDef.class, VetoTypeGrouper.ATTRIBUTE_DEF_POST_UPDATE, true, false);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+  
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_DELETE, 
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id.name(), this.getUuid(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name.name(), this.getName(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId.name(), this.getStemId(),
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description.name(), this.getDescription()).save();
+
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_DELETE, HooksAttributeDefBean.class, 
+        this, AttributeDef.class, VetoTypeGrouper.ATTRIBUTE_DEF_PRE_DELETE, false, false);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    this.creatorId = GrouperSession.staticGrouperSession(true).getMemberUuid();
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD, 
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.id.name(), this.getUuid(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name(), this.getName(), 
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name(), this.getStemId(),
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.description.name(), this.getDescription()).save();
+
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_INSERT, HooksAttributeDefBean.class, 
+        this, AttributeDef.class, VetoTypeGrouper.ATTRIBUTE_DEF_PRE_INSERT, false, false);
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name(),this.getUuid(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(), this.getName(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name(), this.getStemId(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(), this.getDescription()),
+        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_STEM_ID),
+        GrouperUtil.toList(
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.description.name(),
+            ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name()));   
+
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
+        AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_UPDATE, HooksAttributeDefBean.class, 
+        this, AttributeDef.class, VetoTypeGrouper.ATTRIBUTE_DEF_PRE_UPDATE, false, false);
+  
+  }
+
   
 }

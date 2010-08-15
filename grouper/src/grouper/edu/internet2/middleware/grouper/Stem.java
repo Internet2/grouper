@@ -2007,8 +2007,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               sw.stop();
               
               return attributeDef;
+            } catch (HookVeto hv) {
+              GrouperUtil.injectInException(hv, "Cannot create attribute def: " + errorMessageSuffix);
+              throw hv;
             } catch (Exception e) {
-              throw new AttributeDefAddException( "Cannot create attribute def: " + errorMessageSuffix + e.getMessage(), e );
+              throw new AttributeDefAddException( "Cannot create attribute def: " + errorMessageSuffix + ", " + e.getMessage(), e );
             }
           }
         });

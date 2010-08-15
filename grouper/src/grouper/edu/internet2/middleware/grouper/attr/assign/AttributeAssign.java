@@ -1580,8 +1580,6 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     super.onPostUpdate(hibernateSession);
     
-    this.setLastUpdatedDb(System.currentTimeMillis());
-
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE_ASSIGN, 
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_POST_COMMIT_UPDATE, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class);
@@ -1629,6 +1627,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    this.setLastUpdatedDb(System.currentTimeMillis());
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN, 
         AttributeAssignHooks.METHOD_ATTRIBUTE_ASSIGN_PRE_UPDATE, HooksAttributeAssignBean.class, 
         this, AttributeAssign.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_PRE_UPDATE, false, false);

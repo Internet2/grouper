@@ -9,7 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.hooks.AttributeAssignHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeDefHooks;
 
 
 /**
@@ -22,7 +23,7 @@ public class GenerateMethodConstants {
    * @param args
    */
   public static void main(String[] args) {
-    generateConstants(AttributeAssignHooks.class);
+    generateConstants(AttributeDefHooks.class);
   }
   /**
    * <pre>

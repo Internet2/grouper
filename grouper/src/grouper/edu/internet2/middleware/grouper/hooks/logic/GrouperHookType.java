@@ -16,6 +16,8 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeDefHooks;
 import edu.internet2.middleware.grouper.hooks.AttributeDefNameHooks;
 import edu.internet2.middleware.grouper.hooks.AttributeHooks;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
@@ -57,6 +59,16 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
    * attribute assign hooks
    */
   ATTRIBUTE_ASSIGN("hooks.attributeAssign.class", AttributeAssignHooks.class),
+  
+  /**
+   * attribute assign value hooks
+   */
+  ATTRIBUTE_ASSIGN_VALUE("hooks.attributeAssignValue.class", AttributeAssignValueHooks.class),
+  
+  /**
+   * attribute hooks
+   */
+  ATTRIBUTE_DEF("hooks.attributeDef.class", AttributeDefHooks.class),
   
   /**
    * attribute hooks
