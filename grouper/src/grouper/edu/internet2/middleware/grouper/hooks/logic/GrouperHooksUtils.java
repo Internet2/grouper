@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
 import edu.internet2.middleware.grouper.hooks.examples.GroupAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
+import edu.internet2.middleware.grouper.hooks.examples.GrouperAttributeAssignValueRulesConfigHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -101,6 +102,8 @@ public class GrouperHooksUtils {
       GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
 
       GroupTypeSecurityHook.registerHookIfNecessary(false);
+      
+      GrouperAttributeAssignValueRulesConfigHook.registerHookIfNecessary(true);
       
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
           LifecycleHooks.METHOD_HOOKS_INIT, HooksLifecycleHooksInitBean.class, 

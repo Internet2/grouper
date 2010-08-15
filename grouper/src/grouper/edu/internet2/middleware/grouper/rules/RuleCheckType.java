@@ -137,7 +137,9 @@ public enum RuleCheckType {
         return e.getMessage();
       }
     } else {
-      return "Cant put checkStemScope in this ruleCheckType, not allowed";
+      if (!StringUtils.isBlank(ruleCheck.getCheckStemScope())) {
+        return "Cant put checkStemScope in this ruleCheckType, not allowed";
+      }
     }
     return null;
   }

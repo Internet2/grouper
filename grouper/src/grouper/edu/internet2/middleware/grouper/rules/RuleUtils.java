@@ -31,6 +31,15 @@ public class RuleUtils {
   }
 
   /**
+   * return the rule attribute def name, assign this to an object to attach a rule.
+   * this throws exception if cant find
+   * @return the attribute def name
+   */
+  public static AttributeDefName ruleValidAttributeDefName() {
+    return AttributeDefNameFinder.findByName(ruleValidName(), true);
+  }
+
+  /**
    * return the rule type attribute def
    * this throws exception if cant find
    * @return the attribute def
@@ -81,6 +90,27 @@ public class RuleUtils {
       ruleThenElName = RuleUtils.attributeRuleStemName() + ":" + RULE_THEN_EL;
     }
     return ruleThenElName;
+  }
+  
+  /**
+   * 
+   */
+  public static final String RULE_VALID = "ruleValid";
+
+  /**
+   * rule valid
+   */
+  private static String ruleValidName = null;
+
+  /**
+   * full rule valid name name
+   * @return name
+   */
+  public static String ruleValidName() {
+    if (ruleValidName == null) {
+      ruleValidName = RuleUtils.attributeRuleStemName() + ":" + RULE_VALID;
+    }
+    return ruleValidName;
   }
   
   /**

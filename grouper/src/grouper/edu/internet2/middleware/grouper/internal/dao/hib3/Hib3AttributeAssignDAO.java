@@ -1983,6 +1983,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     		"   and aa_type.enabledDb = 'T' order by aa_type.id ");
     
     byHqlStatic
+      .setString("attributeTypeDefNameId", attributeTypeDefNameId)
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByAttributeTypeDefNameId");
 
@@ -2029,7 +2030,58 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     return result;
   }
-  
+
+  /**
+   * find attribute assigns by ids, as root (no security).  this is for one type assignment.
+   * @param attributeTypeAssignId type assign id
+   * @return attributes
+   */
+  public Set<AttributeAssignValueContainer> findByAssignTypeId(
+      String attributeTypeAssignId) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    //SELECT * 
+    //FROM grouper_attribute_assign gaa_attr, grouper_attribute_assign gaa_type,
+    //grouper_attribute_def_name gadn, grouper_attribute_assign_value gaav
+    //WHERE gaa_attr.owner_attribute_assign_id = gaa_type.id
+    //AND gaa_attr.attribute_def_name_id = gadn.id
+    //AND gaav.attribute_assign_id = gaa_attr.id
+    
+    //lets do all this in one query
+    StringBuilder sql = new StringBuilder("select distinct aa_type, aa_attr, adn, aav " +
+        " from AttributeAssign aa_type, AttributeAssign aa_attr, AttributeDefName adn, AttributeAssignValue aav " +
+        " where aa_attr.attributeDefNameId = adn.id " +
+        "   and aa_attr.ownerAttributeAssignId = aa_type.id " +
+        "   and aav.attributeAssignId = aa_attr.id " +
+        "   and aa_attr.enabledDb = 'T' " +
+        "   and aa_type.id = :attributeTypeAssignId " +
+        "   and aa_type.enabledDb = 'T' ");
+    
+    byHqlStatic
+      .setString("attributeTypeAssignId", attributeTypeAssignId)
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByAttributeTypeDefNameIdAndAssignTypeId");
+
+    Set<Object[]> resultsObjectArrays = byHqlStatic.createQuery(sql.toString()).listSet(Object[].class);
+    
+    Set<AttributeAssignValueContainer> currentContainers = new HashSet<AttributeAssignValueContainer>();
+    
+    for (Object[] resultsObjectArray : resultsObjectArrays) {
+      AttributeAssignValueContainer attributeAssignValueContainer = new AttributeAssignValueContainer();
+      attributeAssignValueContainer.setAttributeTypeAssign((AttributeAssign)resultsObjectArray[0]);
+      attributeAssignValueContainer.setAttributeValueAssign((AttributeAssign)resultsObjectArray[1]);
+      attributeAssignValueContainer.setAttributeDefName((AttributeDefName)resultsObjectArray[2]);
+      attributeAssignValueContainer.setAttributeAssignValue((AttributeAssignValue)resultsObjectArray[3]);
+      
+      //same batch, continue
+      currentContainers.add(attributeAssignValueContainer);
+
+    }
+    
+    return currentContainers;
+  }
+
   /**
    * 
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findStemAttributeDefNames(Collection, Collection, Collection, Collection, Collection, Boolean)

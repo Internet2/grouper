@@ -84,7 +84,14 @@ public interface AttributeAssignDAO extends GrouperDAO {
    */
   public Set<AttributeDefName> findAttributeDefNamesByMemberIdAndAttributeDefId(String memberId, String attributeDefId);
 
-  
+  /**
+   * find attribute assigns by ids, as root (no security).  this is for one type assignment.
+   * @param attributeTypeAssignId type assign id
+   * @return attributes
+   */
+  public Set<AttributeAssignValueContainer> findByAssignTypeId(
+      String attributeTypeAssignId);
+
   /**
    * find attribute assigns by ids, as root (no security).  order by attribute type def name, so they are in order
    * @param attributeTypeDefNameId attribute def name of the type on the owner

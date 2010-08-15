@@ -94,7 +94,7 @@ public class RuleEngine {
           
           for (Set<AttributeAssignValueContainer> attributeAssignValueContainersSet : 
               GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
-            RuleDefinition ruleDefinition = ruleDefinition(attributeAssignValueContainersSet);
+            RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
             
             String invalidReason = ruleDefinition.validate();
             if (StringUtils.isBlank(invalidReason)) {
@@ -177,66 +177,6 @@ public class RuleEngine {
       
     }
     
-  }
-  
-  /**
-   * rule definitions from attribute assigns
-   * @param attributeAssignValueContainers
-   * @return the definition or null if it doesnt make sense
-   */
-  private static RuleDefinition ruleDefinition(
-      Set<AttributeAssignValueContainer> attributeAssignValueContainers) {
-    
-    //RuleUtils.RULE_ACT_AS_SUBJECT_ID
-    //RuleUtils.RULE_ACT_AS_SUBJECT_IDENTIFIER
-    //RuleUtils.RULE_ACT_AS_SUBJECT_SOURCE_ID
-    //RuleUtils.RULE_CHECK_TYPE
-    //RuleUtils.RULE_CHECK_OWNER_ID
-    //RuleUtils.RULE_CHECK_OWNER_NAME
-    //RuleUtils.RULE_IF_CONDITION_EL
-    //RuleUtils.RULE_IF_CONDITION_ENUM
-    //RuleUtils.RULE_THEN_EL
-    
-    String actAsSubjectId = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectIdName());
-    String actAsSubjectIdentifier = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectIdentifierName());
-    String actAsSubjectSourceId = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectSourceIdName());
-    String checkTypeString = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckTypeName());
-    String checkOwnerId = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerIdName());
-    String checkOwnerName = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerNameName());
-    String checkStemScope = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckStemScopeName());
-    String ifConditionEl = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionElName());
-    String ifConditionEnum = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumName());
-    String thenEl = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenElName());
-    String thenEnum = AttributeAssignValueContainer
-      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumName());
-    
-    //lets do the subject first
-    RuleSubjectActAs ruleSubjectActAs = new RuleSubjectActAs(
-        actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier);
-    
-    RuleCheck ruleCheck = new RuleCheck(checkTypeString, checkOwnerId, 
-        checkOwnerName, checkStemScope);
-    
-    RuleIfCondition ruleIfCondition = new RuleIfCondition(ifConditionEl, ifConditionEnum);
-    
-    RuleThen ruleThen = new RuleThen(thenEl, thenEnum);
-    
-    AttributeAssign attributeAssignType = attributeAssignValueContainers
-      .iterator().next().getAttributeTypeAssign();
-    RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignType, 
-        ruleSubjectActAs, ruleCheck, ruleIfCondition, ruleThen);
-    
-    return ruleDefinition;
   }
   
   /**

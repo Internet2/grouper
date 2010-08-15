@@ -3,9 +3,13 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
 
@@ -16,6 +20,84 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
  *
  */
 public class RuleDefinition {
+
+  /**
+   * load rules for one attribute type assign id
+   * @param attributeTypeAssignId
+   */
+  public RuleDefinition(String attributeTypeAssignId) {
+    
+    Set<AttributeAssignValueContainer> result = GrouperDAOFactory.getFactory()
+      .getAttributeAssign().findByAssignTypeId(attributeTypeAssignId);
+    
+    construct(result);
+  }
+  
+  /**
+   * rule definitions from attribute assigns
+   * @param attributeAssignValueContainers
+   * @return the definition or null if it doesnt make sense
+   */
+  public RuleDefinition(
+      Set<AttributeAssignValueContainer> attributeAssignValueContainers) {
+    
+    construct(attributeAssignValueContainers);
+  }
+
+  /**
+   * @param attributeAssignValueContainers
+   */
+  private void construct(Set<AttributeAssignValueContainer> attributeAssignValueContainers) {
+    //RuleUtils.RULE_ACT_AS_SUBJECT_ID
+    //RuleUtils.RULE_ACT_AS_SUBJECT_IDENTIFIER
+    //RuleUtils.RULE_ACT_AS_SUBJECT_SOURCE_ID
+    //RuleUtils.RULE_CHECK_TYPE
+    //RuleUtils.RULE_CHECK_OWNER_ID
+    //RuleUtils.RULE_CHECK_OWNER_NAME
+    //RuleUtils.RULE_IF_CONDITION_EL
+    //RuleUtils.RULE_IF_CONDITION_ENUM
+    //RuleUtils.RULE_THEN_EL
+    
+    String actAsSubjectId = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectIdName());
+    String actAsSubjectIdentifier = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectIdentifierName());
+    String actAsSubjectSourceId = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectSourceIdName());
+    String checkTypeString = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckTypeName());
+    String checkOwnerId = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerIdName());
+    String checkOwnerName = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckOwnerNameName());
+    String checkStemScope = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleCheckStemScopeName());
+    String ifConditionEl = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionElName());
+    String ifConditionEnum = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumName());
+    String thenEl = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenElName());
+    String thenEnum = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumName());
+    
+    //lets do the subject first
+    RuleSubjectActAs ruleSubjectActAs = new RuleSubjectActAs(
+        actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier);
+    
+    RuleCheck ruleCheck = new RuleCheck(checkTypeString, checkOwnerId, 
+        checkOwnerName, checkStemScope);
+    
+    RuleIfCondition ruleIfCondition = new RuleIfCondition(ifConditionEl, ifConditionEnum);
+    
+    RuleThen ruleThen = new RuleThen(thenEl, thenEnum);
+    
+    AttributeAssign attributeAssignType = attributeAssignValueContainers
+      .iterator().next().getAttributeTypeAssign();
+    construct(attributeAssignType, 
+        ruleSubjectActAs, ruleCheck, ruleIfCondition, ruleThen);
+  }
+  
 
   /**
    * keep a reference to this to get back to the owner etc
@@ -58,6 +140,19 @@ public class RuleDefinition {
   public RuleDefinition(AttributeAssign theAttributeAssignType, RuleSubjectActAs actAs, RuleCheck check,
       RuleIfCondition ifCondition, RuleThen then) {
     super();
+    construct(theAttributeAssignType, actAs, check, ifCondition, then);
+  }
+
+
+  /**
+   * @param theAttributeAssignType
+   * @param actAs
+   * @param check
+   * @param ifCondition
+   * @param then
+   */
+  private void construct(AttributeAssign theAttributeAssignType, RuleSubjectActAs actAs,
+      RuleCheck check, RuleIfCondition ifCondition, RuleThen then) {
     this.attributeAssignType = theAttributeAssignType;
     this.actAs = actAs;
     this.check = check;

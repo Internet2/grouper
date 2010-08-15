@@ -1554,6 +1554,8 @@ public class GrouperCheckConfig {
             "expression language to run when the rule fires", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_ENUM, 
             "RuleThenEnum to run when the rule fires", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_VALID, 
+            "T|F for if this rule is valid, or the reason, managed by hook automatically", wasInCheckConfig);
         
       }      
       
