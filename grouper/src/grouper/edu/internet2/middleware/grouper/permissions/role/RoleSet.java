@@ -34,7 +34,10 @@ public class RoleSet extends GrouperAPI
    */
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
-    this.createdOnDb = System.currentTimeMillis();
+    super.onPreSave(hibernateSession);
+    if (this.createdOnDb == null) {
+      this.createdOnDb = System.currentTimeMillis();
+    }
   }
 
   /**

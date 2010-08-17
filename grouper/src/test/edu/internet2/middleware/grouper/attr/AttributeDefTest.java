@@ -36,7 +36,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernateSecurityAdmin"));
+    TestRunner.run(new AttributeDefTest("testHibernateGroup"));
   }
   
   /**
@@ -351,6 +351,10 @@ public class AttributeDefTest extends GrouperTest {
     AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
     attributeDef.setAssignToGroup(true);
     attributeDef.store();
+    
+    assertNotNull(attributeDef.getCreatorId());
+    assertNotNull(attributeDef.getCreatedOn());
+    
     
     AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
   

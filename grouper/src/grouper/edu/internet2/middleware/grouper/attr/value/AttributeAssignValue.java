@@ -912,7 +912,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     long now = System.currentTimeMillis();
-    this.setCreatedOnDb(now);
+    if (this.createdOnDb == null) {
+      this.setCreatedOnDb(now);
+    }
     this.setLastUpdatedDb(now);
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 

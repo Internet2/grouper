@@ -510,6 +510,7 @@ public class AttributeDefScope extends GrouperAPI implements GrouperHasContext, 
     if (this.createdOnDb == null) {
       this.setCreatedOnDb(System.currentTimeMillis());
     }
+    this.setLastUpdatedDb(System.currentTimeMillis());
   }
 
   /**

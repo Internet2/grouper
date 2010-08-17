@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -734,6 +735,27 @@ public class AttributeAssignActionSet extends GrouperAPI
     
     return stringWriter.toString();
     
+  }
+
+  /**
+   * @see GrouperAPI#onPreSave(HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    if (this.createdOnDb == null) {
+      this.createdOnDb = System.currentTimeMillis();
+    }
+    this.lastUpdatedDb = System.currentTimeMillis();
+  }
+
+  /**
+   * @see GrouperAPI#onPreUpdate(HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    this.lastUpdatedDb = System.currentTimeMillis();
   }
 
 }

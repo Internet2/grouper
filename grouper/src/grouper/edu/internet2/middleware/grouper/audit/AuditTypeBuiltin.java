@@ -153,11 +153,35 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
       "id", "name", "description", "parentStemId")),
   
   /**
+   * update attribute def
+   */
+  ATTRIBUTE_DEF_UPDATE(new AuditType("attributeDef", "updateAttributeDef", null, "id", "name", 
+      "description", "parentStemId")),
+
+  /**
+   * delete attribute def
+   */
+  ATTRIBUTE_DEF_DELETE(new AuditType("attributeDef", "deleteAttributeDef", null, "id", "name", 
+      "description", "parentStemId")),
+
+  /**
    * 
    */
   ATTRIBUTE_DEF_NAME_ADD(new AuditType("attributeDefName", "addAttributeDefName", null, 
       "id", "name", "displayName", "description", "parentStemId", "parentAttributeDefId", "parentAttributeDefName")),
   
+  /**
+   * update attribute def
+   */
+  ATTRIBUTE_DEF_NAME_UPDATE(new AuditType("attributeDefName", "updateAttributeDefName", null, "id", "name", "displayName", 
+      "description", "parentStemId", "parentAttributeDefId", "parentAttributeDefName")),
+
+  /**
+   * delete attribute def
+   */
+  ATTRIBUTE_DEF_NAME_DELETE(new AuditType("attributeDef", "deleteAttributeDef", null, "id", "name", "displayName", 
+      "description", "parentStemId", "parentAttributeDefId", "parentAttributeDefName")),
+
   /**
    * add group
    */

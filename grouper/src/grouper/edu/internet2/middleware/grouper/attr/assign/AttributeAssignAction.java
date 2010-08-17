@@ -47,6 +47,27 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 public class AttributeAssignAction extends GrouperAPI 
   implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, XmlImportable<AttributeAssignAction> {
 
+  /**
+   * @see GrouperAPI#onPreSave(HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    if (this.createdOnDb == null) {
+      this.createdOnDb = System.currentTimeMillis();
+    }
+    this.lastUpdatedDb = System.currentTimeMillis();
+  }
+
+  /**
+   * @see GrouperAPI#onPreUpdate(HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    this.lastUpdatedDb = System.currentTimeMillis();
+  }
+
   /** column */
   public static final String COLUMN_ATTRIBUTE_DEF_ID = "attribute_def_id";
   /** column */

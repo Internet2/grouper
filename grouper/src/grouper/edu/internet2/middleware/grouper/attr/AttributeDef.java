@@ -26,6 +26,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeDefActionDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -370,8 +372,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    */
   public void store() {
     
+    
     HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -387,7 +390,19 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
                   + " is not attrAdmin on attributeDef: " + AttributeDef.this.getName());
             }
             
+            String differences = GrouperUtil.dbVersionDescribeDifferences(AttributeDef.this.dbVersion(), 
+                AttributeDef.this, AttributeDef.this.dbVersion() != null ? AttributeDef.this.dbVersionDifferentFields() : AttributeDef.CLONE_FIELDS);
+
             GrouperDAOFactory.getFactory().getAttributeDef().saveOrUpdate(AttributeDef.this);
+            
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_UPDATE, "id", 
+                  AttributeDef.this.getUuid(), "name", AttributeDef.this.getName(), "parentStemId", AttributeDef.this.getStemId(), 
+                  "description", AttributeDef.this.getDescription());
+              
+              auditEntry.setDescription("Updated attributeDef: " + AttributeDef.this.getName() + ", " + differences);
+              auditEntry.saveOrUpdate(true);
+            }
             return null;
           }
         });
@@ -1319,8 +1334,10 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    * delete this record (and security and actions etc, but not attribute def names yet)
    */
   public void delete() {
-    
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+              
+
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
       
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
@@ -1341,6 +1358,15 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
         }
         
         GrouperDAOFactory.getFactory().getAttributeDef().delete(AttributeDef.this);
+
+        if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_DELETE, "id", 
+              AttributeDef.this.getUuid(), "name", AttributeDef.this.getName(), "parentStemId", AttributeDef.this.getStemId(), 
+              "description", AttributeDef.this.getDescription());
+          auditEntry.setDescription("Deleted attributeDef: " + AttributeDef.this.getName());
+          auditEntry.saveOrUpdate(true);
+        }
+
         return null;
       }
     });
@@ -1742,7 +1768,12 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
-    this.creatorId = GrouperSession.staticGrouperSession(true).getMemberUuid();
+    if (this.creatorId == null) {
+      this.creatorId = GrouperSession.staticGrouperSession(true).getMemberUuid();
+    }
+    if (this.createdOnDb == null) {
+      this.createdOnDb = System.currentTimeMillis();
+    }
     
     //change log into temp table
     new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD, 
@@ -1763,7 +1794,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
-    
+    this.lastUpdatedDb = System.currentTimeMillis();
     //change log into temp table
     ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_UPDATE, 
         this, this.dbVersion(),

@@ -16,7 +16,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -26,6 +25,8 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -519,7 +520,7 @@ public class AttributeDefName extends GrouperAPI
    */
   public void delete() {
     
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
       
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
@@ -527,6 +528,15 @@ public class AttributeDefName extends GrouperAPI
         HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
         hibernateSession.setCachingEnabled(false);
+        
+        //make sure subject is allowed to do this
+        Subject subject = GrouperSession.staticGrouperSession().getSubject();
+        AttributeDef attributeDef2 = AttributeDefName.this.getAttributeDef();
+        if (!attributeDef2.getPrivilegeDelegate().canAttrAdmin(subject)) {
+          throw new InsufficientPrivilegeException(GrouperUtil
+              .subjectToString(subject)
+              + " is not attrAdmin on attributeDef: " + attributeDef2.getName());
+        }
         
         //we need to find all sets related to this node, and delete them (in reverse order since
         //parents might point back)
@@ -578,6 +588,21 @@ public class AttributeDefName extends GrouperAPI
         }
         
         GrouperDAOFactory.getFactory().getAttributeDefName().delete(AttributeDefName.this);
+        
+        if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE, "id", 
+              AttributeDefName.this.getId(), "name", AttributeDefName.this.getName(), 
+              "displayName", AttributeDefName.this.getDisplayName(),
+              "description", AttributeDefName.this.getDescription(),
+              "parentStemId", AttributeDefName.this.getStemId(), 
+              "parentAttributeDefId", attributeDef2.getId(),
+              "parentAttributeDefName", attributeDef2.getName());
+          
+          auditEntry.setDescription("Deleted attributeDefName: " + AttributeDefName.this.getName());
+          auditEntry.saveOrUpdate(true);
+        }
+
+        
         return null;
       }
     });
@@ -793,7 +818,7 @@ public class AttributeDefName extends GrouperAPI
    */
   public void store() {
     HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -810,7 +835,23 @@ public class AttributeDefName extends GrouperAPI
                   + " is not attrAdmin on attributeDef: " + attributeDef2.getName());
             }
             
+            String differences = GrouperUtil.dbVersionDescribeDifferences(AttributeDefName.this.dbVersion(), 
+                AttributeDefName.this, AttributeDefName.this.dbVersion() != null ? AttributeDefName.this.dbVersionDifferentFields() : AttributeDefName.CLONE_FIELDS);
+
             GrouperDAOFactory.getFactory().getAttributeDefName().saveOrUpdate(AttributeDefName.this);
+            
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE, "id", 
+                  AttributeDefName.this.getId(), "name", AttributeDefName.this.getName(), 
+                  "displayName", AttributeDefName.this.getDisplayName(),
+                  "description", AttributeDefName.this.getDescription(),
+                  "parentStemId", AttributeDefName.this.getStemId(), 
+                  "parentAttributeDefId", attributeDef2.getId(),
+                  "parentAttributeDefName", attributeDef2.getName());
+              
+              auditEntry.setDescription("Updated attributeDefName: " + AttributeDefName.this.getName() + ", " + differences);
+              auditEntry.saveOrUpdate(true);
+            }
             return null;
           }
         });
@@ -891,6 +932,11 @@ public class AttributeDefName extends GrouperAPI
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
+    this.lastUpdatedDb = System.currentTimeMillis();
+    if (this.createdOnDb == null) {
+      this.createdOnDb = System.currentTimeMillis();
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_INSERT, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_INSERT, false, false);
@@ -903,7 +949,8 @@ public class AttributeDefName extends GrouperAPI
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
-    
+    this.lastUpdatedDb = System.currentTimeMillis();
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_UPDATE, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_UPDATE, false, false);

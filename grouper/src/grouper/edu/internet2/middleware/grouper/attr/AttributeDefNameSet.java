@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -40,6 +41,28 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 public class AttributeDefNameSet extends GrouperAPI 
     implements Hib3GrouperVersioned, GrouperSet, XmlImportable<AttributeDefNameSet> {
   
+  /**
+   * @see GrouperAPI#onPreSave(HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    if (this.createdOnDb == null) {
+      this.createdOnDb = System.currentTimeMillis();
+    }
+    this.lastUpdatedDb = System.currentTimeMillis();
+  }
+
+  /**
+   * @see GrouperAPI#onPreUpdate(HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+
+    this.lastUpdatedDb = System.currentTimeMillis();
+}
+
   /** logger */
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(AttributeDefNameSet.class);
