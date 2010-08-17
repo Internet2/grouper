@@ -26,6 +26,20 @@ public enum RuleThenEnum {
         RulesBean rulesBean) {
     }
     
+  },
+  
+  /** */
+  test2 {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public void fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+    }
+    
   };
   
   /**

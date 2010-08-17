@@ -35,7 +35,7 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testIndent"));
+    TestRunner.run(new GrouperUtilTest("splitTrim"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -250,6 +250,17 @@ public class GrouperUtilTest extends TestCase {
     assertTrue(stemNames.contains("a:b:c"));
     assertTrue(stemNames.contains("a:d"));
     
+  }
+  
+  /**
+   * 
+   */
+  public void splitTrim() {
+    String string = "a:b :::: b:c";
+    String[] stringArray = GrouperUtil.splitTrim(string, "::::");
+    assertEquals(2, stringArray.length);
+    assertEquals("a:b", stringArray[0]);
+    assertEquals("b:c", stringArray[1]);
   }
   
   /**

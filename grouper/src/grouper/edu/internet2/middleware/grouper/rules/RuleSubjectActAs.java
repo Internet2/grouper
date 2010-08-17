@@ -10,7 +10,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -174,6 +175,15 @@ public class RuleSubjectActAs {
     if (subject == null) {
       return "Cant find subject: " + this;
     }
+    
+    //make sure can act as
+    if (!allowedToActAs(GrouperSession.staticGrouperSession().getSubject(), subject)) {
+      return "Subject: " 
+        + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject())
+        + " cannot act as subject: " + GrouperUtil.subjectToString(subject) + " based on grouper.properties: "
+        + " rules.act.as.group";
+    }
+    
     return null;
   }
   
@@ -215,7 +225,7 @@ public class RuleSubjectActAs {
    * @param subjectToActAs
    * @return true if a subject can act as another subject
    */
-  public static boolean allowedToActAs(Subject subject, Subject subjectToActAs) {
+  public static boolean allowedToActAs(final Subject subject, final Subject subjectToActAs) {
 
     if (subject == null || subjectToActAs == null) {
       throw new RuntimeException("Need to pass in subject and subjectToActAs");
@@ -231,110 +241,108 @@ public class RuleSubjectActAs {
       return true;
     }
 
-    //note, we arent allowing root users, unless those are configured in the properties file
-    
-    //make sure allowed
-    String actAsGroupName = GrouperConfig.getProperty("rules.act.as.group");
-    
-    if (StringUtils.isBlank(actAsGroupName)) {
-      return false;
-    }
     
     //lets see if in cache    
     //cache key to get or set if a user can act as another
-    MultiKey cacheKey = new MultiKey(subject.getId(), subject.getSourceId(), 
-        subjectToActAs.getId(), subjectToActAs.getSourceId());
-  
-    Boolean inCache = null;
-  
-    if (actAsCacheMinutes() > 0) {
-      inCache = subjectAllowedCache().get(cacheKey);
-    } else {
-      inCache = false;
-    }
-  
-    if (inCache != null && Boolean.TRUE.equals(inCache)) {
-      //if in cache and true, then allow
-      return true;
-    }
-    GrouperSession session = null;
 
-    // get the all powerful user
-    Subject rootSubject = SubjectFinder.findRootSubject();
-  
-    try {
-      session = GrouperSession.start(rootSubject);
-  
-      //first separate by comma
-      String[] groupEntries = GrouperUtil.splitTrim(actAsGroupName, ",");
-  
-      //see if all throw exceptions
-      int countNoExceptions = 0;
-  
-      //we could also cache which entries the user is in...  not sure how many entries will be here
-      for (String groupEntry : groupEntries) {
-  
-        //each entry should be failsafe
-        try {
-          //now see if it is a multi input
-          if (StringUtils.contains(groupEntry, ACT_AS_SEPARATOR)) {
-  
-            //it is the group the user is in, and the group the act as has to be in
-            String[] groupEntryArray = GrouperUtil.splitTrim(groupEntry,
-                ACT_AS_SEPARATOR);
-            String userMustBeInGroupName = groupEntryArray[0];
-            String actAsMustBeInGroupName = groupEntryArray[1];
-  
-            Group userMustBeInGroup = GroupFinder.findByName(session,
-                userMustBeInGroupName, true);
-            Group actAsMustBeInGroup = GroupFinder.findByName(session,
-                actAsMustBeInGroupName, true);
-  
-            if (userMustBeInGroup.hasMember(subject)
-                && actAsMustBeInGroup.hasMember(subjectToActAs)) {
-              //its ok, lets add to cache
-              subjectAllowedCache().put(cacheKey, Boolean.TRUE);
-              return true;
-            }
-  
-          } else {
-            //else this is a straightforward rule where the logged in user just has to be in a group and
-            //can act as anyone
-            Group actAsGroup = GroupFinder.findByName(session, actAsGroupName, true);
-  
-            // if the logged in user is a member of the actAs group, then allow
-            // the actAs
-            if (actAsGroup.hasMember(subject)) {
-              //its ok, lets add to cache
-              subjectAllowedCache().put(cacheKey, Boolean.TRUE);
-              // this is the subject the rule wants to use
-              return true;
-            }
-          }
-          countNoExceptions++;
-        } catch (Exception e) {
-          //just log and dont act since other entries could be fine
-          LOG.error("Problem with groupEntry: " + groupEntry + ", subject: "
-              + subject + ", actAsSubject: " + subjectToActAs, e);
+    GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession();
+    GrouperSession internalRootSession = staticGrouperSession.internal_getRootSession();
+    return (Boolean)GrouperSession.callbackGrouperSession(internalRootSession, new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        //make sure allowed
+        String actAsGroupName = GrouperConfig.getProperty("rules.act.as.group");
+        
+        if (StringUtils.isBlank(actAsGroupName)) {
+          return false;
         }
 
-      }
+        MultiKey cacheKey = new MultiKey(subject.getId(), subject.getSourceId(), 
+            subjectToActAs.getId(), subjectToActAs.getSourceId());
+      
+        Boolean inCache = null;
+      
+        if (actAsCacheMinutes() > 0) {
+          inCache = subjectAllowedCache().get(cacheKey);
+        } else {
+          inCache = false;
+        }
+      
+        if (inCache != null && Boolean.TRUE.equals(inCache)) {
+          //if in cache and true, then allow
+          return true;
+        }
 
-      if (countNoExceptions == 0) {
+        //first separate by comma
+        String[] groupEntries = GrouperUtil.splitTrim(actAsGroupName, ",");
+    
+        //see if all throw exceptions
+        int countNoExceptions = 0;
+    
+        //we could also cache which entries the user is in...  not sure how many entries will be here
+        for (String groupEntry : groupEntries) {
+    
+          //each entry should be failsafe
+          try {
+            //now see if it is a multi input
+            if (StringUtils.contains(groupEntry, ACT_AS_SEPARATOR)) {
+    
+              //it is the group the user is in, and the group the act as has to be in
+              String[] groupEntryArray = GrouperUtil.splitTrim(groupEntry,
+                  ACT_AS_SEPARATOR);
+              String userMustBeInGroupName = groupEntryArray[0];
+              String actAsMustBeInGroupName = groupEntryArray[1];
+    
+              Group userMustBeInGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(),
+                  userMustBeInGroupName, true);
+              Group actAsMustBeInGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(),
+                  actAsMustBeInGroupName, true);
+    
+              if (userMustBeInGroup.hasMember(subject)
+                  && actAsMustBeInGroup.hasMember(subjectToActAs)) {
+                //its ok, lets add to cache
+                subjectAllowedCache().put(cacheKey, Boolean.TRUE);
+                return true;
+              }
+    
+            } else {
+              //else this is a straightforward rule where the logged in user just has to be in a group and
+              //can act as anyone
+              Group actAsGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupEntry, true);
+    
+              // if the logged in user is a member of the actAs group, then allow
+              // the actAs
+              if (actAsGroup.hasMember(subject)) {
+                //its ok, lets add to cache
+                subjectAllowedCache().put(cacheKey, Boolean.TRUE);
+                // this is the subject the rule wants to use
+                return true;
+              }
+            }
+            countNoExceptions++;
+          } catch (Exception e) {
+            //just log and dont act since other entries could be fine
+            LOG.error("Problem with groupEntry: " + groupEntry + ", subject: "
+                + subject + ", actAsSubject: " + subjectToActAs, e);
+          }
+
+        }
+
+        if (countNoExceptions == 0) {
+          return false;
+        }
+        // if not an effective member
+        LOG.error(
+            "A rule is specifying an actAsUser, but the groups specified in "
+                + " rules.act.as.group in the grouper.properties "
+                + " does not have a valid rule for member: '" + GrouperUtil.subjectToString(subject)
+                + "', and actAs: '" + GrouperUtil.subjectToString(subjectToActAs) + "'");
+        
         return false;
       }
-      // if not an effective member
-      LOG.error(
-          "A rule is specifying an actAsUser, but the groups specified in "
-              + " rules.act.as.group in the grouper.properties "
-              + " does not have a valid rule for member: '" + GrouperUtil.subjectToString(subject)
-              + "', and actAs: '" + GrouperUtil.subjectToString(subjectToActAs) + "'");
-      return false;
-    } catch (SessionException se) {
-      throw new RuntimeException(se);
-    } finally {
-      GrouperSession.stopQuietly(session);
-    }
+    });
+  
 
   }
 }

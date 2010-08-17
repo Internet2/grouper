@@ -1988,8 +1988,8 @@ public class GrouperUtil {
     }
 
     //first split
-    String[] items = treatAdjacentSeparatorsAsOne ? split(input, separator) : 
-      splitPreserveAllTokens(input, separator);
+    String[] items = treatAdjacentSeparatorsAsOne ? splitByWholeSeparator(input, separator) : 
+      split(input, separator);
 
     //then trim
     for (int i = 0; (items != null) && (i < items.length); i++) {
