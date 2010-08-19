@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.audit;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import junit.textui.TestRunner;
@@ -14,6 +15,7 @@ import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -22,11 +24,15 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -58,7 +64,7 @@ public class AuditTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new AuditTest("testGroupPrivileges"));
-    TestRunner.run(new AuditTest("testAttributeDefNames"));
+    TestRunner.run(new AuditTest("testAttributeAssignsAssign"));
   }
   
   /**
@@ -949,5 +955,699 @@ public class AuditTest extends GrouperTest {
     
     
   }
+
+  /**
+   * @throws Exception 
+   */
+  public void testAttributeAssignsGroup() throws Exception {
+  
+    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+    Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+  
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), attributeAssign.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+
+    assertTrue(auditEntry.getAuditType().getActionName(), auditEntry.getAuditType().getActionName().toLowerCase().contains("group"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
+    attributeAssign.saveOrUpdate();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry2.getContextId(), attributeAssign.getContextId());
+  
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+  
+    assertTrue("description should contain diffs: " + auditEntry2.getDescription(), 
+        auditEntry2.getDescription().contains("disabledTime"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    group.getAttributeDelegate().removeAttribute(attributeDefName);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+  
+    AuditEntry auditEntry3 = auditEntries.get(2);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+    
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testAttributeAssignsStem() throws Exception {
+  
+    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+    attributeDef.setAssignToStem(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+    Stem stem = new StemSave(this.grouperSession).assignName("test:testStem").assignCreateParentStemsIfNotExist(true).save();
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+  
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    AttributeAssign attributeAssign = stem.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), attributeAssign.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+  
+    assertTrue(auditEntry.getAuditType().getActionName(), auditEntry.getAuditType().getActionName().toLowerCase().contains("stem"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
+    attributeAssign.saveOrUpdate();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry2.getContextId(), attributeAssign.getContextId());
+  
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+  
+    assertTrue("description should contain diffs: " + auditEntry2.getDescription(), 
+        auditEntry2.getDescription().contains("disabledTime"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    stem.getAttributeDelegate().removeAttribute(attributeDefName);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+  
+    AuditEntry auditEntry3 = auditEntries.get(2);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+    
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testAttributeAssignsMember() throws Exception {
+  
+    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+    attributeDef.setAssignToMember(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+    Member member = MemberFinder.findBySubject(this.grouperSession, SubjectFinder.findAllSubject(), true);
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+  
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    AttributeAssign attributeAssign = member.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), attributeAssign.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+  
+    assertTrue(auditEntry.getAuditType().getActionName(), auditEntry.getAuditType().getActionName().toLowerCase().contains("member"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
+    attributeAssign.saveOrUpdate();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry2.getContextId(), attributeAssign.getContextId());
+  
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+  
+    assertTrue("description should contain diffs: " + auditEntry2.getDescription(), 
+        auditEntry2.getDescription().contains("disabledTime"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    member.getAttributeDelegate().removeAttribute(attributeDefName);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+  
+    AuditEntry auditEntry3 = auditEntries.get(2);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+    
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testAttributeAssignsAttributeDef() throws Exception {
+  
+    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+    attributeDef.setAssignToAttributeDef(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+  
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    AttributeAssign attributeAssign = attributeDef.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), attributeAssign.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+  
+    assertTrue(auditEntry.getAuditType().getActionName(), auditEntry.getAuditType().getActionName().toLowerCase().contains("attrdef"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
+    attributeAssign.saveOrUpdate();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry2.getContextId(), attributeAssign.getContextId());
+  
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+  
+    assertTrue("description should contain diffs: " + auditEntry2.getDescription(), 
+        auditEntry2.getDescription().contains("disabledTime"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    attributeDef.getAttributeDelegate().removeAttribute(attributeDefName);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+  
+    AuditEntry auditEntry3 = auditEntries.get(2);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+    
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testAttributeAssignsImmMship() throws Exception {
+  
+    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+    attributeDef.setAssignToImmMembership(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+
+    Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    group.addMember(SubjectFinder.findAllSubject());
+    Member member = MemberFinder.findBySubject(this.grouperSession, SubjectFinder.findAllSubject(), true);
+    Membership membership = group.getImmediateMembership(Group.getDefaultList(), member, true, true);
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+  
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    AttributeAssign attributeAssign = membership.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), attributeAssign.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+  
+    assertTrue(auditEntry.getAuditType().getActionName(), auditEntry.getAuditType().getActionName().toLowerCase().contains("immmship"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
+    attributeAssign.saveOrUpdate();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry2.getContextId(), attributeAssign.getContextId());
+  
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+  
+    assertTrue("description should contain diffs: " + auditEntry2.getDescription(), 
+        auditEntry2.getDescription().contains("disabledTime"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    membership.getAttributeDelegate().removeAttribute(attributeDefName);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+  
+    AuditEntry auditEntry3 = auditEntries.get(2);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+    
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testAttributeAssignsAnyMship() throws Exception {
+  
+    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+  
+    Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    group.addMember(SubjectFinder.findAllSubject());
+    Member member = MemberFinder.findBySubject(this.grouperSession, SubjectFinder.findAllSubject(), true);
+
+    GroupMember groupMember = new GroupMember(group, member);
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+  
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    AttributeAssign attributeAssign = groupMember.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), attributeAssign.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+  
+    assertTrue(auditEntry.getAuditType().getActionName(), auditEntry.getAuditType().getActionName().toLowerCase().contains("anymship"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
+    attributeAssign.saveOrUpdate();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry2.getContextId(), attributeAssign.getContextId());
+  
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+  
+    assertTrue("description should contain diffs: " + auditEntry2.getDescription(), 
+        auditEntry2.getDescription().contains("disabledTime"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    groupMember.getAttributeDelegate().removeAttribute(attributeDefName);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+  
+    AuditEntry auditEntry3 = auditEntries.get(2);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+    
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testAttributeAssignsAssign() throws Exception {
+  
+    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+    attributeDef.setAssignToGroupAssn(true);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+    Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    AttributeAssign attributeAssignOwner = group.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+  
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    AttributeAssign attributeAssign = attributeAssignOwner.getAttributeDelegate().assignAttribute(attributeDefName).getAttributeAssign();
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), attributeAssign.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+  
+    assertTrue(auditEntry.getAuditType().getActionName(), auditEntry.getAuditType().getActionName().toLowerCase().contains("assignassign"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+  
+    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
+    attributeAssign.saveOrUpdate();
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry2.getContextId(), attributeAssign.getContextId());
+  
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+  
+    assertTrue("description should contain diffs: " + auditEntry2.getDescription(), 
+        auditEntry2.getDescription().contains("disabledTime"));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    attributeAssignOwner.getAttributeDelegate().removeAttribute(attributeDefName);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+  
+    AuditEntry auditEntry3 = auditEntries.get(2);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+    
+    
+  }
+
+//  /**
+//   * @throws Exception 
+//   */
+//  public void testAttributeAssignValue() throws Exception {
+//  
+//    AttributeDef attributeDef = this.edu.addChildAttributeDef("test1", AttributeDefType.attr);
+//    attributeDef.setAssignToGroup(true);
+//    attributeDef.setValueType(AttributeDefValueType.string);
+//    attributeDef.store();
+//
+//    AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
+//    Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+//    
+//    group.getAttributeDelegate().assignAttribute(attributeDefName);
+//    
+//    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+//  
+//    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+//        "select count(1) from grouper_audit_entry");
+//    
+//    group.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "something");
+//    
+//    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+//      "select count(1) from grouper_audit_entry");
+//    
+//    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+//    
+//    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+//      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+//    
+//    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+//    
+//    assertEquals("Context id's should match", auditEntry.getContextId(), attributeAssign.getContextId());
+//    
+//    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+//  
+//    assertTrue(auditEntry.getAuditType().getActionName(), auditEntry.getAuditType().getActionName().toLowerCase().contains("group"));
+//    
+//    //make sure date is different
+//    GrouperUtil.sleep(1000);
+//  
+//    attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis()));
+//    attributeAssign.saveOrUpdate();
+//    
+//    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+//      "select count(1) from grouper_audit_entry");
+//    
+//    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+//    
+//    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+//      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+//    
+//    AuditEntry auditEntry2 = auditEntries.get(1);
+//    
+//    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+//    
+//    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+//    
+//    assertEquals("Context id's should match", auditEntry2.getContextId(), attributeAssign.getContextId());
+//  
+//    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+//  
+//    assertTrue("description should contain diffs: " + auditEntry2.getDescription(), 
+//        auditEntry2.getDescription().contains("disabledTime"));
+//    
+//    //make sure date is different
+//    GrouperUtil.sleep(1000);
+//    
+//    group.getAttributeDelegate().removeAttribute(attributeDefName);
+//  
+//    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+//      "select count(1) from grouper_audit_entry");
+//  
+//    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+//  
+//    auditEntries = HibernateSession.byHqlStatic()
+//      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
+//  
+//    AuditEntry auditEntry3 = auditEntries.get(2);
+//  
+//    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+//    
+//    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+//    
+//    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+//    
+//    
+//  }
 
 }

@@ -179,8 +179,134 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * delete attribute def
    */
-  ATTRIBUTE_DEF_NAME_DELETE(new AuditType("attributeDef", "deleteAttributeDef", null, "id", "name", "displayName", 
+  ATTRIBUTE_DEF_NAME_DELETE(new AuditType("attributeDefName", "deleteAttributeDefName", null, "id", "name", "displayName", 
       "description", "parentStemId", "parentAttributeDefId", "parentAttributeDefName")),
+
+  /**
+   * 
+   */
+  ATTRIBUTE_ASSIGN_GROUP_ADD(new AuditType("attributeAssignGroup", "addAttributeAssignGroup", null, 
+      "id", "ownerGroupName", "ownerGroupId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+  
+  /**
+   * update group
+   */
+  ATTRIBUTE_ASSIGN_GROUP_UPDATE(new AuditType("attributeAssignGroup", "updateAttributeAssignGroup", null, 
+      "id", "ownerGroupName", "ownerGroupId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * delete group
+   */
+  ATTRIBUTE_ASSIGN_GROUP_DELETE(new AuditType("attributeAssignGroup", "deleteAttributeAssignGroup", null, 
+      "id", "ownerGroupName", "ownerGroupId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * 
+   */
+  ATTRIBUTE_ASSIGN_STEM_ADD(new AuditType("attributeAssignStem", "addAttributeAssignStem", null, 
+      "id", "ownerStemName", "ownerStemId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+  
+  /**
+   * update stem
+   */
+  ATTRIBUTE_ASSIGN_STEM_UPDATE(new AuditType("attributeAssignStem", "updateAttributeAssignStem", null, 
+      "id", "ownerStemName", "ownerStemId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * delete stem
+   */
+  ATTRIBUTE_ASSIGN_STEM_DELETE(new AuditType("attributeAssignStem", "deleteAttributeAssignStem", null, 
+      "id", "ownerStemName", "ownerStemId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * 
+   */
+  ATTRIBUTE_ASSIGN_MEMBER_ADD(new AuditType("attributeAssignMember", "addAttributeAssignMember", null, 
+      "id", "ownerSourceId", "ownerSubjectId", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+  
+  /**
+   * update member
+   */
+  ATTRIBUTE_ASSIGN_MEMBER_UPDATE(new AuditType("attributeAssignMember", "updateAttributeAssignMember", null, 
+      "id", "ownerSourceId", "ownerSubjectId", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * delete member
+   */
+  ATTRIBUTE_ASSIGN_MEMBER_DELETE(new AuditType("attributeAssignMember", "deleteAttributeAssignMember", null, 
+      "id", "ownerSourceId", "ownerSubjectId", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * 
+   */
+  ATTRIBUTE_ASSIGN_IMMMSHIP_ADD(new AuditType("attributeAssignImmMship", "addAttributeAssignImmMship", null, 
+      "id", "ownerMembershipId", "ownerOwnerId", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+  
+  /**
+   * update imm mship
+   */
+  ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE(new AuditType("attributeAssignImmMship", "updateAttributeAssignImmMship", null, 
+      "id", "ownerMembershipId", "ownerOwnerId", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * delete imm mship
+   */
+  ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE(new AuditType("attributeAssignImmMship", "deleteAttributeAssignImmMship", null, 
+      "id", "ownerMembershipId", "ownerOwnerId", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * 
+   */
+  ATTRIBUTE_ASSIGN_ANYMSHIP_ADD(new AuditType("attributeAssignAnyMship", "addAttributeAssignAnyMship", null, 
+      "id", "ownerGroupId", "ownerGroupName", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+  
+  /**
+   * update any mship
+   */
+  ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE(new AuditType("attributeAssignAnyMship", "updateAttributeAssignAnyMship", null, 
+      "id", "ownerGroupId", "ownerGroupName", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * delete any mship
+   */
+  ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE(new AuditType("attributeAssignAnyMship", "deleteAttributeAssignAnyMship", null, 
+      "id", "ownerGroupId", "ownerGroupName", "ownerMemberId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * insert attribute def
+   */
+  ATTRIBUTE_ASSIGN_ATTRDEF_ADD(new AuditType("attributeAssignAttrDef", "addAttributeAssignAttrDef", null, 
+      "id", "ownerAttributeDefId", "ownerAttributeDefName", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+  
+  /**
+   * update attribute def
+   */
+  ATTRIBUTE_ASSIGN_ATTRDEF_UPDATE(new AuditType("attributeAssignAttrDef", "updateAttributeAssignAttrDef", null, 
+      "id", "ownerAttributeDefId", "ownerAttributeDefName", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * delete attribute def
+   */
+  ATTRIBUTE_ASSIGN_ATTRDEF_DELETE(new AuditType("attributeAssignAttrDef", "deleteAttributeAssignAttrDef", null, 
+      "id", "ownerAttributeDefId", "ownerAttributeDefName", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * insert attribute assign
+   */
+  ATTRIBUTE_ASSIGN_ASSIGN_ADD(new AuditType("attributeAssignAssign", "addAttributeAssignAssign", null, 
+      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+  
+  /**
+   * update attribute assign
+   */
+  ATTRIBUTE_ASSIGN_ASSIGN_UPDATE(new AuditType("attributeAssignAssign", "updateAttributeAssignAssign", null, 
+      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+
+  /**
+   * delete attribute assign
+   */
+  ATTRIBUTE_ASSIGN_ASSIGN_DELETE(new AuditType("attributeAssignAssign", "deleteAttributeAssignAssign", null, 
+      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
 
   /**
    * add group

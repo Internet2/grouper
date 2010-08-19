@@ -297,7 +297,8 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
    * construct
    */
   public AuditEntry() {
-    
+    this.id = GrouperUuid.getUuid();
+
   }
 
   /**
