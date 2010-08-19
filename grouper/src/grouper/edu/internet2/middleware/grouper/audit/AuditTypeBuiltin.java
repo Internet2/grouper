@@ -185,6 +185,26 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * 
    */
+  ATTRIBUTE_ASSIGN_VALUE_ADD(new AuditType("attributeAssignValue", "addAttributeAssignValue", null, 
+      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName")),
+  
+  /**
+   * update attribute def
+   */
+  ATTRIBUTE_ASSIGN_VALUE_UPDATE(new AuditType("attributeAssignValue", "updateAttributeAssignValue", null, 
+      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName")),
+
+  /**
+   * delete attribute def
+   */
+  ATTRIBUTE_ASSIGN_VALUE_DELETE(new AuditType("attributeAssignValue", "deleteAttributeAssignValue", null, 
+      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName")),
+
+
+      
+  /**
+   * 
+   */
   ATTRIBUTE_ASSIGN_GROUP_ADD(new AuditType("attributeAssignGroup", "addAttributeAssignGroup", null, 
       "id", "ownerGroupName", "ownerGroupId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
   

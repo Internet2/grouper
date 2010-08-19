@@ -11,19 +11,28 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeAssignValueBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -348,7 +357,49 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
       this.id = GrouperUuid.getUuid();
     }
     
-    GrouperDAOFactory.getFactory().getAttributeAssignValue().saveOrUpdate(this);
+    final boolean isInsert = ObjectUtils.equals(this.getHibernateVersionNumber(), GrouperAPI.INITIAL_VERSION_NUMBER);
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
+            String differences = null;
+            if (!hibernateHandlerBean.isCallerWillCreateAudit() && !isInsert) {
+              differences = GrouperUtil.dbVersionDescribeDifferences(AttributeAssignValue.this.dbVersion(), 
+                  AttributeAssignValue.this, AttributeAssignValue.this.dbVersion() != null ? AttributeAssignValue.this.dbVersionDifferentFields() : AttributeAssignValue.CLONE_FIELDS);
+            }
+    
+            GrouperDAOFactory.getFactory().getAttributeAssignValue().saveOrUpdate(AttributeAssignValue.this);
+            
+            AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
+            AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
+            
+            AuditEntry auditEntry = new AuditEntry(
+                isInsert ? AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD : AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE, 
+                    "id", 
+                AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
+                "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
+                "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+
+            if (isInsert) {
+              
+              auditEntry.setDescription("Added attribute assignment value");
+
+            } else {
+
+              auditEntry.setDescription("Updated attribute assignment value: " + differences);
+              
+            }
+            auditEntry.saveOrUpdate(true);
+            return null;
+          }
+        });
+            
   }
   
   /**
@@ -648,7 +699,30 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * delete this record
    */
   public void delete() {
-    GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(this);
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+
+              GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(AttributeAssignValue.this);
+
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
+                AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
+                        "id", 
+                    AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
+                    "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
+                    "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+                auditEntry.setDescription("Deleted attributeAssignValue: " + AttributeAssignValue.this.getId());
+                auditEntry.saveOrUpdate(true);
+              }
+              return null;
+        }});
   }
 
   /**
