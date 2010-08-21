@@ -5,17 +5,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.digester.RulesBase;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * processes rules and kicks off actions
@@ -108,7 +112,7 @@ public class RuleEngine {
           }
           
           newEngine.indexData();
-          
+          ruleEngine = newEngine;
           ruleEngineCache.put(Boolean.TRUE, ruleEngine);
         }
       }
@@ -161,22 +165,90 @@ public class RuleEngine {
    * @param ruleCheckType
    * @param rulesBean
    */
-  public static void fireRule(RuleCheckType ruleCheckType, RulesBean rulesBean) {
+  public static void fireRule(final RuleCheckType ruleCheckType, final RulesBean rulesBean) {
 
-    RuleEngine ruleEngine = ruleEngine();
-    Set<RuleDefinition> ruleDefinitions = ruleCheckType.ruleDefinitions(ruleEngine, rulesBean);
+    final RuleEngine ruleEngine = ruleEngine();
+    
+    if (ruleEngine == null) {
+      throw new NullPointerException("ruleEngine cannot be null");
+    }
+    
+    StringBuilder logData = null;
+    boolean shouldLog = LOG.isDebugEnabled();
+    try {
 
-    for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(ruleDefinitions)) {
+      Set<RuleDefinition> ruleDefinitions = ruleCheckType.ruleDefinitions(ruleEngine, rulesBean);
+
+      //see if we should log
+      for (final RuleDefinition ruleDefinition : GrouperUtil.nonNull(ruleDefinitions)) {
+        shouldLog = shouldLog || ruleDefinition.shouldLog();
+      }
       
-      if (ruleDefinition.getIfCondition().shouldFire(ruleDefinition, ruleEngine, rulesBean)) {
+      if (shouldLog) {
+        logData = new StringBuilder();
+        logData.append("Rules engine processing rulesBean: " + rulesBean);
+      }
+      
+  
+      if (shouldLog) {
+        logData.append(", found " + GrouperUtil.length(ruleDefinitions) + " matching rule definitions");
+      }
+      
+      int shouldFireCount = 0;
+      
+      for (final RuleDefinition ruleDefinition : GrouperUtil.nonNull(ruleDefinitions)) {
         
-        //we are firing
-        ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesBean);
+        boolean shouldLogThisDefinition = LOG.isDebugEnabled() || ruleDefinition.shouldLog();
+        final StringBuilder logDataForThisDefinition = shouldLogThisDefinition ? logData : null;
+        if (ruleDefinition.getIfCondition().shouldFire(ruleDefinition, ruleEngine, rulesBean)) {
+          
+          shouldFireCount++;
+          
+          if (shouldLogThisDefinition) {
+            logDataForThisDefinition.append(", ruleDefinition should fire: ").append(ruleDefinition.toString());
+          }
+          
+          //act as the act as
+          RuleSubjectActAs actAs = ruleDefinition.getActAs();
+          Subject actAsSubject = actAs.subject(false);
+          if (actAsSubject == null) {
+            LOG.error("Cant find subject for rule: " + ruleDefinition);
+          } else {
+            
+            GrouperSession.callbackGrouperSession(GrouperSession.start(actAsSubject, false), new GrouperSessionHandler() {
+  
+              /**
+               * 
+               */
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                //we are firing
+                ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
+                return null;
+                
+              }
+            });
+          }        
+        }
         
       }
       
+      if (shouldLog) {
+        logData.append(", shouldFire count: " + shouldFireCount);
+      }
+    } catch (RuntimeException re) {
+      if (shouldLog) {
+        logData.append(", EXCEPTION: ").append(ExceptionUtils.getFullStackTrace(re));
+      }
+      throw re;
+    } finally {
+      if (shouldLog) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(logData);
+        } else if (LOG.isInfoEnabled()) {
+          LOG.info(logData);
+        }
+      }
     }
-    
   }
   
   /**
@@ -185,10 +257,10 @@ public class RuleEngine {
    */
   public static Map<AttributeAssign, Set<AttributeAssignValueContainer>> allRulesAttributeAssignValueContainers() {
     
-    AttributeDef ruleTypeDef = RuleUtils.ruleTypeAttributeDef();
+    AttributeDefName ruleTypeDefName = RuleUtils.ruleAttributeDefName();
     
     Map<AttributeAssign, Set<AttributeAssignValueContainer>> result = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByAttributeTypeDefNameId(ruleTypeDef.getId());
+      .getAttributeAssign().findByAttributeTypeDefNameId(ruleTypeDefName.getId());
   
     return result;
     

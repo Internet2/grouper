@@ -38,7 +38,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("whatver"));
+    TestRunner.run(new RuleTest("testRuleLonghand"));
   }
 
   /**
@@ -46,8 +46,8 @@ public class RuleTest extends GrouperTest {
    */
   public void testRuleLonghand() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    Group groupA = new GroupSave(grouperSession).assignName("stem:a").save();
-    Group groupB = new GroupSave(grouperSession).assignName("stem:b").save();
+    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
@@ -64,7 +64,7 @@ public class RuleTest extends GrouperTest {
         RuleCheckType.membershipRemove.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleIfConditionEnumName(), 
-        RuleConditionEnum.thisGroupHasImmediateMember.name());
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
         "${ruleUtils.removeMember(thisGroupId, memberId}");
@@ -85,6 +85,12 @@ public class RuleTest extends GrouperTest {
     
     //should come out of groupA
     assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));
+    
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
     
   }
   

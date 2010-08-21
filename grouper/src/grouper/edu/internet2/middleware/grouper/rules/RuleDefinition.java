@@ -3,13 +3,16 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 
 
 
@@ -308,6 +311,58 @@ public class RuleDefinition {
 
     return null;
   
+  }
+  
+  /**
+   * if we should log this rule definition
+   * @return true if should log
+   */
+  public boolean shouldLog() {
+    if (this.attributeAssignType == null) {
+      return false;
+    }
+    String attributeTypeAssignIdsToLog = GrouperConfig.getProperty("rules.attributeAssignTypeIdsToLog");
+
+    //since we are working with uuid's, we can just do a contains to see if it is there
+    return StringUtils.defaultString(attributeTypeAssignIdsToLog).contains(this.attributeAssignType.getId());
+  }
+  
+  /**
+   * add EL variables to the substitute map
+   * @param variableMap
+   * @param rulesBean 
+   */
+  public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+    this.getCheck().addElVariables(variableMap, rulesBean);
+    
+    AttributeAssign attributeAssign = this.getAttributeAssignType();
+    
+    if (attributeAssign != null) {
+      
+      if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
+        variableMap.put("ownerAttributeAssignId", attributeAssign.getOwnerAttributeAssignId());
+      }
+      
+      if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeDefId())) {
+        variableMap.put("ownerAttributeDefId", attributeAssign.getOwnerAttributeDefId());
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
+        variableMap.put("ownerGroupId", attributeAssign.getOwnerGroupId());
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerMemberId())) {
+        variableMap.put("ownerMemberId", attributeAssign.getOwnerMemberId());
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerMembershipId())) {
+        variableMap.put("ownerMembershipId", attributeAssign.getOwnerMembershipId());
+      }
+      if (!StringUtils.isBlank(attributeAssign.getOwnerStemId())) {
+        variableMap.put("ownerStemId", attributeAssign.getOwnerStemId());
+      }
+      
+      
+      
+    }
+    
   }
   
 }

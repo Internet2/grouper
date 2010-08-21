@@ -1,9 +1,12 @@
 package edu.internet2.middleware.grouper.rules;
 
-import org.apache.commons.digester.RulesBase;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * rule then part
@@ -124,14 +127,40 @@ public class RuleThen {
    * @param ruleDefinition
    * @param ruleEngine
    * @param rulesBean
+   * @param logDataForThisDefinition if logger if logging, else not
    */
-  public void fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine, RulesBean rulesBean) {
+  public void fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine, 
+      RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
     RuleThenEnum ruleThenEnum = this.thenEnum();
     if (ruleThenEnum != null) {
-      ruleThenEnum.fireRule(ruleDefinition, ruleEngine, rulesBean);
+      ruleThenEnum.fireRule(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
     } else if (!StringUtils.isBlank(this.thenEl)) {
-      throw new RuntimeException("Not implemented");
+      Map<String, Object> variableMap =  new HashMap<String, Object>();
+      variableMap.put("ruleUtils", new RuleUtils());
+      
+      ruleDefinition.addElVariables(variableMap, rulesBean);
+      
+      if (logDataForThisDefinition != null) {
+        logDataForThisDefinition.append(", EL variables: ");
+        for (String varName : variableMap.keySet()) {
+          logDataForThisDefinition.append(varName);
+          Object value = variableMap.get(varName);
+          if (value instanceof String) {
+            logDataForThisDefinition.append("(").append(value).append(")");
+          }
+          logDataForThisDefinition.append(",");
+        }
+      }
+      
+      String result = GrouperUtil.substituteExpressionLanguage(this.thenEl, variableMap);
+      
+      if (logDataForThisDefinition != null) {
+        logDataForThisDefinition.append(", elResult: ").append(result);
+      }
+      
+    } else {
+      //should have an enum or EL
+      throw new RuntimeException("Shouldnt get here");
     }
-    throw new RuntimeException("Shouldnt get here");
   }
 }

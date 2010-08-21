@@ -1,14 +1,18 @@
 package edu.internet2.middleware.grouper.rules;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * type of checking for rules
@@ -26,17 +30,34 @@ public enum RuleCheckType {
      */
     @Override
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
-      RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
       
-      Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
-      
-      //by id
-      RuleCheck ruleCheck = new RuleCheck(this.name(), 
-          rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null);
+      return ruleDefinitionsMembershipRemove(this, ruleEngine, rulesBean);
+    }
 
-      ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
-      
-      return ruleDefinitions;
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+
+      RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
+      if (rulesMembershipBean != null) {
+        Group group = rulesMembershipBean.getGroup();
+        variableMap.put("groupId", group.getId());
+        variableMap.put("groupName", group.getName());
+      }
+      if (!StringUtils.isBlank(rulesMembershipBean.getMemberId())) {
+        variableMap.put("memberId", rulesMembershipBean.getMemberId());
+      }
+      Membership membership = rulesMembershipBean.getMembership();
+      if (membership != null) {
+        variableMap.put("membershipId", membership.getUuid());
+      }
+      Subject subject = rulesMembershipBean.getSubject();
+      if (subject != null) {
+        variableMap.put("subjectId", subject.getId());
+        variableMap.put("sourceId", subject.getSourceId());
+      }
     }
 
     
@@ -51,7 +72,17 @@ public enum RuleCheckType {
      */
     @Override
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
-      throw new RuntimeException("Not implemented");
+      
+      return ruleDefinitionsMembershipRemove(this, ruleEngine, rulesBean);
+      
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+      flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
     }
   },
   
@@ -73,6 +104,11 @@ public enum RuleCheckType {
      */
     @Override
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
       throw new RuntimeException("Not implemented");
     }
    
@@ -97,6 +133,14 @@ public enum RuleCheckType {
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
       throw new RuntimeException("Not implemented");
     }
+
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+      throw new RuntimeException("Not implemented");
+    }
    
   };
   
@@ -116,6 +160,14 @@ public enum RuleCheckType {
    * @return the rules
    */
   public abstract Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean);
+
+  /**
+   * add EL variables to the substitute map
+   * @param variableMap
+   * @param rulesBean 
+   */
+  public abstract void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean);
+
   
   /**
    * validate this check type
@@ -156,5 +208,28 @@ public enum RuleCheckType {
         string, exceptionOnNull);
 
   }
+  
+  /**
+   * for a membership remove, get the rules
+   * @param ruleCheckType 
+   * @param ruleEngine 
+   * @param rulesBean 
+   * @return rule definitions
+   */
+  private static Set<RuleDefinition> ruleDefinitionsMembershipRemove(RuleCheckType ruleCheckType, RuleEngine ruleEngine, RulesBean rulesBean) {
+    
+    RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+    
+    //by id
+    RuleCheck ruleCheck = new RuleCheck(ruleCheckType.name(), 
+        rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null);
+
+    ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
+    
+    return ruleDefinitions;
+  }
+
 
 }

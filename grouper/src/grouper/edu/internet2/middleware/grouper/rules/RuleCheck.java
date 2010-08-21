@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -242,5 +244,25 @@ public class RuleCheck {
     return this.checkTypeEnum().validate(this);
   }
 
-  
+  /**
+   * add EL variables to the substitute map
+   * @param variableMap
+   * @param rulesBean 
+   */
+  public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+    if (!StringUtils.isBlank(this.checkOwnerId)) {
+      variableMap.put("checkOwnerId", this.checkOwnerId);
+    }
+    if (!StringUtils.isBlank(this.checkOwnerName)) {
+      variableMap.put("checkOwnerName", this.checkOwnerName);
+    }
+    if (!StringUtils.isBlank(this.checkStemScope)) {
+      variableMap.put("checkStemScope", this.checkStemScope);
+    }
+    RuleCheckType ruleCheckType = this.checkTypeEnum();
+    
+    if (ruleCheckType != null) {
+      ruleCheckType.addElVariables(variableMap, rulesBean);
+    }
+  }
 }

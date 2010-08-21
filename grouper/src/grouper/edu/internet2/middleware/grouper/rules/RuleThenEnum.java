@@ -23,7 +23,7 @@ public enum RuleThenEnum {
      */
     @Override
     public void fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
-        RulesBean rulesBean) {
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
     }
     
   },
@@ -37,7 +37,7 @@ public enum RuleThenEnum {
      */
     @Override
     public void fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
-        RulesBean rulesBean) {
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
     }
     
   };
@@ -60,8 +60,9 @@ public enum RuleThenEnum {
    * @param ruleDefinition
    * @param ruleEngine
    * @param rulesBean
+   * @param logDataForThisDefinition is null if not logging, and non null if things should be appended
    */
   public abstract void fireRule(RuleDefinition ruleDefinition, 
-      RuleEngine ruleEngine, RulesBean rulesBean);
+      RuleEngine ruleEngine, RulesBean rulesBean, StringBuilder logDataForThisDefinition);
   
 }

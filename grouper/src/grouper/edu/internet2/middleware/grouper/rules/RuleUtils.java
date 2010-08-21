@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -14,6 +16,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -329,11 +332,37 @@ public class RuleUtils {
    * @param memberId
    * @return true if removed, false if not
    */
-  public static boolean removeMember(String groupId, String memberId) {
+  public static boolean removeMemberFromGroupId(String groupId, String memberId) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Removing member: " + memberId + ", from group: " + groupId);
+    }
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
     Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Removing subject: " + member.getSubjectId() + ", from group: " + group.getName());
+    }
     return group.deleteMember(member, false);
   }
+  /**
+   * remove a member of a group
+   * @param groupName
+   * @param memberId
+   * @return true if removed, false if not
+   */
+  public static boolean removeMemberFromGroupName(String groupName, String memberId) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Removing member: " + memberId + ", from group: " + groupName);
+    }
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Removing subject: " + member.getSubjectId() + ", from group: " + group.getName());
+    }
+    return group.deleteMember(member, false);
+  }
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(RuleUtils.class);
   
   
 }
