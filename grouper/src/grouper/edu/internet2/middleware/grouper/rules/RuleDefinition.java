@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -39,7 +40,6 @@ public class RuleDefinition {
   /**
    * rule definitions from attribute assigns
    * @param attributeAssignValueContainers
-   * @return the definition or null if it doesnt make sense
    */
   public RuleDefinition(
       Set<AttributeAssignValueContainer> attributeAssignValueContainers) {
@@ -359,10 +359,16 @@ public class RuleDefinition {
         variableMap.put("ownerStemId", attributeAssign.getOwnerStemId());
       }
       
-      
-      
     }
     
+    //middleware.grouper.rules.MyRuleUtils
+    String customElClasses = GrouperConfig.getProperty("rules.customElClasses");
+    String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");
+    for (String customElClass : customElClassesArray) {
+      Class<?> customClassClass = GrouperUtil.forName(customElClass);
+      String simpleName = StringUtils.uncapitalize(customClassClass.getSimpleName());
+      variableMap.put(simpleName, GrouperUtil.newInstance(customClassClass));
+    }
   }
   
 }
