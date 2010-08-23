@@ -63,7 +63,7 @@ public enum RuleCheckType {
     
   },
   
-  /** if there is a membership remove flattened */
+  /** if there is a membership remove in transaction of remove */
   membershipRemove {
 
     /**
@@ -74,6 +74,38 @@ public enum RuleCheckType {
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
       
       return ruleDefinitionsMembershipRemove(this, ruleEngine, rulesBean);
+      
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+      flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
+    }
+  },
+  
+  /** if there is a membership remove in transaction of remove of a gropu in a stem */
+  membershipRemoveInFolder {
+
+    /**
+     * validate this check type
+     * @param ruleCheck 
+     * @return the error or null if valid
+     */
+    public String validate(RuleCheck ruleCheck) {
+      return validate(ruleCheck, true);
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      
+      return ruleDefinitionsMembershipRemoveInFolder(this, ruleEngine, rulesBean);
       
     }
 
@@ -227,6 +259,28 @@ public enum RuleCheckType {
         rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null);
 
     ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
+    
+    return ruleDefinitions;
+  }
+
+  /**
+   * for a membership remove, get the rules
+   * @param ruleCheckType 
+   * @param ruleEngine 
+   * @param rulesBean 
+   * @return rule definitions
+   */
+  private static Set<RuleDefinition> ruleDefinitionsMembershipRemoveInFolder(RuleCheckType ruleCheckType, RuleEngine ruleEngine, RulesBean rulesBean) {
+    
+    RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+    
+    //by id
+    RuleCheck ruleCheck = new RuleCheck(ruleCheckType.name(), 
+        rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null);
+
+    ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
     
     return ruleDefinitions;
   }

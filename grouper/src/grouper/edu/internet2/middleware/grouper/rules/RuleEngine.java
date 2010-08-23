@@ -10,6 +10,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
@@ -28,6 +29,11 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class RuleEngine {
 
+  /**
+   * used for testing to see how many rule firings there are (that pass the check and if)
+   */
+  static long ruleFirings = 0;
+  
   /** cached rule definitions */
   private static GrouperCache<Boolean, RuleEngine> ruleEngineCache = 
     new GrouperCache<Boolean, RuleEngine>(RuleEngine.class.getName() + ".ruleEngine", 100, false, 5*60, 5*60, false);
@@ -65,6 +71,40 @@ public class RuleEngine {
       ruleCheck.setCheckOwnerId(null);
       ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(ruleCheck)));
       ruleCheck.setCheckOwnerId(ownerId);
+    }
+    
+    return ruleDefinitions;
+  }
+  
+  /**
+   * get rule definitions from cache based on name or id
+   * @param ruleCheck
+   * @return the definitions
+   */
+  public Set<RuleDefinition> ruleCheckIndexDefinitionsByNameOrIdInFolder(RuleCheck ruleCheck) {
+   
+    String ownerName = ruleCheck.getCheckOwnerName();
+    
+    if (StringUtils.isBlank(ownerName)) {
+      throw new RuntimeException("Checking in folder needs an owner name: " + ruleCheck);
+    }
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+    
+    //direct parent
+    String parentStemName = GrouperUtil.parentStemNameFromName(ownerName);
+    
+    RuleCheck tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, parentStemName, Stem.Scope.ONE.name());
+    ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(tempRuleCheck)));
+    
+    //direct parent or ancestor
+    Set<String> parentStemNames = GrouperUtil.findParentStemNames(ownerName);
+    
+    for (String ancestorStemName : parentStemNames) {
+      
+      tempRuleCheck = new RuleCheck(ruleCheck.getCheckType(), null, ancestorStemName, Stem.Scope.SUB.name());
+      ruleDefinitions.addAll(GrouperUtil.nonNull(this.getRuleCheckIndex().get(tempRuleCheck)));
+      
     }
     
     return ruleDefinitions;
@@ -221,7 +261,8 @@ public class RuleEngine {
                * 
                */
               public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                //we are firing
+                //we are firing, note this isnt synchronized, so might not be exact, but used for testing, so thats ok
+                ruleFirings++;
                 ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
                 return null;
                 
