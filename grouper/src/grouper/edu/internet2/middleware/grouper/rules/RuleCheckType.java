@@ -31,7 +31,7 @@ public enum RuleCheckType {
     @Override
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
       
-      return ruleDefinitionsMembershipRemove(this, ruleEngine, rulesBean);
+      return ruleDefinitionsMembership(this, ruleEngine, rulesBean);
     }
 
     /**
@@ -73,7 +73,7 @@ public enum RuleCheckType {
     @Override
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
       
-      return ruleDefinitionsMembershipRemove(this, ruleEngine, rulesBean);
+      return ruleDefinitionsMembership(this, ruleEngine, rulesBean);
       
     }
 
@@ -105,7 +105,7 @@ public enum RuleCheckType {
     @Override
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
       
-      return ruleDefinitionsMembershipRemoveInFolder(this, ruleEngine, rulesBean);
+      return ruleDefinitionsMembershipInFolder(this, ruleEngine, rulesBean);
       
     }
 
@@ -174,6 +174,86 @@ public enum RuleCheckType {
       throw new RuntimeException("Not implemented");
     }
    
+  }, 
+  
+  /** if there is a membership add in transaction of remove */
+  membershipAdd{
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      
+      return ruleDefinitionsMembership(this, ruleEngine, rulesBean);
+      
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+      flattenedMembershipAdd.addElVariables(variableMap, rulesBean);
+    }
+  }, 
+  
+  /** if there is a membership remove flattened */
+  flattenedMembershipAdd{
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      
+      return ruleDefinitionsMembership(this, ruleEngine, rulesBean);
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+  
+      flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
+    }
+  
+    
+  }, 
+  
+  /** if there is a membership remove in transaction of remove of a group in a stem */
+  membershipAddInFolder{
+  
+    /**
+     * validate this check type
+     * @param ruleCheck 
+     * @return the error or null if valid
+     */
+    public String validate(RuleCheck ruleCheck) {
+      return validate(ruleCheck, true);
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      
+      return ruleDefinitionsMembershipInFolder(this, ruleEngine, rulesBean);
+      
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+      flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
+    }
   };
   
   /**
@@ -229,6 +309,28 @@ public enum RuleCheckType {
   }
   
   /**
+   * for a membership remove, get the rules
+   * @param ruleCheckType 
+   * @param ruleEngine 
+   * @param rulesBean 
+   * @return rule definitions
+   */
+  private static Set<RuleDefinition> ruleDefinitionsMembership(RuleCheckType ruleCheckType, RuleEngine ruleEngine, RulesBean rulesBean) {
+    
+    RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+    
+    //by id
+    RuleCheck ruleCheck = new RuleCheck(ruleCheckType.name(), 
+        rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null);
+  
+    ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
+    
+    return ruleDefinitions;
+  }
+
+  /**
    * do a case-insensitive matching
    * 
    * @param string
@@ -248,29 +350,7 @@ public enum RuleCheckType {
    * @param rulesBean 
    * @return rule definitions
    */
-  private static Set<RuleDefinition> ruleDefinitionsMembershipRemove(RuleCheckType ruleCheckType, RuleEngine ruleEngine, RulesBean rulesBean) {
-    
-    RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
-    
-    Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
-    
-    //by id
-    RuleCheck ruleCheck = new RuleCheck(ruleCheckType.name(), 
-        rulesMembershipBean.getGroup().getId(), rulesMembershipBean.getGroup().getName(), null);
-
-    ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
-    
-    return ruleDefinitions;
-  }
-
-  /**
-   * for a membership remove, get the rules
-   * @param ruleCheckType 
-   * @param ruleEngine 
-   * @param rulesBean 
-   * @return rule definitions
-   */
-  private static Set<RuleDefinition> ruleDefinitionsMembershipRemoveInFolder(RuleCheckType ruleCheckType, RuleEngine ruleEngine, RulesBean rulesBean) {
+  private static Set<RuleDefinition> ruleDefinitionsMembershipInFolder(RuleCheckType ruleCheckType, RuleEngine ruleEngine, RulesBean rulesBean) {
     
     RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
     

@@ -882,6 +882,17 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               if (doesntExist) {
                 
                 EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
+                
+                //if we are in the default list, then fire a rule
+                if (StringUtils.equals(f.getUuid(), Group.getDefaultList().getUuid())) {
+                  RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subj);
+                  //fire rules directly connected to this membership remove
+                  RuleEngine.fireRule(RuleCheckType.membershipAdd, rulesMembershipBean);
+                  //fire rules related to remove in stem
+                  RuleEngine.fireRule(RuleCheckType.membershipAddInFolder, rulesMembershipBean);
+
+                }
+
                 if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                   
                   AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_ADD, "id", 
@@ -1746,19 +1757,19 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             if (notAlreadyDeleted) {
               EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), 
                   Group.this.getName(), subj, f, sw);
+
+              //if we are in the default list, then fire a rule
+              if (StringUtils.equals(f.getUuid(), Group.getDefaultList().getUuid())) {
+                RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subj);
+                //fire rules directly connected to this membership remove
+                RuleEngine.fireRule(RuleCheckType.membershipRemove, rulesMembershipBean);
+                //fire rules related to remove in stem
+                RuleEngine.fireRule(RuleCheckType.membershipRemoveInFolder, rulesMembershipBean);
+
+              }
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                           
-                //if we are in the default list, then fire a rule
-                if (StringUtils.equals(f.getUuid(), Group.getDefaultList().getUuid())) {
-                  RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subj);
-                  //fire rules directly connected to this membership remove
-                  RuleEngine.fireRule(RuleCheckType.membershipRemove, rulesMembershipBean);
-                  //fire rules related to remove in stem
-                  RuleEngine.fireRule(RuleCheckType.membershipRemoveInFolder, rulesMembershipBean);
 
-                }
-                
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE, "id", 
                     membership == null ? null : membership.getUuid(), "fieldId", f.getUuid(),
                         "fieldName", f.getName(), "memberId",  membership.getMemberUuid(),

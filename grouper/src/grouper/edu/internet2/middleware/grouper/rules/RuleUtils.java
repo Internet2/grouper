@@ -221,6 +221,27 @@ public class RuleUtils {
   /**
    * 
    */
+  public static final String RULE_IF_OWNER_NAME = "ruleIfOwnerName";
+
+  /**
+   * rule ruleIfOwnerName
+   */
+  private static String ruleIfOwnerNameName = null;
+
+  /**
+   * full ruleIfOwnerName
+   * @return name
+   */
+  public static String ruleIfOwnerNameName() {
+    if (ruleIfOwnerNameName == null) {
+      ruleIfOwnerNameName = RuleUtils.attributeRuleStemName() + ":" + RULE_IF_OWNER_NAME;
+    }
+    return ruleIfOwnerNameName;
+  }
+  
+  /**
+   * 
+   */
   public static final String RULE_CHECK_OWNER_NAME = "ruleCheckOwnerName";
 
   /**
@@ -279,6 +300,27 @@ public class RuleUtils {
       ruleCheckOwnerIdName = RuleUtils.attributeRuleStemName() + ":" + RULE_CHECK_OWNER_ID;
     }
     return ruleCheckOwnerIdName;
+  }
+  
+  /**
+   * 
+   */
+  public static final String RULE_IF_OWNER_ID = "ruleIfOwnerId";
+
+  /**
+   * ruleIfOwnerIdName
+   */
+  private static String ruleIfOwnerIdName = null;
+
+  /**
+   * full ruleIfOwnerIdName
+   * @return name
+   */
+  public static String ruleIfOwnerIdName() {
+    if (ruleIfOwnerIdName == null) {
+      ruleIfOwnerIdName = RuleUtils.attributeRuleStemName() + ":" + RULE_IF_OWNER_ID;
+    }
+    return ruleIfOwnerIdName;
   }
   
   /**
@@ -403,5 +445,13 @@ public class RuleUtils {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(RuleUtils.class);
   
-  
+  /**
+   * veto this for some reason
+   * @param reasonKey
+   * @param reason
+   * @return the exception
+   */
+  public RuleVeto veto(String reasonKey, String reason) {
+    return new RuleVeto(reasonKey, reason);
+  }
 }

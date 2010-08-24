@@ -95,6 +95,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -8647,6 +8648,10 @@ public class GrouperUtil {
               + GrouperUtil.toStringForLog(variableMap.keySet()));
         }
         
+        if (o instanceof RuntimeException) {
+          throw (RuntimeException)o;
+        }
+        
         result.append(o);
         
       }
@@ -8654,6 +8659,8 @@ public class GrouperUtil {
       result.append(stringToParse.substring(index, stringToParse.length()));
       return result.toString();
       
+    } catch (HookVeto hv) {
+      throw hv;
     } catch (Exception e) {
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     }

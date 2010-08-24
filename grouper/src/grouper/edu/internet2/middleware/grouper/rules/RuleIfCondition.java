@@ -24,13 +24,18 @@ public class RuleIfCondition {
 
   /**
    * 
-   * @param ifConditionEl
-   * @param ifConditionEnum
+   * @param ifConditionEl1
+   * @param ifConditionEnum1
+   * @param theIfOwnerId 
+   * @param theIfOwnerName 
    */
-  public RuleIfCondition(String ifConditionEl, String ifConditionEnum) {
+  public RuleIfCondition(String ifConditionEl1, String ifConditionEnum1,
+      String theIfOwnerId, String theIfOwnerName) {
     super();
-    this.ifConditionEl = ifConditionEl;
-    this.ifConditionEnum = ifConditionEnum;
+    this.ifConditionEl = ifConditionEl1;
+    this.ifConditionEnum = ifConditionEnum1;
+    this.ifOwnerId = theIfOwnerId;
+    this.ifOwnerName = theIfOwnerName;
   }
 
 
@@ -39,6 +44,45 @@ public class RuleIfCondition {
   
   /** if it is an enum, put that here */
   private String ifConditionEnum;
+
+  /** if the enum needs an owner, this is the name */
+  private String ifOwnerName;
+  
+  /** if the enum needs an owner, this is the id */
+  private String ifOwnerId;
+  
+  /**
+   * if the enum needs an owner, this is the name
+   * @return name
+   */
+  public String getIfOwnerName() {
+    return this.ifOwnerName;
+  }
+
+  
+  /**
+   * if the enum needs an owner, this is the name
+   * @param ifOwnerName1
+   */
+  public void setIfOwnerName(String ifOwnerName1) {
+    this.ifOwnerName = ifOwnerName1;
+  }
+
+  /**
+   * if the enum needs an owner, this is the id
+   * @return id
+   */
+  public String getIfOwnerId() {
+    return this.ifOwnerId;
+  }
+
+  /**
+   * if the enum needs an owner, this is the id
+   * @param ifOwnerId1
+   */
+  public void setIfOwnerId(String ifOwnerId1) {
+    this.ifOwnerId = ifOwnerId1;
+  }
 
   /**
    * if it is an el, put that here
@@ -102,6 +146,12 @@ public class RuleIfCondition {
     if (!StringUtils.isBlank(this.ifConditionEnum)) {
       result.append("ifConditionEnum: ").append(this.ifConditionEnum).append(", ");
     }
+    if (!StringUtils.isBlank(this.ifOwnerId)) {
+      result.append("ifOwnerId: ").append(this.ifOwnerId).append(", ");
+    }
+    if (!StringUtils.isBlank(this.ifOwnerName)) {
+      result.append("ifOwnerName: ").append(this.ifOwnerName).append(", ");
+    }
   }
 
   /**
@@ -113,11 +163,19 @@ public class RuleIfCondition {
     if (!StringUtils.isBlank(this.ifConditionEnum) &&  !StringUtils.isBlank(this.ifConditionEl)) {
       return "Do not enter both of ifConditionEl and ifConditionEnum!";
     }
+    if (!StringUtils.isBlank(this.ifOwnerId) &&  !StringUtils.isBlank(this.ifOwnerName)) {
+      return "Do not enter both of ifOwnerId and ifOwnerName!";
+    }
     if (!StringUtils.isBlank(this.ifConditionEnum)) {
+      RuleIfConditionEnum ruleIfConditionEnum = null;
       try {
-        RuleIfConditionEnum.valueOfIgnoreCase(this.ifConditionEnum, true);
+        ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.ifConditionEnum, true);
       } catch (Exception e) {
         return e.getMessage();
+      }
+      String enumValidation = ruleIfConditionEnum.validate(this);
+      if (!StringUtils.isBlank(enumValidation)) {
+        return enumValidation;
       }
     }
     return null;

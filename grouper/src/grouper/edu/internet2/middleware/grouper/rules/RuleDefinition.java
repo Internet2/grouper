@@ -59,6 +59,8 @@ public class RuleDefinition {
     //RuleUtils.RULE_CHECK_OWNER_NAME
     //RuleUtils.RULE_IF_CONDITION_EL
     //RuleUtils.RULE_IF_CONDITION_ENUM
+    //RuleUtils.RULE_IF_OWNER_ID
+    //RuleUtils.RULE_IF_OWNER_NAME
     //RuleUtils.RULE_THEN_EL
     
     String actAsSubjectId = AttributeAssignValueContainer
@@ -79,6 +81,10 @@ public class RuleDefinition {
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionElName());
     String ifConditionEnum = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfConditionEnumName());
+    String ifOwnerId = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfOwnerIdName());
+    String ifOwnerName = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleIfOwnerNameName());
     String thenEl = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenElName());
     String thenEnum = AttributeAssignValueContainer
@@ -91,7 +97,8 @@ public class RuleDefinition {
     RuleCheck ruleCheck = new RuleCheck(checkTypeString, checkOwnerId, 
         checkOwnerName, checkStemScope);
     
-    RuleIfCondition ruleIfCondition = new RuleIfCondition(ifConditionEl, ifConditionEnum);
+    RuleIfCondition ruleIfCondition = new RuleIfCondition(ifConditionEl, ifConditionEnum, 
+        ifOwnerId, ifOwnerName);
     
     RuleThen ruleThen = new RuleThen(thenEl, thenEnum);
     
@@ -363,11 +370,13 @@ public class RuleDefinition {
     
     //middleware.grouper.rules.MyRuleUtils
     String customElClasses = GrouperConfig.getProperty("rules.customElClasses");
-    String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");
-    for (String customElClass : customElClassesArray) {
-      Class<?> customClassClass = GrouperUtil.forName(customElClass);
-      String simpleName = StringUtils.uncapitalize(customClassClass.getSimpleName());
-      variableMap.put(simpleName, GrouperUtil.newInstance(customClassClass));
+    if (!StringUtils.isBlank(customElClasses)) {
+      String[] customElClassesArray = GrouperUtil.splitTrim(customElClasses, ",");
+      for (String customElClass : customElClassesArray) {
+        Class<?> customClassClass = GrouperUtil.forName(customElClass);
+        String simpleName = StringUtils.uncapitalize(customClassClass.getSimpleName());
+        variableMap.put(simpleName, GrouperUtil.newInstance(customClassClass));
+      }
     }
   }
   
