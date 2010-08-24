@@ -307,4 +307,13 @@ public class RuleEngine {
     
   }
 
+  /**
+   * validate the rules, and run the daemon stuff in rules
+   * @return the number of records changed
+   */
+  public static int daemon() {
+    //TODO fix this
+    return -1;
+  }
+  
 }

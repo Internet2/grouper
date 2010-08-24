@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.rules;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -14,6 +15,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -454,4 +457,64 @@ public class RuleUtils {
   public RuleVeto veto(String reasonKey, String reason) {
     return new RuleVeto(reasonKey, reason);
   }
+  
+  /**
+   * 
+   * @param groupId
+   * @param groupName
+   * @return the error message or null if ok
+   */
+  public static String validateGroup(String groupId, String groupName) {
+    GrouperSession grouperSession = GrouperSession.startRootSession(false);
+    try {
+      if (!StringUtils.isBlank(groupId)) {
+        Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
+        if (group == null) {
+          return "Cant find group by id: " + groupId;
+        }
+      }
+      if (!StringUtils.isBlank(groupName)) {
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group == null) {
+          return "Cant find group by name: " + groupName;
+        }
+      }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    return null;
+    
+  }
+  
+  /**
+   * 
+   * @param stemId
+   * @param stemName
+   * @return the error message or null if ok
+   */
+  public static String validateStem(String stemId, String stemName) {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession(false);
+    try {
+      if (!StringUtils.isBlank(stemId)) {
+        Stem stem = StemFinder.findByUuid(grouperSession, stemId, false);
+        if (stem == null) {
+          return "Cant find stem by id: " + stemId;
+        }
+      }
+      if (!StringUtils.isBlank(stemName)) {
+        Stem stem = StemFinder.findByName(grouperSession, stemName, false);
+        if (stem == null) {
+          return "Cant find stem by name: " + stemName;
+        }
+      }
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    return null;
+    
+  }
+
+  
+  
 }

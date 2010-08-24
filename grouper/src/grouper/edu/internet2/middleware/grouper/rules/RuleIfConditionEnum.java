@@ -89,6 +89,10 @@ public enum RuleIfConditionEnum {
       if (StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) && StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
         return "This ifConditionEnum " + this.name() + " requires an ifOwnerId or ifOwnerName";
       }
+      String result = ruleIfCondition.validateOwnerGroup();
+      if (!StringUtils.isBlank(result)) {
+        return result;
+      }
       return null;
     }
     

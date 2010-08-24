@@ -73,6 +73,7 @@ import edu.internet2.middleware.grouper.misc.GrouperReportException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -252,6 +253,14 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setUpdateCount(records);
 
           hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");
+          
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        } else if (StringUtils.equals(GROUPER_RULES, hib3GrouploaderLog.getJobName())) {
+
+          int records = RuleEngine.daemon();
+          hib3GrouploaderLog.setUpdateCount(records);
+
+          hib3GrouploaderLog.setJobMessage("Ran rules daemon, changed " + records + " records");
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else {
@@ -945,6 +954,11 @@ public enum GrouperLoaderType {
    * maintenance enabledDisabled name
    */
   public static final String GROUPER_ENABLED_DISABLED = "MAINTENANCE__enabledDisabled";
+
+  /**
+   * maintenance rules name
+   */
+  public static final String GROUPER_RULES = "MAINTENANCE__rules";
 
   /**
    * change log temp to change log

@@ -226,4 +226,21 @@ public class RuleIfCondition {
     throw new RuntimeException("Shouldnt get here");
   }
 
+  /**
+   * see if the owner is a group (note, owner requiredness not checked)
+   * @return the error message
+   */
+  public String validateOwnerGroup() {
+    return RuleUtils.validateGroup(this.ifOwnerId, this.ifOwnerName);
+  }
+  
+  /**
+   * see if the owner is a stem (note, owner requiredness not checked)
+   * @return the error message
+   */
+  public String validateOwnerStem() {
+    return RuleUtils.validateStem(this.ifOwnerId, this.ifOwnerName);
+  }
+  
+
 }

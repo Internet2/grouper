@@ -265,4 +265,22 @@ public class RuleCheck {
       ruleCheckType.addElVariables(variableMap, rulesBean);
     }
   }
+  
+  /**
+   * see if the owner is a group (note, owner requiredness not checked)
+   * @return the error message
+   */
+  public String validateOwnerGroup() {
+    return RuleUtils.validateGroup(this.checkOwnerId, this.checkOwnerName);
+  }
+  
+  /**
+   * see if the owner is a stem (note, owner requiredness not checked)
+   * @return the error message
+   */
+  public String validateOwnerStem() {
+    return RuleUtils.validateStem(this.checkOwnerId, this.checkOwnerName);
+  }
+  
+
 }

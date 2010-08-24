@@ -60,6 +60,15 @@ public enum RuleCheckType {
       }
     }
 
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleCheck ruleCheck) {
+      return this.validate(ruleCheck, false, true, false);
+    }
+
     
   },
   
@@ -84,6 +93,16 @@ public enum RuleCheckType {
     public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
       flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
     }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleCheck ruleCheck) {
+      return this.validate(ruleCheck, false, true, false);
+    }
+
   },
   
   /** if there is a membership remove in transaction of remove of a gropu in a stem */
@@ -95,7 +114,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true);
+      return validate(ruleCheck, true, false, true);
     }
 
     /**
@@ -116,6 +135,7 @@ public enum RuleCheckType {
     public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
       flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
     }
+
   },
   
   /** if a group is created */
@@ -127,7 +147,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true);
+      return validate(ruleCheck, true, false, true);
     }
 
     /**
@@ -148,13 +168,14 @@ public enum RuleCheckType {
   
   /** if a stem is created */
   stemCreate {
+    
     /**
      * validate this check type
      * @param ruleCheck 
      * @return the error or null if valid
      */
     public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true);
+      return validate(ruleCheck, true, false, true);
     }
 
     /**
@@ -197,6 +218,16 @@ public enum RuleCheckType {
     public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
       flattenedMembershipAdd.addElVariables(variableMap, rulesBean);
     }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleCheck ruleCheck) {
+      return this.validate(ruleCheck, false, true, false);
+    }
+
   }, 
   
   /** if there is a membership remove flattened */
@@ -220,7 +251,15 @@ public enum RuleCheckType {
   
       flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
     }
-  
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleCheck)
+     */
+    @Override
+    public String validate(RuleCheck ruleCheck) {
+      return this.validate(ruleCheck, false, true, false);
+    }
     
   }, 
   
@@ -233,7 +272,7 @@ public enum RuleCheckType {
      * @return the error or null if valid
      */
     public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true);
+      return validate(ruleCheck, true, false, true);
     }
   
     /**
@@ -261,9 +300,7 @@ public enum RuleCheckType {
    * @param ruleCheck 
    * @return the error or null if valid
    */
-  public String validate(RuleCheck ruleCheck) {
-    return validate(ruleCheck, false);
-  }
+  public abstract String validate(RuleCheck ruleCheck);
 
   /**
    * get the check object from the rules bean
@@ -285,9 +322,11 @@ public enum RuleCheckType {
    * validate this check type
    * @param ruleCheck 
    * @param requireStemScope true to require, false to require blank
+   * @param ownerIsGroup 
+   * @param ownerIsStem 
    * @return the error or null if valid
    */
-  public String validate(RuleCheck ruleCheck, boolean requireStemScope) {
+  public String validate(RuleCheck ruleCheck, boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem) {
     if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) == StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
       return "Enter one and only one of checkOwnerId and checkOwnerName!";
     }
@@ -305,6 +344,22 @@ public enum RuleCheckType {
         return "Cant put checkStemScope in this ruleCheckType, not allowed";
       }
     }
+    
+    if (ownerIsGroup) {
+      String result = ruleCheck.validateOwnerGroup();
+      if (!StringUtils.isBlank(result)) {
+        return result;
+      }
+    }
+    
+    if (ownerIsStem) {
+      String result = ruleCheck.validateOwnerStem();
+      if (!StringUtils.isBlank(result)) {
+        return result;
+      }
+    }
+    
+    //if there is a stem scope, then owner is stem
     return null;
   }
   

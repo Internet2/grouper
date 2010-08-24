@@ -240,6 +240,7 @@ public class GrouperLoader {
     scheduleLogCleanerJob();
     scheduleDailyReportJob();
     scheduleEnabledDisabledJob();
+    scheduleRulesJob();
 
   }
 
@@ -492,6 +493,72 @@ public class GrouperLoader {
 
   }
 
+  /**
+   * schedule rules job
+   */
+  public static void scheduleRulesJob() {
+
+    String cronString = null;
+
+    //this is a low priority job
+    int priority = 1;
+
+    //schedule the log delete job
+    try {
+      
+      cronString = GrouperLoaderConfig.getPropertyString("rules.quartz.cron");
+
+      if (StringUtils.isBlank(cronString)) {
+        LOG.warn("grouper-loader.properties key: rules.quartz.cron is not " +
+            "filled in so the rules daemon will not run");
+        return;
+      }
+      
+      //at this point we have all the attributes and we know the required ones are there, and logged when 
+      //forbidden ones are there
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+      //the name of the job must be unique, so use the group name since one job per group (at this point)
+      JobDetail jobDetail = new JobDetail(GrouperLoaderType.GROUPER_RULES, null, GrouperLoaderJob.class);
+
+      //schedule this job daily at 6am
+      GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
+
+      Trigger trigger = grouperLoaderScheduleType.createTrigger(cronString, null);
+
+      trigger.setName("triggerMaintenance_rules");
+
+      trigger.setPriority(priority);
+
+      scheduler.scheduleJob(jobDetail, trigger);
+
+
+    } catch (Exception e) {
+      String errorMessage = "Could not schedule job: '" + GrouperLoaderType.GROUPER_RULES + "'";
+      LOG.error(errorMessage, e);
+      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      try {
+        //lets enter a log entry so it shows up as error in the db
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobMessage(errorMessage);
+        hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_RULES);
+        hib3GrouploaderLog.setJobSchedulePriority(priority);
+        hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
+        hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
+        hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.store();
+        
+      } catch (Exception e2) {
+        LOG.error("Problem logging to loader db log", e2);
+      }
+    }
+
+  }
+
+
+  
   /**
    * schedule enabled/disabled job
    */
