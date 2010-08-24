@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -11,10 +13,12 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -24,6 +28,41 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class RuleUtils {
 
+  /**
+   * 
+   * @param groupId
+   * @param memberId
+   * @param membershipType @see {@link MembershipType}, null for all
+   * @param enabled null for all, T for only enabled, F for only disabled
+   * @return true if has immediate enabled membership
+   */
+  public static boolean hasMembershipByGroupId(String groupId, String memberId, 
+      String membershipType, String enabled) {
+    
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Has member: " + memberId + ", from group: " + groupId 
+          + ", membershipType: " + membershipType + ", enabled: " + enabled);
+    }
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
+    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    
+    MembershipType membershipTypeEnum = MembershipType.valueOfIgnoreCase(membershipType, false);
+    
+    Boolean enabledBoolean = GrouperUtil.booleanObjectValue(enabled);
+    
+    Set<Object[]> membershipSetArray = MembershipFinder.findMemberships(GrouperUtil.toSet(groupId), GrouperUtil.toSet(memberId), 
+        null, membershipTypeEnum, Group.getDefaultList(), null, null, null, null, enabledBoolean);
+    
+    boolean result = GrouperUtil.length(membershipSetArray) > 0;
+    
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Has member: " + member.getSubjectId() + ", from group: " + group.getName() 
+          + ", membershipType: " + membershipType + ", enabled: " + enabled + ", result: " + result);
+    }
+    return result;
+
+  }
+  
   /**
    * return the rule attribute def name, assign this to an object to attach a rule.
    * this throws exception if cant find

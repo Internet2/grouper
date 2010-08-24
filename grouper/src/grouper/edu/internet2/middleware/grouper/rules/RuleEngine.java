@@ -240,7 +240,7 @@ public class RuleEngine {
         
         boolean shouldLogThisDefinition = LOG.isDebugEnabled() || ruleDefinition.shouldLog();
         final StringBuilder logDataForThisDefinition = shouldLogThisDefinition ? logData : null;
-        if (ruleDefinition.getIfCondition().shouldFire(ruleDefinition, ruleEngine, rulesBean)) {
+        if (ruleDefinition.getIfCondition().shouldFire(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition)) {
           
           shouldFireCount++;
           

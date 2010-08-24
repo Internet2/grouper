@@ -1,8 +1,12 @@
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * rule if condition
@@ -106,7 +110,7 @@ public class RuleIfCondition {
    */
   public String validate() {
     //can be blank
-    if (!StringUtils.isBlank(this.ifConditionEl) &&  !StringUtils.isBlank(this.ifConditionEl)) {
+    if (!StringUtils.isBlank(this.ifConditionEnum) &&  !StringUtils.isBlank(this.ifConditionEl)) {
       return "Do not enter both of ifConditionEl and ifConditionEnum!";
     }
     if (!StringUtils.isBlank(this.ifConditionEnum)) {
@@ -124,17 +128,41 @@ public class RuleIfCondition {
    * @param ruleDefinition
    * @param ruleEngine
    * @param rulesBean
+   * @param logDataForThisDefinition 
    * @return true if this check passes
    */
   public boolean shouldFire(RuleDefinition ruleDefinition, 
-      RuleEngine ruleEngine, RulesBean rulesBean) {
+      RuleEngine ruleEngine, RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
 
     RuleIfConditionEnum ruleIfConditionEnum = this.ifConditionEnum();
     if (ruleIfConditionEnum != null) {
       return ruleIfConditionEnum.shouldFire(ruleDefinition, 
-      ruleEngine, rulesBean);
+          ruleEngine, rulesBean);
     } else if (!StringUtils.isBlank(this.ifConditionEl)) {
-      throw new RuntimeException("Not implemented");
+      Map<String, Object> variableMap =  new HashMap<String, Object>();
+      variableMap.put("ruleUtils", new RuleUtils());
+      
+      ruleDefinition.addElVariables(variableMap, rulesBean);
+      
+      if (logDataForThisDefinition != null) {
+        logDataForThisDefinition.append(", EL variables: ");
+        for (String varName : variableMap.keySet()) {
+          logDataForThisDefinition.append(varName);
+          Object value = variableMap.get(varName);
+          if (value instanceof String) {
+            logDataForThisDefinition.append("(").append(value).append(")");
+          }
+          logDataForThisDefinition.append(",");
+        }
+      }
+      
+      String result = GrouperUtil.substituteExpressionLanguage(this.ifConditionEl, variableMap);
+      
+      if (logDataForThisDefinition != null) {
+        logDataForThisDefinition.append(", elResult: ").append(result);
+      }
+      
+      return GrouperUtil.booleanObjectValue(result);
     }
     
     throw new RuntimeException("Shouldnt get here");
