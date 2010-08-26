@@ -13,6 +13,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.kuali.rice.kew.doctype.bo.DocumentType;
+import org.kuali.rice.kew.doctype.service.DocumentTypeService;
+import org.kuali.rice.kew.service.KEWServiceLocator;
+import org.kuali.rice.kew.web.session.UserSession;
+import org.kuali.rice.kim.bo.Person;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityDefaultInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityEntityTypeDefaultInfo;
 import org.kuali.rice.kim.bo.entity.dto.KimEntityEntityTypeInfo;
@@ -87,6 +92,36 @@ public class GrouperKimUtils {
     
   }
   
+  /**
+   * get the doc type label for a doc type name
+   * @param doctypeName
+   * @return the label
+   */
+  public static String xslDoctypeLabel(String doctypeName) {
+    DocumentTypeService documentTypeService = KEWServiceLocator.getDocumentTypeService();
+    DocumentType doctype = documentTypeService.findByName(doctypeName);
+    return doctype.getLabel();
+  }
+  
+  /**
+   * get the xsl principal id
+   * @return the principal id
+   */
+  public static String xslPrincipalId() {
+    UserSession userSession=UserSession.getAuthenticatedUser();
+    Person user = userSession.getPerson();
+    return user.getPrincipalId();
+  }
+  
+  /**
+   * get the xsl principal name
+   * @return the principal name
+   */
+  public static String xslPrincipalName() {
+    UserSession userSession=UserSession.getAuthenticatedUser();
+    Person user = userSession.getPerson();
+    return user.getPrincipalName();
+  }
   
   /**
    * get the first name from the name.  If the name has a space, do stuff before first space
