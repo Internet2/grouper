@@ -14,6 +14,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -26,6 +28,96 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum RuleIfConditionEnum {
 
+  /**
+   * make sure this group and not the folder has membership
+   */
+  thisGroupAndNotFolderHasImmediateEnabledMembership {
+
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+      String memberId = null;
+      try {
+        memberId = rulesBean.getMemberId();
+      } catch (Exception e) {
+        //ignore
+      }
+      
+      GrouperSession rootSession = GrouperSession.startRootSession(false);
+      try {
+        
+        if (StringUtils.isBlank(memberId)) {
+          
+          Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
+          memberId = member == null ? null : member.getUuid();
+
+          if (StringUtils.isBlank(memberId )) {
+            return false;
+          }
+        }
+        
+        Group group = GroupFinder.findByUuid(rootSession, ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false);
+        
+        if (group == null) {
+          LOG.error("Group doesnt exist in rule! " + ruleDefinition);
+          return false;
+        }
+        
+        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+          .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
+              group.getId(), Group.getDefaultList(), 
+              GrouperUtil.toSet(memberId), "immediate", true);
+        
+        //if not in this group, forget it
+        if (GrouperUtil.length(memberships) == 0) {
+          return false;
+        }
+        
+        Stem stem = null;
+        if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
+          stem = StemFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+        } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
+          stem = StemFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+        }
+        
+        memberships = GrouperDAOFactory.getFactory().getMembership()
+          .findAllByStemParentOfGroupOwnerAndFieldAndType(stem.getName() + ":%", Group.getDefaultList(), "immediate", true);
+      
+        //if not in this group, forget it
+        if (GrouperUtil.length(memberships) == 0) {
+          return true;
+        }
+      
+        return false;
+        
+      } finally {
+        GrouperSession.stopQuietly(rootSession);
+      }
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+      
+      //we need the owner stem and if sub or one
+      if (StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId()) && StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
+        return "This if condition " + this + " requires a check name or id";
+      }
+      
+      if (StringUtils.isBlank(ruleDefinition.getCheck().getCheckStemScope())) {
+        return "This if condition " + this + " requires a check stem scope";
+      }
+      
+      return super.validate(ruleDefinition);
+    }
+    
+  }, 
+  
   /**
    * make sure a group has no immedaite enabled membership
    */
@@ -67,6 +159,7 @@ public enum RuleIfConditionEnum {
         
         if (group == null) {
           LOG.error("Group doesnt exist in rule! " + ruleDefinition);
+          return false;
         }
         
         Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
@@ -85,7 +178,8 @@ public enum RuleIfConditionEnum {
      * 
      */
     @Override
-    public String validate(RuleIfCondition ruleIfCondition) {
+    public String validate(RuleDefinition ruleDefinition) {
+      RuleIfCondition ruleIfCondition = ruleDefinition.getIfCondition();
       if (StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) && StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
         return "This ifConditionEnum " + this.name() + " requires an ifOwnerId or ifOwnerName";
       }
@@ -144,14 +238,6 @@ public enum RuleIfConditionEnum {
       }
     }
 
-    /**
-     * 
-     */
-    @Override
-    public String validate(RuleIfCondition ruleIfCondition) {
-      //this is ok
-      return null;
-    }
   };
   
   /** logger */
@@ -182,8 +268,14 @@ public enum RuleIfConditionEnum {
   
   /**
    * validate the enum
-   * @param ruleIfCondition 
+   * @param ruleDefinition 
    * @return error message or null if ok
    */
-  public abstract String validate(RuleIfCondition ruleIfCondition);
+  public String validate(RuleDefinition ruleDefinition) {
+    RuleIfCondition ruleIfCondition = ruleDefinition.getIfCondition();
+    if (!StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) || !StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
+      return "This ifConditionEnum " + this.name() + " requires no ifOwnerId or ifOwnerName";
+    }
+    return null;
+  }
 }

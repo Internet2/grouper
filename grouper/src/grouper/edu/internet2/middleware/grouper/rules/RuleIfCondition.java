@@ -156,9 +156,10 @@ public class RuleIfCondition {
 
   /**
    * validate this 
+   * @param ruleDefinition 
    * @return error or null if ok
    */
-  public String validate() {
+  public String validate(RuleDefinition ruleDefinition) {
     //can be blank
     if (!StringUtils.isBlank(this.ifConditionEnum) &&  !StringUtils.isBlank(this.ifConditionEl)) {
       return "Do not enter both of ifConditionEl and ifConditionEnum!";
@@ -173,7 +174,7 @@ public class RuleIfCondition {
       } catch (Exception e) {
         return e.getMessage();
       }
-      String enumValidation = ruleIfConditionEnum.validate(this);
+      String enumValidation = ruleIfConditionEnum.validate(ruleDefinition);
       if (!StringUtils.isBlank(enumValidation)) {
         return enumValidation;
       }

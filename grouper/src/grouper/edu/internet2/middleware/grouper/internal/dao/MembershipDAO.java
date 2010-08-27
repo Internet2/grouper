@@ -121,6 +121,18 @@ public interface MembershipDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * @param ownerStemPattern e.g. a:b:c:%
+   * @param field
+   * @param type e.g. immediate
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   1.2.0
+   */
+  Set<Membership> findAllByStemParentOfGroupOwnerAndFieldAndType(String ownerStemPattern, Field field, String type, Boolean enabledOnly) 
+    throws  GrouperDAOException;
+
+  /**
    * @param ownerStemId 
    * @param f 
    * @param type 

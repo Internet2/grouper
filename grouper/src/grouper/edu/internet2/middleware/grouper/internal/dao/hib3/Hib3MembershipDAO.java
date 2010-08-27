@@ -2122,4 +2122,41 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
   }
 
+  /**
+   * @see  MembershipDAO#findAllByStemParentOfGroupOwnerAndFieldAndType(String, Field, String, Boolean)
+   */
+  public Set<Membership> findAllByStemParentOfGroupOwnerAndFieldAndType(
+      String ownerStemPattern, Field field, String type, Boolean enabledOnly)
+      throws GrouperDAOException {
+    
+    MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m, Group as g where  "
+        + "     ms.ownerGroupId   = g.uuid            "
+        + " and  ms.fieldId = :fuuid "
+        + " and  ms.memberUuid  = m.uuid         "
+        + " and g.nameDb like :ownerStemName");
+    
+    if (!StringUtils.isBlank(type)) {
+      sql.append(" and  ms.type  " + membershipType.queryClause());
+    }
+    
+    if (enabledOnly != null && enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T' ");
+    }
+    if (enabledOnly != null && !enabledOnly) {
+      sql.append(" and ms.enabledDb = 'F' ");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllByStemParentOfGroupOwnerAndFieldAndType")
+      .setString( "ownerStemName" , ownerStemPattern                 )
+      .setString( "fuuid",  field.getUuid()            )
+      .listSet(Object[].class);
+
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
+
+  }
+
 }

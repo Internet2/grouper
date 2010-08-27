@@ -301,7 +301,7 @@ public class RuleDefinition {
 
     //note, if condition can be null
     if (this.ifCondition != null) {
-      reason = this.ifCondition.validate();
+      reason = this.ifCondition.validate(this);
       if (!StringUtils.isBlank(reason)) {
         return reason;
       }
