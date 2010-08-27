@@ -152,4 +152,12 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperAttributeAssignValueRulesConfigHook.class);
 
+  
+  /**
+   * @return the threadLocalInValidateRule
+   */
+  public static ThreadLocal<Boolean> getThreadLocalInValidateRule() {
+    return threadLocalInValidateRule;
+  }
+
 }

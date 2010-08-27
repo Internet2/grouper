@@ -16,6 +16,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hooks.examples.GrouperAttributeAssignValueRulesConfigHook;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
@@ -35,7 +37,7 @@ public class RuleEngine {
   static long ruleFirings = 0;
   
   /** cached rule definitions */
-  private static GrouperCache<Boolean, RuleEngine> ruleEngineCache = 
+  static GrouperCache<Boolean, RuleEngine> ruleEngineCache = 
     new GrouperCache<Boolean, RuleEngine>(RuleEngine.class.getName() + ".ruleEngine", 100, false, 5*60, 5*60, false);
   
   /** rule definitions */
@@ -131,7 +133,7 @@ public class RuleEngine {
         ruleEngine = ruleEngineCache.get(Boolean.TRUE);
         if (ruleEngine == null) {
           Map<AttributeAssign, Set<AttributeAssignValueContainer>> attributeAssignValueContainers 
-            = allRulesAttributeAssignValueContainers();
+            = allRulesAttributeAssignValueContainers(null);
           
           RuleEngine newEngine = new RuleEngine();
           Set<RuleDefinition> newDefinitions = newEngine.getRuleDefinitions();
@@ -140,14 +142,8 @@ public class RuleEngine {
               GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
             RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
             
-            String invalidReason = ruleDefinition.validate();
-            if (StringUtils.isBlank(invalidReason)) {
-              newDefinitions.add(ruleDefinition);
-            } else {
-              //throw out invalid rules
-              LOG.error("Invalid rule definition: " 
-                  + invalidReason + ", ruleDefinition: " + ruleDefinition);
-            }
+            //dont validate, already validated
+            newDefinitions.add(ruleDefinition);
             
           }
           
@@ -294,14 +290,15 @@ public class RuleEngine {
   
   /**
    * get all rules from the DB in the form of attribute assignments
+   * @param queryOptions 
    * @return the assigns of all rules
    */
-  public static Map<AttributeAssign, Set<AttributeAssignValueContainer>> allRulesAttributeAssignValueContainers() {
+  public static Map<AttributeAssign, Set<AttributeAssignValueContainer>> allRulesAttributeAssignValueContainers(QueryOptions queryOptions) {
     
     AttributeDefName ruleTypeDefName = RuleUtils.ruleAttributeDefName();
     
     Map<AttributeAssign, Set<AttributeAssignValueContainer>> result = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findByAttributeTypeDefNameId(ruleTypeDefName.getId());
+      .getAttributeAssign().findByAttributeTypeDefNameId(ruleTypeDefName.getId(), queryOptions);
   
     return result;
     
@@ -312,8 +309,50 @@ public class RuleEngine {
    * @return the number of records changed
    */
   public static int daemon() {
-    //TODO fix this
-    return -1;
+    
+    //get all enabled rules
+    final Map<AttributeAssign, Set<AttributeAssignValueContainer>> attributeAssignValueContainers 
+      = allRulesAttributeAssignValueContainers(new QueryOptions().secondLevelCache(false));
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession(false);
+    
+    return (Integer)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        GrouperAttributeAssignValueRulesConfigHook.getThreadLocalInValidateRule().set(Boolean.TRUE);
+        int rulesChanged = 0;
+        try {
+          
+          for (Set<AttributeAssignValueContainer> attributeAssignValueContainersSet : 
+              GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
+            
+            RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
+      
+            String validReason = ruleDefinition.validate();
+            
+            if (StringUtils.isBlank(validReason)) {
+              validReason = "T";
+            } else {
+              validReason = "INVALID: " + validReason;
+      
+              //throw out invalid rules
+              LOG.error("Invalid rule definition: " 
+                  + validReason + ", ruleDefinition: " + ruleDefinition);
+      
+              AttributeAssign typeAttributeAssign = ruleDefinition.getAttributeAssignType();
+      
+              typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
+              
+              rulesChanged++;
+            }
+      
+          }
+        } finally {
+          GrouperAttributeAssignValueRulesConfigHook.getThreadLocalInValidateRule().set(Boolean.FALSE);
+        }
+        return rulesChanged;
+      }
+    });
   }
   
 }

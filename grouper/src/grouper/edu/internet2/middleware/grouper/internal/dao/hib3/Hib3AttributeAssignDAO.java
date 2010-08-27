@@ -29,9 +29,11 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -1959,9 +1961,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   /**
    * find attribute assigns by ids, as root (no security).  order by attribute type def name, so they are in order
    * @param attributeTypeDefNameId attribute def name of the type on the owner
+   * @param queryOptions 
    * @return attributes grouped by the type assignment
    */
-  public Map<AttributeAssign, Set<AttributeAssignValueContainer>> findByAttributeTypeDefNameId(String attributeTypeDefNameId) {
+  public Map<AttributeAssign, Set<AttributeAssignValueContainer>> findByAttributeTypeDefNameId(String attributeTypeDefNameId, QueryOptions queryOptions) {
     
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -1982,7 +1985,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     		"   and aa_attr.enabledDb = 'T' " +
     		"   and aa_type.enabledDb = 'T' order by aa_type.id ");
     
-    byHqlStatic
+    byHqlStatic.options(queryOptions)
       .setString("attributeTypeDefNameId", attributeTypeDefNameId)
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindByAttributeTypeDefNameId");
@@ -2026,6 +2029,23 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       currentContainers.add(attributeAssignValueContainer);
       result.put(attributeAssignValueContainer.getAttributeTypeAssign(), currentContainers);
 
+    }
+    
+    //lets take out invalid ones
+    Iterator<AttributeAssign> iterator = result.keySet().iterator();
+    OUTER: while (iterator.hasNext()) {
+      
+      currentContainers = result.get(iterator.next());
+      for (AttributeAssignValueContainer attributeAssignValueContainer : currentContainers) {
+        if (StringUtils.equals(RuleUtils.ruleValidName(), attributeAssignValueContainer.getAttributeDefName().getName())) {
+          if (StringUtils.equals("T", attributeAssignValueContainer.getAttributeAssignValue().getValueString())) {
+            //leave this in
+            continue OUTER;
+          }
+        }
+      }
+      //invalid, take out
+      iterator.remove();
     }
     
     return result;
