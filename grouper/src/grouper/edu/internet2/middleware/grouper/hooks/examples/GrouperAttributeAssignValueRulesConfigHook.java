@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.hooks.examples;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
@@ -14,6 +15,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -39,7 +41,7 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
   @Override
   public void attributeAssignValuePostDelete(HooksContext hooksContext,
       HooksAttributeAssignValueBean postDeleteBean) {
-    validateRule(postDeleteBean.getAttributeAssignValue());
+    validateRule(postDeleteBean.getAttributeAssignValue(), true);
   }
 
   /**
@@ -48,7 +50,7 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
   @Override
   public void attributeAssignValuePostInsert(HooksContext hooksContext,
       HooksAttributeAssignValueBean postInsertBean) {
-    validateRule(postInsertBean.getAttributeAssignValue());
+    validateRule(postInsertBean.getAttributeAssignValue(), false);
   }
 
   /**
@@ -57,7 +59,7 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
   @Override
   public void attributeAssignValuePostUpdate(HooksContext hooksContext,
       HooksAttributeAssignValueBean postUpdateBean) {
-    validateRule(postUpdateBean.getAttributeAssignValue());
+    validateRule(postUpdateBean.getAttributeAssignValue(), false);
   }
 
   /** thread local to avoid circular references */
@@ -66,8 +68,9 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
   /**
    * validate this rule
    * @param attributeAssignValue
+   * @param isDelete 
    */
-  public void validateRule(AttributeAssignValue attributeAssignValue) {
+  public void validateRule(AttributeAssignValue attributeAssignValue, boolean isDelete) {
 
     //we want to avoid circular references
     Boolean inValidateAlready = threadLocalInValidateRule.get();
@@ -87,10 +90,26 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
       //see if this is a rule attribute
       AttributeAssign attributeAssign = attributeAssignValue.getAttributeAssign();
       
+      AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
       if (!StringUtils.equals(RuleUtils.ruleAttrAttributeDef().getId(), 
-          attributeAssign.getAttributeDef().getId())) {
+          attributeDefName.getAttributeDefId())) {
         return;
       }
+      
+      //we want the rules to refresh since something changed
+      RuleEngine.clearRuleEngineCache();
+      
+      if (isDelete) {
+        
+        //you are allowed to delete the valid attribute (so you can remove the whole thing..)
+        //note, the valid attribute will need to be deleted last... will this be a problem on cascade?
+        if (StringUtils.equals(RuleUtils.ruleValidName(), attributeDefName.getName())) {
+          return;
+        }
+      }
+      
+      //see if this is a delete of the validation
+      
       
       //this is a rule attribute, lets validate
       RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign.getOwnerAttributeAssignId());

@@ -338,12 +338,22 @@ public class RuleDefinition {
    * add EL variables to the substitute map
    * @param variableMap
    * @param rulesBean 
+   * @param hasAccessToEl 
    */
-  public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
-    this.getCheck().addElVariables(variableMap, rulesBean);
+  public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean, boolean hasAccessToEl) {
+    this.getCheck().addElVariables(this, variableMap, rulesBean, hasAccessToEl);
     
     AttributeAssign attributeAssign = this.getAttributeAssignType();
-    
+
+    if (hasAccessToEl) {
+      variableMap.put("attributeAssignType", attributeAssign);
+      variableMap.put("ruleDefinition", this);
+      variableMap.put("grouperUtil", new GrouperUtil());
+      
+    }
+
+    variableMap.put("ruleUtils", new RuleUtils());
+
     if (attributeAssign != null) {
       
       if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {

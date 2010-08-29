@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * rule then part
@@ -136,9 +137,12 @@ public class RuleThen {
       ruleThenEnum.fireRule(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
     } else if (!StringUtils.isBlank(this.thenEl)) {
       Map<String, Object> variableMap =  new HashMap<String, Object>();
-      variableMap.put("ruleUtils", new RuleUtils());
+
       
-      ruleDefinition.addElVariables(variableMap, rulesBean);
+      Subject actAsSubject = ruleDefinition.getActAs().subject(true);
+      boolean hasAccessToEl = RuleEngine.hasAccessToElApi(actAsSubject);
+
+      ruleDefinition.addElVariables(variableMap, rulesBean, hasAccessToEl);
       
       if (logDataForThisDefinition != null) {
         logDataForThisDefinition.append(", EL variables: ");

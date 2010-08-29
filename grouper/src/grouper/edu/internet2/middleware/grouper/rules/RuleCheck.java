@@ -246,10 +246,14 @@ public class RuleCheck {
 
   /**
    * add EL variables to the substitute map
+   * @param ruleDefinition
    * @param variableMap
    * @param rulesBean 
+   * @param hasAccessToElApi
    */
-  public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+  public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+      RulesBean rulesBean, boolean hasAccessToElApi) {
+
     if (!StringUtils.isBlank(this.checkOwnerId)) {
       variableMap.put("checkOwnerId", this.checkOwnerId);
     }
@@ -262,7 +266,7 @@ public class RuleCheck {
     RuleCheckType ruleCheckType = this.checkTypeEnum();
     
     if (ruleCheckType != null) {
-      ruleCheckType.addElVariables(variableMap, rulesBean);
+      ruleCheckType.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
   }
   

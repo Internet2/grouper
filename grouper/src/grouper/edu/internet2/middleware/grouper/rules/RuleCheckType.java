@@ -7,6 +7,9 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
@@ -38,23 +41,40 @@ public enum RuleCheckType {
      * 
      */
     @Override
-    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
 
       RulesMembershipBean rulesMembershipBean = (RulesMembershipBean)rulesBean;
       if (rulesMembershipBean != null) {
         Group group = rulesMembershipBean.getGroup();
         variableMap.put("groupId", group.getId());
         variableMap.put("groupName", group.getName());
+        if (hasAccessToElApi) {
+          variableMap.put("group", group);
+        }
       }
       if (!StringUtils.isBlank(rulesMembershipBean.getMemberId())) {
         variableMap.put("memberId", rulesMembershipBean.getMemberId());
+        if (hasAccessToElApi) {
+          Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession().internal_getRootSession(), 
+              rulesMembershipBean.getMemberId(), false);
+          if (member != null) {
+            variableMap.put("member", member);
+          }
+        }
       }
       Membership membership = rulesMembershipBean.getMembership();
       if (membership != null) {
+        if (hasAccessToElApi) {
+          variableMap.put("membership", membership);
+        }
         variableMap.put("membershipId", membership.getUuid());
       }
       Subject subject = rulesMembershipBean.getSubject();
       if (subject != null) {
+        if (hasAccessToElApi) {
+          variableMap.put("subject", subject);
+        }
         variableMap.put("subjectId", subject.getId());
         variableMap.put("sourceId", subject.getSourceId());
       }
@@ -90,8 +110,9 @@ public enum RuleCheckType {
      * 
      */
     @Override
-    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
-      flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
 
     /**
@@ -132,8 +153,9 @@ public enum RuleCheckType {
      * 
      */
     @Override
-    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
-      flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
 
   },
@@ -160,7 +182,8 @@ public enum RuleCheckType {
     }
 
     @Override
-    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
       throw new RuntimeException("Not implemented");
     }
    
@@ -191,7 +214,8 @@ public enum RuleCheckType {
      * 
      */
     @Override
-    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
       throw new RuntimeException("Not implemented");
     }
    
@@ -215,8 +239,9 @@ public enum RuleCheckType {
      * 
      */
     @Override
-    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
-      flattenedMembershipAdd.addElVariables(variableMap, rulesBean);
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      flattenedMembershipAdd.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
 
     /**
@@ -247,9 +272,10 @@ public enum RuleCheckType {
      * 
      */
     @Override
-    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
   
-      flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
 
     /**
@@ -290,8 +316,9 @@ public enum RuleCheckType {
      * 
      */
     @Override
-    public void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean) {
-      flattenedMembershipRemove.addElVariables(variableMap, rulesBean);
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
   };
   
@@ -312,10 +339,13 @@ public enum RuleCheckType {
 
   /**
    * add EL variables to the substitute map
+   * @param ruleDefinition 
    * @param variableMap
    * @param rulesBean 
+   * @param hasAccessToElApi 
    */
-  public abstract void addElVariables(Map<String, Object> variableMap, RulesBean rulesBean);
+  public abstract void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+      RulesBean rulesBean, boolean hasAccessToElApi);
 
   
   /**

@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * rule if condition
@@ -198,10 +199,20 @@ public class RuleIfCondition {
       return ruleIfConditionEnum.shouldFire(ruleDefinition, 
           ruleEngine, rulesBean);
     } else if (!StringUtils.isBlank(this.ifConditionEl)) {
-      Map<String, Object> variableMap =  new HashMap<String, Object>();
-      variableMap.put("ruleUtils", new RuleUtils());
       
-      ruleDefinition.addElVariables(variableMap, rulesBean);
+      Subject actAsSubject = ruleDefinition.getActAs().subject(true);
+      boolean hasAccessToElApi = RuleEngine.hasAccessToElApi(actAsSubject);
+      
+      Map<String, Object> variableMap =  new HashMap<String, Object>();
+      
+      ruleDefinition.addElVariables(variableMap, rulesBean, hasAccessToElApi);
+      
+      if (!StringUtils.isBlank(this.ifOwnerId)) {
+        variableMap.put("ifOwnerId", this.ifOwnerId);
+      }
+      if (!StringUtils.isBlank(this.ifOwnerName)) {
+        variableMap.put("ifOwnerName", this.ifOwnerName);
+      }
       
       if (logDataForThisDefinition != null) {
         logDataForThisDefinition.append(", EL variables: ");

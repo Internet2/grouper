@@ -5,16 +5,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hooks.examples.GrouperAttributeAssignValueRulesConfigHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -354,5 +358,69 @@ public class RuleEngine {
       }
     });
   }
+
+  /**
+   * multikey is sourceId and subjectId , default is 2.5 minutes
+   * @param subject
+   * @return the cache
+   */
+  private static GrouperCache<MultiKey, Boolean> subjectHasAccessToApi = 
+    new GrouperCache<MultiKey, Boolean>("RuleEngine.hasAccessToElApi", 1000, false, 150, 150, false);
+  
+  /**
+   * clear this for testing
+   */
+  static void clearSubjectHasAccessToElApi() {
+    subjectHasAccessToApi.clear();
+  }
+  
+  /**
+   * clear this for testing
+   */
+  public static void clearRuleEngineCache() {
+    ruleEngineCache.clear();
+  }
+  
+  /**
+   * see if a subejct (e.g. act as subject) has access to the EL api
+   * @param subject
+   * @return true if has access, flase if not, use the cache
+   */
+  public static boolean hasAccessToElApi(final Subject subject) {
+
+    final String hasAccessToGroupName = GrouperConfig.getProperty("rules.accessToApiInEl.group");
+    
+    if (StringUtils.isBlank(hasAccessToGroupName)) {
+      return false;
+    }
+    
+    final MultiKey subjectKey = new MultiKey(subject.getSourceId(), subject.getId());
+    
+    Boolean result = subjectHasAccessToApi.get(subjectKey);
+    if (result == null) {
+      
+      //go to root
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+      
+      result = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          Group hasAccessGroup = GroupFinder.findByName(grouperSession, hasAccessToGroupName, true);
+          
+          boolean result = hasAccessGroup.hasMember(subject);
+          
+          //add back to cache
+          subjectHasAccessToApi.put(subjectKey, result);
+          
+          return result;
+        }
+      });
+      
+    }
+
+    return result;
+  }
+  
   
 }
