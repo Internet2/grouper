@@ -2159,4 +2159,56 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   }
 
+  /**
+   * @see MembershipDAO#findAllMembersInOneGroupNotOtherAndType(String, String, String, String, QueryOptions, Boolean)
+   */
+  public Set<Member> findAllMembersInOneGroupNotOtherAndType(String ownerInGroupId,
+      String ownerNotInGroupId, String typeIn, String typeNotIn,
+      QueryOptions queryOptions, Boolean enabledOnly) throws GrouperDAOException {
+    
+    MembershipType typeInEnum = MembershipType.valueOfIgnoreCase(typeIn, false);
+    MembershipType typeNotInEnum = MembershipType.valueOfIgnoreCase(typeNotIn, false);
+    StringBuilder sql = new StringBuilder("select theMember from MembershipEntry as inMembershipEntry, Member as theMember where  "
+        + " inMembershipEntry.ownerGroupId   = :ownerInGroupId            "
+        + " and inMembershipEntry.memberUuid   = theMember.uuid            "
+        + " and  inMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
+    if (typeInEnum != null) {
+      sql.append(" and  inMembershipEntry.type  " + typeInEnum.queryClause());
+    }
+    if (enabledOnly != null) {
+      if (enabledOnly) {
+        sql.append(" and inMembershipEntry.enabledDb = 'T' ");
+      } else {
+        sql.append(" and inMembershipEntry.enabledDb = 'F' ");
+      }
+    }
+    sql.append(" and  theMember.uuid not in ( select notInMembershipEntry.memberUuid from MembershipEntry as notInMembershipEntry " +
+        		" where notInMembershipEntry.ownerGroupId = :ownerNotInGroupId "
+        		+ " and notInMembershipEntry.fieldId = '" + Group.getDefaultList().getUuid() + "' ");
+    if (typeNotInEnum != null) {
+      sql.append(" and notInMembershipEntry.type  " + typeNotInEnum.queryClause() );
+    }
+    if (enabledOnly != null) {
+      if (enabledOnly) {
+        sql.append(" and notInMembershipEntry.enabledDb = 'T' ");
+      } else {
+        sql.append(" and notInMembershipEntry.enabledDb = 'F' ");
+      }
+    }
+    sql.append(" ) ");
+        		
+    
+    Set<Member> members = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllMembersInOneGroupNotOtherAndType")
+      .setString( "ownerInGroupId" , ownerInGroupId                 )
+      .setString( "ownerNotInGroupId" , ownerNotInGroupId                 )
+      .listSet(Member.class);
+
+    return members;
+
+    
+  }
+
 }

@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,6 +15,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -536,6 +538,30 @@ public class RuleUtils {
     
   }
 
-  
+  /**
+   * assign a disabled date in the future by X days
+   * @param groupId
+   * @param memberId
+   * @param daysInFuture
+   * @return true if added membership, false if used existing
+   */
+  public static boolean assignMembershipDisabledDaysForGroupId(String groupId, String memberId, int daysInFuture) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Has member: " + memberId + ", from group: " + groupId 
+          + ", daysInFuture: " + daysInFuture);
+    }
+    boolean result = false;
+    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
+    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    Membership membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
+    if (membership == null) {
+      group.addMember(member.getSubject(), true);
+      membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
+      result = true;
+    }
+    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
+    membership.update();
+    return result;
+  }
   
 }

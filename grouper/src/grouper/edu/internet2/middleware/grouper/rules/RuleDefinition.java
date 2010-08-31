@@ -247,6 +247,14 @@ public class RuleDefinition {
   }
 
   /**
+   * 
+   * @return string for run daemon
+   */
+  public String getRunDaemon() {
+    return this.runDaemon;
+  }
+
+  /**
    * if we should run the daemon, then do
    */
   public void runDaemonOnDefinitionIfShould() {
@@ -254,7 +262,10 @@ public class RuleDefinition {
     if (!StringUtils.isBlank(this.getIfCondition().getIfConditionEl()) || !this.isRunDaemonBoolean()) {
       return;
     }
-    //TODO sdaf
+    
+    //we are running the daemon, lets go
+    this.getCheck().checkTypeEnum().runDaemon(this);
+    
   }
   
   /**

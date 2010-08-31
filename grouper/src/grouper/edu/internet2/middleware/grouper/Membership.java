@@ -91,6 +91,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.CanOptinValidator;
 import edu.internet2.middleware.grouper.validator.CompositeMembershipValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
@@ -121,6 +122,18 @@ public class Membership extends GrouperAPI implements
    * update this record to the DB
    */
   public void update() {
+    
+    //MCH 20100831: note, adding this now to 2.0 since it should check permissions when editing memberships
+    if (!StringUtils.isBlank(this.getOwnerGroupId())) {
+      
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.getOwnerGroupId(), true);
+      Field field = FieldFinder.findById(this.getFieldId(), true);
+      if ( !group.canWriteField(field) ) { 
+        throw new InsufficientPrivilegeException("Not allowed to edit group " + group.getName() + ", " 
+            + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject()));
+      }
+
+    }
     GrouperDAOFactory.getFactory().getMembership().update(this);
   }
   

@@ -232,6 +232,20 @@ TODO update for 1.5
       Field f, String type, QueryOptions queryOptions, boolean enabledOnly) throws GrouperDAOException;
   
   /**
+   * @param ownerInGroupId
+   * @param ownerNotInGroupId
+   * @param typeIn
+   * @param typeNotIn
+   * @param queryOptions 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Member> findAllMembersInOneGroupNotOtherAndType(String ownerInGroupId,
+      String ownerNotInGroupId,
+      String typeIn, String typeNotIn, QueryOptions queryOptions, Boolean enabledOnly) throws GrouperDAOException;
+  
+  /**
    * @param ownerGroupId
    * @param f
    * @param type

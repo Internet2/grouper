@@ -128,7 +128,7 @@ public class RuleEngine {
    * 
    * @return all the rule definitions, cached
    */
-  private static RuleEngine ruleEngine() {
+  static RuleEngine ruleEngine() {
     RuleEngine ruleEngine = ruleEngineCache.get(Boolean.TRUE);
     
     if (ruleEngine == null) {
@@ -356,7 +356,7 @@ public class RuleEngine {
                 rulesChanged++;
               }
             } catch (Exception e) {
-              LOG.error("Error with daemon on rule: " + ruleDefinition);
+              LOG.error("Error with daemon on rule: " + ruleDefinition, e);
             }
           }
         } finally {

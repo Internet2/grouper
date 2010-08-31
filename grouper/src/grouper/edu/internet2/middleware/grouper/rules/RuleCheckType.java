@@ -7,11 +7,14 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -123,6 +126,68 @@ public enum RuleCheckType {
     public String validate(RuleCheck ruleCheck) {
       return this.validate(ruleCheck, false, true, false);
     }
+
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      
+      RuleEngine ruleEngine = RuleEngine.ruleEngine();
+      
+      //lets get the if enum
+      RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
+      
+      switch (ruleIfConditionEnum) {
+        
+        case thisGroupHasImmediateEnabledMembership:
+          
+          //so basically, for the memberships in this group, where there is none in the other group, process them
+          String thisGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+          
+          GrouperSession rootSession = GrouperSession.startRootSession(false);
+          try {
+            
+            Group group = null;
+            if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
+              group = GroupFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+            } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
+              group = GroupFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+            }
+
+            if (group == null) {
+              throw new RuntimeException("Group doesnt exist in rule! " + ruleDefinition);
+            }
+
+            //find the members which apply
+            Set<Member> memberOrphans = GrouperDAOFactory.getFactory().getMembership().findAllMembersInOneGroupNotOtherAndType(thisGroupId, group.getUuid(), 
+                MembershipType.IMMEDIATE.name(), null, null, true);
+
+            for (Member member : GrouperUtil.nonNull(memberOrphans)) {
+
+              RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(member, group, member.getSubject());
+              
+              //fire the rule then clause
+              RuleEngine.ruleFirings++;
+              
+              ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesMembershipBean, null);
+              
+            }
+            
+          } finally {
+            GrouperSession.stopQuietly(rootSession);
+          }
+
+          break;
+        default:
+          if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+            throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+          }
+      }
+      
+      
+    }
+
 
   },
   
@@ -450,5 +515,11 @@ public enum RuleCheckType {
     return ruleDefinitions;
   }
 
-
+  /**
+   * run the daemon to sync up the state
+   * @param ruleDefinition
+   */
+  public void runDaemon(RuleDefinition ruleDefinition) {
+    throw new RuntimeException("Note implemented daemon: " + ruleDefinition);
+  }
 }

@@ -4,9 +4,8 @@
  */
 package edu.internet2.middleware.grouper.rules.beans;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -37,8 +36,23 @@ public class RulesMembershipBean extends RulesBean {
     this.subject = subject1;
   }
 
+  /**
+   * @param member1
+   * @param group1
+   * @param subject1
+   */
+  public RulesMembershipBean(Member member1, Group group1, Subject subject1) {
+    super();
+    this.member = member1;
+    this.group = group1;
+    this.subject = subject1;
+  }
+
   /** membership */
   private Membership membership;
+
+  /** member */
+  private Member member;
 
   /** group */
   private Group group;
@@ -95,6 +109,9 @@ public class RulesMembershipBean extends RulesBean {
    */
   @Override
   public String getMemberId() {
+    if (this.membership == null) {
+      return this.member == null ? null : this.member.getUuid();
+    }
     return this.membership == null ? null : this.membership.getMemberUuid();
   }
   
@@ -120,6 +137,9 @@ public class RulesMembershipBean extends RulesBean {
     }
     if (this.subject != null) {
       result.append("subject: ").append(GrouperUtil.subjectToString(this.subject)).append(", ");
+    }
+    if (this.member != null) {
+      result.append("member: ").append(this.member).append(", ");
     }
     return result.toString();
   }
