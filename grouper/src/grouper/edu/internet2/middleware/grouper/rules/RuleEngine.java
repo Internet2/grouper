@@ -330,26 +330,34 @@ public class RuleEngine {
           for (Set<AttributeAssignValueContainer> attributeAssignValueContainersSet : 
               GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
             
-            RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
-      
-            String validReason = ruleDefinition.validate();
-            
-            if (StringUtils.isBlank(validReason)) {
-              validReason = "T";
-            } else {
-              validReason = "INVALID: " + validReason;
-      
-              //throw out invalid rules
-              LOG.error("Invalid rule definition: " 
-                  + validReason + ", ruleDefinition: " + ruleDefinition);
-      
-              AttributeAssign typeAttributeAssign = ruleDefinition.getAttributeAssignType();
-      
-              typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
+            RuleDefinition ruleDefinition = null;
+            try {
+              ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
+        
+              String validReason = ruleDefinition.validate();
               
-              rulesChanged++;
+              if (StringUtils.isBlank(validReason)) {
+                validReason = "T";
+                
+                //run daemon on rule if should
+                ruleDefinition.runDaemonOnDefinitionIfShould();
+                
+              } else {
+                validReason = "INVALID: " + validReason;
+        
+                //throw out invalid rules
+                LOG.error("Invalid rule definition: " 
+                    + validReason + ", ruleDefinition: " + ruleDefinition);
+        
+                AttributeAssign typeAttributeAssign = ruleDefinition.getAttributeAssignType();
+        
+                typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
+                
+                rulesChanged++;
+              }
+            } catch (Exception e) {
+              LOG.error("Error with daemon on rule: " + ruleDefinition);
             }
-      
           }
         } finally {
           GrouperAttributeAssignValueRulesConfigHook.getThreadLocalInValidateRule().set(Boolean.FALSE);

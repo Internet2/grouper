@@ -53,7 +53,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandValidations"));
+    TestRunner.run(new RuleTest("testRuleLonghandDaemonFixer"));
   }
 
   /**
@@ -815,6 +815,21 @@ public class RuleTest extends GrouperTest {
         RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
 
     //######################
+    //check el valid
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name() + "abc");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+
+    //######################
     //check owner not found
     isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
@@ -882,6 +897,250 @@ public class RuleTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleCheckOwnerNameName(), "stem:b");
 
+    //######################
+    //neither if el or enum entered is ok
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    //assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    
+    //######################
+    //both if el or enum entered is not ok
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionElName(),
+        "abc");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleIfConditionElName(),
+        "abc");
+    
+    //######################
+    //both then el or enum entered is not ok
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.test.name());
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.test.name());
+
+    //######################
+    //neither then el or enum entered is not ok
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+
+    //######################
+    //invalid enum is not ok
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.test.name());
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.test.name() + "abc");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.test.name() + "abc");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+
+    
+    //######################
+    //daemon not ok
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleRunDaemonName(), 
+        "A");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleRunDaemonName(), 
+        "T");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleRunDaemonName(), 
+        "F");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleRunDaemonName(), 
+        "F");
+
+    //######################
+    //daemon not ok if if is EL
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleRunDaemonName(), 
+        "T");
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionElName(), 
+        "abc");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleRunDaemonName(), 
+        "T");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleIfConditionElName(), 
+        "abc");
+
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandRemove() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    AttributeAssign attributeAssign = groupA
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+    
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    //count rule firings
+    
+    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    //should come out of groupA
+    assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));
+  
+    groupA.getAttributeDelegate().removeAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+  
+    
+    
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandDaemonFixer() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    AttributeAssign attributeAssign = groupA
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+    
+    //subj 0 should be taken out
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    //subj 1 should be left alone
+    groupA.addMember(SubjectTestHelper.SUBJ1);
+    groupB.addMember(SubjectTestHelper.SUBJ1);
+
+    //run the daemon
+    String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
+    
+    assertTrue(status.toLowerCase().contains("success"));
+    
+    //should come out of groupA
+    assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));
+  
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
     
   }
   

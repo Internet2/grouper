@@ -567,10 +567,18 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findByOwnerAttributeAssignId(java.lang.String)
    */
   public Set<AttributeAssign> findByOwnerAttributeAssignId(String ownerAttributeAssignId) {
+    return findByOwnerAttributeAssignId(ownerAttributeAssignId, null);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findByOwnerAttributeAssignId(java.lang.String, QueryOptions)
+   */
+  public Set<AttributeAssign> findByOwnerAttributeAssignId(String ownerAttributeAssignId, QueryOptions queryOptions) {
     Set<AttributeAssign> attributeAssigns = HibernateSession.byHqlStatic().createQuery(
         "select distinct theAttributeAssign from AttributeAssign theAttributeAssign " +
         "where theAttributeAssign.ownerAttributeAssignId = :theOwnerAttrAssignId")
         .setString("theOwnerAttrAssignId", ownerAttributeAssignId)
+        .options(queryOptions)
         .listSet(AttributeAssign.class);
     return attributeAssigns;
   }

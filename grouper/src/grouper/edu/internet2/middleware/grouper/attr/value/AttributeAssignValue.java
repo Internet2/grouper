@@ -699,30 +699,43 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * delete this record
    */
   public void delete() {
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-        new HibernateHandler() {
+    try {
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
+  
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+  
+              hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+  
+                GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(AttributeAssignValue.this);
+  
+                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                  AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
+                  AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
+                          "id", 
+                      AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
+                      "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
+                      "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+                  auditEntry.setDescription("Deleted attributeAssignValue: " + AttributeAssignValue.this.getId());
+                  auditEntry.saveOrUpdate(true);
+                }
+                return null;
+          }});
+    } catch (RuntimeException e) {
+      GrouperUtil.injectInException(e, " Problem deleting attribute assignValue: " + this + " ");
+      throw e;
+    }
+  }
 
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-
-            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-
-              GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(AttributeAssignValue.this);
-
-              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
-                AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
-                        "id", 
-                    AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
-                    "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
-                    "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
-                auditEntry.setDescription("Deleted attributeAssignValue: " + AttributeAssignValue.this.getId());
-                auditEntry.saveOrUpdate(true);
-              }
-              return null;
-        }});
+  /**
+   * @see Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "AttributeAssignValue.id#" + this.getId();
   }
 
   /**

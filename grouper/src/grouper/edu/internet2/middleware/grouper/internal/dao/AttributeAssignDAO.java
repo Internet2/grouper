@@ -153,6 +153,13 @@ public interface AttributeAssignDAO extends GrouperDAO {
   public Set<AttributeAssign> findByOwnerAttributeAssignId(String ownerAttributeAssignId);
 
   /**
+   * @param ownerAttributeAssignId
+   * @param queryOptions
+   * @return the attribute assigns or empty if not there
+   */
+  public Set<AttributeAssign> findByOwnerAttributeAssignId(String ownerAttributeAssignId, QueryOptions queryOptions);
+
+  /**
    * @param ownerAttributeDefId
    * @return the attribute assigns or empty if not there
    */

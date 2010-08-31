@@ -138,6 +138,27 @@ public class RuleUtils {
   }
   
   /**
+   * should be T or F
+   */
+  public static final String RULE_RUN_DAEMON = "ruleRunDaemon";
+
+  /**
+   * rule run daemon name
+   */
+  private static String ruleRunDaemonName = null;
+
+  /**
+   * full rule run daemon name
+   * @return name
+   */
+  public static String ruleRunDaemonName() {
+    if (ruleRunDaemonName == null) {
+      ruleRunDaemonName = RuleUtils.attributeRuleStemName() + ":" + RULE_RUN_DAEMON;
+    }
+    return ruleRunDaemonName;
+  }
+  
+  /**
    * 
    */
   public static final String RULE_VALID = "ruleValid";

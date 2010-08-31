@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -72,6 +74,20 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
    */
   public void validateRule(AttributeAssignValue attributeAssignValue, boolean isDelete) {
 
+    //if deleting the attribute rule type, then dont worry about validations...
+    Set<AttributeAssign> attributeAssignDeletes = AttributeAssign.attributeAssignDeletes();
+
+    AttributeDefName ruleAttributeDefName = RuleUtils.ruleAttributeDefName();
+    if (ruleAttributeDefName != null) {
+
+      for (AttributeAssign attributeAssign : GrouperUtil.nonNull(attributeAssignDeletes)) {
+        if (StringUtils.equals(ruleAttributeDefName.getId(), attributeAssign.getAttributeDefNameId())) {
+          //this means we are deleting a rule type, so dont worry about validating stuff
+          return;
+        }
+      }
+    }
+    
     //we want to avoid circular references
     Boolean inValidateAlready = threadLocalInValidateRule.get();
     if (inValidateAlready == null) {
@@ -98,19 +114,7 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
       
       //we want the rules to refresh since something changed
       RuleEngine.clearRuleEngineCache();
-      
-      if (isDelete) {
-        
-        //you are allowed to delete the valid attribute (so you can remove the whole thing..)
-        //note, the valid attribute will need to be deleted last... will this be a problem on cascade?
-        if (StringUtils.equals(RuleUtils.ruleValidName(), attributeDefName.getName())) {
-          return;
-        }
-      }
-      
-      //see if this is a delete of the validation
-      
-      
+            
       //this is a rule attribute, lets validate
       RuleDefinition ruleDefinition = new RuleDefinition(attributeAssign.getOwnerAttributeAssignId());
   
@@ -125,7 +129,21 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
       //now, we need to assign the valid attribute if not there already
       AttributeAssign typeAttributeAssign = attributeAssign.getOwnerAttributeAssign();
       
-      typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
+      if (isDelete && !StringUtils.equals("T", validReason)) {
+        //you are allowed to delete the valid attribute (so you can remove the whole thing..)
+        //note, the valid attribute will need to be deleted last... will this be a problem on cascade?
+        //if this isnt the valid attribute itself, if it is, it will be deleted by whatever fired the hook
+        if (!StringUtils.equals(RuleUtils.ruleValidName(), attributeDefName.getName())) {
+          //delete the valid attribute...
+          typeAttributeAssign.getAttributeDelegate().removeAttribute(RuleUtils.ruleValidAttributeDefName());
+        }        
+      } else {
+
+        typeAttributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleValidName(), validReason);
+        
+      }      
+
+      
       
     } finally {
       threadLocalInValidateRule.set(false);

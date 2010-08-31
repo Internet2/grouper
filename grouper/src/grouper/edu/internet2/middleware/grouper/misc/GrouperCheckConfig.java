@@ -1560,6 +1560,8 @@ public class GrouperCheckConfig {
             "RuleThenEnum to run when the rule fires", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_VALID, 
             "T|F for if this rule is valid, or the reason, managed by hook automatically", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_RUN_DAEMON, 
+            "T|F for if this rule daemon should run.  Default to true if blank and check and if are enums, false if not", wasInCheckConfig);
         
       }      
       

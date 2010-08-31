@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.attr.assign;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -50,6 +52,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -515,54 +518,86 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
   }
   
+  /** in attribute assign delete */
+  private static ThreadLocal<Set<AttributeAssign>> attributeAssignDeletes = new ThreadLocal<Set<AttributeAssign>>();
+
+  /**
+   * @return if in delete
+   */
+  public static Set<AttributeAssign> attributeAssignDeletes() {
+    Set<AttributeAssign> attributeAssignDeletesSet =  attributeAssignDeletes.get();
+    return attributeAssignDeletesSet == null ? null : Collections.unmodifiableSet(attributeAssignDeletesSet);
+  }
+  
   /**
    * delete this object
    */
   public void delete() {
-    
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
-        AuditControl.WILL_AUDIT, new HibernateHandler() {
-      
-      public Object callback(HibernateHandlerBean hibernateHandlerBean)
-          throws GrouperDAOException {
-
-        //delete other assignments on this assignment
-        Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeAssignId(AttributeAssign.this.getId());
-        
-        for (AttributeAssign attributeAssign : attributeAssigns) {
-          attributeAssign.delete();
-        }
-
-        //delete any values based on this assignment
-        Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory().getAttributeAssignValue().findByAttributeAssignId(AttributeAssign.this.getId());
-
-        for (AttributeAssignValue attributeAssignValue : attributeAssignValues) {
-          attributeAssignValue.delete();
-        }
-
-
-        //delete the assignment
-        GrouperDAOFactory.getFactory().getAttributeAssign().delete(AttributeAssign.this);
-
-        if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-          AuditEntry auditEntry = new AuditEntry();
-
-          AttributeAssign.this.getAttributeAssignType().decorateAuditEntryInsert(auditEntry, AttributeAssign.this.retrieveAttributeAssignable());
-          auditEntry.setDescription("Deleted attribute assignment");
-
-          auditEntry.assignStringValue(auditEntry.getAuditType(), "id", AttributeAssign.this.getId());
-          auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", AttributeAssign.this.getAttributeDefName().getName());
-          auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameId", AttributeAssign.this.getAttributeDefNameId());
-          auditEntry.assignStringValue(auditEntry.getAuditType(), "action", AttributeAssign.this.getAttributeAssignAction().getName());
-          auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefId", attributeDef.getId());
-
-          auditEntry.saveOrUpdate(true);
-        }
-
-        return null;
+    boolean clearInAttributeAssignDelete = false;
+    Set<AttributeAssign> attributeAssignDeletesSet =  attributeAssignDeletes.get();
+    if (attributeAssignDeletesSet == null || !attributeAssignDeletesSet.contains(this)) {
+      if (attributeAssignDeletesSet == null) {
+        attributeAssignDeletesSet = new HashSet<AttributeAssign>();
+        attributeAssignDeletes.set(attributeAssignDeletesSet);
       }
-    });
-
+      attributeAssignDeletesSet.add(this);
+      clearInAttributeAssignDelete = true;
+    }
+    try {
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+          AuditControl.WILL_AUDIT, new HibernateHandler() {
+        
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+  
+          //delete other assignments on this assignment
+          Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign()
+            .findByOwnerAttributeAssignId(AttributeAssign.this.getId(), new QueryOptions().secondLevelCache(false));
+          
+          for (AttributeAssign attributeAssign : attributeAssigns) {
+            attributeAssign.delete();
+            hibernateHandlerBean.getHibernateSession().getSession().flush();
+          }
+  
+          //delete any values based on this assignment
+          Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory()
+            .getAttributeAssignValue().findByAttributeAssignId(AttributeAssign.this.getId(), new QueryOptions().secondLevelCache(false));
+  
+          for (AttributeAssignValue attributeAssignValue : attributeAssignValues) {
+            attributeAssignValue.delete();
+            hibernateHandlerBean.getHibernateSession().getSession().flush();
+          }
+  
+  
+          //delete the assignment
+          GrouperDAOFactory.getFactory().getAttributeAssign().delete(AttributeAssign.this);
+  
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = new AuditEntry();
+  
+            AttributeAssign.this.getAttributeAssignType().decorateAuditEntryInsert(auditEntry, AttributeAssign.this.retrieveAttributeAssignable());
+            auditEntry.setDescription("Deleted attribute assignment");
+  
+            auditEntry.assignStringValue(auditEntry.getAuditType(), "id", AttributeAssign.this.getId());
+            auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameName", AttributeAssign.this.getAttributeDefName().getName());
+            auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefNameId", AttributeAssign.this.getAttributeDefNameId());
+            auditEntry.assignStringValue(auditEntry.getAuditType(), "action", AttributeAssign.this.getAttributeAssignAction().getName());
+            auditEntry.assignStringValue(auditEntry.getAuditType(), "attributeDefId", attributeDef.getId());
+  
+            auditEntry.saveOrUpdate(true);
+          }
+  
+          return null;
+        }
+      });
+    } catch (RuntimeException e) {
+      GrouperUtil.injectInException(e, " Problem deleting attribute assign: " + this + " ");
+      throw e;
+    } finally {
+      if (clearInAttributeAssignDelete) {
+        attributeAssignDeletesSet.remove(this);
+      }
+    }
   }
 
   /**
@@ -1220,41 +1255,46 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    */
   @Override
   public String toString() {
-    // Bypass privilege checks.  If the group is loaded it is viewable.
-    ToStringBuilder toStringBuilder = new ToStringBuilder(this)
-      .append( "id", this.id)
-      .append( "action", this.getAttributeAssignAction().getName() )
-      .append( "attributeDefName", this.getAttributeDefName().getName() );
-    
-    if (!StringUtils.isBlank(this.ownerStemId)) {
-      toStringBuilder.append("stem", 
-          StemFinder.findByUuid(GrouperSession.staticGrouperSession()
-              .internal_getRootSession(), this.ownerStemId, true));
+    ToStringBuilder toStringBuilder = new ToStringBuilder(this);
+    try {
+      // Bypass privilege checks.  If the group is loaded it is viewable.
+      toStringBuilder
+        .append( "id", this.id)
+        .append( "action", this.getAttributeAssignAction().getName() )
+        .append( "attributeDefName", this.getAttributeDefName().getName() );
+      
+      if (!StringUtils.isBlank(this.ownerStemId)) {
+        toStringBuilder.append("stem", 
+            StemFinder.findByUuid(GrouperSession.staticGrouperSession()
+                .internal_getRootSession(), this.ownerStemId, true));
+      }
+      if (!StringUtils.isBlank(this.ownerGroupId)) {
+        toStringBuilder.append("group", 
+            GroupFinder.findByUuid(GrouperSession.staticGrouperSession()
+                .internal_getRootSession(), this.ownerGroupId, true));
+      }
+      if (!StringUtils.isBlank(this.ownerMemberId)) {
+        toStringBuilder.append("subjectId", 
+            MemberFinder.findByUuid(GrouperSession.staticGrouperSession()
+                .internal_getRootSession(), this.ownerMemberId, true));
+      }
+      if (!StringUtils.isBlank(this.ownerMembershipId)) {
+        toStringBuilder.append("membershipId", 
+                this.ownerMembershipId);
+      }
+      if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
+        toStringBuilder.append("attributeDef", 
+            GrouperDAOFactory.getFactory().getAttributeDef().findById(
+                this.ownerAttributeDefId, true));
+      }
+      if (!StringUtils.isBlank(this.ownerAttributeAssignId)) {
+        toStringBuilder.append("ownerAttributeAssignId", 
+            this.ownerAttributeAssignId);
+      }
+      
+    } catch (Exception e) {
+      //ignore, did all we could
     }
-    if (!StringUtils.isBlank(this.ownerGroupId)) {
-      toStringBuilder.append("group", 
-          GroupFinder.findByUuid(GrouperSession.staticGrouperSession()
-              .internal_getRootSession(), this.ownerGroupId, true));
-    }
-    if (!StringUtils.isBlank(this.ownerMemberId)) {
-      toStringBuilder.append("subjectId", 
-          MemberFinder.findByUuid(GrouperSession.staticGrouperSession()
-              .internal_getRootSession(), this.ownerMemberId, true));
-    }
-    if (!StringUtils.isBlank(this.ownerMembershipId)) {
-      toStringBuilder.append("membershipId", 
-              this.ownerMembershipId);
-    }
-    if (!StringUtils.isBlank(this.ownerAttributeDefId)) {
-      toStringBuilder.append("attributeDef", 
-          GrouperDAOFactory.getFactory().getAttributeDef().findById(
-              this.ownerAttributeDefId, true));
-    }
-    if (!StringUtils.isBlank(this.ownerAttributeAssignId)) {
-      toStringBuilder.append("ownerAttributeAssignId", 
-          this.ownerAttributeAssignId);
-    }
-    
     return toStringBuilder.toString();
   }
 

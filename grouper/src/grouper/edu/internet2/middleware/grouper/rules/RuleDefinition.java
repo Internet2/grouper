@@ -51,6 +51,11 @@ public class RuleDefinition {
    * @param attributeAssignValueContainers
    */
   private void construct(Set<AttributeAssignValueContainer> attributeAssignValueContainers) {
+    
+    if (GrouperUtil.length(attributeAssignValueContainers) == 0) {
+      return;
+    }
+    
     //RuleUtils.RULE_ACT_AS_SUBJECT_ID
     //RuleUtils.RULE_ACT_AS_SUBJECT_IDENTIFIER
     //RuleUtils.RULE_ACT_AS_SUBJECT_SOURCE_ID
@@ -62,6 +67,7 @@ public class RuleDefinition {
     //RuleUtils.RULE_IF_OWNER_ID
     //RuleUtils.RULE_IF_OWNER_NAME
     //RuleUtils.RULE_THEN_EL
+    //RuleUtils.RULE_RUN_DAEMON
     
     String actAsSubjectId = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleActAsSubjectIdName());
@@ -89,6 +95,8 @@ public class RuleDefinition {
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenElName());
     String thenEnum = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumName());
+    String runDaemonTf = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleRunDaemonName());
     
     //lets do the subject first
     RuleSubjectActAs ruleSubjectActAs = new RuleSubjectActAs(
@@ -101,11 +109,14 @@ public class RuleDefinition {
         ifOwnerId, ifOwnerName);
     
     RuleThen ruleThen = new RuleThen(thenEl, thenEnum);
-    
+
     AttributeAssign attributeAssignType = attributeAssignValueContainers
       .iterator().next().getAttributeTypeAssign();
     construct(attributeAssignType, 
         ruleSubjectActAs, ruleCheck, ruleIfCondition, ruleThen);
+    
+    this.runDaemon = runDaemonTf;
+    
   }
   
 
@@ -147,20 +158,6 @@ public class RuleDefinition {
    * @param ifCondition
    * @param then
    */
-  public RuleDefinition(AttributeAssign theAttributeAssignType, RuleSubjectActAs actAs, RuleCheck check,
-      RuleIfCondition ifCondition, RuleThen then) {
-    super();
-    construct(theAttributeAssignType, actAs, check, ifCondition, then);
-  }
-
-
-  /**
-   * @param theAttributeAssignType
-   * @param actAs
-   * @param check
-   * @param ifCondition
-   * @param then
-   */
   private void construct(AttributeAssign theAttributeAssignType, RuleSubjectActAs actAs,
       RuleCheck check, RuleIfCondition ifCondition, RuleThen then) {
     this.attributeAssignType = theAttributeAssignType;
@@ -170,6 +167,9 @@ public class RuleDefinition {
     this.then = then;
   }
 
+  /** run daemon */
+  private String runDaemon;
+  
   /** who this rule acts as */
   private RuleSubjectActAs actAs;
 
@@ -247,25 +247,43 @@ public class RuleDefinition {
   }
 
   /**
+   * if we should run the daemon, then do
+   */
+  public void runDaemonOnDefinitionIfShould() {
+    
+    if (!StringUtils.isBlank(this.getIfCondition().getIfConditionEl()) || !this.isRunDaemonBoolean()) {
+      return;
+    }
+    //TODO sdaf
+  }
+  
+  /**
    * @see java.lang.Object#toString()
    */
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder();
-    if (this.attributeAssignType != null && !StringUtils.isBlank(this.attributeAssignType.getId())) {
-      result.append("attributeAssignTypeId: ").append(this.attributeAssignType.getId()).append(", ");
-    }
-    if (this.actAs != null) {
-      this.actAs.toStringHelper(result);
-    }
-    if (this.check != null) {
-      this.check.toStringHelper(result);
-    }
-    if (this.ifCondition != null) {
-      this.ifCondition.toStringHelper(result);
-    }
-    if (this.then != null) {
-      this.then.toStringHelper(result);
+    try {
+      if (this.attributeAssignType != null && !StringUtils.isBlank(this.attributeAssignType.getId())) {
+        result.append("attributeAssignTypeId: ").append(this.attributeAssignType.getId()).append(", ");
+      }
+      if (this.actAs != null) {
+        this.actAs.toStringHelper(result);
+      }
+      if (this.check != null) {
+        this.check.toStringHelper(result);
+      }
+      if (this.ifCondition != null) {
+        this.ifCondition.toStringHelper(result);
+      }
+      if (this.then != null) {
+        this.then.toStringHelper(result);
+      }
+      if (this.runDaemon != null) {
+        result.append("runDaemon: ").append(this.runDaemon).append(", ");
+      }
+    } catch (Exception e) {
+      //ignore, we did the best we could
     }
     return result.toString();
   }
@@ -316,8 +334,31 @@ public class RuleDefinition {
       return "then is required";
     }
 
+    if (this.runDaemon != null) {
+      try {
+        this.isRunDaemonBoolean();
+
+        //if if is not enum, then cant be T
+        if (!StringUtils.isBlank(this.getIfCondition().getIfConditionEl()) && this.isRunDaemonBoolean()) {
+          return "runDaemon cant be true if the IF EL is set, must be enum";
+        }
+      } catch (Exception e) {
+        return "runDaemon must be T or F";
+      }
+      
+      
+    }
+    
     return null;
   
+  }
+  
+  /**
+   * run daemon, true by default
+   * @return if run daemon
+   */
+  public boolean isRunDaemonBoolean() {
+    return GrouperUtil.booleanValue(this.runDaemon, true);
   }
   
   /**
