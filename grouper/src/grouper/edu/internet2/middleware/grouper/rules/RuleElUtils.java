@@ -13,6 +13,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -191,6 +193,59 @@ public class RuleElUtils {
    */
   public static RuleVeto veto(String reasonKey, String reason) {
     return new RuleVeto(reasonKey, reason);
+  }
+
+  /**
+   * assign stem privileges
+   * @param stemId 
+   * @param sourceId 
+   * @param subjectId 
+   * @param subjectIdentifier 
+   * @param privilegeNamesCommaSeparated 
+   * @return true if assigned, false if already ther
+   */
+  public static boolean assignStemPrivilege(String stemId, String sourceId, String subjectId, String subjectIdentifier, String privilegeNamesCommaSeparated) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("assignStemPrivilege: from stem: " + stemId 
+          + ", sourceId: " + sourceId + ", subjectId: " + subjectId 
+          + ", subjectIdentifier: " + subjectIdentifier + " privilegeNamesCommaSeparated: " + privilegeNamesCommaSeparated);
+    }
+    boolean result = false;
+    Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, true);
+    Subject subject = null;
+    if (!StringUtils.isBlank(sourceId)) {
+  
+      if (!StringUtils.isBlank(subjectId)) {
+        subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
+      } else if (!StringUtils.isBlank(subjectIdentifier)) {
+        subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, true);
+        
+      } else {
+        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
+      }
+      
+      
+    } else {
+      if (!StringUtils.isBlank(subjectId)) {
+        subject = SubjectFinder.findById(subjectId, true);
+      } else if (!StringUtils.isBlank(subjectIdentifier)) {
+        subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
+      } else {
+        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
+      }
+    }
+    String[] privileges = GrouperUtil.splitTrim(privilegeNamesCommaSeparated, ",");
+    
+    for (String privilegeString : privileges) {
+      Privilege privilege = Privilege.getInstance(privilegeString);
+      if (!PrivilegeHelper.hasPrivilege(GrouperSession.staticGrouperSession(), stem, subject, GrouperUtil.toSet(privilege))) {
+        result = true;
+        stem.grantPriv(subject, privilege, true);
+      }
+    }
+    
+    return result;
+    
   }
 
 }

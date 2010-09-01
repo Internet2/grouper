@@ -67,6 +67,8 @@ public class TestPrivCREATE extends GrouperTest {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     a     = null;
     subj0 = SubjectTestHelper.SUBJ0;
     nrs   = SessionHelper.getSession(subj0.getId());

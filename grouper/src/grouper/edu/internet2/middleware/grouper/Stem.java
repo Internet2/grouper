@@ -107,6 +107,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
+import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddAttributeDefNameValidator;
@@ -2107,6 +2108,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                 _grantDefaultPrivsUponCreate(_ns);
               }
 
+              //fire a rule
+              RulesStemBean rulesStemBean = new RulesStemBean(_ns);
+              //fire rules directly connected to this membership remove
+              RuleEngine.fireRule(RuleCheckType.stemCreate, rulesStemBean);
+
+              
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
                     _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 

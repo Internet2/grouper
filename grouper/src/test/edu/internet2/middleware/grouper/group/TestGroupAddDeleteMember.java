@@ -16,12 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.group;
-import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MemberHelper;
 import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestGroupAddDeleteMember.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestGroupAddDeleteMember extends TestCase {
+public class TestGroupAddDeleteMember extends GrouperTest {
 
   /**
    * 
@@ -64,11 +64,9 @@ public class TestGroupAddDeleteMember extends TestCase {
 
   protected void setUp () {
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
   }
 
-  protected void tearDown () {
-    // Nothing 
-  }
 
   // Tests
 

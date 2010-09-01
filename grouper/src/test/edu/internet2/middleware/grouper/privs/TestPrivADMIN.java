@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MemberHelper;
 import edu.internet2.middleware.grouper.helper.PrivHelper;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -89,6 +90,8 @@ public class TestPrivADMIN extends TestCase {
   protected void setUp () throws Exception {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     //do the root session last
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);

@@ -79,6 +79,8 @@ public class AddMissingGroupSetsTest extends GrouperTest {
 
     ApiConfig.testConfig.put("groups.wheel.use", "false");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     
     GrouperSession session = GrouperSession.startRootSession();
     Member rootMember = MemberFinder.findBySubject(session, SubjectFinder.findRootSubject(), true);

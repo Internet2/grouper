@@ -171,6 +171,8 @@ public class GroupTypeHooksTest extends GrouperTest {
     try {
       overrideHooksAdd();
       RegistryReset.internal_resetRegistryAndAddTestSubjects();
+      GrouperTest.initGroupsAndAttributes();
+
       grouperSession     = SessionHelper.getRootSession();
     } catch (Exception e) {
       throw new RuntimeException(e);

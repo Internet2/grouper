@@ -74,6 +74,8 @@ public class GroupHooksAddTypeTest extends GrouperTest {
     super.setUp();
     overrideHooksAdd();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
     edu   = StemHelper.addChildStem(root, "edu", "education");

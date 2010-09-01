@@ -57,6 +57,8 @@ public class TestGrouperSourceAdapter extends GrouperTest {
 
   protected void setUp () {
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     sa = new GrouperSourceAdapter(ID, NAME);
   }
 

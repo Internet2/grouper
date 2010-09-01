@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.rules.beans;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -18,6 +19,14 @@ public abstract class RulesBean {
    * @return this group
    */
   public Group getGroup() {
+    throw new RuntimeException("Not implemented in " + this.getClass());
+  }
+  
+  /**
+   * get this stem
+   * @return this stem
+   */
+  public Stem getStem() {
     throw new RuntimeException("Not implemented in " + this.getClass());
   }
   

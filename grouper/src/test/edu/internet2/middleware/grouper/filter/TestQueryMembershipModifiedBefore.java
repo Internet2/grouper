@@ -65,6 +65,8 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
 
       ApiConfig.testConfig.put("groups.wheel.use", "false");
       RegistryReset.internal_resetRegistryAndAddTestSubjects();
+      GrouperTest.initGroupsAndAttributes();
+
 
       ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
       ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
@@ -198,6 +200,8 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
 
       ApiConfig.testConfig.put("groups.wheel.use", "false");
       RegistryReset.internal_resetRegistryAndAddTestSubjects();
+      GrouperTest.initGroupsAndAttributes();
+
 
       R r = R.populateRegistry(0, 0, 0);
       //do 5 seconds ago in case the auto-create kicked in...

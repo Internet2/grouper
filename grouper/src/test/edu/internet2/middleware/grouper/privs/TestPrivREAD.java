@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MemberHelper;
 import edu.internet2.middleware.grouper.helper.PrivHelper;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -66,6 +67,8 @@ public class TestPrivREAD extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);

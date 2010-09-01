@@ -199,6 +199,8 @@ public class FieldHooksTest extends GrouperTest {
     try {
       overrideHooksAdd();
       RegistryReset.internal_resetRegistryAndAddTestSubjects();
+      GrouperTest.initGroupsAndAttributes();
+
       grouperSession     = SessionHelper.getRootSession();
       groupType = GroupType.createType(grouperSession, "testType");
       root  = StemHelper.findRootStem(grouperSession);

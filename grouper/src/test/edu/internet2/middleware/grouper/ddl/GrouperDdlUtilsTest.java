@@ -169,6 +169,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     super.setUp();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     GrouperSession grouperSession = SessionHelper.getRootSession();
     Stem root = StemHelper.findRootStem(grouperSession);
     Stem edu = StemHelper.addChildStem(root, "edu", "education");
@@ -320,6 +322,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     super.setUp();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
   
     ApiConfig.testConfig.put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "true");
   
@@ -406,6 +410,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     super.setUp();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     GrouperSession grouperSession = SessionHelper.getRootSession();
     Stem root = StemHelper.findRootStem(grouperSession);
     Stem edu = StemHelper.addChildStem(root, "edu", "education");

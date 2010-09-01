@@ -51,6 +51,8 @@ public class TestPrivSTEM extends GrouperTest {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
   }
 
   protected void tearDown () {

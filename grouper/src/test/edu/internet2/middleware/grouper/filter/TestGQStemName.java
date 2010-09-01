@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.filter.StemAnyAttributeFilter;
 import edu.internet2.middleware.grouper.filter.StemAttributeFilter;
 import edu.internet2.middleware.grouper.filter.StemNameAnyFilter;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -45,6 +46,8 @@ public class TestGQStemName extends TestCase {
 
   protected void setUp () {
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
   }
 
   protected void tearDown () {

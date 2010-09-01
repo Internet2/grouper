@@ -123,6 +123,8 @@ public class TestMemberChangeSubject extends GrouperTest {
     super.setUp();
     try {
       RegistryReset.internal_resetRegistryAndAddTestSubjects();
+      GrouperTest.initGroupsAndAttributes();
+
       rootGrouperSession = SessionHelper.getRootSession();
       root  = StemHelper.findRootStem(rootGrouperSession);
       

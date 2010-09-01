@@ -358,6 +358,8 @@ public class GroupHooksTest extends GrouperTest {
   protected void setUp () {
     overrideHooksAdd();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
     edu   = StemHelper.addChildStem(root, "edu", "education");

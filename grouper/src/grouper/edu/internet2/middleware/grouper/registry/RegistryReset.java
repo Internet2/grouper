@@ -146,6 +146,7 @@ public class RegistryReset {
     catch (Exception e) {
       rr._abort(ExceptionUtils.getFullStackTrace(e));
     }
+    
     GrouperCacheUtils.clearAllCaches();
 
   } 

@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
+import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -312,7 +313,17 @@ public enum RuleCheckType {
      */
     @Override
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
-      throw new RuntimeException("Not implemented");
+      RulesStemBean rulesStemBean = (RulesStemBean)rulesBean;
+      
+      Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+      
+      //by id
+      RuleCheck ruleCheck = new RuleCheck(this.name(), 
+          rulesStemBean.getStem().getUuid(), rulesStemBean.getStem().getName(), null);
+    
+      ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
+      
+      return ruleDefinitions;
     }
 
     /**
@@ -321,7 +332,15 @@ public enum RuleCheckType {
     @Override
     public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
         RulesBean rulesBean, boolean hasAccessToElApi) {
-      throw new RuntimeException("Not implemented");
+      RulesStemBean rulesStemBean = (RulesStemBean)rulesBean;
+      if (rulesStemBean != null) {
+        Stem stem = rulesStemBean.getStem();
+        variableMap.put("stemId", stem.getUuid());
+        variableMap.put("stemName", stem.getName());
+        if (hasAccessToElApi) {
+          variableMap.put("stem", stem);
+        }
+      }
     }
    
   }, 

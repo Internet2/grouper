@@ -590,6 +590,8 @@ public class GrouperTest extends TestCase {
     GrouperLoaderConfig.testConfig.clear();
 
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    GrouperTest.initGroupsAndAttributes();
+
 
     GrouperLoaderConfig.testConfig.put("default.subject.source.id", null);
     ApiConfig.testConfig.put("configuration.autocreate.system.groups", "false");
