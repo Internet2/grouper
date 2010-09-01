@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -37,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author Shilen Patel.
  */
-public class TestMembershipDeletes5 extends TestCase {
+public class TestMembershipDeletes5 extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(TestMembershipDeletes5.class);
 
@@ -60,10 +61,8 @@ public class TestMembershipDeletes5 extends TestCase {
     super(name);
   }
 
-  protected void setUp () throws Exception {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-    
+  protected void setUp() {
+    super.setUp();
 
     r     = R.populateRegistry(1, 4, 3);
     gA    = r.getGroup("a", "a");
@@ -84,7 +83,7 @@ public class TestMembershipDeletes5 extends TestCase {
   }
 
   protected void tearDown () {
-    LOG.debug("tearDown");
+    super.tearDown();
     
     if (r != null) {
       r.rs.stop();

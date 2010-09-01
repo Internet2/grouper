@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.helper.DateHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
@@ -42,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author Shilen Patel.
  */
-public class TestMembership7 extends TestCase {
+public class TestMembership7 extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(TestMembership7.class);
 
@@ -63,15 +64,6 @@ public class TestMembership7 extends TestCase {
 
   public TestMembership7(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testCircularMembershipsWithoutComposites() {

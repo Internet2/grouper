@@ -45,15 +45,6 @@ public class TestXmlReader extends GrouperTest {
     super(name);
   }
 
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
-  }
-
   public void testGetDocumentFromString() {
     LOG.info("testGetDocumentFromString");
     try {

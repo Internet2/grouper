@@ -20,16 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -37,21 +36,12 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestMembership1.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestMembership1 extends TestCase {
+public class TestMembership1 extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(TestMembership1.class);
 
   public TestMembership1(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testParentsAndChildren() {

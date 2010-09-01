@@ -65,15 +65,6 @@ public class TestXml extends GrouperTest {
     super(name);
   }
 
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
-  }
-
   public void testFullExportWithEscapedCharactersAndFullImportFullStem() {
     LOG.info("testFullExportWithEscapedCharactersAndFullImportFullStem");
     try {
@@ -137,6 +128,7 @@ public class TestXml extends GrouperTest {
 
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName( s, "i2:a" );
       s.stop();
@@ -203,6 +195,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName(s, "i2:a");
       assertDoNotFindStemByName(s, "i2:b");
@@ -251,6 +244,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       s.stop();
@@ -310,6 +304,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       s.stop();
@@ -369,6 +364,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       s.stop();
@@ -439,6 +435,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "tést:àGroup" );
       s.stop();
@@ -524,6 +521,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       assertDoNotFindGroupByName( s, "i2:a:b" );
@@ -602,6 +600,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName( s, "i2:a" );
       s.stop();
@@ -653,6 +652,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName( s, "i2:a" );
       s.stop();
@@ -717,6 +717,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName(s, val_n);
       s.stop();
@@ -786,6 +787,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName(s, val_n);
       s.stop();
@@ -855,6 +857,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       r = R.populateRegistry(1, 0, 0);
       assertFindStemByName(r.rs, "i2:a");
       assertDoNotFindGroupByName(r.rs, "i2:a:a");
@@ -925,6 +928,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       r = R.populateRegistry(0, 0, 0);
       assertFindStemByName(r.rs, "i2");
       r.rs.stop();
@@ -991,6 +995,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName(s, val_n);
       s.stop();
@@ -1052,6 +1057,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName(s, val_n);
       s.stop();
@@ -1113,6 +1119,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName(s, val_n);
       s.stop();
@@ -1174,6 +1181,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName(s, val_n);
       s.stop();
@@ -1228,6 +1236,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 1, 0);
@@ -1284,6 +1293,7 @@ public class TestXml extends GrouperTest {
   
       // Reset
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 1, 0);
@@ -1331,6 +1341,7 @@ public class TestXml extends GrouperTest {
   
       // Reset
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 0, 0);
@@ -1426,6 +1437,7 @@ public class TestXml extends GrouperTest {
   
       // Reset
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 0, 0);
@@ -1474,6 +1486,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 1, 2);
@@ -1530,6 +1543,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r             = R.populateRegistry(1, 1, 2);
@@ -1586,6 +1600,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r             = R.populateRegistry(1, 1, 2);
@@ -1643,6 +1658,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 0, 0);
@@ -1698,6 +1714,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 0, 0);
@@ -1750,6 +1767,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 1, 0);
@@ -1802,6 +1820,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 0, 0);
@@ -1856,6 +1875,7 @@ public class TestXml extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 1, 0);
@@ -1912,6 +1932,7 @@ public class TestXml extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       s.stop();
@@ -1955,6 +1976,7 @@ public class TestXml extends GrouperTest {
 
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start(SubjectFinder.findRootSubject());
       assertDoNotFindGroupByName(s, "i2:a:a");
       s.stop();
@@ -2029,6 +2051,7 @@ public class TestXml extends GrouperTest {
 
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start(SubjectFinder.findRootSubject());
       assertDoNotFindStemByName(s, "i2:a");
       s.stop();
@@ -2072,6 +2095,7 @@ public class TestXml extends GrouperTest {
 
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start(SubjectFinder.findRootSubject());
       assertDoNotFindStemByName(s, "i2:a");
       s.stop();

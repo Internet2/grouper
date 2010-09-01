@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -38,20 +37,20 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author shilen
  * @version $Id: TestDisabledMembership.java,v 1.3 2009-12-07 07:31:08 mchyzer Exp $
  */
-public class TestDisabledMembership extends TestCase {
+public class TestDisabledMembership extends GrouperTest {
 
   R r = null;
 
@@ -62,12 +61,8 @@ public class TestDisabledMembership extends TestCase {
     super(name);
   }
 
-  protected void setUp () throws Exception {
-    RegistryReset.reset();
-  }
-
   protected void tearDown () {
-    
+    super.tearDown();
     if (r != null) {
       r.rs.stop();
     }

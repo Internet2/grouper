@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -36,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author shilen
  * @version $Id: TestMemberChangeInMembership.java,v 1.2 2009-12-07 07:31:08 mchyzer Exp $
  */
-public class TestMemberChangeInMembership extends TestCase {
+public class TestMemberChangeInMembership extends GrouperTest {
 
   R r = null;
 
@@ -47,12 +48,8 @@ public class TestMemberChangeInMembership extends TestCase {
     super(name);
   }
 
-  protected void setUp () throws Exception {
-    RegistryReset.reset();
-  }
-
   protected void tearDown () {
-    
+    super.tearDown();
     if (r != null) {
       r.rs.stop();
     }

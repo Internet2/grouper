@@ -50,15 +50,6 @@ public class TestMembership2 extends GrouperTest {
     super(name);
   }
 
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
-  }
-
   /**
    * 
    * @param args

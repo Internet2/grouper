@@ -45,15 +45,6 @@ public class TestQuery extends TestCase {
     super(name);
   }
 
-  protected void setUp () {
-    LOG.info("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
-  }
-
   public void testStemDisplayExtensionFilterFindNothing() {
     LOG.info("testStemDisplayExtensionFilterFindNothing");
     try {

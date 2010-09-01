@@ -53,8 +53,8 @@ public class TestStemIntegration extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new Test_Integration_Stem_setExtension("testSetExtensionAndDisplayExtension_ChangeAndPropagateAsNonRoot"));
-    TestRunner.run(TestStemIntegration.class);
+    TestRunner.run(new TestStemIntegration("testInternal_AddChildGroup_ReuseExistingMemberAfterGroupDeletion"));
+    //TestRunner.run(TestStemIntegration.class);
   }
   
   private Stem            parent;
@@ -307,6 +307,7 @@ public class TestStemIntegration extends GrouperTest {
     try {
       LOG.info("testInternal_AddChildGroup_CreateNewMemberAfterRegistryReset");
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       R               r     = new R();
       GrouperSession  s     = r.getSession();
       Stem            root  = StemFinder.findRootStem(s).addChildStem("uchicago", "uchicago");
@@ -315,6 +316,7 @@ public class TestStemIntegration extends GrouperTest {
       Member          m     = g.toMember();
   
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       root  = StemFinder.findRootStem(s).addChildStem("uchicago", "uchicago");
       ns    = root.addChildStem("nsit", "nsit");
       g     = ns.internal_addChildGroup("nas", "nas", g.getUuid() );
@@ -331,6 +333,7 @@ public class TestStemIntegration extends GrouperTest {
     try {
       LOG.info("testInternal_AddChildGroup_ReuseExistingMemberAfterGroupDeletion");
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       R               r     = new R();
       GrouperSession  s     = r.getSession();
       Stem            root  = StemFinder.findRootStem(s).addChildStem("uchicago", "uchicago");

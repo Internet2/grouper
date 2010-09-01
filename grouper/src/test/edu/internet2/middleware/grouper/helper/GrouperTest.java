@@ -41,18 +41,22 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Grouper-specific JUnit assertions.
@@ -594,9 +598,42 @@ public class GrouperTest extends TestCase {
     
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
-    
-    GrouperCheckConfig.checkGroups();
-    GrouperCheckConfig.checkAttributes();
+    initGroupsAndAttributes();
+  }
+
+  /**
+   * init groups and attributes after reset
+   */
+  public static void initGroupsAndAttributes() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedRootSession = false;
+    if (grouperSession == null) {
+      grouperSession = GrouperSession.startRootSession();
+      startedRootSession = false;
+    }
+    try {
+      if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+        grouperSession = grouperSession.internal_getRootSession();
+      }
+    } catch (Exception e) {
+      //might throw an exception if wheel isnt created yet
+      grouperSession = grouperSession.internal_getRootSession();
+    }
+    try {
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+  
+          GrouperCheckConfig.checkGroups();
+          GrouperCheckConfig.checkAttributes();
+          return null;
+        }
+      });
+    } finally {
+      if (startedRootSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   } 
 
   // @since   1.2.0

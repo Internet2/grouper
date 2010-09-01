@@ -19,26 +19,24 @@ package edu.internet2.middleware.grouper.membership;
 import java.util.Date;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.helper.DateHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author Shilen Patel.
  */
-public class TestMembershipDeletes0 extends TestCase {
+public class TestMembershipDeletes0 extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(TestMembershipDeletes0.class);
 
@@ -79,15 +77,6 @@ public class TestMembershipDeletes0 extends TestCase {
 
   public TestMembershipDeletes0(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testMembershipDeletes0() {

@@ -330,7 +330,7 @@ public class R {
    * @throws Exception
    */
   public static R populateRegistry(int nStems, int nGroups, int nSubjects) 
-    throws  Exception
+   
   {
     LOG.info("populateRegistry");   
     R r  = new R();
@@ -357,23 +357,23 @@ public class R {
 
   // public INSTANCE METHODS //
   public Group getGroup(String stem, String group) 
-    throws  Exception
+    
   {
     String key = U.constructName(stem, group);
     if (this.groups.containsKey(key)) {
       return (Group) this.groups.get(key);
     }
-    throw new Exception("group not found: " + key);
+    throw new RuntimeException("group not found: " + key);
   } // public Group getGroup(stem, group)
 
   public Subject getSubject(String id) 
-    throws  Exception
+    
   {
     // Bah.  We stash RegistrySubjects but we need Subjects.  
     if (this.subjects.containsKey(id)) {
       return SubjectFinder.findById(id, "person", true);
     }
-    throw new Exception("subject not found: " + id);
+    throw new RuntimeException("subject not found: " + id);
   } // public Subject getSubject(id)
 
 

@@ -59,15 +59,6 @@ public class TestGAttr extends GrouperTest {
     super(name);
   }
 
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
-  }
-
   public void testFailGetAttributeNullAttribute() {
     LOG.info("testFailGetAttributeNullAttribute");
     try {

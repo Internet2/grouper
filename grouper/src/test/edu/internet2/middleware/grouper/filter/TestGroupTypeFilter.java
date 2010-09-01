@@ -42,15 +42,6 @@ public class TestGroupTypeFilter extends GrouperTest {
     super(name);
   }
 
-  protected void setUp () {
-    LOG.info("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.info("tearDown");
-  }
-
   public void testQueryByGroupTypeFilterNothing() {
     LOG.info("testQueryByGroupTypeFilterNothing");
     try {

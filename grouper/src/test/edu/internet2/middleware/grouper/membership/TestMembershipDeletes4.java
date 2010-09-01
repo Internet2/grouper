@@ -17,25 +17,23 @@
 
 package edu.internet2.middleware.grouper.membership;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author Shilen Patel.
  */
-public class TestMembershipDeletes4 extends TestCase {
+public class TestMembershipDeletes4 extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(TestMembershipDeletes4.class);
 
@@ -54,10 +52,8 @@ public class TestMembershipDeletes4 extends TestCase {
     super(name);
   }
 
-  protected void setUp () throws Exception {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-    
+  protected void setUp () {
+    super.setUp();
     r     = R.populateRegistry(1, 5, 1);
     gA    = r.getGroup("a", "a");
     gB    = r.getGroup("a", "b");

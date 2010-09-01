@@ -69,15 +69,9 @@ public class TestFindBadMemberships extends GrouperTest {
   }
 
   protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-    
+    super.setUp();
     FindBadMemberships.clearResults();
     FindBadMemberships.printErrorsToSTOUT(false);
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   /**

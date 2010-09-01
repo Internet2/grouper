@@ -38,15 +38,6 @@ public class GroupDataTest extends GrouperTest {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
-   */
-  @Override
-  protected void setUp() {
-    super.setUp();
-    RegistryReset.reset();
-  }
-
-  /**
    * Test method for {@link edu.internet2.middleware.grouper.GrouperAPI#dbVersionIsDifferent()}.
    */
   public void testDbVersionDifferent() {

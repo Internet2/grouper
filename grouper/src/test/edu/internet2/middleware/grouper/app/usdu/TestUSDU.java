@@ -51,17 +51,6 @@ public class TestUSDU extends GrouperTest {
     // TODO Auto-generated constructor stub
   }
 
-  protected void setUp() {
-
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown() {
-
-    LOG.debug("tearDown");
-  }
-
   /**
    * Method main.
    * @param args String[]

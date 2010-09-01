@@ -55,7 +55,7 @@ public class XmlLegacyTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new XmlLegacyTest("testUpdateOkDoNotAddMissingGroups"));
+    TestRunner.run(new XmlLegacyTest("testFullExportFullImportCustomTypes"));
   }
   
   /** */
@@ -136,6 +136,7 @@ public class XmlLegacyTest extends GrouperTest {
 
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName( s, "i2:a" );
       s.stop();
@@ -217,6 +218,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       s.stop();
@@ -285,6 +287,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       s.stop();
@@ -350,6 +353,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       s.stop();
@@ -429,6 +433,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "tést:àGroup" );
       s.stop();
@@ -521,6 +526,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       assertDoNotFindGroupByName( s, "i2:a:b" );
@@ -606,6 +612,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName( s, "i2:a" );
       s.stop();
@@ -664,6 +671,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindStemByName( s, "i2:a" );
       s.stop();
@@ -724,6 +732,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset 
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 1, 0);
@@ -785,6 +794,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 1, 0);
@@ -839,6 +849,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
   
       // Install Subjects and partial registry
       r = R.populateRegistry(1, 0, 0);
@@ -991,6 +1002,7 @@ public class XmlLegacyTest extends GrouperTest {
   
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start( SubjectFinder.findRootSubject() );
       assertDoNotFindGroupByName( s, "i2:a:a" );
       s.stop();
@@ -1041,6 +1053,7 @@ public class XmlLegacyTest extends GrouperTest {
 
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start(SubjectFinder.findRootSubject());
       assertDoNotFindGroupByName(s, "i2:a:a");
       s.stop();
@@ -1126,6 +1139,7 @@ public class XmlLegacyTest extends GrouperTest {
 
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start(SubjectFinder.findRootSubject());
       assertDoNotFindStemByName(s, "i2:a");
       s.stop();
@@ -1176,6 +1190,7 @@ public class XmlLegacyTest extends GrouperTest {
 
       // Reset And Verify
       RegistryReset.reset();
+      GrouperTest.initGroupsAndAttributes();
       s = GrouperSession.start(SubjectFinder.findRootSubject());
       assertDoNotFindStemByName(s, "i2:a");
       s.stop();

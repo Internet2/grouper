@@ -19,14 +19,13 @@ package edu.internet2.middleware.grouper.xml;
 import java.util.Properties;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -34,21 +33,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @version $Id: TestXmlImport.java,v 1.1 2009-03-20 19:56:42 mchyzer Exp $
  * @since   1.0
  */
-public class TestXmlImport extends TestCase {
+public class TestXmlImport extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(TestXmlImport.class);
 
   public TestXmlImport(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testGetDefaultOptions() {

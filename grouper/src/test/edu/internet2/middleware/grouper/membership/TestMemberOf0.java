@@ -16,14 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.membership;
-import junit.framework.TestCase;
-
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -31,21 +29,12 @@ import edu.internet2.middleware.subject.Subject;
  * @author  blair christensen.
  * @version $Id: TestMemberOf0.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
  */
-public class TestMemberOf0 extends TestCase {
+public class TestMemberOf0 extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(TestMemberOf0.class);
 
   public TestMemberOf0(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testFullLoop() {
