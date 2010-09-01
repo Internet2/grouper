@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hooks.examples.GrouperAttributeAssignValueRulesConfigHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
@@ -191,7 +192,9 @@ public class RuleEngine {
       //if this list isnt there, then make one
       if (checkRuleDefinitions == null) {
         checkRuleDefinitions = new HashSet<RuleDefinition>();
-        this.ruleCheckIndex.put(ruleDefinition.getCheck(), checkRuleDefinitions);
+        RuleCheck ruleCheck = ruleDefinition.getCheck();
+        ruleCheck = ruleCheck.checkTypeEnum().checkKey(ruleDefinition);
+        this.ruleCheckIndex.put(ruleCheck, checkRuleDefinitions);
       }
       
       checkRuleDefinitions.add(ruleDefinition);
@@ -207,6 +210,10 @@ public class RuleEngine {
    */
   public static void fireRule(final RuleCheckType ruleCheckType, final RulesBean rulesBean) {
 
+    if (GrouperCheckConfig.inCheckConfig) {
+      return;
+    }
+    
     final RuleEngine ruleEngine = ruleEngine();
     
     if (ruleEngine == null) {
@@ -277,12 +284,12 @@ public class RuleEngine {
         logData.append(", shouldFire count: " + shouldFireCount);
       }
     } catch (RuntimeException re) {
-      if (shouldLog) {
+      if (shouldLog && logData != null) {
         logData.append(", EXCEPTION: ").append(ExceptionUtils.getFullStackTrace(re));
       }
       throw re;
     } finally {
-      if (shouldLog) {
+      if (shouldLog && logData != null) {
         if (LOG.isDebugEnabled()) {
           LOG.debug(logData);
         } else if (LOG.isInfoEnabled()) {

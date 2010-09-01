@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.rules;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -26,6 +27,44 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class RuleCheck {
 
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: checkOwnerId */
+  public static final String FIELD_CHECK_OWNER_ID = "checkOwnerId";
+
+  /** constant for field name for: checkOwnerName */
+  public static final String FIELD_CHECK_OWNER_NAME = "checkOwnerName";
+
+  /** constant for field name for: checkStemScope */
+  public static final String FIELD_CHECK_STEM_SCOPE = "checkStemScope";
+
+  /** constant for field name for: checkType */
+  public static final String FIELD_CHECK_TYPE = "checkType";
+
+  /**
+   * fields which are included in db version
+   */
+  @SuppressWarnings("unused")
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_CHECK_OWNER_ID, FIELD_CHECK_OWNER_NAME, FIELD_CHECK_STEM_SCOPE, FIELD_CHECK_TYPE);
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_CHECK_OWNER_ID, FIELD_CHECK_OWNER_NAME, FIELD_CHECK_STEM_SCOPE, FIELD_CHECK_TYPE);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public RuleCheck clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
+  
   /**
    * 
    */

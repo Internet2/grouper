@@ -233,9 +233,9 @@ public class RuleIfCondition {
       }
       
       return GrouperUtil.booleanObjectValue(result);
-    }
-    
-    throw new RuntimeException("Shouldnt get here");
+    } 
+    //if there isnt an if, then that mens run
+    return true;
   }
 
   /**

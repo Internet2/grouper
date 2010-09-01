@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +22,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -57,7 +60,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandDisabledDate"));
+    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateGroup"));
   }
 
   /**
@@ -535,6 +538,84 @@ public class RuleTest extends GrouperTest {
     // delMember("stem:b", "test.subject.0");
     // hasMember("stem:a", "test.subject.0");
     
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandStemScopeSubCreateGroup() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    
+    //add a rule on stem2 saying if you create a group underneath, then assign a reader group
+    AttributeAssign attributeAssign = stem2
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem2");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.groupCreate.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleUtils.assignGroupPrivilege(groupId, 'g:gsa', null, 'stem1:a', 'read,update')}");
+    
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    
+    Group groupB = new GroupSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    //make sure allowed
+    assertTrue(groupB.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(groupB.hasRead(SubjectTestHelper.SUBJ0));
+    
+    
+    Group groupD = new GroupSave(grouperSession).assignName("stem3:b").assignCreateParentStemsIfNotExist(true).save();
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    assertFalse(groupD.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(groupD.hasRead(SubjectTestHelper.SUBJ0));
+    
+    
+    Group groupC = new GroupSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+
+    assertTrue(groupC.hasRead(SubjectTestHelper.SUBJ0));
+    assertTrue(groupC.hasUpdate(SubjectTestHelper.SUBJ0));
+
+
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * @see GrouperTest#setUp()
+   */
+  @Override
+  protected void setUp() {
+    super.setUp();
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "false");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "false");
+
   }
 
   /**

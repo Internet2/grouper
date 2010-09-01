@@ -12,7 +12,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeDefBean;
+import edu.internet2.middleware.grouper.rules.RuleCheck;
 
 
 /**
@@ -24,7 +24,7 @@ public class GenerateFieldConstants {
    * @param args
    */
   public static void main(String[] args) {
-    generateConstants(HooksAttributeDefBean.class);
+    generateConstants(RuleCheck.class);
   }
   
   /**

@@ -13,9 +13,11 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
+import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -229,6 +231,26 @@ public enum RuleCheckType {
   groupCreate {
     
     /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a stem
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this stem
+          Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
+          ruleCheck.setCheckOwnerName(stem.getName());
+        }
+      }
+      return ruleCheck;
+    }
+
+    /**
      * validate this check type
      * @param ruleCheck 
      * @return the error or null if valid
@@ -243,13 +265,31 @@ public enum RuleCheckType {
      */
     @Override
     public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
-      throw new RuntimeException("Not implemented");
+      RulesGroupBean rulesGroupBean = (RulesGroupBean)rulesBean;
+      
+      Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+      
+      //by id
+      RuleCheck ruleCheck = new RuleCheck(this.name(), 
+          rulesGroupBean.getGroup().getId(), rulesGroupBean.getGroup().getName(), null);
+    
+      ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
+      
+      return ruleDefinitions;
     }
 
     @Override
     public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
         RulesBean rulesBean, boolean hasAccessToElApi) {
-      throw new RuntimeException("Not implemented");
+      RulesGroupBean rulesGroupBean = (RulesGroupBean)rulesBean;
+      if (rulesGroupBean != null) {
+        Group group = rulesGroupBean.getGroup();
+        variableMap.put("groupId", group.getId());
+        variableMap.put("groupName", group.getName());
+        if (hasAccessToElApi) {
+          variableMap.put("group", group);
+        }
+      }
     }
    
   },
@@ -351,7 +391,7 @@ public enum RuleCheckType {
     public String validate(RuleCheck ruleCheck) {
       return this.validate(ruleCheck, false, true, false);
     }
-    
+
   }, 
   
   /** if there is a membership remove in transaction of remove of a group in a stem */
@@ -386,6 +426,15 @@ public enum RuleCheckType {
       flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
   };
+
+  /**
+   * get the check key for the index
+   * @param ruleDefinition
+   * @return the rule check for the index
+   */
+  public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+    return ruleDefinition.getCheck();
+  }
   
   /**
    * validate this check type
