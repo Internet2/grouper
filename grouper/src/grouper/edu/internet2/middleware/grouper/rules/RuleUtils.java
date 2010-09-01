@@ -4,8 +4,6 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
-import java.sql.Timestamp;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -13,23 +11,14 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -37,41 +26,6 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class RuleUtils {
 
-  /**
-   * 
-   * @param groupId
-   * @param memberId
-   * @param membershipType @see {@link MembershipType}, null for all
-   * @param enabled null for all, T for only enabled, F for only disabled
-   * @return true if has immediate enabled membership
-   */
-  public static boolean hasMembershipByGroupId(String groupId, String memberId, 
-      String membershipType, String enabled) {
-    
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Has member: " + memberId + ", from group: " + groupId 
-          + ", membershipType: " + membershipType + ", enabled: " + enabled);
-    }
-    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
-    
-    MembershipType membershipTypeEnum = MembershipType.valueOfIgnoreCase(membershipType, false);
-    
-    Boolean enabledBoolean = GrouperUtil.booleanObjectValue(enabled);
-    
-    Set<Object[]> membershipSetArray = MembershipFinder.findMemberships(GrouperUtil.toSet(groupId), GrouperUtil.toSet(memberId), 
-        null, membershipTypeEnum, Group.getDefaultList(), null, null, null, null, enabledBoolean);
-    
-    boolean result = GrouperUtil.length(membershipSetArray) > 0;
-    
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Has member: " + member.getSubjectId() + ", from group: " + group.getName() 
-          + ", membershipType: " + membershipType + ", enabled: " + enabled + ", result: " + result);
-    }
-    return result;
-
-  }
-  
   /**
    * return the rule attribute def name, assign this to an object to attach a rule.
    * this throws exception if cant find
@@ -437,53 +391,8 @@ public class RuleUtils {
     return ruleActAsSubjectIdName;
   }
   
-  /**
-   * remove a member of a group
-   * @param groupId
-   * @param memberId
-   * @return true if removed, false if not
-   */
-  public static boolean removeMemberFromGroupId(String groupId, String memberId) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Removing member: " + memberId + ", from group: " + groupId);
-    }
-    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Removing subject: " + member.getSubjectId() + ", from group: " + group.getName());
-    }
-    return group.deleteMember(member, false);
-  }
-  /**
-   * remove a member of a group
-   * @param groupName
-   * @param memberId
-   * @return true if removed, false if not
-   */
-  public static boolean removeMemberFromGroupName(String groupName, String memberId) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Removing member: " + memberId + ", from group: " + groupName);
-    }
-    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Removing subject: " + member.getSubjectId() + ", from group: " + group.getName());
-    }
-    return group.deleteMember(member, false);
-  }
-
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(RuleUtils.class);
-  
-  /**
-   * veto this for some reason
-   * @param reasonKey
-   * @param reason
-   * @return the exception
-   */
-  public RuleVeto veto(String reasonKey, String reason) {
-    return new RuleVeto(reasonKey, reason);
-  }
   
   /**
    * 
@@ -540,85 +449,6 @@ public class RuleUtils {
     }
     return null;
     
-  }
-
-  /**
-   * assign group privileges
-   * @param groupId 
-   * @param sourceId 
-   * @param subjectId 
-   * @param subjectIdentifier 
-   * @param privilegeNamesCommaSeparated 
-   * @return true if assigned, false if already ther
-   */
-  public static boolean assignGroupPrivilege(String groupId, String sourceId, String subjectId, String subjectIdentifier, String privilegeNamesCommaSeparated) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("assignGroupPrivilege: from group: " + groupId 
-          + ", sourceId: " + sourceId + ", subjectId: " + subjectId 
-          + ", subjectIdentifier: " + subjectIdentifier + " privilegeNamesCommaSeparated: " + privilegeNamesCommaSeparated);
-    }
-    boolean result = false;
-    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Subject subject = null;
-    if (!StringUtils.isBlank(sourceId)) {
-
-      if (!StringUtils.isBlank(subjectId)) {
-        subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
-      } else if (!StringUtils.isBlank(subjectIdentifier)) {
-        subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, true);
-        
-      } else {
-        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
-      }
-      
-      
-    } else {
-      if (!StringUtils.isBlank(subjectId)) {
-        subject = SubjectFinder.findById(subjectId, true);
-      } else if (!StringUtils.isBlank(subjectIdentifier)) {
-        subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
-      } else {
-        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
-      }
-    }
-    String[] privileges = GrouperUtil.splitTrim(privilegeNamesCommaSeparated, ",");
-    
-    for (String privilegeString : privileges) {
-      Privilege privilege = Privilege.getInstance(privilegeString);
-      if (!PrivilegeHelper.hasPrivilege(GrouperSession.staticGrouperSession(), group, subject, GrouperUtil.toSet(privilege))) {
-        result = true;
-        group.grantPriv(subject, privilege, true);
-      }
-    }
-    
-    return result;
-    
-  }
-  
-  /**
-   * assign a disabled date in the future by X days
-   * @param groupId
-   * @param memberId
-   * @param daysInFuture
-   * @return true if added membership, false if used existing
-   */
-  public static boolean assignMembershipDisabledDaysForGroupId(String groupId, String memberId, int daysInFuture) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Has member: " + memberId + ", from group: " + groupId 
-          + ", daysInFuture: " + daysInFuture);
-    }
-    boolean result = false;
-    Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
-    Membership membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
-    if (membership == null) {
-      group.addMember(member.getSubject(), true);
-      membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
-      result = true;
-    }
-    membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
-    membership.update();
-    return result;
   }
   
 }

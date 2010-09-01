@@ -89,7 +89,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     groupB.addMember(SubjectTestHelper.SUBJ0);
 
@@ -150,7 +150,7 @@ public class RuleTest extends GrouperTest {
         "stem:b");
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.veto('rule.entity.must.be.a.member.of.stem.b', 'Entity cannot be a member of stem:a if not a member of stem:b')}");
+        "${ruleElUtils.veto('rule.entity.must.be.a.member.of.stem.b', 'Entity cannot be a member of stem:a if not a member of stem:b')}");
 
     //count rule firings
     long initialFirings = RuleEngine.ruleFirings;
@@ -274,11 +274,11 @@ public class RuleTest extends GrouperTest {
 
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleIfConditionElName(), 
-        "${ruleUtils.hasMembershipByGroupId(attributeAssignType.getOwnerGroupId(), memberId, null, 'true')}");
+        "${ruleElUtils.hasMembershipByGroupId(attributeAssignType.getOwnerGroupId(), memberId, null, 'true')}");
 
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     groupB.addMember(SubjectTestHelper.SUBJ0);
     groupA.addMember(SubjectTestHelper.SUBJ0);
@@ -338,11 +338,11 @@ public class RuleTest extends GrouperTest {
 
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleIfConditionElName(), 
-        "${ruleUtils.hasMembershipByGroupId(ownerGroupId, memberId, null, 'true')}");
+        "${ruleElUtils.hasMembershipByGroupId(ownerGroupId, memberId, null, 'true')}");
 
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     groupB.addMember(SubjectTestHelper.SUBJ0);
 
@@ -404,7 +404,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     long initialFirings = RuleEngine.ruleFirings;
     
@@ -487,7 +487,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     long initialFirings = RuleEngine.ruleFirings;
     
@@ -570,7 +570,7 @@ public class RuleTest extends GrouperTest {
         Stem.Scope.SUB.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.assignGroupPrivilege(groupId, 'g:gsa', null, 'stem1:a', 'read,update')}");
+        "${ruleElUtils.assignGroupPrivilege(groupId, 'g:gsa', null, 'stem1:a', 'read,update')}");
     
     long initialFirings = RuleEngine.ruleFirings;
     
@@ -648,7 +648,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupAndNotFolderHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     long initialFirings = RuleEngine.ruleFirings;
     
@@ -735,7 +735,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     RuleEngine.ruleEngineCache.clear();
     
@@ -825,7 +825,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     groupB.addMember(SubjectTestHelper.SUBJ0);
     groupA.addMember(SubjectTestHelper.SUBJ0);
@@ -880,7 +880,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     
     //###############################
@@ -1035,13 +1035,13 @@ public class RuleTest extends GrouperTest {
     assertEquals("T", isValidString);
     attributeAssign.getAttributeValueDelegate().deleteValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
     assertTrue(isValidString, !StringUtils.equals("T", isValidString));
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
 
     //######################
     //invalid enum is not ok
@@ -1050,7 +1050,7 @@ public class RuleTest extends GrouperTest {
     assertEquals("T", isValidString);
     attributeAssign.getAttributeValueDelegate().deleteValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), 
         RuleThenEnum.test.name());
@@ -1068,7 +1068,7 @@ public class RuleTest extends GrouperTest {
         RuleThenEnum.test.name() + "abc");
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
 
     
     //######################
@@ -1154,7 +1154,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     groupB.addMember(SubjectTestHelper.SUBJ0);
     groupA.addMember(SubjectTestHelper.SUBJ0);
@@ -1204,7 +1204,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     
     //subj 0 should be taken out
     groupA.addMember(SubjectTestHelper.SUBJ0);
@@ -1255,7 +1255,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
-        "${ruleUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, memberId, 7)}");
+        "${ruleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, memberId, 7)}");
     
     groupB.addMember(SubjectTestHelper.SUBJ0);
   

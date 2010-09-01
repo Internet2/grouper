@@ -401,10 +401,11 @@ public class RuleDefinition {
       variableMap.put("attributeAssignType", attributeAssign);
       variableMap.put("ruleDefinition", this);
       variableMap.put("grouperUtil", new GrouperUtil());
+      variableMap.put("ruleUtils", new RuleUtils());
       
     }
 
-    variableMap.put("ruleUtils", new RuleUtils());
+    variableMap.put("ruleElUtils", new RuleElUtils());
 
     if (attributeAssign != null) {
       
