@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
@@ -60,7 +58,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateGroup"));
+    TestRunner.run(new RuleTest("testRuleLonghandThenEnum"));
   }
 
   /**
@@ -1020,13 +1018,13 @@ public class RuleTest extends GrouperTest {
     assertEquals("T", isValidString);
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.test.name());
+        RuleThenEnum.removeMemberFromOwnerGroup.name());
     isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
     assertTrue(isValidString, !StringUtils.equals("T", isValidString));
     attributeAssign.getAttributeValueDelegate().deleteValue(
         RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.test.name());
+        RuleThenEnum.removeMemberFromOwnerGroup.name());
 
     //######################
     //neither then el or enum entered is not ok
@@ -1053,19 +1051,19 @@ public class RuleTest extends GrouperTest {
         "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.test.name());
+        RuleThenEnum.removeMemberFromOwnerGroup.name());
     isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
     assertEquals("T", isValidString);
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.test.name() + "abc");
+        RuleThenEnum.removeMemberFromOwnerGroup.name() + "abc");
     isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
     assertTrue(isValidString, !StringUtils.equals("T", isValidString));
     attributeAssign.getAttributeValueDelegate().deleteValue(
         RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.test.name() + "abc");
+        RuleThenEnum.removeMemberFromOwnerGroup.name() + "abc");
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenElName(), 
         "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
@@ -1274,7 +1272,7 @@ public class RuleTest extends GrouperTest {
     
     groupB.deleteMember(SubjectTestHelper.SUBJ0);
     
-    //should come out of groupA
+    //should have a disabled date in groupA
     
     Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
     
@@ -1285,6 +1283,64 @@ public class RuleTest extends GrouperTest {
     
     assertTrue("More than 6 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
     assertTrue("Less than 8 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandThenEnum() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    AttributeAssign attributeAssign = groupA
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.removeMemberFromOwnerGroup.name());
+    
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    //doesnt do anything
+    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+  
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    //count rule firings
+    
+    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    //should come out of groupA
+    assertFalse(groupA.hasMember(SubjectTestHelper.SUBJ0));
   
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
   

@@ -3,6 +3,11 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -14,30 +19,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum RuleThenEnum {
 
-  /** */
-  test {
+  /** remove the member (the current one being acted on) from the owner group */
+  removeMemberFromOwnerGroup {
 
     /**
      * 
      * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
      */
     @Override
-    public void fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
         RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
-    }
-    
-  },
-  
-  /** */
-  test2 {
-
-    /**
-     * 
-     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
-     */
-    @Override
-    public void fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
-        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+      
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId(), true);
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), rulesBean.getMemberId(), true);
+      return group.deleteMember(member, false);
     }
     
   };
@@ -61,8 +57,9 @@ public enum RuleThenEnum {
    * @param ruleEngine
    * @param rulesBean
    * @param logDataForThisDefinition is null if not logging, and non null if things should be appended
+   * @return something for log
    */
-  public abstract void fireRule(RuleDefinition ruleDefinition, 
+  public abstract Object fireRule(RuleDefinition ruleDefinition, 
       RuleEngine ruleEngine, RulesBean rulesBean, StringBuilder logDataForThisDefinition);
   
 }

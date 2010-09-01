@@ -134,7 +134,10 @@ public class RuleThen {
       RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
     RuleThenEnum ruleThenEnum = this.thenEnum();
     if (ruleThenEnum != null) {
-      ruleThenEnum.fireRule(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
+      Object result = ruleThenEnum.fireRule(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
+      if (logDataForThisDefinition != null) {
+        logDataForThisDefinition.append(", enumResult: ").append(result);
+      }
     } else if (!StringUtils.isBlank(this.thenEl)) {
       Map<String, Object> variableMap =  new HashMap<String, Object>();
 
@@ -164,7 +167,7 @@ public class RuleThen {
       
     } else {
       //should have an enum or EL
-      throw new RuntimeException("Shouldnt get here");
+      throw new RuntimeException("Shouldnt get here, why is there no enum or el for the then clause???");
     }
   }
 }

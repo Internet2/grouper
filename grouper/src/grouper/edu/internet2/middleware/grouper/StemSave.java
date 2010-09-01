@@ -194,6 +194,15 @@ public class StemSave {
   public Stem save() throws StemNotFoundException,  InsufficientPrivilegeException,
       StemAddException, StemModifyException {
 
+    //help with incomplete entries
+    if (StringUtils.isBlank(this.name)) {
+      this.name = this.stemNameToEdit;
+    }
+    
+    if (StringUtils.isBlank(this.stemNameToEdit)) {
+      this.stemNameToEdit = this.name;
+    }
+
     //default to insert or update
     saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
     final SaveMode SAVE_MODE = saveMode;

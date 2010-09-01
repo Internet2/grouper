@@ -63,7 +63,7 @@ public class RuleHookTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectIdName(), SubjectTestHelper.SUBJ0_ID);
     attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckOwnerNameName(), group2.getName());
     attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipRemove.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.test.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.removeMemberFromOwnerGroup.name());
     
     validReason = attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName());
     
@@ -109,7 +109,7 @@ public class RuleHookTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleActAsSubjectIdName(), SubjectTestHelper.SUBJ0_ID);
     attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckOwnerNameName(), group2.getName());
     attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipRemove.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.test.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.removeMemberFromOwnerGroup.name());
     
     validReason = attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName());
     
@@ -124,7 +124,7 @@ public class RuleHookTest extends GrouperTest {
     
     GrouperSession.start(SubjectTestHelper.SUBJ4);
     
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.test2.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.removeMemberFromOwnerGroup.name());
     
     validReason = attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName());
     
@@ -138,7 +138,7 @@ public class RuleHookTest extends GrouperTest {
     
     GrouperSession.start(SubjectTestHelper.SUBJ5);
     
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.test.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.removeMemberFromOwnerGroup.name());
     
     validReason = attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName());
     
@@ -150,7 +150,7 @@ public class RuleHookTest extends GrouperTest {
     
     GrouperSession.start(SubjectTestHelper.SUBJ6);
     
-    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.test2.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.removeMemberFromOwnerGroup.name());
     
     validReason = attributeAssign.getAttributeValueDelegate().retrieveValueString(RuleUtils.ruleValidName());
     

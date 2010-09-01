@@ -223,7 +223,17 @@ public class GroupSave {
   public Group save() 
         throws StemNotFoundException, InsufficientPrivilegeException, StemAddException, 
         GroupModifyException, GroupNotFoundException, GroupAddException {
-  
+
+    //help with incomplete entries
+    if (StringUtils.isBlank(this.name)) {
+      this.name = this.groupNameToEdit;
+    }
+    
+    if (StringUtils.isBlank(this.groupNameToEdit)) {
+      this.groupNameToEdit = this.name;
+    }
+
+    
     //validate
     //get the stem name
     if (!StringUtils.contains(name, ":")) {
