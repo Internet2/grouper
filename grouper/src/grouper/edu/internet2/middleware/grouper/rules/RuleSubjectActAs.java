@@ -119,13 +119,13 @@ public class RuleSubjectActAs {
    */
   void toStringHelper(StringBuilder result) {
     if (!StringUtils.isBlank(this.sourceId)) {
-      result.append("sourceId: ").append(this.sourceId).append(", ");
+      result.append("actAsSourceId: ").append(this.sourceId).append(", ");
     }
     if (!StringUtils.isBlank(this.subjectId)) {
-      result.append("subjectId: ").append(this.subjectId).append(", ");
+      result.append("actAsSubjectId: ").append(this.subjectId).append(", ");
     }
     if (!StringUtils.isBlank(this.subjectIdentifier)) {
-      result.append("subjectIdentifier: ").append(this.subjectIdentifier).append(", ");
+      result.append("actAsSubjectIdentifier: ").append(this.subjectIdentifier).append(", ");
     }
   }
   

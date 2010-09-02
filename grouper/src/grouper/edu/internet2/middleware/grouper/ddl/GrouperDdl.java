@@ -5733,7 +5733,7 @@ public enum GrouperDdl implements DdlVersionable {
     //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
     String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX attribute_field_value_idx " +
         "ON grouper_attributes (field_id, value(255));\n" : null;
-    scriptOverride = ddlVersionBean.isSqlServer() ? "\nCREATE INDEX attribute_field_value_idx ON grouper_attributes (field_id) include (value);\n" : null;
+    scriptOverride = ddlVersionBean.isSqlServer() ? "\nCREATE INDEX attribute_field_value_idx ON grouper_attributes (field_id) include (value);\n" : scriptOverride;
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeTable.getName(), "attribute_field_value_idx", 
         scriptOverride, false, Attribute.COLUMN_FIELD_ID, "value");
   }

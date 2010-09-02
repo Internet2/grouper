@@ -256,16 +256,18 @@ public class RuleDefinition {
 
   /**
    * if we should run the daemon, then do
+   * @return if run
    */
-  public void runDaemonOnDefinitionIfShould() {
+  public boolean runDaemonOnDefinitionIfShould() {
     
     if (!StringUtils.isBlank(this.getIfCondition().getIfConditionEl()) || !this.isRunDaemonBoolean()) {
-      return;
+      return false;
     }
     
     //we are running the daemon, lets go
     this.getCheck().checkTypeEnum().runDaemon(this);
     
+    return true;
   }
   
   /**
