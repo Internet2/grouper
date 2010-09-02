@@ -106,6 +106,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.beans.RulesAttributeDefBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
@@ -1772,7 +1773,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               sw.start();
               if (!PrivilegeHelper.canCreate(session, 
                   Stem.this, session.getSubject())) {
-                throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix);
+                throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix + ", " + session);
               } 
               GrouperValidator v = AddGroupValidator.validate(Stem.this, extn, dExtn);
               if (v.isInvalid()) {
@@ -2007,6 +2008,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               //grant privs
               _grantDefaultPrivsUponCreate(attributeDef);
               
+              //fire a rule
+              RulesAttributeDefBean rulesAttributeDefBean = new RulesAttributeDefBean(attributeDef);
+              //fire rules directly connected to this membership remove
+              RuleEngine.fireRule(RuleCheckType.attributeDefCreate, rulesAttributeDefBean);
+
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_ADD, "id", 
                     attributeDef.getId(), "name", attributeDef.getName(), "parentStemId", Stem.this.getUuid(), 

@@ -313,7 +313,7 @@ public class RuleDefinition {
     }
 
     if (this.actAs != null) {
-      reason = this.actAs.validate();
+      reason = this.actAs.validate(this);
       if (!StringUtils.isBlank(reason)) {
         return reason;
       }

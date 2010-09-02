@@ -14,8 +14,10 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.rules.beans.RulesAttributeDefBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
@@ -444,6 +446,77 @@ public enum RuleCheckType {
         RulesBean rulesBean, boolean hasAccessToElApi) {
       flattenedMembershipRemove.addElVariables(ruleDefinition, variableMap, rulesBean, hasAccessToElApi);
     }
+  }, 
+  
+  /** if a group is created */
+  attributeDefCreate{
+    
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a stem
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
+  
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this stem
+          Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
+          ruleCheck.setCheckOwnerName(stem.getName());
+        }
+      }
+      return ruleCheck;
+    }
+  
+    /**
+     * validate this check type
+     * @param ruleCheck 
+     * @return the error or null if valid
+     */
+    public String validate(RuleCheck ruleCheck) {
+      return validate(ruleCheck, true, false, true);
+    }
+  
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Set<RuleDefinition> ruleDefinitions(RuleEngine ruleEngine, RulesBean rulesBean) {
+      RulesAttributeDefBean rulesAttributeDefBean = (RulesAttributeDefBean)rulesBean;
+      
+      Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
+      
+      //by id
+      RuleCheck ruleCheck = new RuleCheck(this.name(), 
+          rulesAttributeDefBean.getAttributeDef().getId(), rulesAttributeDefBean.getAttributeDef().getName(), null);
+    
+      ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
+      
+      return ruleDefinitions;
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public void addElVariables(RuleDefinition ruleDefinition, Map<String, Object> variableMap, 
+        RulesBean rulesBean, boolean hasAccessToElApi) {
+      RulesAttributeDefBean rulesAttributeDefBean = (RulesAttributeDefBean)rulesBean;
+      if (rulesAttributeDefBean != null) {
+        AttributeDef attributeDef = rulesAttributeDefBean.getAttributeDef();
+        variableMap.put("attributeDefId", attributeDef.getId());
+        variableMap.put("attributeDefName", attributeDef.getName());
+        if (hasAccessToElApi) {
+          variableMap.put("attributeDef", attributeDef);
+        }
+      }
+    }
+   
   };
 
   /**

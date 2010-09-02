@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.rules.beans;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -43,6 +44,14 @@ public abstract class RulesBean {
    * @return this subject
    */
   public Subject getSubject() {
+    throw new RuntimeException("Not implemented in " + this.getClass());
+  }
+
+  /**
+   * get this attributeDef
+   * @return this attributeDef
+   */
+  public AttributeDef getAttributeDef() {
     throw new RuntimeException("Not implemented in " + this.getClass());
   }
   

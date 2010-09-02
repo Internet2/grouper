@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
@@ -32,6 +34,9 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 
 
 /**
@@ -59,7 +64,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandGshFixer"));
+    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateAttributeDef"));
   }
 
   /**
@@ -862,6 +867,15 @@ public class RuleTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
     Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+
+    groupA.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.ADMIN, false);
+    
+    groupB.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.READ, false);
+
+    RuleUtils.ruleTypeAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_UPDATE, false);
+    RuleUtils.ruleAttrAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_UPDATE, false);
+    RuleUtils.ruleTypeAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_READ, false);
+    RuleUtils.ruleAttrAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_READ, false);
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
@@ -1126,6 +1140,29 @@ public class RuleTest extends GrouperTest {
         RuleUtils.ruleIfConditionElName(), 
         "abc");
 
+    //######################
+    //not ok to act as grouper system if not already
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleRunDaemonName(), 
+        "F");
+    attributeAssign.getAttributeValueDelegate().deleteValue(
+        RuleUtils.ruleRunDaemonName(), 
+        "F");
+    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.startRootSession();
+
+    
     
   }
 
@@ -1672,5 +1709,283 @@ public class RuleTest extends GrouperTest {
     // hasMember("stem:a", "test.subject.0");
     
   }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandStemScopeSubCreateGroupAsGrouperSystem() {
+    
+    ApiConfig.testConfig.put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", "true");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    //assign privs to a subject so we can act as that subject
+    stem2.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);
+    stem2.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM, false);
+    
+    RuleUtils.ruleTypeAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_UPDATE, false);
+    RuleUtils.ruleAttrAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_UPDATE, false);
+    RuleUtils.ruleTypeAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_READ, false);
+    RuleUtils.ruleAttrAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_READ, false);
+
+    groupA.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.READ, false);
+
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+
+    rootStem.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);
+    rootStem.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM, false);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+    
+    //add a rule on stem2 saying if you create a group underneath, then assign a reader group
+    AttributeAssign attributeAssign = stem2
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem2");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.groupCreate.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleElUtils.assignGroupPrivilege(groupId, 'g:gsa', null, 'stem1:a', 'read,update')}");
+    
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+
+    long initialFirings = RuleEngine.ruleFirings;
+    
+//  # If the CHECK, IF, and THEN are all exactly what is needed for managing inherited stem privileges
+//  # Then allow an actAs GrouperSystem in source g:isa
+//  rules.allowActAsGrouperSystemForInheritedStemPrivileges = true
+    
+    Group groupB = new GroupSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(groupB.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(groupB.hasRead(SubjectTestHelper.SUBJ0));
+    
+    Stem stem3 = new StemSave(grouperSession).assignName("stem3").save();
+    stem3.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);
+    stem3.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM, false);
+    Group groupD = new GroupSave(grouperSession).assignName("stem3:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    assertFalse(groupD.hasUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(groupD.hasRead(SubjectTestHelper.SUBJ0));
+    
+    Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").save();
+    stem2sub.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);
+    stem2sub.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM, false);
+    
+    Group groupC = new GroupSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    assertTrue(groupC.hasRead(SubjectTestHelper.SUBJ0));
+    assertTrue(groupC.hasUpdate(SubjectTestHelper.SUBJ0));
+  
+  
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandStemScopeSubCreateStemAsGrouperSystem() {
+    
+    ApiConfig.testConfig.put("rules.allowActAsGrouperSystemForInheritedStemPrivileges", "true");
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    //assign privs to a subject so we can act as that subject
+    stem2.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);
+    stem2.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM, false);
+    
+    RuleUtils.ruleTypeAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_UPDATE, false);
+    RuleUtils.ruleAttrAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_UPDATE, false);
+    RuleUtils.ruleTypeAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_READ, false);
+    RuleUtils.ruleAttrAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ9, AttributeDefPrivilege.ATTR_READ, false);
+
+    groupA.grantPriv(SubjectTestHelper.SUBJ9, AccessPrivilege.READ, false);
+
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+
+    rootStem.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);
+    rootStem.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM, false);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+    
+    //add a rule on stem2 saying if you create a group underneath, then assign a reader group
+    AttributeAssign attributeAssign = stem2
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem2");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.stemCreate.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleElUtils.assignStemPrivilege(stemId, 'g:gsa', null, 'stem1:a', 'stem,create')}");
+    
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+
+    long initialFirings = RuleEngine.ruleFirings;
+    
+//  # If the CHECK, IF, and THEN are all exactly what is needed for managing inherited stem privileges
+//  # Then allow an actAs GrouperSystem in source g:isa
+//  rules.allowActAsGrouperSystemForInheritedStemPrivileges = true
+    
+    Stem stemB = new StemSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(stemB.hasStem(SubjectTestHelper.SUBJ0));
+    assertTrue(stemB.hasCreate(SubjectTestHelper.SUBJ0));
+    
+    Stem stem3 = new StemSave(grouperSession).assignName("stem3").save();
+    stem3.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);
+    stem3.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM, false);
+    Stem stemD = new StemSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    assertFalse(stemD.hasCreate(SubjectTestHelper.SUBJ0));
+    assertFalse(stemD.hasStem(SubjectTestHelper.SUBJ0));
+    
+    Stem stem2sub = new StemSave(grouperSession).assignName("stem2:sub").save();
+    stem2sub.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.CREATE, false);
+    stem2sub.grantPriv(SubjectTestHelper.SUBJ9, NamingPrivilege.STEM, false);
+    
+    Stem stemC = new StemSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    //fires for both stems
+    assertEquals(initialFirings+3, RuleEngine.ruleFirings);
+  
+    assertTrue(stemC.hasCreate(SubjectTestHelper.SUBJ0));
+    assertTrue(stemC.hasStem(SubjectTestHelper.SUBJ0));
+  
+  
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandStemScopeSubCreateAttributeDef() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    
+    //add a rule on stem2 saying if you create a group underneath, then assign a reader group
+    AttributeAssign attributeAssign = stem2
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem2");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.attributeDefCreate.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleElUtils.assignAttributeDefPrivilege(attributeDefId, 'g:gsa', null, 'stem1:a', 'attrRead,attrUpdate')}");
+    
+    long initialFirings = RuleEngine.ruleFirings;
+     
+    
+    AttributeDef attributeDefB = new AttributeDefSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    //make sure allowed
+    assertTrue(attributeDefB.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(attributeDefB.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+    
+    AttributeDef attributeDefD = new AttributeDefSave(grouperSession).assignName("stem3:b").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    assertFalse(attributeDefD.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(attributeDefD.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+    
+    AttributeDef attributeDefC = new AttributeDefSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+  
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+  
+    assertTrue(attributeDefC.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    assertTrue(attributeDefC.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+  
+  
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+  
+
   
 }

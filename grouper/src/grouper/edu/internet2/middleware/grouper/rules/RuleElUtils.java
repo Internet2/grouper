@@ -16,6 +16,8 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -241,6 +243,60 @@ public class RuleElUtils {
       if (!PrivilegeHelper.hasPrivilege(GrouperSession.staticGrouperSession(), stem, subject, GrouperUtil.toSet(privilege))) {
         result = true;
         stem.grantPriv(subject, privilege, true);
+      }
+    }
+    
+    return result;
+    
+  }
+
+  /**
+   * assign attributeDef privileges
+   * @param attributeDefId 
+   * @param sourceId 
+   * @param subjectId 
+   * @param subjectIdentifier 
+   * @param privilegeNamesCommaSeparated 
+   * @return true if assigned, false if already ther
+   */
+  public static boolean assignAttributeDefPrivilege(String attributeDefId, String sourceId, 
+      String subjectId, String subjectIdentifier, String privilegeNamesCommaSeparated) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("assignAttributeDefPrivilege: from attributeDef: " + attributeDefId 
+          + ", sourceId: " + sourceId + ", subjectId: " + subjectId 
+          + ", subjectIdentifier: " + subjectIdentifier + " privilegeNamesCommaSeparated: " + privilegeNamesCommaSeparated);
+    }
+    boolean result = false;
+    AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, true);
+    Subject subject = null;
+    if (!StringUtils.isBlank(sourceId)) {
+  
+      if (!StringUtils.isBlank(subjectId)) {
+        subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
+      } else if (!StringUtils.isBlank(subjectIdentifier)) {
+        subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, true);
+        
+      } else {
+        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
+      }
+      
+      
+    } else {
+      if (!StringUtils.isBlank(subjectId)) {
+        subject = SubjectFinder.findById(subjectId, true);
+      } else if (!StringUtils.isBlank(subjectIdentifier)) {
+        subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
+      } else {
+        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
+      }
+    }
+    String[] privileges = GrouperUtil.splitTrim(privilegeNamesCommaSeparated, ",");
+    
+    for (String privilegeString : privileges) {
+      Privilege privilege = Privilege.getInstance(privilegeString);
+      if (!PrivilegeHelper.hasPrivilege(GrouperSession.staticGrouperSession(), attributeDef, subject, GrouperUtil.toSet(privilege))) {
+        result = true;
+        attributeDef.getPrivilegeDelegate().grantPriv(subject, privilege, true);
       }
     }
     

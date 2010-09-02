@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -7,6 +10,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -164,9 +168,10 @@ public class RuleSubjectActAs {
   
   /**
    * validate this 
+   * @param ruleDefinition 
    * @return error or null if ok
    */
-  public String validate() {
+  public String validate(RuleDefinition ruleDefinition) {
     if (StringUtils.isBlank(this.subjectId) ==  StringUtils.isBlank(this.subjectIdentifier)) {
       return "Enter one and only one of actAsSubjectId and actAsSubjectIdentifier!";
     }
@@ -177,14 +182,15 @@ public class RuleSubjectActAs {
     }
     
     //make sure can act as
-    if (!allowedToActAs(GrouperSession.staticGrouperSession().getSubject(), subject)) {
+    if (!allowedToActAs(ruleDefinition, GrouperSession.staticGrouperSession().getSubject(), subject)) {
       return "Subject: " 
-        + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject())
-        + " cannot act as subject: " + GrouperUtil.subjectToString(subject) + " based on grouper.properties: "
-        + " rules.act.as.group";
+      + GrouperUtil.subjectToString(GrouperSession.staticGrouperSession().getSubject())
+      + " cannot act as subject: " + GrouperUtil.subjectToString(subject) + " based on grouper.properties: "
+      + " rules.act.as.group";
     }
-    
+
     return null;
+    
   }
   
   /**
@@ -221,11 +227,12 @@ public class RuleSubjectActAs {
 
   /**
    * see if a subject can act as another subject
+   * @param ruleDefinition 
    * @param subject
    * @param subjectToActAs
    * @return true if a subject can act as another subject
    */
-  public static boolean allowedToActAs(final Subject subject, final Subject subjectToActAs) {
+  public static boolean allowedToActAs(RuleDefinition ruleDefinition, final Subject subject, final Subject subjectToActAs) {
 
     if (subject == null || subjectToActAs == null) {
       throw new RuntimeException("Need to pass in subject and subjectToActAs");
@@ -247,7 +254,7 @@ public class RuleSubjectActAs {
 
     GrouperSession staticGrouperSession = GrouperSession.staticGrouperSession();
     GrouperSession internalRootSession = staticGrouperSession.internal_getRootSession();
-    return (Boolean)GrouperSession.callbackGrouperSession(internalRootSession, new GrouperSessionHandler() {
+    boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(internalRootSession, new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
@@ -342,7 +349,68 @@ public class RuleSubjectActAs {
         return false;
       }
     });
-  
+    
+    if (allowed) {
+      return true;
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("rules.allowActAsGrouperSystemForInheritedStemPrivileges", true)) {
 
+      try {
+        RuleCheckType ruleCheckType = ruleDefinition.getCheck().checkTypeEnum();
+        
+        String ruleThenEl = ruleDefinition.getThen().getThenEl();
+        
+        if (!StringUtils.isBlank(ruleThenEl) 
+            && (ruleCheckType == RuleCheckType.groupCreate || ruleCheckType == RuleCheckType.stemCreate)) {
+  
+          //check owner name is equal to the attribute owner name
+          Stem ownerStem = ruleDefinition.getAttributeAssignType().getOwnerStem();
+          
+          //see if this is a special case
+          if (SubjectHelper.eq(SubjectFinder.findRootSubject(), subjectToActAs) && ownerStem != null ) {
+            if (StringUtils.equals(ownerStem.getUuid(), ruleDefinition.getCheck().getCheckOwnerId())
+                || StringUtils.equals(ownerStem.getName(), ruleDefinition.getCheck().getCheckOwnerName())) {
+              Matcher matcher = actAsGrouperSystemStemInheritPattern.matcher(ruleThenEl) ;
+              if (matcher.matches()) {
+                //everything ok, allowed to act as grouper system
+                return true;
+              }
+            }
+          }
+          
+          
+        }
+      } catch (Exception e) {
+        //ignore, something wrong
+        LOG.debug("error figuring out act as grouper system for inherited stem privileges", e);
+      }
+      
+    }
+    return false;
+
+    
   }
+
+  /**
+   * <pre>
+   * pattern.  test: ${ruleElUtils.assignGroupPrivilege(groupId, 'g:gsa', null, 'stem1:a', 'read,update')}
+   * regex: ^\$\{\s*ruleElUtils\.assign(Group|Stem)Privilege\(\s*(group|stem)Id\s*,[^\)]+\s*\)\s*\}\s*$
+   * ^               start
+   * \$\{            dollar, curly
+   * \s*             optional whitespace
+   * ruleElUtils\.   ruleElUtils and dot
+   * assign          assign
+   * (Group|Stem)    Group or Stem
+   * Privilege       Privilege
+   * \(\s*           paren and optional whitespace
+   * (group|stem)Id  groupId or stemId
+   * \s*,            optional whitespace and comma
+   * [^\)]+          a bunch of stuff not a paren
+   * \s*\)\s*\}      optional space, then paren, optional space, then curly
+   * \s*$            optional space then done
+   * </pre>
+   */
+  private static Pattern actAsGrouperSystemStemInheritPattern = Pattern.compile("^\\$\\{\\s*ruleElUtils\\.assign(Group|Stem)Privilege\\(\\s*(group|stem)Id\\s*,[^\\)]+\\s*\\)\\s*\\}\\s*$");
+  
 }
