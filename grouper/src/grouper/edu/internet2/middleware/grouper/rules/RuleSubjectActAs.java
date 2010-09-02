@@ -362,7 +362,8 @@ public class RuleSubjectActAs {
         String ruleThenEl = ruleDefinition.getThen().getThenEl();
         
         if (!StringUtils.isBlank(ruleThenEl) 
-            && (ruleCheckType == RuleCheckType.groupCreate || ruleCheckType == RuleCheckType.stemCreate)) {
+            && (ruleCheckType == RuleCheckType.groupCreate || ruleCheckType == RuleCheckType.stemCreate
+                || ruleCheckType == RuleCheckType.attributeDefCreate)) {
   
           //check owner name is equal to the attribute owner name
           Stem ownerStem = ruleDefinition.getAttributeAssignType().getOwnerStem();
@@ -411,6 +412,6 @@ public class RuleSubjectActAs {
    * \s*$            optional space then done
    * </pre>
    */
-  private static Pattern actAsGrouperSystemStemInheritPattern = Pattern.compile("^\\$\\{\\s*ruleElUtils\\.assign(Group|Stem)Privilege\\(\\s*(group|stem)Id\\s*,[^\\)]+\\s*\\)\\s*\\}\\s*$");
+  private static Pattern actAsGrouperSystemStemInheritPattern = Pattern.compile("^\\$\\{\\s*ruleElUtils\\.assign(Group|Stem|AttributeDef)Privilege\\(\\s*(group|stem|attributeDef)Id\\s*,[^\\)]+\\s*\\)\\s*\\}\\s*$");
   
 }
