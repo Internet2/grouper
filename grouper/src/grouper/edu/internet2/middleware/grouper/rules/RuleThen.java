@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -16,6 +17,10 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class RuleThen {
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(RuleThen.class);
+
+
   /**
    * 
    */
@@ -25,19 +30,62 @@ public class RuleThen {
 
   /**
    * 
-   * @param thenEl
-   * @param thenEnum
+   * @param thenEl1
+   * @param thenEnum1
+   * @param _thenEnumArg0 
+   * @param _thenEnumArg1 
    */
-  public RuleThen(String thenEl, String thenEnum) {
+  public RuleThen(String thenEl1, String thenEnum1, String _thenEnumArg0, String _thenEnumArg1) {
     super();
-    this.thenEl = thenEl;
-    this.thenEnum = thenEnum;
+    this.thenEl = thenEl1;
+    this.thenEnum = thenEnum1;
+    this.thenEnumArg0 = _thenEnumArg0;
+    this.thenEnumArg1 = _thenEnumArg1;
   }
 
 
   /** if it is an el, put that here */
   private String thenEl;
   
+  /** arg0 to the then clause */
+  private String thenEnumArg0;
+  
+  /** arg1 to the then clause */
+  private String thenEnumArg1;
+  
+  /**
+   * arg0 to the then clause
+   * @return arg0
+   */
+  public String getThenEnumArg0() {
+    return this.thenEnumArg0;
+  }
+
+  /**
+   * arg0 to the then clause
+   * @param theThenEnumArg0
+   */
+  public void setThenEnumArg0(String theThenEnumArg0) {
+    this.thenEnumArg0 = theThenEnumArg0;
+  }
+
+  /**
+   * 
+   * @return arg1
+   */
+  public String getThenEnumArg1() {
+    return this.thenEnumArg1;
+  }
+
+  /**
+   * then enum arg1
+   * @param theThenEnumArg1
+   */
+  public void setThenEnumArg1(String theThenEnumArg1) {
+    this.thenEnumArg1 = theThenEnumArg1;
+  }
+
+
   /** if it is an enum, put that here */
   private String thenEnum;
 
@@ -103,21 +151,37 @@ public class RuleThen {
     if (!StringUtils.isBlank(this.thenEnum)) {
       result.append("thenEnum: ").append(this.thenEnum).append(", ");
     }
+    if (!StringUtils.isBlank(this.thenEnumArg0)) {
+      result.append("thenEnumArg0: ").append(this.thenEnumArg0).append(", ");
+    }
+    if (!StringUtils.isBlank(this.thenEnumArg1)) {
+      result.append("thenEnumArg1: ").append(this.thenEnumArg1).append(", ");
+    }
   }
 
   /**
    * validate this 
+   * @param ruleDefinition
    * @return error or null if ok
    */
-  public String validate() {
+  public String validate(RuleDefinition ruleDefinition) {
     if (StringUtils.isBlank(this.thenEl) ==  StringUtils.isBlank(this.thenEnum)) {
       return "Enter one and only one of thenEl and thenEnum!";
     }
     if (!StringUtils.isBlank(this.thenEnum)) {
+      RuleThenEnum ruleThenEnum = null;
       try {
-        RuleThenEnum.valueOfIgnoreCase(this.thenEnum, true);
+        ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.thenEnum, true);
       } catch (Exception e) {
         return e.getMessage();
+      }
+      String errorMessage = ruleThenEnum.validate(ruleDefinition);
+      if (!StringUtils.isBlank(errorMessage)) {
+        return errorMessage;
+      }
+    } else {
+      if (!StringUtils.isBlank(this.thenEnumArg0) || !StringUtils.isBlank(this.thenEnumArg1)) {
+        return "Cant enter arg0 or arg1 for a then clause if there is no then enum";
       }
     }
     return null;

@@ -282,7 +282,24 @@ public class WheelAccessResolver extends AccessResolverDecorator {
     return decoratedResolver.hqlFilterGroupsWhereClause(subject, hqlQuery, hql,
         groupColumn, privInSet);
   }
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterGroupsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
 
+    //Wheel can see all groups
+    if (this.isAndUseWheel(subject)) {
+      return false;
+    }
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterGroupsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        groupColumn, privilege, considerAllSubject);
+  }
+  
   /**
    * 
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)

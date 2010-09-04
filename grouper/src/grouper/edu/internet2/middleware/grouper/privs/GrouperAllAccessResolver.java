@@ -20,8 +20,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -63,6 +65,16 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 //   this is done further down in dao
 //    groups.addAll(super.getDecoratedResolver().getGroupsWhereSubjectHasPrivilege(
 //        this.all, privilege));
+    return groups;
+  }
+
+  /**
+   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+    Set<Group> groups = super.getDecoratedResolver().getGroupsWhereSubjectDoesntHavePrivilege(
+        stemId, scope, subject, privilege, considerAllSubject);
     return groups;
   }
 

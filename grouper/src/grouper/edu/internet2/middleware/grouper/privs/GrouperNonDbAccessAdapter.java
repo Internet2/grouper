@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -125,33 +126,53 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
    * @return  Set of {@link Group} objects.
    * @throws  SchemaException
    */
-  public Set getGroupsWhereSubjectHasPriv(
+  public Set<Group> getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
     throws  SchemaException
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Set groups = new LinkedHashSet();
+    Set<Group> groups = new LinkedHashSet<Group>();
     try {
       Field f = priv.getField();
       // This subject
       groups.addAll( 
         GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj, true), f ) 
       );
-      //this is done in the dao
-      // The ALL subject
-//      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
-//        groups.addAll( 
-//          GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.internal_findAllMember(), f ) 
-//        );
-//      }
     }
     catch (GroupNotFoundException eGNF) {
       String msg = E.GAA_GNF + eGNF.getMessage();
       LOG.error(msg);
     }
     return groups;
+  }  
+
+  /**
+   * Get all groups where this subject doesnt have this privilege.
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @return groups
+   */
+  public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(
+      GrouperSession grouperSession, String stemId, Scope scope, Subject subject,
+      Privilege privilege, boolean considerAllSubject) {
+
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(grouperSession);
+    Set groups = new LinkedHashSet();
+
+    // This subject
+    groups.addAll( 
+      GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectDoesntHavePriv( grouperSession, 
+          stemId, scope, subject, privilege, considerAllSubject) 
+    );
+    return groups;
+  
   }  
 
   /**
@@ -503,6 +524,7 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
       mship.delete();
     }
   }
+
 
 } // public class GrouperAccessAdapter 
 

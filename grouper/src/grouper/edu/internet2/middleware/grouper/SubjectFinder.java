@@ -86,6 +86,43 @@ public class SubjectFinder {
   }
 
   /**
+   * pass in the source (optional), and the id or identifier
+   * @param sourceId
+   * @param subjectId
+   * @param subjectIdentifier
+   * @param exceptionIfNotFound
+   * @return the subject or null
+   */
+  public static Subject findByOptionalArgs(String sourceId, String subjectId, String subjectIdentifier, boolean exceptionIfNotFound) {
+    if (!StringUtils.isBlank(sourceId)) {
+      
+      if (!StringUtils.isBlank(subjectId)) {
+        return SubjectFinder.findByIdAndSource(subjectId, sourceId, exceptionIfNotFound);
+      }
+      
+      if (!StringUtils.isBlank(subjectIdentifier)) {
+        return SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, exceptionIfNotFound);
+      }
+      
+    }
+    //no source
+    if (!StringUtils.isBlank(subjectId)) {
+      return SubjectFinder.findById(subjectId, exceptionIfNotFound);
+    }
+    
+    if (!StringUtils.isBlank(subjectIdentifier)) {
+      return SubjectFinder.findByIdentifier(subjectIdentifier, exceptionIfNotFound);
+    }
+    
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Cant find subject: " + sourceId + ", " + subjectId + ", " + subjectIdentifier);
+    }
+
+    return null;
+
+  }
+
+  /**
    * find by id or identifier
    * @param idOrIdentifier
    * @param source 
@@ -801,5 +838,65 @@ public class SubjectFinder {
     return SourceManager.getInstance().getSource(source).getSubjectByIdentifier(identifier, exceptionIfNull);
   }
 
+  /**
+   * <pre>
+   * Find a subject by packed subject string.  This could be a four colons then subjectId or six colons then a subjectIdentifier, or
+   * a source then four colons, then subjectId, or a source then six colons then a subjectIdentifier. 
+   * or a subjectIdOrIdentifier, or a source, then eight colons, then a subjectIdentifier e.g.
+   * subjectIdOrIdentifier
+   * sourceId::::subjectId
+   * ::::subjectId
+   * sourceId::::::subjectIdentifier
+   * ::::::subjectIdentifier
+   * sourceId::::::::subjectIdOrIdentifier
+   * ::::::::subjectIdentifier
+   * </pre>
+   * @param subjectString
+   * @param exceptionIfNotFound
+   * @return the subject
+   */
+  public static Subject findByPackedSubjectString(String subjectString, boolean exceptionIfNotFound) {
+    if (StringUtils.isBlank(subjectString)) {
+      throw new RuntimeException("Why is subjectString blank? ");
+    }
+    String sourceId = null;
+    String subjectIdentifier = null;
+    String subjectId = null;
+    if (subjectString.contains("::::::::")) {
+      String[] subjectParts = GrouperUtil.splitTrim(subjectString, "::::::::");
+      
+      if (subjectParts.length > 1) {
+        sourceId = subjectParts[0];
+        String subjectIdOrIdentifier = subjectParts[1];
+        return findByIdOrIdentifierAndSource(subjectIdOrIdentifier, sourceId, exceptionIfNotFound);
+      }
+      String subjectIdOrIdentifier = subjectParts[0];
+      return findByIdOrIdentifier(subjectIdOrIdentifier, exceptionIfNotFound);
+
+    } else if (subjectString.contains("::::::")) {
+      String[] subjectParts = GrouperUtil.splitTrim(subjectString, "::::::");
+      if (subjectParts.length > 1) {
+        sourceId = subjectParts[0];
+        subjectIdentifier = subjectParts[1];
+      } else {
+        subjectIdentifier = subjectParts[0];
+      }
+
+    } else if (subjectString.contains("::::")) {
+      String[] subjectParts = GrouperUtil.splitTrim(subjectString, "::::");
+      sourceId = subjectParts[0];
+      if (subjectParts.length > 1) {
+        sourceId = subjectParts[0];
+        subjectId = subjectParts[1];
+      } else {
+        subjectId = subjectParts[0];
+      }
+      
+    } else {
+      return findByIdOrIdentifier(subjectString, exceptionIfNotFound);
+    }
+    return findByOptionalArgs(sourceId, subjectId, subjectIdentifier, exceptionIfNotFound);
+  }
+  
 }
 

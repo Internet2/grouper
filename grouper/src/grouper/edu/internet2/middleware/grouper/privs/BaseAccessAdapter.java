@@ -81,6 +81,17 @@ public abstract class BaseAccessAdapter implements AccessAdapter {
 
   /**
    * 
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsNotWithPrivWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterGroupsNotWithPrivWhereClause(GrouperSession grouperSession,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    //by default dont change the HQL
+    return false;
+  }
+
+  
+  /**
+   * 
    * @see edu.internet2.middleware.grouper.privs.AccessAdapter#postHqlFilterMemberships(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set)
    */
   public Set<Membership> postHqlFilterMemberships(

@@ -20,6 +20,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -55,6 +56,16 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
     this.param.notNullSubject(subject).notNullPrivilege(privilege);
     return super.getDecoratedResolver().getGroupsWhereSubjectHasPrivilege(subject,
         privilege);
+  }
+
+  /**
+   * @see     AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope, 
+      Subject subject, Privilege privilege, boolean considerAllSubject)
+      throws IllegalArgumentException {
+    this.param.notNullSubject(subject).notNullPrivilege(privilege);
+    return super.getDecoratedResolver().getGroupsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
   }
 
   /**
@@ -185,7 +196,21 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
     return decoratedResolver.hqlFilterGroupsWhereClause(subject, hqlQuery, hql,
         groupColumn, privInSet);
   }
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterGroupsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
 
+    this.param.notNullSubject(subject).notNullHqlQuery(hqlQuery);
+
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterGroupsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        groupColumn, privilege, considerAllSubject);
+  }
+  
   /**
    * 
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)

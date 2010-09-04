@@ -80,6 +80,38 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsNotWithPrivWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterGroupsNotWithPrivWhereClause(GrouperSession grouperSession,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    
+    Member member = MemberFinder.internal_findBySubject(subject, null, true);
+    Member allMember = MemberFinder.internal_findAllMember();
+
+    String fieldId = privilege.getField().getUuid();
+    
+    if (hql.indexOf(" where ") == -1) {
+      hql.append(" where ");
+    } else {
+      hql.append(" and ");
+    }
+    
+    hql.append(" not exists (select __notInMembership.uuid from MembershipEntry __notInMembership where " +
+    		" __notInMembership.enabledDb = 'T' and __notInMembership.ownerGroupId = " + groupColumn + " " +
+    				" and __notInMembership.fieldId = :notInMembershipFieldId and __notInMembership.memberUuid in ( " +
+    				" :notInMembershipMemberId" + (considerAllSubject ? ", :notInMembershipAllMemberId" : "") + ")) ");
+    
+    hqlQuery.setString("notInMembershipFieldId", fieldId);
+    hqlQuery.setString("notInMembershipMemberId", member.getUuid());
+    if (considerAllSubject) {
+      hqlQuery.setString("notInMembershipAllMemberId", allMember.getUuid());
+    }
+
+    return true;
+  }
+  
+  
+  /**
    * 
    * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#postHqlFilterGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
    */

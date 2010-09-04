@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -88,6 +89,15 @@ public class AccessWrapper implements AccessResolver {
     }
   }
 
+  /**
+   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+    return this.access.getGroupsWhereSubjectDoesntHavePrivilege(this.s, stemId, scope, subject, privilege, considerAllSubject);
+  }
+
+  
   /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#getStemsWhereGroupThatSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
    */
@@ -280,6 +290,15 @@ public class AccessWrapper implements AccessResolver {
   public boolean hqlFilterGroupsWhereClause( 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
     return this.access.hqlFilterGroupsWhereClause(this.s, subject, hqlQuery, hql, groupColumn, privInSet);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterGroupsNotWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.access.hqlFilterGroupsNotWithPrivWhereClause(this.s, subject, hqlQuery, hql, groupColumn, privilege, considerAllSubject);
   }
 
 

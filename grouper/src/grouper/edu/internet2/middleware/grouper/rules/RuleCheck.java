@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -261,9 +262,10 @@ public class RuleCheck {
 
   /**
    * validate this 
+   * @param ruleDefinition
    * @return error or null if ok
    */
-  public String validate() {
+  public String validate(RuleDefinition ruleDefinition) {
     if (StringUtils.isBlank(this.checkType)) {
       return "Enter the checkType!";
     }
@@ -280,7 +282,7 @@ public class RuleCheck {
       
     }
     
-    return this.checkTypeEnum().validate(this);
+    return this.checkTypeEnum().validate(ruleDefinition, this);
   }
 
   /**
@@ -319,9 +321,18 @@ public class RuleCheck {
   
   /**
    * see if the owner is a stem (note, owner requiredness not checked)
+   * @param ruleDefinition
    * @return the error message
    */
-  public String validateOwnerStem() {
+  public String validateOwnerStem(RuleDefinition ruleDefinition) {
+
+    //if this is on a stem, then can be blank
+    AttributeAssign attributeAssignType = ruleDefinition.getAttributeAssignType();
+    if (attributeAssignType != null && !StringUtils.isBlank(attributeAssignType.getOwnerStemId())) {
+      if (StringUtils.isBlank(this.checkOwnerId) && StringUtils.isBlank(this.checkOwnerName)) {
+        return null;
+      }
+    }
     return RuleUtils.validateStem(this.checkOwnerId, this.checkOwnerName);
   }
   

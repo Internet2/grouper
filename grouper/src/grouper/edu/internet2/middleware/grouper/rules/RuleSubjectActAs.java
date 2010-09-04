@@ -1,8 +1,5 @@
 package edu.internet2.middleware.grouper.rules;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -139,31 +136,7 @@ public class RuleSubjectActAs {
    * @return the subject
    */
   public Subject subject(boolean exceptionIfNotFound) {
-    
-    if (!StringUtils.isBlank(this.sourceId)) {
-      
-      if (!StringUtils.isBlank(this.subjectId)) {
-        return SubjectFinder.findByIdAndSource(this.subjectId, this.sourceId, exceptionIfNotFound);
-      }
-      
-      if (!StringUtils.isBlank(this.subjectIdentifier)) {
-        return SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.sourceId, exceptionIfNotFound);
-      }
-      
-    }
-    //no source
-    if (!StringUtils.isBlank(this.subjectId)) {
-      return SubjectFinder.findById(this.subjectId, exceptionIfNotFound);
-    }
-    
-    if (!StringUtils.isBlank(this.subjectIdentifier)) {
-      return SubjectFinder.findByIdentifier(this.subjectIdentifier, exceptionIfNotFound);
-    }
-    
-    if (exceptionIfNotFound) {
-      throw new RuntimeException("Cant find subject: " + this);
-    }
-    return null;
+    return SubjectFinder.findByOptionalArgs(this.sourceId, this.subjectId, this.subjectId, exceptionIfNotFound);
   }
   
   /**
@@ -359,21 +332,23 @@ public class RuleSubjectActAs {
       try {
         RuleCheckType ruleCheckType = ruleDefinition.getCheck().checkTypeEnum();
         
-        String ruleThenEl = ruleDefinition.getThen().getThenEl();
-        
-        if (!StringUtils.isBlank(ruleThenEl) 
-            && (ruleCheckType == RuleCheckType.groupCreate || ruleCheckType == RuleCheckType.stemCreate
-                || ruleCheckType == RuleCheckType.attributeDefCreate)) {
+        if (ruleCheckType == RuleCheckType.groupCreate || ruleCheckType == RuleCheckType.stemCreate
+                || ruleCheckType == RuleCheckType.attributeDefCreate) {
   
-          //check owner name is equal to the attribute owner name
+          //check owner name is null and attribute owner name is not null
           Stem ownerStem = ruleDefinition.getAttributeAssignType().getOwnerStem();
           
           //see if this is a special case
           if (SubjectHelper.eq(SubjectFinder.findRootSubject(), subjectToActAs) && ownerStem != null ) {
-            if (StringUtils.equals(ownerStem.getUuid(), ruleDefinition.getCheck().getCheckOwnerId())
-                || StringUtils.equals(ownerStem.getName(), ruleDefinition.getCheck().getCheckOwnerName())) {
-              Matcher matcher = actAsGrouperSystemStemInheritPattern.matcher(ruleThenEl) ;
-              if (matcher.matches()) {
+            if (StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())
+                && StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())
+                && ownerStem != null) {
+              
+              RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+              
+              if (ruleThenEnum == RuleThenEnum.assignGroupPrivilegeToGroupId
+                  || ruleThenEnum == RuleThenEnum.assignStemPrivilegeToStemId
+                  || ruleThenEnum == RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId) {
                 //everything ok, allowed to act as grouper system
                 return true;
               }
@@ -393,25 +368,42 @@ public class RuleSubjectActAs {
     
   }
 
-  /**
-   * <pre>
-   * pattern.  test: ${ruleElUtils.assignGroupPrivilege(groupId, 'g:gsa', null, 'stem1:a', 'read,update')}
-   * regex: ^\$\{\s*ruleElUtils\.assign(Group|Stem)Privilege\(\s*(group|stem)Id\s*,[^\)]+\s*\)\s*\}\s*$
-   * ^               start
-   * \$\{            dollar, curly
-   * \s*             optional whitespace
-   * ruleElUtils\.   ruleElUtils and dot
-   * assign          assign
-   * (Group|Stem)    Group or Stem
-   * Privilege       Privilege
-   * \(\s*           paren and optional whitespace
-   * (group|stem)Id  groupId or stemId
-   * \s*,            optional whitespace and comma
-   * [^\)]+          a bunch of stuff not a paren
-   * \s*\)\s*\}      optional space, then paren, optional space, then curly
-   * \s*$            optional space then done
-   * </pre>
-   */
-  private static Pattern actAsGrouperSystemStemInheritPattern = Pattern.compile("^\\$\\{\\s*ruleElUtils\\.assign(Group|Stem|AttributeDef)Privilege\\(\\s*(group|stem|attributeDef)Id\\s*,[^\\)]+\\s*\\)\\s*\\}\\s*$");
+//  /**
+//   * <pre>
+//   * pattern.  test: ${ruleElUtils.assignGroupPrivilege(groupId, 'g:gsa', null, 'stem1:a', 'read,update')}
+//   * regex: ^\$\{\s*ruleElUtils\.assign(Group|Stem)Privilege\(\s*(group|stem)Id\s*,([^\)]+)\s*\)\s*\}\s*$
+//   * ^               start
+//   * \$\{            dollar, curly
+//   * \s*             optional whitespace
+//   * ruleElUtils\.   ruleElUtils and dot
+//   * assign          assign
+//   * (Group|Stem)    Group or Stem
+//   * Privilege       Privilege
+//   * \(\s*           paren and optional whitespace
+//   * (group|stem)Id  groupId or stemId
+//   * \s*,            optional whitespace and comma
+//   * ([^\)]+)        a bunch of stuff not a paren, capture this
+//   * \s*\)\s*\}      optional space, then paren, optional space, then curly
+//   * \s*$            optional space then done
+//   * </pre>
+//   */
+//  public static Pattern actAsGrouperSystemStemInheritPattern = 
+//    Pattern.compile("^\\$\\{\\s*ruleElUtils\\.assign(Group|Stem|AttributeDef)Privilege\\(\\s*(group|stem|attributeDef)Id\\s*,([^\\)]+)\\s*\\)\\s*\\}\\s*$");
+//  
+//  /**
+//   * <pre>
+//   * pattern: ^\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*(.+)\s*$
+//   * matches: "g:gsa" , null, 'stem1:a', 'read,update'
+//   * 
+//   * ^\s*([^,]+)\s*,  start, optional spaces, stuff not a comma, optional whitespace, comma
+//   * \s*([^,]+)\s*,   optional spaces, stuff not a comma, optional whitespace, comma
+//   * \s*([^,]+)\s*,   optional spaces, stuff not a comma, optional whitespace, comma
+//   * \s*(.+)\s*$      optional spaces, stuff not a comma, optional whitespace, end
+//   * </pre>
+//   */
+//  public static Pattern actAsGrouperSystemStemInheritArgsPattern = 
+//    Pattern.compile("^\\s*([^,]+)\\s*,\\s*([^,]+)\\s*,\\s*([^,]+)\\s*,\\s*(.+)\\s*$");
+  
+
   
 }

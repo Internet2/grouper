@@ -1559,6 +1559,10 @@ public class GrouperCheckConfig {
             "expression language to run when the rule fires", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_ENUM, 
             "RuleThenEnum to run when the rule fires", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_ENUM_ARG0, 
+            "RuleThenEnum argument 0 to run when the rule fires (enum might need args)", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_ENUM_ARG1, 
+            "RuleThenEnum argument 1 to run when the rule fires (enum might need args)", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_VALID, 
             "T|F for if this rule is valid, or the reason, managed by hook automatically", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_RUN_DAEMON, 

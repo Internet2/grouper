@@ -22,8 +22,10 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
@@ -246,5 +248,21 @@ public class MockAccessResolver implements AccessResolver {
     throw E;
   }
 
+
+  /**
+   * @see AccessResolver#getGroupsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope,
+      Subject subject, Privilege privilege, boolean considerAllSubject) {
+    throw E;
+  }
+
+  /**
+   * @see AccessResolver#hqlFilterGroupsNotWithPrivWhereClause(Subject, HqlQuery, StringBuilder, String, Privilege, boolean
+   */
+  public boolean hqlFilterGroupsNotWithPrivWhereClause(Subject subject, HqlQuery byHqlStatic, 
+      StringBuilder sql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    throw E;
+  }
 }
 

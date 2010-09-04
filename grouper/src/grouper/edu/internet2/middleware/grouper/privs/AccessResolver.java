@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
@@ -63,6 +64,18 @@ public interface AccessResolver {
   Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException;
 
+  /**
+   * find the groups which do not have a certain privilege
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject 
+   * @return the groups
+   */
+  Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+  
   /**
    * Get all stems which have groups where <i>subject</i> has <i>privilege</i>.
    * <p/>
@@ -223,6 +236,19 @@ public interface AccessResolver {
   public boolean hqlFilterGroupsWhereClause( 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet);
 
+  /**
+   * for a group query, check to make sure the subject cant see the records
+   * @param subject which needs view access to the groups
+   * @param hqlQuery 
+   * @param hql the select and current from part
+   * @param groupColumn is the name of the group column to join to
+   * @param privilege find a privilege which is in this set (e.g. for view, send all access privs)
+   * @param considerAllSubject if true, then consider GrouperAll when seeign if subject has priv, else do not
+   * @return if the statement was changed
+   */
+  public boolean hqlFilterGroupsNotWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject);
+  
   /**
    * filter memberships for things the subject can see
    * @param memberships

@@ -125,28 +125,8 @@ public class RuleElUtils {
     }
     boolean result = false;
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Subject subject = null;
-    if (!StringUtils.isBlank(sourceId)) {
-  
-      if (!StringUtils.isBlank(subjectId)) {
-        subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
-      } else if (!StringUtils.isBlank(subjectIdentifier)) {
-        subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, true);
-        
-      } else {
-        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
-      }
-      
-      
-    } else {
-      if (!StringUtils.isBlank(subjectId)) {
-        subject = SubjectFinder.findById(subjectId, true);
-      } else if (!StringUtils.isBlank(subjectIdentifier)) {
-        subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
-      } else {
-        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
-      }
-    }
+    Subject subject = SubjectFinder.findByOptionalArgs(sourceId, subjectId, subjectIdentifier, true);
+
     String[] privileges = GrouperUtil.splitTrim(privilegeNamesCommaSeparated, ",");
     
     for (String privilegeString : privileges) {
@@ -214,28 +194,7 @@ public class RuleElUtils {
     }
     boolean result = false;
     Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, true);
-    Subject subject = null;
-    if (!StringUtils.isBlank(sourceId)) {
-  
-      if (!StringUtils.isBlank(subjectId)) {
-        subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
-      } else if (!StringUtils.isBlank(subjectIdentifier)) {
-        subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, true);
-        
-      } else {
-        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
-      }
-      
-      
-    } else {
-      if (!StringUtils.isBlank(subjectId)) {
-        subject = SubjectFinder.findById(subjectId, true);
-      } else if (!StringUtils.isBlank(subjectIdentifier)) {
-        subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
-      } else {
-        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
-      }
-    }
+    Subject subject = SubjectFinder.findByOptionalArgs(sourceId, subjectId, subjectIdentifier, true);
     String[] privileges = GrouperUtil.splitTrim(privilegeNamesCommaSeparated, ",");
     
     for (String privilegeString : privileges) {
@@ -268,28 +227,7 @@ public class RuleElUtils {
     }
     boolean result = false;
     AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefId, true);
-    Subject subject = null;
-    if (!StringUtils.isBlank(sourceId)) {
-  
-      if (!StringUtils.isBlank(subjectId)) {
-        subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
-      } else if (!StringUtils.isBlank(subjectIdentifier)) {
-        subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier, sourceId, true);
-        
-      } else {
-        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
-      }
-      
-      
-    } else {
-      if (!StringUtils.isBlank(subjectId)) {
-        subject = SubjectFinder.findById(subjectId, true);
-      } else if (!StringUtils.isBlank(subjectIdentifier)) {
-        subject = SubjectFinder.findByIdentifier(subjectIdentifier, true);
-      } else {
-        throw new RuntimeException("Why is there not a subjectId or subjectIdentifier?");
-      }
-    }
+    Subject subject = SubjectFinder.findByOptionalArgs(sourceId, subjectId, subjectIdentifier, true);
     String[] privileges = GrouperUtil.splitTrim(privilegeNamesCommaSeparated, ",");
     
     for (String privilegeString : privileges) {

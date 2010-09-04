@@ -27,6 +27,31 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class RuleUtils {
 
   /**
+   * take in a string, e.g. "this", and return it without quotes on the outside
+   * @param string
+   * @return the string
+   */
+  public static String removeSurroundingQuotesConvertNull(String string) {
+    
+    if (string == null) {
+      return string;
+    }
+
+    if (StringUtils.equals("null", string)) {
+      return null;
+    }
+    
+    char startChar = string.charAt(0);
+    char endChar = string.charAt(string.length()-1);
+    
+    if (startChar == endChar && (startChar == '\'' || startChar == '"' )) {
+      return string.substring(1, string.length()-1);
+    }
+    //not sure why there wouldnt be quotes, oh well
+    return string;
+  }
+  
+  /**
    * return the rule attribute def name, assign this to an object to attach a rule.
    * this throws exception if cant find
    * @return the attribute def name
@@ -158,6 +183,48 @@ public class RuleUtils {
       ruleThenEnumName = RuleUtils.attributeRuleStemName() + ":" + RULE_THEN_ENUM;
     }
     return ruleThenEnumName;
+  }
+  
+  /**
+   * 
+   */
+  public static final String RULE_THEN_ENUM_ARG0 = "ruleThenEnumArg0";
+
+  /**
+   * rule then enum arg0 name
+   */
+  private static String ruleThenEnumArg0Name = null;
+
+  /**
+   * full rule then enum arg0 name
+   * @return name
+   */
+  public static String ruleThenEnumArg0Name() {
+    if (ruleThenEnumArg0Name == null) {
+      ruleThenEnumArg0Name = RuleUtils.attributeRuleStemName() + ":" + RULE_THEN_ENUM_ARG0;
+    }
+    return ruleThenEnumArg0Name;
+  }
+  
+  /**
+   * 
+   */
+  public static final String RULE_THEN_ENUM_ARG1 = "ruleThenEnumArg1";
+
+  /**
+   * rule then enum arg1 name
+   */
+  private static String ruleThenEnumArg1Name = null;
+
+  /**
+   * full rule then enum arg1 name
+   * @return name
+   */
+  public static String ruleThenEnumArg1Name() {
+    if (ruleThenEnumArg1Name == null) {
+      ruleThenEnumArg1Name = RuleUtils.attributeRuleStemName() + ":" + RULE_THEN_ENUM_ARG1;
+    }
+    return ruleThenEnumArg1Name;
   }
   
   /**

@@ -29,7 +29,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
@@ -556,6 +555,20 @@ public interface GroupDAO extends GrouperDAO {
    * @param group
    */
   public void saveUpdateProperties(Group group);
+
+  /**
+   * see which groups do not have this privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param queryOptions
+   * @param considerAllSubject
+   * @return the groups
+   */
+  public Set<Group> findGroupsInStemWithoutPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject);
 
 } 
 

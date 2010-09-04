@@ -28,8 +28,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -241,6 +241,32 @@ public class GrouperPrivilegeAdapter {
       throw gse;
     }
   } // public static Set internal_getGroupsWhereSubjectHasPriv(s, m, f)
+
+  /**
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @return the set of groups
+   */
+  public static Set<Group> internal_getGroupsWhereSubjectDoesntHavePriv(GrouperSession grouperSession, 
+      final String stemId, final Scope scope, 
+      final Subject subject, final Privilege privilege, final boolean considerAllSubject) {
+    return (Set<Group>)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findGroupsInStemWithoutPrivilege(
+            grouperSession, stemId, scope, subject, privilege, null, considerAllSubject);
+        
+        return groups;
+      }
+      
+    });
+  }
 
   /**
    * @param grouperSession 

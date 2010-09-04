@@ -7,13 +7,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 
@@ -95,6 +100,10 @@ public class RuleDefinition {
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenElName());
     String thenEnum = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumName());
+    String thenEnumArg0 = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumArg0Name());
+    String thenEnumArg1 = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumArg1Name());
     String runDaemonTf = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleRunDaemonName());
     
@@ -108,7 +117,7 @@ public class RuleDefinition {
     RuleIfCondition ruleIfCondition = new RuleIfCondition(ifConditionEl, ifConditionEnum, 
         ifOwnerId, ifOwnerName);
     
-    RuleThen ruleThen = new RuleThen(thenEl, thenEnum);
+    RuleThen ruleThen = new RuleThen(thenEl, thenEnum, thenEnumArg0, thenEnumArg1);
 
     AttributeAssign attributeAssignType = attributeAssignValueContainers
       .iterator().next().getAttributeTypeAssign();
@@ -254,6 +263,9 @@ public class RuleDefinition {
     return this.runDaemon;
   }
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(RuleDefinition.class);
+
   /**
    * if we should run the daemon, then do
    * @return if run
@@ -263,9 +275,26 @@ public class RuleDefinition {
     if (!StringUtils.isBlank(this.getIfCondition().getIfConditionEl()) || !this.isRunDaemonBoolean()) {
       return false;
     }
-    
-    //we are running the daemon, lets go
-    this.getCheck().checkTypeEnum().runDaemon(this);
+    //setup the actAs
+    RuleSubjectActAs actAs = this.getActAs();
+    Subject actAsSubject = actAs.subject(false);
+    if (actAsSubject == null) {
+      LOG.error("Cant find subject for rule: " + this);
+    } else {
+      
+      GrouperSession.callbackGrouperSession(GrouperSession.start(actAsSubject, false), new GrouperSessionHandler() {
+
+        /**
+         * 
+         */
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          //we are running the daemon, lets go
+          RuleDefinition.this.getCheck().checkTypeEnum().runDaemon(RuleDefinition.this);
+          return null;
+          
+        }
+      });
+    }        
     
     return true;
   }
@@ -322,7 +351,7 @@ public class RuleDefinition {
     }
     
     if (this.check != null) {
-      reason = this.check.validate();
+      reason = this.check.validate(this);
       if (!StringUtils.isBlank(reason)) {
         return reason;
       }
@@ -339,7 +368,7 @@ public class RuleDefinition {
     } 
 
     if (this.then != null) {
-      reason = this.then.validate();
+      reason = this.then.validate(this);
       if (!StringUtils.isBlank(reason)) {
         return reason;
       }

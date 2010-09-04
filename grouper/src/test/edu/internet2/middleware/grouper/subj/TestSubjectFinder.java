@@ -64,9 +64,13 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testFindByIdentifierGoodIdGoodType"));
+    TestRunner.run(new TestSubjectFinder("testFindByPackedSubjectString"));
   }
   
+  /**
+   * 
+   * @param name
+   */
   public TestSubjectFinder(String name) {
     super(name);
   }
@@ -598,6 +602,138 @@ public class TestSubjectFinder extends GrouperTest {
     
   }
   
+  /**
+   * 
+   */
+  public void testFindByOptionalArguments() {
 
+    Subject subject = null;
+    
+    subject = SubjectFinder.findByOptionalArgs(null, null, "edu:i2", true);
+    
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByOptionalArgs("g:gsa", null, "edu:i2", true);
+    
+    assertNotNull(subject);
+
+    try {
+      subject = SubjectFinder.findByOptionalArgs("g:gsa", null, "edu:i2abc", true);
+      fail("Shouldnt get here");
+    } catch (SubjectNotFoundException snfe) {
+      //good
+    }
+
+    subject = SubjectFinder.findByOptionalArgs("g:gsa", null, "edu:i2abc", false);
+    assertNull(subject);
+
+    subject = SubjectFinder.findByOptionalArgs(null, this.i2.getId(), null, true);
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByOptionalArgs("g:gsa", this.i2.getId(), null, true);
+    assertNotNull(subject);
+
+    try {
+      subject = SubjectFinder.findByOptionalArgs("g:gsa", "abc", null, true);
+      fail("Shouldnt get here");
+    } catch (SubjectNotFoundException snfe) {
+      //good
+    }
+
+    subject = SubjectFinder.findByOptionalArgs("g:gsa", "abc", null, false);
+    assertNull(subject);
+    
+    
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testFindByPackedSubjectString() {
+
+    Subject subject = null;
+    
+    subject = SubjectFinder.findByPackedSubjectString(":::::: edu:i2", true);
+    
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::: edu:i2", true);
+    
+    assertNotNull(subject);
+
+    try {
+      subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::: edu:i2abc", true);
+      fail("Shouldnt get here");
+    } catch (SubjectNotFoundException snfe) {
+      //good
+    }
+
+    subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::: edu:i2abc", false);
+    assertNull(subject);
+
+    subject = SubjectFinder.findByPackedSubjectString(this.i2.getId(), true);
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByPackedSubjectString("g:gsa :::: " + this.i2.getId(), true);
+    assertNotNull(subject);
+
+    try {
+      subject = SubjectFinder.findByPackedSubjectString("g:gsa :::: abc", true);
+      fail("Shouldnt get here");
+    } catch (SubjectNotFoundException snfe) {
+      //good
+    }
+
+    subject = SubjectFinder.findByPackedSubjectString("g:gsa :::: abc", false);
+    assertNull(subject);
+
+    subject = SubjectFinder.findByPackedSubjectString("abc", false);
+    assertNull(subject);
+    
+    subject = SubjectFinder.findByPackedSubjectString("edu:i2", false);
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByPackedSubjectString(this.i2.getId(), false);
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByPackedSubjectString(":::::::: abc", false);
+    assertNull(subject);
+    
+    subject = SubjectFinder.findByPackedSubjectString(":::::::: edu:i2", false);
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByPackedSubjectString(":::::::: " + this.i2.getId(), false);
+    assertNotNull(subject);
+    
+    subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::::: edu:i2", true);
+    
+    assertNotNull(subject);
+
+    try {
+      subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::::: edu:i2abc", true);
+      fail("Shouldnt get here");
+    } catch (SubjectNotFoundException snfe) {
+      //good
+    }
+
+    subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::::: edu:i2abc", false);
+    assertNull(subject);
+
+    subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::::: " + this.i2.getId(), true);
+    assertNotNull(subject);
+
+    try {
+      subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::::: abc", true);
+      fail("Shouldnt get here");
+    } catch (SubjectNotFoundException snfe) {
+      //good
+    }
+
+    subject = SubjectFinder.findByPackedSubjectString("g:gsa :::::::: abc", false);
+    assertNull(subject);
+    
+    
+  }
 }
 

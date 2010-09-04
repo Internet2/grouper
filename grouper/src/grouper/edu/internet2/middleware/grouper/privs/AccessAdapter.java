@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -85,6 +86,19 @@ public interface AccessAdapter {
   ) 
     throws  SchemaException;
 
+  /**
+   * find the groups which do not have a certain privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject
+   * @return the groups
+   */
+  Set<Group> getGroupsWhereSubjectDoesntHavePrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+  
   /**
    * get stems where a group exists where the subject has privilege
    * @param grouperSession
@@ -278,6 +292,23 @@ public interface AccessAdapter {
   public boolean hqlFilterGroupsWhereClause(GrouperSession grouperSession, 
       Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
       String groupColumn, Set<Privilege> privInSet);
+
+  /**
+   * for a group query, check to make sure the subject cant see the records (if filtering HQL, you can do 
+   * the postHqlFilterGroups instead if you like).
+   * @param grouperSession 
+   * @param subject which needs view access to the groups
+   * @param hql is the select and part part (hql prefix)
+   * @param hqlQuery 
+   * @param groupColumn is the name of the group column to join to
+   * @param privilege find a privilege which is in this set 
+   * (e.g. for view, send all access privs).  There are pre-canned sets in AccessPrivilege
+   * @param considerAllSubject if true, then consider GrouperAll when seeing if doesnt have privilege, else do consider
+   * @return if the query was changed
+   */
+  public boolean hqlFilterGroupsNotWithPrivWhereClause(GrouperSession grouperSession, 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
+      String groupColumn, Privilege privilege, boolean considerAllSubject);
 
   /**
    * filter memberships for things the subject can see

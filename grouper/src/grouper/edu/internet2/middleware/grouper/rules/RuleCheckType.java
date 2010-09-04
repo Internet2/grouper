@@ -3,8 +3,10 @@ package edu.internet2.middleware.grouper.rules;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -14,9 +16,12 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.beans.RulesAttributeDefBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
@@ -90,11 +95,11 @@ public enum RuleCheckType {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleCheck)
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
      */
     @Override
-    public String validate(RuleCheck ruleCheck) {
-      return this.validate(ruleCheck, false, true, false);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(ruleDefinition, ruleCheck, false, true, false);
     }
 
     
@@ -125,11 +130,11 @@ public enum RuleCheckType {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleCheck)
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
      */
     @Override
-    public String validate(RuleCheck ruleCheck) {
-      return this.validate(ruleCheck, false, true, false);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(ruleDefinition, ruleCheck, false, true, false);
     }
 
     /**
@@ -204,8 +209,8 @@ public enum RuleCheckType {
      * @param ruleCheck 
      * @return the error or null if valid
      */
-    public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true, false, true);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return validate(ruleDefinition, ruleCheck, true, false, true);
     }
 
     /**
@@ -255,11 +260,59 @@ public enum RuleCheckType {
 
     /**
      * validate this check type
+     * @param ruleDefinition
      * @param ruleCheck 
      * @return the error or null if valid
      */
-    public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true, false, true);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return validate(ruleDefinition, ruleCheck, true, false, true);
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      if (ruleThenEnum != RuleThenEnum.assignGroupPrivilegeToGroupId) {
+        throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignGroupPrivilegeToGroupId);
+      }
+      
+      String subjectString = ruleDefinition.getThen().getThenEnumArg0();
+      Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
+      String privilegesString = ruleDefinition.getThen().getThenEnumArg1();
+      
+      Set<String> privilegesStringSet = GrouperUtil.splitTrimToSet(privilegesString, ",");
+      
+      Set<Privilege> privilegeSet = new HashSet<Privilege>();
+      for (String privilegeString: privilegesStringSet) {
+        Privilege privilege = Privilege.getInstance(privilegeString);
+        privilegeSet.add(privilege);
+      }
+      
+      //so basically, for the memberships in this group, where there is none in the other group, process them
+      String stemId = ruleDefinition.getAttributeAssignType().getOwnerStemId();
+      
+      Scope scope = ruleDefinition.getCheck().stemScopeEnum();
+      
+      for (Privilege privilege : privilegeSet) {
+      
+        Set<Group> groupsWhichNeedPrivs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectDoesntHavePrivilege(
+            stemId, scope, subject, privilege, false);
+        
+        for (Group group : GrouperUtil.nonNull(groupsWhichNeedPrivs)) {
+          
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Daemon granting privilege: " + privilege + " to subject: " + GrouperUtil.subjectToString(subject) + " to group: " + group);
+          }
+          group.grantPriv(subject, privilege, false);
+          
+        }
+        
+      }
+      
     }
 
     /**
@@ -302,11 +355,12 @@ public enum RuleCheckType {
     
     /**
      * validate this check type
+     * @param ruleDefinition
      * @param ruleCheck 
      * @return the error or null if valid
      */
-    public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true, false, true);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return validate(ruleDefinition, ruleCheck, true, false, true);
     }
 
     /**
@@ -326,6 +380,26 @@ public enum RuleCheckType {
       ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrIdInFolder(ruleCheck)));
       
       return ruleDefinitions;
+    }
+
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a stem
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this stem
+          Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
+          ruleCheck.setCheckOwnerName(stem.getName());
+        }
+      }
+      return ruleCheck;
     }
 
     /**
@@ -372,11 +446,11 @@ public enum RuleCheckType {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleCheck)
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
      */
     @Override
-    public String validate(RuleCheck ruleCheck) {
-      return this.validate(ruleCheck, false, true, false);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(ruleDefinition, ruleCheck, false, true, false);
     }
 
   }, 
@@ -406,11 +480,11 @@ public enum RuleCheckType {
 
     /**
      * 
-     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(edu.internet2.middleware.grouper.rules.RuleCheck)
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#validate(RuleDefinition, edu.internet2.middleware.grouper.rules.RuleCheck)
      */
     @Override
-    public String validate(RuleCheck ruleCheck) {
-      return this.validate(ruleCheck, false, true, false);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return this.validate(ruleDefinition, ruleCheck, false, true, false);
     }
 
   }, 
@@ -420,11 +494,12 @@ public enum RuleCheckType {
   
     /**
      * validate this check type
+     * @param ruleDefinition
      * @param ruleCheck 
      * @return the error or null if valid
      */
-    public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true, false, true);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return validate(ruleDefinition, ruleCheck, true, false, true);
     }
   
     /**
@@ -474,11 +549,12 @@ public enum RuleCheckType {
   
     /**
      * validate this check type
+     * @param ruleDefinition
      * @param ruleCheck 
      * @return the error or null if valid
      */
-    public String validate(RuleCheck ruleCheck) {
-      return validate(ruleCheck, true, false, true);
+    public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
+      return validate(ruleDefinition, ruleCheck, true, false, true);
     }
   
     /**
@@ -530,10 +606,11 @@ public enum RuleCheckType {
   
   /**
    * validate this check type
+   * @param ruleDefinition
    * @param ruleCheck 
    * @return the error or null if valid
    */
-  public abstract String validate(RuleCheck ruleCheck);
+  public abstract String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck);
 
   /**
    * get the check object from the rules bean
@@ -556,14 +633,19 @@ public enum RuleCheckType {
   
   /**
    * validate this check type
+   * @param ruleDefinition
    * @param ruleCheck 
    * @param requireStemScope true to require, false to require blank
    * @param ownerIsGroup 
    * @param ownerIsStem 
    * @return the error or null if valid
    */
-  public String validate(RuleCheck ruleCheck, boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem) {
-    if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) == StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+  public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck, boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem) {
+    if (!StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && !StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+      return "Enter one and only one of checkOwnerId and checkOwnerName!";
+    }
+    //if owner is not stem and doesnt have an owner, then that is bad 
+    if (!ownerIsStem && StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
       return "Enter one and only one of checkOwnerId and checkOwnerName!";
     }
     if (requireStemScope) {
@@ -589,7 +671,7 @@ public enum RuleCheckType {
     }
     
     if (ownerIsStem) {
-      String result = ruleCheck.validateOwnerStem();
+      String result = ruleCheck.validateOwnerStem(ruleDefinition);
       if (!StringUtils.isBlank(result)) {
         return result;
       }
@@ -661,6 +743,10 @@ public enum RuleCheckType {
    * @param ruleDefinition
    */
   public void runDaemon(RuleDefinition ruleDefinition) {
-    throw new RuntimeException("Note implemented daemon: " + ruleDefinition);
+    throw new RuntimeException("Not implemented daemon: " + ruleDefinition);
   }
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(RuleCheckType.class);
+
 }
