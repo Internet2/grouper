@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -412,6 +413,21 @@ public interface StemDAO extends GrouperDAO {
   Set<Stem> getAllStemsWithGroupsSecure(GrouperSession grouperSession, 
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
     throws  GrouperDAOException;
+
+  /**
+   * see which stems do not have this privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param queryOptions
+   * @param considerAllSubject
+   * @return the stems
+   */
+  public Set<Stem> findStemsInStemWithoutPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject);
+
 
 } 
 

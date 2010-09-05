@@ -35,6 +35,13 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class ValidatingAccessResolver extends AccessResolverDecorator {
 
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
+
   /** */
   private ParameterHelper param;
 
@@ -196,6 +203,7 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
     return decoratedResolver.hqlFilterGroupsWhereClause(subject, hqlQuery, hql,
         groupColumn, privInSet);
   }
+  
   /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Privilege, boolean)
    */

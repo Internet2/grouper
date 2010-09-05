@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
@@ -33,6 +34,13 @@ import edu.internet2.middleware.subject.Subject;
  * @since   1.2.1
  */
 public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
 
   /** */
   private ParameterHelper param;
@@ -194,6 +202,31 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
       Set<PermissionEntry> permissionsEntries) {
     this.param.notNullSubject(subject);
     return super.getDecoratedResolver().postHqlFilterPermissions(subject, permissionsEntries);
+  }
+  
+  /**
+   * @see     AttributeDefResolver#getAttributeDefsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope, 
+      Subject subject, Privilege privilege, boolean considerAllSubject)
+      throws IllegalArgumentException {
+    this.param.notNullSubject(subject).notNullPrivilege(privilege);
+    return super.getDecoratedResolver().getAttributeDefsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
+
+    this.param.notNullSubject(subject).notNullHqlQuery(hqlQuery);
+
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterAttributeDefsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        attributeDefColumn, privilege, considerAllSubject);
   }
 
 }

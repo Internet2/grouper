@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
@@ -221,5 +222,21 @@ public abstract class AttributeDefResolverDecorator implements AttributeDefResol
     this.getDecoratedResolver().stop();
   }
 
+  /**
+   * @see AttributeDefResolver#getAttributeDefsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+    return this.getDecoratedResolver().getAttributeDefsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege)
+   */
+  public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.getDecoratedResolver().hqlFilterAttributeDefsNotWithPrivWhereClause(subject, hqlQuery, hql, groupColumn, privilege, considerAllSubject);
+  }
+  
 }
 

@@ -3,7 +3,6 @@ package edu.internet2.middleware.grouper.rules;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -419,6 +418,53 @@ public enum RuleCheckType {
       }
     }
    
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      if (ruleThenEnum != RuleThenEnum.assignStemPrivilegeToStemId) {
+        throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignStemPrivilegeToStemId);
+      }
+      
+      String subjectString = ruleDefinition.getThen().getThenEnumArg0();
+      Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
+      String privilegesString = ruleDefinition.getThen().getThenEnumArg1();
+      
+      Set<String> privilegesStringSet = GrouperUtil.splitTrimToSet(privilegesString, ",");
+      
+      Set<Privilege> privilegeSet = new HashSet<Privilege>();
+      for (String privilegeString: privilegesStringSet) {
+        Privilege privilege = Privilege.getInstance(privilegeString);
+        privilegeSet.add(privilege);
+      }
+      
+      //so basically, for the memberships in this group, where there is none in the other group, process them
+      String stemId = ruleDefinition.getAttributeAssignType().getOwnerStemId();
+      
+      Scope scope = ruleDefinition.getCheck().stemScopeEnum();
+      
+      for (Privilege privilege : privilegeSet) {
+      
+        Set<Stem> stemsWhichNeedPrivs = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectDoesntHavePrivilege(
+            stemId, scope, subject, privilege, false);
+        
+        for (Stem stem : GrouperUtil.nonNull(stemsWhichNeedPrivs)) {
+          
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Daemon granting privilege: " + privilege + " to subject: " + GrouperUtil.subjectToString(subject) + " to stem: " + stem);
+          }
+          stem.grantPriv(subject, privilege, false);
+          
+        }
+        
+      }
+      
+    }
+
   }, 
   
   /** if there is a membership add in transaction of remove */
@@ -593,6 +639,54 @@ public enum RuleCheckType {
       }
     }
    
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      if (ruleThenEnum != RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId) {
+        throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId);
+      }
+      
+      String subjectString = ruleDefinition.getThen().getThenEnumArg0();
+      Subject subject = SubjectFinder.findByPackedSubjectString(subjectString, true);
+      String privilegesString = ruleDefinition.getThen().getThenEnumArg1();
+      
+      Set<String> privilegesStringSet = GrouperUtil.splitTrimToSet(privilegesString, ",");
+      
+      Set<Privilege> privilegeSet = new HashSet<Privilege>();
+      for (String privilegeString: privilegesStringSet) {
+        Privilege privilege = Privilege.getInstance(privilegeString);
+        privilegeSet.add(privilege);
+      }
+      
+      //so basically, for the memberships in this group, where there is none in the other group, process them
+      String stemId = ruleDefinition.getAttributeAssignType().getOwnerStemId();
+      
+      Scope scope = ruleDefinition.getCheck().stemScopeEnum();
+      
+      for (Privilege privilege : privilegeSet) {
+      
+        Set<AttributeDef> attributeDefsWhichNeedPrivs = GrouperSession.staticGrouperSession().getAttributeDefResolver()
+          .getAttributeDefsWhereSubjectDoesntHavePrivilege(
+            stemId, scope, subject, privilege, false);
+        
+        for (AttributeDef attributeDef : GrouperUtil.nonNull(attributeDefsWhichNeedPrivs)) {
+          
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Daemon granting privilege: " + privilege 
+                + " to subject: " + GrouperUtil.subjectToString(subject) + " to attributeDef: " + attributeDef);
+          }
+          attributeDef.getPrivilegeDelegate().grantPriv(subject, privilege, false);
+          
+        }
+        
+      }
+      
+    }
   };
 
   /**

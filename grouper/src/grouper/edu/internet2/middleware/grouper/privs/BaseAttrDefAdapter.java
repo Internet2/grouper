@@ -74,5 +74,14 @@ public abstract class BaseAttrDefAdapter implements AttributeDefAdapter {
     return PrivilegeHelper.canViewAttributeAssigns(grouperSession, attributeAssigns, false);
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefAdapter#hqlFilterAttributeDefsNotWithPrivWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(GrouperSession grouperSession,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
+    //by default dont change the HQL
+    return false;
+  }
 
 }

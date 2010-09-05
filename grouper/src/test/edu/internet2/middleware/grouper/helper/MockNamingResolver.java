@@ -20,6 +20,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
@@ -39,12 +40,20 @@ public class MockNamingResolver implements NamingResolver {
 
 
   /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
+   */
+  public void flushCache() {
+    throw E;
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.privs.NamingResolver#stop()
    */
   public void stop() {
     throw E;
   }
 
+  /** */
   private static final GrouperException E = new GrouperException("not implemented");
 
 
@@ -61,6 +70,9 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
+   * @param property 
+   * @return whatever
+   * @throws IllegalArgumentException 
    * @throws  GrouperException
    * @since   1.2.1
    */
@@ -199,6 +211,17 @@ public class MockNamingResolver implements NamingResolver {
    * @see edu.internet2.middleware.grouper.privs.NamingResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
    */
   public void revokeAllPrivilegesForSubject(Subject subject) {
+    throw E;
+  }
+
+  public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope,
+      Subject subject, Privilege privilege, boolean considerAllSubject) {
+    throw E;
+  }
+
+  public boolean hqlFilterStemsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Privilege privilege,
+      boolean considerAllSubject) {
     throw E;
   }            
 }

@@ -104,6 +104,8 @@ public class RuleDefinition {
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumArg0Name());
     String thenEnumArg1 = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumArg1Name());
+    String thenEnumArg2 = AttributeAssignValueContainer
+      .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleThenEnumArg2Name());
     String runDaemonTf = AttributeAssignValueContainer
       .attributeValueString(attributeAssignValueContainers, RuleUtils.ruleRunDaemonName());
     
@@ -117,7 +119,7 @@ public class RuleDefinition {
     RuleIfCondition ruleIfCondition = new RuleIfCondition(ifConditionEl, ifConditionEnum, 
         ifOwnerId, ifOwnerName);
     
-    RuleThen ruleThen = new RuleThen(thenEl, thenEnum, thenEnumArg0, thenEnumArg1);
+    RuleThen ruleThen = new RuleThen(thenEl, thenEnum, thenEnumArg0, thenEnumArg1, thenEnumArg2);
 
     AttributeAssign attributeAssignType = attributeAssignValueContainers
       .iterator().next().getAttributeTypeAssign();

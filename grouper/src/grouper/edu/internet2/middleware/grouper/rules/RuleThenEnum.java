@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,6 +20,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -56,6 +59,11 @@ public enum RuleThenEnum {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
       String privileges = ruleDefinition.getThen().getThenEnumArg1();
       
@@ -133,6 +141,11 @@ public enum RuleThenEnum {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
       String privileges = ruleDefinition.getThen().getThenEnumArg1();
       
@@ -210,6 +223,11 @@ public enum RuleThenEnum {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
       String subjectString = ruleDefinition.getThen().getThenEnumArg0();
       String privileges = ruleDefinition.getThen().getThenEnumArg1();
       
@@ -275,6 +293,85 @@ public enum RuleThenEnum {
       }
       
       return result;
+    }
+    
+  }, 
+  
+  /** <pre>
+   * send an email about this action.
+   * arg0: comma separated email addresses to send to.  ${subjectEmail} is a variable which evaluates to the email of the subject (if applicable)
+   * arg1: subject (some text/EL), or template: templateName 
+   * arg2: body (some text/EL), or template: templateName
+   * The template name comes from the directory in grouper.properties: rules.emailTemplatesFolder
+   * </pre>
+   */
+  sendEmail {
+  
+    /**
+     * @see RuleThenEnum#validate(RuleDefinition)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+      String toAddressesString = ruleDefinition.getThen().getThenEnumArg0();
+      String subjectString = ruleDefinition.getThen().getThenEnumArg1();
+      String bodyString = ruleDefinition.getThen().getThenEnumArg2();
+      
+      if (StringUtils.isBlank(toAddressesString)) {
+        return "sendEmail ruleThenEnum requires ruleThenArg0 to be the comma separated addresses to send the email to";
+      }
+        
+      if (StringUtils.isBlank(subjectString)) {
+        return "sendEmail ruleThenEnum requires ruleThenArg1 to be the subject EL script or template: templateName ";
+      }
+        
+      if (StringUtils.isBlank(bodyString)) {
+        return "sendEmail ruleThenEnum requires ruleThenArg2 to be the body EL script or template: templateName ";
+      }
+
+      //see if these are templated, and if so, see if they exist and stuff
+      try {
+        RuleUtils.emailTemplate(subjectString);
+        RuleUtils.emailTemplate(bodyString);
+      } catch (Exception e) {
+        return e.getMessage();
+      }
+      
+      
+      return null;
+    }
+    
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+
+      String toAddressesString = ruleDefinition.getThen().getThenEnumArg0();
+      
+      
+      String subjectString = ruleDefinition.getThen().getThenEnumArg1();
+      String bodyString = ruleDefinition.getThen().getThenEnumArg2();
+      
+      String subjectTemplate = RuleUtils.emailTemplate(subjectString);
+      String bodyTemplate = RuleUtils.emailTemplate(bodyString);
+      
+      Map<String, Object> variableMap =  new HashMap<String, Object>();
+
+      Subject actAsSubject = ruleDefinition.getActAs().subject(true);
+      boolean hasAccessToEl = RuleEngine.hasAccessToElApi(actAsSubject);
+
+      ruleDefinition.addElVariables(variableMap, rulesBean, hasAccessToEl);
+      
+      String subject = GrouperUtil.substituteExpressionLanguage(subjectTemplate, variableMap);
+      
+      String body = GrouperUtil.substituteExpressionLanguage(bodyTemplate, variableMap);
+
+      new GrouperEmail().setTo(toAddressesString).setBody(body).setSubject(subject).send();
+      
+      return true;
     }
     
   };

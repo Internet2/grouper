@@ -40,8 +40,18 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
    */
   public void stop() {
+    //not sure why this is here...
     super.getDecoratedResolver().flushCache();
   }
+
+
+  
+  @Override
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
+
+
 
   /**
    * 

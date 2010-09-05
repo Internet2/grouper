@@ -64,8 +64,8 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateStemAsGrouperSystem"));
-    TestRunner.run(RuleTest.class);
+    TestRunner.run(new RuleTest("testRuleLonghandEmail"));
+    //TestRunner.run(RuleTest.class);
   }
 
   /**
@@ -2248,6 +2248,261 @@ public class RuleTest extends GrouperTest {
     assertFalse(groupC.hasRead(SubjectTestHelper.SUBJ0));
     assertFalse(groupC.hasUpdate(SubjectTestHelper.SUBJ0));
   
+  
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandStemScopeSubCreateStemDaemon() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    Stem stemB = new StemSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+    Stem stemD = new StemSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+    Stem stemC = new StemSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem2 saying if you create a group underneath, then assign a reader group
+    AttributeAssign attributeAssign = stem2
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.stemCreate.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.assignStemPrivilegeToStemId.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), 
+        "g:gsa :::::: stem1:a");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), 
+        "stem, create");
+  
+    assertFalse(stemB.hasCreate(SubjectTestHelper.SUBJ0));
+    assertFalse(stemB.hasStem(SubjectTestHelper.SUBJ0));
+    
+    assertFalse(stemD.hasCreate(SubjectTestHelper.SUBJ0));
+    assertFalse(stemD.hasStem(SubjectTestHelper.SUBJ0));
+    
+    assertFalse(stemC.hasCreate(SubjectTestHelper.SUBJ0));
+    assertFalse(stemC.hasStem(SubjectTestHelper.SUBJ0));
+  
+    //run the daemon job
+    int ruleCount = RuleApi.runRulesForOwner(stem2);
+  
+    assertEquals(1, ruleCount);
+  
+    //this happens in a different session and doesnt get flushed
+    grouperSession.getNamingResolver().flushCache();
+    
+    //make sure allowed
+    assertTrue(stemB.hasCreate(SubjectTestHelper.SUBJ0));
+    assertTrue(stemB.hasStem(SubjectTestHelper.SUBJ0));
+    
+    assertFalse(stemD.hasCreate(SubjectTestHelper.SUBJ0));
+    assertFalse(stemD.hasStem(SubjectTestHelper.SUBJ0));
+    
+    assertTrue(stemC.hasCreate(SubjectTestHelper.SUBJ0));
+    assertTrue(stemC.hasStem(SubjectTestHelper.SUBJ0));
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandStemScopeSubCreateAttributeDefDaemon() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+  
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+  
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    AttributeDef attributeDefB = new AttributeDefSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDef attributeDefD = new AttributeDefSave(grouperSession).assignName("stem3:d").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDef attributeDefC = new AttributeDefSave(grouperSession).assignName("stem2:sub:c").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem2 saying if you create a group underneath, then assign a reader group
+    AttributeAssign attributeAssign = stem2
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.attributeDefCreate.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), 
+        "g:gsa :::::: stem1:a");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), 
+        "attrRead, attrUpdate");
+  
+    assertFalse(attributeDefB.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(attributeDefB.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+    assertFalse(attributeDefD.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(attributeDefD.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+    assertFalse(attributeDefC.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    assertFalse(attributeDefC.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+  
+    //run the daemon job
+    int ruleCount = RuleApi.runRulesForOwner(stem2);
+  
+    assertEquals(1, ruleCount);
+  
+    //this happens in a different session and doesnt get flushed
+    grouperSession.getAttributeDefResolver().flushCache();
+    
+    //make sure allowed
+    assertTrue(attributeDefB.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertTrue(attributeDefB.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+    assertFalse(attributeDefD.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    assertFalse(attributeDefD.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    
+    assertTrue(attributeDefC.getPrivilegeDelegate().hasAttrRead(SubjectTestHelper.SUBJ0));
+    assertTrue(attributeDefC.getPrivilegeDelegate().hasAttrUpdate(SubjectTestHelper.SUBJ0));
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandPrintAll() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    new GroupSave(grouperSession).assignName("stem:c").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    AttributeAssign attributeAssign = groupA
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+    
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    attributeAssign = groupA
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:c");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenElName(), 
+        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
+  
+    System.out.println(RuleApi.rulesToString());
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandEmail() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    AttributeAssign attributeAssign = groupA
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu"); // ${subjectEmail}
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "You will be removed from group: "); //${groupId}
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), "test body"); //emailTemplate: testEmailGroupBody
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    //doesnt do anything
+    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+  
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    //count rule firings
+    
+    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
   
     // GrouperSession.startRootSession();
     // addMember("stem:a", "test.subject.0");

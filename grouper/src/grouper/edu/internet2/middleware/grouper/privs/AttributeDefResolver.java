@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
@@ -223,5 +224,31 @@ public interface AttributeDefResolver {
    * @param subject
    */
   public void revokeAllPrivilegesForSubject(Subject subject);
+  
+  /**
+   * find the attributeDefs which do not have a certain privilege
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject 
+   * @return the attributeDefs
+   */
+  Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+  
+  /**
+   * for an attribute def query, check to make sure the subject cant see the records
+   * @param subject which needs view access to the groups
+   * @param hqlQuery 
+   * @param hql the select and current from part
+   * @param attributeDefColumn is the name of the attributeDef column to join to
+   * @param privilege find a privilege which is in this set (e.g. for view, attr view)
+   * @param considerAllSubject if true, then consider GrouperAll when seeign if subject has priv, else do not
+   * @return if the statement was changed
+   */
+  public boolean hqlFilterAttributeDefsNotWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject);
+
 }
 

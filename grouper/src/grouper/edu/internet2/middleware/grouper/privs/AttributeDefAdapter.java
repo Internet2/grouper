@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -286,5 +287,37 @@ public interface AttributeDefAdapter {
    */
   public Set<PermissionEntry> postHqlFilterPermissions(GrouperSession grouperSession, 
       Subject subject, Set<PermissionEntry> permissionEntries);
+  
+  
+  /**
+   * find the attributeDefs which do not have a certain privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject
+   * @return the attributeDefs
+   */
+  Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+
+  /**
+   * for an attributeDef query, check to make sure the subject cant see the records (if filtering HQL, you can do 
+   * the postHqlFilterAttributeDefs instead if you like).
+   * @param grouperSession 
+   * @param subject which needs view access to the groups
+   * @param hql is the select and part part (hql prefix)
+   * @param hqlQuery 
+   * @param attributeDefColumn is the name of the attributeDef column to join to
+   * @param privilege find a privilege which is in this set 
+   * (e.g. attributeDef privs).  
+   * @param considerAllSubject if true, then consider GrouperAll when seeing if doesnt have privilege, else do consider
+   * @return if the query was changed
+   */
+  public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(GrouperSession grouperSession, 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
+      String attributeDefColumn, Privilege privilege, boolean considerAllSubject);
+
 }
 

@@ -19,6 +19,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -29,6 +30,24 @@ import edu.internet2.middleware.subject.Subject;
  * @since   1.2.1
  */
 public class GrouperAllNamingResolver extends NamingResolverDecorator {
+
+  /**
+   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+    Set<Stem> stems = super.getDecoratedResolver().getStemsWhereSubjectDoesntHavePrivilege(
+        stemId, scope, subject, privilege, considerAllSubject);
+    return stems;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
 
   /** */
   private Subject all;

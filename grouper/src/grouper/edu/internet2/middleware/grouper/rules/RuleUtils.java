@@ -5,6 +5,8 @@
 package edu.internet2.middleware.grouper.rules;
 
 
+import java.io.File;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -17,6 +19,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -26,6 +29,63 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class RuleUtils {
 
+  /**
+   * if it starts with template: then get the arg from a file.  If it doesnt, then it is the template, return that.
+   * if there is a problem retrieving the template, then throw exception.
+   * if the template name is invalid, throw exception
+   * @param emailTemplateString
+   * @return the email template
+   */
+  public static String emailTemplate(String emailTemplateString) {
+    
+    if (StringUtils.isBlank(emailTemplateString)) {
+      return emailTemplateString;
+    }
+    
+    //lets check the templates
+    emailTemplateString = emailTemplateString.trim();
+    if (emailTemplateString.startsWith("template:")) {
+      String emailTemplateName = emailTemplateString.substring("template:".length(), emailTemplateString.length()).trim();
+    
+      //make sure valid
+      if (!emailTemplateName.matches("^[a-zA-Z0-9-_]+$")) {
+        throw new RuntimeException("emailTemplateName must be alphanumeric, dash, or underscore only: '" + emailTemplateName + "'");
+      }
+
+      //see if there is a directory
+      String emailTemplatesFolder = GrouperConfig.getProperty("rules.emailTemplatesFolder");
+      
+      //if there is a folder
+      if (!StringUtils.isBlank(emailTemplatesFolder)) {
+        
+        if (!emailTemplatesFolder.endsWith("/") && !emailTemplatesFolder.endsWith("\\")) {
+          emailTemplatesFolder += File.separator;
+        }
+        
+        File templateFile = new File(emailTemplatesFolder + emailTemplateName + ".txt");
+        if (!templateFile.exists() || !templateFile.isFile()) {
+          throw new RuntimeException("Cant find template on file system: " + templateFile.getAbsolutePath());
+        }
+        
+        String template = GrouperUtil.readFileIntoString(templateFile);
+        return template;
+      }
+      
+      //else it is on the classpath
+      try {
+        String template = GrouperUtil.readResourceIntoString("grouperRulesEmailTemplates/" + emailTemplateName + ".txt", false);
+        return template;
+      } catch (Exception e) {
+        throw new RuntimeException("Cant find template: on classpath: grouperRulesEmailTemplates/" + emailTemplateName + ".txt", e);
+      }
+    }
+    
+    //just return the string, it is the template0
+    return emailTemplateString;
+    
+    
+  }
+  
   /**
    * take in a string, e.g. "this", and return it without quotes on the outside
    * @param string
@@ -225,6 +285,27 @@ public class RuleUtils {
       ruleThenEnumArg1Name = RuleUtils.attributeRuleStemName() + ":" + RULE_THEN_ENUM_ARG1;
     }
     return ruleThenEnumArg1Name;
+  }
+  
+  /**
+   * 
+   */
+  public static final String RULE_THEN_ENUM_ARG2 = "ruleThenEnumArg2";
+
+  /**
+   * rule then enum arg2 name
+   */
+  private static String ruleThenEnumArg2Name = null;
+
+  /**
+   * full rule then enum arg2 name
+   * @return name
+   */
+  public static String ruleThenEnumArg2Name() {
+    if (ruleThenEnumArg2Name == null) {
+      ruleThenEnumArg2Name = RuleUtils.attributeRuleStemName() + ":" + RULE_THEN_ENUM_ARG2;
+    }
+    return ruleThenEnumArg2Name;
   }
   
   /**

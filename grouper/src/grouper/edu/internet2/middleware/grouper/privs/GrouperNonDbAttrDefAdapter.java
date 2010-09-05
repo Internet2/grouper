@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -413,6 +414,34 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
       mship.delete();
     }
   }
+
+  /**
+   * Get all attributedefs where this subject doesnt have this privilege.
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @return attributedefs
+   */
+  public Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(
+      GrouperSession grouperSession, String stemId, Scope scope, Subject subject,
+      Privilege privilege, boolean considerAllSubject) {
+
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(grouperSession);
+    Set<AttributeDef> attributeDefs = new LinkedHashSet();
+
+    // This subject
+    attributeDefs.addAll( 
+      GrouperPrivilegeAdapter.internal_getAttributeDefsWhereSubjectDoesntHavePriv( grouperSession, 
+          stemId, scope, subject, privilege, considerAllSubject) 
+    );
+    return attributeDefs;
+  
+  }  
+
 
 }  
 

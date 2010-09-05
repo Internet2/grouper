@@ -302,7 +302,7 @@ public interface AccessAdapter {
    * @param hqlQuery 
    * @param groupColumn is the name of the group column to join to
    * @param privilege find a privilege which is in this set 
-   * (e.g. for view, send all access privs).  There are pre-canned sets in AccessPrivilege
+   * (e.g. for view, send view).  
    * @param considerAllSubject if true, then consider GrouperAll when seeing if doesnt have privilege, else do consider
    * @return if the query was changed
    */

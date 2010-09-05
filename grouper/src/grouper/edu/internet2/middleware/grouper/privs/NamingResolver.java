@@ -19,6 +19,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
@@ -31,6 +32,24 @@ import edu.internet2.middleware.subject.Subject;
  * @since   1.2.1
  */
 public interface NamingResolver {
+
+  /**
+   * find the stems which do not have a certain privilege
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject 
+   * @return the stems
+   */
+  Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+  
+
+  /**
+   * flush cache if caching resolver
+   */
+  public void flushCache();
 
   // TODO 20070820 DRY w/ access resolution
 
@@ -198,4 +217,19 @@ public interface NamingResolver {
    * @param subject
    */
   public void revokeAllPrivilegesForSubject(Subject subject);
+  
+  /**
+   * for a stem query, check to make sure the subject cant see the records
+   * @param subject which needs view access to the groups
+   * @param hqlQuery 
+   * @param hql the select and current from part
+   * @param stemColumn is the name of the group column to join to
+   * @param privilege find a privilege which is in this set (e.g. stem or create)
+   * @param considerAllSubject if true, then consider GrouperAll when seeign if subject has priv, else do not
+   * @return if the statement was changed
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject);
+
+  
 }

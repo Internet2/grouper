@@ -44,6 +44,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
 
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
+   */
+  public void flushCache() {
+    this.cc.flushCache();
+    super.getDecoratedResolver().flushCache();
+  }
+
   // TODO 20070820 DRY w/ access resolution
 
   /** if use wheel group */
@@ -215,6 +223,24 @@ public class WheelNamingResolver extends NamingResolverDecorator {
       return (Boolean) el.getObjectValue();
     }
     return null;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject) {
+
+    //Wheel can see all groups
+    if (this.isAndUseWheel(subject)) {
+      return false;
+    }
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterStemsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        stemColumn, privilege, considerAllSubject);
   }
 
 }

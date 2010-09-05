@@ -81,12 +81,36 @@ public class RuleApi {
    * @param attributeAssignable
    * @return the string
    */
+  public static String rulesToString() {
+    RuleEngine ruleEngine = RuleEngine.ruleEngine();
+
+    StringBuilder result = new StringBuilder();
+    int i=0;
+
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions()) {
+      
+      result.append("Rule " + i + ": ");
+      
+      result.append(ruleDefinition.toString()).append("\n");
+
+      i++;
+    }
+    
+    return result.toString();
+  }
+
+  /**
+   * 
+   * @param attributeAssignable
+   * @return the string
+   */
   public static String rulesToString(AttributeAssignable attributeAssignable) {
     
     Set<AttributeAssign> attributeAssigns = attributeAssignable.getAttributeDelegate().retrieveAssignments(RuleUtils.ruleAttributeDefName());
 
     //remove disabled
     Iterator<AttributeAssign> iterator = GrouperUtil.nonNull(attributeAssigns).iterator();
+
     
     while (iterator.hasNext()) {
       

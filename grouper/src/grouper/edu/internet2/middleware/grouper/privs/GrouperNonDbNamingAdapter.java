@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -22,6 +23,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -50,6 +52,34 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
   
+  /**
+   * Get all stems where this subject doesnt have this privilege.
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @return stems
+   */
+  public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
+      GrouperSession grouperSession, String stemId, Scope scope, Subject subject,
+      Privilege privilege, boolean considerAllSubject) {
+
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(grouperSession);
+    Set<Stem> stems = new LinkedHashSet();
+
+    // This subject
+    stems.addAll( 
+      GrouperPrivilegeAdapter.internal_getStemsWhereSubjectDoesntHavePriv( grouperSession, 
+          stemId, scope, subject, privilege, considerAllSubject) 
+    );
+    return stems;
+  
+  }  
+
+
   /**
    * 
    */

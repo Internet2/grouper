@@ -16,11 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import edu.internet2.middleware.grouper.exception.GrouperException;
-import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.Stem;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -28,9 +31,8 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
-import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
+import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.subject.Subject;
 
 
 /** 
@@ -41,6 +43,20 @@ import  java.util.Set;
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
+
+  /**
+   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+    return this.naming.getStemsWhereSubjectDoesntHavePrivilege(this.s, stemId, scope, subject, privilege, considerAllSubject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
+   */
+  public void flushCache() {
+  }            
 
   /**
    * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
@@ -275,6 +291,15 @@ public class NamingWrapper implements NamingResolver {
   public void revokeAllPrivilegesForSubject(Subject subject) {
     this.naming.revokeAllPrivilegesForSubject(this.s, subject);
   }            
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.naming.hqlFilterStemsNotWithPrivWhereClause(this.s, subject, hqlQuery, hql, stemColumn, privilege, considerAllSubject);
+  }
 
 }
 

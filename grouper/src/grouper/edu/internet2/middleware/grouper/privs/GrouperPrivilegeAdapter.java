@@ -270,6 +270,58 @@ public class GrouperPrivilegeAdapter {
 
   /**
    * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @return the set of stems
+   */
+  public static Set<Stem> internal_getStemsWhereSubjectDoesntHavePriv(GrouperSession grouperSession, 
+      final String stemId, final Scope scope, 
+      final Subject subject, final Privilege privilege, final boolean considerAllSubject) {
+    return (Set<Stem>)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findStemsInStemWithoutPrivilege(
+            grouperSession, stemId, scope, subject, privilege, null, considerAllSubject);
+        
+        return stems;
+      }
+      
+    });
+  }
+
+  /**
+   * @param grouperSession 
+   * @param stemId 
+   * @param scope 
+   * @param subject 
+   * @param privilege 
+   * @param considerAllSubject
+   * @return the set of attributeDefs
+   */
+  public static Set<AttributeDef> internal_getAttributeDefsWhereSubjectDoesntHavePriv(GrouperSession grouperSession, 
+      final String stemId, final Scope scope, 
+      final Subject subject, final Privilege privilege, final boolean considerAllSubject) {
+    return (Set<AttributeDef>)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        Set<AttributeDef> attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findAttributeDefsInStemWithoutPrivilege(
+            grouperSession, stemId, scope, subject, privilege, null, considerAllSubject);
+        
+        return attributeDefs;
+      }
+      
+    });
+  }
+
+  /**
+   * @param grouperSession 
    * @param member 
    * @param field 
    * @since   1.2.0

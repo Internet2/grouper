@@ -35,6 +35,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
+
   /** */
   private Subject all;
 

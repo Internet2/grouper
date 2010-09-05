@@ -36,6 +36,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator {
 
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
+
   /**
    * 
    */
@@ -148,6 +156,22 @@ public class GrouperSystemAttrDefResolver extends AttributeDefResolverDecorator 
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.postHqlFilterPermissions(subject, permissionsEntries);
+  }
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String attributeDefColumn, Privilege privilege, boolean considerAllSubject) {
+
+    if (SubjectHelper.eq(this.root, subject)) {
+      return false;
+    }
+
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterAttributeDefsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        attributeDefColumn, privilege, considerAllSubject);
   }
 
 }

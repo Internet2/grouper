@@ -6,7 +6,9 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -108,4 +110,20 @@ public interface AttributeDefDAO extends GrouperDAO {
    */
   public Set<AttributeDef> getAllAttributeDefsSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions);
+  
+  /**
+   * see which attributeDefs do not have this privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param queryOptions
+   * @param considerAllSubject
+   * @return the attributeDefs
+   */
+  public Set<AttributeDef> findAttributeDefsInStemWithoutPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject);
+
+
 }

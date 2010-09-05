@@ -20,6 +20,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -35,6 +36,13 @@ import edu.internet2.middleware.subject.Subject;
  */
 public abstract class NamingResolverDecorator implements NamingResolver {
   // TODO 20070820 DRY w/ access resolution
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
+   */
+  public void flushCache() {
+    this.getDecoratedResolver().flushCache();
+  }
 
   /** */
   private NamingResolver  decorated;
@@ -194,6 +202,23 @@ public abstract class NamingResolverDecorator implements NamingResolver {
   public void stop() {
     this.getDecoratedResolver().stop();
   }
+
+  /**
+   * @see NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+    return this.getDecoratedResolver().getStemsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege)
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject) {
+    return this.getDecoratedResolver().hqlFilterStemsNotWithPrivWhereClause(subject, hqlQuery, hql, stemColumn, privilege, considerAllSubject);
+  }
+
 
 }
 

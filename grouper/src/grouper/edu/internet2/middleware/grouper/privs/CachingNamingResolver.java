@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -36,6 +37,13 @@ import edu.internet2.middleware.subject.Subject;
  * @since   1.2.1
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
+   */
+  public void flushCache() {
+    this.cc.flushCache();
+  }
 
   // TODO 20070816 DRY caching w/ subject caching
   // TODO 20070820 DRY w/ access resolution
@@ -207,4 +215,20 @@ public class CachingNamingResolver extends NamingResolverDecorator {
     super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
     this.cc.flushCache();
   }
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege)
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause(
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String stemColumn,
+      Privilege privilege, boolean considerAllSubject) {
+  
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterStemsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        stemColumn, privilege, considerAllSubject);
+  }
+
 }

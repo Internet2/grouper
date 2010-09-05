@@ -1957,37 +1957,31 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
     }
     
-    try {
+    Set<Group> groups = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindGroupsInStemWithoutPrivilege")
+      .options(queryOptions)
+      .listSet(Group.class);
+          
+    //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(groups, grouperSession.getSubject(), adminSet);
 
-      Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".GetAllGroupsSecure")
-        .options(queryOptions)
-        .listSet(Group.class);
-            
-      //if the hql didnt filter, this will
-      Set<Group> filteredGroups = grouperSession.getAccessResolver()
-        .postHqlFilterGroups(groups, subject, adminSet);
-
-      if (!changedQueryNotWithPriv) {
-        
-        //didnt do this in the query
-        Set<Group> originalList = new LinkedHashSet<Group>(filteredGroups);
-        filteredGroups = grouperSession.getAccessResolver()
-          .postHqlFilterGroups(originalList, subject, GrouperUtil.toSet(privilege));
-        
-        //we want the ones in the original list not in the new list
-        if (filteredGroups != null) {
-          originalList.removeAll(filteredGroups);
-        }
-        filteredGroups = originalList;
-      }
+    if (!changedQueryNotWithPriv) {
       
-      return filteredGroups;
-    } catch (GroupNotFoundException gnfe) {
-      throw new RuntimeException("Problem: uuids dont match up", gnfe);
+      //didnt do this in the query
+      Set<Group> originalList = new LinkedHashSet<Group>(filteredGroups);
+      filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(originalList, subject, GrouperUtil.toSet(privilege));
+      
+      //we want the ones in the original list not in the new list
+      if (filteredGroups != null) {
+        originalList.removeAll(filteredGroups);
+      }
+      filteredGroups = originalList;
     }
-
+    
+    return filteredGroups;
     
   }
 

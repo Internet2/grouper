@@ -19,8 +19,10 @@ package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -40,6 +42,20 @@ import edu.internet2.middleware.subject.Subject;
  * @version $Id: NamingAdapter.java,v 1.7 2009-08-29 15:57:59 shilen Exp $
  */
 public interface NamingAdapter {
+
+  /**
+   * find the stems which do not have a certain privilege
+   * @param grouperSession
+   * @param stemId
+   * @param scope
+   * @param subject
+   * @param privilege
+   * @param considerAllSubject
+   * @return the stems
+   */
+  Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject);
+  
 
   // Public Instance Methods
 
@@ -256,5 +272,23 @@ public interface NamingAdapter {
    * @param subject
    */
   public void revokeAllPrivilegesForSubject(GrouperSession grouperSession, Subject subject);
+  
+  /**
+   * for a stem query, check to make sure the subject cant see the records (if filtering HQL, you can do 
+   * the postHqlFilterStems instead if you like).
+   * @param grouperSession 
+   * @param subject which needs view access to the groups
+   * @param hql is the select and part part (hql prefix)
+   * @param hqlQuery 
+   * @param stemColumn is the name of the stem column to join to
+   * @param privilege find a privilege which is in this set 
+   * (e.g. naming privs).  
+   * @param considerAllSubject if true, then consider GrouperAll when seeing if doesnt have privilege, else do consider
+   * @return if the query was changed
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause(GrouperSession grouperSession, 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
+      String stemColumn, Privilege privilege, boolean considerAllSubject);
+
 }
 

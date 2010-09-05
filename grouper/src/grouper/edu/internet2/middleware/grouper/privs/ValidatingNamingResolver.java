@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -31,6 +32,23 @@ import edu.internet2.middleware.subject.Subject;
  * @since   1.2.1
  */
 public class ValidatingNamingResolver extends NamingResolverDecorator {
+
+  /**
+   * @see    NamingResolver#getStemsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<Stem> getStemsWhereSubjectDoesntHavePrivilege(String stemId, Scope scope, 
+      Subject subject, Privilege privilege, boolean considerAllSubject)
+      throws IllegalArgumentException {
+    this.param.notNullSubject(subject).notNullPrivilege(privilege);
+    return super.getDecoratedResolver().getStemsWhereSubjectDoesntHavePrivilege(stemId, scope, subject, privilege, considerAllSubject);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
 
   // TODO 20070820 DRY w/ access resolution
 
@@ -174,5 +192,21 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
     this.param.notNullSubject(subject);
     super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
   }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject) {
+
+    this.param.notNullSubject(subject).notNullHqlQuery(hqlQuery);
+
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterStemsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        stemColumn, privilege, considerAllSubject);
+  }
+
 
 }

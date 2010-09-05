@@ -19,7 +19,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.subject.Subject;
 
@@ -30,6 +32,14 @@ import edu.internet2.middleware.subject.Subject;
  * @version $Id: GrouperAllAttrDefResolver.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  */
 public class GrouperAllAttrDefResolver extends AttributeDefResolverDecorator {
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
 
   /** */
   private Subject all;
@@ -120,6 +130,16 @@ public class GrouperAllAttrDefResolver extends AttributeDefResolverDecorator {
       fixed.add(newPriv);
     }
     return fixed;
+  }
+
+  /**
+   * @see AttributeDefResolver#getAttributeDefsWhereSubjectDoesntHavePrivilege(String, Scope, Subject, Privilege, boolean)
+   */
+  public Set<AttributeDef> getAttributeDefsWhereSubjectDoesntHavePrivilege(
+      String stemId, Scope scope, Subject subject, Privilege privilege, boolean considerAllSubject) {
+    Set<AttributeDef> attributeDefs = super.getDecoratedResolver().getAttributeDefsWhereSubjectDoesntHavePrivilege(
+        stemId, scope, subject, privilege, considerAllSubject);
+    return attributeDefs;
   }
 
 }

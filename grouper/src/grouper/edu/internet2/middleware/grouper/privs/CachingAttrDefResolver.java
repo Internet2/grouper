@@ -406,4 +406,19 @@ public class CachingAttrDefResolver extends AttributeDefResolverDecorator {
     
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AttributeDefResolver#hqlFilterAttributeDefsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege)
+   */
+  public boolean hqlFilterAttributeDefsNotWithPrivWhereClause(
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String attributeDefColumn,
+      Privilege privilege, boolean considerAllSubject) {
+  
+    AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterAttributeDefsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        attributeDefColumn, privilege, considerAllSubject);
+  }
+
 }

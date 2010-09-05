@@ -34,13 +34,16 @@ public class RuleThen {
    * @param thenEnum1
    * @param _thenEnumArg0 
    * @param _thenEnumArg1 
+   * @param _thenEnumArg2
    */
-  public RuleThen(String thenEl1, String thenEnum1, String _thenEnumArg0, String _thenEnumArg1) {
+  public RuleThen(String thenEl1, String thenEnum1, String _thenEnumArg0, 
+      String _thenEnumArg1, String _thenEnumArg2) {
     super();
     this.thenEl = thenEl1;
     this.thenEnum = thenEnum1;
     this.thenEnumArg0 = _thenEnumArg0;
     this.thenEnumArg1 = _thenEnumArg1;
+    this.thenEnumArg2 = _thenEnumArg2;
   }
 
 
@@ -88,6 +91,25 @@ public class RuleThen {
 
   /** if it is an enum, put that here */
   private String thenEnum;
+
+  /** arg2 to the then clause */
+  private String thenEnumArg2;
+
+  /**
+   * arg2 to the then clause
+   * @return arg2 to the then clause
+   */
+  public String getThenEnumArg2() {
+    return this.thenEnumArg2;
+  }
+
+  /**
+   * arg2 to the then clause
+   * @param _thenEnumArg2
+   */
+  public void setThenEnumArg2(String _thenEnumArg2) {
+    this.thenEnumArg2 = _thenEnumArg2;
+  }
 
   /**
    * if it is an el, put that here
@@ -156,6 +178,9 @@ public class RuleThen {
     }
     if (!StringUtils.isBlank(this.thenEnumArg1)) {
       result.append("thenEnumArg1: ").append(this.thenEnumArg1).append(", ");
+    }
+    if (!StringUtils.isBlank(this.thenEnumArg2)) {
+      result.append("thenEnumArg2: ").append(this.thenEnumArg2).append(", ");
     }
   }
 

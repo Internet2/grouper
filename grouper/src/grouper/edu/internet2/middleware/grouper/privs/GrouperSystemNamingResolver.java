@@ -32,6 +32,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GrouperSystemNamingResolver extends NamingResolverDecorator {
 
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
+
   // TODO 20070820 DRY w/ access resolution
 
   /** */
@@ -88,6 +96,24 @@ public class GrouperSystemNamingResolver extends NamingResolverDecorator {
 
     //return filtered groups
     return filteredStems;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Privilege, boolean)
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Privilege privilege, boolean considerAllSubject) {
+
+    if (SubjectHelper.eq(this.root, subject)) {
+      return false;
+    }
+
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterStemsNotWithPrivWhereClause(subject, hqlQuery, hql,
+        groupColumn, privilege, considerAllSubject);
   }
 
 }

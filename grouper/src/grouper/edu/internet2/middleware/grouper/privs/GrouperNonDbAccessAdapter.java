@@ -164,7 +164,7 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
 
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(grouperSession);
-    Set groups = new LinkedHashSet();
+    Set<Group> groups = new LinkedHashSet();
 
     // This subject
     groups.addAll( 

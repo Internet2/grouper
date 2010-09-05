@@ -7,6 +7,9 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
@@ -21,8 +24,10 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -35,7 +40,6 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   /**
    * 
    */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3AttributeDefDAO.class.getName();
 
   /**
@@ -319,6 +323,87 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     return filteredAttributeDefs;
 
   }
+  
+  /**
+   * @see AttributeDefDAO#findAttributeDefsInStemWithoutPrivilege(GrouperSession, String, Scope, Subject, Privilege, QueryOptions, boolean)
+   */
+  public Set<AttributeDef> findAttributeDefsInStemWithoutPrivilege(GrouperSession grouperSession,
+      String stemId, Scope scope, Subject subject, Privilege privilege, QueryOptions queryOptions, boolean considerAllSubject) {
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theAttributeDef.nameDb");
+    }
+
+    StringBuilder sqlTables = new StringBuilder("select distinct theAttributeDef from AttributeDef theAttributeDef ");
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sqlWhereClause = new StringBuilder();
+
+    switch (scope) {
+      case ONE:
+        
+        sqlWhereClause.append(" theAttributeDef.stemId = :stemId ");
+        byHqlStatic.setString("stemId", stemId);
+        
+        break;
+        
+      case SUB:
+        
+        Stem stem = StemFinder.findByUuid(grouperSession, stemId, true);
+        sqlWhereClause.append(" theAttributeDef.nameDb like :stemPattern ");
+        byHqlStatic.setString("stemPattern", stem.getName() + ":%");
+
+        break;
+        
+      default:
+        throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
+    }
+    
+
+    
+    //see if we are adding more to the query, note, this is for the ADMIN list since the user should be able to read privs
+    Set<Privilege> adminSet = GrouperUtil.toSet(AttributeDefPrivilege.ATTR_ADMIN);
+
+    grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        sqlTables, sqlWhereClause, "theAttributeDef.id", adminSet);
+
+    StringBuilder sql = sqlTables.append(" where ").append(sqlWhereClause);
+
+    boolean changedQueryNotWithPriv = grouperSession.getAttributeDefResolver().hqlFilterAttributeDefsNotWithPrivWhereClause(subject, byHqlStatic, 
+        sql, "theAttributeDef.id", privilege, considerAllSubject);
+
+    Set<AttributeDef> attributeDefs = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAttributeDefsInStemWithoutPrivilege")
+      .options(queryOptions)
+      .listSet(AttributeDef.class);
+          
+    //if the hql didnt filter, this will
+    Set<AttributeDef> filteredAttributeDefs = grouperSession.getAttributeDefResolver()
+      .postHqlFilterAttrDefs(attributeDefs, grouperSession.getSubject(), adminSet);
+
+    if (!changedQueryNotWithPriv) {
+      
+      //didnt do this in the query
+      Set<AttributeDef> originalList = new LinkedHashSet<AttributeDef>(filteredAttributeDefs);
+      filteredAttributeDefs = grouperSession.getAttributeDefResolver()
+        .postHqlFilterAttrDefs(originalList, subject, GrouperUtil.toSet(privilege));
+      
+      //we want the ones in the original list not in the new list
+      if (filteredAttributeDefs != null) {
+        originalList.removeAll(filteredAttributeDefs);
+      }
+      filteredAttributeDefs = originalList;
+    }
+    
+    return filteredAttributeDefs;
+    
+  }
+
 
 } 
 

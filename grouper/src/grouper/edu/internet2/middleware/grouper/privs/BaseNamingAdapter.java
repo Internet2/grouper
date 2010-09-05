@@ -52,4 +52,14 @@ public abstract class BaseNamingAdapter implements NamingAdapter {
     return stems;
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingAdapter#hqlFilterStemsNotWithPrivWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, Privilege, boolean)
+   */
+  public boolean hqlFilterStemsNotWithPrivWhereClause(GrouperSession grouperSession,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String stemColumn, Privilege privilege, boolean considerAllSubject) {
+    //by default dont change the HQL
+    return false;
+  }
+
 }
