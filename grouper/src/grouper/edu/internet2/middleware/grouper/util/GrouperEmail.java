@@ -148,7 +148,9 @@ public class GrouperEmail {
         theTo = StringUtils.replace(theTo, ";", ",");
         String[] theTos = GrouperUtil.splitTrim(theTo, ",");
         for (String aTo : theTos) {
-          message.addRecipient(RecipientType.TO, new InternetAddress(aTo));
+          if (!StringUtils.isBlank(aTo) && !StringUtils.equals("null", aTo)) {
+            message.addRecipient(RecipientType.TO, new InternetAddress(aTo));
+          }
         }
         
       }

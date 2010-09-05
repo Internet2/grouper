@@ -365,10 +365,30 @@ public enum RuleThenEnum {
 
       ruleDefinition.addElVariables(variableMap, rulesBean, hasAccessToEl);
       
+      if (logDataForThisDefinition != null) {
+        logDataForThisDefinition.append(", EL variables: ");
+        for (String varName : variableMap.keySet()) {
+          logDataForThisDefinition.append(varName);
+          Object value = variableMap.get(varName);
+          if (value instanceof String) {
+            logDataForThisDefinition.append("(").append(value).append(")");
+          }
+          logDataForThisDefinition.append(",");
+        }
+      }
+      
+      toAddressesString = GrouperUtil.substituteExpressionLanguage(toAddressesString, variableMap);
+
       String subject = GrouperUtil.substituteExpressionLanguage(subjectTemplate, variableMap);
       
       String body = GrouperUtil.substituteExpressionLanguage(bodyTemplate, variableMap);
 
+      if (logDataForThisDefinition != null) {
+        logDataForThisDefinition.append(", toAddressesString: ").append(toAddressesString);
+        logDataForThisDefinition.append(", subject: ").append(subject);
+        logDataForThisDefinition.append(", body: ").append(body);
+      }
+      
       new GrouperEmail().setTo(toAddressesString).setBody(body).setSubject(subject).send();
       
       return true;

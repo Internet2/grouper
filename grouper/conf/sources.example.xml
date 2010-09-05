@@ -134,7 +134,8 @@ select
    s.subjectid as id, s.name as name,
    (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,
    (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,
-   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description
+   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,
+   (select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email
 from
    subject s
 where
@@ -151,7 +152,8 @@ select
    s.subjectid as id, s.name as name,
    (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,
    (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,
-   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description
+   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,
+   (select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email
 from
    subject s, subjectattribute a
 where
@@ -169,7 +171,7 @@ where
              select
    subject.subjectid as id, subject.name as name,
    lfnamet.lfname as lfname, loginidt.loginid as loginid,
-   desct.description as description
+   desct.description as description, emailt.email as email
 from
    subject
    left join (select subjectid, value as lfname from subjectattribute
@@ -181,11 +183,15 @@ from
    left join (select subjectid, value as description from subjectattribute
       where name='description') desct
      on subject.subjectid=desct.subjectid
+   left join (select subjectid, value as email from subjectattribute
+      where name='email') emailt
+     on subject.subjectid=desct.subjectid
 where
    (lower(name) like '%' || ? || '%')
    or (lower(lfnamet.lfname) like '%' || ? || '%')
    or (lower(loginidt.loginid) like '%' || ? || '%')
    or (lower(desct.description) like '%' || ? || '%')
+   or (lower(emailt.email) like '%' || ? || '%')
              
               -->
              
@@ -194,7 +200,8 @@ select
    s.subjectid as id, s.name as name,
    (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,
    (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,
-   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description
+   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,
+   (select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email
 from 
    subject s
 where

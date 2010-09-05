@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
@@ -195,6 +197,14 @@ public class GrouperConfig {
    */
   public static String getProperty(String property) {
     return getDefaultTrimmedValueIfNull( getInstance().api.getProperty(property) );
+  }
+
+  /**
+   * Get a Grouper config names
+   * @return set of names
+   */
+  public static Set<String> getPropertyNames() {
+    return getInstance().api.getPropertyNames();
   }
 
   /**

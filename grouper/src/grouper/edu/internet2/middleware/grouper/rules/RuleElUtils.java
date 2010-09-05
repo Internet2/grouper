@@ -21,7 +21,9 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils.GrouperSubjectAttributeBean;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -241,5 +243,5 @@ public class RuleElUtils {
     return result;
     
   }
-
+  
 }

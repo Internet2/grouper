@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.rules;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +30,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -37,6 +39,8 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.subj.SafeSubject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -64,10 +68,29 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandEmail"));
+    TestRunner.run(new RuleTest("testRuleLonghandEmailTemplate"));
     //TestRunner.run(RuleTest.class);
   }
 
+  /**
+   * 
+   */
+  public void testElOnSafeSubject() {
+    SafeSubject safeSubject = new SafeSubject(SubjectTestHelper.SUBJ0);
+    String script = "Hello ${subject.name}, ${subject.getAttributeValue('loginid')}";
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("subject", safeSubject);
+    String result = GrouperUtil.substituteExpressionLanguage(script, variableMap);
+    assertEquals("Hello my name is test.subject.0, id.test.subject.0", result);
+    
+    GrouperCacheUtils.clearAllCaches();
+    
+    script = "Email ${subject.emailAddress}";
+    result = GrouperUtil.substituteExpressionLanguage(script, variableMap);
+    assertEquals("Email test.subject.0@somewhere.someSchool.edu", result);
+    
+  }
+  
   /**
    * 
    */
@@ -2474,11 +2497,12 @@ public class RuleTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu"); // ${subjectEmail}
+        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}"); // ${subjectEmail}
     attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg1Name(), "You will be removed from group: "); //${groupId}
+        RuleUtils.ruleThenEnumArg1Name(), "You will be removed from group: ${groupDisplayExtension}"); //${groupId}
     attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg2Name(), "test body"); //emailTemplate: testEmailGroupBody
+        RuleUtils.ruleThenEnumArg2Name(), "Hello ${safeSubject.name},\n\nJust letting you know you were removed from " +
+        		"group ${groupDisplayExtension} in the central Groups management system.  Please do not respond to this email.\n\nRegards."); //emailTemplate: testEmailGroupBody
     
     //should be valid
     String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
@@ -2513,5 +2537,70 @@ public class RuleTest extends GrouperTest {
   }
   
 
+  /**
+   * 
+   */
+  public void testRuleLonghandEmailTemplate() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    AttributeAssign attributeAssign = groupA
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}"); // ${subjectEmail}
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "template: testTemplateSubject"); //${groupId}
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), "template: testTemplateBody"); 
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    //doesnt do anything
+    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+  
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    //count rule firings
+    
+    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+  
   
 }

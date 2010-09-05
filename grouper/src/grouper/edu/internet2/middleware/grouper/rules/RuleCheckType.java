@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
+import edu.internet2.middleware.grouper.subj.SafeSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -61,6 +62,10 @@ public enum RuleCheckType {
         Group group = rulesMembershipBean.getGroup();
         variableMap.put("groupId", group.getId());
         variableMap.put("groupName", group.getName());
+        variableMap.put("groupDisplayName", group.getDisplayName());
+        variableMap.put("groupExtension", group.getExtension());
+        variableMap.put("groupDisplayExtension", group.getDisplayExtension());
+        variableMap.put("groupDescription", group.getDescription());
         if (hasAccessToElApi) {
           variableMap.put("group", group);
         }
@@ -87,8 +92,7 @@ public enum RuleCheckType {
         if (hasAccessToElApi) {
           variableMap.put("subject", subject);
         }
-        variableMap.put("subjectId", subject.getId());
-        variableMap.put("sourceId", subject.getSourceId());
+        variableMap.put("safeSubject", new SafeSubject(subject));
       }
     }
 

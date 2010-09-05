@@ -18,8 +18,10 @@
 package edu.internet2.middleware.grouper.cfg;
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -83,6 +85,19 @@ public class ApiConfig implements Configuration {
     this.initializeConfiguration();
   }
 
+  /**
+   * property names
+   * @return property names
+   */
+  public Set<String> getPropertyNames() {
+    Set<String> result = new HashSet<String>();
+    result.addAll(testConfig.keySet());
+    if (this.useLocal) {
+      result.addAll(this.localCfg.keySet());
+    }
+    result.addAll(this.defaultCfg.keySet());
+    return result;
+  }
 
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#getProperty(String)
