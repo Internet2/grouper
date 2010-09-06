@@ -1,5 +1,5 @@
 Hello ${safeSubject.name},
 
-Just letting you know you were removed from group ${groupDisplayExtension} in the central Groups management system.  Please do not respond to this email.
+Just letting you know you were added to group ${groupDisplayExtension} in the central Groups management system.  Please do not respond to this email.
 
 Regards.

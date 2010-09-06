@@ -1,1 +1,1 @@
-You will be removed from group: ${groupDisplayExtension}
+You were added to group: ${groupDisplayExtension}
