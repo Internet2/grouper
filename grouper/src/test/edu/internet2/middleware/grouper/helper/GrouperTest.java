@@ -601,9 +601,6 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrRead", "false");
     ApiConfig.testConfig.put("attributeDefs.create.grant.all.attrView", "false");
 
-    ApiConfig.testConfig.put("mail.source.jdbc.name", "jdbc");
-    ApiConfig.testConfig.put("mail.source.jdbc.emailAttributeName", "email");
-
     initGroupsAndAttributes();
   }
 

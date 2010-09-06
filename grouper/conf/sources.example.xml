@@ -62,6 +62,12 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-value>edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider </param-value>
      </init-param>
      
+     <!-- If using emails and need email addresses in sources, set which attribute has the email address in this source -->
+     <init-param>
+       <param-name>emailAttributeName</param-name>
+       <param-value>email</param-value>
+     </init-param>
+
      <!-- note: again, if you use GrouperJdbcConnectionProvider, then you should not fill out maxActive, maxIdle,
        maxWait, dbDriver, dbUrl, dbUser, dbPwd, since it will use the grouper.hibernate.properties db settings -->
 

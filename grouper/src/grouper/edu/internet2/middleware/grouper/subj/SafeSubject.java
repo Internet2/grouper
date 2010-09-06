@@ -21,11 +21,8 @@ public class SafeSubject {
    * @return the email address
    */
   public String getEmailAddress() {
-    String emailAttributeName = null;
-    GrouperEmailUtils.GrouperSubjectAttributeBean grouperSubjectAttributeBean = GrouperEmailUtils.subjectSourceAttributes(this.subject.getSourceId());
-    if (grouperSubjectAttributeBean != null) {
-      emailAttributeName = grouperSubjectAttributeBean.getEmailAttributeName();
-    }
+
+    String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(this.subject.getSourceId());
     if (!StringUtils.isBlank(emailAttributeName)) {
       return this.subject.getAttributeValue(emailAttributeName);
     }
