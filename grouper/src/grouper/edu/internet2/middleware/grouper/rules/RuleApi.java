@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.rules;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
@@ -44,6 +46,15 @@ public class RuleApi {
         RuleUtils.ruleThenEnumName(),
         RuleThenEnum.removeMemberFromOwnerGroup.name());
 
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    
+    
   }
   
   /**
@@ -74,11 +85,18 @@ public class RuleApi {
         RuleUtils.ruleThenElName(),
         "${ruleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, memberId, " + daysInFutureForDisabledDate + ")}");
 
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
   }
 
   /**
    * 
-   * @param attributeAssignable
    * @return the string
    */
   public static String rulesToString() {

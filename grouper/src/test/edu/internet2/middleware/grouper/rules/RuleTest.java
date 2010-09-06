@@ -2554,13 +2554,8 @@ public class RuleTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
     attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
-    attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.membershipRemove.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleIfConditionEnumName(), 
-        RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+        RuleCheckType.membershipAdd.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
     attributeAssign.getAttributeValueDelegate().assignValue(
@@ -2575,23 +2570,16 @@ public class RuleTest extends GrouperTest {
         RuleUtils.ruleValidName());
     assertEquals("T", isValidString);
     
-    groupB.addMember(SubjectTestHelper.SUBJ0);
-  
     //count rule firings
     long initialFirings = RuleEngine.ruleFirings;
     
-    //doesnt do anything
-    groupB.deleteMember(SubjectTestHelper.SUBJ0);
+    groupB.addMember(SubjectTestHelper.SUBJ0);
   
     assertEquals(initialFirings, RuleEngine.ruleFirings);
-  
-    groupB.addMember(SubjectTestHelper.SUBJ0);
+    
     groupA.addMember(SubjectTestHelper.SUBJ0);
     
     //count rule firings
-    
-    groupB.deleteMember(SubjectTestHelper.SUBJ0);
-    
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
   
     // GrouperSession.startRootSession();

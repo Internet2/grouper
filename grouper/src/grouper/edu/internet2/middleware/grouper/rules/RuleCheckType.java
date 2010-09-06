@@ -41,6 +41,27 @@ public enum RuleCheckType {
   flattenedMembershipRemove {
 
     /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a group
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerGroupId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to group");
+        }
+      }
+      return ruleCheck;
+    }
+
+    /**
      * 
      * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
      */
@@ -110,6 +131,27 @@ public enum RuleCheckType {
   
   /** if there is a membership remove in transaction of remove */
   membershipRemove {
+
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a group
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerGroupId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to group");
+        }
+      }
+      return ruleCheck;
+    }
 
     /**
      * 
@@ -208,6 +250,26 @@ public enum RuleCheckType {
   membershipRemoveInFolder {
 
     /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a stem
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerStemId());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to stem");
+        }
+      }
+      return ruleCheck;
+    }
+
+    /**
      * validate this check type
      * @param ruleCheck 
      * @return the error or null if valid
@@ -256,6 +318,8 @@ public enum RuleCheckType {
           //set the owner to this stem
           Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
           ruleCheck.setCheckOwnerName(stem.getName());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to stem");
         }
       }
       return ruleCheck;
@@ -400,6 +464,8 @@ public enum RuleCheckType {
           //set the owner to this stem
           Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
           ruleCheck.setCheckOwnerName(stem.getName());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to stem");
         }
       }
       return ruleCheck;
@@ -475,6 +541,27 @@ public enum RuleCheckType {
   membershipAdd{
   
     /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a group
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerGroupId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to group");
+        }
+      }
+      return ruleCheck;
+    }
+
+    /**
      * 
      * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
      */
@@ -508,6 +595,27 @@ public enum RuleCheckType {
   /** if there is a membership remove flattened */
   flattenedMembershipAdd{
   
+    /**
+     * @see RuleCheckType#checkKey(RuleDefinition)
+     */
+    @Override
+    public RuleCheck checkKey(RuleDefinition ruleDefinition) {
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
+        //if this is assigned to a group
+        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerGroupId())) {
+
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to group");
+        }
+      }
+      return ruleCheck;
+    }
+
     /**
      * 
      * @see edu.internet2.middleware.grouper.rules.RuleCheckType#ruleDefinitions(edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
@@ -592,6 +700,8 @@ public enum RuleCheckType {
           //set the owner to this stem
           Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
           ruleCheck.setCheckOwnerName(stem.getName());
+        } else {
+          LOG.error("Not sure why no check owner if not assigned to stem");
         }
       }
       return ruleCheck;
@@ -740,10 +850,6 @@ public enum RuleCheckType {
    */
   public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck, boolean requireStemScope, boolean ownerIsGroup, boolean ownerIsStem) {
     if (!StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && !StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
-      return "Enter one and only one of checkOwnerId and checkOwnerName!";
-    }
-    //if owner is not stem and doesnt have an owner, then that is bad 
-    if (!ownerIsStem && StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
       return "Enter one and only one of checkOwnerId and checkOwnerName!";
     }
     if (requireStemScope) {

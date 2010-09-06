@@ -94,6 +94,60 @@ public class RuleApiTest extends GrouperTest {
   /**
    * 
    */
+  public void testRuleApiEmailTemplate() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    
+    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+    AttributeAssign attributeAssign = groupA
+      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipAdd.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.sendEmail.name());
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "mchyzer@isc.upenn.edu, ${safeSubject.emailAddress}"); // ${subjectEmail}
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "template: testTemplateSubject"); //${groupId}
+    attributeAssign.getAttributeValueDelegate().assignValue(
+        RuleUtils.ruleThenEnumArg2Name(), "template: testTemplateBody"); 
+    
+    //should be valid
+    String isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+        RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+    
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    groupB.addMember(SubjectTestHelper.SUBJ0);
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+    
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+    
+    //count rule firings
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  
+  /**
+   * 
+   */
   public void testGroupIntersectionDate() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Group groupA = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
