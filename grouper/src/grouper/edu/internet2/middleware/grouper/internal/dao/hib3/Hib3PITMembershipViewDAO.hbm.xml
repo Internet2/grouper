@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<!--
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0 
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- $Id$ -->
+
+<hibernate-mapping package="edu.internet2.middleware.grouper.pit" default-lazy="false">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="PITMembershipView" table="grouper_pit_memberships_all_v" optimistic-lock="version">
+
+    <!-- id -->
+    <id name="id" column="id" type="string" unsaved-value="none" length="40">
+      <generator class="assigned" />
+    </id>
+    <!-- id -->
+
+    <property name="membershipId" column="membership_id" />
+    <property name="groupSetId" column="group_set_id" />  
+    <property name="ownerId" column="owner_id" />
+    <property name="ownerAttrDefId" column="owner_attr_def_id" />
+    <property name="ownerGroupId" column="owner_group_id" />
+    <property name="ownerStemId" column="owner_stem_id" />
+
+    <property name="memberId" column="member_id" />
+    <property name="fieldId" column="field_id" />
+    <property name="membershipFieldId" column="membership_field_id" />
+    <property name="groupSetParentId" column="group_set_parent_id" />
+    <property name="depth" type="integer" column="depth" />
+    
+    <property name="groupSetActiveDb" column="group_set_active" />
+    <property name="groupSetStartTimeDb" column="group_set_start_time" />
+    <property name="groupSetEndTimeDb" column="group_set_end_time" />
+    
+    <property name="membershipActiveDb" column="membership_active" />
+    <property name="membershipStartTimeDb" column="membership_start_time" />
+    <property name="membershipEndTimeDb" column="membership_end_time" />
+  </class>
+</hibernate-mapping>
+

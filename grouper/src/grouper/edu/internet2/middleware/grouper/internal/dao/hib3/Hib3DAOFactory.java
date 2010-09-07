@@ -37,16 +37,20 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
-import edu.internet2.middleware.grouper.internal.dao.FlatAttributeDefDAO;
-import edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO;
-import edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO;
-import edu.internet2.middleware.grouper.internal.dao.FlatStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITFieldDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
@@ -215,38 +219,6 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getFlatMembership()
-   */
-  @Override
-  public FlatMembershipDAO getFlatMembership() {
-    return new Hib3FlatMembershipDAO();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getFlatGroup()
-   */
-  @Override
-  public FlatGroupDAO getFlatGroup() {
-    return new Hib3FlatGroupDAO();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getFlatStem()
-   */
-  @Override
-  public FlatStemDAO getFlatStem() {
-    return new Hib3FlatStemDAO();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getFlatAttributeDef()
-   */
-  @Override
-  public FlatAttributeDefDAO getFlatAttributeDef() {
-    return new Hib3FlatAttributeDefDAO();
-  }
-
-  /**
    * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getChangeLogConsumer()
    */
   @Override
@@ -373,6 +345,70 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public GroupTypeTupleDAO getGroupTypeTuple() {
     return new Hib3GroupTypeTupleDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITAttributeDef()
+   */
+  @Override
+  public PITAttributeDefDAO getPITAttributeDef() {
+    return new Hib3PITAttributeDefDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITField()
+   */
+  @Override
+  public PITFieldDAO getPITField() {
+    return new Hib3PITFieldDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITGroup()
+   */
+  @Override
+  public PITGroupDAO getPITGroup() {
+    return new Hib3PITGroupDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITGroupSet()
+   */
+  @Override
+  public PITGroupSetDAO getPITGroupSet() {
+    return new Hib3PITGroupSetDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITMember()
+   */
+  @Override
+  public PITMemberDAO getPITMember() {
+    return new Hib3PITMemberDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITMembership()
+   */
+  @Override
+  public PITMembershipDAO getPITMembership() {
+    return new Hib3PITMembershipDAO();
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITMembershipView()
+   */
+  @Override
+  public PITMembershipViewDAO getPITMembershipView() {
+    return new Hib3PITMembershipViewDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getPITStem()
+   */
+  @Override
+  public PITStemDAO getPITStem() {
+    return new Hib3PITStemDAO();
   }
 } 
 

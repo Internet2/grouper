@@ -363,6 +363,28 @@ return groupSets;
     
     return groupSet;
   }
+  
+  public Set<GroupSet> findAllSelfGroupSetsByOwnerWherePITFieldExists(String ownerId) {
+    Set<GroupSet> groupSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select gs from GroupSet as gs where gs.ownerId = :ownerId and gs.depth='0' and gs.fieldId in (select id from PITField)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfGroupSetsByOwnerWherePITFieldExists")
+      .setString("ownerId", ownerId)
+      .listSet(GroupSet.class);
+    
+    return groupSets;
+  }
+  
+  public Set<GroupSet> findAllSelfGroupSetsByFieldWherePITGroupExists(String fieldId) {
+    Set<GroupSet> groupSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select gs from GroupSet as gs where gs.fieldId = :fieldId and gs.depth='0' and gs.ownerId in (select id from PITGroup)")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindAllSelfGroupSetsByFieldWherePITGroupExists")
+      .setString("fieldId", fieldId)
+      .listSet(GroupSet.class);
+    
+    return groupSets;
+  }
 
 
   /**
@@ -587,6 +609,32 @@ return groupSets;
       .listSet(String.class);
   
     return ownerStemSet;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findByOwnerMemberFieldParentAndType(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean)
+   */
+  public GroupSet findByOwnerMemberFieldParentAndType(String ownerId, String memberId, String fieldId, 
+      String parentId, String mshipType, boolean exceptionIfNotFound) {
+    
+    GroupSet groupSet = HibernateSession
+      .byHqlStatic()
+      .createQuery("select gs from GroupSet as gs where memberId = :memberId and fieldId = :fieldId and " +
+      		"ownerId = :ownerId and parentId = :parentId and type = :type")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByOwnerMemberFieldParentAndType")
+      .setString("ownerId", ownerId)
+      .setString("memberId", memberId)
+      .setString("fieldId", fieldId)
+      .setString("parentId", parentId)
+      .setString("type", mshipType)
+      .uniqueResult(GroupSet.class);
+    
+    if (groupSet == null && exceptionIfNotFound) {
+      throw new GroupSetNotFoundException("Didn't find groupSet with ownerId= " + ownerId + ", memberId= " + memberId + ", fieldId= " + fieldId 
+          + ", parentId= " + parentId + ", mshipType= " + mshipType);
+    }
+    
+    return groupSet;
   }
 }
 

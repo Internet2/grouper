@@ -39,16 +39,20 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
-import edu.internet2.middleware.grouper.internal.dao.FlatAttributeDefDAO;
-import edu.internet2.middleware.grouper.internal.dao.FlatGroupDAO;
-import edu.internet2.middleware.grouper.internal.dao.FlatMembershipDAO;
-import edu.internet2.middleware.grouper.internal.dao.FlatStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITFieldDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITGroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITMemberDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO;
+import edu.internet2.middleware.grouper.internal.dao.PITStemDAO;
 import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
@@ -318,24 +322,44 @@ public abstract class GrouperDAOFactory {
   public abstract GroupSetDAO getGroupSet();
   
   /**
-   * @return flat membership dao
+   * @return pit attribute def dao
    */
-  public abstract FlatMembershipDAO getFlatMembership();
-
+  public abstract PITAttributeDefDAO getPITAttributeDef();
+  
   /**
-   * @return flat group dao
+   * @return pit group dao
    */
-  public abstract FlatGroupDAO getFlatGroup();
-
+  public abstract PITGroupDAO getPITGroup();
+  
   /**
-   * @return flat stem dao
+   * @return pit stem dao
    */
-  public abstract FlatStemDAO getFlatStem();
-
+  public abstract PITStemDAO getPITStem();
+  
   /**
-   * @return flat attribute def dao
+   * @return pit field dao
    */
-  public abstract FlatAttributeDefDAO getFlatAttributeDef();
+  public abstract PITFieldDAO getPITField();
+  
+  /**
+   * @return pit member dao
+   */
+  public abstract PITMemberDAO getPITMember();
+  
+  /**
+   * @return pit membership dao
+   */
+  public abstract PITMembershipDAO getPITMembership();
+  
+  /**
+   * @return pit membership view dao
+   */
+  public abstract PITMembershipViewDAO getPITMembershipView();
+  
+  /**
+   * @return pit group set dao
+   */
+  public abstract PITGroupSetDAO getPITGroupSet();
 
 } 
 

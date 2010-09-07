@@ -253,10 +253,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         }
         
         GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerAttrDef(attributeDef.getId());
-        
-        // remove foreign keys in flat table
-        GrouperDAOFactory.getFactory().getFlatAttributeDef().removeAttributeDefForeignKey(attributeDef.getId());
-        
+
         hibernateHandlerBean.getHibernateSession().byObject().delete(attributeDef);
         return null;
       }

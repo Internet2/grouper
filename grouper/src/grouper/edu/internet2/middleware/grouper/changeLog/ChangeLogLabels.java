@@ -551,4 +551,109 @@ public class ChangeLogLabels {
     /** membershipType */
     membershipType;
   };
+  
+  /**
+   * labels for member add
+   */
+  public static enum MEMBER_ADD implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** subjectId */
+    subjectId, 
+    
+    /** subjectSourceId */
+    subjectSourceId,
+    
+    /** subjectTypeId */
+    subjectTypeId;
+  };
+  
+  /**
+   * labels for member delete
+   */
+  public static enum MEMBER_DELETE implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** subjectId */
+    subjectId, 
+    
+    /** subjectSourceId */
+    subjectSourceId,
+    
+    /** subjectTypeId */
+    subjectTypeId;
+  };
+  
+  /**
+   * labels for member update
+   */
+  public static enum MEMBER_UPDATE implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** subjectId */
+    subjectId, 
+    
+    /** subjectSourceId */
+    subjectSourceId,
+    
+    /** subjectTypeId */
+    subjectTypeId,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+    
+    /** new value of the property */
+    propertyNewValue;
+  };
+  
+  /**
+   * labels for group type assign
+   */
+  public static enum GROUP_TYPE_ASSIGN implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** groupId */
+    groupId,
+    
+    /** groupName */
+    groupName,
+    
+    /** typeId */
+    typeId,
+    
+    /** typeName */
+    typeName;
+  };
+  
+  /**
+   * labels for group type unassign
+   */
+  public static enum GROUP_TYPE_UNASSIGN implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** groupId */
+    groupId,
+    
+    /** groupName */
+    groupName,
+    
+    /** typeId */
+    typeId,
+    
+    /** typeName */
+    typeName;
+  };
 }

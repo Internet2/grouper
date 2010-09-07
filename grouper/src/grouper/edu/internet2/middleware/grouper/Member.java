@@ -42,6 +42,9 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -2541,6 +2544,12 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         MemberHooks.METHOD_MEMBER_PRE_DELETE, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_PRE_DELETE, false, false);
   
+    // change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBER_DELETE, 
+        ChangeLogLabels.MEMBER_DELETE.id.name(), this.getUuid(), 
+        ChangeLogLabels.MEMBER_DELETE.subjectId.name(), this.getSubjectIdDb(), 
+        ChangeLogLabels.MEMBER_DELETE.subjectSourceId.name(), this.getSubjectSourceIdDb(),
+        ChangeLogLabels.MEMBER_DELETE.subjectTypeId.name(), this.getSubjectTypeId()).save();
   }
 
   /**
@@ -2555,7 +2564,13 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_INSERT, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_PRE_INSERT, false, false);
-  
+    
+    // change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBER_ADD, 
+        ChangeLogLabels.MEMBER_ADD.id.name(), this.getUuid(), 
+        ChangeLogLabels.MEMBER_ADD.subjectId.name(), this.getSubjectIdDb(), 
+        ChangeLogLabels.MEMBER_ADD.subjectSourceId.name(), this.getSubjectSourceIdDb(),
+        ChangeLogLabels.MEMBER_ADD.subjectTypeId.name(), this.getSubjectTypeId()).save();
   }
 
   /**
@@ -2568,6 +2583,20 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_UPDATE, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_PRE_UPDATE, false, false);
+    
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.MEMBER_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(
+            ChangeLogLabels.MEMBER_UPDATE.id.name(), this.getUuid(), 
+            ChangeLogLabels.MEMBER_UPDATE.subjectId.name(), this.getSubjectIdDb(), 
+            ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name(), this.getSubjectSourceIdDb(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name(), this.getSubjectTypeId()),
+        GrouperUtil.toList("subjectId", "subjectSourceId", "subjectTypeId"),
+        GrouperUtil.toList(
+            ChangeLogLabels.MEMBER_UPDATE.subjectId.name(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name()));    
   }
 
   /**

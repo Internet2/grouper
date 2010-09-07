@@ -222,4 +222,28 @@ public interface GroupSetDAO extends GrouperDAO {
    * @return set
    */
   public Set<String> findAllOwnerGroupsByMemberGroup(String groupId);
+  
+  /**
+   * @param ownerId
+   * @return set
+   */
+  public Set<GroupSet> findAllSelfGroupSetsByOwnerWherePITFieldExists(String ownerId);
+  
+  /**
+   * @param fieldId
+   * @return set
+   */
+  public Set<GroupSet> findAllSelfGroupSetsByFieldWherePITGroupExists(String fieldId);
+  
+  /**
+   * @param ownerId
+   * @param memberId
+   * @param fieldId
+   * @param parentId
+   * @param mshipType
+   * @param exceptionIfNotFound 
+   * @return group set
+   */
+  public GroupSet findByOwnerMemberFieldParentAndType(String ownerId, String memberId, 
+      String fieldId, String parentId, String mshipType, boolean exceptionIfNotFound);
 }

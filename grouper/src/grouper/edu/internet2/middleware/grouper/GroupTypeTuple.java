@@ -25,6 +25,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
@@ -323,6 +326,15 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_DELETE, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_DELETE, false, false);
   
+    GroupType groupType = GroupTypeFinder.findByUuid(this.getTypeUuid(), true);
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN, 
+        ChangeLogLabels.GROUP_TYPE_UNASSIGN.id.name(), this.getId(), 
+        ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId.name(), this.getGroupUuid(), 
+        ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupName.name(), this.retrieveGroup(true).getName(),
+        ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId.name(), this.getTypeUuid(),
+        ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeName.name(), groupType.getName()).save();
   }
 
   /**
@@ -356,7 +368,16 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_INSERT, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_INSERT, false, false);
-  
+
+    GroupType groupType = GroupTypeFinder.findByUuid(this.getTypeUuid(), true);
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN, 
+        ChangeLogLabels.GROUP_TYPE_ASSIGN.id.name(), this.getId(), 
+        ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId.name(), this.getGroupUuid(), 
+        ChangeLogLabels.GROUP_TYPE_ASSIGN.groupName.name(), this.retrieveGroup(true).getName(),
+        ChangeLogLabels.GROUP_TYPE_ASSIGN.typeId.name(), this.getTypeUuid(),
+        ChangeLogLabels.GROUP_TYPE_ASSIGN.typeName.name(), groupType.getName()).save();
   }
 
   /**

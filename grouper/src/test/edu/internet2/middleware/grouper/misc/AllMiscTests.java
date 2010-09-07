@@ -18,7 +18,6 @@ public class AllMiscTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.misc");
     //$JUnit-BEGIN$
-    suite.addTestSuite(SyncFlatTablesTest.class);
     suite.addTestSuite(GrouperReportTest.class);
     suite.addTestSuite(GrouperSessionTest.class);
     //$JUnit-END$

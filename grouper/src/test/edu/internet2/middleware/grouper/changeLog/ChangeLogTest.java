@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.changeLog;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import junit.textui.TestRunner;
@@ -16,6 +17,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -26,10 +28,6 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.flat.FlatAttributeDef;
-import edu.internet2.middleware.grouper.flat.FlatGroup;
-import edu.internet2.middleware.grouper.flat.FlatMembership;
-import edu.internet2.middleware.grouper.flat.FlatStem;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -42,6 +40,12 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITGroupSet;
+import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -91,6 +95,348 @@ public class ChangeLogTest extends GrouperTest {
     ApiConfig.testConfig.remove("grouper.env.name");
 
   }
+  
+
+  /**
+   * @throws Exception
+   */
+  public void testTypeAssignment() throws Exception {
+    
+    // initialize some data
+    GroupType groupType = GroupType.createType(grouperSession, "testType");
+    groupType.addAttribute(grouperSession, "attr1", AccessPrivilege.READ, AccessPrivilege.UPDATE, false);
+    groupType.addList(grouperSession, "list1", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    groupType.addList(grouperSession, "list2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    Group group = edu.addChildGroup("test1", "test1");
+    ChangeLogTempToEntity.convertRecords();
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+
+    // add assignment
+    group.addType(groupType);
+    GroupTypeTuple gtt = GrouperDAOFactory.getFactory().getGroupTypeTuple().findByUuidOrKey(
+        null, group.getId(), groupType.getUuid(), true);
+
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly one change log temp", 1, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNull(changeLogEntry.getSequenceNumber());
+
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), gtt.getContextId());
+  
+    assertEquals(gtt.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.id));
+    assertEquals(gtt.getGroupUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId));
+    assertEquals(gtt.getTypeUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.typeId));
+    assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.groupName));
+    assertEquals(groupType.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.typeName));
+
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+
+    //#########################
+    // Check the change log table, and temp table, see the record moved over.
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", 1, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_TYPE_ASSIGN.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), gtt.getContextId());
+    
+    PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), FieldFinder.find("list1", true).getUuid(), false);
+    assertNotNull(pitGroupSet);
+    assertEquals(gtt.getContextId(), pitGroupSet.getContextId());
+    assertTrue(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertNull(pitGroupSet.getEndTimeDb());
+    
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), FieldFinder.find("list2", true).getUuid(), false);
+    assertNotNull(pitGroupSet);
+    assertEquals(gtt.getContextId(), pitGroupSet.getContextId());
+    assertTrue(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertNull(pitGroupSet.getEndTimeDb());
+    
+    //##################################
+    // try a delete
+  
+    group.deleteType(groupType);
+  
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", 1, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_TYPE_UNASSIGN.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertEquals(gtt.getId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.id));
+    assertEquals(gtt.getGroupUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId));
+    assertEquals(gtt.getTypeUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId));
+    assertEquals(group.getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupName));
+    assertEquals(groupType.getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeName));
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), FieldFinder.find("list1", true).getUuid(), false);
+    assertNotNull(pitGroupSet);
+    assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
+    assertFalse(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
+    
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), FieldFinder.find("list2", true).getUuid(), false);
+    assertNotNull(pitGroupSet);
+    assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
+    assertFalse(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
+    
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testMembers() throws Exception {
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+
+    // add member
+    SessionHelper.getRootSession();
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+        return null;
+      }
+    });
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly one change log temp", 1, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNull(changeLogEntry.getSequenceNumber());
+
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), member.getContextId());
+  
+    assertEquals(member.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.id));
+    assertEquals(member.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectTypeId));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    //#########################
+    // Check the change log table, and temp table, see the record moved over.
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", 1, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), member.getContextId());
+    
+    // check PIT table
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(member.getUuid());
+    assertNotNull(pitMember);
+    assertEquals(member.getSubjectId(), pitMember.getSubjectId());
+    assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
+    assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
+    assertEquals(member.getContextId(), pitMember.getContextId());
+    
+    //##################################
+    // try an update
+  
+    //try an update of one field
+    member.setSubjectId("test.subject.0a");
+  
+    final Member MEMBER = member;
+  
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().update(MEMBER);
+        return null;
+      }
+    });
+  
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", 1, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertEquals(member.getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+    assertEquals(member.getSubjectId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+    assertEquals("subjectId", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+    assertEquals("test.subject.0", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+    assertEquals("test.subject.0a", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    
+    // Check PIT table
+    pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(member.getUuid());
+    assertNotNull(pitMember);
+    assertEquals(member.getSubjectId(), pitMember.getSubjectId());
+    assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
+    assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
+    assertEquals(member.getContextId(), pitMember.getContextId());
+    
+    //##################################
+    // try a delete
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().delete(MEMBER);
+        return null;
+      }
+    });
+  
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertEquals(member.getUuid(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.id));
+    assertEquals(member.getSubjectId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectTypeId));
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry3.getContextId()));
+    assertEquals("Context id's should match", changeLogEntry3.getContextId(), member.getContextId());
+  }
+
   
   /**
    * @throws Exception
@@ -167,11 +513,26 @@ public class ChangeLogTest extends GrouperTest {
     
     assertEquals("Context id's should match", changeLogEntry.getContextId(), resourcesDef.getContextId());
     
-    // check flat table
-    FlatAttributeDef flatAttrDef = GrouperDAOFactory.getFactory().getFlatAttributeDef().findById(resourcesDef.getId());
-    assertNotNull(flatAttrDef);
-    assertEquals("Verify attribute def id", flatAttrDef.getId(), flatAttrDef.getAttributeDefId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatAttrDef.getContextId());
+    // check PIT table
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef.getId());
+    assertNotNull(pitAttributeDef);
+    assertEquals(resourcesDef.getName(), pitAttributeDef.getName());
+    assertEquals(resourcesDef.getContextId(), pitAttributeDef.getContextId());
+    
+    Iterator<Field> allFields = FieldFinder.findAll().iterator();
+    while (allFields.hasNext()) {
+      Field currField = allFields.next();
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(resourcesDef.getId(), currField.getUuid(), false);
+      if (currField.isAttributeDefListField()) {
+        assertNotNull(pitGroupSet);
+        assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
+        assertTrue(pitGroupSet.isActive());
+        assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+        assertNull(pitGroupSet.getEndTimeDb()); 
+      } else {
+        assertNull(pitGroupSet);
+      }
+    }
     
     //##################################
     // try an update
@@ -259,25 +620,51 @@ public class ChangeLogTest extends GrouperTest {
         changeLogEntry3.getContextId()));
     assertEquals("Context id's should match", changeLogEntry3.getContextId(), resourcesDef.getContextId());
     
-    // check flat table
-    flatAttrDef = GrouperDAOFactory.getFactory().getFlatAttributeDef().findById(resourcesDef.getId());
-    assertNull(flatAttrDef);
+    // check PIT table
+    allFields = FieldFinder.findAll().iterator();
+    while (allFields.hasNext()) {
+      Field currField = allFields.next();
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(resourcesDef.getId(), currField.getUuid(), false);
+      if (currField.isAttributeDefListField()) {
+        assertNotNull(pitGroupSet);
+        assertEquals(changeLogEntry3.getContextId(), pitGroupSet.getContextId());
+        assertFalse(pitGroupSet.isActive());
+        assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+        assertEquals(changeLogEntry3.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
+      } else {
+        assertNull(pitGroupSet);
+      }
+    }
     
     //##################################
-    // try a add and delete and verify there are no errors with the flat tables
-
-    int flatCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_attribute_def");
+    // try updating the name
     
-    resourcesDef = edu.addChildAttributeDef("attrdef2", AttributeDefType.perm);
-    resourcesDef.delete();
-    
+    AttributeDef resourcesDef2 = edu.addChildAttributeDef("attrdef2", AttributeDefType.perm);
     ChangeLogTempToEntity.convertRecords();
+    PITAttributeDef pitAttributeDef2 = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef2.getId());
+    assertNotNull(pitAttributeDef2);
+    assertEquals(resourcesDef2.getName(), pitAttributeDef2.getName());
+    assertEquals(resourcesDef2.getContextId(), pitAttributeDef2.getContextId());
+    
+    resourcesDef2.setExtension("attrdef2a");
+    resourcesDef2.store();
+    ChangeLogTempToEntity.convertRecords();
+    pitAttributeDef2 = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef2.getId());
+    assertNotNull(pitAttributeDef2);
+    assertEquals(resourcesDef2.getName(), pitAttributeDef2.getName());
+    assertEquals(resourcesDef2.getContextId(), pitAttributeDef2.getContextId());
 
-    int newFlatCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_attribute_def");
-   
-    assertEquals("Should have no changes to flat table", flatCount, newFlatCount);
+    //##################################
+    // try adding and deleting before change log daemon runs
+    
+    AttributeDef resourcesDef3 = edu.addChildAttributeDef("attrdef3", AttributeDefType.perm);
+    resourcesDef3.setExtension("attrdef3a");
+    resourcesDef3.store();
+    resourcesDef3.delete();
+    ChangeLogTempToEntity.convertRecords();
+    PITAttributeDef pitAttributeDef3 = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(resourcesDef3.getId());
+    assertNotNull(pitAttributeDef3);
+    assertEquals("edu:attrdef3a", pitAttributeDef3.getName());
   }
 
   /**
@@ -438,16 +825,22 @@ public class ChangeLogTest extends GrouperTest {
   
     //add a type
     GrouperSession grouperSession = SessionHelper.getRootSession();
+    Group group1 = edu.addChildGroup("group1", "group1");
+    Group group2 = edu.addChildGroup("group2", "group2");
     GroupType groupType = GroupType.createType(grouperSession, "test1");
+    group1.addType(groupType);
+    group2.addType(groupType);
+    ChangeLogTempToEntity.convertRecords();
 
-    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
     int changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
         "select count(1) from grouper_change_log_entry_temp");
     int changeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     
-    Field field = groupType.addAttribute(grouperSession, "testAttr", AccessPrivilege.READ, AccessPrivilege.ADMIN, false);
+    Field field = groupType.addList(grouperSession, "testList", AccessPrivilege.READ, AccessPrivilege.ADMIN);
+    String fieldId = field.getUuid();
     
     int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry_temp");
@@ -512,6 +905,26 @@ public class ChangeLogTest extends GrouperTest {
     assertNotNull(changeLogEntry.getSequenceNumber());
     
     assertEquals("Context id's should match", changeLogEntry.getContextId(), field.getContextId());
+    
+    // check PIT table
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(field.getUuid());
+    assertNotNull(pitField);
+    assertEquals(field.getName(), pitField.getName());
+    assertEquals(field.getContextId(), pitField.getContextId());
+
+    PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group1.getId(), fieldId, false);
+    assertNotNull(pitGroupSet);
+    assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
+    assertTrue(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertNull(pitGroupSet.getEndTimeDb());
+    
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group2.getId(), fieldId, false);
+    assertNotNull(pitGroupSet);
+    assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
+    assertTrue(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertNull(pitGroupSet.getEndTimeDb());
     
     //##################################
     // try an update
@@ -584,6 +997,21 @@ public class ChangeLogTest extends GrouperTest {
       assertEquals(AccessPrivilege.ADMIN.getName(), writePrivilege.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.propertyOldValue));
       assertEquals(AccessPrivilege.OPTOUT.getName(), writePrivilege.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_UPDATE.propertyNewValue));
     }
+   
+    // check PIT table
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group1.getId(), fieldId, false);
+    assertNotNull(pitGroupSet);
+    assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
+    assertTrue(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertNull(pitGroupSet.getEndTimeDb());
+    
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group2.getId(), fieldId, false);
+    assertNotNull(pitGroupSet);
+    assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
+    assertTrue(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertNull(pitGroupSet.getEndTimeDb());
     
     //##################################
     // try a delete
@@ -612,6 +1040,49 @@ public class ChangeLogTest extends GrouperTest {
     
     assertEquals(field.getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_DELETE.name));
     assertEquals(field.getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_DELETE.id));
+    
+    // check PIT table
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group1.getId(), fieldId, false);
+    assertNotNull(pitGroupSet);
+    assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
+    assertFalse(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
+    
+    pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group2.getId(), fieldId, false);
+    assertNotNull(pitGroupSet);
+    assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
+    assertFalse(pitGroupSet.isActive());
+    assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+    assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
+    
+    //##################################
+    // try updating the name
+    
+    Field field2 = groupType.addList(grouperSession, "testList2", AccessPrivilege.READ, AccessPrivilege.ADMIN);
+    ChangeLogTempToEntity.convertRecords();
+    PITField pitField2 = GrouperDAOFactory.getFactory().getPITField().findById(field2.getUuid());
+    assertNotNull(pitField2);
+    assertEquals(field2.getName(), pitField2.getName());
+    assertEquals(field2.getContextId(), pitField2.getContextId());
+    
+    field2.setName("testList2a");
+    field2.store();
+    ChangeLogTempToEntity.convertRecords();
+    pitField2 = GrouperDAOFactory.getFactory().getPITField().findById(field2.getUuid());
+    assertNotNull(pitField2);
+    assertEquals(field2.getName(), pitField2.getName());
+    assertEquals(field2.getContextId(), pitField2.getContextId());
+
+    //##################################
+    // try adding and deleting before change log daemon runs
+    
+    Field field3 = groupType.addList(grouperSession, "testList3", AccessPrivilege.READ, AccessPrivilege.ADMIN);
+    groupType.deleteField(grouperSession, field3.getName());
+    ChangeLogTempToEntity.convertRecords();
+    PITField pitField3 = GrouperDAOFactory.getFactory().getPITField().findById(field3.getUuid());
+    assertNotNull(pitField3);
+    assertEquals("testList3", pitField3.getName());
   }
 
   /**
@@ -620,7 +1091,6 @@ public class ChangeLogTest extends GrouperTest {
    */
   public void testGroups() throws Exception {
   
-    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     
     int changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
@@ -699,18 +1169,33 @@ public class ChangeLogTest extends GrouperTest {
     
     assertEquals("Context id's should match", changeLogEntry.getContextId(), group.getContextId());
     
-    // check flat table
-    FlatGroup flatGroup = GrouperDAOFactory.getFactory().getFlatGroup().findById(group.getUuid());
-    assertNotNull(flatGroup);
-    assertEquals("Verify group id", flatGroup.getId(), flatGroup.getGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), group.getContextId());
+    // check PIT table
+    PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(group.getId());
+    assertNotNull(pitGroup);
+    assertEquals(group.getName(), pitGroup.getName());
+    assertEquals(group.getContextId(), pitGroup.getContextId());
+    
+    Iterator<Field> allFields = FieldFinder.findAll().iterator();
+    while (allFields.hasNext()) {
+      Field currField = allFields.next();
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), currField.getUuid(), false);
+      if (currField.isGroupListField()) {
+        assertNotNull(pitGroupSet);
+        assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
+        assertTrue(pitGroupSet.isActive());
+        assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+        assertNull(pitGroupSet.getEndTimeDb()); 
+      } else {
+        assertNull(pitGroupSet);
+      }
+    }
     
     //##################################
     // try an update
   
     //try an update of two field
-    group.setDisplayExtension("test2");
-    group.setDescription("test2");
+    group.setDisplayExtension("test1a");
+    group.setDescription("test1a");
     group.store();
   
     newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
@@ -790,65 +1275,52 @@ public class ChangeLogTest extends GrouperTest {
         
     assertEquals(group.getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.name));
     assertEquals(group.getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.id));
-    
-    // check flat table
-    flatGroup = GrouperDAOFactory.getFactory().getFlatGroup().findById(group.getUuid());
-    assertNull(flatGroup);
+      
+    // check PIT table
+    allFields = FieldFinder.findAll().iterator();
+    while (allFields.hasNext()) {
+      Field currField = allFields.next();
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(group.getId(), currField.getUuid(), false);
+      if (currField.isGroupListField()) {
+        assertNotNull(pitGroupSet);
+        assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
+        assertFalse(pitGroupSet.isActive());
+        assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+        assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
+      } else {
+        assertNull(pitGroupSet);
+      }
+    }
     
     //##################################
-    // try a add and delete and verify there are no errors with the flat tables
-
-    int flatCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_groups");
-    int flatCount2 = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
+    // try updating the name
     
-    group = this.edu.addChildGroup("test2", "test2");
-    group.delete();
+    Group group2 = edu.addChildGroup("group2", "group2");
+    ChangeLogTempToEntity.convertRecords();
+    PITGroup pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
+    assertNotNull(pitGroup2);
+    assertEquals(group2.getName(), pitGroup2.getName());
+    assertEquals(group2.getContextId(), pitGroup2.getContextId());
     
+    group2.setExtension("group2a");
+    group2.store();
     ChangeLogTempToEntity.convertRecords();
+    pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findById(group2.getId());
+    assertNotNull(pitGroup2);
+    assertEquals(group2.getName(), pitGroup2.getName());
+    assertEquals(group2.getContextId(), pitGroup2.getContextId());
 
-    int newFlatCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_groups");
-    int newFlatCount2 = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
-   
-    assertEquals("Should have no changes to flat table", flatCount, newFlatCount);
-    assertEquals("Should have no changes to flat table", flatCount2, newFlatCount2);
+    //##################################
+    // try adding and deleting before change log daemon runs
     
-    // now try having an addMember and deleteGroup in the changelog after the addGroup is processed
-    group = this.edu.addChildGroup("test3", "test3");
+    Group group3 = edu.addChildGroup("group3","group3");
+    group3.setExtension("group3a");
+    group3.store();
+    group3.delete();
     ChangeLogTempToEntity.convertRecords();
-    group.addMember(newMember1.getSubject());
-    group.delete();
-    ChangeLogTempToEntity.convertRecords();
-
-    newFlatCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_groups");
-    newFlatCount2 = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
-   
-    assertEquals("Should have no changes to flat table", flatCount, newFlatCount);
-    assertEquals("Should have no changes to flat table", flatCount2, newFlatCount2);
-      
-    
-    // try adding a member to a group where the group is a member of another group that's just been deleted
-    group = this.edu.addChildGroup("test3", "test3");
-    Group group2 = this.edu.addChildGroup("test4", "test4");
-    group2.addMember(group.toSubject());
-    ChangeLogTempToEntity.convertRecords();
-    group.addMember(newMember1.getSubject());
-    group2.delete();
-    ChangeLogTempToEntity.convertRecords();
-
-    newFlatCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_groups");
-    newFlatCount2 = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
-   
-    assertEquals("Should have one change in the flat table", flatCount + 1, newFlatCount);
-    assertEquals("Should have four changes in the flat table (3 are privs)", flatCount2 + 4, newFlatCount2);
-      
+    PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findById(group3.getId());
+    assertNotNull(pitGroup3);
+    assertEquals("edu:group3a", pitGroup3.getName());
   }
 
   /**
@@ -935,18 +1407,33 @@ public class ChangeLogTest extends GrouperTest {
     
     assertEquals("Context id's should match", changeLogEntry.getContextId(), stem.getContextId());
     
-    // check flat table
-    FlatStem flatStem = GrouperDAOFactory.getFactory().getFlatStem().findById(stem.getUuid());
-    assertNotNull(flatStem);
-    assertEquals("Verify stem id", flatStem.getId(), flatStem.getStemId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), stem.getContextId());
+    // check PIT table
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(stem.getUuid());
+    assertNotNull(pitStem);
+    assertEquals(stem.getName(), pitStem.getName());
+    assertEquals(stem.getContextId(), pitStem.getContextId());
+    
+    Iterator<Field> allFields = FieldFinder.findAll().iterator();
+    while (allFields.hasNext()) {
+      Field currField = allFields.next();
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(stem.getUuid(), currField.getUuid(), false);
+      if (currField.isStemListField()) {
+        assertNotNull(pitGroupSet);
+        assertEquals(changeLogEntry.getContextId(), pitGroupSet.getContextId());
+        assertTrue(pitGroupSet.isActive());
+        assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+        assertNull(pitGroupSet.getEndTimeDb()); 
+      } else {
+        assertNull(pitGroupSet);
+      }
+    }
     
     //##################################
     // try an update
   
     //try an update of two field
-    stem.setDisplayExtension("test2");
-    stem.setDescription("test2");
+    stem.setDisplayExtension("test1a");
+    stem.setDescription("test1a");
     stem.store();
   
     newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
@@ -1027,25 +1514,51 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(stem.getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.STEM_DELETE.name));
     assertEquals(stem.getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.STEM_DELETE.id));
     
-    // check flat table
-    flatStem = GrouperDAOFactory.getFactory().getFlatStem().findById(stem.getUuid());
-    assertNull(flatStem);
+    // check PIT table
+    allFields = FieldFinder.findAll().iterator();
+    while (allFields.hasNext()) {
+      Field currField = allFields.next();
+      PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findSelfGroupSet(stem.getUuid(), currField.getUuid(), false);
+      if (currField.isStemListField()) {
+        assertNotNull(pitGroupSet);
+        assertEquals(changeLogEntry2.getContextId(), pitGroupSet.getContextId());
+        assertFalse(pitGroupSet.isActive());
+        assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
+        assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
+      } else {
+        assertNull(pitGroupSet);
+      }
+    }
     
     //##################################
-    // try a add and delete and verify there are no errors with the flat tables
-
-    int flatCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_stems");
+    // try updating the name
     
-    stem = this.edu.addChildStem("test1", "test1");
-    stem.delete();
-    
+    Stem stem2 = edu.addChildStem("stem2", "stem2");
     ChangeLogTempToEntity.convertRecords();
+    PITStem pitStem2 = GrouperDAOFactory.getFactory().getPITStem().findById(stem2.getUuid());
+    assertNotNull(pitStem2);
+    assertEquals(stem2.getName(), pitStem2.getName());
+    assertEquals(stem2.getContextId(), pitStem2.getContextId());
+    
+    stem2.setExtension("stem2a");
+    stem2.store();
+    ChangeLogTempToEntity.convertRecords();
+    pitStem2 = GrouperDAOFactory.getFactory().getPITStem().findById(stem2.getUuid());
+    assertNotNull(pitStem2);
+    assertEquals(stem2.getName(), pitStem2.getName());
+    assertEquals(stem2.getContextId(), pitStem2.getContextId());
 
-    int newFlatCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_stems");
-   
-    assertEquals("Should have no changes to flat table", flatCount, newFlatCount);
+    //##################################
+    // try adding and deleting before change log daemon runs
+    
+    Stem stem3 = edu.addChildStem("stem3","stem3");
+    stem3.setExtension("stem3a");
+    stem3.store();
+    stem3.delete();
+    ChangeLogTempToEntity.convertRecords();
+    PITStem pitStem3 = GrouperDAOFactory.getFactory().getPITStem().findById(stem3.getUuid());
+    assertNotNull(pitStem3);
+    assertEquals("edu:stem3a", pitStem3.getName());
   }
 
   /**
@@ -1144,13 +1657,6 @@ public class ChangeLogTest extends GrouperTest {
     
     assertEquals("Context id's should match", changeLogEntry.getContextId(), membership.getContextId());
     
-    // check flat table
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(membership.getOwnerGroupId(), membership.getMemberUuid(), membership.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner group id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
-    
     //##################################
     // try an update
 
@@ -1178,7 +1684,7 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
   
-    assertEquals("Should have two in temp table", changeLogTempCount+2, newChangeLogTempCount);
+    assertEquals("Should have three in temp table", changeLogTempCount+3, newChangeLogTempCount);
     assertTrue("Should have more than one record in the change log table: " + changeLogCount + ", " + newChangeLogCount, 
         changeLogCount+1 <= newChangeLogCount);
   
@@ -1186,8 +1692,8 @@ public class ChangeLogTest extends GrouperTest {
     
     int newerChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    assertTrue("Should have two more records in the change log table: " + newChangeLogCount + ", " + newerChangeLogCount, 
-        newChangeLogCount+2 == newerChangeLogCount);
+    assertTrue("Should have three more records in the change log table: " + newChangeLogCount + ", " + newerChangeLogCount, 
+        newChangeLogCount+3 == newerChangeLogCount);
     
     {
       List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
@@ -1232,17 +1738,6 @@ public class ChangeLogTest extends GrouperTest {
       assertEquals(membership.getGroup().getName(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     }
     
-    // check flat table
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(membership.getOwnerGroupId(), rootMember.getUuid(), membership.getFieldId());
-    assertNull(flatMship);
-    
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(membership.getOwnerGroupId(), newMember.getUuid(), membership.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner group id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", membership.getContextId(), flatMship.getContextId());
-    
     //##################################
     // try a delete
     
@@ -1285,11 +1780,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(membership.getGroup().getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(membership.getGroup().getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     
-    // check flat table
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(membership.getOwnerGroupId(), newMember1.getUuid(), membership.getFieldId());
-    assertNull(flatMship);
-    
     
     //##################################
     // try multiple immediate memberships
@@ -1301,9 +1791,6 @@ public class ChangeLogTest extends GrouperTest {
     // clear changelog
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
-    
-    int flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     group2.addMember(newMember1.getSubject());
     group2.addMember(newMember2.getSubject());
@@ -1318,12 +1805,8 @@ public class ChangeLogTest extends GrouperTest {
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
-    
-    int newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
 
     assertEquals("Should have 9 change log entries", 9, changeLogEntries.size());
-    assertEquals("Should have 15 new flat memberships (6 are privs)", flatMembershipCount + 15, newFlatMembershipCount);
 
     group2.deleteMember(newMember1.getSubject());
     group2.deleteMember(newMember2.getSubject());
@@ -1337,11 +1820,7 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
-    
     assertEquals("Should have 9 change log entries", 9, changeLogEntries.size());
-    assertEquals("Should have 15 fewer flat memberships (6 are privs)", flatMembershipCount, newFlatMembershipCount);
     
     //##################################
     // try a membership add that causes effective memberships
@@ -1404,20 +1883,14 @@ public class ChangeLogTest extends GrouperTest {
     Membership a0g5Priv = GrouperDAOFactory.getFactory().getMembership()
       .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g5.toMember().getUuid(), 
           FieldFinder.find("attrUpdaters", true), "effective", true, true);
-
-    flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     ChangeLogTempToEntity.convertRecords();
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
 
     // note that subj2 already had the memberships and privileges...
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 10 new change log entries", 10, newChangeLogCount);
-    assertEquals("Shoud have 10 new flat memberships", flatMembershipCount + 10, newFlatMembershipCount);
     
     verifyEffectiveMembershipsAdd(g3g4Mship, g3g5Mship, g2g4Mship, g2g5Mship, g1g4Priv, g1g5Priv, 
         s0g4Priv, s0g5Priv, a0g4Priv, a0g5Priv, g3g4Mship.getContextId());
@@ -1448,14 +1921,10 @@ public class ChangeLogTest extends GrouperTest {
     });
     
     ChangeLogTempToEntity.convertRecords();
-
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 10 new change log entries", 10, newChangeLogCount);
-    assertEquals("Shoud have 10 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveMembershipsDelete(g3g4Mship, g3g5Mship, g2g4Mship, g2g5Mship, g1g4Priv, g1g5Priv, 
         s0g4Priv, s0g5Priv, a0g4Priv, a0g5Priv, g3g4Mship.getContextId());
@@ -1485,14 +1954,10 @@ public class ChangeLogTest extends GrouperTest {
     });
     
     ChangeLogTempToEntity.convertRecords();
-    
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes in flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     g3g4Mship.setMember(g4.toMember());
 
@@ -1515,11 +1980,7 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
-    
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes in flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     
     //##################################
@@ -1583,11 +2044,8 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 10 new change log entries", 10, newChangeLogCount);
-    assertEquals("Shoud have 10 new flat memberships", flatMembershipCount + 10, newFlatMembershipCount);
 
     verifyEffectiveMembershipsAdd(g3g4Mship, g3g5Mship, g2g4Mship, g2g5Mship, g1g4Priv, g1g5Priv, 
         s0g4Priv, s0g5Priv, a0g4Priv, a0g5Priv, g3g4Mship.getContextId());
@@ -1624,11 +2082,8 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 15 new change log entries", 15, newChangeLogCount);
-    assertEquals("Shoud have 5 fewer flat memberships", flatMembershipCount + 5, newFlatMembershipCount);
 
     verifyEffectiveMembershipsDelete(g3g4Mship, g3g5Mship, g2g4Mship, g2g5Mship, g1g4Priv, g1g5Priv, 
         s0g4Priv, s0g5Priv, a0g4Priv, a0g5Priv, immediate.getContextId());
@@ -1693,11 +2148,8 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 15 new change log entries", 15, newChangeLogCount);
-    assertEquals("Shoud have 5 more flat memberships", flatMembershipCount + 10, newFlatMembershipCount);
 
     verifyEffectiveMembershipsAdd(g3g4Mship, g3g5Mship, g2g4Mship, g2g5Mship, g1g4Priv, g1g5Priv, 
         s0g4Priv, s0g5Priv, a0g4Priv, a0g5Priv, g3g4Mship.getContextId());
@@ -1722,15 +2174,48 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 10 new change log entries", 10, newChangeLogCount);
-    assertEquals("Shoud have 10 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveMembershipsDelete(g3g4Mship, g3g5Mship, g2g4Mship, g2g5Mship, g1g4Priv, g1g5Priv, 
         s0g4Priv, s0g5Priv, a0g4Priv, a0g5Priv, changeLogEntry.getContextId());
     
+    
+    //##################################
+    // try changing group's name and member's subject id after adding membership and verify change log
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    Member newMember4 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ4, true);
+    Group g6 = this.edu.addChildGroup("group6", "group6");
+    g6.addMember(newMember4.getSubject());
+    g6.setExtension("group6b");
+    g6.store();
+    String oldSubjectId = newMember4.getSubjectId();
+    String newSubjectId = oldSubjectId + "new";
+    newMember4.setSubjectId(newSubjectId);
+    newMember4.store();
+    ChangeLogTempToEntity.convertRecords();
+    g6.deleteMember(newMember4.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+
+    ChangeLogEntry membershipAddChangeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertNotNull(membershipAddChangeLogEntry);
+    assertEquals("edu:group6", membershipAddChangeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals(oldSubjectId, membershipAddChangeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
+    
+    ChangeLogEntry membershipDeleteChangeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+
+    assertNotNull(membershipDeleteChangeLogEntry);
+    assertEquals("edu:group6b", membershipDeleteChangeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals(newSubjectId, membershipDeleteChangeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
   }
 
 
@@ -1776,19 +2261,14 @@ public class ChangeLogTest extends GrouperTest {
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g5.toMember().getUuid(), 
           FieldFinder.find("optins", true), "effective", true, true);
 
-    int flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
 
     ChangeLogTempToEntity.convertRecords();
 
     // note that subj2 already had the privilege...
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    int newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 new flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
     
     verifyEffectiveAccessPrivilegesAdd(g3g4Priv, g3g5Priv, g3g4Priv.getContextId());
     
@@ -1821,11 +2301,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveAccessPrivilegesDelete(g3g4Priv, g3g5Priv, g3g4Priv.getContextId());
     
@@ -1857,11 +2334,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     g3g4Priv.setMember(g4.toMember());
 
@@ -1883,11 +2357,8 @@ public class ChangeLogTest extends GrouperTest {
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     
     //##################################
@@ -1926,11 +2397,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 new flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveAccessPrivilegesAdd(g3g4Priv, g3g5Priv, g3g4Priv.getContextId());
     
@@ -1965,11 +2433,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries", 3, newChangeLogCount);
-    assertEquals("Shoud have 1 fewer flat memberships", flatMembershipCount + 1, newFlatMembershipCount);
 
     verifyEffectiveAccessPrivilegesDelete(g3g4Priv, g3g5Priv, immediate.getContextId());
 
@@ -2008,11 +2473,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries", 3, newChangeLogCount);
-    assertEquals("Shoud have 1 more flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveAccessPrivilegesAdd(g3g4Priv, g3g5Priv, g3g4Priv.getContextId());
 
@@ -2035,11 +2497,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveAccessPrivilegesDelete(g3g4Priv, g3g5Priv, changeLogEntry.getContextId());
     
@@ -2054,8 +2513,6 @@ public class ChangeLogTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
-    flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     group.grantPriv(newMember1.getSubject(), AccessPrivilege.UPDATE);
     group.grantPriv(newMember2.getSubject(), AccessPrivilege.UPDATE);
@@ -2069,11 +2526,8 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
-    assertEquals("Should have 7 new flat memberships", flatMembershipCount + 7, newFlatMembershipCount);
     
     group.revokePriv(newMember1.getSubject(), AccessPrivilege.UPDATE);
     group.revokePriv(newMember2.getSubject(), AccessPrivilege.UPDATE);
@@ -2086,11 +2540,8 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
-    assertEquals("Should have 7 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
   }
   
   /**
@@ -2130,19 +2581,14 @@ public class ChangeLogTest extends GrouperTest {
       .findByStemOwnerAndMemberAndFieldAndType(s3.getUuid(), g5.toMember().getUuid(), 
           FieldFinder.find("stemmers", true), "effective", true, true);
 
-    int flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
 
     ChangeLogTempToEntity.convertRecords();
 
     // note that subj2 already had the privilege...
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    int newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 new flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveNamingPrivilegesAdd(s3g4Priv, s3g5Priv, s3g4Priv.getContextId());
     
@@ -2175,11 +2621,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveNamingPrivilegesDelete(s3g4Priv, s3g5Priv, s3g4Priv.getContextId());
     
@@ -2211,11 +2654,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes to flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     s3g4Priv.setMember(g4.toMember());
 
@@ -2237,11 +2677,8 @@ public class ChangeLogTest extends GrouperTest {
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes to flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     
     //##################################
@@ -2280,11 +2717,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 new flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveNamingPrivilegesAdd(s3g4Priv, s3g5Priv, s3g4Priv.getContextId());
     
@@ -2319,11 +2753,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries", 3, newChangeLogCount);
-    assertEquals("Shoud have 1 fewer flat memberships", flatMembershipCount + 1, newFlatMembershipCount);
 
     verifyEffectiveNamingPrivilegesDelete(s3g4Priv, s3g5Priv, immediate.getContextId());
 
@@ -2362,11 +2793,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries", 3, newChangeLogCount);
-    assertEquals("Shoud have 1 more flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveNamingPrivilegesAdd(s3g4Priv, s3g5Priv, s3g4Priv.getContextId());
 
@@ -2389,11 +2817,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveNamingPrivilegesDelete(s3g4Priv, s3g5Priv, changeLogEntry.getContextId());
     
@@ -2409,8 +2834,6 @@ public class ChangeLogTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
-    flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     stem.grantPriv(newMember1.getSubject(), NamingPrivilege.STEM);
     stem.grantPriv(newMember2.getSubject(), NamingPrivilege.STEM);
@@ -2424,11 +2847,8 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
-    assertEquals("Should have 7 new flat memberships", flatMembershipCount + 7, newFlatMembershipCount);
     
     stem.revokePriv(newMember1.getSubject(), NamingPrivilege.STEM);
     stem.revokePriv(newMember2.getSubject(), NamingPrivilege.STEM);
@@ -2441,11 +2861,8 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
-    assertEquals("Should have 7 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
   }
 
 
@@ -2499,19 +2916,14 @@ public class ChangeLogTest extends GrouperTest {
       .findByAttrDefOwnerAndMemberAndFieldAndType(a3.getUuid(), g5.toMember().getUuid(), 
           FieldFinder.find("attrOptins", true), "effective", true, true);
 
-    int flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     ChangeLogTempToEntity.convertRecords();
 
     // note that subj2 already had the privilege...
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    int newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 new flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveAttributeDefPrivilegesAdd(a3g4Priv, a3g5Priv, a3g4Priv.getContextId());
     
@@ -2544,11 +2956,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveAttributeDefPrivilegesDelete(a3g4Priv, a3g5Priv, a3g4Priv.getContextId());
     
@@ -2580,11 +2989,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes to flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     a3g4Priv.setMember(g4.toMember());
 
@@ -2606,11 +3012,8 @@ public class ChangeLogTest extends GrouperTest {
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes to flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     
     //##################################
@@ -2649,11 +3052,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 new flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveAttributeDefPrivilegesAdd(a3g4Priv, a3g5Priv, a3g4Priv.getContextId());
     
@@ -2688,11 +3088,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries", 3, newChangeLogCount);
-    assertEquals("Shoud have 1 fewer flat memberships", flatMembershipCount + 1, newFlatMembershipCount);
 
     verifyEffectiveAttributeDefPrivilegesDelete(a3g4Priv, a3g5Priv, immediate.getContextId());
 
@@ -2731,11 +3128,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries", 3, newChangeLogCount);
-    assertEquals("Shoud have 1 more flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveAttributeDefPrivilegesAdd(a3g4Priv, a3g5Priv, a3g4Priv.getContextId());
 
@@ -2768,11 +3162,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveAttributeDefPrivilegesDelete(a3g4Priv, a3g5Priv, changeLogEntry.getContextId());
    
@@ -2787,9 +3178,6 @@ public class ChangeLogTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
-    flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
-    
     attrDef.getPrivilegeDelegate().grantPriv(newMember1.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
     attrDef.getPrivilegeDelegate().grantPriv(newMember2.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
     Group group = this.edu.addChildGroup("test", "test");
@@ -2802,11 +3190,8 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
-    assertEquals("Should have 7 new flat memberships", flatMembershipCount + 7, newFlatMembershipCount);
     
     attrDef.getPrivilegeDelegate().revokePriv(newMember1.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
     attrDef.getPrivilegeDelegate().revokePriv(newMember2.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
@@ -2819,11 +3204,8 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
-    assertEquals("Should have 7 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
   }
 
   /**
@@ -2871,18 +3253,13 @@ public class ChangeLogTest extends GrouperTest {
       .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g5.toMember().getUuid(), 
           FieldFinder.find("customList", true), "effective", true, true);
 
-    int flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
 
     ChangeLogTempToEntity.convertRecords();
 
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    int newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 more flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveCustomListMembershipsAdd(g3g4Mship, g3g5Mship, g3g4Mship.getContextId());
     
@@ -2915,11 +3292,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveCustomListMembershipsDelete(g3g4Mship, g3g5Mship, g3g4Mship.getContextId());
     
@@ -2951,11 +3325,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes to flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     g3g4Mship.setMember(g4.toMember());
 
@@ -2977,11 +3348,8 @@ public class ChangeLogTest extends GrouperTest {
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes to flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     
     //##################################
@@ -3020,11 +3388,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 new flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveCustomListMembershipsAdd(g3g4Mship, g3g5Mship, g3g4Mship.getContextId());
     
@@ -3059,11 +3424,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries", 3, newChangeLogCount);
-    assertEquals("Shoud have 1 fewer flat memberships", flatMembershipCount + 1, newFlatMembershipCount);
 
     verifyEffectiveCustomListMembershipsDelete(g3g4Mship, g3g5Mship, immediate.getContextId());
 
@@ -3102,11 +3464,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries", 3, newChangeLogCount);
-    assertEquals("Shoud have 1 more flat memberships", flatMembershipCount + 2, newFlatMembershipCount);
 
     verifyEffectiveCustomListMembershipsAdd(g3g4Mship, g3g5Mship, immediate.getContextId());
 
@@ -3129,11 +3488,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 2 new change log entries", 2, newChangeLogCount);
-    assertEquals("Shoud have 2 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
     verifyEffectiveCustomListMembershipsDelete(g3g4Mship, g3g5Mship, changeLogEntry.getContextId());
     
@@ -3149,9 +3505,6 @@ public class ChangeLogTest extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
-    flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
-    
     group.addMember(newMember1.getSubject(), customList);
     group.addMember(newMember2.getSubject(), customList);
     Group group2 = this.edu.addChildGroup("test", "test");
@@ -3165,11 +3518,8 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 4 change log entries", 4, changeLogEntries.size());
-    assertEquals("Should have 7 new flat memberships", flatMembershipCount + 7, newFlatMembershipCount);
     
     group.deleteMember(newMember1.getSubject(), customList);
     group.deleteMember(newMember2.getSubject(), customList);
@@ -3182,11 +3532,8 @@ public class ChangeLogTest extends GrouperTest {
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
       .list(ChangeLogEntry.class);
     
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 4 change log entries", 4, changeLogEntries.size());
-    assertEquals("Should have 7 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
   }
   
 
@@ -3222,18 +3569,13 @@ public class ChangeLogTest extends GrouperTest {
 
     g1.addCompositeMember(CompositeType.UNION, g2, g3);
 
-    int flatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     ChangeLogTempToEntity.convertRecords();
 
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    int newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries - 1 composite, 2 effective", 3, newChangeLogCount);
-    assertEquals("Shoud have 3 new flat memberships", flatMembershipCount + 3, newFlatMembershipCount);
 
 
     //##################################
@@ -3250,11 +3592,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 3 new change log entries - 1 composite, 2 effective", 3, newChangeLogCount);
-    assertEquals("Shoud have 3 fewer flat memberships", flatMembershipCount, newFlatMembershipCount);
 
 
     //##################################
@@ -3264,10 +3603,6 @@ public class ChangeLogTest extends GrouperTest {
     g2.deleteMember(member1.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
-    
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
-    assertEquals("Shoud have 1 fewer to flat memberships", flatMembershipCount - 1, newFlatMembershipCount);
 
     // clear changelog
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
@@ -3279,11 +3614,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 4 new change log entries - 1 composite, 1 immediate, 2 effective", 4, newChangeLogCount);
-    assertEquals("Shoud have 4 new flat memberships", flatMembershipCount + 3, newFlatMembershipCount);
     
     
     //##################################
@@ -3306,11 +3638,8 @@ public class ChangeLogTest extends GrouperTest {
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 4 new change log entries - 1 composite, 1 immediate, 2 effective", 4, newChangeLogCount);
-    assertEquals("Shoud have 4 fewer flat memberships", flatMembershipCount - 1, newFlatMembershipCount);
 
     
     //##################################
@@ -3327,11 +3656,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes to flat memberships", flatMembershipCount - 1, newFlatMembershipCount);
 
     immediate.setMember(member1);
     GrouperDAOFactory.getFactory().getMembership().update(immediate);
@@ -3340,11 +3666,8 @@ public class ChangeLogTest extends GrouperTest {
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
-    assertEquals("Shoud have no changes to flat memberships", flatMembershipCount - 1, newFlatMembershipCount);
     
     //##################################
     // try enabling membership now
@@ -3362,11 +3685,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 4 new change log entries - 1 composite, 1 immediate, 2 effective", 4, newChangeLogCount);
-    assertEquals("Shoud have 4 new flat memberships", flatMembershipCount + 3, newFlatMembershipCount);
 
     
     //##################################
@@ -3387,11 +3707,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 8 new change log entries - 2 composite, 2 immediate, 4 effective", 8, newChangeLogCount);
-    assertEquals("Shoud have 4 new flat memberships and 4 deleted flat memberships", flatMembershipCount + 3, newFlatMembershipCount);
 
     
     //##################################
@@ -3409,11 +3726,8 @@ public class ChangeLogTest extends GrouperTest {
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
-    newFlatMembershipCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_flat_memberships");
     
     assertEquals("Should have 4 new change log entries - 1 composite, 1 immediate, 2 effective", 4, newChangeLogCount);
-    assertEquals("Shoud have 4 fewer flat memberships", flatMembershipCount - 1, newFlatMembershipCount);
 
   }
   
@@ -4124,12 +4438,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g4Mship.getOwnerGroupId(), g3g4Mship.getMemberUuid(), g3g4Mship.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
-
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string06 = :groupId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
@@ -4145,11 +4453,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g5Mship.getOwnerGroupId(), g3g5Mship.getMemberUuid(), g3g5Mship.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
   }
   
   private void verifyEffectiveCustomListMembershipsDelete(Membership g3g4Mship, Membership g3g5Mship, String contextId) {
@@ -4170,10 +4473,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
-
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g4Mship.getOwnerGroupId(), g3g4Mship.getMemberUuid(), g3g4Mship.getFieldId());
-    assertNull(flatMship);
   
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string06 = :groupId")
@@ -4190,9 +4489,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g5Mship.getOwnerGroupId(), g3g5Mship.getMemberUuid(), g3g5Mship.getFieldId());
-    assertNull(flatMship);
   }
   
   
@@ -4217,12 +4513,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g4Priv.getOwnerGroupId(), g3g4Priv.getMemberUuid(), g3g4Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
-
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :groupId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
@@ -4240,11 +4530,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g5Priv.getOwnerGroupId(), g3g5Priv.getMemberUuid(), g3g5Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
   }
   
   private void verifyEffectiveAccessPrivilegesDelete(Membership g3g4Priv, Membership g3g5Priv, String contextId) {
@@ -4268,9 +4553,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g4Priv.getOwnerGroupId(), g3g4Priv.getMemberUuid(), g3g4Priv.getFieldId());
-    assertNull(flatMship);
   
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :groupId")
@@ -4288,10 +4570,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g5Priv.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
-    
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g5Priv.getOwnerGroupId(), g3g5Priv.getMemberUuid(), g3g5Priv.getFieldId());
-    assertNull(flatMship);
   }
   
   private void verifyEffectiveAttributeDefPrivilegesAdd(Membership a3g4Priv, Membership a3g5Priv, String contextId) {
@@ -4315,13 +4593,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(a3g4Priv.getOwnerAttrDefId(), a3g4Priv.getMemberUuid(), a3g4Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerAttrDefId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
-    
-
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :attrDefId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
@@ -4339,11 +4610,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(a3g5Priv.getOwnerAttrDefId(), a3g5Priv.getMemberUuid(), a3g5Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerAttrDefId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
   }
   
   private void verifyEffectiveAttributeDefPrivilegesDelete(Membership a3g4Priv, Membership a3g5Priv, String contextId) {
@@ -4367,10 +4633,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
   
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(a3g4Priv.getOwnerAttrDefId(), a3g4Priv.getMemberUuid(), a3g4Priv.getFieldId());
-    assertNull(flatMship);
-  
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :attrDefId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
@@ -4388,9 +4650,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(a3g5Priv.getOwnerAttrDefId(), a3g5Priv.getMemberUuid(), a3g5Priv.getFieldId());
-    assertNull(flatMship);
   }
   
 
@@ -4415,12 +4674,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(s3g4Priv.getOwnerStemId(), s3g4Priv.getMemberUuid(), s3g4Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerStemId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
-
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :stemId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
@@ -4438,11 +4691,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(s3g5Priv.getOwnerStemId(), s3g5Priv.getMemberUuid(), s3g5Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerStemId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
   }
   
   private void verifyEffectiveNamingPrivilegesDelete(Membership s3g4Priv, Membership s3g5Priv, String contextId) {
@@ -4466,9 +4714,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
   
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(s3g4Priv.getOwnerStemId(), s3g4Priv.getMemberUuid(), s3g4Priv.getFieldId());
-    assertNull(flatMship);
   
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :stemId")
@@ -4487,9 +4732,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(s3g5Priv.getOwnerStemId(), s3g5Priv.getMemberUuid(), s3g5Priv.getFieldId());
-    assertNull(flatMship);
   }
   
   
@@ -4515,11 +4757,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g4Mship.getOwnerGroupId(), g3g4Mship.getMemberUuid(), g3g4Mship.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
 
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string06 = :groupId")
@@ -4536,11 +4773,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g5Mship.getOwnerGroupId(), g3g5Mship.getMemberUuid(), g3g5Mship.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string06 = :groupId")
@@ -4557,11 +4789,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g2g4Mship.getOwnerGroupId(), g2g4Mship.getMemberUuid(), g2g4Mship.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
 
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string06 = :groupId")
@@ -4578,11 +4805,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g2g5Mship.getOwnerGroupId(), g2g5Mship.getMemberUuid(), g2g5Mship.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
 
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :groupId")
@@ -4601,11 +4823,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g1g4Priv.getOwnerGroupId(), g1g4Priv.getMemberUuid(), g1g4Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
 
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :groupId")
@@ -4624,11 +4841,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g1g5Priv.getOwnerGroupId(), g1g5Priv.getMemberUuid(), g1g5Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerGroupId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :stemId")
@@ -4647,11 +4859,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(s0g4Priv.getOwnerStemId(), s0g4Priv.getMemberUuid(), s0g4Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerStemId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :stemId")
@@ -4670,11 +4877,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(s0g5Priv.getOwnerStemId(), s0g5Priv.getMemberUuid(), s0g5Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerStemId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :attrDefId")
@@ -4693,11 +4895,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(a0g4Priv.getOwnerAttrDefId(), a0g4Priv.getMemberUuid(), a0g4Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerAttrDefId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :attrDefId")
@@ -4716,11 +4913,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(a0g5Priv.getOwnerAttrDefId(), a0g5Priv.getMemberUuid(), a0g5Priv.getFieldId());
-    assertNotNull(flatMship);
-    assertEquals("Verify owner id", flatMship.getOwnerId(), flatMship.getOwnerAttrDefId());
-    assertEquals("Context id's should match", changeLogEntry.getContextId(), flatMship.getContextId());
   }
   
 
@@ -4746,10 +4938,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    FlatMembership flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g4Mship.getOwnerGroupId(), g3g4Mship.getMemberUuid(), g3g4Mship.getFieldId());
-    assertNull(flatMship);
-    
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string06 = :groupId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
@@ -4765,9 +4953,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g3g5Mship.getOwnerGroupId(), g3g5Mship.getMemberUuid(), g3g5Mship.getFieldId());
-    assertNull(flatMship);
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string06 = :groupId")
@@ -4784,10 +4969,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g2g4Mship.getOwnerGroupId(), g2g4Mship.getMemberUuid(), g2g4Mship.getFieldId());
-    assertNull(flatMship);
-
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string06 = :groupId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
@@ -4803,10 +4984,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g2g5Mship.getOwnerGroupId(), g2g5Mship.getMemberUuid(), g2g5Mship.getFieldId());
-    assertNull(flatMship);
-    
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :groupId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
@@ -4824,9 +5001,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
 
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g1g4Priv.getOwnerGroupId(), g1g4Priv.getMemberUuid(), g1g4Priv.getFieldId());
-    assertNull(flatMship);
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :groupId")
@@ -4845,9 +5019,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(g1g5Priv.getOwnerGroupId(), g1g5Priv.getMemberUuid(), g1g5Priv.getFieldId());
-    assertNull(flatMship);
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :stemId")
@@ -4866,10 +5037,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(s0g4Priv.getOwnerStemId(), s0g4Priv.getMemberUuid(), s0g4Priv.getFieldId());
-    assertNull(flatMship);
-    
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :stemId")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
@@ -4887,9 +5054,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(s0g5Priv.getOwnerStemId(), s0g5Priv.getMemberUuid(), s0g5Priv.getFieldId());
-    assertNull(flatMship);
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :attrDefId")
@@ -4908,9 +5072,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(a0g4Priv.getOwnerAttrDefId(), a0g4Priv.getMemberUuid(), a0g4Priv.getFieldId());
-    assertNull(flatMship);
     
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subjectId and string07 = :attrDefId")
@@ -4929,9 +5090,6 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType));
     assertEquals(changeLogEntry.getContextId(), contextId);
     
-    flatMship = GrouperDAOFactory.getFactory().getFlatMembership()
-      .findByOwnerAndMemberAndField(a0g5Priv.getOwnerAttrDefId(), a0g5Priv.getMemberUuid(), a0g5Priv.getFieldId());
-    assertNull(flatMship);
   }
   
   /** top level stem */

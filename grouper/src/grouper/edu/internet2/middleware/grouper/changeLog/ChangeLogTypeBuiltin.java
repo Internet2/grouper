@@ -86,18 +86,28 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * assign group type
    */
-  GROUP_TYPE_ASSIGN(new ChangeLogType("groupTypeAssignment", "assignGroupType", "id", "groupId", "groupName", "typeId", "typeName")),
+  GROUP_TYPE_ASSIGN(new ChangeLogType("groupTypeAssignment", "assignGroupType", 
+      ChangeLogLabels.GROUP_TYPE_ASSIGN.id, 
+      ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId, 
+      ChangeLogLabels.GROUP_TYPE_ASSIGN.groupName, 
+      ChangeLogLabels.GROUP_TYPE_ASSIGN.typeId, 
+      ChangeLogLabels.GROUP_TYPE_ASSIGN.typeName)),
   
   /**
    * unassign group type
    */
-  GROUP_TYPE_UNASSIGN(new ChangeLogType("groupTypeAssignment", "unassignGroupType", "id", "groupId", "groupName", "typeId", "typeName")),
+  GROUP_TYPE_UNASSIGN(new ChangeLogType("groupTypeAssignment", "unassignGroupType", 
+      ChangeLogLabels.GROUP_TYPE_UNASSIGN.id, 
+      ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId, 
+      ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupName, 
+      ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId, 
+      ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeName)),
 
   /**
    * add membership
    */
   MEMBERSHIP_ADD(new ChangeLogType("membership", "addMembership", 
-      null, 
+      ChangeLogLabels.MEMBERSHIP_ADD.id, 
       ChangeLogLabels.MEMBERSHIP_ADD.fieldName,  
       ChangeLogLabels.MEMBERSHIP_ADD.subjectId, 
       ChangeLogLabels.MEMBERSHIP_ADD.sourceId, 
@@ -111,7 +121,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * update membership
    */
   MEMBERSHIP_UPDATE(new ChangeLogType("membership", "updateMembership", 
-      null, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.id, 
       ChangeLogLabels.MEMBERSHIP_UPDATE.fieldName,  
       ChangeLogLabels.MEMBERSHIP_UPDATE.subjectId, 
       ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId, 
@@ -126,7 +136,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * delete membership
    */
   MEMBERSHIP_DELETE(new ChangeLogType("membership", "deleteMembership", 
-      null, 
+      ChangeLogLabels.MEMBERSHIP_DELETE.id, 
       ChangeLogLabels.MEMBERSHIP_DELETE.fieldName,  
       ChangeLogLabels.MEMBERSHIP_DELETE.subjectId, 
       ChangeLogLabels.MEMBERSHIP_DELETE.sourceId, 
@@ -140,7 +150,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * add privilege
    */
   PRIVILEGE_ADD(new ChangeLogType("privilege", "addPrivilege", 
-      null, 
+      ChangeLogLabels.PRIVILEGE_ADD.id, 
       ChangeLogLabels.PRIVILEGE_ADD.privilegeName, 
       ChangeLogLabels.PRIVILEGE_ADD.subjectId, 
       ChangeLogLabels.PRIVILEGE_ADD.sourceId, 
@@ -156,7 +166,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * update privilege
    */
   PRIVILEGE_UPDATE(new ChangeLogType("privilege", "updatePrivilege",
-      null, 
+      ChangeLogLabels.PRIVILEGE_UPDATE.id, 
       ChangeLogLabels.PRIVILEGE_UPDATE.privilegeName, 
       ChangeLogLabels.PRIVILEGE_UPDATE.subjectId, 
       ChangeLogLabels.PRIVILEGE_UPDATE.sourceId, 
@@ -170,7 +180,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    * delete privilege
    */
   PRIVILEGE_DELETE(new ChangeLogType("privilege", "deletePrivilege",
-      null, 
+      ChangeLogLabels.PRIVILEGE_DELETE.id, 
       ChangeLogLabels.PRIVILEGE_DELETE.privilegeName, 
       ChangeLogLabels.PRIVILEGE_DELETE.subjectId, 
       ChangeLogLabels.PRIVILEGE_DELETE.sourceId, 
@@ -251,7 +261,36 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.STEM_DELETE.id, ChangeLogLabels.STEM_DELETE.name, ChangeLogLabels.STEM_DELETE.parentStemId,
       ChangeLogLabels.STEM_DELETE.displayName, ChangeLogLabels.STEM_DELETE.description)),
 
-  
+  /**
+   * member add
+   */
+  MEMBER_ADD(new ChangeLogType("member", "addMember",
+      ChangeLogLabels.MEMBER_ADD.id,
+      ChangeLogLabels.MEMBER_ADD.subjectId,
+      ChangeLogLabels.MEMBER_ADD.subjectSourceId,
+      ChangeLogLabels.MEMBER_ADD.subjectTypeId)),
+      
+  /**
+   * member add
+   */
+  MEMBER_UPDATE(new ChangeLogType("member", "updateMember",
+      ChangeLogLabels.MEMBER_UPDATE.id,
+      ChangeLogLabels.MEMBER_UPDATE.subjectId,
+      ChangeLogLabels.MEMBER_UPDATE.subjectSourceId,
+      ChangeLogLabels.MEMBER_UPDATE.subjectTypeId,
+      ChangeLogLabels.MEMBER_UPDATE.propertyChanged,
+      ChangeLogLabels.MEMBER_UPDATE.propertyOldValue,
+      ChangeLogLabels.MEMBER_UPDATE.propertyNewValue)),
+      
+  /**
+   * member add
+   */
+  MEMBER_DELETE(new ChangeLogType("member", "deleteMember",
+      ChangeLogLabels.MEMBER_DELETE.id,
+      ChangeLogLabels.MEMBER_DELETE.subjectId,
+      ChangeLogLabels.MEMBER_DELETE.subjectSourceId,
+      ChangeLogLabels.MEMBER_DELETE.subjectTypeId)),
+      
   /**
    * member change subject
    */

@@ -19,7 +19,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.USDU;
@@ -39,9 +38,6 @@ public class GrouperReport {
   
   /** whether to find bad memberships */
   private boolean findBadMemberships = false;
-  
-  /** whether to sync flat tables */
-  private boolean syncFlatTables = false;
 
   /**
    * logger 
@@ -75,16 +71,6 @@ public class GrouperReport {
     this.findBadMemberships = findBadMemberships;
     return this;
   }
-  
-  /**
-   * Whether or not to sync flat tables as part of the report.  Defaults to false.
-   * @param syncFlatTables
-   * @return GrouperReport
-   */
-  public GrouperReport syncFlatTables(boolean syncFlatTables) {
-    this.syncFlatTables = syncFlatTables;
-    return this;
-  }
 
   /**
    * format with commas
@@ -108,7 +94,7 @@ public class GrouperReport {
    */
   public static String report(boolean findUnresolvables, boolean findBadMemberships) {
     return new GrouperReport().findBadMemberships(findBadMemberships)
-      .findUnresolvables(findUnresolvables).syncFlatTables(false).runReport();
+      .findUnresolvables(findUnresolvables).runReport();
   }
   
   /**
@@ -184,35 +170,7 @@ public class GrouperReport {
         }
       }
       result.append("bad memberships:       ").append(badMembershipResults).append("\n");
-      
-      
-      String syncFlatTablesResults = "Not configured to compute this today";
-      String syncFlatTablesReport = null;
-      long syncFlatTablesCount = 0;
-      if (syncFlatTables) {
-        boolean saveUpdates = GrouperLoaderConfig.getPropertyBoolean("daily.report.syncFlatTables.saveUpdates", true);
-        SyncFlatTables sync = new SyncFlatTables();
-        syncFlatTablesCount = sync
-          .logDetails(true)
-          .createReport(true)
-          .showResults(false)
-          .sendNotifications(GrouperLoaderConfig.getPropertyBoolean("daily.report.syncFlatTables.sendNotifications", true))
-          .saveUpdates(saveUpdates)
-          .syncAllFlatTables();
-        syncFlatTablesReport = sync.getDetailedOutput();
 
-        if (syncFlatTablesCount == 0) {
-          syncFlatTablesResults = "No issues found";
-        } else {
-          syncFlatTablesResults = syncFlatTablesCount + " issues found";
-          if (saveUpdates) {
-            syncFlatTablesResults += " and fixed";
-          }
-          syncFlatTablesResults += ".  Report below.";
-        }
-      }
-      result.append("sync flat tables:      ").append(syncFlatTablesResults).append("\n");
-      
       
       result.append("\n----------------\n");
       result.append("WITHIN LAST DAY:\n");
@@ -379,13 +337,6 @@ public class GrouperReport {
         result.append("----------------\n");
         result.append(badMembershipGshScript);
         
-      }
-      
-      if (syncFlatTablesCount > 0) {
-        result.append("\n----------------\n");
-        result.append("SYNC FLAT TABLES REPORT\n");
-        result.append("----------------\n");
-        result.append(syncFlatTablesReport);
       }
       
       result.append("\n----------------\n");

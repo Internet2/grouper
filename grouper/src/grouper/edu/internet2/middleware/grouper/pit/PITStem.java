@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.flat;
+package edu.internet2.middleware.grouper.pit;
 
 import java.util.Set;
 
@@ -7,72 +7,58 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-
 /**
- * @author shilen 
+ * @author shilen
  * $Id$
  */
 @SuppressWarnings("serial")
-public class FlatAttributeDef extends GrouperAPI implements Hib3GrouperVersioned {
-  
+public class PITStem extends GrouperAPI implements Hib3GrouperVersioned {
+
   /** db id for this row */
   public static final String COLUMN_ID = "id";
-  
+
   /** Context id links together multiple operations into one high level action */
   public static final String COLUMN_CONTEXT_ID = "context_id";
 
-  /** attribute def id foreign key in grouper_attribute_def table */
-  public static final String COLUMN_ATTRIBUTE_DEF_ID = "attribute_def_id";
-  
+  /** name */
+  public static final String COLUMN_NAME = "name";
+
   /** hibernate version */
   public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
-  
-  
-  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  
   /** constant for field name for: contextId */
   public static final String FIELD_CONTEXT_ID = "contextId";
 
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
 
-  /** constant for field name for: attributeDefId */
-  public static final String FIELD_ATTRIBUTE_DEF_ID = "attributeDefId";
+  /** constant for field name for: name */
+  public static final String FIELD_NAME = "name";
 
-
-  /**
-   * fields which are included in db version
-   */
-  /*
-  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CONTEXT_ID, FIELD_ID, FIELD_ATTRIBUTE_DEF_ID);
-  */
-  
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, 
-      FIELD_ATTRIBUTE_DEF_ID);
+      FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
+      FIELD_NAME);
 
-  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
-  
 
   /**
    * name of the table in the database.
    */
-  public static final String TABLE_GROUPER_FLAT_ATTRIBUTE_DEF = "grouper_flat_attribute_def";
+  public static final String TABLE_GROUPER_PIT_STEMS = "grouper_pit_stems";
 
   /** id of this type */
   private String id;
-  
+
   /** context id ties multiple db changes */
   private String contextId;
-  
-  /** attribute def id foreign key in grouper_attribute_def table*/
-  private String attributeDefId;
-  
+
+  /** name */
+  private String name;
+
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
    */
@@ -87,7 +73,7 @@ public class FlatAttributeDef extends GrouperAPI implements Hib3GrouperVersioned
   public String getContextId() {
     return contextId;
   }
-  
+
   /**
    * set context id
    * @param contextId
@@ -102,42 +88,48 @@ public class FlatAttributeDef extends GrouperAPI implements Hib3GrouperVersioned
   public String getId() {
     return id;
   }
-  
+
   /**
    * set id
    * @param id
    */
   public void setId(String id) {
     this.id = id;
-    this.attributeDefId = id;
   }
 
   /**
-   * @return attribute def id foreign key in grouper_attribute_def table
+   * @return name
    */
-  public String getAttributeDefId() {
-    return attributeDefId;
+  public String getName() {
+    return name;
+  }
+  
+  /**
+   * @return name
+   */
+  public String getNameDb() {
+    return name;
   }
 
   /**
-   * Set attribute def id foreign key in grouper_attribute_def table
-   * @param attributeDefId
+   * Set name
+   * @param name
    */
-  public void setAttributeDefId(String attributeDefId) {
-    this.attributeDefId = attributeDefId;
+  public void setNameDb(String name) {
+    this.name = name;
   }
 
   /**
    * save or update this object
    */
   public void saveOrUpdate() {
-    GrouperDAOFactory.getFactory().getFlatAttributeDef().saveOrUpdate(this);
+    GrouperDAOFactory.getFactory().getPITStem().saveOrUpdate(this);
   }
-  
+
   /**
    * delete this object
    */
   public void delete() {
-    GrouperDAOFactory.getFactory().getFlatAttributeDef().delete(this);
+    GrouperDAOFactory.getFactory().getPITStem().delete(this);
   }
 }

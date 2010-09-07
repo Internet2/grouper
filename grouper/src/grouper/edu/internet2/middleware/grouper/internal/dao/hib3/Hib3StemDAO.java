@@ -265,10 +265,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     
     // delete the group set
     GrouperDAOFactory.getFactory().getGroupSet().deleteSelfByOwnerStem(_ns.getUuid());
-    
-    // remove foreign keys in flat table
-    GrouperDAOFactory.getFactory().getFlatStem().removeStemForeignKey(_ns.getUuid());
-    
+
     try {
       HibernateSession.byObjectStatic().delete(_ns);
     } catch (GrouperDAOException e) {

@@ -136,10 +136,14 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3GrouperDdl.class);
       addClass(CFG, Hib3GrouperLoaderLog.class);
       addClass(CFG, Hib3GroupSetDAO.class);
-      addClass(CFG, Hib3FlatMembershipDAO.class);
-      addClass(CFG, Hib3FlatGroupDAO.class);
-      addClass(CFG, Hib3FlatStemDAO.class);
-      addClass(CFG, Hib3FlatAttributeDefDAO.class);
+      addClass(CFG, Hib3PITGroupDAO.class);
+      addClass(CFG, Hib3PITStemDAO.class);
+      addClass(CFG, Hib3PITAttributeDefDAO.class);
+      addClass(CFG, Hib3PITMemberDAO.class);
+      addClass(CFG, Hib3PITFieldDAO.class);
+      addClass(CFG, Hib3PITMembershipDAO.class);
+      addClass(CFG, Hib3PITGroupSetDAO.class);
+      addClass(CFG, Hib3PITMembershipViewDAO.class);
       CFG.setInterceptor(new Hib3SessionInterceptor());
       
       //if we are testing, map these classes to the table (which may or may not exist)

@@ -22,11 +22,11 @@
 
 <!-- $Id$ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.flat">
+<hibernate-mapping package="edu.internet2.middleware.grouper.pit" default-lazy="false">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="FlatAttributeDef" table="grouper_flat_attribute_def" optimistic-lock="version">
+  <class name="PITField" table="grouper_pit_fields" optimistic-lock="version">
 
     <!-- id -->
     <id name="id" column="id" type="string" unsaved-value="none" length="40">
@@ -36,10 +36,10 @@
 
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
-
     <property name="contextId" column="context_id"/>
-    <property name="attributeDefId" column="attribute_def_id"/>
 
+    <property name="nameDb" column="name" />
+    <property name="typeDb" column="type" />
   </class>
 </hibernate-mapping>
 

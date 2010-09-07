@@ -382,7 +382,7 @@ public class help {
     i.println("* XmlExport: type  help(\"XmlExport\")  for more info on xml export");
     i.println("* XmlImport: type  help(\"XmlImport\")  for more info on xml import");
     i.println("* version()"                                           );
-    i.println("* GrouperReport: new GrouperReport().findBadMemberships(boolean).findUnresolvables(boolean).syncFlatTables(boolean).runReport();");
+    i.println("* GrouperReport: new GrouperReport().findBadMemberships(boolean).findUnresolvables(boolean).runReport();");
     i.println(""                                                      );
     i.println("# VARIABLES");
     i.println("* GSH_DEBUG=true");

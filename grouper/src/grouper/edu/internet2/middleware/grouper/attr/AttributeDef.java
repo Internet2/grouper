@@ -1242,6 +1242,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext,
    */
   public void setExtension(String extension1) {
     this.extension = extension1;
+    this.name = GrouperUtil.parentStemNameFromName(this.name) + ":" + this.extension;
   }
 
   /**

@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.member.AllMemberTests;
 import edu.internet2.middleware.grouper.membership.AllMembershipTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.permissions.AllPermissionsTests;
+import edu.internet2.middleware.grouper.pit.AllPITTests;
 import edu.internet2.middleware.grouper.privs.AllPrivsTests;
 import edu.internet2.middleware.grouper.rules.AllRulesTests;
 import edu.internet2.middleware.grouper.stress.AllStressTests;
@@ -201,6 +202,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllMembershipTests.suite());
     suite.addTest(AllMiscTests.suite());
     suite.addTest(AllPermissionsTests.suite());
+    suite.addTest(AllPITTests.suite());
     suite.addTest(AllPrivsTests.suite());
     suite.addTest(AllRulesTests.suite());
 

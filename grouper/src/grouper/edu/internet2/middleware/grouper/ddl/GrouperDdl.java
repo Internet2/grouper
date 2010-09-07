@@ -40,10 +40,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
-import edu.internet2.middleware.grouper.flat.FlatAttributeDef;
-import edu.internet2.middleware.grouper.flat.FlatGroup;
-import edu.internet2.middleware.grouper.flat.FlatMembership;
-import edu.internet2.middleware.grouper.flat.FlatStem;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -52,6 +48,13 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITGroupSet;
+import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITMembership;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -497,7 +500,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * add flat tables, add column to grouper_attribute_assign_value, remove composite memberships where the member is a group,
+   * add column to grouper_attribute_assign_value, remove composite memberships where the member is a group,
    * add owner_id column to grouper_group_set
    * </pre>
    */
@@ -510,8 +513,6 @@ public enum GrouperDdl implements DdlVersionable {
     @Override
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
-
-      addFlatTables(database);
       
       addAttributeFloatValueCol(database);
 
@@ -611,6 +612,51 @@ public enum GrouperDdl implements DdlVersionable {
       
       addGrouperLoaderJobNameIndex(database, ddlVersionBean);
       
+    }
+  },
+  
+  /**
+   * <pre>
+   * Delete flat tables, add PIT tables, update unique index in grouper_group_set
+   * </pre>
+   */
+  V24 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      Table table = database.findTable("grouper_flat_memberships");
+      if (table != null) {
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_memberships");
+      }
+      
+      table = database.findTable("grouper_flat_groups");
+      if (table != null) {
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_groups");
+      }
+      
+      table = database.findTable("grouper_flat_stems");
+      if (table != null) {
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_stems");
+      }
+      
+      table = database.findTable("grouper_flat_attribute_def");
+      if (table != null) {
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_flat_attribute_def");
+      }
+
+      addPITTables(ddlVersionBean, database);
+      
+      Table grouperGroupSet = GrouperDdlUtils.ddlutilsFindTable(database, GroupSet.TABLE_GROUPER_GROUP_SET);
+
+      GrouperDdlUtils.ddlutilsDropIndexes(grouperGroupSet, "owner_group_id_null");
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
+          "group_set_uniq_idx", true, "member_id", "field_id", "owner_id", "parent_id", "mship_type");
     }
   },
   
@@ -1781,8 +1827,8 @@ public enum GrouperDdl implements DdlVersionable {
       addChangeLogTables(ddlVersionBean, database);
 
       addPrivilegeManagement(ddlVersionBean, database, groupsTableNew);
-      
-      addFlatTables(database);
+            
+      addPITTables(ddlVersionBean, database);
     }
 
   }, 
@@ -2137,6 +2183,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_mship_stem_lw_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_pit_memberships_all_v");
     
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_role_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v");
@@ -2638,74 +2685,7 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
         GroupSet.TABLE_GROUPER_GROUP_SET, GroupSet.COLUMN_MEMBER_FIELD_ID, "used to join with the field_id column in the grouper_memberships table");
-    
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_ID, "db id for this row");
 
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_OWNER_ID, "owner id");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_OWNER_ATTR_DEF_ID, "owner attr def if applicable");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_OWNER_GROUP_ID, "owner group if applicable");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_OWNER_STEM_ID, "owner stem if applicable");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_MEMBER_ID, "member id");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_FIELD_ID, "field represented by this membership");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS, FlatMembership.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
-    
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatGroup.TABLE_GROUPER_FLAT_GROUPS, FlatGroup.COLUMN_ID, "db id for this row");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatGroup.TABLE_GROUPER_FLAT_GROUPS, FlatGroup.COLUMN_GROUP_ID, "group id foreign key in grouper_groups table");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatGroup.TABLE_GROUPER_FLAT_GROUPS, FlatGroup.COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatGroup.TABLE_GROUPER_FLAT_GROUPS, FlatGroup.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
-    
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatStem.TABLE_GROUPER_FLAT_STEMS, FlatStem.COLUMN_ID, "db id for this row");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatStem.TABLE_GROUPER_FLAT_STEMS, FlatStem.COLUMN_STEM_ID, "stem id foreign key in grouper_stems table");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatStem.TABLE_GROUPER_FLAT_STEMS, FlatStem.COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatStem.TABLE_GROUPER_FLAT_STEMS, FlatStem.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
-    
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatAttributeDef.TABLE_GROUPER_FLAT_ATTRIBUTE_DEF, FlatAttributeDef.COLUMN_ID, "db id for this row");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatAttributeDef.TABLE_GROUPER_FLAT_ATTRIBUTE_DEF, FlatAttributeDef.COLUMN_ATTRIBUTE_DEF_ID, "attribute def id foreign key in grouper_attribute_def table");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatAttributeDef.TABLE_GROUPER_FLAT_ATTRIBUTE_DEF, FlatAttributeDef.COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
-    
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean,
-        FlatAttributeDef.TABLE_GROUPER_FLAT_ATTRIBUTE_DEF, FlatAttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
-    
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
         Stem.TABLE_GROUPER_STEMS, "entries for stems and their attributes");
@@ -3041,31 +3021,7 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_group_set_member_stem_id", Stem.TABLE_GROUPER_STEMS, GroupSet.COLUMN_MEMBER_STEM_ID, Stem.COLUMN_ID);
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, GroupSet.TABLE_GROUPER_GROUP_SET, 
         "fk_group_set_member_field_id", Field.TABLE_GROUPER_FIELDS, GroupSet.COLUMN_MEMBER_FIELD_ID, "id");
-    
 
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS,
-        "fk_flat_mship_field_id", Field.TABLE_GROUPER_FIELDS, FlatMembership.COLUMN_FIELD_ID, "id");
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS,
-        "fk_flat_mship_owner_attrdef_id", FlatAttributeDef.TABLE_GROUPER_FLAT_ATTRIBUTE_DEF, FlatMembership.COLUMN_OWNER_ATTR_DEF_ID, FlatAttributeDef.COLUMN_ID);
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS,
-        "fk_flat_mship_owner_group_id", FlatGroup.TABLE_GROUPER_FLAT_GROUPS, FlatMembership.COLUMN_OWNER_GROUP_ID, FlatGroup.COLUMN_ID);
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS,
-        "fk_flat_mship_owner_stem_id", FlatStem.TABLE_GROUPER_FLAT_STEMS, FlatMembership.COLUMN_OWNER_STEM_ID, FlatStem.COLUMN_ID);
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS,
-        "fk_flat_mship_member_id", Member.TABLE_GROUPER_MEMBERS, FlatMembership.COLUMN_MEMBER_ID, memberIdCol);
-
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, FlatGroup.TABLE_GROUPER_FLAT_GROUPS,
-        "fk_flat_group_group_id", Group.TABLE_GROUPER_GROUPS, FlatGroup.COLUMN_GROUP_ID, Group.COLUMN_ID);
-
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, FlatStem.TABLE_GROUPER_FLAT_STEMS,
-        "fk_flat_stem_stem_id", Stem.TABLE_GROUPER_STEMS, FlatStem.COLUMN_STEM_ID, Stem.COLUMN_ID);
-    
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, FlatAttributeDef.TABLE_GROUPER_FLAT_ATTRIBUTE_DEF,
-        "fk_flat_attrdef_attrdef_id", AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, FlatAttributeDef.COLUMN_ATTRIBUTE_DEF_ID, AttributeDef.COLUMN_ID);
-    
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Stem.TABLE_GROUPER_STEMS, 
         "fk_stems_parent_stem", Stem.TABLE_GROUPER_STEMS, "parent_stem", stemIdCol);
@@ -3076,7 +3032,40 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_types", 
         "fk_types_creator_uuid", Member.TABLE_GROUPER_MEMBERS, "creator_uuid", memberIdCol);
-  
+
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS,
+        "fk_pit_ms_owner_attrdef_id", PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF, PITMembership.COLUMN_OWNER_ATTR_DEF_ID, PITAttributeDef.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS,
+        "fk_pit_ms_owner_group_id", PITGroup.TABLE_GROUPER_PIT_GROUPS, PITMembership.COLUMN_OWNER_GROUP_ID, PITGroup.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS,
+        "fk_pit_ms_owner_stem_id", PITStem.TABLE_GROUPER_PIT_STEMS, PITMembership.COLUMN_OWNER_STEM_ID, PITStem.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS,
+        "fk_pit_ms_member_id", PITMember.TABLE_GROUPER_PIT_MEMBERS, PITMembership.COLUMN_MEMBER_ID, PITMember.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS,
+        "fk_pit_ms_field_id", PITField.TABLE_GROUPER_PIT_FIELDS, PITMembership.COLUMN_FIELD_ID, PITField.COLUMN_ID);
+
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_owner_attrdef_id", PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF, PITGroupSet.COLUMN_OWNER_ATTR_DEF_ID, PITAttributeDef.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_owner_group_id", PITGroup.TABLE_GROUPER_PIT_GROUPS, PITGroupSet.COLUMN_OWNER_GROUP_ID, PITGroup.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_owner_stem_id", PITStem.TABLE_GROUPER_PIT_STEMS, PITGroupSet.COLUMN_OWNER_STEM_ID, PITStem.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_member_attrdef_id", PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF, PITGroupSet.COLUMN_MEMBER_ATTR_DEF_ID, PITAttributeDef.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_member_group_id", PITGroup.TABLE_GROUPER_PIT_GROUPS, PITGroupSet.COLUMN_MEMBER_GROUP_ID, PITGroup.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_member_stem_id", PITStem.TABLE_GROUPER_PIT_STEMS, PITGroupSet.COLUMN_MEMBER_STEM_ID, PITStem.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_field_id", PITField.TABLE_GROUPER_PIT_FIELDS, PITGroupSet.COLUMN_FIELD_ID, PITField.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_member_field_id", PITField.TABLE_GROUPER_PIT_FIELDS, PITGroupSet.COLUMN_MEMBER_FIELD_ID, PITField.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET,
+        "fk_pit_gs_parent_id", PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET, PITGroupSet.COLUMN_PARENT_ID, PITGroupSet.COLUMN_ID);
+ 
+    
     //now lets add views
     if (buildingAudits) {
       GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_audit_entry_v",
@@ -3214,73 +3203,6 @@ public enum GrouperDdl implements DdlVersionable {
              "  FROM grouper_change_log_type gclt, grouper_change_log_entry gcle " +
              " WHERE gclt.id = gcle.change_log_type_id");
 
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_attr_flat_lw_v",
-        "Lightweight view of memberships on attribute definitions, i.e. the privileges of attribute definitions, on the flat tables",
-        GrouperUtil.toSet("subject_id", "subject_source", 
-            "attribute_def_name" , "list_name", "list_type",
-            "attribute_def_id"),
-         GrouperUtil.toSet(
-             "subject_id: subject id of the subject of the membership", 
-             "subject_source: source of the subject of this membership", 
-             "attribute_def_name: name of the attribute_def that this membership is on" , 
-             "list_name: list name of this membership e.g. attrViewers", 
-             "list_type: type of this membership, e.g. attributeDef",
-             "attribute_def_id: id of this attribute_def"),
-             "SELECT gm.subject_id, gm.subject_source, " +
-             "       gad.name as attribute_def_name, gf.name as list_name, gf.type as list_type, " +
-             "       gad.id as attribute_def_id " +
-             "  FROM grouper_flat_memberships gfm, " +
-             "       grouper_attribute_def gad, " +
-             "       grouper_fields gf, " +
-             "       grouper_members gm " +
-             " WHERE gfm.owner_stem_id = gad.id " +
-             "   AND gfm.field_id = gf.id " +
-             "   AND gfm.member_id = gm.id ");
-
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_group_flat_lw_v",
-        "Lightweight view of memberships on grouper, i.e. the members or privileges of groups, on the flat tables",
-        GrouperUtil.toSet("subject_id", "subject_source", 
-            "group_name" , "list_name", "list_type",
-            "group_id"),
-         GrouperUtil.toSet(
-             "subject_id: subject id of the subject of the membership", 
-             "subject_source: source of the subject of this membership", 
-             "group_name: name of the group that this membership is on" , 
-             "list_name: list name of this membership e.g. viewers", 
-             "list_type: type of this membership, e.g. list or access",
-             "group_id: id of this group"),
-             "SELECT gm.subject_id as subject_id, gm.subject_source as subject_source, " +
-             "       gg.name as group_name, gf.name as list_name, gf.type as list_type, " +
-             "       gg.id as group_id " +
-             "  FROM grouper_flat_memberships gfm, " +
-             "       grouper_groups gg, " +
-             "       grouper_fields gf, " +
-             "       grouper_members gm " +
-             " WHERE gfm.owner_group_id = gg.id " +
-             "   AND gfm.field_id = gf.id " +
-             "   AND gfm.member_id = gm.id ");
-
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_stem_flat_lw_v",
-        "Lightweight view of memberships on stems, i.e. the privileges of stem, on the flat tables",
-        GrouperUtil.toSet("subject_id", "subject_source", 
-            "stem_name" , "list_name", "list_type",
-            "stem_id"),
-         GrouperUtil.toSet(
-             "subject_id: subject id of the subject of the membership", 
-             "subject_source: source of the subject of this membership", 
-             "stem_name: name of the stem that this membership is on" , 
-             "list_name: list name of this membership e.g. creators or stemmers", 
-             "list_type: type of this membership, e.g. naming",
-             "stem_id: id of this stem"),
-             "SELECT gm.subject_id, gm.subject_source, " +
-             "       gs.name as stem_name, gf.name as list_name, gf.type as list_type, gs.id as stem_id " +
-             "  FROM grouper_flat_memberships gfm, " +
-             "       grouper_stems gs, " +
-             "       grouper_fields gf, " +
-             "       grouper_members gm " +
-             " WHERE gfm.owner_stem_id = gs.id " +
-             "   AND gfm.field_id = gf.id " +
-             "   AND gfm.member_id = gm.id ");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attributes_v",
         "Join of groups and attributes with friendly names.  Attributes are name/value pairs for groups.  " +
@@ -3615,6 +3537,65 @@ public enum GrouperDdl implements DdlVersionable {
             + "from grouper_memberships ms, grouper_group_set gs "
             + "where ms.owner_id = gs.member_id and ms.field_id = gs.member_field_id");
 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_pit_memberships_all_v", 
+        "Grouper_pit_memberships_all_v holds one record for each immediate, composite and effective membership or privilege in the system that currently exists or has existed in the past for members to groups or stems (for privileges).",
+        GrouperUtil.toSet("ID", 
+            "MEMBERSHIP_ID", 
+            "GROUP_SET_ID", 
+            "MEMBER_ID", 
+            "FIELD_ID", 
+            "MEMBERSHIP_FIELD_ID", 
+            "OWNER_ID", 
+            "OWNER_ATTR_DEF_ID", 
+            "OWNER_GROUP_ID", 
+            "OWNER_STEM_ID", 
+            "GROUP_SET_ACTIVE", 
+            "GROUP_SET_START_TIME", 
+            "GROUP_SET_END_TIME", 
+            "MEMBERSHIP_ACTIVE", 
+            "MEMBERSHIP_START_TIME", 
+            "MEMBERSHIP_END_TIME", 
+            "DEPTH", 
+            "GROUP_SET_PARENT_ID"),
+        GrouperUtil.toSet("ID:", 
+            "MEMBERSHIP_ID:", 
+            "GROUP_SET_ID:", 
+            "MEMBER_ID:", 
+            "FIELD_ID:", 
+            "MEMBERSHIP_FIELD_ID:", 
+            "OWNER_ID:", 
+            "OWNER_ATTR_DEF_ID:", 
+            "OWNER_GROUP_ID:", 
+            "OWNER_STEM_ID:", 
+            "GROUP_SET_ACTIVE:", 
+            "GROUP_SET_START_TIME:", 
+            "GROUP_SET_END_TIME:", 
+            "MEMBERSHIP_ACTIVE:", 
+            "MEMBERSHIP_START_TIME:", 
+            "MEMBERSHIP_END_TIME:", 
+            "DEPTH:", 
+            "GROUP_SET_PARENT_ID:"),
+            "select "
+            + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
+            + "ms.id as immediate_membership_id, "
+            + "gs.id as group_set_id, "
+            + "ms.member_id, "
+            + "gs.field_id, "
+            + "ms.field_id, "
+            + "gs.owner_id, "
+            + "gs.owner_attr_def_id, "
+            + "gs.owner_group_id, "
+            + "gs.owner_stem_id, " 
+            + "gs.active, "
+            + "gs.start_time, "
+            + "gs.end_time, "
+            + "ms.active, "
+            + "ms.start_time, "
+            + "ms.end_time, "
+            + "gs.depth, " 
+            + "gs.parent_id as group_set_parent_id "
+            + "from grouper_pit_memberships ms, grouper_pit_group_set gs "
+            + "where ms.owner_id = gs.member_id and ms.field_id = gs.member_field_id");
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_lw_v", 
         "Grouper_memberships_lw_v unique membership records that can be read from a SQL interface outside of grouper.  Immediate and effective memberships are represented here (distinct)",
@@ -3902,7 +3883,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "(select count(*) from grouper_attributes ga where ga.GROUP_ID = gg.id) as attribute_count, "
         + "(select count(*) from grouper_groups_types ggt where ggt.GROUP_UUID = gg.id) as roles_types_count, "
         + "(select count(*) from grouper_composites gc where gc.LEFT_FACTOR = gg.id or gc.RIGHT_FACTOR = gg.id) as isa_composite_factor_count, "
-        + "(select count(distinct gms.OWNER_group_ID) from grouper_flat_memberships gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
+        + "(select count(distinct gms.OWNER_group_ID) from grouper_memberships_all_v gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
         + "gg.ID as role_id "
         + "from grouper_groups gg  where gg.type_of_group = 'role' ");
 
@@ -3948,9 +3929,9 @@ public enum GrouperDdl implements DdlVersionable {
             + "(select count(*) from grouper_stems gs2 where gs.id = gs2.parent_stem ) as stem_immediate_count, "
             + "(select count(*) from grouper_groups gg where gg.name like " + GrouperDdlUtils.sqlConcatenation("gs.name", "'%'") +  ") as group_count, "
             + "(select count(*) from grouper_stems gs2 where gs2.name like " + GrouperDdlUtils.sqlConcatenation("gs.name", "'%'") +  ") as stem_count, "
-            + "(select count(distinct gm.member_id) from grouper_flat_memberships gm where gm.owner_stem_id = gs.id) as this_stem_membership_count,  "
-            + "(select count(distinct gm.member_id) from grouper_flat_memberships gm, grouper_groups gg where gg.parent_stem = gs.id and gm.owner_stem_id = gg.id) as child_group_membership_count,  "
-            + "(select count(distinct gm.member_id) from grouper_flat_memberships gm, grouper_groups gg where gm.owner_group_id = gg.id and gg.name like " + GrouperDdlUtils.sqlConcatenation("gs.name", "'%'") +  ") as group_membership_count, "
+            + "(select count(distinct gm.member_id) from grouper_memberships_all_v gm where gm.owner_stem_id = gs.id) as this_stem_membership_count,  "
+            + "(select count(distinct gm.member_id) from grouper_memberships_all_v gm, grouper_groups gg where gg.parent_stem = gs.id and gm.owner_stem_id = gg.id) as child_group_membership_count,  "
+            + "(select count(distinct gm.member_id) from grouper_memberships_all_v gm, grouper_groups gg where gm.owner_group_id = gg.id and gg.name like " + GrouperDdlUtils.sqlConcatenation("gs.name", "'%'") +  ") as group_membership_count, "
             + "gs.ID as stem_id "
             + "from grouper_stems gs ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_types_v", 
@@ -5679,8 +5660,7 @@ public enum GrouperDdl implements DdlVersionable {
     // Also having a member_id, field_id index seems to be helpful in Oracle and MySQL when you
     // have a member with a lot of effective privileges.
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
-        "group_set_uniq_idx", true, "member_id", "field_id", "owner_attr_def_id_null", "owner_group_id_null", 
-        "owner_stem_id_null", "mship_type", "parent_id");
+        "group_set_uniq_idx", true, "member_id", "field_id", "owner_id", "parent_id", "mship_type");
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperGroupSet.getName(), 
         "group_set_creator_idx", false, "creator_id");
@@ -5781,7 +5761,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean
    * @param database
    */
-  private static void addGroupNameColumns(@SuppressWarnings("unused") DdlVersionBean ddlVersionBean, Database database) {
+  private static void addGroupNameColumns(DdlVersionBean ddlVersionBean, Database database) {
     
     if (!addGroupNameColumns) {
       return;
@@ -6231,139 +6211,254 @@ public enum GrouperDdl implements DdlVersionable {
     }
 
   }
-  
+
 
   /**
-   * add flat tables
+   * Add PIT tables
    * @param database
    */
-  private static void addFlatTables(Database database) {
+  private static void addPITTables(DdlVersionBean ddlVersionBean, Database database) {
+    
     {
-      Table flatMembershipsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          FlatMembership.TABLE_GROUPER_FLAT_MEMBERSHIPS);
+      Table pitMembersTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITMember.TABLE_GROUPER_PIT_MEMBERS);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_ID, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_OWNER_ID,
-          Types.VARCHAR, "40", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_ID, 
+          Types.VARCHAR, "255", false, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_OWNER_ATTR_DEF_ID,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_SOURCE, 
+          Types.VARCHAR, "255", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_TYPE, 
+          Types.VARCHAR, "255", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_OWNER_GROUP_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_OWNER_STEM_ID,
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_MEMBER_ID,
-          Types.VARCHAR, "40", false, true);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_FIELD_ID,
-          Types.VARCHAR, "40", false, true);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatMembershipsTable, FlatMembership.COLUMN_HIBERNATE_VERSION_NUMBER, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
-          "flat_mship_uniq_idx", true, FlatMembership.COLUMN_OWNER_ID, FlatMembership.COLUMN_MEMBER_ID,
-          FlatMembership.COLUMN_FIELD_ID);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
+          "pit_member_subject_id_idx", false, PITMember.COLUMN_SUBJECT_ID);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
-          "flat_mship_owner_group_idx", false, FlatMembership.COLUMN_OWNER_GROUP_ID);
-  
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
-          "flat_mship_stem_group_idx", false, FlatMembership.COLUMN_OWNER_STEM_ID);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
-          "flat_mship_attrdef_group_idx", false, FlatMembership.COLUMN_OWNER_ATTR_DEF_ID);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
-          "flat_mship_field_idx", false, FlatMembership.COLUMN_FIELD_ID);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
-          "flat_mship_context_idx", false, FlatMembership.COLUMN_CONTEXT_ID);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
-          "flat_mship_member_idx", false, FlatMembership.COLUMN_MEMBER_ID);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatMembershipsTable.getName(), 
-          "flat_mship_owner_field_idx", false, FlatMembership.COLUMN_OWNER_ID, FlatMembership.COLUMN_FIELD_ID);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
+          "pit_member_context_idx", false, PITMember.COLUMN_CONTEXT_ID);
     }
     
     {
-      Table flatGroupsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          FlatGroup.TABLE_GROUPER_FLAT_GROUPS);
+      Table pitFieldsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITField.TABLE_GROUPER_PIT_FIELDS);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatGroupsTable, FlatGroup.COLUMN_ID, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatGroupsTable, FlatGroup.COLUMN_GROUP_ID,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_NAME, 
+          Types.VARCHAR, "32", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_TYPE, 
+          Types.VARCHAR, "32", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatGroupsTable, FlatGroup.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatGroupsTable, FlatGroup.COLUMN_HIBERNATE_VERSION_NUMBER, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitFieldsTable, PITField.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatGroupsTable.getName(), 
-          "flat_group_group_idx", true, FlatGroup.COLUMN_GROUP_ID);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
+          "pit_field_name_idx", false, PITField.COLUMN_NAME);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatGroupsTable.getName(), 
-          "flat_group_context_idx", false, FlatGroup.COLUMN_CONTEXT_ID);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitFieldsTable.getName(), 
+          "pit_field_context_idx", false, PITField.COLUMN_CONTEXT_ID);
     }
     
     {
-      Table flatStemsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          FlatStem.TABLE_GROUPER_FLAT_STEMS);
+      Table pitGroupsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITGroup.TABLE_GROUPER_PIT_GROUPS);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatStemsTable, FlatStem.COLUMN_ID, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatStemsTable, FlatStem.COLUMN_STEM_ID,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_NAME, 
+          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatStemsTable, FlatStem.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatStemsTable, FlatStem.COLUMN_HIBERNATE_VERSION_NUMBER, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupsTable, PITGroup.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatStemsTable.getName(), 
-          "flat_stem_stem_idx", true, FlatStem.COLUMN_STEM_ID);
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_group_name_idx " +
+          "ON grouper_pit_groups (name(255));\n" : null;
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatStemsTable.getName(), 
-          "flat_stem_context_idx", false, FlatStem.COLUMN_CONTEXT_ID);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitGroupsTable.getName(), 
+          "pit_group_name_idx", scriptOverride, false, PITGroup.COLUMN_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupsTable.getName(), 
+          "pit_group_context_idx", false, PITGroup.COLUMN_CONTEXT_ID);
     }
     
     {
-      Table flatAttributeDefTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-          FlatAttributeDef.TABLE_GROUPER_FLAT_ATTRIBUTE_DEF);
+      Table pitStemsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITStem.TABLE_GROUPER_PIT_STEMS);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatAttributeDefTable, FlatAttributeDef.COLUMN_ID, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_ID, 
           Types.VARCHAR, "40", true, true);
   
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatAttributeDefTable, FlatAttributeDef.COLUMN_ATTRIBUTE_DEF_ID,
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_NAME, 
+          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_CONTEXT_ID, 
           Types.VARCHAR, "40", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatAttributeDefTable, FlatAttributeDef.COLUMN_CONTEXT_ID, 
-          Types.VARCHAR, "40", false, false);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(flatAttributeDefTable, FlatAttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitStemsTable, PITStem.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatAttributeDefTable.getName(), 
-          "flat_attrdef_attrdef_idx", true, FlatAttributeDef.COLUMN_ATTRIBUTE_DEF_ID);
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_stem_name_idx " +
+          "ON grouper_pit_stems (name(255));\n" : null;
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, flatAttributeDefTable.getName(), 
-          "flat_attrdef_context_idx", false, FlatAttributeDef.COLUMN_CONTEXT_ID);
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitStemsTable.getName(), 
+          "pit_stem_name_idx", scriptOverride, false, PITStem.COLUMN_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitStemsTable.getName(), 
+          "pit_stem_context_idx", false, PITStem.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitAttributeDefTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITAttributeDef.TABLE_GROUPER_PIT_ATTRIBUTE_DEF);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_NAME, 
+          Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeDefTable, PITAttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX pit_attribute_def_name_idx " +
+          "ON grouper_pit_attribute_def (name(255));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, pitAttributeDefTable.getName(), 
+          "pit_attribute_def_name_idx", scriptOverride, false, PITAttributeDef.COLUMN_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitAttributeDefTable.getName(), 
+          "pit_attribute_def_context_idx", false, PITAttributeDef.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitMembershipTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITMembership.TABLE_GROUPER_PIT_MEMBERSHIPS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_ATTR_DEF_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_GROUP_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_OWNER_STEM_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_MEMBER_ID,
+          Types.VARCHAR, "40", false, true);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_FIELD_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembershipTable, PITMembership.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembershipTable.getName(), 
+          "pit_ms_context_idx", false, PITMembership.COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table pitGroupSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          PITGroupSet.TABLE_GROUPER_PIT_GROUP_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_ATTR_DEF_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_GROUP_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_OWNER_STEM_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_ATTR_DEF_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_GROUP_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_STEM_ID,
+          Types.VARCHAR, "40", false, false);
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_FIELD_ID,
+          Types.VARCHAR, "40", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_MEMBER_FIELD_ID,
+          Types.VARCHAR, "40", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_DEPTH,
+          Types.INTEGER, "11", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_PARENT_ID,
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_ACTIVE,
+          Types.VARCHAR, "1", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_START_TIME,
+          Types.BIGINT, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_END_TIME,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "40", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitGroupSetTable, PITGroupSet.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitGroupSetTable.getName(), 
+          "pit_gs_context_idx", false, PITGroupSet.COLUMN_CONTEXT_ID);
     }
   }
+  
   
   /**
    * 

@@ -143,10 +143,6 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3ChangeLogEntryDAO.reset(hibernateSession);
             Hib3ChangeLogTypeDAO.reset(hibernateSession);
             Hib3GroupSetDAO.reset(hibernateSession);
-            Hib3FlatMembershipDAO.reset(hibernateSession);
-            Hib3FlatGroupDAO.reset(hibernateSession);
-            Hib3FlatStemDAO.reset(hibernateSession);
-            Hib3FlatAttributeDefDAO.reset(hibernateSession);
             Hib3MembershipDAO.reset(hibernateSession);
             Hib3AttributeDefDAO.reset(hibernateSession);            
             Hib3CompositeDAO.reset(hibernateSession);
@@ -159,6 +155,14 @@ class Hib3RegistryDAO implements RegistryDAO {
             hibernateSession.getSession().flush();
             Hib3MemberDAO.reset(hibernateSession);
             Hib3RegistrySubjectDAO.reset(hibernateSession);
+            
+            Hib3PITMembershipDAO.reset(hibernateSession);
+            Hib3PITGroupSetDAO.reset(hibernateSession);
+            Hib3PITGroupDAO.reset(hibernateSession);
+            Hib3PITStemDAO.reset(hibernateSession);
+            Hib3PITAttributeDefDAO.reset(hibernateSession);
+            Hib3PITFieldDAO.reset(hibernateSession);
+            Hib3PITMemberDAO.reset(hibernateSession);
 
             new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
             
