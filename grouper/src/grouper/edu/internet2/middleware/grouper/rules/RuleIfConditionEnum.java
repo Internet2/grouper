@@ -9,13 +9,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
@@ -30,6 +28,53 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public enum RuleIfConditionEnum {
 
   /**
+   * make sure no group in folder has an enabled membership
+   */
+  noGroupInFolderHasImmediateEnabledMembership {
+
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+      
+      Stem.Scope stemScope = Stem.Scope.valueOfIgnoreCase(ruleDefinition.getIfCondition().getIfStemScope(), true);
+      
+      boolean folderHasMembership = RuleUtils.folderHasMembership(rulesBean, ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), 
+          stemScope, null);
+      
+      if (folderHasMembership) {
+        return false;
+      }
+      
+      return true;
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+      
+      String error = RuleUtils.validateStem(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), 
+          null);
+
+      if (!StringUtils.isBlank(error)) {
+        return error;
+      }
+      
+      if (StringUtils.isBlank(ruleDefinition.getIfCondition().getIfStemScope())) {
+        return "Stem scope is required in if condition";
+      }
+      
+      return null;
+    }
+    
+  },
+  /**
    * make sure this group and not the folder has membership
    */
   thisGroupAndNotFolderHasImmediateEnabledMembership {
@@ -40,63 +85,85 @@ public enum RuleIfConditionEnum {
     @Override
     public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
         RulesBean rulesBean) {
-      String memberId = null;
-      try {
-        memberId = rulesBean.getMemberId();
-      } catch (Exception e) {
-        //ignore
-      }
       
-      GrouperSession rootSession = GrouperSession.startRootSession(false);
-      try {
-        
-        if (StringUtils.isBlank(memberId)) {
-          
-          Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
-          memberId = member == null ? null : member.getUuid();
-
-          if (StringUtils.isBlank(memberId )) {
-            return false;
-          }
-        }
-        
-        Group group = GroupFinder.findByUuid(rootSession, ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false);
-        
-        if (group == null) {
-          LOG.error("Group doesnt exist in rule! " + ruleDefinition);
-          return false;
-        }
-        
-        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
-              group.getId(), Group.getDefaultList(), 
-              GrouperUtil.toSet(memberId), "immediate", true);
-        
-        //if not in this group, forget it
-        if (GrouperUtil.length(memberships) == 0) {
-          return false;
-        }
-        
-        Stem stem = null;
-        if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
-          stem = StemFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
-        } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
-          stem = StemFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
-        }
-        
-        memberships = GrouperDAOFactory.getFactory().getMembership()
-          .findAllByStemParentOfGroupOwnerAndFieldAndType(stem.getName() + ":%", Group.getDefaultList(), "immediate", true);
+      Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, true);
+      String groupId = group.getId();
       
-        //if not in this group, forget it
-        if (GrouperUtil.length(memberships) == 0) {
-          return true;
-        }
       
+      boolean groupHasMembership = RuleUtils.groupHasImmediateEnabledMembership(rulesBean, 
+          groupId);
+      
+      if (!groupHasMembership) {
         return false;
-        
-      } finally {
-        GrouperSession.stopQuietly(rootSession);
       }
+      
+      Stem.Scope stemScope = Stem.Scope.valueOfIgnoreCase(ruleDefinition.getCheck().getCheckStemScope(), true);
+      
+      boolean folderHasMembership = RuleUtils.folderHasMembership(rulesBean, ruleDefinition.getCheck().getCheckOwnerId(), 
+          ruleDefinition.getCheck().getCheckOwnerName(), 
+          stemScope, null);
+      
+      if (folderHasMembership) {
+        return false;
+      }
+      
+      return true;
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+      
+      //we need the owner stem and if sub or one
+      String error = RuleUtils.validateStem(ruleDefinition.getCheck().getCheckOwnerId(), 
+          ruleDefinition.getCheck().getCheckOwnerName(), 
+          null);
+
+      if (!StringUtils.isBlank(error)) {
+        return error;
+      }
+      
+      if (StringUtils.isBlank(ruleDefinition.getCheck().getCheckStemScope())) {
+        return "This if condition " + this + " requires a check stem scope";
+      }
+      
+      return super.validate(ruleDefinition);
+    }
+    
+  },
+  /** 
+   * make sure there is not a membership in folder, but does have an attributeDef
+   */
+  thisPermissionDefHasAssignmentAndNotFolder {
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+      
+      Stem.Scope stemScope = Stem.Scope.valueOfIgnoreCase(ruleDefinition.getCheck().getCheckStemScope(), true);
+      
+      boolean folderHasMembership = RuleUtils.folderHasMembership(rulesBean, ruleDefinition.getCheck().getCheckOwnerId(), 
+          ruleDefinition.getCheck().getCheckOwnerName(), 
+          stemScope, null);
+      
+      if (folderHasMembership) {
+        return false;
+      }
+
+      Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(ruleDefinition
+          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean);
+      
+      if (GrouperUtil.length(permissionEntries) == 0) {
+        return false;
+      }
+      
+      return true;
+
     }
 
     /**
@@ -116,8 +183,8 @@ public enum RuleIfConditionEnum {
       
       return super.validate(ruleDefinition);
     }
-    
-  }, 
+
+  },
   
   /**
    * make sure a group has no immedaite enabled membership
@@ -150,22 +217,17 @@ public enum RuleIfConditionEnum {
             return false;
           }
         }
-        
-        Group group = null;
-        if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId())) {
-          group = GroupFinder.findByUuid(rootSession, ruleDefinition.getIfCondition().getIfOwnerId(), false);
-        } else if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
-          group = GroupFinder.findByName(rootSession, ruleDefinition.getIfCondition().getIfOwnerName(), false);
-        }
-        
+        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, false);
         if (group == null) {
           LOG.error("Group doesnt exist in rule! " + ruleDefinition);
           return false;
         }
+        String groupId = group.getId();
         
         Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
           .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
-              group.getId(), Group.getDefaultList(), 
+              groupId, Group.getDefaultList(), 
               GrouperUtil.toSet(memberId), "immediate", true);
         
         return GrouperUtil.length(memberships) == 0;
@@ -180,15 +242,11 @@ public enum RuleIfConditionEnum {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition) {
-      RuleIfCondition ruleIfCondition = ruleDefinition.getIfCondition();
-      if (StringUtils.isBlank(ruleIfCondition.getIfOwnerId()) && StringUtils.isBlank(ruleIfCondition.getIfOwnerName())) {
-        return "This ifConditionEnum " + this.name() + " requires an ifOwnerId or ifOwnerName";
-      }
-      String result = ruleIfCondition.validateOwnerGroup();
-      if (!StringUtils.isBlank(result)) {
-        return result;
-      }
-      return null;
+
+      return RuleUtils.validateGroup(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+
     }
     
   }, 
@@ -196,6 +254,17 @@ public enum RuleIfConditionEnum {
   
   /** if on group which has membership */
   thisGroupHasImmediateEnabledMembership {
+
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+      return RuleUtils.validateGroup(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+
+    }
 
     /**
      * 
@@ -225,7 +294,9 @@ public enum RuleIfConditionEnum {
           }
         }
         
-        String groupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, true);
+        String groupId = group.getId();
         
         Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
           .findAllByGroupOwnerAndFieldAndMemberIdsAndType(

@@ -51,7 +51,7 @@ public class RuleDefinitionTest extends GrouperTest {
     
     ruleDefinition.setCheck(ruleCheck);
     
-    ruleDefinition.setIfCondition(new RuleIfCondition("if condition", null, null, null));
+    ruleDefinition.setIfCondition(new RuleIfCondition("if condition", null, null, null, null));
     ruleDefinition.setThen(new RuleThen("then part", null, null, null, null));
     
     String json = GrouperUtil.jsonConvertTo(ruleDefinition);
@@ -64,7 +64,7 @@ public class RuleDefinitionTest extends GrouperTest {
     
     RuleDefinition ruleDefinition2 = (RuleDefinition)GrouperUtil.jsonConvertFrom(conversionMap, json);
     
-    assertEquals(ruleDefinition.getThen(), ruleDefinition2.getThen());
+    assertEquals(ruleDefinition.getThen().toString(), ruleDefinition2.getThen().toString());
     
   }
 }

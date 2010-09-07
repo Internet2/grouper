@@ -1556,6 +1556,8 @@ public class GrouperCheckConfig {
             "expression language to run to see if the rule should run, or blank if should run always", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_CONDITION_ENUM, 
             "RuleConditionEnum that sees if rule should fire, or blank if should run always", wasInCheckConfig);
+        checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_IF_STEM_SCOPE, 
+            "when the if part is a stem, this is the scope of SUB or ONE", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_EL, 
             "expression language to run when the rule fires", wasInCheckConfig);
         checkAttribute(rulesStem, ruleAttrType, RuleUtils.RULE_THEN_ENUM, 

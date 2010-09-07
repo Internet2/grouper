@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.subj.SafeSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -76,7 +78,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandPermissionAssignment"));
+    TestRunner.run(new RuleTest("testRuleLonghandValidations"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -222,7 +224,7 @@ public class RuleTest extends GrouperTest {
         RuleIfConditionEnum.thisPermissionDefHasAssignment.name());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.removeMemberFromOwnerAttributeDefAssignments.name());
+        RuleThenEnum.removeMemberFromOwnerPermissionDefAssignments.name());
 
     //should be valid
     String isValidString = attributeValueDelegate.retrieveValueString(
@@ -1154,30 +1156,35 @@ public class RuleTest extends GrouperTest {
     attributeAssign.getAttributeValueDelegate().deleteValue(
         RuleUtils.ruleCheckOwnerIdName(), groupB.getId());
 
-    //######################
-    //neither check owner id and name entered
+//    //######################
+//    //neither check owner id and name entered
+//    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+//        RuleUtils.ruleValidName());
+//    assertEquals("T", isValidString);
+//    attributeAssign.getAttributeValueDelegate().deleteValue(
+//        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+//    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+//        RuleUtils.ruleValidName());
+//    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+//    attributeAssign.getAttributeValueDelegate().assignValue(
+//        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+
+//    //######################
+//    //neither check owner id and name entered
+//    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+//        RuleUtils.ruleValidName());
+//    assertEquals("T", isValidString);
+//    attributeAssign.getAttributeValueDelegate().deleteValue(
+//        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
+//    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
+//        RuleUtils.ruleValidName());
+//    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
+
     isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
         RuleUtils.ruleValidName());
     assertEquals("T", isValidString);
     attributeAssign.getAttributeValueDelegate().deleteValue(
         RuleUtils.ruleCheckOwnerNameName(), "stem:b");
-    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-        RuleUtils.ruleValidName());
-    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
-
-    //######################
-    //neither check owner id and name entered
-    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-        RuleUtils.ruleValidName());
-    assertEquals("T", isValidString);
-    attributeAssign.getAttributeValueDelegate().deleteValue(
-        RuleUtils.ruleCheckOwnerNameName(), "stem:b");
-    isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
-        RuleUtils.ruleValidName());
-    assertTrue(isValidString, !StringUtils.equals("T", isValidString));
-
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleCheckOwnerIdName(), groupB.getUuid());
     isValidString = attributeAssign.getAttributeValueDelegate().retrieveValueString(
@@ -2789,6 +2796,384 @@ public class RuleTest extends GrouperTest {
     //count rule firings
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
   
+    // GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandPermissionAssignmentIntersectFolder() {
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+      .assignAttributeDefType(AttributeDefType.perm)
+      .save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    Group groupProgrammers = new GroupSave(grouperSession).assignName("stem:orgs:itEmployee:programmers").assignCreateParentStemsIfNotExist(true).save();
+    Group groupSysadmins = new GroupSave(grouperSession).assignName("stem:orgs:itEmployee:sysadmins").assignCreateParentStemsIfNotExist(true).save();
+  
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+  
+    //assign a user to a role
+    payrollUser.addMember(SubjectTestHelper.SUBJ0, false);
+    payrollGuest.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    //create a permission, assign to role
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    
+    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
+    
+    //assign the permission to another user directly, not due to a role
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, SubjectTestHelper.SUBJ1);
+    
+    //see that they both have the permission
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, false);
+    
+    Set<PermissionEntry> permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member0.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member1.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+    
+    //add a rule on stem:permission saying if you are out of stem:employee, 
+    //then remove assignments to permission, or from roles which have the permission
+    AttributeAssign attributeAssign = permissionDef
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+
+    //folder where membership was removed
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:orgs:itEmployee");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemoveInFolder.name());
+
+    //SUB for all descendants, ONE for just children
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        Stem.Scope.SUB.name());
+    
+    //if there is no more membership in the folder, and there is a membership in the group
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisPermissionDefHasAssignmentAndNotFolder.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.removeMemberFromOwnerPermissionDefAssignments.name());
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    groupProgrammers.addMember(SubjectTestHelper.SUBJ0);
+    groupSysadmins.addMember(SubjectTestHelper.SUBJ0);
+    groupProgrammers.addMember(SubjectTestHelper.SUBJ1);
+    groupSysadmins.addMember(SubjectTestHelper.SUBJ1);
+    groupProgrammers.addMember(SubjectTestHelper.SUBJ2);
+    groupSysadmins.addMember(SubjectTestHelper.SUBJ2);
+    
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    //doesnt do anything
+    groupProgrammers.deleteMember(SubjectTestHelper.SUBJ2);
+    groupSysadmins.deleteMember(SubjectTestHelper.SUBJ2);
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+  
+    groupProgrammers.deleteMember(SubjectTestHelper.SUBJ0);
+
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+
+    groupSysadmins.deleteMember(SubjectTestHelper.SUBJ0);
+
+    //should come out of groupA
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    assertFalse(payrollUser.hasMember(SubjectTestHelper.SUBJ0));
+  
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member0.getUuid());
+    assertEquals(0, permissions.size());
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member1.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+    
+    //take out second user
+    groupSysadmins.deleteMember(SubjectTestHelper.SUBJ1);
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+
+    groupProgrammers.deleteMember(SubjectTestHelper.SUBJ1);
+
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+
+    assertTrue(payrollGuest.hasMember(SubjectTestHelper.SUBJ1));
+  
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member1.getUuid());
+    assertEquals(0, permissions.size());
+    
+    // grouperSession = GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandPermissionAssignmentDisabledDate() {
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+      .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+      .assignAttributeDefType(AttributeDefType.perm)
+      .save();
+    
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+    
+    Group groupEmployee = new GroupSave(grouperSession).assignName("stem:employee").assignCreateParentStemsIfNotExist(true).save();
+  
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+    Role payrollGuest = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollGuest").assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+  
+    //assign a user to a role
+    payrollUser.addMember(SubjectTestHelper.SUBJ0, false);
+    payrollGuest.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    //create a permission, assign to role
+    AttributeDefName canLogin = new AttributeDefNameSave(grouperSession, permissionDef).assignName("apps:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    
+    payrollUser.getPermissionRoleDelegate().assignRolePermission(canLogin);
+    
+    //assign the permission to another user directly, not due to a role
+    payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, SubjectTestHelper.SUBJ1);
+    
+    //see that they both have the permission
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, false);
+    
+    Set<PermissionEntry> permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member0.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member1.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+    
+    //add a rule on stem:permission saying if you are out of stem:employee, 
+    //then put disabled date on assignments to permission, or from roles which have the permission
+    AttributeAssign attributeAssign = permissionDef
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckOwnerNameName(), "stem:employee");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisPermissionDefHasAssignment.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.assignDisabledDaysToOwnerPermissionDefAssignments.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "7");
+
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    groupEmployee.addMember(SubjectTestHelper.SUBJ0);
+    groupEmployee.addMember(SubjectTestHelper.SUBJ1);
+    groupEmployee.addMember(SubjectTestHelper.SUBJ2);
+    
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    //doesnt do anything
+    groupEmployee.deleteMember(SubjectTestHelper.SUBJ2);
+  
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+  
+    groupEmployee.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    //should come out of groupA in 7 days
+    Membership membership = ((Group)payrollUser).getImmediateMembership(Group.getDefaultList(), member0, true, true);
+    
+    assertNotNull(membership.getDisabledTime());
+    long disabledTime = membership.getDisabledTime().getTime();
+    
+    assertTrue("More than 6 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
+    assertTrue("Less than 8 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
+
+    
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member0.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member1.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+    
+    //take out second user
+    groupEmployee.deleteMember(SubjectTestHelper.SUBJ1);
+
+    assertEquals(initialFirings+2, RuleEngine.ruleFirings);
+
+    assertTrue(payrollGuest.hasMember(SubjectTestHelper.SUBJ1));
+
+    //should come out of groupA in 7 days
+    membership = ((Group)payrollGuest).getImmediateMembership(Group.getDefaultList(), member1, true, true);
+    
+    assertNull(membership.getDisabledTime());
+
+    
+    permissions = GrouperDAOFactory.getFactory().getPermissionEntry().findByMemberId(member1.getUuid());
+    assertEquals(1, permissions.size());
+    assertEquals("apps:payroll:permissions:canLogin", permissions.iterator().next().getAttributeDefNameName());
+
+    Timestamp timestamp = permissions.iterator().next().getDisabledTime();
+
+    disabledTime = timestamp.getTime();
+    
+    assertTrue("More than 6 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
+    assertTrue("Less than 8 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (8 * 24 * 60 * 60 * 1000));
+
+    
+    // grouperSession = GrouperSession.startRootSession();
+    // addMember("stem:a", "test.subject.0");
+    // addMember("stem:b", "test.subject.0");
+    // delMember("stem:b", "test.subject.0");
+    // hasMember("stem:a", "test.subject.0");
+    
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoInOrg() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group ruleGroup = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+
+    Group groupProgrammers = new GroupSave(grouperSession).assignName("stem:orgs:itEmployee:programmers").assignCreateParentStemsIfNotExist(true).save();
+    Group groupSysadmins = new GroupSave(grouperSession).assignName("stem:orgs:itEmployee:sysadmins").assignCreateParentStemsIfNotExist(true).save();
+
+    //Stem mustBeInStem = StemFinder.findByName(grouperSession, "stem:orgs:itEmployee", true);
+    
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = ruleGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.noGroupInFolderHasImmediateEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), "stem:orgs:itEmployee");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfStemScopeName(), "SUB");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.in.IT.employee.to.be.in.group");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be a member of group if not in the IT department org");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    
+    Subject subject0 = SubjectTestHelper.SUBJ0;
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      ruleGroup.addMember(subject0);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Entity cannot be a member of group if not in the IT department org"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+  
+    groupProgrammers.addMember(subject0);
+    ruleGroup.addMember(subject0);
+    
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+
+    assertTrue(ruleGroup.hasMember(subject0));
+
+    ruleGroup.deleteMember(subject0);
+    groupProgrammers.deleteMember(subject0);
+    groupSysadmins.addMember(subject0);
+ 
+    ruleGroup.addMember(subject0);
+
+    assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
+
+    assertTrue(ruleGroup.hasMember(subject0));
+
     // GrouperSession.startRootSession();
     // addMember("stem:a", "test.subject.0");
     // addMember("stem:b", "test.subject.0");

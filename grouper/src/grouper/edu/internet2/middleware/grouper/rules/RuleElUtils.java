@@ -1,8 +1,10 @@
 package edu.internet2.middleware.grouper.rules;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -16,8 +18,14 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -142,6 +150,115 @@ public class RuleElUtils {
 
   /**
    * assign a disabled date in the future by X days
+   * @param attributeDefId
+   * @param memberId
+   * @param daysInFuture
+   * @param addIfNotThere 
+   * @return false if assignments werent there, true if it was
+   */
+  public static boolean assignPermissionDisabledDaysForAttributeDefId(String attributeDefId, String memberId, int daysInFuture) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Has member: " + memberId + ", from attributeDefId: " + attributeDefId 
+          + ", daysInFuture: " + daysInFuture);
+    }
+
+    if (StringUtils.isBlank(attributeDefId)) {
+      throw new RuntimeException("Why is attributeDefId null?");
+    }
+
+    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    
+    Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(attributeDefId, memberId);
+
+    RuntimeException runtimeException = null;
+    
+    boolean result = false;
+    
+    //first assign disabled dates on individual assignments
+    for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+      if (permissionEntry.isImmediatePermission() && permissionEntry.getPermissionType() == PermissionType.role_subject) {
+        
+        try {
+          Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getRoleId(), true);
+          
+          //get this once
+          if (member == null) {
+            member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), true);
+          }
+          
+          AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), true);
+          
+          AttributeAssign attributeAssign = role.getPermissionRoleDelegate().retrieveAssignment(member, null, attributeDefName, true, false);
+          
+          if (attributeAssign != null) {
+            
+            attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
+            attributeAssign.saveOrUpdate();
+            
+            result = true;
+          }
+          
+          
+        } catch (RuntimeException re) {
+          if (runtimeException == null) {
+            runtimeException = re;
+          }
+          LOG.error("error assigning disabled date permission assignments: " + permissionEntry, re);
+        }
+      }
+    }
+    
+    Set<String> roleIdsAssigned = new HashSet<String>();
+    
+    //then remove immediate role assignment
+    for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+
+      if (permissionEntry.isImmediateMembership() && permissionEntry.getPermissionType() == PermissionType.role) {
+        
+        try {
+          String roleId = permissionEntry.getRoleId();
+          
+          if (roleIdsAssigned.contains(roleId)) {
+            continue;
+          }
+          
+          Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), roleId, true);
+          
+          //get this once
+          if (member == null) {
+            member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), true);
+          }
+          
+          //dont try again
+          roleIdsAssigned.add(roleId);
+          
+          Membership membership = ((Group)role).getImmediateMembership(Group.getDefaultList(), member, true, false);
+
+          if (membership != null) {
+            membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
+            membership.update();
+            result = true;
+          }
+          
+        } catch (RuntimeException re) {
+          if (runtimeException == null) {
+            runtimeException = re;
+          }
+          LOG.error("error assigning delete date on role assignments: " + permissionEntry, re);
+        }
+      }
+    }
+    
+    if (runtimeException != null) {
+      throw runtimeException;
+    }
+    return result;
+    
+  }
+
+  
+  /**
+   * assign a disabled date in the future by X days
    * @param groupId
    * @param memberId
    * @param daysInFuture
@@ -152,6 +269,10 @@ public class RuleElUtils {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Has member: " + memberId + ", from group: " + groupId 
           + ", daysInFuture: " + daysInFuture);
+    }
+
+    if (StringUtils.isBlank(groupId)) {
+      throw new RuntimeException("Why is groupId null?");
     }
 
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);

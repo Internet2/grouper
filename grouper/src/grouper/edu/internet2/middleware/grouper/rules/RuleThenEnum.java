@@ -38,6 +38,52 @@ import edu.internet2.middleware.subject.Subject;
  */
 public enum RuleThenEnum {
 
+  /** assign a disabled date if there is a permission assignment to the owner attribute def
+   */
+  assignDisabledDaysToOwnerPermissionDefAssignments {
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+
+      String days = ruleDefinition.getThen().getThenEnumArg0();
+      int daysInteger = GrouperUtil.intValue(days);
+
+      String ownerAttributeDefId = ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId();
+      
+      return RuleElUtils.assignPermissionDisabledDaysForAttributeDefId(ownerAttributeDefId, rulesBean.getMemberId(), daysInteger);
+    }
+    
+    /**
+     * @see RuleThenEnum#validate(RuleDefinition)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg1())) {
+        return "ruleThenEnumArg1 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      String days = ruleDefinition.getThen().getThenEnumArg0();
+
+      try {
+        GrouperUtil.intValue(days);
+      } catch (Exception e) {
+        return "ruleThenEnumArg0 should be the number of days in the future that the disabled date should be set: " + e.getMessage();
+      }
+      
+      return null;
+      
+    }
+
+  },
+  
   /** assign a disabled date if there is a membership in this group to the owner group
    * ${ruleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, memberId, 7)}
    */
@@ -57,9 +103,6 @@ public enum RuleThenEnum {
       boolean addIfNotThereBoolean = GrouperUtil.booleanValue(addIfNotThere);
       
       String ownerGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
-      if (StringUtils.isBlank(ownerGroupId)) {
-        throw new RuntimeException("Why is ownerGroupId null for rule?");
-      }
       return RuleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, rulesBean.getMemberId(), daysInteger, addIfNotThereBoolean);
     }
     
@@ -136,7 +179,7 @@ public enum RuleThenEnum {
   
   /** remove the member (the current one being acted on) from the roles and assignments associated with 
    * the owner attribute definition */
-  removeMemberFromOwnerAttributeDefAssignments {
+  removeMemberFromOwnerPermissionDefAssignments {
 
     /**
      * 

@@ -28,11 +28,68 @@ public class RuleApi {
    * 
    * @param actAs
    * @param ruleGroup
+   * @param mustBeInGroupInFolder
+   * @param stemScope 
+   * @param vetoKey
+   * @param vetoMessage
+   */
+  public static void vetoMembershipIfNotInGroupInFolder(Subject actAs, Group ruleGroup, 
+      Stem mustBeInGroupInFolder, Stem.Scope stemScope, String vetoKey, String vetoMessage) {
+    
+    //add a rule on stem:a saying if not in a folder in stem:b, then dont allow add to stem:a
+
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = ruleGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.noGroupInFolderHasImmediateEnabledMembership.name());
+    
+    //org folder
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerIdName(), mustBeInGroupInFolder.getUuid());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfStemScopeName(), stemScope.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), vetoKey);
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), vetoMessage);
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    
+
+    
+  }
+  
+  /**
+   * 
+   * @param actAs
+   * @param ruleGroup
    * @param mustBeInGroup
    * @param vetoKey
    * @param vetoMessage
    */
-  public static void vetoMembershipIfNotIfGroup(Subject actAs, Group ruleGroup, Group mustBeInGroup, String vetoKey, String vetoMessage) {
+  public static void vetoMembershipIfNotInGroup(Subject actAs, Group ruleGroup, Group mustBeInGroup, String vetoKey, String vetoMessage) {
     //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
     AttributeAssign attributeAssign = ruleGroup
       .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
@@ -482,6 +539,49 @@ public class RuleApi {
   }
   
   /**
+   * put a rule on an attribute def so that if a user comes out of a group, the user will have disabled dates from
+   * a role which has permissions or removed assignments directly to the user
+   * @param actAs
+   * @param permissionToAssignRule
+   * @param mustBeInGroup
+   * @param daysInFutureToDisable
+   */
+  public static void permissionGroupIntersection(Subject actAs, AttributeDef permissionToAssignRule, Group mustBeInGroup, int daysInFutureToDisable) {
+
+    //add a rule on stem:permission saying if you are out of stem:employee, 
+    //then put disabled date on assignments to permission, or from roles which have the permission
+    AttributeAssign attributeAssign = permissionToAssignRule
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisPermissionDefHasAssignment.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.assignDisabledDaysToOwnerPermissionDefAssignments.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "7");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  }
+  
+  /**
    * put a rule on an attribute def so that if a user comes out of a group, the user will be removed from
    * a role which has permissions or removed assignments directly to the user
    * @param actAs
@@ -510,7 +610,7 @@ public class RuleApi {
         RuleIfConditionEnum.thisPermissionDefHasAssignment.name());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.removeMemberFromOwnerAttributeDefAssignments.name());
+        RuleThenEnum.removeMemberFromOwnerPermissionDefAssignments.name());
   
     //should be valid
     String isValidString = attributeValueDelegate.retrieveValueString(
@@ -520,4 +620,59 @@ public class RuleApi {
       throw new RuntimeException(isValidString);
     }
   }
+  
+  /**
+   * 
+   * @param actAs
+   * @param permissionToAssignRule
+   * @param mustBeInGroupInFolder
+   * @param stemScope
+   */
+  public static void permissionFolderIntersection(Subject actAs, AttributeDef permissionToAssignRule, 
+      Stem mustBeInGroupInFolder, Stem.Scope stemScope) {
+    
+    //add a rule on stem:permission saying if you are out of stem:employee, 
+    //then remove assignments to permission, or from roles which have the permission
+    AttributeAssign attributeAssign = permissionToAssignRule
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+
+    //folder where membership was removed
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckOwnerIdName(), mustBeInGroupInFolder.getUuid());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemoveInFolder.name());
+
+    //SUB for all descendants, ONE for just children
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(),
+        stemScope.name());
+    
+    //if there is no more membership in the folder, and there is a membership in the group
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisPermissionDefHasAssignmentAndNotFolder.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.removeMemberFromOwnerPermissionDefAssignments.name());
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
+    
+  }
+  
 }

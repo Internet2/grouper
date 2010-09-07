@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -24,6 +25,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -37,6 +39,122 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class RuleUtils {
 
+  
+  
+  /**
+   * 
+   * @param rulesBean
+   * @param groupId
+   * @return
+   */
+  public static boolean groupHasImmediateEnabledMembership(RulesBean rulesBean, String groupId) {
+    String memberId = null;
+    try {
+      memberId = rulesBean.getMemberId();
+    } catch (Exception e) {
+      //ignore
+    }
+    
+    GrouperSession rootSession = GrouperSession.startRootSession(false);
+    try {
+      
+      if (StringUtils.isBlank(memberId)) {
+        
+        Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
+        memberId = member == null ? null : member.getUuid();
+        
+        if (StringUtils.isBlank(memberId )) {
+          throw new RuntimeException("memberId cannot be null");
+        }
+      }
+      
+      if (StringUtils.isBlank(groupId)) {
+        throw new RuntimeException("groupId cannot be null");
+      }
+      
+      Group group = GroupFinder.findByUuid(rootSession, groupId, false);
+      
+      if (group == null) {
+        LOG.error("Group doesnt exist in rule!");
+        return false;
+      }
+      
+      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+        .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
+            group.getId(), Group.getDefaultList(), 
+            GrouperUtil.toSet(memberId), "immediate", true);
+      
+      //if not in this group, forget it
+      if (GrouperUtil.length(memberships) > 0) {
+        return true;
+      }
+      
+      return false;
+      
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
+
+  }
+  
+  /**
+   * see if there is a membership in the folder
+   * @param rulesBean
+   * @param stemId add either this or stem name
+   * @param stemName add either this or stem id
+   * @param stemScope
+   * @param membershipType null for any
+   * @return true if membership, false if not
+   */
+  public static boolean folderHasMembership(RulesBean rulesBean, String stemId, String stemName, Stem.Scope stemScope, MembershipType membershipType) {
+
+    String memberId = null;
+    try {
+      memberId = rulesBean.getMemberId();
+    } catch (Exception e) {
+      //ignore
+    }
+    
+    GrouperSession rootSession = GrouperSession.startRootSession(false);
+    try {
+      
+      if (StringUtils.isBlank(memberId)) {
+        
+        Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
+        memberId = member == null ? null : member.getUuid();
+
+        if (StringUtils.isBlank(memberId )) {
+          return false;
+        }
+      }
+      
+      Stem stem = null;
+      if (!StringUtils.isBlank(stemId)) {
+        stem = StemFinder.findByUuid(rootSession, stemId, false);
+      } else if (!StringUtils.isBlank(stemName)) {
+        stem = StemFinder.findByName(rootSession, stemName, false);
+      }
+      
+      if (stem == null) {
+        throw new RuntimeException("Cant find stem: " + stemName + ", " + stemId);
+      }
+      
+      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+        .findAllByStemParentOfGroupOwnerAndFieldAndType(stem, stemScope, Group.getDefaultList(), membershipType, true, memberId);
+    
+      //if not in this group, forget it
+      if (GrouperUtil.length(memberships) == 0) {
+        return false;
+      }
+    
+      return true;
+      
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
+
+  }
+
   /**
    * 
    * @param attributeDefId
@@ -47,7 +165,7 @@ public class RuleUtils {
     GrouperSession rootSession = GrouperSession.startRootSession(false);
     
     try {
-     return (Set<PermissionEntry>)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+      String memberId = (String)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
@@ -63,9 +181,37 @@ public class RuleUtils {
             Member member = MemberFinder.findBySubject(grouperSession, rulesBean.getSubject(), false);
             memberId = member == null ? null : member.getUuid();
 
-            if (StringUtils.isBlank(memberId )) {
-              return false;
-            }
+          }
+          return memberId;
+        }
+      });
+
+      return permissionsForUser(attributeDefId, memberId);
+    
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
+
+  }
+
+  
+  /**
+   * 
+   * @param attributeDefId
+   * @param rulesBean
+   * @param memberId
+   * @return the set of permissions entries
+   */
+  public static Set<PermissionEntry> permissionsForUser(final String attributeDefId, final String memberId) {
+    GrouperSession rootSession = GrouperSession.startRootSession(false);
+    
+    try {
+     return (Set<PermissionEntry>)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          if (StringUtils.isBlank(memberId)) {
+            return false;
           }
 
           if (StringUtils.isBlank(attributeDefId)) {
@@ -514,6 +660,27 @@ public class RuleUtils {
   /**
    * 
    */
+  public static final String RULE_IF_STEM_SCOPE = "ruleIfStemScope";
+
+  /**
+   * ruleIfStemScopeName
+   */
+  private static String ruleIfStemScopeName = null;
+
+  /**
+   * full ruleIfStemScopeName
+   * @return name
+   */
+  public static String ruleIfStemScopeName() {
+    if (ruleIfStemScopeName == null) {
+      ruleIfStemScopeName = RuleUtils.attributeRuleStemName() + ":" + RULE_IF_STEM_SCOPE;
+    }
+    return ruleIfStemScopeName;
+  }
+  
+  /**
+   * 
+   */
   public static final String RULE_CHECK_TYPE = "ruleCheckType";
 
   /**
@@ -602,27 +769,34 @@ public class RuleUtils {
    * 
    * @param groupId
    * @param groupName
-   * @return the error message or null if ok
+   * @param alternateGroupId
+   * @param useRootSession if we should use root or static session
+   * @param throwExceptionIfNotFound
+   * @return group or null
    */
-  public static String validateGroup(String groupId, String groupName) {
-    GrouperSession grouperSession = GrouperSession.startRootSession(false);
+  public static Group group(String groupId, String groupName, String alternateGroupId, boolean useRootSession, boolean throwExceptionIfNotFound) {
+    GrouperSession grouperSession = useRootSession ? GrouperSession.startRootSession(false) : GrouperSession.staticGrouperSession();
     try {
+      Group group = null;
       if (!StringUtils.isBlank(groupId)) {
-        Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
-        if (group == null) {
-          return "Cant find group by id: " + groupId;
-        }
+        group = GroupFinder.findByUuid(grouperSession, groupId, false);
+      } else if (!StringUtils.isBlank(groupName)) {
+        group = GroupFinder.findByName(grouperSession, groupName, false);
+      } else if (!StringUtils.isBlank(alternateGroupId)) {
+        group = GroupFinder.findByUuid(grouperSession, alternateGroupId, false);
       }
-      if (!StringUtils.isBlank(groupName)) {
-        Group group = GroupFinder.findByName(grouperSession, groupName, false);
-        if (group == null) {
-          return "Cant find group by name: " + groupName;
-        }
+      
+      if (throwExceptionIfNotFound && group == null) {
+        throw new RuntimeException("Cant find group: " + groupId + ", " + groupName + ", " + alternateGroupId);
       }
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
+
+      return group;
+
+     } finally {
+       if (useRootSession) {
+         GrouperSession.stopQuietly(grouperSession);
+       }
     }
-    return null;
     
   }
   
@@ -630,29 +804,68 @@ public class RuleUtils {
    * 
    * @param stemId
    * @param stemName
+   * @param alternateStemId
+   * @param useRootSession if we should use root or static session
+   * @param throwExceptionIfNotFound
+   * @return stem or null
+   */
+  public static Stem stem(String stemId, String stemName, String alternateStemId, boolean useRootSession, boolean throwExceptionIfNotFound) {
+    GrouperSession grouperSession = useRootSession ? GrouperSession.startRootSession(false) : GrouperSession.staticGrouperSession();
+    try {
+      Stem stem = null;
+      if (!StringUtils.isBlank(stemId)) {
+        stem = StemFinder.findByUuid(grouperSession, stemId, false);
+      } else if (!StringUtils.isBlank(stemName)) {
+        stem = StemFinder.findByName(grouperSession, stemName, false);
+      } else if (!StringUtils.isBlank(alternateStemId)) {
+        stem = StemFinder.findByUuid(grouperSession, alternateStemId, false);
+      }
+      
+      if (throwExceptionIfNotFound && stem == null) {
+        throw new RuntimeException("Cant find stem: " + stemId + ", " + stemName + ", " + alternateStemId);
+      }
+      
+      return stem;
+     } finally {
+       if (useRootSession) {
+         GrouperSession.stopQuietly(grouperSession);
+       }
+    }
+    
+  }
+  
+  /**
+   * 
+   * @param groupId
+   * @param groupName
+   * @param alternateGroupId
+   * 
    * @return the error message or null if ok
    */
-  public static String validateStem(String stemId, String stemName) {
-    
-    GrouperSession grouperSession = GrouperSession.startRootSession(false);
+  public static String validateGroup(String groupId, String groupName, String alternateGroupId) {
     try {
-      if (!StringUtils.isBlank(stemId)) {
-        Stem stem = StemFinder.findByUuid(grouperSession, stemId, false);
-        if (stem == null) {
-          return "Cant find stem by id: " + stemId;
-        }
-      }
-      if (!StringUtils.isBlank(stemName)) {
-        Stem stem = StemFinder.findByName(grouperSession, stemName, false);
-        if (stem == null) {
-          return "Cant find stem by name: " + stemName;
-        }
-      }
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      group(groupId, groupName, alternateGroupId, true, true);
+    } catch (Exception e) {
+      return e.getMessage();
     }
     return null;
+  }
+  
+  /**
+   * 
+   * @param stemId
+   * @param stemName
+   * @param alternateStemId 
+   * @return the error message or null if ok
+   */
+  public static String validateStem(String stemId, String stemName, String alternateStemId) {
     
+    try {
+      stem(stemId, stemName, alternateStemId, true, true);
+    } catch (Exception e) {
+      return e.getMessage();
+    }
+    return null;
   }
   
   

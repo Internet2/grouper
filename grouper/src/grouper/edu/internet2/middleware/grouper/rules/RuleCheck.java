@@ -313,10 +313,12 @@ public class RuleCheck {
   
   /**
    * see if the owner is a group (note, owner requiredness not checked)
+   * @param ruleDefinition 
    * @return the error message
    */
-  public String validateOwnerGroup() {
-    return RuleUtils.validateGroup(this.checkOwnerId, this.checkOwnerName);
+  public String validateOwnerGroup(RuleDefinition ruleDefinition) {
+    return RuleUtils.validateGroup(this.checkOwnerId, this.checkOwnerName, 
+        ruleDefinition.getAttributeAssignType().getOwnerGroupId());
   }
   
   /**
@@ -333,7 +335,7 @@ public class RuleCheck {
         return null;
       }
     }
-    return RuleUtils.validateStem(this.checkOwnerId, this.checkOwnerName);
+    return RuleUtils.validateStem(this.checkOwnerId, this.checkOwnerName, attributeAssignType.getOwnerStemId());
   }
   
 

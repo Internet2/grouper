@@ -29,14 +29,16 @@ public class RuleIfCondition {
    * @param ifConditionEnum1
    * @param theIfOwnerId 
    * @param theIfOwnerName 
+   * @param theStemScope 
    */
   public RuleIfCondition(String ifConditionEl1, String ifConditionEnum1,
-      String theIfOwnerId, String theIfOwnerName) {
+      String theIfOwnerId, String theIfOwnerName, String theStemScope) {
     super();
     this.ifConditionEl = ifConditionEl1;
     this.ifConditionEnum = ifConditionEnum1;
     this.ifOwnerId = theIfOwnerId;
     this.ifOwnerName = theIfOwnerName;
+    this.ifStemScope = theStemScope;
   }
 
 
@@ -51,7 +53,26 @@ public class RuleIfCondition {
   
   /** if the enum needs an owner, this is the id */
   private String ifOwnerId;
+
+  /** if a stem, this is the scope of ONE or SUB */
+  private String ifStemScope;
   
+  /**
+   * if a stem, this is the scope of ONE or SUB
+   * @return null or ONE or SUB
+   */
+  public String getIfStemScope() {
+    return this.ifStemScope;
+  }
+
+  /**
+   * if a stem, this is the scope of ONE or SUB
+   * @param ifStemScope1
+   */
+  public void setIfStemScope(String ifStemScope1) {
+    this.ifStemScope = ifStemScope1;
+  }
+
   /**
    * if the enum needs an owner, this is the name
    * @return name
@@ -153,6 +174,10 @@ public class RuleIfCondition {
     if (!StringUtils.isBlank(this.ifOwnerName)) {
       result.append("ifOwnerName: ").append(this.ifOwnerName).append(", ");
     }
+    if (!StringUtils.isBlank(this.ifStemScope)) {
+      result.append("ifStemScope: ").append(this.ifStemScope).append(", ");
+    }
+
   }
 
   /**
@@ -237,22 +262,5 @@ public class RuleIfCondition {
     //if there isnt an if, then that mens run
     return true;
   }
-
-  /**
-   * see if the owner is a group (note, owner requiredness not checked)
-   * @return the error message
-   */
-  public String validateOwnerGroup() {
-    return RuleUtils.validateGroup(this.ifOwnerId, this.ifOwnerName);
-  }
-  
-  /**
-   * see if the owner is a stem (note, owner requiredness not checked)
-   * @return the error message
-   */
-  public String validateOwnerStem() {
-    return RuleUtils.validateStem(this.ifOwnerId, this.ifOwnerName);
-  }
-  
 
 }

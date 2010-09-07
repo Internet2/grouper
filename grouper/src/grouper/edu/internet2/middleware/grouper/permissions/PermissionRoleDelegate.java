@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegateOptions;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -58,6 +59,22 @@ public class PermissionRoleDelegate implements Serializable {
     return removeRolePermission(null, attributeDefName);
   }
   
+  /**
+   * @param member
+   * @param action
+   * @param attributeDefName
+   * @param checkSecurity
+   * @param exceptionfNotFound
+   * @return the assignment
+   */
+  public AttributeAssign retrieveAssignment(Member member, String action, AttributeDefName attributeDefName, boolean checkSecurity, boolean exceptionfNotFound) {
+    if (!AttributeDefType.perm.equals(attributeDefName.getAttributeDef().getAttributeDefType())) {
+      throw new RuntimeException("Cant only retrieve assignment of a permission with attributeDefName as perm (permission) type: " 
+          + attributeDefName.getName() + ", " + attributeDefName.getAttributeDef().getAttributeDefType());
+    }
+    return this.group.getAttributeDelegateEffMship(member).retrieveAssignment(action, attributeDefName, checkSecurity, exceptionfNotFound);
+  }
+
   /**
    * add a permission to a role / subject pair (effective membership)
    * @param attributeDefName

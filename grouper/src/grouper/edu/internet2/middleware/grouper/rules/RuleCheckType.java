@@ -868,7 +868,7 @@ public enum RuleCheckType {
     }
     
     if (ownerIsGroup) {
-      String result = ruleCheck.validateOwnerGroup();
+      String result = ruleCheck.validateOwnerGroup(ruleDefinition);
       if (!StringUtils.isBlank(result)) {
         return result;
       }

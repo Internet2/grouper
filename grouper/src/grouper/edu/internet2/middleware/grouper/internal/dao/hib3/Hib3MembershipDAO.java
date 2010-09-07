@@ -2123,20 +2123,32 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
-   * @see  MembershipDAO#findAllByStemParentOfGroupOwnerAndFieldAndType(String, Field, String, Boolean)
+   * @see  MembershipDAO#findAllByStemParentOfGroupOwnerAndFieldAndType(Stem, Scope, Field, MembershipType, Boolean, String)
    */
   public Set<Membership> findAllByStemParentOfGroupOwnerAndFieldAndType(
-      String ownerStemPattern, Field field, String type, Boolean enabledOnly)
+      Stem stem, Stem.Scope stemScope, Field field, MembershipType membershipType, Boolean enabledOnly, String memberId)
       throws GrouperDAOException {
     
-    MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
     StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m, Group as g where  "
         + "     ms.ownerGroupId   = g.uuid            "
         + " and  ms.fieldId = :fuuid "
         + " and  ms.memberUuid  = m.uuid         "
-        + " and g.nameDb like :ownerStemName");
+        + " and ms.memberUuid = :memberId ");
     
-    if (!StringUtils.isBlank(type)) {
+    if (stemScope == Scope.ONE) {
+      sql.append(" and g.parentUuid = :stemId ");
+      byHqlStatic.setString( "stemId" , stem.getUuid());
+      
+    } else if (stemScope == Scope.SUB) {
+      sql.append(" and g.nameDb like :ownerStemName ");
+      byHqlStatic.setString( "ownerStemName" , stem.getName() + ":%");
+    } else {
+      throw new RuntimeException("Cant find scope: " + stemScope.name()); 
+    }
+    
+    if (membershipType != null) {
       sql.append(" and  ms.type  " + membershipType.queryClause());
     }
     
@@ -2147,12 +2159,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       sql.append(" and ms.enabledDb = 'F' ");
     }
     
-    Set<Object[]> mships = HibernateSession.byHqlStatic()
+    Set<Object[]> mships = byHqlStatic
       .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByStemParentOfGroupOwnerAndFieldAndType")
-      .setString( "ownerStemName" , ownerStemPattern                 )
-      .setString( "fuuid",  field.getUuid()            )
+      .setString( "fuuid",  field.getUuid())
+      .setString( "memberId",  memberId)
       .listSet(Object[].class);
 
     return _getMembershipsFromMembershipAndMemberQuery(mships);

@@ -5,12 +5,21 @@ package edu.internet2.middleware.grouper.rules;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 /**
  *
  */
 public class AllRulesTests {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(AllRulesTests.suite());
+  }
+  
   /**
    * suite
    * @return suite
