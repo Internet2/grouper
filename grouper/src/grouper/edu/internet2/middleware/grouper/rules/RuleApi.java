@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
@@ -480,4 +481,43 @@ public class RuleApi {
     
   }
   
+  /**
+   * put a rule on an attribute def so that if a user comes out of a group, the user will be removed from
+   * a role which has permissions or removed assignments directly to the user
+   * @param actAs
+   * @param permissionToAssignRule
+   * @param mustBeInGroup
+   */
+  public static void permissionGroupIntersection(Subject actAs, AttributeDef permissionToAssignRule, Group mustBeInGroup) {
+
+    //add a rule on stem:permission saying if you are out of stem:employee, 
+    //then remove assignments to permission, or from roles which have the permission
+    AttributeAssign attributeAssign = permissionToAssignRule
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), 
+        RuleCheckType.membershipRemove.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), 
+        RuleIfConditionEnum.thisPermissionDefHasAssignment.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), 
+        RuleThenEnum.removeMemberFromOwnerAttributeDefAssignments.name());
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  }
 }

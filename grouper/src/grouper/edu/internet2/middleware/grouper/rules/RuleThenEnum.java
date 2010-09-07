@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.rules;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +19,11 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
@@ -126,6 +132,98 @@ public enum RuleThenEnum {
       }
       return null;
     }
+  },
+  
+  /** remove the member (the current one being acted on) from the roles and assignments associated with 
+   * the owner attribute definition */
+  removeMemberFromOwnerAttributeDefAssignments {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+      
+      Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(ruleDefinition
+          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean);
+      
+      RuntimeException runtimeException = null;
+      
+      Member member = null;
+      boolean result = false;
+      
+      //first remove individual assignments
+      for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+        if (permissionEntry.isImmediatePermission() && permissionEntry.getPermissionType() == PermissionType.role_subject) {
+          
+          try {
+            Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getRoleId(), true);
+            
+            //get this once
+            if (member == null) {
+              member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), true);
+            }
+            
+            AttributeDefName attributeDefName = AttributeDefNameFinder.findById(permissionEntry.getAttributeDefNameId(), true);
+            
+            role.getPermissionRoleDelegate().removeSubjectRolePermission(attributeDefName, member);
+            
+            result = true;
+            
+          } catch (RuntimeException re) {
+            if (runtimeException == null) {
+              runtimeException = re;
+            }
+            LOG.error("error removing permission assignments: " + permissionEntry, re);
+          }
+        }
+      }
+      
+      Set<String> roleIdsRemoved = new HashSet<String>();
+      
+      //then remove immediate role assignment
+      for (PermissionEntry permissionEntry : GrouperUtil.nonNull(permissionEntries)) {
+
+        if (permissionEntry.isImmediateMembership() && permissionEntry.getPermissionType() == PermissionType.role) {
+          
+          try {
+            String roleId = permissionEntry.getRoleId();
+            
+            if (roleIdsRemoved.contains(roleId)) {
+              continue;
+            }
+            
+            Role role = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), roleId, true);
+            
+            //get this once
+            if (member == null) {
+              member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), permissionEntry.getMemberId(), true);
+            }
+            
+            if (role.deleteMember(member.getSubject(), false)) {
+              result = true;
+            }
+            
+            //dont try again
+            roleIdsRemoved.add(roleId);
+            
+          } catch (RuntimeException re) {
+            if (runtimeException == null) {
+              runtimeException = re;
+            }
+            LOG.error("error removing role assignments: " + permissionEntry, re);
+          }
+        }
+      }
+      
+      if (runtimeException != null) {
+        throw runtimeException;
+      }
+      return result;
+    }
+    
   },
   
   /** remove the member (the current one being acted on) from the owner group */

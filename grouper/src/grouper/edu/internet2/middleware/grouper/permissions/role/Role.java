@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.permissions.role;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
@@ -17,6 +18,13 @@ import edu.internet2.middleware.subject.Subject;
  */
 public interface Role extends GrouperSetElement {
 
+  /**
+   * @see Group#hasMember(Subject)
+   * @param subject
+   * @return true if has member, false if not
+   */
+  public boolean hasMember(Subject subject);
+  
   /**
    * delete this role.  Note if the role participates in role
    * inheritance, you need to break that inheritance first

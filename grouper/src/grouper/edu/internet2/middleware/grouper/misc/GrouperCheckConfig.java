@@ -1510,6 +1510,7 @@ public class GrouperCheckConfig {
           ruleType = rulesStem.addChildAttributeDef("rulesTypeDef", AttributeDefType.type);
           ruleType.setAssignToGroup(true);
           ruleType.setAssignToStem(true);
+          ruleType.setAssignToAttributeDef(true);
           ruleType.setMultiAssignable(true);
           ruleType.store();
         }

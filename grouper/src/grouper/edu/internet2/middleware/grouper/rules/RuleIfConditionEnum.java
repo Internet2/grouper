@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -238,6 +239,24 @@ public enum RuleIfConditionEnum {
       }
     }
 
+  },
+  /** if permission def has assignment */
+  thisPermissionDefHasAssignment {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#shouldFire(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public boolean shouldFire(final RuleDefinition ruleDefinition, final RuleEngine ruleEngine,
+        final RulesBean rulesBean) {
+      
+      Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(ruleDefinition
+          .getAttributeAssignType().getOwnerAttributeDefId(), rulesBean);
+      
+      return GrouperUtil.length(permissionEntries) > 0;
+      
+    }
   };
   
   /** logger */

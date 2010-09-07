@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.rules;
 
 
 import java.io.File;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -13,6 +14,8 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -20,7 +23,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -29,6 +37,54 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class RuleUtils {
 
+  /**
+   * 
+   * @param attributeDefId
+   * @param rulesBean
+   * @return the set of permissions entries
+   */
+  public static Set<PermissionEntry> permissionsForUser(final String attributeDefId, final RulesBean rulesBean) {
+    GrouperSession rootSession = GrouperSession.startRootSession(false);
+    
+    try {
+     return (Set<PermissionEntry>)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          String memberId = null;
+          try {
+            memberId = rulesBean.getMemberId();
+          } catch (Exception e) {
+            //ignore
+          }
+
+          if (StringUtils.isBlank(memberId)) {
+            
+            Member member = MemberFinder.findBySubject(grouperSession, rulesBean.getSubject(), false);
+            memberId = member == null ? null : member.getUuid();
+
+            if (StringUtils.isBlank(memberId )) {
+              return false;
+            }
+          }
+
+          if (StringUtils.isBlank(attributeDefId)) {
+            throw new RuntimeException("Expecting an attributeDefId!");
+          }
+
+          Set<PermissionEntry> permissionEntries = GrouperDAOFactory.getFactory().getPermissionEntry()
+            .findPermissions(GrouperUtil.toSet(attributeDefId), null, null, null, true, GrouperUtil.toSet(memberId));
+        
+          return permissionEntries;
+        }
+      });
+
+    } finally {
+      GrouperSession.stopQuietly(rootSession);
+    }
+
+  }
+  
   /**
    * if it starts with template: then get the arg from a file.  If it doesnt, then it is the template, return that.
    * if there is a problem retrieving the template, then throw exception.
