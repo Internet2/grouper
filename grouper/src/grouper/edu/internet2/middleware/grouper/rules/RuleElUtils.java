@@ -145,25 +145,29 @@ public class RuleElUtils {
    * @param groupId
    * @param memberId
    * @param daysInFuture
-   * @return true if added membership, false if used existing
+   * @param addIfNotThere 
+   * @return false if membership wasnt there, true if it was
    */
-  public static boolean assignMembershipDisabledDaysForGroupId(String groupId, String memberId, int daysInFuture) {
+  public static boolean assignMembershipDisabledDaysForGroupId(String groupId, String memberId, int daysInFuture, boolean addIfNotThere) {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Has member: " + memberId + ", from group: " + groupId 
           + ", daysInFuture: " + daysInFuture);
     }
-    boolean result = false;
+
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
     Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
     Membership membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
     if (membership == null) {
+      if (!addIfNotThere) {
+        return false;
+      }
       group.addMember(member.getSubject(), true);
       membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
-      result = true;
+      return false;
     }
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (daysInFuture * 24 * 60 * 60 * 1000)));
     membership.update();
-    return result;
+    return true;
   }
 
   /**

@@ -14,9 +14,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
@@ -74,16 +77,40 @@ public class hasPriv {
         }
         else if (priv.equals( AccessPrivilege.VIEW   )) {
           return g.hasView(subj);
+        } else {
+          throw new RuntimeException("Not expecting privilege: " + priv);
         }
       }
-      else {
+      else if (Privilege.isNaming(priv)) {
         Stem ns = StemFinder.findByName(s, name, true);
         if      (priv.equals( NamingPrivilege.CREATE )) {
           return ns.hasCreate(subj);
         }
         else if (priv.equals( NamingPrivilege.STEM   )) {
           return ns.hasStem(subj);
+        } else {
+          throw new RuntimeException("Not expecting privilege: " + priv);
         }
+      } else if (Privilege.isAttributeDef(priv)) {
+        AttributeDef attributeDef = AttributeDefFinder.findByName(name, true);
+        if      (priv.equals( AttributeDefPrivilege.ATTR_ADMIN )) {
+          return attributeDef.getPrivilegeDelegate().hasAttrAdmin(subj);
+        } else if (priv.equals( AttributeDefPrivilege.ATTR_OPTIN )) {
+          return attributeDef.getPrivilegeDelegate().hasAttrOptin(subj);
+        } else if (priv.equals( AttributeDefPrivilege.ATTR_OPTOUT )) {
+          return attributeDef.getPrivilegeDelegate().hasAttrOptout(subj);
+        } else if (priv.equals( AttributeDefPrivilege.ATTR_READ )) {
+          return attributeDef.getPrivilegeDelegate().hasAttrRead(subj);
+        } else if (priv.equals( AttributeDefPrivilege.ATTR_UPDATE )) {
+          return attributeDef.getPrivilegeDelegate().hasAttrUpdate(subj);
+        } else if (priv.equals( AttributeDefPrivilege.ATTR_VIEW )) {
+          return attributeDef.getPrivilegeDelegate().hasAttrView(subj);
+        } else {
+          throw new RuntimeException("Not expecting privilege: " + priv);
+        }
+        
+      } else {
+        throw new RuntimeException("Invalid privilege type: " + priv);
       }
     }
     catch (GroupNotFoundException eGNF)         {

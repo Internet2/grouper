@@ -246,7 +246,7 @@ public enum RuleCheckType {
 
   },
   
-  /** if there is a membership remove in transaction of remove of a gropu in a stem */
+  /** if there is a membership remove in transaction of remove of a group in a stem */
   membershipRemoveInFolder {
 
     /**

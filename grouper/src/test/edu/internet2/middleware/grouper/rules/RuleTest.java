@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -68,7 +69,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandEmailTemplate"));
+    TestRunner.run(new RuleTest("testRuleLonghandStemScopeSubCreateAttributeDef"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -101,7 +102,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -141,7 +142,7 @@ public class RuleTest extends GrouperTest {
 
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
 
-    // GrouperSession.startRootSession();
+    // grouperSession = GrouperSession.startRootSession();
     // addMember("stem:a", "test.subject.0");
     // addMember("stem:b", "test.subject.0");
     // delMember("stem:b", "test.subject.0");
@@ -154,37 +155,51 @@ public class RuleTest extends GrouperTest {
    */
   public void testRuleLonghandVeto() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    Group groupA = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
-    Group groupB = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+    Group ruleGroup = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group mustBeInGroup = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
     
-    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
-    AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    //add a rule on stem:a saying if not in stem:b, then dont allow add to stem:a
+    AttributeAssign attributeAssign = ruleGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckOwnerNameName(), "stem:a");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.membershipAdd.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleIfConditionEnumName(), 
-        RuleIfConditionEnum.groupHasNoImmediateEnabledMembership.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleIfOwnerNameName(),
-        "stem:b");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenElName(), 
-        "${ruleElUtils.veto('rule.entity.must.be.a.member.of.stem.b', 'Entity cannot be a member of stem:a if not a member of stem:b')}");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoImmediateEnabledMembership.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfOwnerNameName(), "stem:b");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.a.member.of.stem.b");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be a member of stem:a if not a member of stem:b");
+
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
 
     //count rule firings
     long initialFirings = RuleEngine.ruleFirings;
     
     try {
-      groupA.addMember(SubjectTestHelper.SUBJ0);
+      ruleGroup.addMember(SubjectTestHelper.SUBJ0);
       fail("Should be vetoed");
     } catch (RuleVeto rve) {
       //this is good
@@ -194,8 +209,8 @@ public class RuleTest extends GrouperTest {
 
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
 
-    groupB.addMember(SubjectTestHelper.SUBJ0);
-    groupA.addMember(SubjectTestHelper.SUBJ0);
+    mustBeInGroup.addMember(SubjectTestHelper.SUBJ0);
+    ruleGroup.addMember(SubjectTestHelper.SUBJ0);
     
     assertEquals("Didnt fire since is a member", initialFirings+1, RuleEngine.ruleFirings);
 
@@ -224,7 +239,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -287,7 +302,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -351,7 +366,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -413,7 +428,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -496,7 +511,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -575,35 +590,51 @@ public class RuleTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
 
-    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
 
     groupA.addMember(SubjectTestHelper.SUBJ0);
     
     
-    //add a rule on stem2 saying if you create a group underneath, then assign a reader group
+    //add a rule on stem2 saying if you create a group underneath, then assign a reader and updater group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.groupCreate.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckStemScopeName(),
-        Stem.Scope.SUB.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.assignGroupPrivilegeToGroupId.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), 
-        "g:gsa :::::: stem1:a");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg1Name(), 
-        "read, update");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.groupCreate.name());
     
+    //can be SUB or ONE for if in this folder, or in this and all subfolders
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), Stem.Scope.SUB.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.assignGroupPrivilegeToGroupId.name());
+    
+    //this is the subject string for the subject to assign to
+    //e.g. sourceId :::::: subjectIdentifier
+    //or sourceId :::: subjectId
+    //or :::: subjectId
+    //or sourceId ::::::: subjectIdOrIdentifier
+    //etc
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "g:gsa :::::: stem1:admins");
+    
+    //privileges to assign: read, admin, update, view, optin, optout
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "read, update");
+    
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
     long initialFirings = RuleEngine.ruleFirings;
     
     
@@ -663,27 +694,43 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    
+    //folder where membership was removed
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckOwnerNameName(), "stem2");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), 
         RuleCheckType.membershipRemoveInFolder.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
+
+    //SUB for all descendants, ONE for just children
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckStemScopeName(),
         Stem.Scope.SUB.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    
+    //if there is no more membership in the folder, and there is a membership in the group
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleIfConditionEnumName(), 
         RuleIfConditionEnum.thisGroupAndNotFolderHasImmediateEnabledMembership.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenElName(), 
-        "${ruleElUtils.removeMemberFromGroupId(ownerGroupId, memberId)}");
-    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(),
+        RuleThenEnum.removeMemberFromOwnerGroup.name());
+
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
     long initialFirings = RuleEngine.ruleFirings;
     
     
@@ -753,7 +800,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -843,7 +890,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -907,7 +954,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1204,7 +1251,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1254,7 +1301,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1305,23 +1352,27 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckOwnerNameName(), "stem:b");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.membershipRemove.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipRemove.name());
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleIfConditionEnumName(), 
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenElName(), 
-        "${ruleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, memberId, 7)}");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "7");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "F");
     
     groupB.addMember(SubjectTestHelper.SUBJ0);
   
@@ -1372,7 +1423,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1434,7 +1485,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1494,35 +1545,51 @@ public class RuleTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
   
-    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
   
     groupA.addMember(SubjectTestHelper.SUBJ0);
     
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.stemCreate.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckStemScopeName(),
-        Stem.Scope.SUB.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.assignStemPrivilegeToStemId.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), 
-        "g:gsa :::::: stem1:a");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg1Name(), 
-        "stem, create");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.stemCreate.name());
     
+    //can be SUB or ONE for if should be in all descendants or just on children
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), Stem.Scope.SUB.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.assignStemPrivilegeToStemId.name());
+    
+    //this is the subject string for the subject to assign to
+    //e.g. sourceId :::::: subjectIdentifier
+    //or sourceId :::: subjectId
+    //or :::: subjectId
+    //or sourceId ::::::: subjectIdOrIdentifier
+    //etc
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "g:gsa :::::: stem1:admins");
+    
+    //possible privileges are stem and create
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "stem, create");
+
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+
     long initialFirings = RuleEngine.ruleFirings;
     
     
@@ -1575,7 +1642,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1650,7 +1717,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1703,7 +1770,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1780,7 +1847,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1887,7 +1954,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -1966,34 +2033,50 @@ public class RuleTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
   
-    Group groupA = new GroupSave(grouperSession).assignName("stem1:a").assignCreateParentStemsIfNotExist(true).save();
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
   
     groupA.addMember(SubjectTestHelper.SUBJ0);
     
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+    
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
-    attributeAssign.getAttributeValueDelegate().assignValue(
+    attributeValueDelegate.assignValue(
         RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.attributeDefCreate.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleCheckStemScopeName(),
-        Stem.Scope.SUB.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumName(), 
-        RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId.name());
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg0Name(), 
-        "g:gsa :::::: stem1:a");
-    attributeAssign.getAttributeValueDelegate().assignValue(
-        RuleUtils.ruleThenEnumArg1Name(), 
-        "attrRead,attrUpdate");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.attributeDefCreate.name());
+
+    //can be SUB or ONE for if in this folder, or in this and all subfolders
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckStemScopeName(), Stem.Scope.SUB.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId.name());
+
+    //this is the subject string for the subject to assign to
+    //e.g. sourceId :::::: subjectIdentifier
+    //or sourceId :::: subjectId
+    //or :::: subjectId
+    //or sourceId ::::::: subjectIdOrIdentifier
+    //etc
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "g:gsa :::::: stem1:admins");
+
+    //can be: attrRead, attrUpdate, attrView, attrAdmin, attrOptin, attrOptout
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "attrRead,attrUpdate");
+
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
 
     long initialFirings = RuleEngine.ruleFirings;
      
@@ -2068,7 +2151,7 @@ public class RuleTest extends GrouperTest {
       
       //add a rule on stem2 saying if you create a group underneath, then assign a reader group
       AttributeAssign attributeAssign = stem2
-        .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+        .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
       
       attributeAssign.getAttributeValueDelegate().assignValue(
           RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -2156,7 +2239,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -2221,7 +2304,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -2297,7 +2380,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -2365,7 +2448,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem2 saying if you create a group underneath, then assign a reader group
     AttributeAssign attributeAssign = stem2
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -2427,7 +2510,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -2480,7 +2563,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
@@ -2547,7 +2630,7 @@ public class RuleTest extends GrouperTest {
     
     //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
     AttributeAssign attributeAssign = groupA
-      .getAttributeDelegate().assignAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
     
     attributeAssign.getAttributeValueDelegate().assignValue(
         RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");

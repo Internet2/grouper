@@ -16,6 +16,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.morphString.Morph;
@@ -85,6 +86,10 @@ public class GrouperEmail {
     return this;
   }
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperEmail.class);
+
+  
   /**
    * try an email
    * @param args
@@ -143,17 +148,26 @@ public class GrouperEmail {
       
       String theTo = this.to;
       
+      boolean hasRecipient = false;
+      
       if (!StringUtils.isBlank(theTo)) {
         
         theTo = StringUtils.replace(theTo, ";", ",");
         String[] theTos = GrouperUtil.splitTrim(theTo, ",");
         for (String aTo : theTos) {
           if (!StringUtils.isBlank(aTo) && !StringUtils.equals("null", aTo)) {
+            hasRecipient = true;
             message.addRecipient(RecipientType.TO, new InternetAddress(aTo));
           }
         }
         
       }
+      
+      if (!hasRecipient) {
+        LOG.debug("Cant find recipient for email");
+        return;
+      }
+      
       message.addFrom(new InternetAddress[] { new InternetAddress(theFrom) });
   
       String theSubject = StringUtils.defaultString(subjectPrefix) + this.subject;

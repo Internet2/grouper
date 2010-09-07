@@ -120,7 +120,7 @@ public class RuleCheck {
         && !StringUtils.isBlank(ownerId) && StringUtils.isBlank(ownerName)) {
       
       GrouperSession grouperSession = GrouperSession.startRootSession(false);
-      Stem stem = StemFinder.findByName(grouperSession, ownerId, false);
+      Stem stem = StemFinder.findByUuid(grouperSession, ownerId, false);
       if (stem == null) {
         LOG.error("Cant find stem in rule: " + ownerId);
       } else {
@@ -278,7 +278,7 @@ public class RuleCheck {
     if (!StringUtils.isBlank(this.checkStemScope) 
         && !StringUtils.isBlank(this.checkOwnerId) && StringUtils.isBlank(checkOwnerName)) {
       
-      return "Cant resolve checkOwnerId: " + this.checkOwnerId;
+      return "If you have a checkStemScope, then you need to provide the checkOwnerName, instead of checkOwnerId: " + this.checkOwnerId;
       
     }
     

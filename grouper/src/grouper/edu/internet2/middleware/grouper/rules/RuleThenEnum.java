@@ -32,6 +32,102 @@ import edu.internet2.middleware.subject.Subject;
  */
 public enum RuleThenEnum {
 
+  /** assign a disabled date if there is a membership in this group to the owner group
+   * ${ruleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, memberId, 7)}
+   */
+  assignMembershipDisabledDaysForOwnerGroupId {
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+
+      String days = ruleDefinition.getThen().getThenEnumArg0();
+      int daysInteger = GrouperUtil.intValue(days);
+
+      String addIfNotThere = ruleDefinition.getThen().getThenEnumArg1();
+      boolean addIfNotThereBoolean = GrouperUtil.booleanValue(addIfNotThere);
+      
+      String ownerGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+      if (StringUtils.isBlank(ownerGroupId)) {
+        throw new RuntimeException("Why is ownerGroupId null for rule?");
+      }
+      return RuleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, rulesBean.getMemberId(), daysInteger, addIfNotThereBoolean);
+    }
+    
+    /**
+     * @see RuleThenEnum#validate(RuleDefinition)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      String days = ruleDefinition.getThen().getThenEnumArg0();
+
+      try {
+        GrouperUtil.intValue(days);
+      } catch (Exception e) {
+        return "ruleThenEnumArg0 should be the number of days in the future that the disabled date should be set: " + e.getMessage();
+      }
+      
+      String addIfNotThere = ruleDefinition.getThen().getThenEnumArg1();
+      
+      try {
+        GrouperUtil.booleanValue(addIfNotThere);
+      } catch (Exception e) {
+        return "ruleThenEnumArg1 should be T or F for if the membership in the owner group should be created if not there: " + e.getMessage();
+      }
+
+      return null;
+    }
+    
+  },
+  
+  /** veto the operation (note, must be a transactional check for this to work) */
+  veto {
+
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+
+      //${ruleElUtils.veto('rule.entity.must.be.a.member.of.stem.b', 'Entity cannot be a member of stem:a if not a member of stem:b')}
+      String key = ruleDefinition.getThen().getThenEnumArg0();
+      String message = ruleDefinition.getThen().getThenEnumArg1();
+      throw new RuleVeto(key, message);
+    }
+    
+    /**
+     * @see RuleThenEnum#validate(RuleDefinition)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      String key = ruleDefinition.getThen().getThenEnumArg0();
+      String message = ruleDefinition.getThen().getThenEnumArg1();
+      
+      if (StringUtils.isBlank(key)) {
+        return "ruleThenEnumArg0 is the message key in the UI and is required, e.g. some.key.for.ui.messages.file";
+      }
+      
+      if (StringUtils.isBlank(message)) {
+        return "ruleThenEnumArg1 is the error message";
+      }
+      return null;
+    }
+  },
+  
   /** remove the member (the current one being acted on) from the owner group */
   removeMemberFromOwnerGroup {
 

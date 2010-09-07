@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 
@@ -206,6 +207,39 @@ public class Privilege implements Serializable {
     return ACCESS;
   } // public static Set getAccessPrivs()
 
+  /**
+   * 
+   * @param namesCommaSeparated
+   * @return the privileges
+   */
+  public static Set<Privilege> getInstances(String namesCommaSeparated) {
+    String[] privilegesArray = GrouperUtil.splitTrim(namesCommaSeparated, ",");
+    Set<Privilege> privileges = new LinkedHashSet<Privilege>();
+    for (String privilegeString : privilegesArray) {
+      Privilege privilege = getInstance(privilegeString);
+      privileges.add(privilege);
+    }
+    return privileges;
+  }
+  
+  /**
+   * convert privileges to string comma separated
+   * @param privileges
+   * @return the privileges
+   */
+  public static String stringValue(Set<Privilege> privileges) {
+    StringBuilder result = new StringBuilder();
+    int i=0;
+    for (Privilege privilege : privileges) {
+      result.append(privilege.getName());
+      if (i < privileges.size()-1) {
+        result.append(", ");
+      }
+      i++;
+    }
+    return result.toString();
+  }
+  
   /**
    * 
    * @param name
